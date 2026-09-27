@@ -82,7 +82,7 @@ export default function EditProfile() {
           </AppText>
         </Pressable>
 
-        <TextField label="Display name" value={displayName} onChangeText={setDisplayName} maxLength={40} hint="How your name shows around the app, e.g. “Maya T.”" />
+        <TextField label="Display name" value={displayName} onChangeText={setDisplayName} maxLength={40} hint="How your name shows around the app, e.g. “Alex R.”" />
         <TextField label="Headline" optional value={headline} onChangeText={setHeadline} maxLength={80} placeholder="Howard Alum · Fairfax, VA" />
         <TextField
           label="About you"

@@ -38,6 +38,10 @@ npm run db:test          # database business-rule tests (pgTAP)
 npm run check:contrast   # readability contrast for every theme
 ```
 
+## Deploy (production)
+
+`npm run deploy` (needs `SUPABASE_ACCESS_TOKEN` and `EXPO_TOKEN`), or merge to `main` with the GitHub secrets set. See [`docs/DEPLOY.md`](docs/DEPLOY.md). The live database starts empty and is marked production, so test data can never be loaded into it.
+
 ## Where things live
 
 | Folder | What's in it |
@@ -49,7 +53,7 @@ npm run check:contrast   # readability contrast for every theme
 | `src/config/` | Loads founder-editable config (tiers, plan limits, cities) from the database. |
 | `supabase/migrations/` | Database schema, one numbered file per change. |
 | `supabase/functions/` | Server code. See its README for secrets (Twilio). |
-| `supabase/seed/` | Demo data. **Development only**; refuses to run against a non-local database. |
+| `supabase/seed/` | Test data for local development only. Refuses to run against any non-local or production database; never part of a deploy. |
 | `supabase/tests/` | Database tests for the business rules. |
 
 ## Changing things without code

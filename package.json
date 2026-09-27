@@ -59,7 +59,7 @@
     "db:test": "supabase test db",
     "db:fresh": "supabase db reset && node supabase/seed/run-seed.mjs",
     "db:types": "supabase gen types typescript --local > src/types/database.ts",
-    "deploy:demo": "node scripts/deploy-demo.mjs"
+    "deploy": "node scripts/deploy.mjs"
   },
   "private": true
 }

@@ -1,6 +1,6 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, Share, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
 import { RingDiagram } from '@/components/circles/RingDiagram';
@@ -107,7 +107,7 @@ export default function Circles() {
           Loading…
         </AppText>
       ) : tab === 'circle' ? (
-        <MyCircle circle={circle} card={card} introsMade={intros?.made_count ?? 0} meName={profile?.display_name ?? 'You'} />
+        <MyCircle circle={circle} card={card} introsMade={intros?.made_count ?? 0} meName={profile?.display_name ?? 'You'} inviteCode={profile?.invite_code ?? ''} />
       ) : tab === 'network' ? (
         <Network circle={circle} activity={activity} />
       ) : groups ? (
@@ -129,11 +129,27 @@ export default function Circles() {
   );
 }
 
-function MyCircle({ circle, card, introsMade, meName }: { circle: CircleOverview; card: ProfileCard; introsMade: number; meName: string }) {
+function MyCircle({ circle, card, introsMade, meName, inviteCode }: { circle: CircleOverview; card: ProfileCard; introsMade: number; meName: string; inviteCode: string }) {
   const t = useTheme();
   const router = useRouter();
   return (
     <>
+      {circle.first.length === 0 ? (
+        <Card accent="primary">
+          <View style={{ gap: t.space[2] }}>
+            <AppText weight="bold">Start your circle</AppText>
+            <AppText variant="small" tone="muted">
+              Your circle grows from people you actually know. Share your invite code: when a friend joins with it, you&apos;re connected
+              automatically and you both get a vouch.
+            </AppText>
+            <Button
+              label="Share my invite code"
+              size="md"
+              onPress={() => Share.share({ message: `Join me on I'm In, where trust is earned in real life. Use my invite code ${inviteCode} when you sign up.` })}
+            />
+          </View>
+        </Card>
+      ) : null}
       <RingDiagram
         me={{ id: card.id, display_name: meName, avatar_emoji: card.avatar_emoji, avatar_url: card.avatar_url }}
         first={circle.first}

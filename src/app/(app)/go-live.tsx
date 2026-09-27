@@ -75,7 +75,7 @@ export default function GoLive() {
           Let your circle and network know you&apos;re out tonight. You&apos;ll show up on their Home and a Going Out pin is dropped. It ends
           at 4 AM on its own.
         </AppText>
-        <TextField label="Where to?" optional value={place} onChangeText={setPlace} maxLength={80} placeholder="Founding Farmers, Tysons" />
+        <TextField label="Where to?" optional value={place} onChangeText={setPlace} maxLength={80} placeholder="Restaurant, bar, or neighborhood" />
         <View style={{ gap: t.space[2] }}>
           <AppText variant="small" weight="medium" tone="muted">
             Vibe

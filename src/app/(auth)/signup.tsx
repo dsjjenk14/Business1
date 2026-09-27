@@ -44,7 +44,7 @@ export default function SignUp() {
   const ddRef = useRef<TextInput>(null);
   const yyyyRef = useRef<TextInput>(null);
 
-  // Live invite-code check: "Maya T. invited you ✓"
+  // Live invite-code check: "Alex R. invited you ✓"
   useEffect(() => {
     const code = invite.trim();
     if (code.length < 6) return;

@@ -1,26 +1,26 @@
 #!/usr/bin/env node
 /**
- * One-command deploy of the I'm In DEMO environment.
+ * Production deploy of I'm In.
  *
- *   SUPABASE_ACCESS_TOKEN=… EXPO_TOKEN=… node scripts/deploy-demo.mjs
+ *   SUPABASE_ACCESS_TOKEN=… EXPO_TOKEN=… node scripts/deploy.mjs
  *
- * 1. Finds or creates the Supabase project "imin-demo" (East US).
- * 2. Pushes all database migrations and Edge Functions.
- * 3. Sets login redirect URLs.
- * 4. Loads the demo cast (only into this demo project).
- * 5. Publishes the app to Expo (branch "preview") for Expo Go.
+ * 1. Finds or creates the Supabase project "imin" (East US).
+ * 2. Pushes database migrations and Edge Functions.
+ * 3. Marks the database as PRODUCTION: the demo-data script refuses to run
+ *    against it, and texting "demo mode" (codes shown on screen) is off.
+ * 4. Sets login settings (email confirmation on, app redirect URLs).
+ * 5. Publishes the app to Expo (branch "production").
  *
- * Safe to re-run: it reuses the existing project and only pushes new changes.
- * Pass --no-seed to skip reloading demo data on re-runs.
+ * Never loads demo data. Safe to re-run: it reuses the project and only
+ * pushes new changes.
  */
 import { execSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 
-const PROJECT_NAME = 'imin-demo';
+const PROJECT_NAME = process.env.IMIN_PROJECT_NAME ?? 'imin';
 const REGION = 'us-east-1';
 const API = 'https://api.supabase.com/v1';
 const token = process.env.SUPABASE_ACCESS_TOKEN;
-const skipSeed = process.argv.includes('--no-seed');
 
 if (!token) throw new Error('SUPABASE_ACCESS_TOKEN is not set.');
 if (!process.env.EXPO_TOKEN) console.warn('⚠️  EXPO_TOKEN is not set: the app publish step will be skipped.');
@@ -38,7 +38,7 @@ const run = (cmd, env = {}) => execSync(cmd, { stdio: 'inherit', env: { ...proce
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ── 1. Project ────────────────────────────────────────────────────────────
-let projects = await api('/projects');
+const projects = await api('/projects');
 let project = projects.find((p) => p.name === PROJECT_NAME);
 let dbPassword = process.env.SUPABASE_DB_PASSWORD;
 
@@ -51,7 +51,7 @@ if (!project) {
     method: 'POST',
     body: JSON.stringify({ name: PROJECT_NAME, organization_id: orgs[0].id, region: REGION, db_pass: dbPassword }),
   });
-  console.log(`\n🔑 Database password (save it in a password manager; it can be reset in the dashboard):\n   ${dbPassword}\n`);
+  console.log(`\n🔑 Database password. Save it in a password manager now (it can be reset in the dashboard):\n   ${dbPassword}\n`);
 }
 const ref = project.id ?? project.ref;
 
@@ -70,13 +70,8 @@ if (!dbPassword) {
 }
 run(`npx supabase link --project-ref ${ref}`, { SUPABASE_DB_PASSWORD: dbPassword });
 run('npx supabase db push --include-all', { SUPABASE_DB_PASSWORD: dbPassword });
+run(`npx supabase secrets set IMIN_ENV=production --project-ref ${ref}`);
 run(`npx supabase functions deploy --project-ref ${ref}`);
-
-// ── 3. Auth redirect URLs ─────────────────────────────────────────────────
-await api(`/projects/${ref}/config/auth`, {
-  method: 'PATCH',
-  body: JSON.stringify({ site_url: 'imin://', uri_allow_list: 'imin://**,exp://**' }),
-});
 
 // ── Keys ─────────────────────────────────────────────────────────────────
 const keys = await api(`/projects/${ref}/api-keys?reveal=true`);
@@ -85,21 +80,21 @@ const service = keys.find((k) => k.name === 'service_role')?.api_key ?? keys.fin
 const url = `https://${ref}.supabase.co`;
 if (!anon || !service) throw new Error('Could not read the project API keys.');
 
-// ── 4. Demo data ─────────────────────────────────────────────────────────
-if (!skipSeed) {
-  const { count } = await fetch(`${url}/rest/v1/profiles?select=id`, {
-    headers: { apikey: service, Authorization: `Bearer ${service}`, Prefer: 'count=exact', Range: '0-0' },
-  }).then(async (r) => ({ count: Number(r.headers.get('content-range')?.split('/')[1] ?? 0) }));
-  if (count === 0) run('node supabase/seed/run-seed.mjs', { SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: service, SEED_ALLOW_REMOTE: 'yes' });
-  else console.log(`Demo data already loaded (${count} members); skipping seed.`);
-}
+// ── 3. Mark as production ─────────────────────────────────────────────────
+run('node scripts/mark-production.mjs', { SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: service });
+
+// ── 4. Login settings ─────────────────────────────────────────────────────
+await api(`/projects/${ref}/config/auth`, {
+  method: 'PATCH',
+  body: JSON.stringify({ site_url: 'imin://', uri_allow_list: 'imin://**,exp://**', mailer_autoconfirm: false }),
+});
 
 // ── 5. App ───────────────────────────────────────────────────────────────
 if (process.env.EXPO_TOKEN) {
   const appEnv = { EXPO_PUBLIC_SUPABASE_URL: url, EXPO_PUBLIC_SUPABASE_ANON_KEY: anon };
   run('npx eas-cli@latest init --non-interactive --force', appEnv);
   run('npx eas-cli@latest update:configure --platform all --non-interactive', appEnv);
-  run('npx eas-cli@latest update --branch preview --message "Demo deploy" --non-interactive', appEnv);
+  run('npx eas-cli@latest update --branch production --message "Production deploy" --non-interactive', appEnv);
 }
 
-console.log(`\n✅ Deployed.\n   Supabase: https://supabase.com/dashboard/project/${ref}\n   App: open expo.dev → imin → Updates → preview → scan the QR code with Expo Go.\n   Demo login: dom@imin.test / ImIn-demo-2026`);
+console.log(`\n✅ Deployed (no demo data).\n   Supabase: https://supabase.com/dashboard/project/${ref}\n   App: expo.dev → imin → Updates → production → scan the QR code with Expo Go.`);

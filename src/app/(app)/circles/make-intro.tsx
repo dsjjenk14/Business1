@@ -119,7 +119,7 @@ export default function MakeIntro() {
           onChangeText={setMessage}
           multiline
           maxLength={500}
-          placeholder="You're both Bresca regulars and love a long dinner…"
+          placeholder="You both love a long dinner and a good playlist…"
           style={{ minHeight: 96, textAlignVertical: 'top', paddingTop: 12 }}
           hint="Both people see this."
         />

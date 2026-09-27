@@ -9,7 +9,9 @@
 #   SUPABASE_DB_PASSWORD    The database password chosen when the project was created
 #   SUPABASE_URL            Supabase project → Settings → API → Project URL
 #   SUPABASE_ANON_KEY       Supabase project → Settings → API → anon / publishable key
+#   SUPABASE_SERVICE_ROLE_KEY  Supabase project → Settings → API → service_role / secret key
 #   EXPO_TOKEN              expo.dev → Account settings → Access tokens
+# Never loads demo data: the database is marked production on every deploy.
 # See docs/DEPLOY.md for the step-by-step.
 name: Deploy
 
@@ -39,8 +41,15 @@ jobs:
       - run: npx supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_ID }}"
       - name: Apply database migrations
         run: npx supabase db push --include-all
+      - name: Production settings (texting demo mode off)
+        run: npx supabase secrets set IMIN_ENV=production --project-ref "${{ secrets.SUPABASE_PROJECT_ID }}"
       - name: Deploy Edge Functions
         run: npx supabase functions deploy --project-ref "${{ secrets.SUPABASE_PROJECT_ID }}"
+      - name: Mark database as production (blocks demo data)
+        run: node scripts/mark-production.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
   app:
     name: Publish app update (Expo)
@@ -61,5 +70,5 @@ jobs:
         run: npx eas-cli@latest init --non-interactive --force
       - name: Configure updates
         run: npx eas-cli@latest update:configure --platform all --non-interactive
-      - name: Publish update to the "preview" branch
-        run: npx eas-cli@latest update --branch preview --message "${{ github.event.head_commit.message || 'Manual deploy' }}" --non-interactive
+      - name: Publish update to the "production" branch
+        run: npx eas-cli@latest update --branch production --message "${{ github.event.head_commit.message || 'Manual deploy' }}" --non-interactive
