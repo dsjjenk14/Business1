@@ -71,6 +71,14 @@ export type FeedPerson = {
   distance_mi: number | null;
   lat: number | null;
   lng: number | null;
+  /** Set when they tapped "I'm here" (only shown for you and people you know). */
+  here_since: string | null;
+  /** Your own post only: when "Here now" lapses unless you tap "Still here". */
+  live_until: string | null;
+  open_to_join: boolean;
+  heading_count: number;
+  joined_here_count: number;
+  my_join: 'heading' | 'here' | null;
 };
 
 export type FeedEvent = {
@@ -183,4 +191,30 @@ export async function fetchVenue(id: number) {
   const { data, error } = await supabase.rpc('venue_detail', { p_venue: id });
   if (error) throw error;
   return data as unknown as VenueDetail | null;
+}
+
+// ── I'm Out (live) ──────────────────────────────────────────────────────────
+export async function imHere(coords?: { lat: number; lng: number } | null) {
+  const { data, error } = await supabase.rpc('im_here', { p_lat: coords?.lat ?? undefined, p_lng: coords?.lng ?? undefined });
+  if (error) throw error;
+  return data as string;
+}
+
+export async function joinGoingOut(postId: number, status: 'heading' | 'here' | null) {
+  // null cancels (sent as SQL null; leaving it out would mean the default, 'heading').
+  const { error } = await supabase.rpc('join_going_out', { p_post: postId, p_status: status as 'heading' });
+  if (error) throw error;
+}
+
+export async function setOpenToJoin(postId: number, open: boolean) {
+  const { error } = await supabase.rpc('set_open_to_join', { p_post: postId, p_open: open });
+  if (error) throw error;
+}
+
+export type Company = { user_id: string; display_name: string; avatar_url: string | null; status: 'heading' | 'here'; updated_at: string };
+
+export async function fetchCompany(postId: number) {
+  const { data, error } = await supabase.rpc('my_going_out_company', { p_post: postId });
+  if (error) throw error;
+  return (data ?? []) as Company[];
 }

@@ -1,20 +1,29 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Platform, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Switch, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
 import { DateTimeChips, upcomingDays } from '@/components/tonight/DateTimeChips';
 import { VenuePicker, type PlaceChoice } from '@/components/tonight/VenuePicker';
 import { AppText, Button, Chip, Screen, Segmented, TextField, useToast } from '@/components/ui';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
-import { VIBES, deleteGoingOut, postGoingOut, type GoingOutWhen } from '@/features/tonight/api';
+import { VIBES, deleteGoingOut, postGoingOut, setOpenToJoin, type GoingOutWhen } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
 import { goBackOr } from '@/lib/navigation';
 import { friendlyError, supabase } from '@/lib/supabase';
 import { dayTime, marketDate, marketDayKey } from '@/lib/time';
 import { useTheme } from '@/theme';
 
-type Existing = { id: number; when_kind: GoingOutWhen; starts_at: string; place: string | null; venue_id: number | null; vibes: string[]; note: string | null };
+type Existing = {
+  id: number;
+  when_kind: GoingOutWhen;
+  starts_at: string;
+  place: string | null;
+  venue_id: number | null;
+  vibes: string[];
+  note: string | null;
+  open_to_join: boolean;
+};
 
 /**
  * "I'm Going Out": tonight, this weekend, or a specific time. Shows on the
@@ -33,6 +42,7 @@ export default function PostGoingOut() {
   const [place, setPlace] = useState<PlaceChoice>({ venueId: null, text: '' });
   const [vibes, setVibes] = useState<string[]>([]);
   const [note, setNote] = useState('');
+  const [openToJoin, setOpenToJoinState] = useState(true);
   const [day, setDay] = useState<string | null>(null);
   const [minutes, setMinutes] = useState<number | null>(null);
   const [existing, setExisting] = useState<Existing[]>([]);
@@ -55,7 +65,7 @@ export default function PostGoingOut() {
     if (!me) return;
     supabase
       .from('going_out_posts')
-      .select('id, when_kind, starts_at, place_text, venue_id, vibes, note, venues(name)')
+      .select('id, when_kind, starts_at, place_text, venue_id, vibes, note, open_to_join, venues(name)')
       .eq('user_id', me)
       .gt('expires_at', new Date().toISOString())
       .order('starts_at')
@@ -68,6 +78,7 @@ export default function PostGoingOut() {
           venue_id: r.venue_id,
           vibes: r.vibes,
           note: r.note,
+          open_to_join: r.open_to_join,
         }));
         setExisting(rows);
         const tonight = rows.find((r) => r.when_kind === 'tonight');
@@ -75,6 +86,7 @@ export default function PostGoingOut() {
           setPlace({ venueId: tonight.venue_id, text: tonight.place ?? '' });
           setVibes(tonight.vibes);
           setNote(tonight.note ?? '');
+          setOpenToJoinState(tonight.open_to_join);
         }
       });
   }, [me, params.when]);
@@ -90,7 +102,7 @@ export default function PostGoingOut() {
   async function submit() {
     setBusy(true);
     try {
-      await postGoingOut({
+      const postId = await postGoingOut({
         when,
         // Weekend with just a day: 7 PM that day (or now, if that's already passed).
         startsAt: when === 'weekend' && day && minutes == null ? new Date(Math.max(marketDate(day, 19 * 60).getTime(), Date.now())) : startsAt,
@@ -101,6 +113,7 @@ export default function PostGoingOut() {
         lat: location?.lat,
         lng: location?.lng,
       });
+      if (!openToJoin) await setOpenToJoin(postId, false);
       toast(when === 'tonight' ? "You're on the Tonight feed" : 'Your plans are posted');
       goBackOr(router, '/tonight');
     } catch (e) {
@@ -132,7 +145,7 @@ export default function PostGoingOut() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <BackHeader title="I'm Going Out" />
+      <BackHeader title="I'm Out" />
       <Screen contentGap={t.space[5]}>
         {existing.length ? (
           <View style={{ gap: t.space[2] }}>
@@ -222,10 +235,25 @@ export default function PostGoingOut() {
           </View>
         </View>
 
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+          <View style={{ flex: 1 }}>
+            <AppText weight="bold">Let people I know join me</AppText>
+            <AppText variant="caption" tone="muted">
+              Your circle and network can tap Join so you know they&apos;re coming.
+            </AppText>
+          </View>
+          <Switch
+            accessibilityLabel="Let people I know join me"
+            value={openToJoin}
+            onValueChange={setOpenToJoinState}
+            trackColor={{ true: t.colors.trust, false: t.colors.surfaceAlt }}
+          />
+        </View>
+
         <TextField label="Say something" optional value={note} onChangeText={setNote} maxLength={200} placeholder="Flying solo, come find me." />
-        <Button label={when === 'tonight' ? 'Post to Tonight Feed' : 'Post my plans'} onPress={submit} loading={busy} disabled={!canPost} />
+        <Button label={when === 'tonight' ? "I'm Out Tonight" : 'Post my plans'} onPress={submit} loading={busy} disabled={!canPost} />
         <AppText variant="caption" tone="subtle">
-          Your location is shared approximately, never exactly. Tonight posts end at 4 AM on their own. Hide your venue any time in Privacy
+          Your location is shared approximately, never exactly. Only people you know see when you tap I&apos;m here. Tonight posts end at 4 AM on their own. Hide your venue any time in Privacy
           settings.
         </AppText>
       </Screen>

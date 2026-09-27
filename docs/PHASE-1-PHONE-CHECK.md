@@ -15,7 +15,7 @@ Open the app in **Expo Go** on your iPhone, then go down the list. Anything that
 - [ ] Forgot password: you should get the email (check spam).
 
 ## Phase 2 additions
-- [ ] Home: tap **Go Live**, add a place, then check you show on Tonight and a Going Out pin appears in Pins.
+- [ ] Home: tap **I'm Out**, add a place, then check you show on Tonight and a Going Out pin appears in Pins.
 - [ ] Pins → Nearby: allow location when asked. Pins show "~X mi away". Drag the radius slider.
 - [ ] Pins → They're In: pins from other cities show city names.
 - [ ] Like, bookmark, and share a pin. Share should open the iPhone share sheet.

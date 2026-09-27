@@ -13,6 +13,7 @@ export function PersonRow({
   vouches,
   right,
   ring,
+  extra,
 }: {
   id: string;
   name: string;
@@ -21,6 +22,8 @@ export function PersonRow({
   vouches?: number | null;
   right?: React.ReactNode;
   ring?: 'trust' | 'primary' | 'ai' | null;
+  /** Extra line under the detail (e.g. a live status). */
+  extra?: React.ReactNode;
 }) {
   const t = useTheme();
   const router = useRouter();
@@ -42,6 +45,7 @@ export function PersonRow({
               {detail}
             </AppText>
           ) : null}
+          {extra}
         </View>
       </Pressable>
       {right}
