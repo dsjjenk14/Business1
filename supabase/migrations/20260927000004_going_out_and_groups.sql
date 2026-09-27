@@ -55,12 +55,12 @@ create table public.group_join_requests (
 );
 create unique index group_join_requests_one_pending on public.group_join_requests (group_id, user_id) where status = 'pending';
 
-create or replace function public.is_group_member(p_group bigint, p_user uuid)
+create or replace function private.is_group_member(p_group bigint, p_user uuid)
 returns boolean language sql stable security definer set search_path = '' as $$
   select exists (select 1 from public.group_members where group_id = p_group and user_id = p_user)
 $$;
 
-create or replace function public.is_group_admin(p_group bigint, p_user uuid)
+create or replace function private.is_group_admin(p_group bigint, p_user uuid)
 returns boolean language sql stable security definer set search_path = '' as $$
   select exists (select 1 from public.group_members
                  where group_id = p_group and user_id = p_user and role in ('owner', 'admin'))
@@ -140,7 +140,7 @@ create policy "verified members create groups" on public.groups for insert to au
     and exists (select 1 from public.profiles where id = auth.uid() and photo_verified_at is not null)
   );
 create policy "group admins edit" on public.groups for update to authenticated
-  using (public.is_group_admin(id, auth.uid())) with check (public.is_group_admin(id, auth.uid()));
+  using (private.is_group_admin(id, auth.uid())) with check (private.is_group_admin(id, auth.uid()));
 
 create policy "memberships readable" on public.group_members for select to authenticated using (true);
 create policy "join open groups" on public.group_members for insert to authenticated
@@ -149,19 +149,19 @@ create policy "join open groups" on public.group_members for insert to authentic
     and exists (select 1 from public.groups g where g.id = group_id and g.join_type = 'open')
   );
 create policy "leave a group" on public.group_members for delete to authenticated
-  using (user_id = auth.uid() or public.is_group_admin(group_id, auth.uid()));
+  using (user_id = auth.uid() or private.is_group_admin(group_id, auth.uid()));
 
 create policy "see own and managed join requests" on public.group_join_requests for select to authenticated
-  using (user_id = auth.uid() or public.is_group_admin(group_id, auth.uid()));
+  using (user_id = auth.uid() or private.is_group_admin(group_id, auth.uid()));
 create policy "ask to join" on public.group_join_requests for insert to authenticated
   with check (user_id = auth.uid() and status = 'pending');
 create policy "admins review requests" on public.group_join_requests for update to authenticated
-  using (public.is_group_admin(group_id, auth.uid())) with check (public.is_group_admin(group_id, auth.uid()));
+  using (private.is_group_admin(group_id, auth.uid())) with check (private.is_group_admin(group_id, auth.uid()));
 
 create policy "events readable" on public.events for select to authenticated
   using (not private.is_blocked(auth.uid(), host_id));
 create policy "host events" on public.events for insert to authenticated
-  with check (host_id = auth.uid() and (group_id is null or public.is_group_admin(group_id, auth.uid())));
+  with check (host_id = auth.uid() and (group_id is null or private.is_group_admin(group_id, auth.uid())));
 create policy "edit own events" on public.events for update to authenticated
   using (host_id = auth.uid()) with check (host_id = auth.uid());
 
