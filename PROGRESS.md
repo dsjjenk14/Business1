@@ -35,11 +35,7 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 ---
 
 ## Needed from Dominique
-1. **Phone test (about 5 minutes).** To open the app on your iPhone, it needs to talk to an online database, not the one inside my cloud session. That means two free accounts:
-   - a **Supabase** project (supabase.com, free tier)
-   - an **Expo** account (expo.dev, free)
-
-   Then I can publish a build you open in the Expo Go app. The test checklist is in `docs/PHASE-1-PHONE-CHECK.md`.
+1. **Phone test.** Accounts are created and connected to GitHub. Remaining: add the secrets in GitHub (see `docs/DEPLOY.md`, about 15 minutes), then say the word and I'll open the pull request to `main`. Merging it deploys everything. After that, go through `docs/PHASE-1-PHONE-CHECK.md`.
 2. **Twilio account** for real texts: Account SID, Auth Token, and a phone number (about $1/month plus about $0.01 per text). Until then, texting runs in demo mode.
 
 ---
