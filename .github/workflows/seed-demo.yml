@@ -1,0 +1,30 @@
+# Loads the demo cast (Dominique, Maya, Jordan…) into a DEMO Supabase project.
+# Manual only (Actions tab → "Load demo data" → Run workflow). Never run this on
+# the real production project: the seed refuses if app_config.environment = 'production'.
+#
+# Extra secret needed: SUPABASE_SERVICE_ROLE_KEY (Supabase → Settings → API → service_role / secret key).
+name: Load demo data
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type DEMO to confirm this is the demo project, not production'
+        required: true
+
+jobs:
+  seed:
+    if: ${{ github.event.inputs.confirm == 'DEMO' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node supabase/seed/run-seed.mjs
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SEED_ALLOW_REMOTE: 'yes'

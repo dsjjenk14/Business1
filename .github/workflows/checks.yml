@@ -1,0 +1,34 @@
+# Runs on every push and pull request: the same checks that are run by hand after each phase.
+name: Checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  app:
+    name: Typecheck, lint, theme contrast
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: python3 scripts/check-contrast.py
+
+  database:
+    name: Database rules (pgTAP)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx supabase start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,supavisor,realtime
+      - run: npx supabase test db

@@ -1,0 +1,65 @@
+# Deploys I'm In whenever main changes (or when run by hand from the Actions tab).
+#
+#  1. Supabase: applies new database migrations and deploys Edge Functions.
+#  2. App: publishes an over-the-air update you open on your phone in Expo Go.
+#
+# Needs these repository secrets (Settings → Secrets and variables → Actions):
+#   SUPABASE_ACCESS_TOKEN   Supabase → Account → Access Tokens
+#   SUPABASE_PROJECT_ID     Supabase project → Settings → General → Project ID
+#   SUPABASE_DB_PASSWORD    The database password chosen when the project was created
+#   SUPABASE_URL            Supabase project → Settings → API → Project URL
+#   SUPABASE_ANON_KEY       Supabase project → Settings → API → anon / publishable key
+#   EXPO_TOKEN              expo.dev → Account settings → Access tokens
+# See docs/DEPLOY.md for the step-by-step.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  supabase:
+    name: Database + Edge Functions
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_ID }}"
+      - name: Apply database migrations
+        run: npx supabase db push --include-all
+      - name: Deploy Edge Functions
+        run: npx supabase functions deploy --project-ref "${{ secrets.SUPABASE_PROJECT_ID }}"
+
+  app:
+    name: Publish app update (Expo)
+    needs: supabase
+    runs-on: ubuntu-latest
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Link the Expo project (creates it on first run)
+        run: npx eas-cli@latest init --non-interactive --force
+      - name: Configure updates
+        run: npx eas-cli@latest update:configure --platform all --non-interactive
+      - name: Publish update to the "preview" branch
+        run: npx eas-cli@latest update --branch preview --message "${{ github.event.head_commit.message || 'Manual deploy' }}" --non-interactive

@@ -413,3 +413,16 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+# ── I'm In Edge Functions ─────────────────────────────────────────────────
+# These check the caller themselves (or are public by design, like phone login),
+# so the gateway's JWT check is off. That also keeps them working with Supabase's
+# newer publishable keys, which aren't JWTs.
+[functions.auth-phone-login]
+verify_jwt = false
+
+[functions.phone-verify-start]
+verify_jwt = false
+
+[functions.phone-verify-check]
+verify_jwt = false
