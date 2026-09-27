@@ -13,7 +13,8 @@ const res = await fetch(`${url}/rest/v1/app_config?on_conflict=key`, {
   method: 'POST',
   headers: {
     apikey: key,
-    Authorization: `Bearer ${key}`,
+    // New-style secret keys (sb_secret_…) go in the apikey header only.
+    ...(key.startsWith('sb_') ? {} : { Authorization: `Bearer ${key}` }),
     'Content-Type': 'application/json',
     Prefer: 'resolution=merge-duplicates,return=minimal',
   },

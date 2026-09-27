@@ -38,17 +38,17 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_ID }}"
+      - run: npx supabase link --project-ref "${{ secrets.SUPABASE_PROJECT_ID || 'yscrfhaedexogvegbvzm' }}"
       - name: Apply database migrations
         run: npx supabase db push --include-all
       - name: Production settings (texting demo mode off)
-        run: npx supabase secrets set IMIN_ENV=production --project-ref "${{ secrets.SUPABASE_PROJECT_ID }}"
+        run: npx supabase secrets set IMIN_ENV=production --project-ref "${{ secrets.SUPABASE_PROJECT_ID || 'yscrfhaedexogvegbvzm' }}"
       - name: Deploy Edge Functions
-        run: npx supabase functions deploy --project-ref "${{ secrets.SUPABASE_PROJECT_ID }}"
+        run: npx supabase functions deploy --project-ref "${{ secrets.SUPABASE_PROJECT_ID || 'yscrfhaedexogvegbvzm' }}"
       - name: Mark database as production (blocks demo data)
         run: node scripts/mark-production.mjs
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://yscrfhaedexogvegbvzm.supabase.co' }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
   app:
@@ -57,8 +57,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://yscrfhaedexogvegbvzm.supabase.co' }}
+      EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY || 'sb_publishable__-ErdDTF4PkiFSicYba6PQ_FgE5Zmgn' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

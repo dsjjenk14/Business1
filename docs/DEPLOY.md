@@ -28,16 +28,15 @@ Nothing to create. The first deploy creates the Expo project for you.
 
 ## Step 3: Add the secrets to GitHub
 
+The project ID, URL and publishable key for project `yscrfhaedexogvegbvzm` are already in the deploy setup (they're public), so only 4 secrets are needed.
+
 In GitHub, open **dsjjenk14/Business1 → Settings → Secrets and variables → Actions → New repository secret**, and add each of these:
 
 | Name | Where to find it |
 |---|---|
 | `SUPABASE_ACCESS_TOKEN` | supabase.com → your avatar (top right) → **Account preferences → Access Tokens → Generate new token** |
-| `SUPABASE_PROJECT_ID` | Your project → **Project Settings → General → Project ID** (looks like `abcdefghijklmnop`) |
 | `SUPABASE_DB_PASSWORD` | The password you saved in Step 1 |
-| `SUPABASE_URL` | Project → **Project Settings → API** (or **Data API**) → Project URL (`https://….supabase.co`) |
-| `SUPABASE_ANON_KEY` | Project → **Project Settings → API Keys** → the **anon** or **publishable** key (safe to put in the app) |
-| `SUPABASE_SERVICE_ROLE_KEY` | Same page → **service_role** or **secret** key. ⚠️ Powerful: only ever goes in GitHub secrets. Used to mark the database as production. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Project → **Project Settings → API Keys** → the **secret** key (`sb_secret_…`, tap Reveal). ⚠️ Powerful: only ever goes in GitHub secrets. Used to mark the database as production. |
 | `EXPO_TOKEN` | expo.dev → your avatar → **Account settings → Access tokens → Create token** |
 
 ## Step 4: Deploy
