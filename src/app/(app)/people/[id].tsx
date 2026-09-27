@@ -8,6 +8,7 @@ import { AppText, Button, Screen, useToast } from '@/components/ui';
 import { fetchFeed, type FeedPin } from '@/features/pins/api';
 import { fetchProfileCard, type ProfileCard } from '@/features/profiles/api';
 import { blockUser } from '@/features/safety/api';
+import { fetchMessageStatus, openDirectChat } from '@/features/chat/api';
 import { goBackOr } from '@/lib/navigation';
 import { friendlyError } from '@/lib/supabase';
 import { useAppConfig } from '@/config/useAppConfig';
@@ -23,6 +24,8 @@ export default function PersonProfile() {
   const [card, setCard] = useState<ProfileCard | null | undefined>(undefined);
   const [pins, setPins] = useState<FeedPin[]>([]);
   const [confirmBlock, setConfirmBlock] = useState(false);
+  const [opening, setOpening] = useState(false);
+  const [exchanges, setExchanges] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -35,6 +38,11 @@ export default function PersonProfile() {
         }
         setCard(c);
         setPins(p);
+        if (c && c.degree === 1 && !c.can_message) {
+          fetchMessageStatus(c.id)
+            .then((m) => !cancelled && setExchanges(m.exchanges))
+            .catch(() => undefined);
+        }
       })
       .catch(() => !cancelled && setCard(null));
     return () => {
@@ -74,8 +82,18 @@ export default function PersonProfile() {
             variant="secondary"
             size="md"
             style={{ flex: 1 }}
-            disabled={!card.can_message}
-            onPress={() => toast('Chats open in Phase 5')}
+            disabled={!card.can_message || opening}
+            onPress={async () => {
+              setOpening(true);
+              try {
+                const conv = await openDirectChat(card.id);
+                router.push({ pathname: '/chat/[id]', params: { id: String(conv) } });
+              } catch (e) {
+                toast(friendlyError(e));
+              } finally {
+                setOpening(false);
+              }
+            }}
           />
         ) : card.degree === 2 ? (
           <Button
@@ -89,7 +107,8 @@ export default function PersonProfile() {
       </View>
       {card.degree === 1 && !card.can_message ? (
         <AppText variant="caption" tone="subtle" align="center">
-          Messaging unlocks after {needed} back-and-forths with {first} on Pins. Premium skips the wait.
+          Messaging unlocks after {needed} back-and-forths with {first} on Pins
+          {exchanges != null ? ` (${Math.min(exchanges, needed)} of ${needed} so far)` : ''}. Premium skips the wait.
         </AppText>
       ) : null}
       {card.degree === 2 ? (

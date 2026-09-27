@@ -37,7 +37,8 @@ const GROUPS: { title: string; items: Item[] }[] = [
     title: 'You',
     items: [
       { label: 'My Profile', icon: 'person-outline', href: '/profile' },
-      { label: 'Safety & Check In', icon: 'shield-checkmark-outline', soon: 5 },
+      { label: "I'm On a Date", icon: 'heart-outline', href: '/date-mode' },
+      { label: 'Safety & Check In', icon: 'shield-checkmark-outline', href: '/safety' },
       { label: 'Appearance', icon: 'color-palette-outline', href: '/settings/appearance' },
       { label: 'Settings', icon: 'settings-outline', href: '/settings' },
     ],

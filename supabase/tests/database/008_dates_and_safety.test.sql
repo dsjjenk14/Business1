@@ -2,7 +2,7 @@
 -- Date Mode (1-mile verification), check-ins, trusted contacts, help alerts.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(30);
+select plan(31);
 
 create or replace function pg_temp.new_user(p_email text, p_name text) returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();
@@ -57,6 +57,7 @@ select is((select date_request_detail(id)->>'label' from date_requests where to_
 select lives_ok($$ select counter_date_request((select id from date_requests where to_id = pg_temp.uid('bo') and status = 'pending'), 'tonight', p_place => 'Songbyrd') $$,
   'Suggest a different time');
 select is((select status::text from date_requests where to_id = pg_temp.uid('bo') and place_text = 'Tail Up Goat'), 'countered', 'The original is marked countered');
+select is((select place_text from date_requests where to_id = pg_temp.uid('ana') and status = 'pending'), 'Songbyrd', 'The suggestion''s new spot is used');
 select pg_temp.act_as('ana');
 select is(respond_date_request((select id from date_requests where to_id = pg_temp.uid('ana') and status = 'pending'), true), 'accepted', 'The counter is accepted');
 select pg_temp.admin();

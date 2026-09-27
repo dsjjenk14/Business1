@@ -2,12 +2,14 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 
+import { DateStrip } from '@/components/home/DateStrip';
 import { GoingOutStrip } from '@/components/home/GoingOutStrip';
 import { TonightPickCard } from '@/components/home/TonightPickCard';
 import { VouchCard } from '@/components/home/VouchCard';
 import { PinCard } from '@/components/pins/PinCard';
 import { AppText, Card, Screen, Section, useToast } from '@/components/ui';
 import { useFirstWeekChecklist } from '@/features/onboarding/useFirstWeekChecklist';
+import { fetchDateMode, fetchMyDates, type DateModeStatus, type MyDate } from '@/features/dates/api';
 import { fetchFeed, type FeedPin } from '@/features/pins/api';
 import { fetchTonightNetwork, fetchTonightPick, rsvp, type TonightPerson, type TonightPick } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
@@ -39,6 +41,8 @@ export default function Home() {
   const [networkPins, setNetworkPins] = useState<FeedPin[] | null>(null);
   const [pick, setPick] = useState<TonightPick | null>(null);
   const [rsvpd, setRsvpd] = useState(false);
+  const [dateMode, setDateMode] = useState<DateModeStatus | null>(null);
+  const [dates, setDates] = useState<MyDate[]>([]);
 
   // First-week checklist pops up once after first login, until dismissed.
   useEffect(() => {
@@ -51,12 +55,20 @@ export default function Home() {
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
-      Promise.all([fetchTonightNetwork(), fetchFeed({ mode: 'network', limit: 2 }), fetchTonightPick()])
-        .then(([people, pins, p]) => {
+      Promise.all([
+        fetchTonightNetwork(),
+        fetchFeed({ mode: 'network', limit: 2 }),
+        fetchTonightPick(),
+        fetchDateMode().catch(() => null),
+        fetchMyDates().catch(() => []),
+      ])
+        .then(([people, pins, p, mode, d]) => {
           if (cancelled) return;
           setTonight(people);
           setNetworkPins(pins);
           setPick(p);
+          setDateMode(mode);
+          setDates(d);
           setRsvpd(false);
         })
         .catch(() => {});
@@ -93,6 +105,8 @@ export default function Home() {
       </View>
 
       <GoingOutStrip people={tonight} amLive={amLive} />
+
+      <DateStrip mode={dateMode} dates={dates} />
 
       <VouchCard vouchCount={profile?.vouch_count ?? 0} onPress={() => router.push('/profile')} />
 

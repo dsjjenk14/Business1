@@ -5,7 +5,7 @@ import { FlatList, KeyboardAvoidingView, Platform, Pressable, TextInput, View } 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Avatar, useToast } from '@/components/ui';
+import { AppText, Avatar, Glyph, useToast } from '@/components/ui';
 import { fetchConversation, fetchMessages, markRead, sendMessage, subscribeToMessages, type ChatMessage, type ConversationInfo } from '@/features/chat/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
@@ -100,12 +100,24 @@ export default function Chat() {
   }
 
   const members = new Map((info?.members ?? []).map((m) => [m.id, m]));
+  const other = info?.kind === 'direct' ? info.members.find((m) => m.id !== me) : undefined;
   // Newest at the bottom: the list is inverted, so feed it newest-first.
   const data = [...messages].reverse();
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <BackHeader title={info ? info.title : 'Chat'} />
+      {other ? (
+        <Pressable
+          accessibilityRole="link"
+          accessibilityLabel={`${other.display_name}'s profile`}
+          onPress={() => router.push({ pathname: '/people/[id]', params: { id: other.id } })}
+          style={{ alignItems: 'center', paddingBottom: t.space[1] }}>
+          <AppText variant="caption" tone="subtle">
+            View profile
+          </AppText>
+        </Pressable>
+      ) : null}
       {info === null ? (
         <AppText tone="muted" align="center" style={{ padding: t.space[6] }}>
           This chat isn&apos;t available.
@@ -195,6 +207,30 @@ export default function Chat() {
               );
             }}
           />
+          {info?.kind === 'direct' && other ? (
+            <View style={{ paddingHorizontal: t.space[4], paddingTop: t.space[2], flexDirection: 'row' }}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Ask ${other.display_name} on a date`}
+                onPress={() => router.push({ pathname: '/dates/new', params: { to: other.id } })}
+                style={({ pressed }) => ({
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 6,
+                  paddingHorizontal: t.space[3],
+                  minHeight: 36,
+                  borderRadius: t.radius.pill,
+                  borderWidth: t.borderWidth.regular,
+                  borderColor: t.colors.primary,
+                  opacity: pressed ? 0.7 : 1,
+                })}>
+                <Glyph name="heart" size={16} tone="primary" strokeWidth={2} />
+                <AppText variant="small" weight="bold" tone="primary">
+                  Ask on a Date
+                </AppText>
+              </Pressable>
+            </View>
+          ) : null}
           <View
             style={{
               flexDirection: 'row',

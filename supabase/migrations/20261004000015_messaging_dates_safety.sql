@@ -152,7 +152,10 @@ begin
   update public.date_requests set status = 'countered', responded_at = now() where id = r.id;
   insert into public.date_requests (from_id, to_id, when_kind, starts_at, vibe, venue_id, place_text, note, parent_id)
   values (me, r.from_id, p_when, case when p_when = 'specific' then p_starts_at end,
-          coalesce(p_vibe, r.vibe), p_venue_id, case when p_venue_id is null then nullif(trim(p_place), '') end,
+          coalesce(p_vibe, r.vibe),
+          -- Keep the original spot unless a new one is suggested.
+          case when p_venue_id is not null then p_venue_id when nullif(trim(p_place), '') is not null then null else r.venue_id end,
+          case when p_venue_id is not null then null else coalesce(nullif(trim(p_place), ''), case when r.venue_id is null then r.place_text end) end,
           nullif(trim(p_note), ''), r.id)
   returning * into n;
   perform private.notify(r.from_id, 'date_counter', (select display_name from public.profiles where id = me) || ' suggested a different time',

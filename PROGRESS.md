@@ -1,7 +1,61 @@
 # I'm In: Progress
 
 ## Status
-**Current phase:** Phase 4 (Going out) is done. Next is Phase 5 (messaging, dates and safety). See `docs/LAUNCH-CHECKLIST.md` for what's needed before launch.
+**Current phase:** Phase 5 (messaging, dates and safety) is done. Next is Phase 6 (Premium, sponsors, admin, verification). See `docs/LAUNCH-CHECKLIST.md` for what's needed before launch.
+
+---
+
+## ✅ Phase 5: Messaging, dates and safety
+
+### What works
+Tested with two people (Dominique and DeShawn in separate browsers, with GPS placed apart and then together), with no errors and no sideways scrolling. Screenshots are in `docs/screenshots/phase-5`.
+
+- **Messages:** one inbox with date requests waiting on you, chats and group chats, with unread markers and the last message.
+  - **Message** on a profile opens the chat. You can message people you met through an intro right away, and anyone else in your circle after 5 back-and-forths.
+  - If a chat isn't open to you yet, the profile shows your progress ("3 of 5 so far").
+- **Ask on a Date:** every 1:1 chat has an **Ask on a Date** button above the keyboard.
+  - **Asking:** pick when (tonight, this weekend, next week, or a day and time), a vibe, a spot (a listed venue or a typed place) and an optional note.
+  - **Answering:** the other person can **Accept**, **Suggest a Different Time** (the spot carries over unless they change it), or **Pass**.
+  - **Passing is graceful:** the sender only hears "Not this time. No explanation needed."
+  - Date requests only go to people you can message, and only one can be waiting between two people.
+- **I'm On a Date (Date Mode):** pick someone you connected with (an accepted date or someone in your circle) and tap **Activate**.
+  - Your date confirms on their phone. It turns on only when both GPS readings are within **1 mile** and taken within 10 minutes of each other.
+  - If it can't turn on, the screen says exactly why ("You're 3.1 mi apart", "DeShawn hasn't confirmed yet").
+  - **While it's on:** a check-in timer (30 min to 2 hours), a big **I'm safe** button, one-tap help, and your trusted contacts on standby. Home shows a "On a date with…" strip.
+  - A missed check-in is recorded and you get a reminder (the server checks every 5 minutes).
+- **Safety:**
+  - **Trusted contacts:** up to 5, who don't need the app. Numbers are checked and stored as +1…
+  - **"I need help"** has three steps: I feel unsafe → I need to leave → Emergency.
+    - Each step opens your phone's Messages app with your contacts and your location filled in, so you tap Send.
+    - Emergency also calls 911.
+    - "I'm safe" closes the alert and offers to text your contacts that you're okay.
+  - Admins are notified of every emergency.
+- **Reporting:** members can long-press a chat message to report it.
+
+### Tests
+**169 automated database tests** (31 new). They cover:
+- who can message whom and the progress count
+- the inbox
+- date requests: only to people you can message, one waiting at a time, counter keeps or replaces the spot, accept, graceful pass
+- Date Mode: only with connections, too far apart doesn't activate and says how far, close enough activates and starts the timer
+- missed check-ins get flagged
+- phone number format
+- help alerts return who to text
+
+### Waiting on Twilio
+Right now, texting your trusted contacts works by opening your own Messages app, and you tap Send. That needs no service and works today. Once Twilio is set up, I'll add automatic texts, including texting your contacts when you miss a check-in.
+
+---
+
+## ✅ No emojis: I'm In's own symbols (at Dominique's request)
+- **Symbols:** every emoji in the app is replaced with a custom symbol set drawn for I'm In (`src/components/ui/Glyph.tsx`). It covers categories, vibes, events, groups, tiers, trust, status and safety, all on one grid with one line weight. Avatars show initials or a photo.
+- **Database:** tier symbols are seed, loop, link, bolt and crown. Groups, events and venues only accept symbol names, and notifications contain no emoji.
+
+## ✅ I'm Out: Go Live became a real live feature (at Dominique's request)
+- **Heading out → Here now → Heading home.** Tap **I'm here** when you arrive. "Here now" lasts 3 hours, and **Still here** renews it.
+- **Here now is only shown to your circle and network**, never to strangers nearby.
+- **Join ("I'm coming"):** people you know tap Join. You're told who's heading your way and see them on your card. You can turn joining off for the night.
+- Screenshots are in `docs/screenshots/im-out`.
 
 ---
 
@@ -169,18 +223,17 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 ### Not done in Phase 1 (on purpose)
 - Pins, Tonight and Circles show "Coming in Phase N" placeholders.
 - Home's Going Out strip, network pins and AI pick come in Phase 2.
-- I haven't run it on a real iPhone yet (see "Needed from Dominique").
 
 ---
 
 ## Needed from Dominique
-1. **Phone test.** Accounts are created and connected to GitHub. Remaining: add the secrets in GitHub (see `docs/DEPLOY.md`, about 15 minutes), then say the word and I'll open the pull request to `main`. Merging it deploys everything. After that, go through `docs/PHASE-1-PHONE-CHECK.md`.
-2. **Twilio account** for real texts: Account SID, Auth Token, and a phone number (about $1/month plus about $0.01 per text). Until then, texting runs in demo mode.
+1. **Phone test.** The app is live: open it in Expo Go with the link from the chat, then go through `docs/PHASE-1-PHONE-CHECK.md`. Each merged pull request updates it automatically.
+2. **Twilio account** for real texts: Account SID, Auth Token, and a phone number (about $1/month plus about $0.01 per text). Until then, phone codes run in demo mode, and safety texts open your own Messages app.
 
 ---
 
-## Next: Phase 5 (Messaging, dates and safety)
-Direct messages (unlocked after 5 back-and-forths, or right away after an intro), Ask on a Date, Date Mode, and the date safety features.
+## Next: Phase 6 (Premium, sponsors, admin, verification)
+Premium with RevenueCat (ask before connecting a paid service), sponsored and featured places, an admin view for reports, and photo/ID verification.
 
 ---
 
@@ -201,6 +254,10 @@ Direct messages (unlocked after 5 back-and-forths, or right away after an intro)
 | 2026-09-29 | Intro rules: the first person must be in your circle; the second can be your circle or network | Matches the prototype's Make an Intro screen |
 | 2026-09-29 | Passing on an intro only tells the connector, with no details | "Passing is always graceful" |
 | 2026-09-29 | "People you might click with" is rule-based (mutual friends plus shared groups) until the Phase 7 AI version, and carries no ✦ label | Never label something as AI when it isn't |
+| 2026-10-04 | **No emojis anywhere.** The app draws its own symbols. | Dominique |
+| 2026-10-04 | **Go Live is now I'm Out**, with Heading out → Here now → Heading home and Join. Here now is only for your circle and network. | Dominique asked whether Go Live was a good live feature; as built it was only a status post |
+| 2026-10-04 | Safety texts open the phone's own Messages app (you tap Send) until Twilio is set up | Decision C7: safety is not the place to fake an automatic text |
+| 2026-10-04 | A counter-proposal keeps the original spot unless a new one is given | Suggesting a new time shouldn't silently drop the place |
 | 2026-10-01 | Creating a group needs a **verified phone** (config `group_create_requires`: none / phone / photo) | Photo verification isn't built until Phase 6; a phone is a real barrier to fake groups in the meantime |
 | 2026-10-01 | "This Weekend" = now through Sunday 11:59 PM (DC). Plans further out use "Pick a Time" | Matches how people talk about "this weekend" |
 | 2026-10-01 | The map is drawn by the app (no map company) | No cost, no API key, and no third party gets members' locations. A street map can be added later if you want one. |
