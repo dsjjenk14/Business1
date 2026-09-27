@@ -11,7 +11,7 @@ export default function Circles() {
         phase={3}
         title="My Circle · Network · Groups"
         body="Your ring diagram, vouches received, 1st and 2nd degree, intros, and groups."
-        colorIndex={3}
+       
       />
     </Screen>
   );

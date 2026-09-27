@@ -47,16 +47,11 @@ export default function MyProfile() {
             <AppText tone="muted" align="center">
               {[profile.headline, profile.pronouns].filter(Boolean).join(' · ')}
             </AppText>
-            {profile.mood_status ? (
-              <AppText variant="small" tone="primary" align="center">
-                {profile.mood_status}
-              </AppText>
-            ) : null}
           </View>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: t.space[2] }}>
-            {profile.is_founding_member ? <Badge label={`Founding Member #${profile.member_number}`} emoji="🏅" tone="sponsored" tilt={-3} /> : null}
-            {current ? <Badge label={current.name} emoji={current.emoji} tone="trust" tilt={2} /> : null}
-            {profile.id_verified_at ? <Badge label="ID Verified" emoji="🔑" tone="ai" tilt={-1} verified /> : null}
+            {profile.is_founding_member ? <Badge label={`Founding Member #${profile.member_number}`} emoji="🏅" tone="sponsored" /> : null}
+            {current ? <Badge label={current.name} emoji={current.emoji} tone="trust" /> : null}
+            {profile.id_verified_at ? <Badge label="ID Verified" emoji="🔑" tone="ai" verified /> : null}
           </View>
         </View>
 
@@ -78,12 +73,12 @@ export default function MyProfile() {
         </View>
 
         {profile.bio ? (
-          <Section title="About me" colorIndex={1}>
+          <Section title="About me">
             <AppText>{profile.bio}</AppText>
           </Section>
         ) : null}
 
-        <Section title="Your invite code" colorIndex={2}>
+        <Section title="Your invite code">
           <AppText variant="number" style={{ letterSpacing: 4 }} selectable>
             {profile.invite_code}
           </AppText>
@@ -112,7 +107,7 @@ export default function MyProfile() {
         <Button label="Appearance" variant="secondary" onPress={() => router.push('/settings/appearance')} />
         <Button label="Sign Out" variant="ghost" onPress={signOut} />
         <AppText variant="caption" tone="subtle" align="center">
-          Your full profile (vouches, badges, Top 8, pins) arrives in Phase 2.
+          Your full profile (vouches, badges, pins) arrives in Phase 2.
         </AppText>
       </Screen>
     </>

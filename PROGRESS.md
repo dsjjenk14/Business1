@@ -10,7 +10,7 @@
 ### What works (tested by running it, not assumed)
 Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt) widths, with zero errors and no sideways scrolling on any screen.
 
-- **Five switchable themes** from one token file (`src/theme/`). **E "Top 8"** (MySpace-ish, modern) is the default, and A–D are alternates. All five pass readability contrast checks.
+- **Five switchable themes** from one token file (`src/theme/`). **Original** (the prototype's colors and fonts: Bebas Neue + Syne, red, green, gold) is the default, and A–D are alternates. All five pass readability contrast checks.
 - **4-tab navigation** (Home, Pins, Tonight, Circles) with the header: logo, profile avatar, messages and notifications (with unread badges), and a menu. Detail screens use a back button.
 - **Signup:** full name, phone, email, city, date of birth (**under 18 is blocked**), password, optional invite code (checked live: "Dominique J. invited you ✓"), and an optional photo.
   - An invite code auto-connects both people and gives each an invite vouch (the inviter's is capped).
@@ -45,14 +45,18 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 ---
 
 ## Next: Phase 2 (Social core)
-Profiles (full, with Top 8 and profile customization), Pins (Nearby + They're In, radius, categories, likes, replies, bookmarks, share, New Pin with photos), and the complete Home.
+Profiles (full), Pins (Nearby + They're In, radius, categories, likes, replies, bookmarks, share, New Pin with photos), and the complete Home.
 
 ---
 
 ## Decisions log
 | Date | Decision | Why |
 |---|---|---|
-| 2026-09-27 | Default theme is **E "Top 8"**, with A–D as alternates | Dominique: "MySpace-ish but modern" |
+| 2026-09-27 | ~~Theme E "Top 8"~~ removed, along with Top 8 friends and profile customization | Dominique: "No Top 8" |
+| 2026-09-27 | Default theme is **Original** (the prototype's colors: #0C0C0C, red #D62828, green #4ADE80, gold #D4AF37, blue #64A0FF; Bebas Neue + Syne). A–D stay as alternates. | Dominique: "change to the original color scheme" |
+| 2026-09-27 | In the Original theme, gray secondary text is 62% white (the prototype used 40%) | 40% was too faint to read comfortably (it failed the accessibility contrast check) |
+| 2026-09-27 | AI features use the Original palette's blue (#64A0FF) with the ✦ marker | The spec wants AI visually distinct; the prototype used red, which is also the main button color |
+| 2026-09-27 | **People connected through an accepted intro can message right away**, no back-and-forths needed | Dominique |
 | 2026-09-27 | Tiers: New Face 0, In the Mix 5, Connector 20, Plugged In 50, Icon 100 | Dominique: keep the idea, modernize the names |
 | 2026-09-27 | Pin audience: Everyone / My Network (1st + 2nd) / My Circle (1st) | Dominique: "fix this" |
 | 2026-09-27 | GPS check-in never gives a vouch by itself; each person picks their own word | Dominique |

@@ -168,15 +168,11 @@ Three options, using words the app already uses elsewhere:
 
 This matches the Circles tab, where "My Circle" is your 1st degree and "Network" is your 2nd degree.
 
-### Theme E: "Top 8" (MySpace-ish, but modern). This is the new default.
-What makes MySpace feel like MySpace is that **your profile is yours**, the page has **bold boxed sections with colored title bars**, and there's the **Top 8**. The modern version:
-- **Look:** near-black base with loud, saturated accents (hot pink primary, electric violet, lime for "verified/vouch"). Chunky 2px outlines and hard offset "sticker" shadows instead of soft blurs. Bold, rounded display font for headlines.
-- **Section boxes:** every section on a screen is a card with a colored title bar ("Maya's Vouches", "Maya's Top 8"). That's the MySpace signature, cleaned up.
-- **Badges look like stickers:** slightly rotated, outlined, colorful.
-- **Profile customization** (built in Phase 2 with profiles): each user picks their profile **accent color**, a **background pattern**, a **mood/status line** ("Currently: going out tonight 🍸"), a **profile song** (a link that plays only when tapped, never on its own), and their **Top 8**: the 8 people from their circle they want to show off. These settings sit on top of the app theme and only apply on that person's profile, so the rest of the app stays readable.
-- The ✦ AI marker and the "Sponsored" / "Featured" labels keep working the same way in every theme.
+### Look (updated)
+~~Theme E "Top 8"~~ was dropped. The default is now **Original**: the prototype's own colors and fonts. Themes A–D stay as switchable alternates.
 
-Themes A–D are still built as switchable alternates (they're only color and font values, so they're cheap to keep). E is the default.
+### Messaging (updated)
+People connected through an accepted intro can message each other right away. Everyone else on the free plan needs 5 back-and-forths first.
 
 ---
 
@@ -200,10 +196,9 @@ Everything runs on Supabase Postgres with PostGIS turned on. Here's what the ter
 ### People
 | Table | Purpose |
 |---|---|
-| `profiles` | One row per user (plus Theme E profile fields: accent_color, bg_pattern, mood_status, song_url), linked to the Supabase login. Holds full_name, display_name ("Maya T."), date of birth, show_age, pronouns, bio, avatar_url, city_id, approx_location (snapped point), location_precision (`approximate` default / `precise`), invite_code, invited_by, is_founding_member, role (`user`/`admin`), id/photo verified dates, ai_chat_opt_in (default **false**), theme. |
+| `profiles` | One row per user, linked to the Supabase login. Holds full_name, display_name ("Maya T."), date of birth, show_age, pronouns, bio, avatar_url, city_id, approx_location (snapped point), location_precision (`approximate` default / `precise`), invite_code, invited_by, is_founding_member, role (`user`/`admin`), id/photo verified dates, ai_chat_opt_in (default **false**), theme. |
 | `user_settings` | Notification toggles, privacy toggles (show in nearby, allow intro requests, show vouch count, show venue, discoverable), and preferred radius. |
 | `push_tokens` | Device tokens for notifications. |
-| `top_friends` | user, friend, position 1–8 (Top 8). |
 | `blocks` | blocker, blocked. Blocked users disappear from each other everywhere. |
 
 ### Trust graph

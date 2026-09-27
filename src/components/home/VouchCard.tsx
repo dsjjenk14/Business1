@@ -27,7 +27,7 @@ export function VouchCard({ vouchCount, onPress }: { vouchCount: number; onPress
           </AppText>
         </View>
         <View style={{ flex: 1, gap: t.space[2] }}>
-          {current ? <Badge label={current.name} emoji={current.emoji} tone="trust" tilt={-2} /> : null}
+          {current ? <Badge label={current.name} emoji={current.emoji} tone="trust" /> : null}
           <AppText variant="small" tone="muted">
             {next ? `${remaining} more to ${next.name} ${next.emoji}` : 'Top tier. Legend status.'}
           </AppText>

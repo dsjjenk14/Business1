@@ -787,13 +787,13 @@ isOneToOne: true
                   ]
                 },"profiles": {
                   Row: {
-                    "accent_color": string | null,"approx_location": unknown,"avatar_emoji": string | null,"avatar_url": string | null,"bg_pattern": string | null,"bio": string,"city_id": number | null,"created_at": string,"display_name": string,"full_name": string,"headline": string,"id": string,"id_verified_at": string | null,"invite_code": string,"invited_by": string | null,"is_founding_member": boolean,"location_precision": Database["public"]['Enums']["location_precision"],"member_number": number,"mood_status": string | null,"neighborhood": string | null,"photo_verified_at": string | null,"pronouns": string | null,"role": Database["public"]['Enums']["user_role"],"show_age": boolean,"song_url": string | null,"top_vouch_word": string | null,"updated_at": string,"vouch_count": number
+                    "approx_location": unknown,"avatar_emoji": string | null,"avatar_url": string | null,"bio": string,"city_id": number | null,"created_at": string,"display_name": string,"full_name": string,"headline": string,"id": string,"id_verified_at": string | null,"invite_code": string,"invited_by": string | null,"is_founding_member": boolean,"location_precision": Database["public"]['Enums']["location_precision"],"member_number": number,"neighborhood": string | null,"photo_verified_at": string | null,"pronouns": string | null,"role": Database["public"]['Enums']["user_role"],"show_age": boolean,"top_vouch_word": string | null,"updated_at": string,"vouch_count": number
                   }
                   Insert: {
-                    "accent_color"?: string | null,"approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"bg_pattern"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name": string,"full_name": string,"headline"?: string,"id": string,"id_verified_at"?: string | null,"invite_code": string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"mood_status"?: string | null,"neighborhood"?: string | null,"photo_verified_at"?: string | null,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"song_url"?: string | null,"top_vouch_word"?: string | null,"updated_at"?: string,"vouch_count"?: number
+                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name": string,"full_name": string,"headline"?: string,"id": string,"id_verified_at"?: string | null,"invite_code": string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"neighborhood"?: string | null,"photo_verified_at"?: string | null,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"top_vouch_word"?: string | null,"updated_at"?: string,"vouch_count"?: number
                   }
                   Update: {
-                    "accent_color"?: string | null,"approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"bg_pattern"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name"?: string,"full_name"?: string,"headline"?: string,"id"?: string,"id_verified_at"?: string | null,"invite_code"?: string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"mood_status"?: string | null,"neighborhood"?: string | null,"photo_verified_at"?: string | null,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"song_url"?: string | null,"top_vouch_word"?: string | null,"updated_at"?: string,"vouch_count"?: number
+                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name"?: string,"full_name"?: string,"headline"?: string,"id"?: string,"id_verified_at"?: string | null,"invite_code"?: string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"neighborhood"?: string | null,"photo_verified_at"?: string | null,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"top_vouch_word"?: string | null,"updated_at"?: string,"vouch_count"?: number
                   }
                   Relationships: [
                     {
@@ -823,31 +823,6 @@ isOneToOne: false
                   Relationships: [
                     {
       foreignKeyName: "push_tokens_user_id_fkey"
-      columns: ["user_id"]
-isOneToOne: false
-      referencedRelation: "profiles"
-      referencedColumns: ["id"]
-    }
-                  ]
-                },"top_friends": {
-                  Row: {
-                    "friend_id": string,"position": number,"user_id": string
-                  }
-                  Insert: {
-                    "friend_id": string,"position": number,"user_id": string
-                  }
-                  Update: {
-                    "friend_id"?: string,"position"?: number,"user_id"?: string
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "top_friends_friend_id_fkey"
-      columns: ["friend_id"]
-isOneToOne: false
-      referencedRelation: "profiles"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "top_friends_user_id_fkey"
       columns: ["user_id"]
 isOneToOne: false
       referencedRelation: "profiles"

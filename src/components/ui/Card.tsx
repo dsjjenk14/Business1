@@ -13,16 +13,15 @@ export type CardProps = {
 
 export function Card({ children, onPress, accessibilityLabel, accent, style }: CardProps) {
   const t = useTheme();
-  const sticker = t.style.badge === 'sticker';
   const accentColor = accent ? t.colors[accent] : undefined;
 
   const base: ViewStyle = {
     backgroundColor: t.colors.surface,
     borderRadius: t.radius.lg,
-    borderWidth: sticker ? t.borderWidth.strong : t.borderWidth.hairline,
-    borderColor: sticker ? t.colors.outline : accentColor ?? t.colors.border,
+    borderWidth: t.borderWidth.hairline,
+    borderColor: accentColor ?? t.colors.border,
     padding: t.space[4],
-    boxShadow: sticker && accentColor ? `4px 4px 0px 0px ${accentColor}` : t.shadow.card,
+    boxShadow: t.shadow.card,
   };
 
   if (!onPress) return <View style={[base, style]}>{children}</View>;

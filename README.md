@@ -43,7 +43,7 @@ npm run check:contrast   # readability contrast for every theme
 | Folder | What's in it |
 |---|---|
 | `src/app/` | Screens. Every file is a route (Expo Router). `(auth)` = logged out, `(app)` = logged in, `(app)/(tabs)` = the 4 tabs. |
-| `src/theme/` | **The whole look.** Tokens + five themes (E "Top 8" default, A–D alternates). |
+| `src/theme/` | **The whole look.** Tokens + five themes (Original, the prototype look, is the default; A–D are alternates). |
 | `src/components/` | Shared building blocks (`ui/`) and navigation (`nav/`). |
 | `src/features/` | Logic grouped by feature (auth, onboarding, notifications…). |
 | `src/config/` | Loads founder-editable config (tiers, plan limits, cities) from the database. |

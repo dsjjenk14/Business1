@@ -40,8 +40,6 @@ export function IconButton({
             paddingHorizontal: 4,
             borderRadius: 9,
             backgroundColor: t.colors.primary,
-            borderWidth: t.style.badge === 'sticker' ? 1.5 : 0,
-            borderColor: t.colors.outline,
             alignItems: 'center',
             justifyContent: 'center',
           }}>

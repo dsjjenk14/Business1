@@ -11,7 +11,7 @@ export default function Tonight() {
         phase={4}
         title="Tonight · This Weekend · Groups"
         body="Who's going out, events, the map, posting that you're going out, and the GPS vouch flow after an event."
-        colorIndex={2}
+       
       />
     </Screen>
   );

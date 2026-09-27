@@ -50,8 +50,8 @@ export default function Menu() {
     <>
       <BackHeader title="Menu" />
       <Screen>
-        {GROUPS.map((group, gi) => (
-          <Section key={group.title} title={group.title} colorIndex={gi} bare>
+        {GROUPS.map((group) => (
+          <Section key={group.title} title={group.title} bare>
             <View>
               {group.items.map((item) => (
                 <Pressable

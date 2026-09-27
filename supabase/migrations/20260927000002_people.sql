@@ -1,5 +1,5 @@
 -- I'm In: 002 People
--- Public profile, private account details (owner-only), settings, blocks, Top 8.
+-- Public profile, private account details (owner-only), settings, blocks.
 
 create type public.location_precision as enum ('approximate', 'precise');
 create type public.user_role as enum ('user', 'admin');
@@ -32,11 +32,6 @@ create table public.profiles (
   photo_verified_at   timestamptz,
   vouch_count         integer not null default 0,   -- maintained by trigger
   top_vouch_word      text,                         -- most-received word, maintained by trigger
-  -- Theme E ("Top 8") profile personalization. Only applies on this person's profile.
-  accent_color        text check (accent_color ~ '^#[0-9A-Fa-f]{6}$'),
-  bg_pattern          text check (bg_pattern in ('none', 'dots', 'stars', 'checker', 'waves', 'hearts')),
-  mood_status         text check (char_length(mood_status) <= 60),
-  song_url            text check (song_url ~ '^https://'),
   created_at          timestamptz not null default now(),
   updated_at          timestamptz not null default now()
 );
@@ -59,7 +54,7 @@ create table public.profile_private (
 create table public.user_settings (
   user_id                 uuid primary key references public.profiles (id) on delete cascade,
   radius_mi               numeric not null default 5 check (radius_mi between 1 and 75),
-  theme_id                text not null default 'E' check (theme_id in ('A','B','C','D','E')),
+  theme_id                text not null default 'O' check (theme_id in ('O','A','B','C','D')),
   -- privacy
   show_in_nearby          boolean not null default true,
   allow_intro_requests    boolean not null default true,
@@ -83,16 +78,6 @@ create table public.blocks (
   created_at  timestamptz not null default now(),
   primary key (blocker_id, blocked_id),
   check (blocker_id <> blocked_id)
-);
-
--- ── Top 8 ─────────────────────────────────────────────────────────────────
-create table public.top_friends (
-  user_id    uuid not null references public.profiles (id) on delete cascade,
-  friend_id  uuid not null references public.profiles (id) on delete cascade,
-  position   smallint not null check (position between 1 and 8),
-  primary key (user_id, position),
-  unique (user_id, friend_id),
-  check (user_id <> friend_id)
 );
 
 -- ── Push tokens & notifications ───────────────────────────────────────────
@@ -199,7 +184,6 @@ alter table public.profiles        enable row level security;
 alter table public.profile_private enable row level security;
 alter table public.user_settings   enable row level security;
 alter table public.blocks          enable row level security;
-alter table public.top_friends     enable row level security;
 alter table public.push_tokens     enable row level security;
 alter table public.notifications   enable row level security;
 
@@ -212,8 +196,7 @@ create policy "edit own profile" on public.profiles for update to authenticated
 -- membership numbers and verification dates are server-controlled.
 revoke update on public.profiles from authenticated, anon;
 grant update (full_name, display_name, bio, pronouns, headline, avatar_url, avatar_emoji,
-              city_id, neighborhood, location_precision, show_age,
-              accent_color, bg_pattern, mood_status, song_url)
+              city_id, neighborhood, location_precision, show_age)
   on public.profiles to authenticated;
 
 create policy "own private row" on public.profile_private for select to authenticated
@@ -228,11 +211,6 @@ create policy "own settings" on public.user_settings for all to authenticated
 
 create policy "own blocks" on public.blocks for all to authenticated
   using (blocker_id = auth.uid()) with check (blocker_id = auth.uid());
-
-create policy "top 8 visible" on public.top_friends for select to authenticated
-  using (not public.is_blocked(auth.uid(), user_id));
-create policy "edit own top 8" on public.top_friends for all to authenticated
-  using (user_id = auth.uid()) with check (user_id = auth.uid());
 
 create policy "own push tokens" on public.push_tokens for all to authenticated
   using (user_id = auth.uid()) with check (user_id = auth.uid());

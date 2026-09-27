@@ -80,13 +80,13 @@ export default function Messages() {
           </AppText>
         ) : null}
         {rows && rows.some((r) => !r.group) ? (
-          <Section title="Direct" colorIndex={0} bare>
-            <View style={{ gap: t.space[2], padding: t.style.section === 'titlebar' ? t.space[3] : 0 }}>{rows.filter((r) => !r.group).map(renderRow)}</View>
+          <Section title="Direct" bare>
+            <View style={{ gap: t.space[2] }}>{rows.filter((r) => !r.group).map(renderRow)}</View>
           </Section>
         ) : null}
         {rows && rows.some((r) => r.group) ? (
-          <Section title="Group chats" colorIndex={2} bare>
-            <View style={{ gap: t.space[2], padding: t.style.section === 'titlebar' ? t.space[3] : 0 }}>{rows.filter((r) => r.group).map(renderRow)}</View>
+          <Section title="Group chats" bare>
+            <View style={{ gap: t.space[2] }}>{rows.filter((r) => r.group).map(renderRow)}</View>
           </Section>
         ) : null}
         <AppText variant="caption" tone="subtle" align="center">

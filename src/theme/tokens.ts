@@ -11,7 +11,7 @@ import type { FONT_MAP } from './fonts';
 /** Only fonts that are actually loaded can be used (checked at compile time). */
 export type FontName = keyof typeof FONT_MAP;
 
-export type ThemeId = 'E' | 'A' | 'B' | 'C' | 'D';
+export type ThemeId = 'O' | 'A' | 'B' | 'C' | 'D';
 
 export type ThemeColors = {
   /** Screen background. */
@@ -22,8 +22,6 @@ export type ThemeColors = {
   surfaceAlt: string;
   border: string;
   borderStrong: string;
-  /** Hard outline for sticker-style buttons, badges and cards. */
-  outline: string;
   text: string;
   textMuted: string;
   textSubtle: string;
@@ -50,9 +48,6 @@ export type ThemeColors = {
   tabActive: string;
   tabInactive: string;
   overlay: string;
-  /** Rotating colors for title bars on section boxes (Theme E). */
-  sectionBars: string[];
-  onSectionBar: string;
 };
 
 export type ThemeFonts = {
@@ -99,9 +94,9 @@ export type Theme = {
   /** Personality switches that change component shape, not just color. */
   style: {
     /** How section boxes look. */
-    section: 'titlebar' | 'plain' | 'glass' | 'ledger';
+    section: 'plain' | 'glass' | 'ledger';
     /** How badges and tier chips look. */
-    badge: 'sticker' | 'pill' | 'credential';
+    badge: 'pill' | 'credential';
     /** Uppercase small labels ("GOING OUT TONIGHT"). */
     uppercaseLabels: boolean;
     /** Use the mono font for counts and scores. */

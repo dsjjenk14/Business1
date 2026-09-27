@@ -17,7 +17,7 @@ def lum(rgb):
 def cr(a,b):
     la,lb=lum(a),lum(b); return (max(la,lb)+0.05)/(min(la,lb)+0.05)
 fail=0
-for tid in 'EABCD':
+for tid in 'OABCD':
     blk=re.search(r'\nconst '+tid+r': Theme = \{(.*?)\n\};',src,re.S).group(1)
     col=dict(re.findall(r"(\w+): '([^']+)'",blk))
     bg=parse(col['bg'])[0]; surf=over(col['surface'],col['bg'])

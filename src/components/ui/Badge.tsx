@@ -9,41 +9,13 @@ export type BadgeProps = {
   label: string;
   tone?: 'primary' | 'trust' | 'ai' | 'sponsored' | 'neutral';
   emoji?: string;
-  /** Slight tilt for sticker-style themes; pass different values for variety. */
-  tilt?: number;
   verified?: boolean;
 };
 
 /** Tier chips, profile badges, founding-member tags. Shape follows theme.style.badge. */
-export function Badge({ label, tone = 'primary', emoji, tilt = -2, verified }: BadgeProps) {
+export function Badge({ label, tone = 'primary', emoji, verified }: BadgeProps) {
   const t = useTheme();
   const color = tone === 'neutral' ? t.colors.textMuted : t.colors[tone];
-  const onColor = { primary: t.colors.onPrimary, trust: t.colors.onTrust, ai: t.colors.onAi, sponsored: t.colors.onSponsored, neutral: t.colors.bg }[tone];
-
-  if (t.style.badge === 'sticker') {
-    return (
-      <View
-        style={{
-          alignSelf: 'flex-start',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 4,
-          backgroundColor: color,
-          borderWidth: t.borderWidth.regular,
-          borderColor: t.colors.outline,
-          borderRadius: t.radius.sm,
-          paddingHorizontal: t.space[2],
-          paddingVertical: 3,
-          transform: [{ rotate: `${tilt}deg` }],
-          boxShadow: t.shadow.pressed,
-        }}>
-        {emoji ? <AppText variant="small">{emoji}</AppText> : null}
-        <AppText variant="small" weight="bold" style={{ color: onColor, fontFamily: t.fonts.displayBold }}>
-          {label}
-        </AppText>
-      </View>
-    );
-  }
 
   if (t.style.badge === 'credential') {
     return (

@@ -27,7 +27,7 @@ export default function ChecklistModal() {
           backgroundColor: t.colors.surface,
           borderRadius: t.radius.xl,
           borderWidth: t.borderWidth.strong,
-          borderColor: t.colors.outline,
+          borderColor: t.colors.border,
           padding: t.space[5],
           gap: t.space[4],
           maxWidth: 440,

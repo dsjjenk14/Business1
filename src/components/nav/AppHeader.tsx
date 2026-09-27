@@ -24,8 +24,8 @@ export function AppHeader() {
         paddingBottom: t.space[2],
         paddingHorizontal: t.space[3],
         backgroundColor: t.colors.bg,
-        borderBottomWidth: t.style.badge === 'sticker' ? t.borderWidth.strong : t.borderWidth.hairline,
-        borderColor: t.style.badge === 'sticker' ? t.colors.outline : t.colors.border,
+        borderBottomWidth: t.borderWidth.hairline,
+        borderColor: t.colors.border,
         flexDirection: 'row',
         alignItems: 'center',
       }}>

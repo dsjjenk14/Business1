@@ -133,9 +133,6 @@ for (const c of CAST) {
     approx_location: c.loc ? point(PLACES[c.loc]) : point([DEMO_CITIES.find((d) => d.slug === c.city).lng, DEMO_CITIES.find((d) => d.slug === c.city).lat]),
     photo_verified_at: daysAgo(30),
     id_verified_at: c.idVerified ? daysAgo(20) : null,
-    accent_color: c.accent ?? null,
-    bg_pattern: c.pattern ?? null,
-    mood_status: c.mood ?? null,
     created_at: daysAgo(200),
   }).eq('id', ids[c.key]), `profile ${c.key}`);
 }
@@ -424,8 +421,7 @@ await groupChat('pkl', [['cameron', 'Courts locked in Sunday 8AM. 6 confirmed.',
 await groupChat('run', [['naomi', 'Saturday route: P St → Beach Drive → back. ~4 miles.', 250], ['jordan', 'See everyone at 7!', 240]]);
 for (const g of ['supper', 'howard', 'gallery', 'wine', 'wellness', 'books']) await groupChat(g, []);
 
-// ── 12. Top 8 + notifications ─────────────────────────────────────────────
-await must(db.from('top_friends').insert(['maya', 'jordan', 'naomi', 'deshawn'].map((k, i) => ({ user_id: ids.dom, friend_id: ids[k], position: i + 1 }))), 'top 8');
+// ── 12. Notifications ─────────────────────────────────────────────
 await must(db.from('notifications').insert([
   { user_id: ids.dom, kind: 'going_out', title: 'Maya T. is going out tonight', body: 'Founding Farmers · Tysons · 7PM', actor_id: ids.maya, created_at: minutesAgo(2) },
   { user_id: ids.dom, kind: 'pin_reply', title: 'Jordan replied to your pin', body: 'Tail Up Goat. Bar is better than the food...', actor_id: ids.jordan, link: `/pins/${pinIds.domQ}`, created_at: minutesAgo(60) },

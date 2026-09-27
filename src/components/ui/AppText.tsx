@@ -3,7 +3,7 @@ import { Text, type TextProps } from 'react-native';
 import { MAX_FONT_SCALE, useTheme, type Theme } from '@/theme';
 
 type Variant = keyof Theme['type'];
-type Tone = 'text' | 'muted' | 'subtle' | 'primary' | 'trust' | 'ai' | 'danger' | 'sponsored' | 'onPrimary' | 'onTrust' | 'onSectionBar';
+type Tone = 'text' | 'muted' | 'subtle' | 'primary' | 'trust' | 'ai' | 'danger' | 'sponsored' | 'onPrimary' | 'onTrust';
 type Weight = 'regular' | 'medium' | 'bold';
 
 export type AppTextProps = TextProps & {
@@ -38,7 +38,6 @@ export function AppText({ variant = 'body', tone = 'text', weight, align, style,
     sponsored: t.colors.sponsored,
     onPrimary: t.colors.onPrimary,
     onTrust: t.colors.onTrust,
-    onSectionBar: t.colors.onSectionBar,
   };
 
   const isLabel = variant === 'label';

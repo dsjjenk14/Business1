@@ -15,7 +15,6 @@ const TABS: Record<string, { label: string; icon: IconName; iconActive: IconName
 /** The fixed 4-tab bar: Home, Pins, Tonight, Circles. */
 export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
   const t = useTheme();
-  const sticker = t.style.badge === 'sticker';
 
   return (
     <View
@@ -23,8 +22,8 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
       style={{
         flexDirection: 'row',
         backgroundColor: t.colors.tabBar,
-        borderTopWidth: sticker ? t.borderWidth.strong : t.borderWidth.hairline,
-        borderColor: sticker ? t.colors.outline : t.colors.border,
+        borderTopWidth: t.borderWidth.hairline,
+        borderColor: t.colors.border,
         paddingTop: t.space[2],
         paddingBottom: Math.max(insets.bottom, t.space[2]),
         paddingHorizontal: t.space[2],
@@ -33,7 +32,7 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
         const tab = TABS[route.name];
         if (!tab) return null;
         const focused = state.index === index;
-        const color = focused ? (sticker ? t.colors.onPrimary : t.colors.tabActive) : t.colors.tabInactive;
+        const color = focused ? t.colors.tabActive : t.colors.tabInactive;
 
         return (
           <Pressable
@@ -52,12 +51,7 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
                 gap: 2,
                 paddingHorizontal: t.space[3],
                 paddingVertical: 4,
-                borderRadius: t.radius.md,
                 minWidth: 64,
-                backgroundColor: focused && sticker ? t.colors.primary : 'transparent',
-                borderWidth: focused && sticker ? t.borderWidth.regular : 0,
-                borderColor: t.colors.outline,
-                boxShadow: focused && sticker ? t.shadow.pressed : undefined,
               }}>
               <Ionicons name={focused ? tab.iconActive : tab.icon} size={22} color={color} />
               <AppText variant="caption" weight="bold" style={{ color }}>

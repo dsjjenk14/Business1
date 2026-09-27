@@ -33,9 +33,9 @@ export default function Onboarding() {
           </AppText>
         </View>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[3] }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          <Badge label="GPS-verified vouches" tone="trust" emoji="📍" tilt={-3} />
-          <Badge label="One intro away" tone="primary" emoji="👋" tilt={2} />
-          <Badge label="Going out tonight" tone="ai" emoji="🌙" tilt={-1} />
+          <Badge label="GPS-verified vouches" tone="trust" emoji="📍" />
+          <Badge label="One intro away" tone="primary" emoji="👋" />
+          <Badge label="Going out tonight" tone="ai" emoji="🌙" />
         </View>
       </View>
 

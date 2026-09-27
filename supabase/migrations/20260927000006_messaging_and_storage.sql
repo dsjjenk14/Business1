@@ -23,16 +23,22 @@ returns numeric language sql stable security definer set search_path = '' as $$
   from public.plan_limits where key = p_key
 $$;
 
--- Messaging rule: must be 1st degree (an accepted intro makes you 1st degree),
--- and free members need N back-and-forths first. Premium skips the wait, never the intro.
+-- Messaging rule: must be 1st degree. Then any one of these unlocks messaging:
+--  * you were connected through an accepted intro (message right away)
+--  * you're Premium (skips the wait, never the connection)
+--  * free: N back-and-forths first
 create or replace function public.can_message(p_from uuid, p_to uuid)
 returns boolean language sql stable security definer set search_path = '' as $$
   select p_from <> p_to
     and not public.is_blocked(p_from, p_to)
     and public.are_connected(p_from, p_to)
-    and coalesce((select exchanges from public.interactions
+    and (
+      exists (select 1 from public.connections
+              where user_a = least(p_from, p_to) and user_b = greatest(p_from, p_to) and source = 'intro')
+      or coalesce((select exchanges from public.interactions
                   where user_a = least(p_from, p_to) and user_b = greatest(p_from, p_to)), 0)
         >= coalesce(public.plan_limit(p_from, 'messaging_min_exchanges'), 0)
+    )
 $$;
 
 -- ── Conversations ─────────────────────────────────────────────────────────

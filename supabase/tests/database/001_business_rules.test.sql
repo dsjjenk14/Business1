@@ -2,7 +2,7 @@
 -- Each test creates its own users inside a transaction that is rolled back.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(32);
+select plan(34);
 
 -- Helper to create an auth user (fires the real signup trigger).
 create or replace function pg_temp.new_user(p_email text, p_meta jsonb)
@@ -168,6 +168,13 @@ select ok(not can_message((select id from t where k='ana'), (select id from t wh
 insert into entitlements (user_id, premium_until) values ((select id from t where k='ana'), now() + interval '30 days');
 select ok(can_message((select id from t where k='ana'), (select id from t where k='cam')), 'Premium skips the back-and-forth wait');
 select ok(not can_message((select id from t where k='ana'), (select id from t where k='dee')), 'Premium never skips the intro (no messaging strangers)');
+
+-- Accepted intros: message right away, no waiting.
+insert into connections (user_a, user_b, source, connector_id)
+select least(c.id, d.id), greatest(c.id, d.id), 'intro', (select id from t where k='ana')
+from t c, t d where c.k = 'cam' and d.k = 'dee';
+select ok(can_message((select id from t where k='cam'), (select id from t where k='dee')), 'Introduced through an intro: can message immediately (free member)');
+select ok(can_message((select id from t where k='dee'), (select id from t where k='cam')), 'Works both ways');
 
 select * from finish();
 rollback;

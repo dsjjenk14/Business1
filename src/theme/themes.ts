@@ -1,7 +1,7 @@
 import { SPACE, type Theme, type ThemeType } from './tokens';
 
 /**
- * The five switchable themes. E ("Top 8") is the default.
+ * The five switchable themes. O (Original, the prototype's look) is the default.
  *
  * Font family strings must match the keys loaded in `fonts.ts`.
  */
@@ -18,61 +18,65 @@ const baseType: ThemeType = {
   number: { fontSize: 28, lineHeight: 32 },
 };
 
-/** E: "Top 8". MySpace-ish, but modern. Loud color, boxed sections with title bars, sticker badges. */
-const E: Theme = {
-  id: 'E',
-  name: 'Top 8',
-  tagline: 'MySpace-ish, but modern',
+/** O: Original. The prototype's own look: near-black, red primary, green trust, gold events, Bebas Neue + Syne. */
+const O: Theme = {
+  id: 'O',
+  name: 'Original',
+  tagline: "The I'm In prototype look",
   mode: 'dark',
   colors: {
-    bg: '#0E0B14',
-    surface: '#1A1523',
-    surfaceAlt: '#251E31',
-    border: '#3A3049',
-    borderStrong: '#F4EEFF',
-    outline: '#000000',
-    text: '#F7F3FF',
-    textMuted: '#B9AECB',
-    textSubtle: '#8A7F9C',
-    primary: '#FF3EA5',
-    onPrimary: '#14000B',
-    secondary: '#7C4DFF',
-    onSecondary: '#FFFFFF',
-    trust: '#B6FF3B',
-    onTrust: '#101A00',
-    ai: '#4DE1FF',
-    onAi: '#001A20',
-    success: '#B6FF3B',
-    warning: '#FFC23D',
-    danger: '#FF5A5F',
-    onDanger: '#1A0002',
-    sponsored: '#FFC23D',
-    onSponsored: '#1F1500',
-    tabBar: '#15111D',
-    tabActive: '#FF3EA5',
-    tabInactive: '#8A7F9C',
-    overlay: 'rgba(8, 5, 12, 0.72)',
-    sectionBars: ['#9B72FF', '#FF3EA5', '#4DE1FF', '#B6FF3B'],
-    onSectionBar: '#0E0B14',
+    bg: '#0C0C0C',
+    surface: '#161616',
+    surfaceAlt: '#1E1E1E',
+    border: 'rgba(255, 255, 255, 0.08)',
+    borderStrong: '#333333',
+    text: '#F5F5F5',
+    textMuted: 'rgba(245, 245, 245, 0.62)',
+    textSubtle: 'rgba(245, 245, 245, 0.5)',
+    primary: '#D62828',
+    onPrimary: '#FFFFFF',
+    secondary: '#D4AF37',
+    onSecondary: '#0C0C0C',
+    trust: '#4ADE80',
+    onTrust: '#052E16',
+    ai: '#64A0FF',
+    onAi: '#0C0C0C',
+    success: '#4ADE80',
+    warning: '#D4AF37',
+    danger: '#FF6B6B',
+    onDanger: '#1A0000',
+    sponsored: '#D4AF37',
+    onSponsored: '#0C0C0C',
+    tabBar: '#0C0C0C',
+    tabActive: '#FF4D4D',
+    tabInactive: 'rgba(245, 245, 245, 0.5)',
+    overlay: 'rgba(0, 0, 0, 0.75)',
   },
   fonts: {
-    display: 'BricolageGrotesque_700Bold',
-    displayBold: 'BricolageGrotesque_800ExtraBold',
-    body: 'DMSans_400Regular',
-    bodyMedium: 'DMSans_500Medium',
-    bodyBold: 'DMSans_700Bold',
-    mono: 'SpaceGrotesk_700Bold',
+    display: 'BebasNeue_400Regular',
+    displayBold: 'BebasNeue_400Regular',
+    body: 'Syne_400Regular',
+    bodyMedium: 'Syne_600SemiBold',
+    bodyBold: 'Syne_700Bold',
+    mono: 'JetBrainsMono_500Medium',
   },
-  type: baseType,
-  radius: { sm: 8, md: 12, lg: 16, xl: 22, pill: 999 },
+  // Bebas Neue is a tall, condensed all-caps face, so display sizes run larger.
+  type: {
+    ...baseType,
+    hero: { fontSize: 48, lineHeight: 50, letterSpacing: 1 },
+    h1: { fontSize: 34, lineHeight: 38, letterSpacing: 0.8 },
+    h2: { fontSize: 26, lineHeight: 30, letterSpacing: 0.6 },
+    number: { fontSize: 38, lineHeight: 40, letterSpacing: 0.5 },
+  },
+  radius: { sm: 8, md: 11, lg: 14, xl: 20, pill: 999 },
   space: SPACE,
-  borderWidth: { hairline: 1, regular: 2, strong: 2 },
+  borderWidth: { hairline: 1, regular: 1, strong: 1.5 },
   shadow: {
-    card: '4px 4px 0px 0px #000000',
-    raised: '5px 5px 0px 0px #FF3EA5',
-    pressed: '1px 1px 0px 0px #000000',
+    card: '0px 0px 0px rgba(0,0,0,0)',
+    raised: '0px 12px 32px rgba(0,0,0,0.5)',
+    pressed: '0px 0px 0px rgba(0,0,0,0)',
   },
-  style: { section: 'titlebar', badge: 'sticker', uppercaseLabels: true, monoNumbers: true },
+  style: { section: 'plain', badge: 'pill', uppercaseLabels: true, monoNumbers: false },
 };
 
 /** A: Warm Editorial. Warm charcoal, ivory, plum, serif headlines. */
@@ -87,7 +91,6 @@ const A: Theme = {
     surfaceAlt: '#302B28',
     border: '#3D3632',
     borderStrong: '#6B5F57',
-    outline: '#3D3632',
     text: '#F6F0E6',
     textMuted: '#C4B8A8',
     textSubtle: '#8F8578',
@@ -109,8 +112,6 @@ const A: Theme = {
     tabActive: '#F6F0E6',
     tabInactive: '#8F8578',
     overlay: 'rgba(12, 10, 9, 0.72)',
-    sectionBars: ['#B8466B'],
-    onSectionBar: '#FFF6F0',
   },
   fonts: {
     display: 'Fraunces_600SemiBold',
@@ -144,7 +145,6 @@ const B: Theme = {
     surfaceAlt: '#1A2438',
     border: '#243049',
     borderStrong: '#3A4A6B',
-    outline: '#243049',
     text: '#EEF2FA',
     textMuted: '#A7B2C8',
     textSubtle: '#76819A',
@@ -166,8 +166,6 @@ const B: Theme = {
     tabActive: '#F2B33D',
     tabInactive: '#76819A',
     overlay: 'rgba(4, 7, 14, 0.75)',
-    sectionBars: ['#F2B33D'],
-    onSectionBar: '#1A1200',
   },
   fonts: {
     display: 'SpaceGrotesk_600SemiBold',
@@ -201,7 +199,6 @@ const C: Theme = {
     surfaceAlt: 'rgba(255, 228, 225, 0.11)',
     border: 'rgba(255, 228, 225, 0.14)',
     borderStrong: 'rgba(255, 228, 225, 0.3)',
-    outline: 'rgba(255, 228, 225, 0.14)',
     text: '#FBEFEA',
     textMuted: '#D4BDB5',
     textSubtle: '#9C8A84',
@@ -223,8 +220,6 @@ const C: Theme = {
     tabActive: '#F2A7B4',
     tabInactive: '#9C8A84',
     overlay: 'rgba(10, 6, 5, 0.72)',
-    sectionBars: ['#F2A7B4'],
-    onSectionBar: '#2A0E14',
   },
   fonts: {
     display: 'Fraunces_500Medium',
@@ -258,7 +253,6 @@ const D: Theme = {
     surfaceAlt: '#F1F2EE',
     border: '#E3E5DF',
     borderStrong: '#C5C9C0',
-    outline: '#E3E5DF',
     text: '#111512',
     textMuted: '#4F5750',
     textSubtle: '#646C65',
@@ -280,8 +274,6 @@ const D: Theme = {
     tabActive: '#0F7A4A',
     tabInactive: '#646C65',
     overlay: 'rgba(17, 21, 18, 0.45)',
-    sectionBars: ['#111512'],
-    onSectionBar: '#FFFFFF',
   },
   fonts: {
     display: 'DMSans_700Bold',
@@ -303,6 +295,6 @@ const D: Theme = {
   style: { section: 'ledger', badge: 'credential', uppercaseLabels: true, monoNumbers: true },
 };
 
-export const THEMES: Record<Theme['id'], Theme> = { E, A, B, C, D };
-export const THEME_ORDER: Theme['id'][] = ['E', 'A', 'B', 'C', 'D'];
-export const DEFAULT_THEME_ID: Theme['id'] = 'E';
+export const THEMES: Record<Theme['id'], Theme> = { O, A, B, C, D };
+export const THEME_ORDER: Theme['id'][] = ['O', 'A', 'B', 'C', 'D'];
+export const DEFAULT_THEME_ID: Theme['id'] = 'O';

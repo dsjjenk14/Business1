@@ -18,17 +18,14 @@ export type ButtonProps = Omit<PressableProps, 'style' | 'children'> & {
 export function Button({ label, variant = 'primary', size = 'lg', loading, disabled, icon, style, ...rest }: ButtonProps) {
   const t = useTheme();
   const isDisabled = disabled || loading;
-  const hardEdges = t.style.badge === 'sticker';
 
   const palette = {
-    primary: { bg: t.colors.primary, fg: t.colors.onPrimary, border: hardEdges ? t.colors.outline : t.colors.primary },
-    trust: { bg: t.colors.trust, fg: t.colors.onTrust, border: hardEdges ? t.colors.outline : t.colors.trust },
-    danger: { bg: t.colors.danger, fg: t.colors.onDanger, border: hardEdges ? t.colors.outline : t.colors.danger },
+    primary: { bg: t.colors.primary, fg: t.colors.onPrimary, border: t.colors.primary },
+    trust: { bg: t.colors.trust, fg: t.colors.onTrust, border: t.colors.trust },
+    danger: { bg: t.colors.danger, fg: t.colors.onDanger, border: t.colors.danger },
     secondary: { bg: t.colors.surfaceAlt, fg: t.colors.text, border: t.colors.border },
     ghost: { bg: 'transparent', fg: t.colors.textMuted, border: 'transparent' },
   }[variant];
-
-  const hardShadow = hardEdges && (variant === 'primary' || variant === 'trust' || variant === 'danger');
 
   return (
     <Pressable
@@ -49,10 +46,8 @@ export function Button({ label, variant = 'primary', size = 'lg', loading, disab
           flexDirection: 'row',
           gap: t.space[2],
           opacity: isDisabled ? 0.5 : 1,
-          boxShadow: hardShadow ? (pressed ? t.shadow.pressed : t.shadow.card) : undefined,
-          transform: hardShadow && pressed ? [{ translateX: 2 }, { translateY: 2 }] : undefined,
         },
-        !hardShadow && pressed ? { opacity: 0.8 } : null,
+        pressed ? { opacity: 0.8 } : null,
         style,
       ]}
       {...rest}>

@@ -43,7 +43,6 @@ export default function Appearance() {
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                   <View style={{ flex: 1 }}>
                     <AppText style={{ fontFamily: option.fonts.displayBold, fontSize: 20, lineHeight: 26, color: c.text }}>
-                      {option.id === 'E' ? '★ ' : ''}
                       {option.name}
                     </AppText>
                     <AppText variant="small" style={{ color: c.textMuted, fontFamily: option.fonts.body }}>
@@ -59,10 +58,10 @@ export default function Appearance() {
                       style={{
                         width: 32,
                         height: 32,
-                        borderRadius: option.style.badge === 'sticker' ? 6 : 16,
+                        borderRadius: 16,
                         backgroundColor: swatch,
                         borderWidth: option.borderWidth.regular,
-                        borderColor: option.colors.outline,
+                        borderColor: option.colors.border,
                       }}
                     />
                   ))}

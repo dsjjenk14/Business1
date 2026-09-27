@@ -43,11 +43,6 @@ export default function Home() {
         <AppText variant="h1" accessibilityRole="header">
           Hey, {firstName} 👋
         </AppText>
-        {profile?.mood_status ? (
-          <AppText variant="small" tone="muted">
-            {profile.mood_status}
-          </AppText>
-        ) : null}
       </View>
 
       <VouchCard vouchCount={profile?.vouch_count ?? 0} />
@@ -56,7 +51,7 @@ export default function Home() {
         phase={2}
         title="Going out tonight · From your network · AI pick"
         body="The Go Live strip, the two latest pins from your network, and one ✦ AI pick land here next."
-        colorIndex={1}
+       
       />
     </Screen>
   );
