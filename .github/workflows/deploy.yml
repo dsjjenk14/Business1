@@ -64,9 +64,5 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Link the Expo project (creates it on first run)
-        run: npx eas-cli@latest init --non-interactive --force
-      - name: Configure updates
-        run: npx eas-cli@latest update:configure --platform all --non-interactive
-      - name: Publish update to the "production" branch
-        run: npx eas-cli@latest update --branch production --message "${{ github.event.head_commit.message || 'Manual deploy' }}" --non-interactive
+      - name: Publish update to the "production" channel
+        run: npx eas-cli@latest update --channel production --message "${{ github.event.head_commit.message || 'Manual deploy' }}" --non-interactive
