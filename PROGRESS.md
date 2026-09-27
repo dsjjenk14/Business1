@@ -41,7 +41,6 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 
    Then I can publish a build you open in the Expo Go app. The test checklist is in `docs/PHASE-1-PHONE-CHECK.md`.
 2. **Twilio account** for real texts: Account SID, Auth Token, and a phone number (about $1/month plus about $0.01 per text). Until then, texting runs in demo mode.
-3. **GitHub access** so I can upload the work. Reconnect GitHub at claude.ai/connect-github and install the Claude GitHub App on `dsjjenk14/Business1`. Right now the work is saved as commits in this session only.
 
 ---
 
