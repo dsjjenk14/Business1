@@ -36,16 +36,16 @@ insert into connections (user_a, user_b, source) values
 
 -- ── Check-in → meetup ────────────────────────────────────────────────────
 select pg_temp.act_as('ana');
-select is((select count(*)::int from check_in(38.9150, -77.0319, 20)), 0, 'First to check in: nobody else here yet');
+select is((select count(*)::int from check_in(38.7500, -77.5000, 20)), 0, 'First to check in: nobody else here yet');
 select pg_temp.act_as('bo');
-select is((select display_name from check_in(38.91505, -77.03195, 15)), 'Ana T.', 'Second person checking in nearby sees the first (meetup recorded)');
+select is((select display_name from check_in(38.75005, -77.50005, 15)), 'Ana T.', 'Second person checking in nearby sees the first (meetup recorded)');
 select pg_temp.admin();
 select is((select place_label from encounters where user_a = least(pg_temp.uid('ana'), pg_temp.uid('bo')) and user_b = greatest(pg_temp.uid('ana'), pg_temp.uid('bo'))),
   null::text, 'No venue nearby: meetup has no place label');
 select ok(exists (select 1 from notifications where user_id = pg_temp.uid('ana') and kind = 'meetup'), 'The first person is notified that they can vouch');
 select pg_temp.act_as('di');
-select is((select count(*)::int from check_in(38.9500, -77.0319, 20)), 0, 'Someone 4 km away is not part of the meetup');
-select throws_ok($$ select * from check_in(38.9150, -77.0319, 900) $$, '23514', null, 'A very weak GPS fix is rejected');
+select is((select count(*)::int from check_in(38.7850, -77.5000, 20)), 0, 'Someone 4 km away is not part of the meetup');
+select throws_ok($$ select * from check_in(38.7500, -77.5000, 900) $$, '23514', null, 'A very weak GPS fix is rejected');
 select pg_temp.act_as('ana');
 select is((select count(*)::int from location_pings), 0, 'Raw GPS readings stay unreadable, even your own');
 
