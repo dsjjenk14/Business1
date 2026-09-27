@@ -9,7 +9,6 @@
 #   SUPABASE_DB_PASSWORD    The database password chosen when the project was created
 #   SUPABASE_URL            Supabase project → Settings → API → Project URL
 #   SUPABASE_ANON_KEY       Supabase project → Settings → API → anon / publishable key
-#   SUPABASE_SERVICE_ROLE_KEY  Supabase project → Settings → API → service_role / secret key
 #   EXPO_TOKEN              expo.dev → Account settings → Access tokens
 # Never loads demo data: the database is marked production on every deploy.
 # See docs/DEPLOY.md for the step-by-step.
@@ -48,8 +47,7 @@ jobs:
       - name: Mark database as production (blocks demo data)
         run: node scripts/mark-production.mjs
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://yscrfhaedexogvegbvzm.supabase.co' }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID || 'yscrfhaedexogvegbvzm' }}
 
   app:
     name: Publish app update (Expo)

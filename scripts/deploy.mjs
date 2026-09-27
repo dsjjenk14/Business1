@@ -81,7 +81,7 @@ const url = `https://${ref}.supabase.co`;
 if (!anon || !service) throw new Error('Could not read the project API keys.');
 
 // ── 3. Mark as production ─────────────────────────────────────────────────
-run('node scripts/mark-production.mjs', { SUPABASE_URL: url, SUPABASE_SERVICE_ROLE_KEY: service });
+run('node scripts/mark-production.mjs', { SUPABASE_ACCESS_TOKEN: process.env.SUPABASE_ACCESS_TOKEN, SUPABASE_PROJECT_ID: ref });
 
 // ── 4. Login settings ─────────────────────────────────────────────────────
 await api(`/projects/${ref}/config/auth`, {
