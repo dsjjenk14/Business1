@@ -161,6 +161,99 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"date_requests": {
+                  Row: {
+                    "created_at": string,"from_id": string,"id": number,"note": string | null,"parent_id": number | null,"place_text": string | null,"responded_at": string | null,"starts_at": string | null,"status": Database["public"]['Enums']["date_status"],"to_id": string,"venue_id": number | null,"vibe": string | null,"when_kind": Database["public"]['Enums']["date_when"]
+                  }
+                  Insert: {
+                    "created_at"?: string,"from_id": string,"id"?: number,"note"?: string | null,"parent_id"?: number | null,"place_text"?: string | null,"responded_at"?: string | null,"starts_at"?: string | null,"status"?: Database["public"]['Enums']["date_status"],"to_id": string,"venue_id"?: number | null,"vibe"?: string | null,"when_kind": Database["public"]['Enums']["date_when"]
+                  }
+                  Update: {
+                    "created_at"?: string,"from_id"?: string,"id"?: number,"note"?: string | null,"parent_id"?: number | null,"place_text"?: string | null,"responded_at"?: string | null,"starts_at"?: string | null,"status"?: Database["public"]['Enums']["date_status"],"to_id"?: string,"venue_id"?: number | null,"vibe"?: string | null,"when_kind"?: Database["public"]['Enums']["date_when"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "date_requests_from_id_fkey"
+      columns: ["from_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "date_requests_parent_id_fkey"
+      columns: ["parent_id"]
+isOneToOne: false
+      referencedRelation: "date_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "date_requests_to_id_fkey"
+      columns: ["to_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "date_requests_venue_id_fkey"
+      columns: ["venue_id"]
+isOneToOne: false
+      referencedRelation: "venues"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"date_session_members": {
+                  Row: {
+                    "missed_notified": boolean,"next_checkin_at": string | null,"session_id": number,"user_id": string
+                  }
+                  Insert: {
+                    "missed_notified"?: boolean,"next_checkin_at"?: string | null,"session_id": number,"user_id": string
+                  }
+                  Update: {
+                    "missed_notified"?: boolean,"next_checkin_at"?: string | null,"session_id"?: number,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "date_session_members_session_id_fkey"
+      columns: ["session_id"]
+isOneToOne: false
+      referencedRelation: "date_sessions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "date_session_members_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"date_sessions": {
+                  Row: {
+                    "activated_at": string | null,"checkin_minutes": number,"created_at": string,"date_request_id": number | null,"distance_m": number | null,"ended_at": string | null,"id": number,"initiator_id": string,"last_problem": string | null,"partner_id": string,"status": Database["public"]['Enums']["date_session_status"]
+                  }
+                  Insert: {
+                    "activated_at"?: string | null,"checkin_minutes"?: number,"created_at"?: string,"date_request_id"?: number | null,"distance_m"?: number | null,"ended_at"?: string | null,"id"?: number,"initiator_id": string,"last_problem"?: string | null,"partner_id": string,"status"?: Database["public"]['Enums']["date_session_status"]
+                  }
+                  Update: {
+                    "activated_at"?: string | null,"checkin_minutes"?: number,"created_at"?: string,"date_request_id"?: number | null,"distance_m"?: number | null,"ended_at"?: string | null,"id"?: number,"initiator_id"?: string,"last_problem"?: string | null,"partner_id"?: string,"status"?: Database["public"]['Enums']["date_session_status"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "date_sessions_date_request_id_fkey"
+      columns: ["date_request_id"]
+isOneToOne: false
+      referencedRelation: "date_requests"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "date_sessions_initiator_id_fkey"
+      columns: ["initiator_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "date_sessions_partner_id_fkey"
+      columns: ["partner_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"encounters": {
                   Row: {
                     "context": Database["public"]['Enums']["encounter_context"],"created_at": string,"distance_m": number,"event_id": number | null,"id": number,"overlap_end": string,"overlap_start": string,"place_label": string | null,"user_a": string,"user_b": string,"venue_id": number | null
@@ -928,6 +1021,75 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"safety_alerts": {
+                  Row: {
+                    "contacts_notified": number,"created_at": string,"id": number,"level": Database["public"]['Enums']["safety_level"],"resolved_at": string | null,"session_id": number | null,"user_id": string
+                  }
+                  Insert: {
+                    "contacts_notified"?: number,"created_at"?: string,"id"?: number,"level": Database["public"]['Enums']["safety_level"],"resolved_at"?: string | null,"session_id"?: number | null,"user_id": string
+                  }
+                  Update: {
+                    "contacts_notified"?: number,"created_at"?: string,"id"?: number,"level"?: Database["public"]['Enums']["safety_level"],"resolved_at"?: string | null,"session_id"?: number | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "safety_alerts_session_id_fkey"
+      columns: ["session_id"]
+isOneToOne: false
+      referencedRelation: "date_sessions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "safety_alerts_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"safety_checkins": {
+                  Row: {
+                    "created_at": string,"id": number,"kind": string,"session_id": number | null,"user_id": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"id"?: number,"kind": string,"session_id"?: number | null,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: number,"kind"?: string,"session_id"?: number | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "safety_checkins_session_id_fkey"
+      columns: ["session_id"]
+isOneToOne: false
+      referencedRelation: "date_sessions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "safety_checkins_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"trusted_contacts": {
+                  Row: {
+                    "created_at": string,"id": number,"name": string,"phone": string,"user_id": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"id"?: number,"name": string,"phone": string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: number,"name"?: string,"phone"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "trusted_contacts_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"user_settings": {
                   Row: {
                     "allow_intro_requests": boolean,"discoverable": boolean,"notify_date_requests": boolean,"notify_gps_vouch": boolean,"notify_intro_requests": boolean,"notify_messages": boolean,"notify_pin_replies": boolean,"notify_rsvps": boolean,"radius_mi": number,"show_going_out_venue": boolean,"show_in_nearby": boolean,"show_vouch_count": boolean,"theme_id": string,"updated_at": string,"user_id": string
@@ -1069,6 +1231,9 @@ isOneToOne: false
             "block_user":
 { Args: { "p_user": string }; Returns: undefined
                            },
+"cancel_date_request":
+{ Args: { "p_request": number }; Returns: undefined
+                           },
 "check_in":
 { Args: { "p_accuracy_m"?: number,"p_event_id"?: number,"p_lat": number,"p_lng": number,"p_venue_id"?: number }; Returns: {
               "already_vouched": boolean,"avatar_emoji": string,"avatar_url": string,"degree": number,"display_name": string,"encounter_id": number,"met_at": string,"place_label": string,"user_id": string,"vouch_count": number
@@ -1083,14 +1248,31 @@ isOneToOne: false
 "config_num":
 { Args: { "p_key": string }; Returns: number
                            },
+"confirm_date_mode":
+{ Args: { "p_accuracy_m"?: number,"p_lat": number,"p_lng": number,"p_session": number }; Returns: Json
+                           },
 "conversation_info":
 { Args: { "p_conv": number }; Returns: Json
+                           },
+"counter_date_request":
+{ Args: { "p_note"?: string,"p_place"?: string,"p_request": number,"p_starts_at"?: string,"p_venue_id"?: number,"p_vibe"?: string,"p_when": Database["public"]['Enums']["date_when"] }; Returns: number
                            },
 "create_event":
 { Args: { "p_capacity"?: number,"p_description"?: string,"p_duration_hours"?: number,"p_emoji"?: string,"p_group"?: number,"p_lat"?: number,"p_lng"?: number,"p_place"?: string,"p_starts_at": string,"p_title": string,"p_venue_id"?: number }; Returns: number
                            },
 "create_group":
 { Args: { "p_category": string,"p_description"?: string,"p_emoji"?: string,"p_invite"?: (string)[],"p_join_type"?: Database["public"]['Enums']["join_type"],"p_name": string,"p_schedule"?: string }; Returns: number
+                           },
+"date_mode_candidates":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "avatar_url": string,"detail": string,"display_name": string,"user_id": string,"vouch_count": number
+            }[]
+                           },
+"date_mode_status":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"date_request_detail":
+{ Args: { "p_request": number }; Returns: Json
                            },
 "decline_intro_request":
 { Args: { "p_request": number }; Returns: undefined
@@ -1100,6 +1282,9 @@ isOneToOne: false
                            },
 "effective_radius_mi":
 { Args: { "p_limit_key": string,"p_requested": number }; Returns: number
+                           },
+"end_date_mode":
+{ Args: Record<PropertyKey, never>; Returns: undefined
                            },
 "end_live":
 { Args: Record<PropertyKey, never>; Returns: undefined
@@ -1130,6 +1315,11 @@ isOneToOne: false
 "im_here":
 { Args: { "p_lat"?: number,"p_lng"?: number,"p_post"?: number }; Returns: string
                            },
+"inbox":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "avatar_url": string,"conversation_id": number,"glyph": string,"group_id": number,"kind": string,"last_at": string,"last_body": string,"last_sender_id": string,"other_id": string,"title": string,"unread": boolean
+            }[]
+                           },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
@@ -1148,9 +1338,20 @@ isOneToOne: false
 "make_intro":
 { Args: { "p_a": string,"p_b": string,"p_message": string,"p_request"?: number }; Returns: number
                            },
+"mark_contacts_notified":
+{ Args: { "p_alert": number,"p_count": number }; Returns: undefined
+                           },
+"message_status":
+{ Args: { "p_other": string }; Returns: Json
+                           },
 "my_blocked":
 { Args: Record<PropertyKey, never>; Returns: {
               "avatar_emoji": string,"avatar_url": string,"blocked_at": string,"display_name": string,"user_id": string
+            }[]
+                           },
+"my_dates":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "created_at": string,"i_sent": boolean,"id": number,"label": string,"other_avatar_url": string,"other_id": string,"other_name": string,"status": Database["public"]['Enums']["date_status"],"vibe": string
             }[]
                            },
 "my_going_out_company":
@@ -1208,6 +1409,9 @@ isOneToOne: false
 "profile_card":
 { Args: { "p_user": string }; Returns: Json
                            },
+"raise_safety_alert":
+{ Args: { "p_lat"?: number,"p_level": Database["public"]['Enums']["safety_level"],"p_lng"?: number }; Returns: Json
+                           },
 "record_communication":
 { Args: { "p_from": string,"p_to": string }; Returns: undefined
                            },
@@ -1226,11 +1430,20 @@ isOneToOne: false
 "request_vouch":
 { Args: { "p_target": string }; Returns: number
                            },
+"resolve_safety_alert":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
+"respond_date_request":
+{ Args: { "p_accept": boolean,"p_request": number }; Returns: string
+                           },
 "respond_intro":
 { Args: { "p_accept": boolean,"p_intro": number }; Returns: string
                            },
 "review_join_request":
 { Args: { "p_approve": boolean,"p_request": number }; Returns: undefined
+                           },
+"safety_check_in":
+{ Args: Record<PropertyKey, never>; Returns: string
                            },
 "search_members":
 { Args: { "p_limit"?: number,"p_query": string }; Returns: {
@@ -1241,6 +1454,12 @@ isOneToOne: false
 { Args: { "p_lat"?: number,"p_lng"?: number,"p_query"?: string }; Returns: {
               "category": string,"distance_mi": number,"emoji": string,"id": number,"name": string,"neighborhood": string
             }[]
+                           },
+"send_date_request":
+{ Args: { "p_note"?: string,"p_place"?: string,"p_starts_at"?: string,"p_to": string,"p_venue_id"?: number,"p_vibe"?: string,"p_when": Database["public"]['Enums']["date_when"] }; Returns: number
+                           },
+"set_checkin_interval":
+{ Args: { "p_minutes": number }; Returns: undefined
                            },
 "set_open_to_join":
 { Args: { "p_open": boolean,"p_post": number }; Returns: undefined
@@ -1259,6 +1478,9 @@ isOneToOne: false
                            },
 "snap_location":
 { Args: { "p_lat": number,"p_lng": number }; Returns: unknown
+                           },
+"start_date_mode":
+{ Args: { "p_accuracy_m"?: number,"p_lat": number,"p_lng": number,"p_partner": string }; Returns: number
                            },
 "tonight_ends_at":
 { Args: Record<PropertyKey, never>; Returns: string
@@ -1287,7 +1509,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "connection_source": "invite"|"intro"|"event"|"group"|"date"|"manual","encounter_context": "venue"|"event"|"group"|"date"|"nearby","going_out_join_status": "heading"|"here","going_out_when": "tonight"|"weekend"|"scheduled","group_role": "owner"|"admin"|"member","intro_status": "pending"|"accepted"|"declined","join_type": "request"|"open","location_precision": "approximate"|"precise","pin_audience": "everyone"|"network"|"circle","pin_category": "thought"|"question"|"photos"|"event"|"going_out"|"recap","report_reason": "misrepresentation"|"harassment"|"unsafe"|"privacy"|"spam"|"inappropriate"|"other","report_status": "open"|"reviewing"|"resolved"|"dismissed","request_status": "pending"|"accepted"|"declined"|"cancelled","user_role": "user"|"admin","vouch_status": "active"|"flagged"|"revoked","vouch_type": "gps"|"invite"
+            "connection_source": "invite"|"intro"|"event"|"group"|"date"|"manual","date_session_status": "waiting"|"active"|"ended"|"cancelled","date_status": "pending"|"accepted"|"countered"|"passed"|"cancelled","date_when": "tonight"|"this_weekend"|"next_week"|"specific","encounter_context": "venue"|"event"|"group"|"date"|"nearby","going_out_join_status": "heading"|"here","going_out_when": "tonight"|"weekend"|"scheduled","group_role": "owner"|"admin"|"member","intro_status": "pending"|"accepted"|"declined","join_type": "request"|"open","location_precision": "approximate"|"precise","pin_audience": "everyone"|"network"|"circle","pin_category": "thought"|"question"|"photos"|"event"|"going_out"|"recap","report_reason": "misrepresentation"|"harassment"|"unsafe"|"privacy"|"spam"|"inappropriate"|"other","report_status": "open"|"reviewing"|"resolved"|"dismissed","request_status": "pending"|"accepted"|"declined"|"cancelled","safety_level": "unsafe"|"leaving"|"emergency","user_role": "user"|"admin","vouch_status": "active"|"flagged"|"revoked","vouch_type": "gps"|"invite"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1407,7 +1629,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "connection_source": ["invite", "intro", "event", "group", "date", "manual"],"encounter_context": ["venue", "event", "group", "date", "nearby"],"going_out_join_status": ["heading", "here"],"going_out_when": ["tonight", "weekend", "scheduled"],"group_role": ["owner", "admin", "member"],"intro_status": ["pending", "accepted", "declined"],"join_type": ["request", "open"],"location_precision": ["approximate", "precise"],"pin_audience": ["everyone", "network", "circle"],"pin_category": ["thought", "question", "photos", "event", "going_out", "recap"],"report_reason": ["misrepresentation", "harassment", "unsafe", "privacy", "spam", "inappropriate", "other"],"report_status": ["open", "reviewing", "resolved", "dismissed"],"request_status": ["pending", "accepted", "declined", "cancelled"],"user_role": ["user", "admin"],"vouch_status": ["active", "flagged", "revoked"],"vouch_type": ["gps", "invite"]
+            "connection_source": ["invite", "intro", "event", "group", "date", "manual"],"date_session_status": ["waiting", "active", "ended", "cancelled"],"date_status": ["pending", "accepted", "countered", "passed", "cancelled"],"date_when": ["tonight", "this_weekend", "next_week", "specific"],"encounter_context": ["venue", "event", "group", "date", "nearby"],"going_out_join_status": ["heading", "here"],"going_out_when": ["tonight", "weekend", "scheduled"],"group_role": ["owner", "admin", "member"],"intro_status": ["pending", "accepted", "declined"],"join_type": ["request", "open"],"location_precision": ["approximate", "precise"],"pin_audience": ["everyone", "network", "circle"],"pin_category": ["thought", "question", "photos", "event", "going_out", "recap"],"report_reason": ["misrepresentation", "harassment", "unsafe", "privacy", "spam", "inappropriate", "other"],"report_status": ["open", "reviewing", "resolved", "dismissed"],"request_status": ["pending", "accepted", "declined", "cancelled"],"safety_level": ["unsafe", "leaving", "emergency"],"user_role": ["user", "admin"],"vouch_status": ["active", "flagged", "revoked"],"vouch_type": ["gps", "invite"]
           }
         }
 } as const
