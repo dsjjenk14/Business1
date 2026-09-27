@@ -189,6 +189,7 @@ returns jsonb language sql stable security definer set search_path = '' as $$
     ), '[]'::jsonb),
     'can_message', private.can_message(auth.uid(), p.id),
     'circle_count', (select count(*) from private.first_degree_ids(p.id)),
+    'intros_made', (select count(*) from public.intros i where i.connector_id = p.id and i.a_status = 'accepted' and i.b_status = 'accepted'),
     'tonight', (
       select jsonb_build_object(
         'place', case when public.shows_going_out_venue(p.id) then coalesce(ve.name, g.place_text) end,

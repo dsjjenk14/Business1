@@ -967,11 +967,22 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "check_invite_code":
+            "check_in":
+{ Args: { "p_accuracy_m"?: number,"p_event_id"?: number,"p_lat": number,"p_lng": number,"p_venue_id"?: number }; Returns: {
+              "already_vouched": boolean,"avatar_emoji": string,"avatar_url": string,"degree": number,"display_name": string,"encounter_id": number,"met_at": string,"place_label": string,"user_id": string,"vouch_count": number
+            }[]
+                           },
+"check_invite_code":
 { Args: { "p_code": string }; Returns: string
+                           },
+"circle_overview":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "config_num":
 { Args: { "p_key": string }; Returns: number
+                           },
+"decline_intro_request":
+{ Args: { "p_request": number }; Returns: undefined
                            },
 "effective_radius_mi":
 { Args: { "p_limit_key": string,"p_requested": number }; Returns: number
@@ -985,6 +996,9 @@ isOneToOne: false
 "go_live":
 { Args: { "p_lat"?: number,"p_lng"?: number,"p_note"?: string,"p_place"?: string,"p_venue_id"?: number,"p_vibes"?: (string)[] }; Returns: number
                            },
+"groups_overview":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
@@ -997,8 +1011,24 @@ isOneToOne: false
 "is_premium":
 { Args: { "p_user": string }; Returns: boolean
                            },
+"make_intro":
+{ Args: { "p_a": string,"p_b": string,"p_message": string,"p_request"?: number }; Returns: number
+                           },
+"my_intros":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"my_recent_meetups":
+{ Args: { "p_minutes"?: number }; Returns: {
+              "already_vouched": boolean,"avatar_emoji": string,"avatar_url": string,"degree": number,"display_name": string,"encounter_id": number,"met_at": string,"place_label": string,"user_id": string,"vouch_count": number
+            }[]
+                           },
 "my_vouches_left_this_month":
 { Args: Record<PropertyKey, never>; Returns: number
+                           },
+"network_activity":
+{ Args: { "p_limit"?: number }; Returns: {
+              "actor_avatar": string,"actor_emoji": string,"actor_id": string,"actor_name": string,"at": string,"detail": string,"kind": string,"subject_id": string,"subject_name": string
+            }[]
                            },
 "open_direct_conversation":
 { Args: { "p_other": string }; Returns: number
@@ -1022,6 +1052,20 @@ isOneToOne: false
                            },
 "refresh_vouch_stats":
 { Args: { "p_user": string }; Returns: undefined
+                           },
+"request_intro":
+{ Args: { "p_note"?: string,"p_target": string,"p_via": string }; Returns: number
+                           },
+"request_vouch":
+{ Args: { "p_target": string }; Returns: number
+                           },
+"respond_intro":
+{ Args: { "p_accept": boolean,"p_intro": number }; Returns: string
+                           },
+"search_members":
+{ Args: { "p_limit"?: number,"p_query": string }; Returns: {
+              "avatar_emoji": string,"avatar_url": string,"degree": number,"display_name": string,"headline": string,"id": string,"via_name": string,"vouch_count": number
+            }[]
                            },
 "short_name":
 { Args: { "p_full": string }; Returns: string

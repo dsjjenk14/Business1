@@ -432,6 +432,25 @@ await groupChat('pkl', [['cameron', 'Courts locked in Sunday 8AM. 6 confirmed.',
 await groupChat('run', [['naomi', 'Saturday route: P St → Beach Drive → back. ~4 miles.', 250], ['jordan', 'See everyone at 7!', 240]]);
 for (const g of ['supper', 'howard', 'gallery', 'wine', 'wellness', 'books']) await groupChat(g, []);
 
+// ── 11b. Phase 3 demo: an intro to answer, an intro request, a recent meetup ─
+await must(db.from('intros').insert({
+  connector_id: ids.jordan, person_a: ids.aaliyah, person_b: ids.dom, a_status: 'accepted',
+  message: "Aaliyah's a Howard alum and Bresca regular like you. You two would run the table.", created_at: minutesAgo(90),
+}), 'demo intro');
+await must(db.from('intro_requests').insert({
+  requester_id: ids.deshawn, target_id: ids.naomi, via_id: ids.dom,
+  note: 'Saw her run recaps. Want to join the Saturday group.', created_at: minutesAgo(200),
+}), 'demo intro request');
+{
+  const ff = VENUES.find((v) => v.key === 'foundingfarmers');
+  const a = ids.dom < ids.maya ? ids.dom : ids.maya;
+  const b = ids.dom < ids.maya ? ids.maya : ids.dom;
+  await must(db.from('encounters').insert({
+    user_a: a, user_b: b, context: 'venue', venue_id: venue.foundingfarmers, place_label: ff.name,
+    distance_m: 12, overlap_start: minutesAgo(60 * 26), overlap_end: minutesAgo(60 * 24),
+  }), 'demo recent meetup');
+}
+
 // ── 12. Notifications ─────────────────────────────────────────────
 await must(db.from('notifications').insert([
   { user_id: ids.dom, kind: 'going_out', title: 'Maya T. is going out tonight', body: 'Founding Farmers · Tysons · 7PM', actor_id: ids.maya, created_at: minutesAgo(2) },

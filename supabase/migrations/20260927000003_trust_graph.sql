@@ -357,21 +357,9 @@ create policy "see own and friends' connections" on public.connections for selec
 
 create policy "intro participants" on public.intros for select to authenticated
   using (auth.uid() in (connector_id, person_a, person_b));
-create policy "make intros between your connections" on public.intros for insert to authenticated
-  with check (
-    connector_id = auth.uid()
-    and private.are_connected(auth.uid(), person_a)
-    and private.degree_between(auth.uid(), person_b) in (1, 2)
-  );
 
 create policy "intro request participants" on public.intro_requests for select to authenticated
   using (auth.uid() in (requester_id, target_id, via_id));
-create policy "request an intro via a mutual" on public.intro_requests for insert to authenticated
-  with check (
-    requester_id = auth.uid()
-    and private.are_connected(auth.uid(), via_id)
-    and private.are_connected(via_id, target_id)
-  );
 
 -- location_pings: insert own only, never readable through the API.
 create policy "send own pings" on public.location_pings for insert to authenticated
@@ -388,8 +376,9 @@ create policy "give a gps vouch" on public.vouches for insert to authenticated
 
 create policy "vouch request participants" on public.vouch_requests for select to authenticated
   using (auth.uid() in (requester_id, target_id));
-create policy "ask for a vouch" on public.vouch_requests for insert to authenticated
-  with check (requester_id = auth.uid());
+-- Intros, intro requests and vouch requests are created only through server
+-- functions (make_intro, request_intro, request_vouch in migration 010), which
+-- validate them and send notifications.
 
 create policy "own back-and-forth counts" on public.interactions for select to authenticated
   using (auth.uid() in (user_a, user_b));
