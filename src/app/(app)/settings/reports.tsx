@@ -32,7 +32,7 @@ export default function MyReports() {
           <Card key={r.id}>
             <AppText weight="bold">{REPORT_REASONS.find((x) => x.key === r.reason)?.label ?? r.reason}</AppText>
             <AppText variant="small" tone="muted">
-              {r.about === 'member' ? 'Member' : r.about === 'pin' ? 'Pin' : 'Reply'} by {r.reported_name ?? 'a deleted account'} · {timeAgo(r.created_at)}
+              {r.about === 'member' ? 'Member' : r.about === 'pin' ? 'Pin' : r.about === 'message' ? 'Message' : 'Reply'} by {r.reported_name ?? 'a deleted account'} · {timeAgo(r.created_at)}
             </AppText>
             <Badge label={STATUS[r.status].label} tone={STATUS[r.status].tone} />
           </Card>

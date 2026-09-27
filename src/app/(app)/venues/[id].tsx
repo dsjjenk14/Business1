@@ -60,7 +60,7 @@ export default function Venue() {
                         {e.emoji ?? '📅'} {e.title}
                       </AppText>
                       <AppText variant="small" tone="muted">
-                        {[`${e.host_name} hosting`, dayTime(e.starts_at), spots != null ? `${spots} spots left` : `${e.going_count} going`].join(' · ')}
+                        {[`${e.host_name} hosting`, dayTime(e.starts_at), spots != null ? (spots === 0 ? 'Full' : `${spots} spot${spots === 1 ? '' : 's'} left`) : `${e.going_count} going`].join(' · ')}
                       </AppText>
                     </Card>
                   );

@@ -1,6 +1,6 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, Platform, View } from 'react-native';
+import { Alert, Platform, Pressable, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
 import { BackHeader } from '@/components/nav/AppHeader';
@@ -55,6 +55,11 @@ export default function Group() {
     } finally {
       setBusy(false);
     }
+  }
+
+  function rsvpNext(ev: GroupDetail['next_event']) {
+    if (!ev || !me) return;
+    run(() => rsvp(ev.id, me), `You're going to ${ev.title}`);
   }
 
   function confirmLeave() {
@@ -180,24 +185,22 @@ export default function Group() {
 
         {group.next_event ? (
           <Section title="Next event">
-            <Card
-              onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(group.next_event?.id) } })}
-              accessibilityLabel={`Next event: ${group.next_event.title}`}>
+            <Card>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-                <View style={{ flex: 1 }}>
+                <Pressable
+                  accessibilityRole="link"
+                  accessibilityLabel={`Next event: ${group.next_event.title}`}
+                  onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(group.next_event?.id) } })}
+                  style={{ flex: 1 }}>
                   <AppText weight="bold">{group.next_event.title}</AppText>
                   <AppText variant="small" tone="muted">
                     {[dayTime(group.next_event.starts_at), group.next_event.venue_name, `${group.next_event.going_count} going`].filter(Boolean).join(' · ')}
                   </AppText>
-                </View>
+                </Pressable>
                 {group.next_event.i_am_going ? (
                   <Badge label="Going" tone="trust" />
                 ) : isMember && me ? (
-                  <Button
-                    label="RSVP"
-                    size="md"
-                    onPress={() => run(() => rsvp(group.next_event!.id, me), `You're going to ${group.next_event!.title}`)}
-                  />
+                  <Button label="RSVP" size="md" onPress={() => rsvpNext(group.next_event)} />
                 ) : null}
               </View>
             </Card>

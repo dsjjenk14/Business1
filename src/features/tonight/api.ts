@@ -43,7 +43,8 @@ export const VIBES: { key: string; label: string }[] = [
   { key: 'outdoors', label: '🌿 Outdoors' },
 ];
 
-export const vibeLabel = (key: string) => VIBES.find((v) => v.key === key)?.label.replace(/^\S+\s/, '') ?? key;
+/** "🍹 Drinks" → "Drinks" (drops the emoji, keeps words like "Small group" whole). */
+export const vibeLabel = (key: string) => VIBES.find((v) => v.key === key)?.label.replace(/^[^\p{L}]+\s/u, '') ?? key;
 
 // ── Tonight / This Weekend feed ─────────────────────────────────────────────
 export type GoingOutWhen = 'tonight' | 'weekend' | 'scheduled';

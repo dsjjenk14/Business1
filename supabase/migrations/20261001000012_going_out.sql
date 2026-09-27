@@ -546,6 +546,71 @@ begin
   return pin_id;
 end $$;
 
+-- ── Reporting a chat message ──────────────────────────────────────────────
+-- Chats are member content too (App Store rule): a report can point at the
+-- exact message. Only someone in the conversation can report it.
+alter table public.reports add column message_id bigint references public.messages (id) on delete set null;
+alter table public.reports drop constraint reports_check;
+alter table public.reports add constraint reports_check
+  check (reported_user_id is not null or pin_id is not null or reply_id is not null or message_id is not null);
+
+drop function public.report(public.report_reason, text, uuid, bigint, bigint);
+create function public.report(
+  p_reason public.report_reason, p_details text default '',
+  p_user uuid default null, p_pin bigint default null, p_reply bigint default null, p_message bigint default null)
+returns bigint language plpgsql security definer set search_path = '' as $$
+declare
+  me uuid := auth.uid();
+  target_user uuid := p_user;
+  new_id bigint;
+  reporters int;
+  threshold int := public.config_num('report_hide_threshold')::int;
+begin
+  if me is null then raise exception 'Sign in first.' using errcode = 'insufficient_privilege'; end if;
+  if p_pin is not null then
+    select author_id into target_user from public.pins where id = p_pin;
+  elsif p_reply is not null then
+    select author_id into target_user from public.pin_replies where id = p_reply;
+  elsif p_message is not null then
+    select m.sender_id into target_user from public.messages m
+     where m.id = p_message and private.is_conversation_member(m.conversation_id, me);
+  end if;
+  if target_user is null then raise exception 'Nothing to report.' using errcode = 'check_violation'; end if;
+  if target_user = me then raise exception 'You can''t report yourself.' using errcode = 'check_violation'; end if;
+
+  insert into public.reports (reporter_id, reported_user_id, pin_id, reply_id, message_id, reason, details)
+  values (me, target_user, p_pin, p_reply, p_message, p_reason, coalesce(trim(p_details), ''))
+  returning id into new_id;
+
+  -- Auto-hide content once enough different members report it.
+  if p_pin is not null then
+    select count(distinct reporter_id) into reporters from public.reports where pin_id = p_pin and status in ('open', 'reviewing');
+    if reporters >= threshold then update public.pins set hidden_at = coalesce(hidden_at, now()) where id = p_pin; end if;
+  elsif p_reply is not null then
+    select count(distinct reporter_id) into reporters from public.reports where reply_id = p_reply and status in ('open', 'reviewing');
+    if reporters >= threshold then update public.pin_replies set hidden_at = coalesce(hidden_at, now()) where id = p_reply; end if;
+  end if;
+
+  -- Tell moderators.
+  insert into public.notifications (user_id, kind, title, body, actor_id, link)
+  select p.id, 'moderation', 'New report: ' || p_reason::text, left(coalesce(p_details, ''), 140), null, null
+  from public.profiles p where p.role = 'admin';
+
+  return new_id;
+end $$;
+
+create or replace function public.my_reports()
+returns table (id bigint, reason public.report_reason, status public.report_status, created_at timestamptz,
+               reported_name text, about text)
+language sql stable security definer set search_path = '' as $$
+  select r.id, r.reason, r.status, r.created_at, p.display_name,
+         case when r.pin_id is not null then 'pin' when r.reply_id is not null then 'reply'
+              when r.message_id is not null then 'message' else 'member' end
+  from public.reports r left join public.profiles p on p.id = r.reported_user_id
+  where r.reporter_id = auth.uid()
+  order by r.created_at desc
+$$;
+
 -- ── Permissions ───────────────────────────────────────────────────────────
 do $$
 declare f text;
@@ -567,7 +632,8 @@ begin
     'public.leave_group(bigint)',
     'public.group_detail(bigint)',
     'public.conversation_info(bigint)',
-    'public.post_recap(bigint, text, uuid[])'
+    'public.post_recap(bigint, text, uuid[])',
+    'public.report(public.report_reason, text, uuid, bigint, bigint, bigint)'
   ] loop
     execute format('revoke execute on function %s from public, anon', f);
     execute format('grant execute on function %s to authenticated', f);

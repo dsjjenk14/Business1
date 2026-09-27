@@ -1,7 +1,51 @@
 # I'm In: Progress
 
 ## Status
-**Current phase:** App Store requirements are done. Phase 4 (Going out) is in progress. See `docs/LAUNCH-CHECKLIST.md` for what's needed before launch.
+**Current phase:** Phase 4 (Going out) is done. Next is Phase 5 (messaging, dates and safety). See `docs/LAUNCH-CHECKLIST.md` for what's needed before launch.
+
+---
+
+## ✅ Phase 4: Going out
+
+### What works
+Tested with **three people at once** (Dominique, Maya and Naomi in separate browsers) at iPhone Pro size, with zero errors and no sideways scrolling. Screenshots are in `docs/screenshots/phase-4`.
+
+- **Tonight tab:** a search radius (10 mi free, up to 75 mi on Premium), then **Tonight / This Weekend / Groups**.
+  - **Tonight / This Weekend:** who's going out (your circle first, then your network, then people nearby), with place, time, vibe, distance and 1st/2nd badges; hosts are marked. Then the events, with RSVP and "N from your network going."
+  - **Groups:** what's coming up in your groups, your groups, groups from your circle, and discover.
+- **I'm Going Out** (replaces Go Live; the Home button opens it too): tonight (now or a time), this weekend (a day, optional time), or any time in the next 2 weeks. Type a place, or pick a listed venue so people can see who's there. Vibe and a note. It drops a Going Out pin. You can end or remove your plans.
+- **Map:** everyone on the Tonight feed and every event, placed around you. It zooms to fit and spreads out people at the same spot. Locations are the same quarter-mile approximations as everywhere else, and no map company is used (no cost, and no one else gets location data).
+- **Events:** host one on your own or for a group you run. Pick a day and time, how long, where (a typed place works), and how many spots. The event page has RSVP (and "Can't make it"), capacity ("2 spots left", then "Full"), and who's going. Group events notify the group.
+  - **At the event:** GPS check-in opens an hour before the start and stays open until 3 hours after the end. People who check in there count as a real-life meetup, so they can vouch for each other.
+  - **After the event:** "Post a recap" (text, up to 6 photos, and tag people who went) and "Vouch."
+- **Venues:** a venue page with the address, "N from your network have met up here", and what's happening there.
+- **Groups:**
+  - **Create:** needs a verified phone. Choose a name, category, description, when you meet, and request-only or open. Invite founding members from your circle.
+  - **Join:** open groups and invitations join in one tap. Request-only groups use **Request to Join** (why you want to join, how you found it, and who you know there), followed by a "Request Sent" screen.
+  - **Group page:** owners and admins approve or decline requests. Also on the page: the next event, the members (owner and admin badges, with your circle highlighted), and Leave.
+- **Group chat:** every group has a chat, and joining or leaving adds or removes you automatically. New messages appear instantly for everyone in it. The Messages inbox now opens chats.
+
+### Tests
+**123 automated database tests** (28 new). They cover:
+- tonight vs. weekend
+- the radius cap on the free plan
+- hiding your venue when you've turned that off
+- one "tonight" post at a time
+- event capacity and the check-in window
+- only people who went can post a recap or be tagged
+- only a verified phone can create a group
+- only your circle can be invited
+- join requests and approvals
+- the group chat following membership
+- events can't be created around the rules
+
+### Fixed along the way
+- Going-out posts could be read straight from the database, which would have shown someone's venue even with "show my venue" turned off. Now only the feed hands them out, and it respects the setting.
+- The group-membership checks were callable from outside the app; they're now private, like the other trust-graph checks.
+- Live chat could miss messages after the app was reopened (the live connection started before the login was restored). It now waits for the login and catches up on anything missed after a reconnect.
+
+### Needed later
+- **Venues list:** the live database starts with no venues, so people type places until you add a list of DC venues. I can load one when you're ready, but it should come from a source you're allowed to use.
 
 ---
 
@@ -40,7 +84,7 @@ Tested with **two people at once** (Dominique and Maya in two separate browsers,
 - **Circles tab**
   - **My Circle:** the ring diagram (you in the center, your circle on the inner ring, your network dimmed on the outer ring); 1st degree / 2nd degree / vouch counts; Check In & Vouch; Request a Vouch; vouches you've received (the word and where); your 1st-degree list; Make an Intro.
   - **Network:** a short explainer; "People you might click with" (ranked by mutual friends and shared groups, rule-based, no AI label); network activity (vouches, new connections, who's out tonight); the full 2nd-degree list with "Ask X →".
-  - **Groups:** your groups, groups from your circle, and discover. Joining open groups works now; request-to-join and create come in Phase 4.
+  - **Groups:** your groups, groups from your circle, and discover. (Request-to-join and create came in Phase 4.)
   - An "intros waiting on you" banner shows when something needs your answer.
 - **Search Members:** from the Circles header or the menu. Your circle and network rank first, and members who turned off "discoverable" don't show up.
 - **Profiles:** the + Vouch and Request Intro buttons now work.
@@ -135,8 +179,8 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 
 ---
 
-## Next: Phase 4 (Going out)
-The Tonight tab (Tonight / This Weekend / Groups), posting that you're going out, the map, groups (create, join, request, group chat), and the event recap with the "vouch everyone who was there" flow.
+## Next: Phase 5 (Messaging, dates and safety)
+Direct messages (unlocked after 5 back-and-forths, or right away after an intro), Ask on a Date, Date Mode, and the date safety features.
 
 ---
 
@@ -157,6 +201,11 @@ The Tonight tab (Tonight / This Weekend / Groups), posting that you're going out
 | 2026-09-29 | Intro rules: the first person must be in your circle; the second can be your circle or network | Matches the prototype's Make an Intro screen |
 | 2026-09-29 | Passing on an intro only tells the connector, with no details | "Passing is always graceful" |
 | 2026-09-29 | "People you might click with" is rule-based (mutual friends plus shared groups) until the Phase 7 AI version, and carries no ✦ label | Never label something as AI when it isn't |
+| 2026-10-01 | Creating a group needs a **verified phone** (config `group_create_requires`: none / phone / photo) | Photo verification isn't built until Phase 6; a phone is a real barrier to fake groups in the meantime |
+| 2026-10-01 | "This Weekend" = now through Sunday 11:59 PM (DC). Plans further out use "Pick a Time" | Matches how people talk about "this weekend" |
+| 2026-10-01 | The map is drawn by the app (no map company) | No cost, no API key, and no third party gets members' locations. A street map can be added later if you want one. |
+| 2026-10-01 | Events can be at a typed place, not just a listed venue | The live database starts with no venue list |
+| 2026-10-01 | Recurring group events stay under Groups, not This Weekend | Decision B9 |
 | 2026-09-27 | Tiers: New Face 0, In the Mix 5, Connector 20, Plugged In 50, Icon 100 | Dominique: keep the idea, modernize the names |
 | 2026-09-27 | Pin audience: Everyone / My Network (1st + 2nd) / My Circle (1st) | Dominique: "fix this" |
 | 2026-09-27 | GPS check-in never gives a vouch by itself; each person picks their own word | Dominique |

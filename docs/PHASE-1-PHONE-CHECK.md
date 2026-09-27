@@ -15,7 +15,7 @@ Open the app in **Expo Go** on your iPhone, then go down the list. Anything that
 - [ ] Forgot password: you should get the email (check spam).
 
 ## Phase 2 additions
-- [ ] Home: tap **Go Live**, add a place, then check you show as live and a Going Out pin appears in Pins.
+- [ ] Home: tap **Go Live**, add a place, then check you show on Tonight and a Going Out pin appears in Pins.
 - [ ] Pins → Nearby: allow location when asked. Pins show "~X mi away". Drag the radius slider.
 - [ ] Pins → They're In: pins from other cities show city names.
 - [ ] Like, bookmark, and share a pin. Share should open the iPhone share sheet.
@@ -31,3 +31,12 @@ Open the app in **Expo Go** on your iPhone, then go down the list. Anything that
 - [ ] Circles → Intros: accept the intro from Jordan (as Dominique), then check that Aaliyah now shows in your circle.
 - [ ] Network → tap "Ask Maya →" next to someone, and send an intro request.
 - [ ] Search for "Pri": Priya shows as 2nd degree.
+
+## Phase 4 additions
+- [ ] Tonight tab: drag the radius, switch Tonight / This Weekend / Groups.
+- [ ] Tap **+ Going Out**, pick a time, type "Found" and pick Founding Farmers, add a vibe, and post. You show at the top of Tonight.
+- [ ] Tap the map icon. You're in the middle, with people and events around you.
+- [ ] Tonight → **Host an event**: pick Tomorrow and 7 PM, type a place, set 6 spots. Open it and check "5 spots left".
+- [ ] RSVP to Community Dinner @ Bresca, then tap **Can't make it** on its page.
+- [ ] Settings → verify your phone, then Circles → Groups → **Create your own group**, and invite someone from your circle.
+- [ ] With a friend: they ask to join your group, you approve it, and you both open **💬 Chat**. Messages show up on both phones right away.

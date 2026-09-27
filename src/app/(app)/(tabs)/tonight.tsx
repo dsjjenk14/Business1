@@ -1,6 +1,6 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
-import { RefreshControl, ScrollView, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 
 import { GroupsList } from '@/components/groups/GroupsList';
 import { RadiusControl } from '@/components/pins/RadiusControl';
@@ -141,17 +141,23 @@ export default function Tonight() {
             {groupEvents.length ? (
               <Section title="Coming up in your groups">
                 {groupEvents.map((e) => (
-                  <Card key={e.id} onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(e.id) } })} accessibilityLabel={`${e.title}, ${e.group_name}`}>
+                  <Card key={e.id}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-                      <AppText style={{ fontSize: 26 }}>{e.emoji ?? '📅'}</AppText>
-                      <View style={{ flex: 1 }}>
-                        <AppText variant="small" weight="bold">
-                          {e.title}
-                        </AppText>
-                        <AppText variant="caption" tone="subtle">
-                          {[e.group_name, dayTime(e.starts_at), e.venue_name, `${e.going_count} going`].filter(Boolean).join(' · ')}
-                        </AppText>
-                      </View>
+                      <Pressable
+                        accessibilityRole="link"
+                        accessibilityLabel={`${e.title}, ${e.group_name}`}
+                        onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(e.id) } })}
+                        style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+                        <AppText style={{ fontSize: 26 }}>{e.emoji ?? '📅'}</AppText>
+                        <View style={{ flex: 1 }}>
+                          <AppText variant="small" weight="bold">
+                            {e.title}
+                          </AppText>
+                          <AppText variant="caption" tone="subtle">
+                            {[e.group_name, dayTime(e.starts_at), e.venue_name, `${e.going_count} going`].filter(Boolean).join(' · ')}
+                          </AppText>
+                        </View>
+                      </Pressable>
                       {e.i_am_going ? <Badge label="Going" tone="trust" /> : <Button label="RSVP" size="md" onPress={() => onRsvp(e)} />}
                     </View>
                   </Card>
@@ -190,7 +196,7 @@ export default function Tonight() {
             />
           ) : null}
 
-          <Section title={weekend ? 'Weekend events' : 'Events tonight'} action={{ label: 'Host', onPress: () => router.push('/events/new') }}>
+          <Section title={weekend ? 'Weekend events' : 'Events tonight'} action={{ label: 'Host an event', onPress: () => router.push('/events/new') }}>
             {feed.events.length ? (
               <View style={{ gap: t.space[3] }}>
                 {feed.events.map((e) => (

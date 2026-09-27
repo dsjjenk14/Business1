@@ -15,14 +15,14 @@ export default function Report() {
   const t = useTheme();
   const router = useRouter();
   const toast = useToast();
-  const params = useLocalSearchParams<{ user?: string; pin?: string; reply?: string; name?: string }>();
+  const params = useLocalSearchParams<{ user?: string; pin?: string; reply?: string; message?: string; name?: string }>();
   const [reason, setReason] = useState<ReportReason | null>(null);
   const [details, setDetails] = useState('');
   const [alsoBlock, setAlsoBlock] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const what = params.pin ? 'this pin' : params.reply ? 'this reply' : params.name ?? 'this member';
+  const what = params.pin ? 'this pin' : params.reply ? 'this reply' : params.message ? 'this message' : params.name ?? 'this member';
 
   async function submit() {
     if (!reason) {
@@ -38,6 +38,7 @@ export default function Report() {
         userId: params.user,
         pinId: params.pin ? Number(params.pin) : undefined,
         replyId: params.reply ? Number(params.reply) : undefined,
+        messageId: params.message ? Number(params.message) : undefined,
       });
       if (alsoBlock && params.user) await blockUser(params.user);
       toast(alsoBlock ? 'Reported and blocked. Thank you.' : 'Report sent. Thank you for keeping I’m In safe.');

@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
 import { AppText, Badge, Button, Card } from '@/components/ui';
@@ -57,25 +57,29 @@ export function EventCard({ event, weekend, onRsvp }: { event: FeedEvent; weeken
     .filter(Boolean)
     .join(' · ');
   return (
-    <Card
-      onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(event.id) } })}
-      accessibilityLabel={`${event.title}. ${detail}`}>
+    <Card>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-        <AppText style={{ fontSize: 26 }}>{event.emoji ?? '📅'}</AppText>
-        <View style={{ flex: 1 }}>
-          <AppText variant="small" weight="bold">
-            {event.title}
-            {event.venue_name && !event.title.includes(event.venue_name) ? ` @ ${event.venue_name}` : ''}
-          </AppText>
-          <AppText variant="caption" tone="subtle">
-            {detail}
-          </AppText>
-          {event.network_going > 0 ? (
-            <AppText variant="caption" tone="trust">
-              {event.network_going} from your network going
+        <Pressable
+          accessibilityRole="link"
+          accessibilityLabel={`${event.title}. ${detail}`}
+          onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(event.id) } })}
+          style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+          <AppText style={{ fontSize: 26 }}>{event.emoji ?? '📅'}</AppText>
+          <View style={{ flex: 1 }}>
+            <AppText variant="small" weight="bold">
+              {event.title}
+              {event.venue_name && !event.title.includes(event.venue_name) ? ` @ ${event.venue_name}` : ''}
             </AppText>
-          ) : null}
-        </View>
+            <AppText variant="caption" tone="subtle">
+              {detail}
+            </AppText>
+            {event.network_going > 0 ? (
+              <AppText variant="caption" tone="trust">
+                {event.network_going} from your network going
+              </AppText>
+            ) : null}
+          </View>
+        </Pressable>
         {event.i_am_going ? (
           <Badge label="Going" tone="trust" />
         ) : spotsLeft === 0 ? null : (

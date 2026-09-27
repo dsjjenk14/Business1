@@ -862,16 +862,22 @@ isOneToOne: false
                   ]
                 },"reports": {
                   Row: {
-                    "admin_notes": string | null,"created_at": string,"details": string,"id": number,"pin_id": number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number | null,"reported_user_id": string | null,"reporter_id": string,"resolved_at": string | null,"status": Database["public"]['Enums']["report_status"]
+                    "admin_notes": string | null,"created_at": string,"details": string,"id": number,"message_id": number | null,"pin_id": number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number | null,"reported_user_id": string | null,"reporter_id": string,"resolved_at": string | null,"status": Database["public"]['Enums']["report_status"]
                   }
                   Insert: {
-                    "admin_notes"?: string | null,"created_at"?: string,"details"?: string,"id"?: number,"pin_id"?: number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id": string,"resolved_at"?: string | null,"status"?: Database["public"]['Enums']["report_status"]
+                    "admin_notes"?: string | null,"created_at"?: string,"details"?: string,"id"?: number,"message_id"?: number | null,"pin_id"?: number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id": string,"resolved_at"?: string | null,"status"?: Database["public"]['Enums']["report_status"]
                   }
                   Update: {
-                    "admin_notes"?: string | null,"created_at"?: string,"details"?: string,"id"?: number,"pin_id"?: number | null,"reason"?: Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id"?: string,"resolved_at"?: string | null,"status"?: Database["public"]['Enums']["report_status"]
+                    "admin_notes"?: string | null,"created_at"?: string,"details"?: string,"id"?: number,"message_id"?: number | null,"pin_id"?: number | null,"reason"?: Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id"?: string,"resolved_at"?: string | null,"status"?: Database["public"]['Enums']["report_status"]
                   }
                   Relationships: [
                     {
+      foreignKeyName: "reports_message_id_fkey"
+      columns: ["message_id"]
+isOneToOne: false
+      referencedRelation: "messages"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "reports_pin_id_fkey"
       columns: ["pin_id"]
 isOneToOne: false
@@ -1173,7 +1179,7 @@ isOneToOne: false
 { Args: { "p_user": string }; Returns: undefined
                            },
 "report":
-{ Args: { "p_details"?: string,"p_pin"?: number,"p_reason": Database["public"]['Enums']["report_reason"],"p_reply"?: number,"p_user"?: string }; Returns: number
+{ Args: { "p_details"?: string,"p_message"?: number,"p_pin"?: number,"p_reason": Database["public"]['Enums']["report_reason"],"p_reply"?: number,"p_user"?: string }; Returns: number
                            },
 "request_intro":
 { Args: { "p_note"?: string,"p_target": string,"p_via": string }; Returns: number

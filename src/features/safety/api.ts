@@ -15,13 +15,14 @@ export const REPORT_REASONS: { key: ReportReason; label: string; detail: string 
   { key: 'other', label: 'Something else', detail: 'Tell us in the details' },
 ];
 
-export async function report(input: { reason: ReportReason; details?: string; userId?: string; pinId?: number; replyId?: number }) {
+export async function report(input: { reason: ReportReason; details?: string; userId?: string; pinId?: number; replyId?: number; messageId?: number }) {
   const { error } = await supabase.rpc('report', {
     p_reason: input.reason,
     p_details: input.details ?? '',
     p_user: input.userId,
     p_pin: input.pinId,
     p_reply: input.replyId,
+    p_message: input.messageId,
   });
   if (error) throw error;
 }

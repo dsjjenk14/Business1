@@ -91,7 +91,7 @@ export default function JoinGroup() {
                 <View style={{ flex: 1 }}>
                   <AppText weight="bold">{group.name}</AppText>
                   <AppText variant="small" tone="muted">
-                    {group.member_count} members · Run by {group.owner.display_name}
+                    {group.member_count} member{group.member_count === 1 ? '' : 's'} · Run by {group.owner.display_name}
                   </AppText>
                 </View>
               </View>

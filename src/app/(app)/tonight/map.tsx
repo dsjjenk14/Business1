@@ -77,14 +77,31 @@ export default function TonightMap() {
   const center = location ?? (dots.length ? { lat: dots.reduce((s, d) => s + d.lat, 0) / dots.length, lng: dots.reduce((s, d) => s + d.lng, 0) / dots.length } : null);
   const size = Math.min(width - t.space[4] * 2, 480);
   const half = size / 2;
-  const milesAcross = Math.max(radius, 1);
-  const toXY = (lat: number, lng: number) => {
-    if (!center) return { x: half, y: half };
-    const dy = (lat - center.lat) * MILES_PER_DEG_LAT;
-    const dx = (lng - center.lng) * MILES_PER_DEG_LAT * Math.cos((center.lat * Math.PI) / 180);
-    const clamp = (v: number) => Math.max(18, Math.min(size - 18, v));
-    return { x: clamp(half + (dx / milesAcross) * (half - 20)), y: clamp(half - (dy / milesAcross) * (half - 20)) };
-  };
+  const toMiles = (lat: number, lng: number) =>
+    center
+      ? { dx: (lng - center.lng) * MILES_PER_DEG_LAT * Math.cos((center.lat * Math.PI) / 180), dy: (lat - center.lat) * MILES_PER_DEG_LAT }
+      : { dx: 0, dy: 0 };
+  // Zoom to fit everyone (people in your network can be further than your radius).
+  const farthest = Math.max(1, ...dots.map((d) => Math.hypot(toMiles(d.lat, d.lng).dx, toMiles(d.lat, d.lng).dy)));
+  const milesAcross = niceMiles(farthest * 1.1);
+  const usable = half - 28;
+  // Place each dot, then nudge any that would sit on top of one already placed.
+  const placed: { x: number; y: number }[] = [];
+  const positions = dots.map((d) => {
+    const { dx, dy } = toMiles(d.lat, d.lng);
+    let x = half + (dx / milesAcross) * usable;
+    let y = half - (dy / milesAcross) * usable;
+    for (let i = 0; i < 24 && placed.some((p) => Math.hypot(p.x - x, p.y - y) < 46); i++) {
+      const angle = i * 2.4;
+      const r = 46 + i * 4;
+      x = half + (dx / milesAcross) * usable + Math.cos(angle) * r;
+      y = half - (dy / milesAcross) * usable + Math.sin(angle) * r;
+    }
+    x = Math.max(24, Math.min(size - 24, x));
+    y = Math.max(24, Math.min(size - 40, y));
+    placed.push({ x, y });
+    return { x, y };
+  });
 
   return (
     <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
@@ -94,17 +111,22 @@ export default function TonightMap() {
           accessibilityLabel={`Map within ${radius} miles. ${dots.length} people and events.`}
           style={{ width: size, height: size, alignSelf: 'center', borderRadius: t.radius.lg, overflow: 'hidden', backgroundColor: t.colors.surface, borderWidth: t.borderWidth.hairline, borderColor: t.colors.border }}>
           <Svg width={size} height={size}>
-            {[0.33, 0.66, 1].map((f) => (
-              <Circle key={f} cx={half} cy={half} r={(half - 20) * f} stroke={t.colors.border} strokeWidth={1} fill="none" strokeDasharray="4 6" />
+            {[0.5, 1].map((f) => (
+              <Circle key={f} cx={half} cy={half} r={usable * f} stroke={t.colors.border} strokeWidth={1} fill="none" strokeDasharray="4 6" />
             ))}
             <Line x1={half} y1={0} x2={half} y2={size} stroke={t.colors.border} strokeWidth={1} />
             <Line x1={0} y1={half} x2={size} y2={half} stroke={t.colors.border} strokeWidth={1} />
           </Svg>
+          {[0.5, 1].map((f) => (
+            <AppText key={f} variant="caption" tone="subtle" style={{ position: 'absolute', left: half + 4, top: half - usable * f + 2 }}>
+              {formatMiles(milesAcross * f)}
+            </AppText>
+          ))}
           {location ? (
             <View style={{ position: 'absolute', left: half - 7, top: half - 7, width: 14, height: 14, borderRadius: 7, backgroundColor: t.colors.ai, borderWidth: 2, borderColor: t.colors.bg }} />
           ) : null}
-          {dots.map((d) => {
-            const { x, y } = toXY(d.lat, d.lng);
+          {dots.map((d, i) => {
+            const { x, y } = positions[i] ?? { x: half, y: half };
             return (
               <Pressable
                 key={d.key}
@@ -132,8 +154,8 @@ export default function TonightMap() {
           <Legend color={t.colors.primary} label="Event" square />
         </View>
         <AppText variant="caption" tone="subtle" align="center">
-          Within {radius} mi{status === 'denied' ? ' of your profile location (location is off)' : ''}. Spots are approximate (about a quarter mile), never
-          exact.
+          Nearby within {radius} mi, plus your circle and network wherever they are{status === 'denied' ? ' (centered on your profile location; location is off)' : ''}.
+          Spots are approximate (about a quarter mile), never exact.
         </AppText>
         {feed && dots.length === 0 ? (
           <AppText tone="muted" align="center">
@@ -144,6 +166,14 @@ export default function TonightMap() {
     </View>
   );
 }
+
+/** Round a distance up to a friendly map scale: 1, 2, 5, 10, 20, 50… miles. */
+function niceMiles(mi: number) {
+  const steps = [1, 2, 5, 10, 20, 50, 100, 200, 500];
+  return steps.find((s) => s >= mi) ?? Math.ceil(mi / 100) * 100;
+}
+
+const formatMiles = (mi: number) => `${Number.isInteger(mi) ? mi : mi.toFixed(1)} mi`;
 
 function Legend({ color, label, square }: { color: string; label: string; square?: boolean }) {
   const t = useTheme();

@@ -293,6 +293,7 @@ const eventIds = {};
 for (const e of eventDefs) {
   const [row] = await must(db.from('events').insert({
     host_id: ids[e.host], group_id: e.group ? groupIds[e.group] : null, venue_id: venue[e.venue], title: e.title, emoji: e.emoji,
+    approx_location: (() => { const v = VENUES.find((x) => x.key === e.venue); return v ? point([v.lng, v.lat]) : null; })(),
     starts_at: e.starts, ends_at: new Date(new Date(e.starts).getTime() + 3 * 3_600_000).toISOString(),
     capacity: e.capacity, is_recurring: !!e.recurring,
   }).select('id'), `event ${e.key}`);
@@ -420,9 +421,8 @@ await directChat('deshawn', [
 ]);
 
 async function groupChat(groupKey, lines) {
-  const [conv] = await must(db.from('conversations').insert({ kind: 'group', group_id: groupIds[groupKey] }).select('id'), `group chat ${groupKey}`);
-  const members = await must(db.from('group_members').select('user_id').eq('group_id', groupIds[groupKey]), 'group members');
-  await must(db.from('conversation_members').insert(members.map((m) => ({ conversation_id: conv.id, user_id: m.user_id }))), 'group chat members');
+  // The database creates each group's chat and adds its members automatically.
+  const [conv] = await must(db.from('conversations').select('id').eq('group_id', groupIds[groupKey]), `group chat ${groupKey}`);
   for (const [who, body, mins] of lines) {
     await must(db.from('messages').insert({ conversation_id: conv.id, sender_id: ids[who], body, created_at: minutesAgo(mins) }), 'group msg');
   }

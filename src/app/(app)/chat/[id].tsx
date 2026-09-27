@@ -29,12 +29,15 @@ export default function Chat() {
   const [sending, setSending] = useState(false);
   const [olderDone, setOlderDone] = useState(false);
   const listRef = useRef<FlatList<ChatMessage>>(null);
+  const latestRef = useRef<string | null>(null);
 
   const addMessages = useCallback((incoming: ChatMessage[]) => {
     setMessages((prev) => {
       const seen = new Set(prev.map((m) => m.id));
       const merged = [...prev, ...incoming.filter((m) => !seen.has(m.id))];
-      return merged.sort((a, b) => a.created_at.localeCompare(b.created_at));
+      merged.sort((a, b) => a.created_at.localeCompare(b.created_at));
+      latestRef.current = merged[merged.length - 1]?.created_at ?? null;
+      return merged;
     });
   }, []);
 
@@ -55,10 +58,19 @@ export default function Chat() {
         if (!cancelled) setInfo(null);
       }
     })();
-    const unsubscribe = subscribeToMessages(conversationId, (m) => {
-      addMessages([m]);
-      if (me && m.sender_id !== me) markRead(conversationId, me);
-    });
+    const unsubscribe = subscribeToMessages(
+      conversationId,
+      (m) => {
+        addMessages([m]);
+        if (me && m.sender_id !== me) markRead(conversationId, me);
+      },
+      // (Re)connected: catch up on anything sent while the connection was down.
+      () => {
+        fetchMessages(conversationId, undefined, latestRef.current ?? undefined)
+          .then((m) => !cancelled && addMessages(m))
+          .catch(() => undefined);
+      },
+    );
     return () => {
       cancelled = true;
       unsubscribe();
@@ -148,7 +160,17 @@ export default function Chat() {
                         <View style={{ width: 28 }} />
                       )
                     ) : null}
-                    <View
+                    <Pressable
+                      accessibilityHint={mine ? undefined : 'Long press to report this message'}
+                      onLongPress={
+                        mine
+                          ? undefined
+                          : () =>
+                              router.push({
+                                pathname: '/report',
+                                params: { message: String(item.id), user: item.sender_id, name: sender?.display_name ?? 'this member' },
+                              })
+                      }
                       style={{
                         maxWidth: '78%',
                         paddingHorizontal: t.space[3],
@@ -167,7 +189,7 @@ export default function Chat() {
                       <AppText variant="caption" style={{ color: mine ? t.colors.onPrimary : t.colors.textSubtle, opacity: 0.8, alignSelf: 'flex-end' }}>
                         {clockTime(item.created_at)}
                       </AppText>
-                    </View>
+                    </Pressable>
                   </View>
                 </View>
               );
