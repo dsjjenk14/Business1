@@ -55,6 +55,16 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "owner": "imin1",
+    "runtimeVersion": "exposdk:57.0.0",
+    "updates": {
+      "url": "https://u.expo.dev/c80df938-f132-459e-8f42-53337ccf996a"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c80df938-f132-459e-8f42-53337ccf996a"
+      }
     }
   }
 }
