@@ -5,6 +5,7 @@ import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Button, Card, Screen, TextField } from '@/components/ui';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
+import { goBackOr } from '@/lib/navigation';
 
 type StartResponse = { sent?: boolean; demo?: boolean; phoneLast4?: string; demoCode?: string; alreadyVerified?: boolean; error?: string };
 
@@ -74,7 +75,7 @@ export default function VerifyPhone() {
           <>
             <AppText variant="h2">Phone verified ✓</AppText>
             <AppText tone="muted">Thanks. A verified number makes your account more trusted.</AppText>
-            <Button label="Done" onPress={() => router.back()} />
+            <Button label="Done" onPress={() => goBackOr(router, '/profile')} />
           </>
         ) : (
           <>

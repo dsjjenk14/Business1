@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
+import { ToastProvider } from '@/components/ui';
 import { AppConfigProvider } from '@/config/useAppConfig';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
@@ -42,7 +43,7 @@ function RootNavigator() {
   const signedIn = !!session;
 
   return (
-    <>
+    <ToastProvider>
       <StatusBar style={t.mode === 'dark' ? 'light' : 'dark'} />
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.colors.bg } }}>
         <Stack.Protected guard={!signedIn}>
@@ -52,7 +53,7 @@ function RootNavigator() {
           <Stack.Screen name="(app)" />
         </Stack.Protected>
       </Stack>
-    </>
+    </ToastProvider>
   );
 }
 

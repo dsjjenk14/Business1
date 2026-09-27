@@ -6,6 +6,7 @@ import { AppText, Button, Screen, TextField } from '@/components/ui';
 import { signInWithEmailOrPhone } from '@/features/auth/signIn';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
+import { goBackOr } from '@/lib/navigation';
 
 export default function Login() {
   const t = useTheme();
@@ -35,7 +36,7 @@ export default function Login() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen safeTop contentGap={t.space[5]}>
-        <Pressable accessibilityRole="button" onPress={() => router.back()} hitSlop={12}>
+        <Pressable accessibilityRole="button" onPress={() => goBackOr(router, '/')} hitSlop={12}>
           <AppText tone="muted">← Back</AppText>
         </Pressable>
         <View style={{ gap: t.space[2] }}>

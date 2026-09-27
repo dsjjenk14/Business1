@@ -9,6 +9,7 @@ import { formatUSPhone, normalizeUSPhone } from '@/features/auth/phone';
 import { ageFrom, signUp, toIsoDate } from '@/features/auth/signUp';
 import { friendlyError, supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
+import { goBackOr } from '@/lib/navigation';
 
 type Errors = Partial<Record<'fullName' | 'phone' | 'email' | 'city' | 'dob' | 'password' | 'invite' | 'form', string>>;
 
@@ -116,7 +117,7 @@ export default function SignUp() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Screen safeTop contentGap={t.space[5]}>
-        <Pressable accessibilityRole="button" onPress={() => router.back()} hitSlop={12}>
+        <Pressable accessibilityRole="button" onPress={() => goBackOr(router, '/')} hitSlop={12}>
           <AppText tone="muted">← Back</AppText>
         </Pressable>
 

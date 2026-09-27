@@ -9,6 +9,8 @@ export default function AppLayout() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="menu" options={{ presentation: 'modal' }} />
       <Stack.Screen name="checklist" options={{ presentation: 'transparentModal', animation: 'fade' }} />
+      <Stack.Screen name="go-live" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="pins/new" options={{ presentation: 'modal' }} />
     </Stack>
   );
 }

@@ -10,3 +10,18 @@ export function timeAgo(iso: string, now = Date.now()): string {
   if (days < 7) return `${days}d`;
   return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
+
+/** Launch market timezone. Event and going-out times are shown in local DC time, wherever the viewer is. */
+export const MARKET_TIMEZONE = 'America/New_York';
+
+/** "7:30 PM" in DC time. */
+export function clockTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: MARKET_TIMEZONE });
+}
+
+/** "Washington, DC" → "DC", "Fairfax, VA" → "Fairfax". */
+export function shortCity(name: string | null | undefined): string | null {
+  if (!name) return null;
+  if (/^Washington,\s*DC$/i.test(name)) return 'DC';
+  return name.split(',')[0] ?? name;
+}

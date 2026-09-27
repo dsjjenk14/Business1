@@ -1,114 +1,100 @@
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { Share, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Avatar, Badge, Button, Card, Screen, Section } from '@/components/ui';
-import { tierProgress, useAppConfig } from '@/config/useAppConfig';
+import { ProfileView } from '@/components/profile/ProfileView';
+import { AppText, Button, Card, Screen, Section } from '@/components/ui';
+import { fetchFeed, type FeedPin } from '@/features/pins/api';
+import { fetchProfileCard, type ProfileCard } from '@/features/profiles/api';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 
-/** Your own profile (opened from the header avatar). Full profile arrives in Phase 2. */
+/** Your own profile (opened from the header avatar). */
 export default function MyProfile() {
   const t = useTheme();
   const router = useRouter();
-  const { profile, session, signOut } = useAuth();
-  const { tiers } = useAppConfig();
-  const [stats, setStats] = useState({ circle: 0, groups: 0 });
-  const [phoneVerified, setPhoneVerified] = useState<boolean | null>(null);
+  const { session, profile, signOut } = useAuth();
   const userId = session?.user.id;
+  const [card, setCard] = useState<ProfileCard | null>(null);
+  const [pins, setPins] = useState<FeedPin[]>([]);
+  const [phoneVerified, setPhoneVerified] = useState<boolean | null>(null);
 
-  useEffect(() => {
-    if (!userId) return;
-    Promise.all([
-      supabase.rpc('profile_card', { p_user: userId }),
-      supabase.from('group_members').select('group_id', { count: 'exact', head: true }).eq('user_id', userId),
-      supabase.from('profile_private').select('phone_verified_at').eq('id', userId).maybeSingle(),
-    ]).then(([circle, groups, priv]) => {
-      setStats({ circle: Number((circle.data as { circle_count?: number } | null)?.circle_count ?? 0), groups: groups.count ?? 0 });
-      setPhoneVerified(!!priv.data?.phone_verified_at);
-    });
-  }, [userId]);
-
-  if (!profile) return <BackHeader title="Profile" />;
-  const { current } = tierProgress(profile.vouch_count, tiers);
+  useFocusEffect(
+    useCallback(() => {
+      if (!userId) return;
+      let cancelled = false;
+      Promise.all([
+        fetchProfileCard(userId),
+        fetchFeed({ mode: 'author', author: userId, limit: 10 }),
+        supabase.from('profile_private').select('phone_verified_at').eq('id', userId).maybeSingle(),
+      ]).then(([c, p, priv]) => {
+        if (cancelled) return;
+        setCard(c);
+        setPins(p);
+        setPhoneVerified(!!priv.data?.phone_verified_at);
+      });
+      return () => {
+        cancelled = true;
+      };
+    }, [userId]),
+  );
 
   return (
     <>
       <BackHeader title="Profile" />
       <Screen>
-        <View style={{ alignItems: 'center', gap: t.space[3] }}>
-          <Avatar name={profile.display_name} uri={profile.avatar_url} emoji={profile.avatar_emoji} size={104} ring="primary" />
-          <View style={{ alignItems: 'center', gap: t.space[1] }}>
-            <AppText variant="h1" accessibilityRole="header">
-              {profile.display_name}
-            </AppText>
-            <AppText tone="muted" align="center">
-              {[profile.headline, profile.pronouns].filter(Boolean).join(' · ')}
-            </AppText>
-          </View>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: t.space[2] }}>
-            {profile.is_founding_member ? <Badge label={`Founding Member #${profile.member_number}`} emoji="🏅" tone="sponsored" /> : null}
-            {current ? <Badge label={current.name} emoji={current.emoji} tone="trust" /> : null}
-            {profile.id_verified_at ? <Badge label="ID Verified" emoji="🔑" tone="ai" verified /> : null}
-          </View>
-        </View>
+        {card ? (
+          <ProfileView
+            card={card}
+            pins={pins}
+            onPinChange={(n) => setPins((l) => l.map((p) => (p.id === n.id ? n : p)))}
+            actions={
+              <View style={{ flexDirection: 'row', gap: t.space[2] }}>
+                <Button label="Edit profile" variant="secondary" size="md" style={{ flex: 1 }} onPress={() => router.push('/settings/profile')} />
+                <Button label="+ New Pin" size="md" style={{ flex: 1 }} onPress={() => router.push('/pins/new')} />
+              </View>
+            }>
+            {phoneVerified === false ? (
+              <Card accent="primary" onPress={() => router.push('/verify-phone')} accessibilityLabel="Verify your phone number">
+                <AppText weight="bold">Verify your phone number</AppText>
+                <AppText variant="small" tone="muted">
+                  Takes 30 seconds. Verified numbers make your account more trusted.
+                </AppText>
+              </Card>
+            ) : null}
 
-        <View style={{ flexDirection: 'row', gap: t.space[3] }}>
-          {[
-            { n: profile.vouch_count, label: 'Vouches', tone: 'trust' as const },
-            { n: stats.circle, label: 'Circle', tone: 'primary' as const },
-            { n: stats.groups, label: 'Groups', tone: 'ai' as const },
-          ].map((s) => (
-            <Card key={s.label} style={{ flex: 1, alignItems: 'center', paddingVertical: t.space[3] }}>
-              <AppText variant="number" tone={s.tone}>
-                {s.n}
-              </AppText>
-              <AppText variant="label" tone="subtle">
-                {s.label}
-              </AppText>
-            </Card>
-          ))}
-        </View>
+            {profile ? (
+              <Section title="Your invite code">
+                <AppText variant="number" style={{ letterSpacing: 4 }} selectable>
+                  {profile.invite_code}
+                </AppText>
+                <AppText variant="small" tone="muted">
+                  When someone joins with your code, you&apos;re connected automatically and you both get a vouch.
+                </AppText>
+                <Button
+                  label="Share invite"
+                  variant="secondary"
+                  size="md"
+                  onPress={() =>
+                    Share.share({ message: `Join me on I'm In, where trust is earned in real life. Use my invite code ${profile.invite_code} when you sign up.` })
+                  }
+                />
+              </Section>
+            ) : null}
 
-        {profile.bio ? (
-          <Section title="About me">
-            <AppText>{profile.bio}</AppText>
-          </Section>
-        ) : null}
-
-        <Section title="Your invite code">
-          <AppText variant="number" style={{ letterSpacing: 4 }} selectable>
-            {profile.invite_code}
+            <View style={{ gap: t.space[2] }}>
+              <Button label="Bookmarks" variant="secondary" onPress={() => router.push('/pins/bookmarks')} />
+              <Button label="Appearance" variant="secondary" onPress={() => router.push('/settings/appearance')} />
+              <Button label="Sign Out" variant="ghost" onPress={signOut} />
+            </View>
+          </ProfileView>
+        ) : (
+          <AppText tone="subtle" align="center">
+            Loading…
           </AppText>
-          <AppText variant="small" tone="muted">
-            When someone joins with your code, you&apos;re connected automatically and you both get a vouch.
-          </AppText>
-          <Button
-            label="Share invite"
-            variant="secondary"
-            size="md"
-            onPress={() =>
-              Share.share({ message: `Join me on I'm In, where trust is earned in real life. Use my invite code ${profile.invite_code} when you sign up.` })
-            }
-          />
-        </Section>
-
-        {phoneVerified === false ? (
-          <Card accent="primary" onPress={() => router.push('/verify-phone')} accessibilityLabel="Verify your phone number">
-            <AppText weight="bold">Verify your phone number</AppText>
-            <AppText variant="small" tone="muted">
-              Takes 30 seconds. Verified numbers make your account more trusted.
-            </AppText>
-          </Card>
-        ) : null}
-
-        <Button label="Appearance" variant="secondary" onPress={() => router.push('/settings/appearance')} />
-        <Button label="Sign Out" variant="ghost" onPress={signOut} />
-        <AppText variant="caption" tone="subtle" align="center">
-          Your full profile (vouches, badges, pins) arrives in Phase 2.
-        </AppText>
+        )}
       </Screen>
     </>
   );

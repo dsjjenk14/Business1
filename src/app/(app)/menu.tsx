@@ -6,6 +6,7 @@ import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Screen, Section, type IconName } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/theme';
+import { goBackOr } from '@/lib/navigation';
 
 type Item = { label: string; icon: IconName; href?: Href; soon?: number; ai?: boolean };
 
@@ -61,7 +62,7 @@ export default function Menu() {
                   disabled={!item.href}
                   onPress={() => {
                     if (!item.href) return;
-                    router.back();
+                    goBackOr(router, '/');
                     router.push(item.href);
                   }}
                   style={({ pressed }) => ({

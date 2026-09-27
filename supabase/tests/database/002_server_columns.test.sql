@@ -1,7 +1,7 @@
 -- Members can't set server-controlled columns (timestamps, counters, flags).
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(4);
+select plan(5);
 
 create or replace function pg_temp.new_user(p_email text) returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();
@@ -21,6 +21,9 @@ select set_config('request.jwt.claims', json_build_object('sub', (select id from
 select lives_ok(
   format($$ insert into pins (author_id, category, body) values (%L, 'thought', 'hello') $$, (select id from t)),
   'Members can post a normal pin');
+select lives_ok(
+  format($$ insert into pins (author_id, category, body) values (%L, 'photos', 'with returning') returning id $$, (select id from t)),
+  'Creating a pin and reading back its id works (what the app does)');
 select throws_ok(
   format($$ insert into pins (author_id, category, body, created_at) values (%L, 'thought', 'backdated', '2020-01-01') $$, (select id from t)),
   '42501', null, 'Members cannot backdate a pin');

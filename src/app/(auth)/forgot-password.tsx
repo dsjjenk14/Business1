@@ -6,6 +6,7 @@ import { Pressable, View } from 'react-native';
 import { AppText, Button, Screen, TextField } from '@/components/ui';
 import { friendlyError, supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
+import { goBackOr } from '@/lib/navigation';
 
 export default function ForgotPassword() {
   const t = useTheme();
@@ -33,7 +34,7 @@ export default function ForgotPassword() {
 
   return (
     <Screen safeTop contentGap={t.space[5]}>
-      <Pressable accessibilityRole="button" onPress={() => router.back()} hitSlop={12}>
+      <Pressable accessibilityRole="button" onPress={() => goBackOr(router, '/login')} hitSlop={12}>
         <AppText tone="muted">← Back</AppText>
       </Pressable>
       <View style={{ gap: t.space[2] }}>

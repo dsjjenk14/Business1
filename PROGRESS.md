@@ -1,7 +1,52 @@
 # I'm In: Progress
 
 ## Status
-**Current phase:** Phase 1 (Foundation) is done and waiting for Dominique's go-ahead.
+**Current phase:** Phase 2 (Social core) is done and waiting for Dominique's go-ahead. Next is Phase 3 (Trust graph).
+
+---
+
+## ✅ Phase 2: Social core
+
+### What works (tested by clicking through it in a browser at iPhone SE and iPhone 15 sizes: zero errors, no sideways scrolling)
+- **Pins tab**
+  - **Nearby:** a radius slider from 1 to 50 mi. The free plan stops at 10 mi with a "⭐ Premium goes to 50 mi" note, and the server enforces the cap even if the app asks for more. Every pin shows its approximate distance.
+  - **They're In:** the whole community at any distance, with city labels (NYC, Chicago, Atlanta…).
+  - **Filters:** category chips (All, Thoughts, Q&A, Photos, Events, Going Out) and a 🔥 Trending banner.
+  - **Every pin** can be liked, replied to (in a thread), bookmarked, and shared.
+- **New Pin:** four types, text, up to 6 photos, and who sees it (Everyone / My Network / My Circle). Photos are private and load only for people allowed to see the pin.
+- **Pin thread:** the replies, a reply box, and edit or delete for the pin's author.
+- **Bookmarks:** reachable from the Pins header and your profile.
+- **Profiles:** yours and everyone else's.
+  - Photo, verified check, age · area · pronouns, and badges (top vouch word, tier, Founding Member, Premium, ID Verified).
+  - Vouches / Circle / Groups counts, the "going out tonight" status, and About.
+  - **Vouched by**, with each person's word and where the vouch was earned; groups; pins.
+  - On other people's profiles: "In your circle" or "2nd degree · you both know Jordan T., Maya T."
+  - Buttons: **+ Vouch** and **Message** (Message stays locked until you've had 5 back-and-forths), or **Request Intro** for 2nd degree. These show "coming in Phase 3/5" notes for now.
+- **Edit profile:** photo, display name, headline, bio, pronouns, neighborhood, city, and whether your age shows.
+- **Home (complete)**
+  - Greeting.
+  - **Going Out Tonight** strip: a working **Go Live** button first, then your circle (green ring) and network (blue ring).
+  - Vouch card.
+  - **From Your Network:** the 2 latest pins, with See All.
+  - **Pick for tonight:** the event most of your network is going to, with a working RSVP.
+- **Go Live:** where, vibe, and a note. It drops a "Going Out" pin and ends by itself at 4 AM. You can end it early.
+
+### Privacy and security fixes made in this phase
+- **Location:** pin, going-out and profile locations are rounded to a roughly quarter-mile grid *by the server*, whatever the phone sends. Exact locations are never stored for display.
+- **Your network stays private:** some Phase 1 database helpers (like "who is this person connected to?") could be called by any signed-in member on anyone, which would let someone map out other people's networks. They're now private: tested, and they return "not found" when called directly.
+- **Privacy settings are respected:** a hidden vouch count stays hidden on your profile, and a hidden venue stays hidden in "going out tonight."
+- **Bug fixed:** creating a pin failed a permission check at the moment the app read back the new pin. It's fixed, and a test was added so it can't return.
+- **Times** for events and going-out plans always show in DC time (a visitor from another timezone sees "7:30 PM", not their own local time).
+
+### Tests
+**57 automated database tests**, all passing. They run on GitHub on every upload (the Checks workflow), along with typecheck, lint and the color check.
+
+### Not in Phase 2 (by design, per the build plan)
+- Vouching, intros, and the Circles tab: Phase 3.
+- The Tonight tab, map, and groups: Phase 4.
+- Chats and dates: Phase 5.
+- Sponsored cards in feeds: Phase 6.
+- The **✦ AI** pick: Phase 7. Home currently shows a *rule-based* pick with no AI label, so it's never presented as AI.
 
 ---
 
@@ -40,8 +85,8 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 
 ---
 
-## Next: Phase 2 (Social core)
-Profiles (full), Pins (Nearby + They're In, radius, categories, likes, replies, bookmarks, share, New Pin with photos), and the complete Home.
+## Next: Phase 3 (Trust graph)
+Connections, 1st and 2nd degree, intros (which unlock messaging right away), vouching after GPS-confirmed meetups (2 per month), and the Circles tab (My Circle, Network, Groups).
 
 ---
 
@@ -53,6 +98,10 @@ Profiles (full), Pins (Nearby + They're In, radius, categories, likes, replies, 
 | 2026-09-27 | In the Original theme, gray secondary text is 62% white (the prototype used 40%) | 40% was too faint to read comfortably (it failed the accessibility contrast check) |
 | 2026-09-27 | AI features use the Original palette's blue (#64A0FF) with the ✦ marker | The spec wants AI visually distinct; the prototype used red, which is also the main button color |
 | 2026-09-27 | **People connected through an accepted intro can message right away**, no back-and-forths needed | Dominique |
+| 2026-09-28 | Nearby and They're In show "Everyone" pins; My Network and My Circle pins show on Home, in profiles, and in threads for the people allowed to see them | Keeps the community feeds public, as intended |
+| 2026-09-28 | Posting "going out" (Go Live) also drops a Going Out pin, visible to Everyone unless you've turned off "Show in nearby feed" (then My Network) | Decision C15 |
+| 2026-09-28 | Home's tonight pick is rule-based until Phase 7, with no ✦ AI label | Never show AI branding on something that isn't AI |
+| 2026-09-28 | Event and going-out times show in DC time | The launch market is DC, and events happen in local time |
 | 2026-09-27 | Tiers: New Face 0, In the Mix 5, Connector 20, Plugged In 50, Icon 100 | Dominique: keep the idea, modernize the names |
 | 2026-09-27 | Pin audience: Everyone / My Network (1st + 2nd) / My Circle (1st) | Dominique: "fix this" |
 | 2026-09-27 | GPS check-in never gives a vouch by itself; each person picks their own word | Dominique |

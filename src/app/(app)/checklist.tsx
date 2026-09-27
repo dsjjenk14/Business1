@@ -5,6 +5,7 @@ import { Pressable, View } from 'react-native';
 import { AppText, Button } from '@/components/ui';
 import { useFirstWeekChecklist } from '@/features/onboarding/useFirstWeekChecklist';
 import { useTheme } from '@/theme';
+import { goBackOr } from '@/lib/navigation';
 
 /** "Your First Week" popup shown after first login. */
 export default function ChecklistModal() {
@@ -16,7 +17,7 @@ export default function ChecklistModal() {
 
   async function close() {
     await dismiss();
-    router.back();
+    goBackOr(router, '/');
   }
 
   return (
@@ -52,7 +53,7 @@ export default function ChecklistModal() {
               accessibilityState={{ checked: item.done }}
               onPress={() => {
                 dismiss();
-                router.back();
+                goBackOr(router, '/');
                 if (item.route) router.push(item.route as Href);
               }}
               style={{

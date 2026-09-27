@@ -128,8 +128,10 @@ alter table public.pin_replies   enable row level security;
 alter table public.pin_bookmarks enable row level security;
 alter table public.pin_tags      enable row level security;
 
+-- Authors always see their own pins directly; this also lets "insert … returning"
+-- work, since a brand-new row isn't visible to can_see_pin's own lookup yet.
 create policy "visible pins" on public.pins for select to authenticated
-  using (private.can_see_pin(id, auth.uid()));
+  using (author_id = auth.uid() or private.can_see_pin(id, auth.uid()));
 create policy "post own pins" on public.pins for insert to authenticated
   with check (author_id = auth.uid() and like_count = 0 and reply_count = 0);
 create policy "edit own pins" on public.pins for update to authenticated
