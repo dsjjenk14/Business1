@@ -1,6 +1,13 @@
 -- I'm In: 002 People
 -- Public profile, private account details (owner-only), settings, blocks.
 
+-- Helpers that answer questions about OTHER members (who is connected to whom,
+-- who blocked whom, who can see what) live in the `private` schema. The API only
+-- exposes `public`, so members can't call these directly on arbitrary people;
+-- row-level security policies and server functions still use them.
+create schema if not exists private;
+grant usage on schema private to anon, authenticated, service_role;
+
 create type public.location_precision as enum ('approximate', 'precise');
 create type public.user_role as enum ('user', 'admin');
 
@@ -104,7 +111,7 @@ create index notifications_user_idx on public.notifications (user_id, created_at
 
 -- ── Helpers ───────────────────────────────────────────────────────────────
 -- True if either person has blocked the other.
-create or replace function public.is_blocked(a uuid, b uuid)
+create or replace function private.is_blocked(a uuid, b uuid)
 returns boolean language sql stable security definer set search_path = '' as $$
   select exists (
     select 1 from public.blocks
@@ -188,7 +195,7 @@ alter table public.push_tokens     enable row level security;
 alter table public.notifications   enable row level security;
 
 create policy "members see unblocked profiles" on public.profiles for select to authenticated
-  using (id = auth.uid() or not public.is_blocked(auth.uid(), id));
+  using (id = auth.uid() or not private.is_blocked(auth.uid(), id));
 create policy "edit own profile" on public.profiles for update to authenticated
   using (id = auth.uid()) with check (id = auth.uid());
 

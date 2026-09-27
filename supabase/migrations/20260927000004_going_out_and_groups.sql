@@ -159,7 +159,7 @@ create policy "admins review requests" on public.group_join_requests for update 
   using (public.is_group_admin(group_id, auth.uid())) with check (public.is_group_admin(group_id, auth.uid()));
 
 create policy "events readable" on public.events for select to authenticated
-  using (not public.is_blocked(auth.uid(), host_id));
+  using (not private.is_blocked(auth.uid(), host_id));
 create policy "host events" on public.events for insert to authenticated
   with check (host_id = auth.uid() and (group_id is null or public.is_group_admin(group_id, auth.uid())));
 create policy "edit own events" on public.events for update to authenticated
@@ -180,7 +180,7 @@ create policy "going-out posts visible" on public.going_out_posts for select to 
   using (
     user_id = auth.uid()
     or (
-      not public.is_blocked(auth.uid(), user_id)
+      not private.is_blocked(auth.uid(), user_id)
       and public.shows_in_nearby(user_id)
     )
   );

@@ -967,38 +967,26 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "are_connected":
-{ Args: { "a": string,"b": string }; Returns: boolean
-                           },
-"can_message":
-{ Args: { "p_from": string,"p_to": string }; Returns: boolean
-                           },
-"can_see_pin":
-{ Args: { "p_pin": number,"p_viewer": string }; Returns: boolean
-                           },
-"check_invite_code":
+            "check_invite_code":
 { Args: { "p_code": string }; Returns: string
                            },
 "config_num":
 { Args: { "p_key": string }; Returns: number
                            },
-"degree_between":
-{ Args: { "a": string,"b": string }; Returns: number
+"effective_radius_mi":
+{ Args: { "p_limit_key": string,"p_requested": number }; Returns: number
                            },
-"first_degree_ids":
-{ Args: { "p_user": string }; Returns: string[]
+"end_live":
+{ Args: Record<PropertyKey, never>; Returns: undefined
                            },
 "generate_invite_code":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
+"go_live":
+{ Args: { "p_lat"?: number,"p_lng"?: number,"p_note"?: string,"p_place"?: string,"p_venue_id"?: number,"p_vibes"?: (string)[] }; Returns: number
+                           },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
-                           },
-"is_blocked":
-{ Args: { "a": string,"b": string }; Returns: boolean
-                           },
-"is_conversation_member":
-{ Args: { "p_conv": number,"p_user": string }; Returns: boolean
                            },
 "is_group_admin":
 { Args: { "p_group": number,"p_user": string }; Returns: boolean
@@ -1015,11 +1003,19 @@ isOneToOne: false
 "open_direct_conversation":
 { Args: { "p_other": string }; Returns: number
                            },
+"pins_feed":
+{ Args: { "p_author"?: string,"p_before"?: string,"p_category"?: Database["public"]['Enums']["pin_category"],"p_lat"?: number,"p_limit"?: number,"p_lng"?: number,"p_mode": string,"p_pin"?: number,"p_radius_mi"?: number }; Returns: {
+              "audience": Database["public"]['Enums']["pin_audience"],"author_avatar": string,"author_emoji": string,"author_id": string,"author_name": string,"author_verified": boolean,"author_vouches": number,"body": string,"bookmarked": boolean,"category": Database["public"]['Enums']["pin_category"],"city_name": string,"created_at": string,"distance_mi": number,"edited_at": string,"id": number,"is_mine": boolean,"like_count": number,"liked": boolean,"photo_paths": (string)[],"place_label": string,"reply_count": number
+            }[]
+                           },
 "plan_limit":
 { Args: { "p_key": string,"p_user": string }; Returns: number
                            },
 "profile_age":
 { Args: { "p_user": string }; Returns: number
+                           },
+"profile_card":
+{ Args: { "p_user": string }; Returns: Json
                            },
 "record_communication":
 { Args: { "p_from": string,"p_to": string }; Returns: undefined
@@ -1027,19 +1023,36 @@ isOneToOne: false
 "refresh_vouch_stats":
 { Args: { "p_user": string }; Returns: undefined
                            },
-"second_degree":
-{ Args: { "p_user": string }; Returns: {
-              "user_id": string,"via_ids": (string)[]
-            }[]
-                           },
 "short_name":
 { Args: { "p_full": string }; Returns: string
+                           },
+"shows_going_out_venue":
+{ Args: { "p_user": string }; Returns: boolean
                            },
 "shows_in_nearby":
 { Args: { "p_user": string }; Returns: boolean
                            },
+"snap_geography":
+{ Args: { "p": unknown }; Returns: unknown
+                           },
 "snap_location":
 { Args: { "p_lat": number,"p_lng": number }; Returns: unknown
+                           },
+"tonight_ends_at":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
+"tonight_network":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "avatar_emoji": string,"avatar_url": string,"degree": number,"display_name": string,"is_hosting": boolean,"is_me": boolean,"place": string,"starts_at": string,"user_id": string
+            }[]
+                           },
+"tonight_pick":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "emoji": string,"event_id": number,"going_count": number,"host_name": string,"neighborhood": string,"network_going": (string)[],"spots_left": number,"starts_at": string,"title": string,"venue_name": string
+            }[]
+                           },
+"visible_vouch_count":
+{ Args: { "p_user": string }; Returns: number
                            }
           }
           Enums: {

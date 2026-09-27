@@ -23,40 +23,40 @@ create table public.connections (
 create index connections_b_idx on public.connections (user_b);
 
 -- All of a user's 1st-degree connection ids.
-create or replace function public.first_degree_ids(p_user uuid)
+create or replace function private.first_degree_ids(p_user uuid)
 returns setof uuid language sql stable security definer set search_path = '' as $$
   select case when user_a = p_user then user_b else user_a end
   from public.connections where user_a = p_user or user_b = p_user
 $$;
 
-create or replace function public.are_connected(a uuid, b uuid)
+create or replace function private.are_connected(a uuid, b uuid)
 returns boolean language sql stable security definer set search_path = '' as $$
   select exists (select 1 from public.connections where user_a = least(a, b) and user_b = greatest(a, b))
 $$;
 
 -- 2nd degree: people your 1st degree knows, who aren't already 1st degree,
 -- with the mutual connections you'd ask for an intro ("Ask Maya →").
-create or replace function public.second_degree(p_user uuid)
+create or replace function private.second_degree(p_user uuid)
 returns table (user_id uuid, via_ids uuid[]) language sql stable security definer set search_path = '' as $$
-  with f as (select public.first_degree_ids(p_user) as id)
+  with f as (select private.first_degree_ids(p_user) as id)
   select s.id as user_id, array_agg(distinct f.id) as via_ids
   from f
-  cross join lateral public.first_degree_ids(f.id) as s(id)
+  cross join lateral private.first_degree_ids(f.id) as s(id)
   where s.id <> p_user
     and s.id not in (select id from f)
-    and not public.is_blocked(p_user, s.id)
+    and not private.is_blocked(p_user, s.id)
   group by s.id
 $$;
 
 -- 1 = directly connected, 2 = one intro away, NULL = further / unrelated.
-create or replace function public.degree_between(a uuid, b uuid)
+create or replace function private.degree_between(a uuid, b uuid)
 returns smallint language sql stable security definer set search_path = '' as $$
   select case
     when a = b then 0::smallint
-    when public.are_connected(a, b) then 1::smallint
+    when private.are_connected(a, b) then 1::smallint
     when exists (
-      select 1 from public.first_degree_ids(a) fa
-      join public.first_degree_ids(b) fb on fa = fb
+      select 1 from private.first_degree_ids(a) fa
+      join private.first_degree_ids(b) fb on fa = fb
     ) then 2::smallint
     else null
   end
@@ -350,8 +350,8 @@ alter table public.interactions   enable row level security;
 create policy "see own and friends' connections" on public.connections for select to authenticated
   using (
     auth.uid() in (user_a, user_b)
-    or public.are_connected(auth.uid(), user_a)
-    or public.are_connected(auth.uid(), user_b)
+    or private.are_connected(auth.uid(), user_a)
+    or private.are_connected(auth.uid(), user_b)
   );
 -- Connections are created by server logic only (invites, accepted intros...).
 
@@ -360,8 +360,8 @@ create policy "intro participants" on public.intros for select to authenticated
 create policy "make intros between your connections" on public.intros for insert to authenticated
   with check (
     connector_id = auth.uid()
-    and public.are_connected(auth.uid(), person_a)
-    and public.degree_between(auth.uid(), person_b) in (1, 2)
+    and private.are_connected(auth.uid(), person_a)
+    and private.degree_between(auth.uid(), person_b) in (1, 2)
   );
 
 create policy "intro request participants" on public.intro_requests for select to authenticated
@@ -369,8 +369,8 @@ create policy "intro request participants" on public.intro_requests for select t
 create policy "request an intro via a mutual" on public.intro_requests for insert to authenticated
   with check (
     requester_id = auth.uid()
-    and public.are_connected(auth.uid(), via_id)
-    and public.are_connected(via_id, target_id)
+    and private.are_connected(auth.uid(), via_id)
+    and private.are_connected(via_id, target_id)
   );
 
 -- location_pings: insert own only, never readable through the API.
@@ -382,7 +382,7 @@ create policy "own encounters" on public.encounters for select to authenticated
 
 -- Vouches are public trust signals (who vouched whom, with which word).
 create policy "vouches visible" on public.vouches for select to authenticated
-  using (not public.is_blocked(auth.uid(), voucher_id) and not public.is_blocked(auth.uid(), vouchee_id));
+  using (not private.is_blocked(auth.uid(), voucher_id) and not private.is_blocked(auth.uid(), vouchee_id));
 create policy "give a gps vouch" on public.vouches for insert to authenticated
   with check (voucher_id = auth.uid() and type = 'gps' and status = 'active');
 

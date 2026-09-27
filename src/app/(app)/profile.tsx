@@ -22,11 +22,11 @@ export default function MyProfile() {
   useEffect(() => {
     if (!userId) return;
     Promise.all([
-      supabase.rpc('first_degree_ids', { p_user: userId }),
+      supabase.rpc('profile_card', { p_user: userId }),
       supabase.from('group_members').select('group_id', { count: 'exact', head: true }).eq('user_id', userId),
       supabase.from('profile_private').select('phone_verified_at').eq('id', userId).maybeSingle(),
     ]).then(([circle, groups, priv]) => {
-      setStats({ circle: circle.data?.length ?? 0, groups: groups.count ?? 0 });
+      setStats({ circle: Number((circle.data as { circle_count?: number } | null)?.circle_count ?? 0), groups: groups.count ?? 0 });
       setPhoneVerified(!!priv.data?.phone_verified_at);
     });
   }, [userId]);

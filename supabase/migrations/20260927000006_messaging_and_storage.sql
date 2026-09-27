@@ -27,11 +27,11 @@ $$;
 --  * you were connected through an accepted intro (message right away)
 --  * you're Premium (skips the wait, never the connection)
 --  * free: N back-and-forths first
-create or replace function public.can_message(p_from uuid, p_to uuid)
+create or replace function private.can_message(p_from uuid, p_to uuid)
 returns boolean language sql stable security definer set search_path = '' as $$
   select p_from <> p_to
-    and not public.is_blocked(p_from, p_to)
-    and public.are_connected(p_from, p_to)
+    and not private.is_blocked(p_from, p_to)
+    and private.are_connected(p_from, p_to)
     and (
       exists (select 1 from public.connections
               where user_a = least(p_from, p_to) and user_b = greatest(p_from, p_to) and source = 'intro')
@@ -76,7 +76,7 @@ create table public.messages (
 );
 create index messages_conversation_idx on public.messages (conversation_id, created_at desc);
 
-create or replace function public.is_conversation_member(p_conv bigint, p_user uuid)
+create or replace function private.is_conversation_member(p_conv bigint, p_user uuid)
 returns boolean language sql stable security definer set search_path = '' as $$
   select exists (select 1 from public.conversation_members where conversation_id = p_conv and user_id = p_user)
 $$;
@@ -91,7 +91,7 @@ begin
   select id into conv from public.conversations
    where kind = 'direct' and direct_a = least(me, p_other) and direct_b = greatest(me, p_other);
   if conv is not null then return conv; end if;
-  if not public.can_message(me, p_other) then
+  if not private.can_message(me, p_other) then
     raise exception 'You can''t message this person yet.' using errcode = 'insufficient_privilege';
   end if;
   insert into public.conversations (kind, direct_a, direct_b)
@@ -110,7 +110,7 @@ begin
   select * into c from public.conversations where id = new.conversation_id;
   if c.kind = 'direct' then
     other := case when c.direct_a = new.sender_id then c.direct_b else c.direct_a end;
-    if public.is_blocked(new.sender_id, other) then
+    if private.is_blocked(new.sender_id, other) then
       raise exception 'Message not allowed.' using errcode = 'insufficient_privilege';
     end if;
   end if;
@@ -131,18 +131,18 @@ alter table public.conversation_members enable row level security;
 alter table public.messages             enable row level security;
 
 create policy "my conversations" on public.conversations for select to authenticated
-  using (public.is_conversation_member(id, auth.uid()));
+  using (private.is_conversation_member(id, auth.uid()));
 create policy "members of my conversations" on public.conversation_members for select to authenticated
-  using (public.is_conversation_member(conversation_id, auth.uid()));
+  using (private.is_conversation_member(conversation_id, auth.uid()));
 create policy "mark read" on public.conversation_members for update to authenticated
   using (user_id = auth.uid()) with check (user_id = auth.uid());
 revoke update on public.conversation_members from authenticated, anon;
 grant update (last_read_at) on public.conversation_members to authenticated;
 
 create policy "read my messages" on public.messages for select to authenticated
-  using (public.is_conversation_member(conversation_id, auth.uid()));
+  using (private.is_conversation_member(conversation_id, auth.uid()));
 create policy "send in my conversations" on public.messages for insert to authenticated
-  with check (sender_id = auth.uid() and public.is_conversation_member(conversation_id, auth.uid()));
+  with check (sender_id = auth.uid() and private.is_conversation_member(conversation_id, auth.uid()));
 
 -- ── Storage buckets ───────────────────────────────────────────────────────
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types) values

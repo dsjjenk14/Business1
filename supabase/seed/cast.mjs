@@ -6,6 +6,12 @@ export const DEMO_PASSWORD = 'ImIn-demo-2026';
 // Approximate coordinates [lng, lat] for neighborhoods and venues.
 export const PLACES = {
   fairfax: [-77.3064, 38.8462],
+  fairfaxCorner: [-77.2750, 38.8580],
+  vienna: [-77.2653, 38.9012],
+  mosaic: [-77.2296, 38.8726],
+  merrifield: [-77.2330, 38.8740],
+  reston: [-77.3570, 38.9586],
+  arlington: [-77.1067, 38.8816],
   logan: [-77.0318, 38.9097],
   shaw: [-77.0219, 38.9126],
   ustreet: [-77.0289, 38.9170],

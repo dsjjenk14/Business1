@@ -331,6 +331,17 @@ for (const g of goingOut) {
 
 // ── 10. Pins ──────────────────────────────────────────────────────────────
 const pinDefs = [
+  // Northern Virginia pins, so Dominique's Nearby tab (Fairfax, free 10 mi) has life in it.
+  { key: 'novaQ', author: 'jade', category: 'question', minutes: 50, likes: 9, replies: 11, loc: 'mosaic', place: 'Mosaic District',
+    body: 'Best patio in Mosaic for a Friday after-work drink? Somewhere you can actually hear each other.' },
+  { key: 'priyaEvent', author: 'priya', category: 'event', minutes: 140, likes: 18, replies: 6, loc: 'tysons', place: 'OTF Tysons',
+    body: 'Saturday 9AM class is open to guests this week. Bring a friend, brunch at Sfoglina after. Reply if you want a spot.' },
+  { key: 'jadePhotos', author: 'jade', category: 'photos', minutes: 420, likes: 21, replies: 4, loc: 'merrifield', place: 'Merrifield',
+    body: 'Sunset run through Merrifield then tacos. This is the way.' },
+  { key: 'viennaThought', author: 'member04', category: 'thought', minutes: 600, likes: 7, replies: 3, loc: 'vienna', place: 'Vienna',
+    body: 'Moved to Vienna from Chicago last month. Didn\'t expect NoVA to have this much going on after 8PM.' },
+  { key: 'restonQ', author: 'member10', category: 'question', minutes: 900, likes: 5, replies: 8, loc: 'reston', place: 'Reston Town Center',
+    body: 'Anyone doing trivia nights around Reston? Looking for a team that takes it half seriously.' },
   { key: 'jordanRecap', author: 'jordan', category: 'recap', minutes: 120, venue: 'bresca', place: 'Bresca', likes: 24, replies: 8,
     body: 'Best dinner yet. Six strangers walked in. Friends walked out. Next one is Minibar — drop your name if you want a seat.',
     tags: ['maya', 'aaliyah', 'simone', 'darius', 'theo', 'deshawn'] },
@@ -360,7 +371,7 @@ const pinDefs = [
 ];
 const pinIds = {};
 for (const p of pinDefs) {
-  const author = CAST.find((c) => c.key === p.author);
+  const author = CAST.find((c) => c.key === p.author) ?? { city: 'fairfax-va' };
   const v = p.venue ? VENUES.find((x) => x.key === p.venue) : null;
   const demoCity = p.city ? DEMO_CITIES.find((d) => d.slug === p.city) : null;
   const loc = v ? [v.lng, v.lat] : p.loc ? PLACES[p.loc] : demoCity ? [demoCity.lng, demoCity.lat] : PLACES.dc;

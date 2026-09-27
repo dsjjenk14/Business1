@@ -2,7 +2,7 @@
 -- Each test creates its own users inside a transaction that is rolled back.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(34);
+select plan(38);
 
 -- Helper to create an auth user (fires the real signup trigger).
 create or replace function pg_temp.new_user(p_email text, p_meta jsonb)
@@ -50,7 +50,7 @@ insert into t values ('ben', pg_temp.new_user('ben@test.dev', jsonb_build_object
   'full_name', 'Ben Cho', 'birthdate', '1992-02-02',
   'invite_code', lower((select invite_code from profiles where id = (select id from t where k='ana'))))));
 
-select ok(are_connected((select id from t where k='ana'), (select id from t where k='ben')), 'Invite code auto-connects both people');
+select ok(private.are_connected((select id from t where k='ana'), (select id from t where k='ben')), 'Invite code auto-connects both people');
 select is((select count(*)::int from vouches where type='invite' and vouchee_id = (select id from t where k='ben')), 1, 'Invitee gets an invite vouch');
 select is((select count(*)::int from vouches where type='invite' and vouchee_id = (select id from t where k='ana')), 1, 'Inviter gets an invite vouch');
 
@@ -135,7 +135,7 @@ select pg_temp.act_as_admin();
 
 -- ── Messaging: 5 back-and-forths (on Pins) unlock DMs for free members ────
 -- Ana & Ben are connected (invite) but haven't talked yet.
-select ok(not can_message((select id from t where k='ana'), (select id from t where k='ben')), 'Connected but no back-and-forths yet: no messaging');
+select ok(not private.can_message((select id from t where k='ana'), (select id from t where k='ben')), 'Connected but no back-and-forths yet: no messaging');
 
 -- Likes don't count.
 insert into pin_likes (pin_id, user_id) values ((select id from pins where body='for everyone'), (select id from t where k='ben'));
@@ -157,24 +157,30 @@ do $$ begin
     insert into pin_replies (pin_id, author_id, body) values ((select id from pins where body='for everyone'), (select id from t where k='ana'), 'ana ' || i);
   end loop;
 end $$;
-select ok(not can_message((select id from t where k='ana'), (select id from t where k='ben')), '4 back-and-forths: still locked');
+select ok(not private.can_message((select id from t where k='ana'), (select id from t where k='ben')), '4 back-and-forths: still locked');
 
 insert into pin_replies (pin_id, author_id, body) values ((select id from pins where body='for everyone'), (select id from t where k='ben'), 'ben 4');
 insert into pin_replies (pin_id, author_id, body) values ((select id from pins where body='for everyone'), (select id from t where k='ana'), 'ana 4');
-select ok(can_message((select id from t where k='ana'), (select id from t where k='ben')), '5 back-and-forths: messaging unlocked');
+select ok(private.can_message((select id from t where k='ana'), (select id from t where k='ben')), '5 back-and-forths: messaging unlocked');
 
 -- Premium: skips the wait, never the intro.
-select ok(not can_message((select id from t where k='ana'), (select id from t where k='cam')), 'Free: Ana and Cam are connected but haven''t talked, so no messaging');
+select ok(not private.can_message((select id from t where k='ana'), (select id from t where k='cam')), 'Free: Ana and Cam are connected but haven''t talked, so no messaging');
 insert into entitlements (user_id, premium_until) values ((select id from t where k='ana'), now() + interval '30 days');
-select ok(can_message((select id from t where k='ana'), (select id from t where k='cam')), 'Premium skips the back-and-forth wait');
-select ok(not can_message((select id from t where k='ana'), (select id from t where k='dee')), 'Premium never skips the intro (no messaging strangers)');
+select ok(private.can_message((select id from t where k='ana'), (select id from t where k='cam')), 'Premium skips the back-and-forth wait');
+select ok(not private.can_message((select id from t where k='ana'), (select id from t where k='dee')), 'Premium never skips the intro (no messaging strangers)');
 
 -- Accepted intros: message right away, no waiting.
 insert into connections (user_a, user_b, source, connector_id)
 select least(c.id, d.id), greatest(c.id, d.id), 'intro', (select id from t where k='ana')
 from t c, t d where c.k = 'cam' and d.k = 'dee';
-select ok(can_message((select id from t where k='cam'), (select id from t where k='dee')), 'Introduced through an intro: can message immediately (free member)');
-select ok(can_message((select id from t where k='dee'), (select id from t where k='cam')), 'Works both ways');
+select ok(private.can_message((select id from t where k='cam'), (select id from t where k='dee')), 'Introduced through an intro: can message immediately (free member)');
+select ok(private.can_message((select id from t where k='dee'), (select id from t where k='cam')), 'Works both ways');
+
+-- ── API surface: graph helpers are not callable by members ──────────────
+select hasnt_function('public', 'second_degree', 'second_degree is not exposed through the API');
+select hasnt_function('public', 'first_degree_ids', 'first_degree_ids is not exposed through the API');
+select hasnt_function('public', 'is_blocked', 'is_blocked is not exposed through the API');
+select has_function('private', 'second_degree', 'second_degree lives in the private schema');
 
 select * from finish();
 rollback;
