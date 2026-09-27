@@ -100,7 +100,7 @@ async function createMember(key, fullName, age, citySlug, phone) {
     email: `${key.toLowerCase()}@imin.test`,
     password: DEMO_PASSWORD,
     email_confirm: true,
-    user_metadata: { full_name: fullName, birthdate: birthdate(age), city_slug: citySlug, phone },
+    user_metadata: { full_name: fullName, birthdate: birthdate(age), city_slug: citySlug, phone, accepted_terms: true },
   }), `create ${key}`);
   ids[key] = data.user.id;
 }

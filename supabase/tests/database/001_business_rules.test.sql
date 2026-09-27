@@ -10,7 +10,7 @@ returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();
 begin
   insert into auth.users (id, instance_id, aud, role, email, encrypted_password, raw_user_meta_data, created_at, updated_at)
-  values (uid, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', p_email, '', p_meta, now(), now());
+  values (uid, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', p_email, '', p_meta || '{"accepted_terms": true}', now(), now());
   return uid;
 end $$;
 

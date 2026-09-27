@@ -26,6 +26,7 @@ export async function signUp(input: SignUpInput) {
         city_slug: input.citySlug,
         birthdate: input.birthdate,
         invite_code: input.inviteCode?.trim() || undefined,
+        accepted_terms: true,
       },
     },
   });

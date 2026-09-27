@@ -662,13 +662,13 @@ isOneToOne: false
                   ]
                 },"pin_replies": {
                   Row: {
-                    "author_id": string,"body": string,"created_at": string,"deleted_at": string | null,"id": number,"pin_id": number
+                    "author_id": string,"body": string,"created_at": string,"deleted_at": string | null,"hidden_at": string | null,"id": number,"pin_id": number
                   }
                   Insert: {
-                    "author_id": string,"body": string,"created_at"?: string,"deleted_at"?: string | null,"id"?: number,"pin_id": number
+                    "author_id": string,"body": string,"created_at"?: string,"deleted_at"?: string | null,"hidden_at"?: string | null,"id"?: number,"pin_id": number
                   }
                   Update: {
-                    "author_id"?: string,"body"?: string,"created_at"?: string,"deleted_at"?: string | null,"id"?: number,"pin_id"?: number
+                    "author_id"?: string,"body"?: string,"created_at"?: string,"deleted_at"?: string | null,"hidden_at"?: string | null,"id"?: number,"pin_id"?: number
                   }
                   Relationships: [
                     {
@@ -712,13 +712,13 @@ isOneToOne: false
                   ]
                 },"pins": {
                   Row: {
-                    "approx_location": unknown,"audience": Database["public"]['Enums']["pin_audience"],"author_id": string,"body": string,"category": Database["public"]['Enums']["pin_category"],"city_id": number | null,"created_at": string,"deleted_at": string | null,"edited_at": string | null,"event_id": number | null,"going_out_post_id": number | null,"id": number,"like_count": number,"place_label": string | null,"reply_count": number,"venue_id": number | null
+                    "approx_location": unknown,"audience": Database["public"]['Enums']["pin_audience"],"author_id": string,"body": string,"category": Database["public"]['Enums']["pin_category"],"city_id": number | null,"created_at": string,"deleted_at": string | null,"edited_at": string | null,"event_id": number | null,"going_out_post_id": number | null,"hidden_at": string | null,"id": number,"like_count": number,"place_label": string | null,"reply_count": number,"venue_id": number | null
                   }
                   Insert: {
-                    "approx_location"?: unknown,"audience"?: Database["public"]['Enums']["pin_audience"],"author_id": string,"body": string,"category": Database["public"]['Enums']["pin_category"],"city_id"?: number | null,"created_at"?: string,"deleted_at"?: string | null,"edited_at"?: string | null,"event_id"?: number | null,"going_out_post_id"?: number | null,"id"?: number,"like_count"?: number,"place_label"?: string | null,"reply_count"?: number,"venue_id"?: number | null
+                    "approx_location"?: unknown,"audience"?: Database["public"]['Enums']["pin_audience"],"author_id": string,"body": string,"category": Database["public"]['Enums']["pin_category"],"city_id"?: number | null,"created_at"?: string,"deleted_at"?: string | null,"edited_at"?: string | null,"event_id"?: number | null,"going_out_post_id"?: number | null,"hidden_at"?: string | null,"id"?: number,"like_count"?: number,"place_label"?: string | null,"reply_count"?: number,"venue_id"?: number | null
                   }
                   Update: {
-                    "approx_location"?: unknown,"audience"?: Database["public"]['Enums']["pin_audience"],"author_id"?: string,"body"?: string,"category"?: Database["public"]['Enums']["pin_category"],"city_id"?: number | null,"created_at"?: string,"deleted_at"?: string | null,"edited_at"?: string | null,"event_id"?: number | null,"going_out_post_id"?: number | null,"id"?: number,"like_count"?: number,"place_label"?: string | null,"reply_count"?: number,"venue_id"?: number | null
+                    "approx_location"?: unknown,"audience"?: Database["public"]['Enums']["pin_audience"],"author_id"?: string,"body"?: string,"category"?: Database["public"]['Enums']["pin_category"],"city_id"?: number | null,"created_at"?: string,"deleted_at"?: string | null,"edited_at"?: string | null,"event_id"?: number | null,"going_out_post_id"?: number | null,"hidden_at"?: string | null,"id"?: number,"like_count"?: number,"place_label"?: string | null,"reply_count"?: number,"venue_id"?: number | null
                   }
                   Relationships: [
                     {
@@ -768,13 +768,13 @@ isOneToOne: false
                   ]
                 },"profile_private": {
                   Row: {
-                    "ai_chat_opt_in": boolean,"birthdate": string,"created_at": string,"email": string | null,"id": string,"onboarding_checklist_dismissed_at": string | null,"phone": string | null,"phone_verified_at": string | null
+                    "ai_chat_opt_in": boolean,"birthdate": string,"created_at": string,"email": string | null,"id": string,"onboarding_checklist_dismissed_at": string | null,"phone": string | null,"phone_verified_at": string | null,"terms_accepted_at": string | null
                   }
                   Insert: {
-                    "ai_chat_opt_in"?: boolean,"birthdate": string,"created_at"?: string,"email"?: string | null,"id": string,"onboarding_checklist_dismissed_at"?: string | null,"phone"?: string | null,"phone_verified_at"?: string | null
+                    "ai_chat_opt_in"?: boolean,"birthdate": string,"created_at"?: string,"email"?: string | null,"id": string,"onboarding_checklist_dismissed_at"?: string | null,"phone"?: string | null,"phone_verified_at"?: string | null,"terms_accepted_at"?: string | null
                   }
                   Update: {
-                    "ai_chat_opt_in"?: boolean,"birthdate"?: string,"created_at"?: string,"email"?: string | null,"id"?: string,"onboarding_checklist_dismissed_at"?: string | null,"phone"?: string | null,"phone_verified_at"?: string | null
+                    "ai_chat_opt_in"?: boolean,"birthdate"?: string,"created_at"?: string,"email"?: string | null,"id"?: string,"onboarding_checklist_dismissed_at"?: string | null,"phone"?: string | null,"phone_verified_at"?: string | null,"terms_accepted_at"?: string | null
                   }
                   Relationships: [
                     {
@@ -824,6 +824,43 @@ isOneToOne: false
                     {
       foreignKeyName: "push_tokens_user_id_fkey"
       columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"reports": {
+                  Row: {
+                    "admin_notes": string | null,"created_at": string,"details": string,"id": number,"pin_id": number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number | null,"reported_user_id": string | null,"reporter_id": string,"resolved_at": string | null,"status": Database["public"]['Enums']["report_status"]
+                  }
+                  Insert: {
+                    "admin_notes"?: string | null,"created_at"?: string,"details"?: string,"id"?: number,"pin_id"?: number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id": string,"resolved_at"?: string | null,"status"?: Database["public"]['Enums']["report_status"]
+                  }
+                  Update: {
+                    "admin_notes"?: string | null,"created_at"?: string,"details"?: string,"id"?: number,"pin_id"?: number | null,"reason"?: Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id"?: string,"resolved_at"?: string | null,"status"?: Database["public"]['Enums']["report_status"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "reports_pin_id_fkey"
+      columns: ["pin_id"]
+isOneToOne: false
+      referencedRelation: "pins"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "reports_reply_id_fkey"
+      columns: ["reply_id"]
+isOneToOne: false
+      referencedRelation: "pin_replies"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "reports_reported_user_id_fkey"
+      columns: ["reported_user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "reports_reporter_id_fkey"
+      columns: ["reporter_id"]
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
@@ -967,7 +1004,10 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "check_in":
+            "block_user":
+{ Args: { "p_user": string }; Returns: undefined
+                           },
+"check_in":
 { Args: { "p_accuracy_m"?: number,"p_event_id"?: number,"p_lat": number,"p_lng": number,"p_venue_id"?: number }; Returns: {
               "already_vouched": boolean,"avatar_emoji": string,"avatar_url": string,"degree": number,"display_name": string,"encounter_id": number,"met_at": string,"place_label": string,"user_id": string,"vouch_count": number
             }[]
@@ -1014,12 +1054,22 @@ isOneToOne: false
 "make_intro":
 { Args: { "p_a": string,"p_b": string,"p_message": string,"p_request"?: number }; Returns: number
                            },
+"my_blocked":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "avatar_emoji": string,"avatar_url": string,"blocked_at": string,"display_name": string,"user_id": string
+            }[]
+                           },
 "my_intros":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
 "my_recent_meetups":
 { Args: { "p_minutes"?: number }; Returns: {
               "already_vouched": boolean,"avatar_emoji": string,"avatar_url": string,"degree": number,"display_name": string,"encounter_id": number,"met_at": string,"place_label": string,"user_id": string,"vouch_count": number
+            }[]
+                           },
+"my_reports":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "about": string,"created_at": string,"id": number,"reason": Database["public"]['Enums']["report_reason"],"reported_name": string,"status": Database["public"]['Enums']["report_status"]
             }[]
                            },
 "my_vouches_left_this_month":
@@ -1041,6 +1091,9 @@ isOneToOne: false
 "plan_limit":
 { Args: { "p_key": string,"p_user": string }; Returns: number
                            },
+"prepare_account_deletion":
+{ Args: { "p_user": string }; Returns: undefined
+                           },
 "profile_age":
 { Args: { "p_user": string }; Returns: number
                            },
@@ -1052,6 +1105,9 @@ isOneToOne: false
                            },
 "refresh_vouch_stats":
 { Args: { "p_user": string }; Returns: undefined
+                           },
+"report":
+{ Args: { "p_details"?: string,"p_pin"?: number,"p_reason": Database["public"]['Enums']["report_reason"],"p_reply"?: number,"p_user"?: string }; Returns: number
                            },
 "request_intro":
 { Args: { "p_note"?: string,"p_target": string,"p_via": string }; Returns: number
@@ -1095,12 +1151,15 @@ isOneToOne: false
               "emoji": string,"event_id": number,"going_count": number,"host_name": string,"neighborhood": string,"network_going": (string)[],"spots_left": number,"starts_at": string,"title": string,"venue_name": string
             }[]
                            },
+"unblock_user":
+{ Args: { "p_user": string }; Returns: undefined
+                           },
 "visible_vouch_count":
 { Args: { "p_user": string }; Returns: number
                            }
           }
           Enums: {
-            "connection_source": "invite"|"intro"|"event"|"group"|"date"|"manual","encounter_context": "venue"|"event"|"group"|"date"|"nearby","going_out_when": "tonight"|"weekend"|"scheduled","group_role": "owner"|"admin"|"member","intro_status": "pending"|"accepted"|"declined","join_type": "request"|"open","location_precision": "approximate"|"precise","pin_audience": "everyone"|"network"|"circle","pin_category": "thought"|"question"|"photos"|"event"|"going_out"|"recap","request_status": "pending"|"accepted"|"declined"|"cancelled","user_role": "user"|"admin","vouch_status": "active"|"flagged"|"revoked","vouch_type": "gps"|"invite"
+            "connection_source": "invite"|"intro"|"event"|"group"|"date"|"manual","encounter_context": "venue"|"event"|"group"|"date"|"nearby","going_out_when": "tonight"|"weekend"|"scheduled","group_role": "owner"|"admin"|"member","intro_status": "pending"|"accepted"|"declined","join_type": "request"|"open","location_precision": "approximate"|"precise","pin_audience": "everyone"|"network"|"circle","pin_category": "thought"|"question"|"photos"|"event"|"going_out"|"recap","report_reason": "misrepresentation"|"harassment"|"unsafe"|"privacy"|"spam"|"inappropriate"|"other","report_status": "open"|"reviewing"|"resolved"|"dismissed","request_status": "pending"|"accepted"|"declined"|"cancelled","user_role": "user"|"admin","vouch_status": "active"|"flagged"|"revoked","vouch_type": "gps"|"invite"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1220,7 +1279,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "connection_source": ["invite", "intro", "event", "group", "date", "manual"],"encounter_context": ["venue", "event", "group", "date", "nearby"],"going_out_when": ["tonight", "weekend", "scheduled"],"group_role": ["owner", "admin", "member"],"intro_status": ["pending", "accepted", "declined"],"join_type": ["request", "open"],"location_precision": ["approximate", "precise"],"pin_audience": ["everyone", "network", "circle"],"pin_category": ["thought", "question", "photos", "event", "going_out", "recap"],"request_status": ["pending", "accepted", "declined", "cancelled"],"user_role": ["user", "admin"],"vouch_status": ["active", "flagged", "revoked"],"vouch_type": ["gps", "invite"]
+            "connection_source": ["invite", "intro", "event", "group", "date", "manual"],"encounter_context": ["venue", "event", "group", "date", "nearby"],"going_out_when": ["tonight", "weekend", "scheduled"],"group_role": ["owner", "admin", "member"],"intro_status": ["pending", "accepted", "declined"],"join_type": ["request", "open"],"location_precision": ["approximate", "precise"],"pin_audience": ["everyone", "network", "circle"],"pin_category": ["thought", "question", "photos", "event", "going_out", "recap"],"report_reason": ["misrepresentation", "harassment", "unsafe", "privacy", "spam", "inappropriate", "other"],"report_status": ["open", "reviewing", "resolved", "dismissed"],"request_status": ["pending", "accepted", "declined", "cancelled"],"user_role": ["user", "admin"],"vouch_status": ["active", "flagged", "revoked"],"vouch_type": ["gps", "invite"]
           }
         }
 } as const

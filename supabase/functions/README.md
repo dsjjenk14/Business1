@@ -8,6 +8,7 @@ Secrets (Twilio, Anthropic, etc.) live only here, never in the app.
 | `auth-phone-login` | Log in with phone number + password. Same answer for unknown numbers and wrong passwords. Rate-limited per number. |
 | `phone-verify-start` | Texts a 6-digit code to the member's phone (Twilio). Rate-limited. |
 | `phone-verify-check` | Checks the code, marks the phone verified. 5 tries per code, 10-minute expiry. |
+| `delete-account` | Deletes the signed-in member's account: hands off their groups, removes their photos, deletes their login (everything else cascades). Needs `{ "confirm": "DELETE" }`. |
 
 ## Secrets
 

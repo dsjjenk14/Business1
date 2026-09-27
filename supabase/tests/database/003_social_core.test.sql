@@ -8,7 +8,7 @@ declare uid uuid := gen_random_uuid();
 begin
   insert into auth.users (id, instance_id, aud, role, email, encrypted_password, raw_user_meta_data, created_at, updated_at)
   values (uid, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated', p_email, '',
-          jsonb_build_object('full_name', p_name, 'birthdate', '1990-01-01', 'city_slug', 'fairfax-va'), now(), now());
+          jsonb_build_object('accepted_terms', true, 'full_name', p_name, 'birthdate', '1990-01-01', 'city_slug', 'fairfax-va'), now(), now());
   return uid;
 end $$;
 create or replace function pg_temp.act_as(uid uuid) returns void language plpgsql as $$
