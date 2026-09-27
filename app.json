@@ -1,0 +1,60 @@
+{
+  "expo": {
+    "name": "I'm In",
+    "slug": "imin",
+    "scheme": "imin",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#0E0B14",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "app.imin.ios"
+    },
+    "android": {
+      "package": "app.imin.android",
+      "adaptiveIcon": {
+        "backgroundColor": "#0E0B14",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#0E0B14",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 160
+        }
+      ],
+      "expo-secure-store",
+      "expo-image",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "I'm In uses your photos so you can add a profile picture and photos to your pins.",
+          "cameraPermission": "I'm In uses your camera so you can take a profile picture or verification selfie."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "I'm In uses your approximate location to show pins and people near you. Your exact location is never shown to anyone."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
