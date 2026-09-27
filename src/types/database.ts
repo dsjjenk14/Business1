@@ -393,13 +393,13 @@ isOneToOne: false
                   ]
                 },"going_out_posts": {
                   Row: {
-                    "approx_location": unknown,"arrived_at": string | null,"created_at": string,"event_id": number | null,"expires_at": string,"id": number,"is_hosting": boolean,"is_priority": boolean,"live_until": string | null,"note": string | null,"open_to_join": boolean,"place_text": string | null,"starts_at": string,"user_id": string,"venue_id": number | null,"vibes": (string)[],"when_kind": Database["public"]['Enums']["going_out_when"]
+                    "approx_location": unknown,"arrived_at": string | null,"created_at": string,"event_id": number | null,"expires_at": string,"here_audience": string,"id": number,"is_hosting": boolean,"is_priority": boolean,"live_until": string | null,"note": string | null,"open_to_join": boolean,"place_text": string | null,"starts_at": string,"user_id": string,"venue_id": number | null,"vibes": (string)[],"when_kind": Database["public"]['Enums']["going_out_when"]
                   }
                   Insert: {
-                    "approx_location"?: unknown,"arrived_at"?: string | null,"created_at"?: string,"event_id"?: number | null,"expires_at": string,"id"?: number,"is_hosting"?: boolean,"is_priority"?: boolean,"live_until"?: string | null,"note"?: string | null,"open_to_join"?: boolean,"place_text"?: string | null,"starts_at": string,"user_id": string,"venue_id"?: number | null,"vibes"?: (string)[],"when_kind": Database["public"]['Enums']["going_out_when"]
+                    "approx_location"?: unknown,"arrived_at"?: string | null,"created_at"?: string,"event_id"?: number | null,"expires_at": string,"here_audience"?: string,"id"?: number,"is_hosting"?: boolean,"is_priority"?: boolean,"live_until"?: string | null,"note"?: string | null,"open_to_join"?: boolean,"place_text"?: string | null,"starts_at": string,"user_id": string,"venue_id"?: number | null,"vibes"?: (string)[],"when_kind": Database["public"]['Enums']["going_out_when"]
                   }
                   Update: {
-                    "approx_location"?: unknown,"arrived_at"?: string | null,"created_at"?: string,"event_id"?: number | null,"expires_at"?: string,"id"?: number,"is_hosting"?: boolean,"is_priority"?: boolean,"live_until"?: string | null,"note"?: string | null,"open_to_join"?: boolean,"place_text"?: string | null,"starts_at"?: string,"user_id"?: string,"venue_id"?: number | null,"vibes"?: (string)[],"when_kind"?: Database["public"]['Enums']["going_out_when"]
+                    "approx_location"?: unknown,"arrived_at"?: string | null,"created_at"?: string,"event_id"?: number | null,"expires_at"?: string,"here_audience"?: string,"id"?: number,"is_hosting"?: boolean,"is_priority"?: boolean,"live_until"?: string | null,"note"?: string | null,"open_to_join"?: boolean,"place_text"?: string | null,"starts_at"?: string,"user_id"?: string,"venue_id"?: number | null,"vibes"?: (string)[],"when_kind"?: Database["public"]['Enums']["going_out_when"]
                   }
                   Relationships: [
                     {
@@ -1460,6 +1460,9 @@ isOneToOne: false
                            },
 "set_checkin_interval":
 { Args: { "p_minutes": number }; Returns: undefined
+                           },
+"set_here_audience":
+{ Args: { "p_audience": string,"p_post": number }; Returns: undefined
                            },
 "set_open_to_join":
 { Args: { "p_open": boolean,"p_post": number }; Returns: undefined

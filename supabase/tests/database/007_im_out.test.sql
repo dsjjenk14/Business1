@@ -1,7 +1,7 @@
 -- I'm Out: "I'm here" (live), who can see it, joining ("I'm coming"), and no emoji.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(13);
+select plan(15);
 
 create or replace function pg_temp.new_user(p_email text, p_name text) returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();
@@ -26,10 +26,12 @@ $$;
 insert into t values
   ('ana', pg_temp.new_user('ana7@test.dev', 'Ana Seven')),
   ('bo',  pg_temp.new_user('bo7@test.dev',  'Bo Seven')),
-  ('cy',  pg_temp.new_user('cy7@test.dev',  'Cy Seven'));
--- ana–bo connected; cy is a stranger nearby.
+  ('cy',  pg_temp.new_user('cy7@test.dev',  'Cy Seven')),
+  ('di',  pg_temp.new_user('di7@test.dev',  'Di Seven'));
+-- ana–bo connected, bo–di connected (di is ana's 2nd degree); cy is a stranger nearby.
 insert into connections (user_a, user_b, source) values
-  (least(pg_temp.uid('ana'), pg_temp.uid('bo')), greatest(pg_temp.uid('ana'), pg_temp.uid('bo')), 'manual');
+  (least(pg_temp.uid('ana'), pg_temp.uid('bo')), greatest(pg_temp.uid('ana'), pg_temp.uid('bo')), 'manual'),
+  (least(pg_temp.uid('bo'), pg_temp.uid('di')), greatest(pg_temp.uid('bo'), pg_temp.uid('di')), 'manual');
 
 select pg_temp.act_as('ana');
 select post_going_out('tonight', p_place => 'Rooftop', p_lat => 38.60, p_lng => -77.30);
@@ -41,6 +43,13 @@ select pg_temp.act_as('bo');
 select isnt((pg_temp.person('tonight', 'Ana S.')->>'here_since'), null, 'Your circle sees "here now"');
 select pg_temp.act_as('cy');
 select is((pg_temp.person('tonight', 'Ana S.')->>'here_since'), null, 'Strangers nearby don''t see "here now"');
+select pg_temp.act_as('di');
+select is((pg_temp.person('tonight', 'Ana S.')->>'here_since'), null, 'Your network (2nd degree) doesn''t see it by default: circle only');
+select pg_temp.act_as('ana');
+select set_here_audience((select id from going_out_posts where user_id = pg_temp.uid('ana')), 'network');
+select pg_temp.act_as('di');
+select isnt((pg_temp.person('tonight', 'Ana S.')->>'here_since'), null, 'Choose My Network and they see it too');
+select pg_temp.act_as('cy');
 select throws_ok($$ select join_going_out((pg_temp.person('tonight', 'Ana S.')->>'post_id')::bigint) $$, '23514', null,
   'Strangers can''t join');
 

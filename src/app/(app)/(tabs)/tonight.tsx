@@ -10,14 +10,13 @@ import { fetchGroups, type GroupsOverview } from '@/features/circles/api';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { usePlan } from '@/features/plan/usePlan';
 import {
-  deleteGoingOut,
-  endLive,
   fetchCompany,
   fetchGoingOut,
   fetchMyGroupEvents,
   imHere,
   joinGoingOut,
   rsvp,
+  setHereAudience,
   type Company,
   type FeedEvent,
   type FeedPerson,
@@ -128,11 +127,13 @@ export default function Tonight() {
     }
   }
 
-  const onHere = () => act(() => imHere(location), mine?.here_since ? 'Still here. Your circle can see you’re out.' : 'You’re here. Your circle can see you’re out.');
-  const onEnd = () =>
-    act(() => (mine && mine.when_kind !== 'tonight' ? deleteGoingOut(mine.post_id) : endLive()), 'Heading home. Get there safe.');
+  const audienceLabel = (a: string | null | undefined) => (a === 'network' ? 'your network' : 'your circle');
+  const onIn = () =>
+    act(() => imHere(location), mine?.here_since ? `Still in. ${audienceLabel(mine.here_audience)} can see it.` : `You're in. ${audienceLabel(mine?.here_audience)} can see it.`);
+  const onAudience = (a: 'circle' | 'network') =>
+    mine ? act(() => setHereAudience(mine.post_id, a), a === 'network' ? 'Your network can see when you’re in' : 'Only your circle can see when you’re in') : undefined;
   const onJoin = (p: FeedPerson, status: 'heading' | null) =>
-    act(() => joinGoingOut(p.post_id, status), status ? `${p.display_name.split(' ')[0]} knows you’re coming` : 'Cancelled');
+    act(() => joinGoingOut(p.post_id, status), status ? `${p.display_name.split(' ')[0]} knows you’re joining` : 'Cancelled');
 
   return (
     <ScrollView
@@ -217,7 +218,7 @@ export default function Tonight() {
       ) : (
         <>
           {mine && !weekend ? (
-            <MyNightOut me={mine} company={company} minutesLeft={minutesLeft} busy={busy} onHere={onHere} onEdit={editMine} onEnd={onEnd} />
+            <MyNightOut me={mine} company={company} minutesLeft={minutesLeft} busy={busy} onIn={onIn} onEdit={editMine} onAudience={onAudience} />
           ) : mine ? (
             <Card accent="primary">
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>

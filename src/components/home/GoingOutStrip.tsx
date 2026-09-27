@@ -5,7 +5,7 @@ import { AppText, Avatar, Section } from '@/components/ui';
 import type { TonightPerson } from '@/features/tonight/api';
 import { useTheme } from '@/theme';
 
-/** "Going out tonight": your I'm Out button first, then people in your network who are out (here-now first). */
+/** "Going out tonight": your I'm Out button first, then people in your network who are out (people who are in now first). */
 export function GoingOutStrip({ people, amLive }: { people: TonightPerson[]; amLive: boolean }) {
   const t = useTheme();
   const router = useRouter();
@@ -34,14 +34,14 @@ export function GoingOutStrip({ people, amLive }: { people: TonightPerson[]; amL
             </AppText>
           </View>
           <AppText variant="caption" tone={amLive ? 'trust' : 'muted'} numberOfLines={1}>
-            {meHere ? 'Here now' : amLive ? 'Heading out' : 'You'}
+            {meHere ? 'In now' : amLive ? 'Tonight' : 'You'}
           </AppText>
         </Pressable>
         {others.map((p) => (
           <Pressable
             key={p.user_id}
             accessibilityRole="link"
-            accessibilityLabel={`${p.display_name}${p.here_since ? ', here now' : ''}${p.place ? ` at ${p.place}` : ', going out tonight'}`}
+            accessibilityLabel={`${p.display_name}${p.here_since ? ', in now' : ''}${p.place ? ` at ${p.place}` : ', going out tonight'}`}
             onPress={() => router.push({ pathname: '/people/[id]', params: { id: p.user_id } })}
             style={{ alignItems: 'center', gap: 6, width: 64 }}>
             <View>
@@ -63,7 +63,7 @@ export function GoingOutStrip({ people, amLive }: { people: TonightPerson[]; amL
               ) : null}
             </View>
             <AppText variant="caption" tone={p.here_since ? 'trust' : 'muted'} numberOfLines={1}>
-              {p.here_since ? 'Here now' : p.display_name.split(' ')[0]}
+              {p.here_since ? 'In now' : p.display_name.split(' ')[0]}
             </AppText>
           </Pressable>
         ))}

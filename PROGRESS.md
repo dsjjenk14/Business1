@@ -51,10 +51,14 @@ Right now, texting your trusted contacts works by opening your own Messages app,
 - **Symbols:** every emoji in the app is replaced with a custom symbol set drawn for I'm In (`src/components/ui/Glyph.tsx`). It covers categories, vibes, events, groups, tiers, trust, status and safety, all on one grid with one line weight. Avatars show initials or a photo.
 - **Database:** tier symbols are seed, loop, link, bolt and crown. Groups, events and venues only accept symbol names, and notifications contain no emoji.
 
-## ✅ I'm Out: Go Live became a real live feature (at Dominique's request)
-- **Heading out → Here now → Heading home.** Tap **I'm here** when you arrive. "Here now" lasts 3 hours, and **Still here** renews it.
-- **Here now is only shown to your circle and network**, never to strangers nearby.
-- **Join ("I'm coming"):** people you know tap Join. You're told who's heading your way and see them on your card. You can turn joining off for the night.
+## ✅ I'm In at a place (Go Live, reworked at Dominique's request)
+- Post that you're going out (the **I'm Out** button), then tap **I'm In** when you get there. People who can see it get "In now · since 9:10 PM".
+- It turns off on its own after 3 hours. **Still in** keeps it on, and **Edit plans** removes it. There's no "heading out" or "heading home".
+- **Privacy:** because "In now" says where you are right now, you choose who sees it:
+  - **My Circle** (1st degree, the default) or **My Network** (1st and 2nd).
+  - Strangers and blocked members never see it.
+  - Only the place is shown, never your exact location.
+- **Join:** people you know tap Join, and you see "Maya is joining you". You can turn joining off for the night.
 - Screenshots are in `docs/screenshots/im-out`.
 
 ---
@@ -255,7 +259,8 @@ Premium with RevenueCat (ask before connecting a paid service), sponsored and fe
 | 2026-09-29 | Passing on an intro only tells the connector, with no details | "Passing is always graceful" |
 | 2026-09-29 | "People you might click with" is rule-based (mutual friends plus shared groups) until the Phase 7 AI version, and carries no ✦ label | Never label something as AI when it isn't |
 | 2026-10-04 | **No emojis anywhere.** The app draws its own symbols. | Dominique |
-| 2026-10-04 | **Go Live is now I'm Out**, with Heading out → Here now → Heading home and Join. Here now is only for your circle and network. | Dominique asked whether Go Live was a good live feature; as built it was only a status post |
+| 2026-10-04 | Go Live became **I'm In at a place**: post your plans, tap I'm In when you arrive, and people can Join. No heading out or heading home. | Dominique |
+| 2026-10-05 | "In now" is seen by **your circle by default**; you can widen it to your network. Never strangers, never an exact location. | Dominique flagged it may be a privacy issue |
 | 2026-10-04 | Safety texts open the phone's own Messages app (you tap Send) until Twilio is set up | Decision C7: safety is not the place to fake an automatic text |
 | 2026-10-04 | A counter-proposal keeps the original spot unless a new one is given | Suggesting a new time shouldn't silently drop the place |
 | 2026-10-01 | Creating a group needs a **verified phone** (config `group_create_requires`: none / phone / photo) | Photo verification isn't built until Phase 6; a phone is a real barrier to fake groups in the meantime |

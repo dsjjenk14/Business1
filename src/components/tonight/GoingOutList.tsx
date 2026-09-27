@@ -2,29 +2,29 @@ import { useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
-import { AppText, Badge, Button, Card, GlyphTile } from '@/components/ui';
+import { AppText, Badge, Button, Card, Chip, GlyphTile } from '@/components/ui';
 import { vibeLabel, type Company, type FeedEvent, type FeedPerson } from '@/features/tonight/api';
 import { clockTime, dayTime } from '@/lib/time';
 import { useTheme } from '@/theme';
 
 const degreeLabel = (d: number) => (d === 1 ? '1st' : d === 2 ? '2nd' : null);
 
-/** "Here now · since 9:10 PM" with a live dot. */
+/** "In now · since 9:10 PM" with a live dot. */
 export function HereNow({ since, compact }: { since: string; compact?: boolean }) {
   const t = useTheme();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
       <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: t.colors.trust }} />
       <AppText variant="caption" weight="bold" tone="trust">
-        {compact ? 'Here now' : `Here now · since ${clockTime(since)}`}
+        {compact ? 'In now' : `In now · since ${clockTime(since)}`}
       </AppText>
     </View>
   );
 }
 
 /**
- * Someone going out. Shows where, when and vibe, plus "Here now" when they've
- * arrived. People you know can tap Join ("I'm coming").
+ * Someone going out. Shows where, when and vibe, plus "In now" once they've
+ * tapped I'm In at the place. People you know can tap Join.
  */
 export function GoingOutPersonRow({
   person,
@@ -62,7 +62,7 @@ export function GoingOutPersonRow({
             {person.here_since ? <HereNow since={person.here_since} /> : null}
             {company > 0 ? (
               <AppText variant="caption" tone="muted">
-                {company} heading there
+                {company} joining
               </AppText>
             ) : null}
           </View>
@@ -71,7 +71,7 @@ export function GoingOutPersonRow({
       right={
         canJoin ? (
           person.my_join ? (
-            <Button label="Heading" size="md" variant="trust" onPress={() => onJoin(person, null)} accessibilityHint="Tap to cancel" />
+            <Button label="Joining" size="md" variant="trust" onPress={() => onJoin(person, null)} accessibilityHint="Tap to cancel" />
           ) : (
             <Button label="Join" size="md" variant="secondary" onPress={() => onJoin(person, 'heading')} />
           )
@@ -85,36 +85,42 @@ export function GoingOutPersonRow({
   );
 }
 
-/** Your own night out: heading out → here now → heading home, and who's coming. */
+/**
+ * Your night out. Tap I'm In when you get there: the people you choose (your
+ * circle, or your network) see "In now". It turns off on its own after a few
+ * hours; Still in keeps it on.
+ */
 export function MyNightOut({
   me,
   company,
   minutesLeft,
   busy,
-  onHere,
+  onIn,
   onEdit,
-  onEnd,
+  onAudience,
 }: {
   me: FeedPerson;
   company: Company[];
-  /** Minutes until "Here now" lapses (computed by the screen when it loads). */
+  /** Minutes until "In now" turns off (computed by the screen when it loads). */
   minutesLeft: number | null;
   busy: boolean;
-  onHere: () => void;
+  onIn: () => void;
   onEdit: () => void;
-  onEnd: () => void;
+  onAudience: (a: 'circle' | 'network') => void;
 }) {
   const t = useTheme();
   const live = !!me.here_since;
-  const heading = company.filter((c) => c.status === 'heading');
-  const here = company.filter((c) => c.status === 'here');
+  const names = (list: Company[]) => list.map((c) => c.display_name.split(' ')[0]).join(', ');
+  const joining = company.filter((c) => c.status === 'heading');
+  const inToo = company.filter((c) => c.status === 'here');
+  const audience = me.here_audience ?? 'circle';
   return (
     <Card accent={live ? 'trust' : 'primary'}>
       <View style={{ gap: t.space[3] }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-          <GlyphTile name={live ? 'live' : 'heading'} size={44} tone={live ? 'trust' : 'primary'} />
+          <GlyphTile name={live ? 'live' : 'moon'} size={44} tone={live ? 'trust' : 'primary'} />
           <View style={{ flex: 1 }}>
-            <AppText weight="bold">{live ? "You're here" : "You're heading out"}</AppText>
+            <AppText weight="bold">{live ? "You're in" : 'Your night out'}</AppText>
             <AppText variant="small" tone="muted" numberOfLines={2}>
               {[me.place, live && me.here_since ? `since ${clockTime(me.here_since)}` : clockTime(me.starts_at)].filter(Boolean).join(' · ')}
             </AppText>
@@ -122,28 +128,30 @@ export function MyNightOut({
         </View>
         {company.length ? (
           <AppText variant="small" tone="trust" weight="bold">
-            {[
-              heading.length ? `${heading.map((c) => c.display_name.split(' ')[0]).join(', ')} heading your way` : null,
-              here.length ? `${here.map((c) => c.display_name.split(' ')[0]).join(', ')} here too` : null,
-            ]
+            {[joining.length ? `${names(joining)} ${joining.length === 1 ? 'is' : 'are'} joining you` : null, inToo.length ? `${names(inToo)} in too` : null]
               .filter(Boolean)
               .join(' · ')}
           </AppText>
-        ) : (
-          <AppText variant="caption" tone="subtle">
-            {me.open_to_join ? 'Your circle and network can tap Join to let you know they’re coming.' : 'Joining is off for tonight.'}
-          </AppText>
-        )}
+        ) : null}
         {live && minutesLeft != null && minutesLeft < 45 ? (
           <AppText variant="caption" tone="sponsored">
-            &quot;Here now&quot; ends in {Math.max(minutesLeft, 0)} min. Still out? Tap Still here.
+            &quot;In now&quot; turns off in {Math.max(minutesLeft, 0)} min. Still there? Tap Still in.
           </AppText>
         ) : null}
-        <Button label={live ? 'Still here' : "I'm here"} size="md" variant="trust" onPress={onHere} loading={busy} />
-        <View style={{ flexDirection: 'row', gap: t.space[2] }}>
-          <Button label="Edit" size="md" variant="secondary" style={{ flex: 1 }} onPress={onEdit} disabled={busy} />
-          <Button label="Heading home" size="md" variant="secondary" style={{ flex: 1 }} onPress={onEnd} disabled={busy} />
+        <Button label={live ? 'Still in' : "I'm In"} size="md" variant="trust" onPress={onIn} loading={busy} />
+        <View style={{ gap: t.space[2] }}>
+          <AppText variant="caption" tone="subtle">
+            {live ? 'Who sees you’re in' : 'When you tap I’m In, who sees it'}
+          </AppText>
+          <View style={{ flexDirection: 'row', gap: t.space[2] }}>
+            <Chip label="My Circle" selected={audience === 'circle'} onPress={() => onAudience('circle')} />
+            <Chip label="My Network" selected={audience === 'network'} onPress={() => onAudience('network')} />
+          </View>
+          <AppText variant="caption" tone="subtle">
+            Only the place is shown, never your exact location. Strangers never see it.
+          </AppText>
         </View>
+        <Button label="Edit plans" size="md" variant="secondary" onPress={onEdit} disabled={busy} />
       </View>
     </Card>
   );

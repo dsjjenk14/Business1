@@ -71,10 +71,12 @@ export type FeedPerson = {
   distance_mi: number | null;
   lat: number | null;
   lng: number | null;
-  /** Set when they tapped "I'm here" (only shown for you and people you know). */
+  /** Set when they tapped "I'm In" at the place (only shown to the audience they chose). */
   here_since: string | null;
   /** Your own post only: when "Here now" lapses unless you tap "Still here". */
   live_until: string | null;
+  /** Your own post only: who sees that you're in ("circle" = 1st degree, "network" = 1st + 2nd). */
+  here_audience: 'circle' | 'network' | null;
   open_to_join: boolean;
   heading_count: number;
   joined_here_count: number;
@@ -203,6 +205,11 @@ export async function imHere(coords?: { lat: number; lng: number } | null) {
 export async function joinGoingOut(postId: number, status: 'heading' | 'here' | null) {
   // null cancels (sent as SQL null; leaving it out would mean the default, 'heading').
   const { error } = await supabase.rpc('join_going_out', { p_post: postId, p_status: status as 'heading' });
+  if (error) throw error;
+}
+
+export async function setHereAudience(postId: number, audience: 'circle' | 'network') {
+  const { error } = await supabase.rpc('set_here_audience', { p_post: postId, p_audience: audience });
   if (error) throw error;
 }
 
