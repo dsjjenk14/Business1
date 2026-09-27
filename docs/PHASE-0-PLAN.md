@@ -129,6 +129,55 @@ What I can't do: confirm native-only features like GPS, push notifications, came
 
 ---
 
+## ✅ Dominique's answers (2026-09-27), these are now final
+
+| # | Question | Decision |
+|---|---|---|
+| A1 | Testing without an iOS simulator | **Agreed.** Web build + screenshots from me, a 5-minute Expo Go checklist for Dominique after each phase. |
+| B1/B2 | GPS and vouches | **GPS check-in never gives a vouch by itself.** It only *unlocks* the option. Each person decides whether to vouch and picks their own word. The invite-code vouch stays as a separate `invite` type (capped at 1, watched by Trust Monitor). |
+| B3 | Premium and 2nd degree | **Agreed.** Premium skips the 5-interaction wait. It never skips the intro. |
+| B4 | Date requests | **Agreed.** Only to people you're allowed to message. |
+| C1 | Tier names | Same idea, modern names (see below). |
+| C2/C3 | Interactions and AI uses | **Use the definitions proposed in C2 and C3.** |
+| C5 | Age | **Date of birth is required at signup. Under 18 is blocked.** |
+| C6/C7 | Twilio | **Add Twilio** for phone verification codes and safety texts. Built behind an interface so it works in "demo mode" until the Twilio account keys are added. |
+| B7 | Pin audience | **Fixed** (see below). |
+| C4 | Founding members | **The first 500 members.** |
+| C18 | Look | **New default theme: "MySpace-ish, but modern"** (see below). |
+
+Everything else in section 1 goes with the recommendation.
+
+### Tier ladder (all numbers and names live in the `vouch_tiers` config table)
+| Vouches | Tier |
+|---|---|
+| 0 | **New Face** |
+| 5 | **In the Mix** |
+| 20 | **Connector** (kept, since the Home copy "17 more to Connector" depends on it) |
+| 50 | **Plugged In** |
+| 100 | **Icon** |
+
+### Pin audience (fixed)
+Three options, using words the app already uses elsewhere:
+| Option | Who sees it |
+|---|---|
+| **Everyone** | Anyone nearby (Nearby tab) and the whole community (They're In tab) |
+| **My Network** | Your 1st and 2nd degree |
+| **My Circle** | Your 1st degree only |
+
+This matches the Circles tab, where "My Circle" is your 1st degree and "Network" is your 2nd degree.
+
+### Theme E: "Top 8" (MySpace-ish, but modern). This is the new default.
+What makes MySpace feel like MySpace is that **your profile is yours**, the page has **bold boxed sections with colored title bars**, and there's the **Top 8**. The modern version:
+- **Look:** near-black base with loud, saturated accents (hot pink primary, electric violet, lime for "verified/vouch"). Chunky 2px outlines and hard offset "sticker" shadows instead of soft blurs. Bold, rounded display font for headlines.
+- **Section boxes:** every section on a screen is a card with a colored title bar ("Maya's Vouches", "Maya's Top 8"). That's the MySpace signature, cleaned up.
+- **Badges look like stickers:** slightly rotated, outlined, colorful.
+- **Profile customization** (built in Phase 2 with profiles): each user picks their profile **accent color**, a **background pattern**, a **mood/status line** ("Currently: going out tonight 🍸"), a **profile song** (a link that plays only when tapped, never on its own), and their **Top 8**: the 8 people from their circle they want to show off. These settings sit on top of the app theme and only apply on that person's profile, so the rest of the app stays readable.
+- The ✦ AI marker and the "Sponsored" / "Featured" labels keep working the same way in every theme.
+
+Themes A–D are still built as switchable alternates (they're only color and font values, so they're cheap to keep). E is the default.
+
+---
+
 ## 2. Database schema
 
 Everything runs on Supabase Postgres with PostGIS turned on. Here's what the terms mean:
@@ -149,9 +198,10 @@ Everything runs on Supabase Postgres with PostGIS turned on. Here's what the ter
 ### People
 | Table | Purpose |
 |---|---|
-| `profiles` | One row per user, linked to the Supabase login. Holds full_name, display_name ("Maya T."), date of birth, show_age, pronouns, bio, avatar_url, city_id, approx_location (snapped point), location_precision (`approximate` default / `precise`), invite_code, invited_by, is_founding_member, role (`user`/`admin`), id/photo verified dates, ai_chat_opt_in (default **false**), theme. |
+| `profiles` | One row per user (plus Theme E profile fields: accent_color, bg_pattern, mood_status, song_url), linked to the Supabase login. Holds full_name, display_name ("Maya T."), date of birth, show_age, pronouns, bio, avatar_url, city_id, approx_location (snapped point), location_precision (`approximate` default / `precise`), invite_code, invited_by, is_founding_member, role (`user`/`admin`), id/photo verified dates, ai_chat_opt_in (default **false**), theme. |
 | `user_settings` | Notification toggles, privacy toggles (show in nearby, allow intro requests, show vouch count, show venue, discoverable), and preferred radius. |
 | `push_tokens` | Device tokens for notifications. |
+| `top_friends` | user, friend, position 1–8 (Top 8). |
 | `blocks` | blocker, blocked. Blocked users disappear from each other everywhere. |
 
 ### Trust graph
@@ -169,7 +219,7 @@ Everything runs on Supabase Postgres with PostGIS turned on. Here's what the ter
 ### Social (Pins)
 | Table | Purpose |
 |---|---|
-| `pins` | author, category (`thought` / `question` / `photos` / `event` / `going_out` / `recap`), body, audience (`everyone` / `circle` / `first_degree`), snapped location, city_id, optional event / venue / going-out link, trending score, deleted_at. |
+| `pins` | author, category (`thought` / `question` / `photos` / `event` / `going_out` / `recap`), body, audience (`everyone` / `network` / `circle`), snapped location, city_id, optional event / venue / going-out link, trending score, deleted_at. |
 | `pin_photos` | Up to 6 per pin (enforced). Stored in Supabase Storage. |
 | `pin_likes`, `pin_replies`, `pin_bookmarks` | Likes, reply thread, and saved pins. |
 | `pin_tags` | People tagged in an event recap. |
