@@ -62,7 +62,7 @@ export default function PersonProfile() {
           variant="trust"
           size="md"
           style={{ flex: 1 }}
-          onPress={() => toast('Vouching after a GPS meetup arrives in Phase 3')}
+          onPress={() => router.push({ pathname: '/circles/vouch', params: { user: card.id } })}
         />
         {card.degree === 1 ? (
           <Button
@@ -79,7 +79,7 @@ export default function PersonProfile() {
             variant="secondary"
             size="md"
             style={{ flex: 1 }}
-            onPress={() => toast(`Intros via ${card.via[0]?.display_name ?? 'a mutual friend'} arrive in Phase 3`)}
+            onPress={() => router.push({ pathname: '/circles/request-intro', params: { target: card.id } })}
           />
         ) : null}
       </View>

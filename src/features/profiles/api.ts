@@ -24,6 +24,7 @@ export type ProfileCard = {
   via: { id: string; display_name: string; avatar_emoji: string | null }[];
   can_message: boolean;
   circle_count: number;
+  intros_made: number;
   tonight: { place: string | null; neighborhood: string | null; starts_at: string; is_hosting: boolean; note: string | null } | null;
   groups: { id: number; name: string; emoji: string; role: string; schedule: string | null }[];
   vouches: {

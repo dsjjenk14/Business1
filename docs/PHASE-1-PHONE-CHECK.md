@@ -23,3 +23,11 @@ Open the app in **Expo Go** on your iPhone, then go down the list. Anything that
 - [ ] New Pin: add 2 photos from your camera roll and pick "My Circle". Drop it and check the photos show.
 - [ ] Open Jordan's profile (tap his name on a pin) and Simone's (2nd degree). They should show different buttons.
 - [ ] Edit your profile photo and bio.
+
+## Phase 3 additions (needs two phones or a friend)
+- [ ] Circles → My Circle: the ring shows you in the middle with your circle around you.
+- [ ] With a friend next to you: you both open **Check In & Vouch** and tap **Check In**. The second person should see "You're with …".
+- [ ] Pick them, pick a word, and vouch. They get a notification.
+- [ ] Circles → Intros: accept the intro from Jordan (as Dominique), then check that Aaliyah now shows in your circle.
+- [ ] Network → tap "Ask Maya →" next to someone, and send an intro request.
+- [ ] Search for "Pri": Priya shows as 2nd degree.

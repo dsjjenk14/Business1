@@ -29,9 +29,9 @@ export function useFirstWeekChecklist() {
     const nextItems: ChecklistItem[] = [
       { key: 'invite', label: 'Used an invite code', detail: inviter.data ? `${inviter.data.display_name} invited you ✓` : undefined, done: !!profile.invited_by },
       { key: 'vouch', label: 'Got your first vouch', detail: profile.vouch_count > 0 ? `${profile.vouch_count} vouch${profile.vouch_count === 1 ? '' : 'es'} ✓` : undefined, done: profile.vouch_count > 0 },
-      { key: 'go_out', label: 'Go out with someone', done: (encounters.count ?? 0) > 0, route: '/tonight' },
+      { key: 'go_out', label: 'Go out with someone', done: (encounters.count ?? 0) > 0, route: '/circles/vouch' },
       { key: 'pin', label: 'Drop your first Pin', done: (pins.count ?? 0) > 0, route: '/pins' },
-      { key: 'intro', label: 'Make an Intro', done: (intros.count ?? 0) > 0, route: '/circles' },
+      { key: 'intro', label: 'Make an Intro', done: (intros.count ?? 0) > 0, route: '/circles/make-intro' },
     ];
     return { items: nextItems, dismissed: !!priv.data?.onboarding_checklist_dismissed_at };
   }, [userId, profile]);

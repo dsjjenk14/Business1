@@ -1,3 +1,4 @@
+import { useRouter, type Href } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
@@ -11,6 +12,7 @@ import type { Tables } from '@/types/database';
 
 export default function Notifications() {
   const t = useTheme();
+  const router = useRouter();
   const { session } = useAuth();
   const [items, setItems] = useState<Tables<'notifications'>[] | null>(null);
 
@@ -21,7 +23,12 @@ export default function Notifications() {
       .select('*')
       .order('created_at', { ascending: false })
       .limit(50)
-      .then(({ data }) => setItems(data ?? []));
+      .then(({ data }) => {
+        setItems(data ?? []);
+        // Opening the list marks everything as read.
+        const unread = (data ?? []).filter((n) => !n.read_at).map((n) => n.id);
+        if (unread.length) supabase.from('notifications').update({ read_at: new Date().toISOString() }).in('id', unread).then(() => {});
+      });
   }, [session]);
 
   return (
@@ -34,7 +41,7 @@ export default function Notifications() {
           </AppText>
         ) : (
           items.map((n) => (
-            <Card key={n.id} accent={n.is_ai ? 'ai' : undefined}>
+            <Card key={n.id} accent={n.is_ai ? 'ai' : !n.read_at ? 'primary' : undefined} onPress={n.link ? () => router.push(n.link as Href) : undefined} accessibilityLabel={`${n.title}. ${n.body}`}>
               <View style={{ gap: t.space[1] }}>
                 {n.is_ai ? <AIMark /> : null}
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: t.space[2] }}>

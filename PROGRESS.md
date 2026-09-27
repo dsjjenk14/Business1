@@ -1,7 +1,45 @@
 # I'm In: Progress
 
 ## Status
-**Current phase:** Phase 2 (Social core) is done and waiting for Dominique's go-ahead. Next is Phase 3 (Trust graph).
+**Current phase:** Phase 3 (Trust graph) is done and waiting for Dominique's go-ahead. Next is Phase 4 (Going out).
+
+---
+
+## ✅ Phase 3: Trust graph
+
+### What works
+Tested with **two people at once** (Dominique and Maya in two separate browsers, placed at the same spot in Tysons), at iPhone SE and iPhone 15 sizes, with zero errors and no sideways scrolling. The Phase 2 walkthrough was re-run too, with no regressions.
+
+- **Check In & Vouch**
+  - When you're with someone, you both tap **Check In**. The server compares the two private GPS readings: if you're within 150 m of each other within 30 minutes, it records a **meetup**, labeled with the nearest venue ("Founding Farmers").
+  - The other person gets a notification. Then you pick them, pick **one word**, and vouch. They're notified: "Dominique J. vouched for you 🏅 · Word: Welcoming".
+  - Rules enforced by the database:
+    - vouch within **14 days** of the meetup
+    - **2 vouches per month**
+    - one vouch per meetup
+    - a weak GPS signal is rejected
+    - nobody can ever read anyone's raw GPS readings, and they're **deleted after 30 days** by a daily job
+- **Request a Vouch:** only from people you actually met recently. They get a notification.
+- **Intros**
+  - **Make an Intro:** pick someone from your circle plus someone from your circle or network, and say why. Both people must accept.
+  - When they do, they're **connected and can message right away**, and you're credited as the connector (your profile counts intros made).
+  - Passing is graceful: only the connector hears "didn't happen this time", with no details.
+- **Request an Intro** (2nd degree): "Ask Maya →" picks a mutual friend. That friend sees it in **Intros** and can make the intro in one tap, or decline. Members can turn off intro requests in their settings.
+- **Circles tab**
+  - **My Circle:** the ring diagram (you in the center, your circle on the inner ring, your network dimmed on the outer ring); 1st degree / 2nd degree / vouch counts; Check In & Vouch; Request a Vouch; vouches you've received (the word and where); your 1st-degree list; Make an Intro.
+  - **Network:** a short explainer; "People you might click with" (ranked by mutual friends and shared groups, rule-based, no AI label); network activity (vouches, new connections, who's out tonight); the full 2nd-degree list with "Ask X →".
+  - **Groups:** your groups, groups from your circle, and discover. Joining open groups works now; request-to-join and create come in Phase 4.
+  - An "intros waiting on you" banner shows when something needs your answer.
+- **Search Members:** from the Circles header or the menu. Your circle and network rank first, and members who turned off "discoverable" don't show up.
+- **Profiles:** the + Vouch and Request Intro buttons now work.
+- **Notifications:** tap one to go where it points; opening the list marks them read.
+
+### Tests
+**79 automated database tests** (22 new) cover: check-in meetups, the weak-GPS rejection, the 14-day window, notifications, vouch requests, intros (both must accept, no duplicates, strangers can't make intros), intro requests being switchable off, and search privacy. They also run on GitHub on every upload.
+
+### Bugs caught by the tests and fixed before upload
+- Check-in would have crashed on the second person's check-in, because a column name collided with the function's own result names.
+- The same person could appear twice on the vouch screen when you'd met them twice. Now it's one row per person.
 
 ---
 
@@ -85,8 +123,8 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 
 ---
 
-## Next: Phase 3 (Trust graph)
-Connections, 1st and 2nd degree, intros (which unlock messaging right away), vouching after GPS-confirmed meetups (2 per month), and the Circles tab (My Circle, Network, Groups).
+## Next: Phase 4 (Going out)
+The Tonight tab (Tonight / This Weekend / Groups), posting that you're going out, the map, groups (create, join, request, group chat), and the event recap with the "vouch everyone who was there" flow.
 
 ---
 
@@ -102,6 +140,11 @@ Connections, 1st and 2nd degree, intros (which unlock messaging right away), vou
 | 2026-09-28 | Posting "going out" (Go Live) also drops a Going Out pin, visible to Everyone unless you've turned off "Show in nearby feed" (then My Network) | Decision C15 |
 | 2026-09-28 | Home's tonight pick is rule-based until Phase 7, with no ✦ AI label | Never show AI branding on something that isn't AI |
 | 2026-09-28 | Event and going-out times show in DC time | The launch market is DC, and events happen in local time |
+| 2026-09-29 | Check-in needs both people to tap Check In within 30 min and 150 m (both numbers are in config) | Mutual consent: nobody gets "detected" without choosing to check in |
+| 2026-09-29 | Vouches must be given within 14 days of the meetup (config) | Keeps vouches tied to a real, recent experience |
+| 2026-09-29 | Intro rules: the first person must be in your circle; the second can be your circle or network | Matches the prototype's Make an Intro screen |
+| 2026-09-29 | Passing on an intro only tells the connector, with no details | "Passing is always graceful" |
+| 2026-09-29 | "People you might click with" is rule-based (mutual friends plus shared groups) until the Phase 7 AI version, and carries no ✦ label | Never label something as AI when it isn't |
 | 2026-09-27 | Tiers: New Face 0, In the Mix 5, Connector 20, Plugged In 50, Icon 100 | Dominique: keep the idea, modernize the names |
 | 2026-09-27 | Pin audience: Everyone / My Network (1st + 2nd) / My Circle (1st) | Dominique: "fix this" |
 | 2026-09-27 | GPS check-in never gives a vouch by itself; each person picks their own word | Dominique |
