@@ -22,6 +22,8 @@ export type ThemeColors = {
   surfaceAlt: string;
   border: string;
   borderStrong: string;
+  /** Hard outline for sticker-style buttons, badges and cards. */
+  outline: string;
   text: string;
   textMuted: string;
   textSubtle: string;

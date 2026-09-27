@@ -286,6 +286,8 @@ Everything runs on Supabase Postgres with PostGIS turned on. Here's what the ter
 
 ## 3. Folder structure
 
+> **Update (Phase 1):** screens live in `src/app/` instead of `app/`, which is what current Expo expects. Everything else is as shown below.
+
 ```
 Business1/
 ├── SPEC.md                      your spec

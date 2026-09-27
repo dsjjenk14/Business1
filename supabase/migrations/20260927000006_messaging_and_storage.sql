@@ -112,7 +112,9 @@ begin
    where conversation_id = new.conversation_id and sender_id <> new.sender_id;
   new.reply_seconds := case when last_other is null then null
                             else extract(epoch from (now() - last_other))::int end;
-  update public.conversations set last_message_at = now() where id = new.conversation_id;
+  update public.conversations
+     set last_message_at = greatest(coalesce(last_message_at, new.created_at), new.created_at)
+   where id = new.conversation_id;
   return new;
 end $$;
 create trigger messages_before_insert before insert on public.messages
