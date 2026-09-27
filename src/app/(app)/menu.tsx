@@ -39,7 +39,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
       { label: 'My Profile', icon: 'person-outline', href: '/profile' },
       { label: 'Safety & Check In', icon: 'shield-checkmark-outline', soon: 5 },
       { label: 'Appearance', icon: 'color-palette-outline', href: '/settings/appearance' },
-      { label: 'Settings', icon: 'settings-outline', soon: 6 },
+      { label: 'Settings', icon: 'settings-outline', href: '/settings' },
     ],
   },
 ];

@@ -43,7 +43,15 @@ export default function Onboarding() {
         <Button label="Create Account" onPress={() => router.push('/signup')} />
         <Button label="Log In" variant="secondary" onPress={() => router.push('/login')} />
         <AppText variant="caption" tone="subtle" align="center">
-          By continuing you agree to our Terms and Privacy Policy.
+          By continuing you agree to our{' '}
+          <AppText variant="caption" tone="muted" style={{ textDecorationLine: 'underline' }} onPress={() => router.push('/legal/terms')}>
+            Terms
+          </AppText>{' '}
+          and{' '}
+          <AppText variant="caption" tone="muted" style={{ textDecorationLine: 'underline' }} onPress={() => router.push('/legal/privacy')}>
+            Privacy Policy
+          </AppText>
+          .
         </AppText>
       </View>
     </View>

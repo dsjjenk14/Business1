@@ -148,6 +148,18 @@ export default function PinThread() {
                 </AppText>
               </View>
               <AppText variant="small">{r.body}</AppText>
+              {r.author_id !== me ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`Report reply from ${r.author?.display_name ?? 'member'}`}
+                  onPress={() => router.push({ pathname: '/report', params: { reply: String(r.id), name: r.author?.display_name ?? '' } })}
+                  hitSlop={8}
+                  style={{ alignSelf: 'flex-end' }}>
+                  <AppText variant="caption" tone="subtle">
+                    Report
+                  </AppText>
+                </Pressable>
+              ) : null}
             </View>
           </View>
         ))}

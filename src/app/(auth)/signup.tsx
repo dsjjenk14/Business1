@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
@@ -11,7 +12,7 @@ import { friendlyError, supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 import { goBackOr } from '@/lib/navigation';
 
-type Errors = Partial<Record<'fullName' | 'phone' | 'email' | 'city' | 'dob' | 'password' | 'invite' | 'form', string>>;
+type Errors = Partial<Record<'fullName' | 'phone' | 'email' | 'city' | 'dob' | 'password' | 'invite' | 'terms' | 'form', string>>;
 
 const MIN_PASSWORD = 8;
 
@@ -35,6 +36,7 @@ export default function SignUp() {
   const [inviteLookup, setInviteLookup] = useState<{ code: string; name: string | null } | null>(null);
   const inviter = inviteLookup && inviteLookup.code === invite.trim() ? inviteLookup.name : null;
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [agreed, setAgreed] = useState(false);
   const [errors, setErrors] = useState<Errors>({});
   const [busy, setBusy] = useState(false);
   const [checkEmail, setCheckEmail] = useState(false);
@@ -72,6 +74,7 @@ export default function SignUp() {
     if (!birthdate) next.dob = 'Enter your date of birth as MM / DD / YYYY.';
     else if (ageFrom(birthdate) < minAge) next.dob = `You must be ${minAge} or older to join I'm In.`;
     if (password.length < MIN_PASSWORD) next.password = `Use at least ${MIN_PASSWORD} characters.`;
+    if (!agreed) next.terms = 'Please agree to the Terms and Community Guidelines to join.';
     if (invite.trim() && !inviter) next.invite = "That code doesn't match anyone. Double-check it, or leave it blank.";
     setErrors(next);
     if (Object.values(next).some(Boolean) || !phoneE164 || !birthdate) return { ok: false };
@@ -306,10 +309,39 @@ export default function SignUp() {
           </AppText>
         ) : null}
 
+        <Pressable
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: agreed }}
+          accessibilityLabel="I agree to the Terms of Service and Community Guidelines and I've read the Privacy Policy"
+          onPress={() => {
+            setAgreed((a) => !a);
+            clearError('terms');
+          }}
+          style={{ flexDirection: 'row', gap: t.space[3], alignItems: 'flex-start' }}>
+          <Ionicons name={agreed ? 'checkbox' : 'square-outline'} size={24} color={agreed ? t.colors.primary : errors.terms ? t.colors.danger : t.colors.textMuted} />
+          <AppText variant="small" tone="muted" style={{ flex: 1 }}>
+            I agree to the{' '}
+            <AppText variant="small" tone="primary" weight="bold" onPress={() => router.push('/legal/terms')}>
+              Terms of Service
+            </AppText>{' '}
+            and{' '}
+            <AppText variant="small" tone="primary" weight="bold" onPress={() => router.push('/legal/guidelines')}>
+              Community Guidelines
+            </AppText>
+            , and I&apos;ve read the{' '}
+            <AppText variant="small" tone="primary" weight="bold" onPress={() => router.push('/legal/privacy')}>
+              Privacy Policy
+            </AppText>
+            . I understand there&apos;s zero tolerance for abusive behavior.
+          </AppText>
+        </Pressable>
+        {errors.terms ? (
+          <AppText variant="small" tone="danger">
+            {errors.terms}
+          </AppText>
+        ) : null}
+
         <Button label="Create Account" onPress={onSubmit} loading={busy} />
-        <AppText variant="caption" tone="subtle" align="center">
-          By creating an account you agree to our Terms and Privacy Policy.
-        </AppText>
         <Pressable accessibilityRole="link" onPress={() => router.replace('/login')} style={{ alignSelf: 'center' }} hitSlop={10}>
           <AppText tone="muted">
             Already have an account? <AppText tone="primary" weight="bold">Log In</AppText>

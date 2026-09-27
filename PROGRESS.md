@@ -1,7 +1,19 @@
 # I'm In: Progress
 
 ## Status
-**Current phase:** Phase 3 (Trust graph) is done and waiting for Dominique's go-ahead. Next is Phase 4 (Going out).
+**Current phase:** App Store requirements are done. Phase 4 (Going out) is in progress. See `docs/LAUNCH-CHECKLIST.md` for what's needed before launch.
+
+---
+
+## ✅ App Store requirements (done before Phase 4, at Dominique's request)
+Tested in a browser: signing up without agreeing to the terms is blocked; the legal pages open (signed out too); reporting a pin and a reply works; blocking hides the member's profile and pins, and unblocking restores them; the privacy switches stay saved after a reload; deleting a new account removes everything (the profile, photos and login are gone, and signing in fails afterwards).
+- **Delete account** (Settings → Delete account). A server function hands off groups the member owns, deletes their photos, then deletes the login; everything else cascades.
+- **Report** members, pins and replies. Reports are confidential, and moderator notes are never shown. A pin or reply reported by **3 different members** is hidden automatically until reviewed (its author still sees it).
+- **Block / unblock.** Blocking disconnects you, cancels intros, and hides you from each other everywhere.
+- **Terms + Community Guidelines agreement** at signup, required by the database itself. **Terms, Privacy Policy, Community Guidelines** screens, drafted in plain English (need a lawyer's review).
+- **Settings hub:** Account, Privacy (5 switches), Blocked members, My reports, About (legal and contact support), Sign out, Delete account.
+- **95 automated database tests** (16 new).
+- One expected, harmless message during account deletion: the server answers "403" to the sign-out call because the account no longer exists. The app still signs out on the device.
 
 ---
 

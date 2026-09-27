@@ -131,6 +131,14 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
             onPress={toggleBookmark}
           />
           <Action icon="share-outline" color={t.colors.textMuted} a11y="Share" onPress={() => sharePin(pin)} />
+          {!pin.is_mine ? (
+            <Action
+              icon="flag-outline"
+              color={t.colors.textSubtle}
+              a11y="Report this pin"
+              onPress={() => router.push({ pathname: '/report', params: { pin: String(pin.id), name: pin.author_name } })}
+            />
+          ) : null}
         </View>
       </View>
     </Card>

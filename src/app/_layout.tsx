@@ -52,6 +52,8 @@ function RootNavigator() {
         <Stack.Protected guard={signedIn}>
           <Stack.Screen name="(app)" />
         </Stack.Protected>
+        {/* Readable whether signed in or not. */}
+        <Stack.Screen name="legal/[doc]" />
       </Stack>
     </ToastProvider>
   );

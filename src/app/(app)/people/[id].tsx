@@ -7,6 +7,9 @@ import { ProfileView } from '@/components/profile/ProfileView';
 import { AppText, Button, Screen, useToast } from '@/components/ui';
 import { fetchFeed, type FeedPin } from '@/features/pins/api';
 import { fetchProfileCard, type ProfileCard } from '@/features/profiles/api';
+import { blockUser } from '@/features/safety/api';
+import { goBackOr } from '@/lib/navigation';
+import { friendlyError } from '@/lib/supabase';
 import { useAppConfig } from '@/config/useAppConfig';
 import { useTheme } from '@/theme';
 
@@ -19,6 +22,7 @@ export default function PersonProfile() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [card, setCard] = useState<ProfileCard | null | undefined>(undefined);
   const [pins, setPins] = useState<FeedPin[]>([]);
+  const [confirmBlock, setConfirmBlock] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -101,7 +105,46 @@ export default function PersonProfile() {
       <BackHeader title={card?.display_name ?? 'Profile'} />
       <Screen>
         {card ? (
-          <ProfileView card={card} pins={pins} onPinChange={(n) => setPins((l) => l.map((p) => (p.id === n.id ? n : p)))} actions={actions} />
+          <ProfileView card={card} pins={pins} onPinChange={(n) => setPins((l) => l.map((p) => (p.id === n.id ? n : p)))} actions={actions}>
+            <View style={{ gap: t.space[2], marginTop: t.space[4] }}>
+              {confirmBlock ? (
+                <>
+                  <AppText variant="small" tone="muted" align="center">
+                    Block {first}? You won&apos;t see each other anywhere on I&apos;m In, and you&apos;ll be disconnected. They aren&apos;t told.
+                  </AppText>
+                  <View style={{ flexDirection: 'row', gap: t.space[2] }}>
+                    <Button
+                      label={`Block ${first}`}
+                      variant="danger"
+                      size="md"
+                      style={{ flex: 1 }}
+                      onPress={async () => {
+                        try {
+                          await blockUser(card.id);
+                          toast(`${first} is blocked`);
+                          goBackOr(router, '/');
+                        } catch (e) {
+                          toast(friendlyError(e));
+                        }
+                      }}
+                    />
+                    <Button label="Cancel" variant="secondary" size="md" style={{ flex: 1 }} onPress={() => setConfirmBlock(false)} />
+                  </View>
+                </>
+              ) : (
+                <View style={{ flexDirection: 'row', gap: t.space[2] }}>
+                  <Button
+                    label="Report"
+                    variant="ghost"
+                    size="md"
+                    style={{ flex: 1 }}
+                    onPress={() => router.push({ pathname: '/report', params: { user: card.id, name: card.display_name } })}
+                  />
+                  <Button label="Block" variant="ghost" size="md" style={{ flex: 1 }} onPress={() => setConfirmBlock(true)} />
+                </View>
+              )}
+            </View>
+          </ProfileView>
         ) : (
           <AppText tone="subtle" align="center">
             Loading…

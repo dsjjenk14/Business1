@@ -86,7 +86,7 @@ export default function MyProfile() {
 
             <View style={{ gap: t.space[2] }}>
               <Button label="Bookmarks" variant="secondary" onPress={() => router.push('/pins/bookmarks')} />
-              <Button label="Appearance" variant="secondary" onPress={() => router.push('/settings/appearance')} />
+              <Button label="Settings" variant="secondary" onPress={() => router.push('/settings')} />
               <Button label="Sign Out" variant="ghost" onPress={signOut} />
             </View>
           </ProfileView>
