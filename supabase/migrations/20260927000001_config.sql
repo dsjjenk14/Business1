@@ -84,6 +84,7 @@ insert into public.app_config (key, value, description) values
   ('premium_price_usd',        '14.99', 'Display price. The real price is set in App Store Connect / RevenueCat.'),
   ('min_age',                  '18',    'Signups under this age are blocked.'),
   ('invite_vouch_cap',         '1',     'Max invite-code vouches a person can RECEIVE. Invite vouches skip GPS, so they are capped.'),
+  ('vouches_per_month',        '2',     'How many vouches each member can GIVE per calendar month (DC time). Invite vouches don''t count.'),
   ('default_radius_mi',        '5',     'Default radius for Nearby and Tonight.'),
   ('location_snap_meters',     '400',   'Shared locations are snapped to a grid this size unless the user chooses precise.'),
   ('encounter_max_distance_m', '150',   'Two GPS pings closer than this, at overlapping times, count as being together.'),
@@ -96,7 +97,7 @@ insert into public.app_config (key, value, description) values
 insert into public.plan_limits (key, free_value, premium_value, description) values
   ('search_radius_mi',           10,   75,   'How far you can search for people, events and Tonight.'),
   ('pins_radius_max_mi',         50,   50,   'Max radius on the Pins Nearby slider (also capped by search_radius_mi for free).'),
-  ('messaging_min_interactions', 5,    0,    'Interactions needed before you can message a connection.'),
+  ('messaging_min_exchanges',    5,    0,    'Back-and-forths needed before you can message a connection (one = a message and a reply).'),
   ('ai_uses',                    3,    null, 'User-started AI generations (NULL = unlimited).'),
   ('tonight_priority',           0,    1,    '1 = going-out posts are boosted on the Tonight feed.'),
   ('profile_analytics',          0,    1,    '1 = profile analytics are available.'),

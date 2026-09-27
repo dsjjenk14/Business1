@@ -138,7 +138,9 @@ What I can't do: confirm native-only features like GPS, push notifications, came
 | B3 | Premium and 2nd degree | **Agreed.** Premium skips the 5-interaction wait. It never skips the intro. |
 | B4 | Date requests | **Agreed.** Only to people you're allowed to message. |
 | C1 | Tier names | Same idea, modern names (see below). |
-| C2/C3 | Interactions and AI uses | **Use the definitions proposed in C2 and C3.** |
+| C2 | Interactions | **Updated:** an interaction is a back-and-forth (one person says something, the other replies). Messaging unlocks after 5. See PROGRESS.md. |
+| C3 | AI uses | **Use the definition proposed in C3.** |
+| — | Vouch limit | **Each member can give 2 vouches per month.** Repeat vouches for the same friend are allowed after a new meetup. |
 | C5 | Age | **Date of birth is required at signup. Under 18 is blocked.** |
 | C6/C7 | Twilio | **Add Twilio** for phone verification codes and safety texts. Built behind an interface so it works in "demo mode" until the Twilio account keys are added. |
 | B7 | Pin audience | **Fixed** (see below). |
@@ -214,7 +216,7 @@ Everything runs on Supabase Postgres with PostGIS turned on. Here's what the ter
 | `encounters` | Created by the server when two people's pings overlap (same venue or event, or within about 150 m, at overlapping times). This is the proof that makes a vouch possible. |
 | `vouches` | voucher, vouchee, word_id, encounter_id, type (`gps` / `invite` / `date`), status (`active` / `flagged` / `revoked`). The database **rejects** a `gps` vouch that doesn't have a matching encounter, so the rule is enforced even if the app has a bug. |
 | `vouch_requests` | "Request a vouch": requester, target, encounter_id, status. |
-| `interactions` | Per-pair counter for the free 5-interaction rule. Updated automatically by the database. |
+| `interactions` | Per-pair back-and-forth count for the free messaging unlock (5). Updated automatically when people reply to each other on Pins. |
 
 ### Social (Pins)
 | Table | Purpose |

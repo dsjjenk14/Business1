@@ -187,9 +187,28 @@ const scripted = [
 
 const planned = []; // { voucher, vouchee, word, venueKey, days }
 const pairTaken = new Set();
+
+// Everyone can give only 2 vouches per calendar month (DC time), so spread
+// each voucher's history across months. Mirrors app_config.vouches_per_month.
+const VOUCHES_PER_MONTH = 2;
+const monthUsage = new Map(); // "voucher|2026-09" → count
+const monthKey = (days) => new Date(Date.now() - days * 86_400_000).toLocaleDateString('en-CA', { timeZone: 'America/New_York' }).slice(0, 7);
+const spendMonthlyVouch = (voucher, days) => {
+  const k = `${voucher}|${monthKey(days)}`;
+  monthUsage.set(k, (monthUsage.get(k) ?? 0) + 1);
+};
+function dayWithBudget(voucher) {
+  for (let tries = 0; tries < 500; tries++) {
+    const days = 3 + Math.floor(rand() * 540);
+    if ((monthUsage.get(`${voucher}|${monthKey(days)}`) ?? 0) < VOUCHES_PER_MONTH) return days;
+  }
+  throw new Error(`No month left in ${voucher}'s vouch budget`);
+}
+
 for (const [voucher, vouchee, word, venueKey, days] of scripted) {
   planned.push({ voucher, vouchee, word, venueKey, days });
   pairTaken.add(`${voucher}>${vouchee}`);
+  spendMonthlyVouch(voucher, days);
 }
 for (const c of CAST) {
   if (c.key === 'dom') continue; // exactly 3, all scripted
@@ -199,11 +218,13 @@ for (const c of CAST) {
     if (have >= c.vouches) break;
     if (pairTaken.has(`${voucher}>${c.key}`)) continue;
     pairTaken.add(`${voucher}>${c.key}`);
+    const days = dayWithBudget(voucher);
+    spendMonthlyVouch(voucher, days);
     planned.push({
       voucher, vouchee: c.key,
       word: rand() < 0.55 ? c.topWord : pick(wordNames),
       venueKey: pick(placeKeys),
-      days: 3 + Math.floor(rand() * 240),
+      days,
     });
     have++;
   }
@@ -230,13 +251,12 @@ for (let i = 0; i < planned.length; i += 200) {
   }))), 'vouches');
 }
 
-// ── 6. Interactions (Dominique can message her 1st degree) ────────────────
+// ── 6. Back-and-forths (Dominique can message her 1st degree) ────────────
+// 10 turns = 5 back-and-forths, the free-tier unlock (plan_limits.messaging_min_exchanges).
 for (const other of ['maya', 'jordan', 'naomi', 'deshawn']) {
   const a = ids.dom < ids[other] ? ids.dom : ids[other];
   const b = ids.dom < ids[other] ? ids[other] : ids.dom;
-  const kinds = ['encounter', 'pin_like', 'pin_reply', 'shared_rsvp', 'intro', 'pin_like'];
-  await must(db.from('interaction_events').insert(kinds.map((kind, i) => ({ user_a: a, user_b: b, kind, ref_id: 900 + i }))), 'interaction events');
-  await must(db.from('interactions').upsert({ user_a: a, user_b: b, count: kinds.length }), 'interactions');
+  await must(db.from('interactions').upsert({ user_a: a, user_b: b, turns: 12, exchanges: 6, last_sender: ids[other] }), 'interactions');
 }
 
 // ── 7. Groups ─────────────────────────────────────────────────────────────

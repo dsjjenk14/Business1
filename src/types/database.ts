@@ -385,40 +385,15 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"interaction_events": {
-                  Row: {
-                    "created_at": string,"kind": string,"ref_id": number,"user_a": string,"user_b": string
-                  }
-                  Insert: {
-                    "created_at"?: string,"kind": string,"ref_id"?: number,"user_a": string,"user_b": string
-                  }
-                  Update: {
-                    "created_at"?: string,"kind"?: string,"ref_id"?: number,"user_a"?: string,"user_b"?: string
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "interaction_events_user_a_fkey"
-      columns: ["user_a"]
-isOneToOne: false
-      referencedRelation: "profiles"
-      referencedColumns: ["id"]
-    },{
-      foreignKeyName: "interaction_events_user_b_fkey"
-      columns: ["user_b"]
-isOneToOne: false
-      referencedRelation: "profiles"
-      referencedColumns: ["id"]
-    }
-                  ]
                 },"interactions": {
                   Row: {
-                    "count": number,"updated_at": string,"user_a": string,"user_b": string
+                    "exchanges": number,"last_sender": string | null,"turns": number,"updated_at": string,"user_a": string,"user_b": string
                   }
                   Insert: {
-                    "count"?: number,"updated_at"?: string,"user_a": string,"user_b": string
+                    "exchanges"?: number,"last_sender"?: string | null,"turns"?: number,"updated_at"?: string,"user_a": string,"user_b": string
                   }
                   Update: {
-                    "count"?: number,"updated_at"?: string,"user_a"?: string,"user_b"?: string
+                    "exchanges"?: number,"last_sender"?: string | null,"turns"?: number,"updated_at"?: string,"user_a"?: string,"user_b"?: string
                   }
                   Relationships: [
                     {
@@ -1059,6 +1034,9 @@ isOneToOne: false
 "is_premium":
 { Args: { "p_user": string }; Returns: boolean
                            },
+"my_vouches_left_this_month":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
 "open_direct_conversation":
 { Args: { "p_other": string }; Returns: number
                            },
@@ -1068,8 +1046,8 @@ isOneToOne: false
 "profile_age":
 { Args: { "p_user": string }; Returns: number
                            },
-"record_interaction":
-{ Args: { "a": string,"b": string,"p_kind": string,"p_ref"?: number }; Returns: undefined
+"record_communication":
+{ Args: { "p_from": string,"p_to": string }; Returns: undefined
                            },
 "refresh_vouch_stats":
 { Args: { "p_user": string }; Returns: undefined

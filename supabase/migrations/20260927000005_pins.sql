@@ -82,14 +82,12 @@ returns boolean language sql stable security definer set search_path = '' as $$
   )
 $$;
 
--- ── Counters and interactions ─────────────────────────────────────────────
+-- ── Counters and back-and-forths ─────────────────────────────────────────────
 create or replace function public.pin_like_trigger()
 returns trigger language plpgsql security definer set search_path = '' as $$
-declare v_author uuid;
 begin
   if tg_op = 'INSERT' then
-    update public.pins set like_count = like_count + 1 where id = new.pin_id returning author_id into v_author;
-    perform public.record_interaction(new.user_id, v_author, 'pin_like', new.pin_id);
+    update public.pins set like_count = like_count + 1 where id = new.pin_id;
   else
     update public.pins set like_count = greatest(like_count - 1, 0) where id = old.pin_id;
   end if;
@@ -98,12 +96,25 @@ end $$;
 create trigger pin_likes_count after insert or delete on public.pin_likes
   for each row execute function public.pin_like_trigger();
 
+-- Replies are how people talk before messaging unlocks:
+--  * someone else replying on your pin  → they said something to you
+--  * you (the pin owner) replying in your thread → you answered the last
+--    person who replied before you
 create or replace function public.pin_reply_trigger()
 returns trigger language plpgsql security definer set search_path = '' as $$
-declare v_author uuid;
+declare
+  v_author uuid;
+  v_previous uuid;
 begin
   update public.pins set reply_count = reply_count + 1 where id = new.pin_id returning author_id into v_author;
-  perform public.record_interaction(new.author_id, v_author, 'pin_reply', new.pin_id);
+  if new.author_id <> v_author then
+    perform public.record_communication(new.author_id, v_author);
+  else
+    select author_id into v_previous from public.pin_replies
+     where pin_id = new.pin_id and id <> new.id and author_id <> v_author and deleted_at is null
+     order by created_at desc, id desc limit 1;
+    perform public.record_communication(v_author, v_previous);
+  end if;
   return null;
 end $$;
 create trigger pin_replies_count after insert on public.pin_replies

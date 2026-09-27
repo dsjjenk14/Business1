@@ -138,10 +138,10 @@ create table public.vouches (
   check (type <> 'gps' or (word_id is not null and encounter_id is not null)),
   check (type <> 'invite' or encounter_id is null)
 );
--- One vouch per person, ever: meeting the same friend every week doesn't
--- multiply their vouches. (An invite vouch is upgraded in place to a GPS vouch
--- with a word the first time the two actually meet; see validate_vouch.)
-create unique index vouches_once_per_pair on public.vouches (voucher_id, vouchee_id);
+-- A GPS vouch uses one GPS meetup once. You can vouch the same friend again
+-- after a new meetup, limited by your monthly budget (see validate_vouch).
+create unique index vouches_once_per_encounter on public.vouches (voucher_id, vouchee_id, encounter_id) where type = 'gps';
+create unique index vouches_invite_once on public.vouches (voucher_id, vouchee_id) where type = 'invite';
 create index vouches_vouchee_idx on public.vouches (vouchee_id, created_at desc);
 
 -- Enforces the vouch rules even if the app has a bug.
@@ -150,6 +150,7 @@ returns trigger language plpgsql security definer set search_path = '' as $$
 declare
   enc public.encounters;
   invite_count int;
+  given_this_month int;
 begin
   if new.type = 'gps' then
     select * into enc from public.encounters where id = new.encounter_id;
@@ -159,10 +160,17 @@ begin
       raise exception 'A vouch needs a GPS-confirmed meetup between these two people.'
         using errcode = 'check_violation';
     end if;
-    -- Upgrade: an earlier invite vouch between the same two people is replaced
-    -- by this real, GPS-backed vouch with a word (still one vouch per pair).
-    delete from public.vouches
-     where voucher_id = new.voucher_id and vouchee_id = new.vouchee_id and type = 'invite';
+    -- Monthly budget: each member can give N vouches per calendar month (DC time).
+    select count(*) into given_this_month from public.vouches
+     where voucher_id = new.voucher_id
+       and type = 'gps'
+       and status <> 'revoked'
+       and date_trunc('month', created_at at time zone 'America/New_York')
+         = date_trunc('month', coalesce(new.created_at, now()) at time zone 'America/New_York');
+    if given_this_month >= public.config_num('vouches_per_month') then
+      raise exception 'You''ve used your vouches for this month. You get more on the 1st.'
+        using errcode = 'check_violation';
+    end if;
   elsif new.type = 'invite' then
     select count(*) into invite_count from public.vouches
       where vouchee_id = new.vouchee_id and type = 'invite';
@@ -175,6 +183,16 @@ end $$;
 
 create trigger vouches_validate before insert on public.vouches
   for each row execute function public.validate_vouch();
+
+-- "You have 2 vouches left this month" for the signed-in member.
+create or replace function public.my_vouches_left_this_month()
+returns integer language sql stable security definer set search_path = '' as $$
+  select greatest(0, public.config_num('vouches_per_month')::int - (
+    select count(*)::int from public.vouches
+     where voucher_id = auth.uid() and type = 'gps' and status <> 'revoked'
+       and date_trunc('month', created_at at time zone 'America/New_York')
+         = date_trunc('month', now() at time zone 'America/New_York')))
+$$;
 
 -- Keeps profiles.vouch_count and profiles.top_vouch_word current.
 create or replace function public.refresh_vouch_stats(p_user uuid)
@@ -211,45 +229,40 @@ create table public.vouch_requests (
   check (requester_id <> target_id)
 );
 
--- ── Interactions (free-tier "5 interactions before messaging") ────────────
--- An interaction is recorded at most once per (pair, kind, thing), so liking,
--- unliking and re-liking the same pin can't be used to farm the count.
--- Kinds: 'pin_like', 'pin_reply', 'shared_rsvp', 'encounter', 'intro', 'invite'.
-create table public.interaction_events (
-  user_a     uuid not null references public.profiles (id) on delete cascade,
-  user_b     uuid not null references public.profiles (id) on delete cascade,
-  kind       text not null,
-  ref_id     bigint not null default 0,
-  created_at timestamptz not null default now(),
-  primary key (user_a, user_b, kind, ref_id),
-  check (user_a < user_b)
-);
-
+-- ── Back-and-forths (free-tier messaging unlock) ─────────────────────────
+-- Free members can message a connection after N back-and-forths with them.
+-- One back-and-forth = one person says something to the other and the other
+-- replies. Before messaging unlocks, that happens on Pins: commenting on
+-- someone's pin, and the pin owner replying back in the thread.
+-- Likes, RSVPs and being at the same place don't count.
+--
+-- We track "turns": consecutive messages from the same person collapse into
+-- one turn, and every change of speaker is a new turn. Two turns (A then B)
+-- make one back-and-forth.
 create table public.interactions (
-  user_a     uuid not null references public.profiles (id) on delete cascade,
-  user_b     uuid not null references public.profiles (id) on delete cascade,
-  count      integer not null default 0,
-  updated_at timestamptz not null default now(),
+  user_a       uuid not null references public.profiles (id) on delete cascade,
+  user_b       uuid not null references public.profiles (id) on delete cascade,
+  turns        integer not null default 0,
+  exchanges    integer not null default 0,     -- completed back-and-forths = floor(turns / 2)
+  last_sender  uuid,
+  updated_at   timestamptz not null default now(),
   primary key (user_a, user_b),
   check (user_a < user_b)
 );
 
-create or replace function public.record_interaction(a uuid, b uuid, p_kind text, p_ref bigint default 0)
+create or replace function public.record_communication(p_from uuid, p_to uuid)
 returns void language plpgsql security definer set search_path = '' as $$
-declare inserted int;
 begin
-  if a is null or b is null or a = b then return; end if;
-  insert into public.interaction_events (user_a, user_b, kind, ref_id)
-  values (least(a, b), greatest(a, b), p_kind, coalesce(p_ref, 0))
-  on conflict do nothing;
-  get diagnostics inserted = row_count;
-  if inserted > 0 then
-    insert into public.interactions (user_a, user_b, count)
-    values (least(a, b), greatest(a, b), 1)
-    on conflict (user_a, user_b) do update set count = public.interactions.count + 1, updated_at = now();
-  end if;
+  if p_from is null or p_to is null or p_from = p_to then return; end if;
+  insert into public.interactions as i (user_a, user_b, turns, exchanges, last_sender)
+  values (least(p_from, p_to), greatest(p_from, p_to), 1, 0, p_from)
+  on conflict (user_a, user_b) do update set
+    turns       = case when i.last_sender = p_from then i.turns else i.turns + 1 end,
+    exchanges   = (case when i.last_sender = p_from then i.turns else i.turns + 1 end) / 2,
+    last_sender = p_from,
+    updated_at  = now();
 end $$;
-revoke execute on function public.record_interaction(uuid, uuid, text, bigint) from public, anon, authenticated;
+revoke execute on function public.record_communication(uuid, uuid) from public, anon, authenticated;
 
 -- ── Signup: create profile, apply invite code, founding member ────────────
 -- Runs for every new auth user. Reads the signup form from user metadata.
@@ -315,7 +328,6 @@ begin
       values (new.id, v_inviter, 'invite');
     end if;
 
-    perform public.record_interaction(new.id, v_inviter, 'invite');
   end if;
 
   return new;
@@ -333,7 +345,6 @@ alter table public.encounters     enable row level security;
 alter table public.vouches        enable row level security;
 alter table public.vouch_requests enable row level security;
 alter table public.interactions   enable row level security;
-alter table public.interaction_events enable row level security;
 
 -- Connections: you can see your own, and your connections' (needed for 2nd degree UI).
 create policy "see own and friends' connections" on public.connections for select to authenticated
@@ -380,5 +391,5 @@ create policy "vouch request participants" on public.vouch_requests for select t
 create policy "ask for a vouch" on public.vouch_requests for insert to authenticated
   with check (requester_id = auth.uid());
 
-create policy "own interaction counts" on public.interactions for select to authenticated
+create policy "own back-and-forth counts" on public.interactions for select to authenticated
   using (auth.uid() in (user_a, user_b));

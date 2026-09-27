@@ -2,7 +2,7 @@
 -- Each test creates its own users inside a transaction that is rolled back.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(25);
+select plan(32);
 
 -- Helper to create an auth user (fires the real signup trigger).
 create or replace function pg_temp.new_user(p_email text, p_meta jsonb)
@@ -75,22 +75,40 @@ select throws_ok(
   '42501', null, 'Members cannot create invite vouches themselves');
 select pg_temp.act_as_admin();
 
+-- Two separate GPS meetups between Ana and Cam, one between Ana and Ben.
 insert into encounters (user_a, user_b, context, place_label, distance_m, overlap_start, overlap_end)
-select least(a.id, c.id), greatest(a.id, c.id), 'venue', 'Bresca', 20, now() - interval '2 hours', now() - interval '1 hour'
-from t a, t c where a.k = 'ana' and c.k = 'cam';
+select least(a.id, c.id), greatest(a.id, c.id), 'venue', place, 20, now() - interval '2 hours', now() - interval '1 hour'
+from t a, t c, (values ('Bresca'), ('Songbyrd')) as places(place) where a.k = 'ana' and c.k = 'cam';
+insert into encounters (user_a, user_b, context, place_label, distance_m, overlap_start, overlap_end)
+select least(a.id, c.id), greatest(a.id, c.id), 'venue', 'Rock Creek', 20, now() - interval '2 hours', now() - interval '1 hour'
+from t a, t c where a.k = 'ana' and c.k = 'ben';
+
+create temp table enc as
+  select e.id, e.place_label from encounters e
+  where (select id from t where k='ana') in (e.user_a, e.user_b);
+grant select on enc to authenticated;
 
 select pg_temp.act_as((select id from t where k='ana'));
 select lives_ok(
   format($$ insert into vouches (voucher_id, vouchee_id, type, word_id, encounter_id) values (%L, %L, 'gps', 1, %s) $$,
-    (select id from t where k='ana'), (select id from t where k='cam'), (select max(id) from encounters)),
-  'A GPS vouch with a matching encounter and a word is accepted (upgrading the earlier invite vouch)');
+    (select id from t where k='ana'), (select id from t where k='cam'), (select id from enc where place_label='Bresca')),
+  'A GPS vouch with a matching meetup and a word is accepted');
 select throws_ok(
   format($$ insert into vouches (voucher_id, vouchee_id, type, word_id, encounter_id) values (%L, %L, 'gps', 2, %s) $$,
-    (select id from t where k='ana'), (select id from t where k='cam'), (select max(id) from encounters)),
-  '23505', null, 'You can only vouch for the same person once');
+    (select id from t where k='ana'), (select id from t where k='cam'), (select id from enc where place_label='Bresca')),
+  '23505', null, 'One meetup can only be used for one vouch');
+select lives_ok(
+  format($$ insert into vouches (voucher_id, vouchee_id, type, word_id, encounter_id) values (%L, %L, 'gps', 2, %s) $$,
+    (select id from t where k='ana'), (select id from t where k='cam'), (select id from enc where place_label='Songbyrd')),
+  'You can vouch the same friend again after a new meetup');
+select is(my_vouches_left_this_month(), 0, 'Monthly budget: 2 vouches used, 0 left');
+select throws_ok(
+  format($$ insert into vouches (voucher_id, vouchee_id, type, word_id, encounter_id) values (%L, %L, 'gps', 3, %s) $$,
+    (select id from t where k='ana'), (select id from t where k='ben'), (select id from enc where place_label='Rock Creek')),
+  '23514', 'You''ve used your vouches for this month. You get more on the 1st.', 'A 3rd vouch in the same month is blocked');
 select pg_temp.act_as_admin();
-select is((select vouch_count from profiles where id = (select id from t where k='cam')), 1, 'Invite vouch upgraded in place: still one vouch from Ana, count in sync');
-select is((select type::text from vouches where voucher_id = (select id from t where k='ana') and vouchee_id = (select id from t where k='cam')), 'gps', 'The upgraded vouch is now a GPS vouch');
+select is((select vouch_count from profiles where id = (select id from t where k='cam')), 3,
+  'vouch_count stays in sync (invite vouch + 2 GPS vouches)');
 
 -- ── Privacy ──────────────────────────────────────────────────────────────
 select pg_temp.act_as((select id from t where k='ben'));
@@ -115,11 +133,40 @@ select pg_temp.act_as((select id from t where k='dee'));   -- Dee is unconnected
 select is((select count(*)::int from pins where author_id = (select id from t where k='ana')), 1, 'Strangers only see "everyone" pins');
 select pg_temp.act_as_admin();
 
--- ── Messaging ────────────────────────────────────────────────────────────
--- Ana & Ben: connected, 1 interaction (invite). Free limit is 5.
-select ok(not can_message((select id from t where k='ana'), (select id from t where k='ben')), 'Free members need 5 interactions before messaging');
+-- ── Messaging: 5 back-and-forths (on Pins) unlock DMs for free members ────
+-- Ana & Ben are connected (invite) but haven't talked yet.
+select ok(not can_message((select id from t where k='ana'), (select id from t where k='ben')), 'Connected but no back-and-forths yet: no messaging');
+
+-- Likes don't count.
+insert into pin_likes (pin_id, user_id) values ((select id from pins where body='for everyone'), (select id from t where k='ben'));
+select is(coalesce((select exchanges from interactions where (select id from t where k='ben') in (user_a, user_b) and (select id from t where k='ana') in (user_a, user_b)), 0), 0,
+  'Likes are not back-and-forths');
+
+-- Ben comments twice in a row, then Ana answers: that's 1 back-and-forth (double texts don't count twice).
+insert into pin_replies (pin_id, author_id, body) values
+  ((select id from pins where body='for everyone'), (select id from t where k='ben'), 'hey!'),
+  ((select id from pins where body='for everyone'), (select id from t where k='ben'), 'also this');
+insert into pin_replies (pin_id, author_id, body) values ((select id from pins where body='for everyone'), (select id from t where k='ana'), 'hi Ben');
+select is((select exchanges from interactions where (select id from t where k='ben') in (user_a, user_b) and (select id from t where k='ana') in (user_a, user_b)), 1,
+  'Comment + owner''s reply = 1 back-and-forth');
+
+-- Three more rounds → 4 total: still locked.
+do $$ begin
+  for i in 1..3 loop
+    insert into pin_replies (pin_id, author_id, body) values ((select id from pins where body='for everyone'), (select id from t where k='ben'), 'ben ' || i);
+    insert into pin_replies (pin_id, author_id, body) values ((select id from pins where body='for everyone'), (select id from t where k='ana'), 'ana ' || i);
+  end loop;
+end $$;
+select ok(not can_message((select id from t where k='ana'), (select id from t where k='ben')), '4 back-and-forths: still locked');
+
+insert into pin_replies (pin_id, author_id, body) values ((select id from pins where body='for everyone'), (select id from t where k='ben'), 'ben 4');
+insert into pin_replies (pin_id, author_id, body) values ((select id from pins where body='for everyone'), (select id from t where k='ana'), 'ana 4');
+select ok(can_message((select id from t where k='ana'), (select id from t where k='ben')), '5 back-and-forths: messaging unlocked');
+
+-- Premium: skips the wait, never the intro.
+select ok(not can_message((select id from t where k='ana'), (select id from t where k='cam')), 'Free: Ana and Cam are connected but haven''t talked, so no messaging');
 insert into entitlements (user_id, premium_until) values ((select id from t where k='ana'), now() + interval '30 days');
-select ok(can_message((select id from t where k='ana'), (select id from t where k='ben')), 'Premium skips the interaction wait');
+select ok(can_message((select id from t where k='ana'), (select id from t where k='cam')), 'Premium skips the back-and-forth wait');
 select ok(not can_message((select id from t where k='ana'), (select id from t where k='dee')), 'Premium never skips the intro (no messaging strangers)');
 
 select * from finish();

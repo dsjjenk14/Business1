@@ -61,9 +61,8 @@ Profiles (full, with Top 8 and profile customization), Pins (Nearby + They're In
 | 2026-09-27 | Date of birth required; under 18 blocked | Dominique |
 | 2026-09-27 | First 500 members are Founding Members | Dominique |
 | 2026-09-27 | Twilio for phone verification and safety texts (demo mode until keys exist) | Dominique |
-| 2026-09-27 | **One vouch per person, ever** (no repeat vouches from the same friend) | Stops vouch farming. **Please confirm.** |
-| 2026-09-27 | An invite vouch **upgrades** to a GPS vouch (with a word) when the two actually meet | Keeps it one vouch per person |
-| 2026-09-27 | Interactions count once per thing (liking, unliking and re-liking doesn't add up) | Stops people gaming the 5-interaction rule |
+| 2026-09-27 | **Each member can give 2 vouches per month** (resets on the 1st, DC time). You can vouch the same friend again after a new GPS meetup. The invite-code vouch doesn't count toward the 2. | Dominique. The number is in config (`vouches_per_month`). |
+| 2026-09-27 | **"5 interactions" = 5 back-and-forths.** One back-and-forth = one person says something and the other replies. Before messaging unlocks, that happens on Pins (commenting on someone's pin, and the owner replying in the thread). Double-texting counts once. Likes, RSVPs and being at the same place don't count. | Dominique. The number is in config (`messaging_min_exchanges`). |
 | 2026-09-27 | Phone login goes through a server function; accounts are keyed by email | Supabase's own phone login needs a text for every login |
 | 2026-09-27 | Screens live in `src/app/` (not `app/`) | This is what current Expo expects |
 | 2026-09-27 | Testing: web build + automated checks here, plus Dominique on her phone | No iPhone simulator in this environment (it needs a Mac) |
