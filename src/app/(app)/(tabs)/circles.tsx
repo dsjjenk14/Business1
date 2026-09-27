@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, Share, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
+import { GroupsList } from '@/components/groups/GroupsList';
 import { RingDiagram } from '@/components/circles/RingDiagram';
 import { AppText, Badge, Button, Card, IconButton, Screen, Section, Segmented, useToast } from '@/components/ui';
 import {
@@ -10,16 +11,13 @@ import {
   fetchCircle,
   fetchGroups,
   fetchIntros,
-  joinOpenGroup,
   type Activity,
   type CircleOverview,
-  type GroupRow,
   type GroupsOverview,
   type MyIntros,
 } from '@/features/circles/api';
 import { fetchProfileCard, type ProfileCard } from '@/features/profiles/api';
 import { useAuth } from '@/lib/auth';
-import { friendlyError } from '@/lib/supabase';
 import { timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
 
@@ -111,19 +109,7 @@ export default function Circles() {
       ) : tab === 'network' ? (
         <Network circle={circle} activity={activity} />
       ) : groups ? (
-        <Groups
-          groups={groups}
-          onJoin={async (g) => {
-            if (!me) return;
-            try {
-              await joinOpenGroup(g.id, me);
-              toast(`You joined ${g.name}`);
-              setGroups(await fetchGroups());
-            } catch (e) {
-              toast(friendlyError(e));
-            }
-          }}
-        />
+        <GroupsList groups={groups} onChange={setGroups} />
       ) : null}
     </Screen>
   );
@@ -327,52 +313,6 @@ function Network({ circle, activity }: { circle: CircleOverview; activity: Activ
           />
         ))}
       </Section>
-    </>
-  );
-}
-
-function Groups({ groups, onJoin }: { groups: GroupsOverview; onJoin: (g: GroupRow) => void }) {
-  const t = useTheme();
-  const toast = useToast();
-
-  const row = (g: GroupRow, mode: 'member' | 'join') => (
-    <View key={g.id} style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3], minHeight: 52 }}>
-      <AppText style={{ fontSize: 26 }}>{g.emoji}</AppText>
-      <View style={{ flex: 1 }}>
-        <AppText variant="small" weight="bold">
-          {g.name}
-        </AppText>
-        <AppText variant="caption" tone="subtle" numberOfLines={1}>
-          {[`${g.member_count} members`, g.schedule_label, g.circle_members?.length ? `${g.circle_members[0]}${g.circle_members.length > 1 ? ` +${g.circle_members.length - 1}` : ''} from your circle` : null]
-            .filter(Boolean)
-            .join(' · ')}
-        </AppText>
-      </View>
-      {mode === 'member' ? (
-        <Badge label="Member" tone="ai" />
-      ) : g.requested ? (
-        <AppText variant="caption" tone="subtle">
-          Requested
-        </AppText>
-      ) : g.join_type === 'open' ? (
-        <Button label="Join" size="md" onPress={() => onJoin(g)} />
-      ) : (
-        <Button label="Request" size="md" variant="secondary" onPress={() => toast('Join requests arrive with groups in Phase 4')} />
-      )}
-    </View>
-  );
-
-  return (
-    <>
-      <Section title="Your groups">{groups.mine.length ? groups.mine.map((g) => row(g, 'member')) : <AppText variant="small" tone="muted">You&apos;re not in any groups yet.</AppText>}</Section>
-      {groups.from_circle.length ? <Section title="From your circle">{groups.from_circle.map((g) => row(g, 'join'))}</Section> : null}
-      {groups.discover.length ? <Section title="Discover more">{groups.discover.map((g) => row(g, 'join'))}</Section> : null}
-      <Card onPress={() => toast('Creating groups arrives in Phase 4')} accessibilityLabel="Create your own group">
-        <AppText weight="bold">➕ Create your own group</AppText>
-        <AppText variant="small" tone="muted">
-          Verified members only. You control who joins.
-        </AppText>
-      </Card>
     </>
   );
 }

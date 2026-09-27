@@ -1,14 +1,13 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Image } from 'expo-image';
-import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
+import { PhotoPicker } from '@/components/pins/PhotoPicker';
 import { AppText, Button, Chip, Screen, TextField, useToast } from '@/components/ui';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
-import { AUDIENCE_OPTIONS, MAX_PHOTOS, createPin, type PinAudience, type PinCategory } from '@/features/pins/api';
+import { AUDIENCE_OPTIONS, createPin, type PinAudience, type PinCategory } from '@/features/pins/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
@@ -36,18 +35,6 @@ export default function NewPin() {
   const [error, setError] = useState<string | null>(null);
 
   const type = TYPES.find((x) => x.key === category)!;
-
-  async function addPhotos() {
-    const room = MAX_PHOTOS - photos.length;
-    if (room <= 0) return;
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsMultipleSelection: true,
-      selectionLimit: room,
-      quality: 0.8,
-    });
-    if (!result.canceled) setPhotos((p) => [...p, ...result.assets.map((a) => a.uri)].slice(0, MAX_PHOTOS));
-  }
 
   async function submit() {
     if (!session) return;
@@ -109,48 +96,7 @@ export default function NewPin() {
           hint={`${body.length}/2000`}
         />
 
-        <View style={{ gap: t.space[2] }}>
-          <AppText variant="label" tone="subtle">
-            Photos · optional · up to {MAX_PHOTOS}
-          </AppText>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
-            {photos.map((uri, i) => (
-              <View key={uri} style={{ width: 96, height: 96, borderRadius: t.radius.md, overflow: 'hidden', backgroundColor: t.colors.surfaceAlt }}>
-                <Image source={{ uri }} style={{ width: '100%', height: '100%' }} contentFit="cover" accessibilityLabel={`Photo ${i + 1}`} />
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={`Remove photo ${i + 1}`}
-                  onPress={() => setPhotos((p) => p.filter((x) => x !== uri))}
-                  hitSlop={8}
-                  style={{ position: 'absolute', top: 4, right: 4 }}>
-                  <Ionicons name="close-circle" size={24} color={t.colors.text} />
-                </Pressable>
-              </View>
-            ))}
-            {photos.length < MAX_PHOTOS ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel="Add photos"
-                onPress={addPhotos}
-                style={{
-                  width: 96,
-                  height: 96,
-                  borderRadius: t.radius.md,
-                  borderWidth: t.borderWidth.regular,
-                  borderStyle: 'dashed',
-                  borderColor: t.colors.borderStrong,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 4,
-                }}>
-                <Ionicons name="images-outline" size={24} color={t.colors.textMuted} />
-                <AppText variant="caption" tone="muted">
-                  Add photo
-                </AppText>
-              </Pressable>
-            ) : null}
-          </View>
-        </View>
+        <PhotoPicker photos={photos} onChange={setPhotos} />
 
         <View style={{ gap: t.space[2] }}>
           <AppText variant="label" tone="subtle">

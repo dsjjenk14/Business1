@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
@@ -10,9 +11,10 @@ import { useTheme } from '@/theme';
 
 type Row = { id: number; title: string; emoji: string | null; avatarUrl: string | null; last: string; at: string | null; unread: boolean; group: boolean };
 
-/** Read-only inbox for now. Chats, sending and "Ask on a Date" come in Phase 5. */
+/** Inbox: group chats and direct messages. Starting DMs and "Ask on a Date" come in Phase 5. */
 export default function Messages() {
   const t = useTheme();
+  const router = useRouter();
   const { session } = useAuth();
   const me = session?.user.id;
   const [rows, setRows] = useState<Row[] | null>(null);
@@ -52,7 +54,7 @@ export default function Messages() {
   }, [me]);
 
   const renderRow = (r: Row) => (
-    <Card key={r.id}>
+    <Card key={r.id} onPress={() => router.push({ pathname: '/chat/[id]', params: { id: String(r.id) } })} accessibilityLabel={`${r.title}${r.unread ? ', unread' : ''}`}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
         <Avatar name={r.title} emoji={r.emoji} uri={r.avatarUrl} size={44} />
         <View style={{ flex: 1 }}>

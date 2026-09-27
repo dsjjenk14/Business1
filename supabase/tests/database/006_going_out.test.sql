@@ -3,7 +3,7 @@
 -- group chat membership kept in sync).
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(26);
+select plan(28);
 
 create or replace function pg_temp.new_user(p_email text, p_name text) returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();
@@ -72,6 +72,13 @@ select pg_temp.act_as('cy');
 select throws_ok($$ insert into event_rsvps (event_id, user_id) values ((select id from events where title = 'Small dinner'), pg_temp.uid('cy')) $$,
   '23514', 'This event is full.', 'RSVPs stop at capacity');
 select ok((select going_out_feed('tonight', 38.60, -77.30, 10)->'events' @> '[{"title":"Small dinner"}]'), 'Tonight lists nearby events');
+select pg_temp.act_as('far');
+select create_event('Park hang', now() + interval '1 hour', p_place => 'Meridian Hill Park', p_lat => 38.60, p_lng => -77.30);
+select pg_temp.act_as('cy');
+select ok((select going_out_feed('tonight', 38.60, -77.30, 10)->'events' @> '[{"title":"Park hang","venue_name":"Meridian Hill Park"}]'),
+  'Events at a typed place show nearby too');
+select throws_ok($$ insert into events (host_id, title, starts_at) values (pg_temp.uid('cy'), 'Sneaky', now()) $$, '42501', null,
+  'Events can only be created through create_event');
 select pg_temp.act_as('bo');
 select create_event('Next week', now() + interval '6 days', null);
 select pg_temp.act_as('ana');

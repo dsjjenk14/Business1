@@ -17,7 +17,7 @@ export function GoingOutStrip({ people, amLive }: { people: TonightPerson[]; amL
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={amLive ? "You're live tonight. Change or end" : 'Go live: tell your network you are going out tonight'}
-          onPress={() => router.push('/go-live')}
+          onPress={() => router.push({ pathname: '/tonight/post', params: { when: 'tonight' } })}
           style={{ alignItems: 'center', gap: 6, width: 64 }}>
           <View
             style={{

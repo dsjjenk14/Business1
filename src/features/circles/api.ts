@@ -106,7 +106,3 @@ export const requestIntro = async (target: string, via: string, note: string) =>
   unwrap<number>(await supabase.rpc('request_intro', { p_target: target, p_via: via, p_note: note }));
 export const declineIntroRequest = async (id: number) => unwrap<null>(await supabase.rpc('decline_intro_request', { p_request: id }));
 
-export async function joinOpenGroup(groupId: number, userId: string) {
-  const { error } = await supabase.from('group_members').insert({ group_id: groupId, user_id: userId });
-  if (error) throw error;
-}

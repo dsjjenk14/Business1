@@ -1,0 +1,86 @@
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { View } from 'react-native';
+
+import { BackHeader } from '@/components/nav/AppHeader';
+import { AppText, Card, Screen, Section } from '@/components/ui';
+import { fetchVenue, type VenueDetail } from '@/features/tonight/api';
+import { dayTime } from '@/lib/time';
+import { useTheme } from '@/theme';
+
+/** A venue: what it is, who you know that's been, and what's happening there. */
+export default function Venue() {
+  const t = useTheme();
+  const router = useRouter();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const [venue, setVenue] = useState<VenueDetail | null | undefined>(undefined);
+
+  useEffect(() => {
+    fetchVenue(Number(id))
+      .then(setVenue)
+      .catch(() => setVenue(null));
+  }, [id]);
+
+  return (
+    <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
+      <BackHeader title={venue?.name ?? 'Venue'} />
+      <Screen contentGap={t.space[5]}>
+        {venue === undefined ? (
+          <AppText tone="subtle" align="center">
+            Loading…
+          </AppText>
+        ) : !venue ? (
+          <AppText tone="muted" align="center">
+            This venue isn&apos;t available.
+          </AppText>
+        ) : (
+          <>
+            <View style={{ alignItems: 'center', gap: t.space[2] }}>
+              <AppText style={{ fontSize: 44 }}>{venue.emoji ?? '📍'}</AppText>
+              <AppText variant="h2" align="center" accessibilityRole="header">
+                {venue.name}
+              </AppText>
+              <AppText tone="muted" align="center">
+                {[venue.address, venue.neighborhood].filter(Boolean).join(' · ')}
+              </AppText>
+              {venue.network_visited > 0 ? (
+                <AppText tone="trust" weight="bold">
+                  {venue.network_visited} from your network have met up here
+                </AppText>
+              ) : null}
+            </View>
+
+            <Section title="Happening here">
+              {venue.events.length ? (
+                venue.events.map((e) => {
+                  const spots = e.capacity != null ? Math.max(0, e.capacity - e.going_count) : null;
+                  return (
+                    <Card key={e.id} onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(e.id) } })} accessibilityLabel={e.title}>
+                      <AppText weight="bold">
+                        {e.emoji ?? '📅'} {e.title}
+                      </AppText>
+                      <AppText variant="small" tone="muted">
+                        {[`${e.host_name} hosting`, dayTime(e.starts_at), spots != null ? `${spots} spots left` : `${e.going_count} going`].join(' · ')}
+                      </AppText>
+                    </Card>
+                  );
+                })
+              ) : (
+                <AppText variant="small" tone="muted">
+                  Nothing planned here yet.
+                </AppText>
+              )}
+            </Section>
+
+            {venue.description ? <AppText>{venue.description}</AppText> : null}
+            {venue.price_level ? (
+              <AppText tone="muted">
+                💰 Price: {'$'.repeat(venue.price_level)}
+              </AppText>
+            ) : null}
+          </>
+        )}
+      </Screen>
+    </View>
+  );
+}

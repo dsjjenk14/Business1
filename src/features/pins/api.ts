@@ -132,24 +132,30 @@ export async function createPin(input: {
     .single();
   if (error) throw error;
 
+  const failedPhotos = await uploadPinPhotos(input.userId, data.id, input.photoUris);
+  return { pinId: data.id, failedPhotos };
+}
+
+/** Uploads photos for a pin to <user>/<pin>/<n>.jpg. Returns how many failed. */
+export async function uploadPinPhotos(userId: string, pinId: number, photoUris: string[]): Promise<number> {
   let failedPhotos = 0;
-  const uris = input.photoUris.slice(0, MAX_PHOTOS);
+  const uris = photoUris.slice(0, MAX_PHOTOS);
   for (const [i, uri] of uris.entries()) {
     try {
       const response = await fetch(uri);
       const blob = await response.arrayBuffer();
       const contentType = response.headers.get('content-type') ?? 'image/jpeg';
       const ext = contentType.includes('png') ? 'png' : contentType.includes('webp') ? 'webp' : 'jpg';
-      const path = `${input.userId}/${data.id}/${i + 1}.${ext}`;
+      const path = `${userId}/${pinId}/${i + 1}.${ext}`;
       const up = await supabase.storage.from('pin-photos').upload(path, blob, { contentType, upsert: true });
       if (up.error) throw up.error;
-      const row = await supabase.from('pin_photos').insert({ pin_id: data.id, storage_path: path, position: i + 1 });
+      const row = await supabase.from('pin_photos').insert({ pin_id: pinId, storage_path: path, position: i + 1 });
       if (row.error) throw row.error;
     } catch {
       failedPhotos += 1;
     }
   }
-  return { pinId: data.id, failedPhotos };
+  return failedPhotos;
 }
 
 /** Short-lived links for pin photos (the bucket is private). */

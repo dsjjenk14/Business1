@@ -8,6 +8,14 @@ insert into public.app_config (key, value, description) values
   ('tonight_radius_max_mi', '75', 'Max radius on the Tonight slider (also capped by the plan''s search radius).')
 on conflict (key) do nothing;
 
+-- Events can be at a listed venue or just a typed place ("Meridian Hill Park").
+-- Without a venue, the host's approximate location places it on the map.
+alter table public.events add column place_text text check (char_length(place_text) <= 120);
+alter table public.events add column approx_location extensions.geography(Point, 4326);
+
+-- Events are created through create_event() (which sets the location).
+drop policy "host events" on public.events;
+
 -- ── Weekend window helpers (DC time) ──────────────────────────────────────
 -- "This weekend" = from now until Sunday 11:59 PM (DC time).
 create or replace function public.weekend_ends_at()
@@ -138,14 +146,14 @@ returns jsonb language sql stable security definer set search_path = '' as $$
       select jsonb_agg(e order by e->>'starts_at') from (
         select jsonb_build_object(
           'id', ev.id, 'title', ev.title, 'emoji', ev.emoji, 'starts_at', ev.starts_at, 'ends_at', ev.ends_at,
-          'host_id', ev.host_id, 'host_name', h.display_name, 'venue_id', ev.venue_id, 'venue_name', v.name, 'neighborhood', v.neighborhood,
+          'host_id', ev.host_id, 'host_name', h.display_name, 'venue_id', ev.venue_id, 'venue_name', coalesce(v.name, ev.place_text), 'neighborhood', v.neighborhood,
           'group_id', ev.group_id, 'group_name', gr.name, 'capacity', ev.capacity,
           'going_count', (select count(*) from public.event_rsvps r where r.event_id = ev.id),
           'network_going', (select count(*) from public.event_rsvps r where r.event_id = ev.id and r.user_id in (select id from network)),
           'i_am_going', exists (select 1 from public.event_rsvps r where r.event_id = ev.id and r.user_id = auth.uid()),
-          'distance_mi', case when (select g from origin) is not null and v.location is not null
-                              then round((extensions.st_distance(v.location, (select g from origin)) / 1609.344)::numeric, 1) end,
-          'lat', extensions.st_y(v.location::extensions.geometry), 'lng', extensions.st_x(v.location::extensions.geometry)
+          'distance_mi', case when (select g from origin) is not null and ev.approx_location is not null
+                              then round((extensions.st_distance(ev.approx_location, (select g from origin)) / 1609.344)::numeric, 1) end,
+          'lat', extensions.st_y(ev.approx_location::extensions.geometry), 'lng', extensions.st_x(ev.approx_location::extensions.geometry)
         ) as e
         from public.events ev
         join public.profiles h on h.id = ev.host_id
@@ -155,8 +163,9 @@ returns jsonb language sql stable security definer set search_path = '' as $$
           and (p_when <> 'weekend' or ev.starts_at > public.tonight_ends_at())
           and (p_when <> 'weekend' or not ev.is_recurring)          -- decision B9: recurring group events live under Groups
           and not private.is_blocked(auth.uid(), ev.host_id)
-          and (ev.venue_id is null or extensions.st_dwithin(v.location, (select g from origin), (select m from radius))
-               or ev.host_id in (select id from network) or ev.host_id = auth.uid())
+          and (ev.host_id = auth.uid() or ev.host_id in (select id from network)
+               or exists (select 1 from public.event_rsvps r where r.event_id = ev.id and r.user_id = auth.uid())
+               or (ev.approx_location is not null and extensions.st_dwithin(ev.approx_location, (select g from origin), (select m from radius))))
       ) q), '[]'::jsonb)
   )
 $$;
@@ -166,7 +175,7 @@ create or replace function public.my_group_events()
 returns jsonb language sql stable security definer set search_path = '' as $$
   select coalesce(jsonb_agg(jsonb_build_object(
       'id', ev.id, 'title', ev.title, 'emoji', ev.emoji, 'starts_at', ev.starts_at, 'group_id', gr.id, 'group_name', gr.name,
-      'venue_name', v.name, 'going_count', (select count(*) from public.event_rsvps r where r.event_id = ev.id),
+      'venue_name', coalesce(v.name, ev.place_text), 'going_count', (select count(*) from public.event_rsvps r where r.event_id = ev.id),
       'i_am_going', exists (select 1 from public.event_rsvps r where r.event_id = ev.id and r.user_id = auth.uid()))
     order by ev.starts_at), '[]'::jsonb)
   from public.events ev
@@ -215,19 +224,26 @@ $$;
 -- ── Events ────────────────────────────────────────────────────────────────
 create or replace function public.create_event(
   p_title text, p_starts_at timestamptz, p_venue_id bigint default null, p_emoji text default null,
-  p_description text default '', p_capacity integer default null, p_group bigint default null, p_duration_hours numeric default 3)
+  p_description text default '', p_capacity integer default null, p_group bigint default null, p_duration_hours numeric default 3,
+  p_place text default null, p_lat double precision default null, p_lng double precision default null)
 returns bigint language plpgsql security definer set search_path = '' as $$
 declare
   me uuid := auth.uid();
   new_id bigint;
+  loc extensions.geography;
 begin
   if coalesce(trim(p_title), '') = '' then raise exception 'Give your event a name.' using errcode = 'check_violation'; end if;
   if p_starts_at < now() - interval '30 minutes' then raise exception 'Pick a time that hasn''t passed.' using errcode = 'check_violation'; end if;
   if p_group is not null and not private.is_group_admin(p_group, me) then
     raise exception 'Only group admins can post group events.' using errcode = 'insufficient_privilege';
   end if;
-  insert into public.events (host_id, group_id, venue_id, title, emoji, description, starts_at, ends_at, capacity)
-  values (me, p_group, p_venue_id, trim(p_title), nullif(p_emoji, ''), coalesce(p_description, ''), p_starts_at,
+  if p_starts_at > now() + interval '90 days' then raise exception 'Events can be up to 90 days ahead.' using errcode = 'check_violation'; end if;
+  loc := coalesce((select location from public.venues where id = p_venue_id),
+                  case when p_lat is not null and p_lng is not null then public.snap_location(p_lng, p_lat) end,
+                  (select approx_location from public.profiles where id = me));
+  insert into public.events (host_id, group_id, venue_id, place_text, approx_location, title, emoji, description, starts_at, ends_at, capacity)
+  values (me, p_group, p_venue_id, case when p_venue_id is null then nullif(trim(p_place), '') end, loc, trim(p_title), nullif(p_emoji, ''),
+          coalesce(p_description, ''), p_starts_at,
           p_starts_at + make_interval(mins => (coalesce(p_duration_hours, 3) * 60)::int), p_capacity)
   returning id into new_id;
   insert into public.event_rsvps (event_id, user_id) values (new_id, me);
@@ -267,6 +283,7 @@ returns jsonb language sql stable security definer set search_path = '' as $$
                                'vouch_count', public.visible_vouch_count(h.id)),
     'is_host', ev.host_id = auth.uid(),
     'venue', case when v.id is null then null else jsonb_build_object('id', v.id, 'name', v.name, 'address', v.address, 'neighborhood', v.neighborhood) end,
+    'place', ev.place_text,
     'group', case when gr.id is null then null else jsonb_build_object('id', gr.id, 'name', gr.name, 'emoji', gr.emoji) end,
     'i_am_going', exists (select 1 from public.event_rsvps r where r.event_id = ev.id and r.user_id = auth.uid()),
     'going_count', (select count(*) from public.event_rsvps r where r.event_id = ev.id),
@@ -438,7 +455,7 @@ returns jsonb language sql stable security definer set search_path = '' as $$
                from public.group_members m join public.profiles p on p.id = m.user_id
                where m.group_id = g.id and not private.is_blocked(auth.uid(), p.id)), '[]'::jsonb),
     'next_event', (select jsonb_build_object('id', ev.id, 'title', ev.title, 'starts_at', ev.starts_at,
-                     'venue_name', (select name from public.venues where id = ev.venue_id),
+                     'venue_name', coalesce((select name from public.venues where id = ev.venue_id), ev.place_text),
                      'going_count', (select count(*) from public.event_rsvps r where r.event_id = ev.id),
                      'i_am_going', exists (select 1 from public.event_rsvps r where r.event_id = ev.id and r.user_id = auth.uid()))
                    from public.events ev where ev.group_id = g.id and ev.starts_at > now() - interval '3 hours' order by ev.starts_at limit 1),
@@ -517,8 +534,8 @@ begin
   end if;
   if coalesce(trim(p_body), '') = '' then raise exception 'Say how it went.' using errcode = 'check_violation'; end if;
   insert into public.pins (author_id, category, body, audience, approx_location, place_label, venue_id, event_id)
-  values (me, 'recap', trim(p_body), 'everyone', (select location from public.venues where id = ev.venue_id),
-          (select name from public.venues where id = ev.venue_id), ev.venue_id, ev.id)
+  values (me, 'recap', trim(p_body), 'everyone', ev.approx_location,
+          coalesce((select name from public.venues where id = ev.venue_id), ev.place_text), ev.venue_id, ev.id)
   returning id into pin_id;
   insert into public.pin_tags (pin_id, user_id)
   select pin_id, u from unnest(coalesce(p_tags, '{}')) u
@@ -540,7 +557,7 @@ begin
     'public.my_group_events()',
     'public.search_venues(text, double precision, double precision)',
     'public.venue_detail(bigint)',
-    'public.create_event(text, timestamptz, bigint, text, text, integer, bigint, numeric)',
+    'public.create_event(text, timestamptz, bigint, text, text, integer, bigint, numeric, text, double precision, double precision)',
     'public.event_detail(bigint)',
     'public.event_check_in(bigint, double precision, double precision, real)',
     'public.create_group(text, text, text, public.join_type, text, text, uuid[])',
