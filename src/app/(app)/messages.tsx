@@ -56,7 +56,7 @@ export default function Messages() {
   const renderRow = (r: Row) => (
     <Card key={r.id} onPress={() => router.push({ pathname: '/chat/[id]', params: { id: String(r.id) } })} accessibilityLabel={`${r.title}${r.unread ? ', unread' : ''}`}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-        <Avatar name={r.title} emoji={r.emoji} uri={r.avatarUrl} size={44} />
+        <Avatar name={r.title} uri={r.avatarUrl} size={44} />
         <View style={{ flex: 1 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <AppText weight="bold">{r.title}</AppText>

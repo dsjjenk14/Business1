@@ -24,7 +24,7 @@ export default function Intros() {
   async function respond(id: number, accept: boolean, name: string) {
     try {
       const result = await respondIntro(id, accept);
-      toast(accept ? (result === 'connected' ? `You're connected with ${name} 🎉` : `Accepted. Waiting on ${name}.`) : 'Passed. No explanation needed.');
+      toast(accept ? (result === 'connected' ? `You're connected with ${name}` : `Accepted. Waiting on ${name}.`) : 'Passed. No explanation needed.');
       load();
     } catch (e) {
       toast(friendlyError(e));
@@ -54,7 +54,7 @@ export default function Intros() {
                     {i.connector.display_name} wants you to meet · {timeAgo(i.created_at)}
                   </AppText>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-                    <Avatar name={i.other.display_name} emoji={i.other.avatar_emoji} uri={i.other.avatar_url} size={48} />
+                    <Avatar name={i.other.display_name} uri={i.other.avatar_url} size={48} />
                     <View style={{ flex: 1 }}>
                       <AppText weight="bold">{i.other.display_name}</AppText>
                       <AppText variant="caption" tone="subtle">

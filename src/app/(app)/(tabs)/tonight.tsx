@@ -5,7 +5,7 @@ import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { GroupsList } from '@/components/groups/GroupsList';
 import { RadiusControl } from '@/components/pins/RadiusControl';
 import { EmptyCard, EventCard, GoingOutPersonRow } from '@/components/tonight/GoingOutList';
-import { AppText, Badge, Button, Card, IconButton, Section, Segmented, useToast } from '@/components/ui';
+import { AppText, Badge, Button, Card, GlyphTile, IconButton, Section, Segmented, useToast } from '@/components/ui';
 import { fetchGroups, type GroupsOverview } from '@/features/circles/api';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { usePlan } from '@/features/plan/usePlan';
@@ -148,7 +148,7 @@ export default function Tonight() {
                         accessibilityLabel={`${e.title}, ${e.group_name}`}
                         onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(e.id) } })}
                         style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-                        <AppText style={{ fontSize: 26 }}>{e.emoji ?? '📅'}</AppText>
+                        <GlyphTile name={e.emoji ?? 'calendar'} size={40} />
                         <View style={{ flex: 1 }}>
                           <AppText variant="small" weight="bold">
                             {e.title}

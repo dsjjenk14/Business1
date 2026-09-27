@@ -5,18 +5,18 @@ import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
 import { PhotoPicker } from '@/components/pins/PhotoPicker';
-import { AppText, Button, Chip, Screen, TextField, useToast } from '@/components/ui';
+import { AppText, Button, Chip, type GlyphName, Screen, TextField, useToast } from '@/components/ui';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { AUDIENCE_OPTIONS, createPin, type PinAudience, type PinCategory } from '@/features/pins/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 
-const TYPES: { key: PinCategory; label: string; placeholder: string }[] = [
-  { key: 'thought', label: '💭 Thought', placeholder: "What's on your mind?" },
-  { key: 'question', label: '❓ Question', placeholder: 'Ask your city something…' },
-  { key: 'photos', label: '📷 Photos', placeholder: 'Say something about these photos…' },
-  { key: 'event', label: '🎉 Event', placeholder: "What's happening, when, and where?" },
+const TYPES: { key: PinCategory; label: string; glyph: GlyphName; placeholder: string }[] = [
+  { key: 'thought', label: 'Thought', glyph: 'thought', placeholder: "What's on your mind?" },
+  { key: 'question', label: 'Question', glyph: 'question', placeholder: 'Ask your city something…' },
+  { key: 'photos', label: 'Photos', glyph: 'camera', placeholder: 'Say something about these photos…' },
+  { key: 'event', label: 'Event', glyph: 'calendar', placeholder: "What's happening, when, and where?" },
 ];
 
 /** New Pin: text, type, up to 6 photos, and who can see it. */
@@ -58,7 +58,7 @@ export default function NewPin() {
         lng: location?.lng,
         photoUris: photos,
       });
-      toast(failedPhotos ? `Pin dropped, but ${failedPhotos} photo(s) didn't upload` : 'Pin dropped 📍');
+      toast(failedPhotos ? `Pin dropped, but ${failedPhotos} photo(s) didn't upload` : 'Pin dropped');
       router.replace({ pathname: '/pins/[id]', params: { id: String(pinId) } });
     } catch (e) {
       setError(friendlyError(e));
@@ -77,7 +77,7 @@ export default function NewPin() {
           </AppText>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
             {TYPES.map((x) => (
-              <Chip key={x.key} label={x.label} selected={category === x.key} onPress={() => setCategory(x.key)} />
+              <Chip key={x.key} label={x.label} glyph={x.glyph} selected={category === x.key} onPress={() => setCategory(x.key)} />
             ))}
           </View>
         </View>
@@ -135,7 +135,6 @@ export default function NewPin() {
         </View>
 
         <AppText variant="caption" tone="subtle">
-          📍{' '}
           {status === 'granted'
             ? 'Your location is shared approximately (about a quarter mile), never exactly.'
             : 'Location is off, so this pin uses your profile area. Distances stay approximate.'}

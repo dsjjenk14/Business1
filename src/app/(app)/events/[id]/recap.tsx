@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, Platform, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
 import { PhotoPicker } from '@/components/pins/PhotoPicker';
-import { AppText, Avatar, Button, Card, Chip, Screen, TextField, useToast } from '@/components/ui';
+import { AppText, Avatar, Button, Card, Chip, GlyphTile, Screen, TextField, useToast } from '@/components/ui';
 import { fetchEvent, postRecap, type EventDetail } from '@/features/events/api';
 import { uploadPinPhotos } from '@/features/pins/api';
 import { useAuth } from '@/lib/auth';
@@ -40,7 +40,7 @@ export default function EventRecap() {
     try {
       const pinId = await postRecap(event.id, body, tags);
       const failed = photos.length ? await uploadPinPhotos(me, pinId, photos) : 0;
-      toast(failed ? `Recap posted, but ${failed} photo(s) didn't upload` : 'Recap posted 🎉');
+      toast(failed ? `Recap posted, but ${failed} photo(s) didn't upload` : 'Recap posted');
       router.replace({ pathname: '/pins/[id]', params: { id: String(pinId) } });
     } catch (e) {
       toast(friendlyError(e));
@@ -56,7 +56,7 @@ export default function EventRecap() {
         {event ? (
           <Card accent="primary">
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-              <AppText style={{ fontSize: 30 }}>🎉</AppText>
+              <GlyphTile name="party" size={44} />
               <View style={{ flex: 1 }}>
                 <AppText weight="bold">Drop a recap pin</AppText>
                 <AppText variant="small" tone="muted">
@@ -81,7 +81,7 @@ export default function EventRecap() {
                 const selected = tags.includes(p.id);
                 return (
                   <View key={p.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                    <Avatar name={p.display_name} emoji={p.avatar_emoji} uri={p.avatar_url} size={28} />
+                    <Avatar name={p.display_name} uri={p.avatar_url} size={28} />
                     <Chip
                       label={p.display_name}
                       selected={selected}

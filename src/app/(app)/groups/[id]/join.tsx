@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, Platform, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Button, Card, Chip, Screen, TextField, useToast } from '@/components/ui';
+import { AppText, Button, Card, Chip, GlyphTile, Screen, TextField, useToast } from '@/components/ui';
 import { HOW_FOUND, fetchGroup, requestToJoin, type GroupDetail } from '@/features/groups/api';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
@@ -49,7 +49,7 @@ export default function JoinGroup() {
         <BackHeader title="Request Sent" />
         <Screen contentGap={t.space[5]}>
           <View style={{ alignItems: 'center', gap: t.space[2] }}>
-            <AppText style={{ fontSize: 48 }}>📬</AppText>
+            <GlyphTile name="mail" size={64} />
             <AppText variant="h2" align="center" accessibilityRole="header">
               Request Sent!
             </AppText>
@@ -87,7 +87,7 @@ export default function JoinGroup() {
           <>
             <Card>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-                <AppText style={{ fontSize: 32 }}>{group.emoji}</AppText>
+                <GlyphTile name={group.emoji} size={44} />
                 <View style={{ flex: 1 }}>
                   <AppText weight="bold">{group.name}</AppText>
                   <AppText variant="small" tone="muted">
@@ -108,7 +108,7 @@ export default function JoinGroup() {
                   People you know in this group
                 </AppText>
                 {known.map((m) => (
-                  <PersonRow key={m.id} id={m.id} name={m.display_name} emoji={m.avatar_emoji} avatarUrl={m.avatar_url} vouches={m.vouch_count} ring="trust" detail="1st degree" />
+                  <PersonRow key={m.id} id={m.id} name={m.display_name} avatarUrl={m.avatar_url} vouches={m.vouch_count} ring="trust" detail="1st degree" />
                 ))}
               </View>
             ) : null}

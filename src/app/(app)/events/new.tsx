@@ -5,7 +5,7 @@ import { KeyboardAvoidingView, Platform, View } from 'react-native';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { DateTimeChips, upcomingDays } from '@/components/tonight/DateTimeChips';
 import { VenuePicker, type PlaceChoice } from '@/components/tonight/VenuePicker';
-import { AppText, Button, Chip, Screen, TextField, useToast } from '@/components/ui';
+import { AppText, Button, Chip, type GlyphName, isGlyphName, Screen, TextField, useToast } from '@/components/ui';
 import { createEvent } from '@/features/events/api';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { useAuth } from '@/lib/auth';
@@ -13,7 +13,18 @@ import { friendlyError, supabase } from '@/lib/supabase';
 import { marketDate } from '@/lib/time';
 import { useTheme } from '@/theme';
 
-const EMOJIS = ['🍽️', '🍹', '🎶', '🏃', '🏋️', '🏓', '🥂', '🎨', '🎉', '☕'];
+const EVENT_GLYPHS: { glyph: GlyphName; label: string }[] = [
+  { glyph: 'dinner', label: 'Dinner' },
+  { glyph: 'drinks', label: 'Drinks' },
+  { glyph: 'music', label: 'Music' },
+  { glyph: 'route', label: 'Run' },
+  { glyph: 'fitness', label: 'Workout' },
+  { glyph: 'paddle', label: 'Pickleball' },
+  { glyph: 'wine', label: 'Wine' },
+  { glyph: 'art', label: 'Art' },
+  { glyph: 'party', label: 'Party' },
+  { glyph: 'coffee', label: 'Coffee' },
+];
 const DURATIONS = [1, 2, 3, 4, 6];
 const CAPACITIES: (number | null)[] = [null, 4, 6, 8, 12, 20];
 
@@ -28,7 +39,7 @@ export default function NewEvent() {
   const { location } = useApproxLocation();
 
   const [title, setTitle] = useState('');
-  const [emoji, setEmoji] = useState('🍽️');
+  const [glyph, setGlyph] = useState<GlyphName>('dinner');
   const [day, setDay] = useState<string | null>(null);
   const [minutes, setMinutes] = useState<number | null>(null);
   const [duration, setDuration] = useState(3);
@@ -60,7 +71,7 @@ export default function NewEvent() {
     try {
       const id = await createEvent({
         title,
-        emoji,
+        glyph,
         startsAt,
         durationHours: duration,
         venueId: place.venueId,
@@ -87,8 +98,8 @@ export default function NewEvent() {
         <TextField label="What is it?" value={title} onChangeText={setTitle} maxLength={100} placeholder="Community dinner, Saturday run, show night…" />
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
-          {EMOJIS.map((e) => (
-            <Chip key={e} label={e} selected={emoji === e} accessibilityLabel={`Icon ${e}`} onPress={() => setEmoji(e)} />
+          {EVENT_GLYPHS.map((e) => (
+            <Chip key={e.glyph} label="" glyph={e.glyph} selected={glyph === e.glyph} accessibilityLabel={`Icon: ${e.label}`} onPress={() => setGlyph(e.glyph)} />
           ))}
         </View>
 
@@ -136,7 +147,7 @@ export default function NewEvent() {
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
               <Chip label="Just me" selected={groupId == null} onPress={() => setGroupId(null)} />
               {groups.map((g) => (
-                <Chip key={g.id} label={`${g.emoji} ${g.name}`} selected={groupId === g.id} onPress={() => setGroupId(g.id)} />
+                <Chip key={g.id} label={g.name} glyph={isGlyphName(g.emoji) ? g.emoji : 'spark'} selected={groupId === g.id} onPress={() => setGroupId(g.id)} />
               ))}
             </View>
           </View>

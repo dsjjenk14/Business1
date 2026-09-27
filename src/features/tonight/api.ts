@@ -1,3 +1,4 @@
+import type { GlyphName } from '@/components/ui/Glyph';
 import { supabase } from '@/lib/supabase';
 import type { Database } from '@/types/database';
 
@@ -32,19 +33,18 @@ export async function cancelRsvp(eventId: number, userId: string) {
   if (error) throw error;
 }
 
-export const VIBES: { key: string; label: string }[] = [
-  { key: 'solo', label: 'Solo' },
-  { key: 'small_group', label: 'Small group' },
-  { key: 'drinks', label: '🍹 Drinks' },
-  { key: 'dinner', label: '🍽️ Dinner' },
-  { key: 'music', label: '🎵 Music' },
-  { key: 'brunch', label: '🥂 Brunch' },
-  { key: 'fitness', label: '🏋️ Fitness' },
-  { key: 'outdoors', label: '🌿 Outdoors' },
+export const VIBES: { key: string; label: string; glyph: GlyphName }[] = [
+  { key: 'solo', label: 'Solo', glyph: 'person' },
+  { key: 'small_group', label: 'Small group', glyph: 'people' },
+  { key: 'drinks', label: 'Drinks', glyph: 'drinks' },
+  { key: 'dinner', label: 'Dinner', glyph: 'dinner' },
+  { key: 'music', label: 'Music', glyph: 'music' },
+  { key: 'brunch', label: 'Brunch', glyph: 'brunch' },
+  { key: 'fitness', label: 'Fitness', glyph: 'fitness' },
+  { key: 'outdoors', label: 'Outdoors', glyph: 'outdoors' },
 ];
 
-/** "🍹 Drinks" → "Drinks" (drops the emoji, keeps words like "Small group" whole). */
-export const vibeLabel = (key: string) => VIBES.find((v) => v.key === key)?.label.replace(/^[^\p{L}]+\s/u, '') ?? key;
+export const vibeLabel = (key: string) => VIBES.find((v) => v.key === key)?.label ?? key;
 
 // ── Tonight / This Weekend feed ─────────────────────────────────────────────
 export type GoingOutWhen = 'tonight' | 'weekend' | 'scheduled';

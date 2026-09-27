@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Avatar, Button, Card, Chip, Screen, useToast } from '@/components/ui';
+import { AppText, Avatar, Button, Card, Chip, GlyphTitle, Screen, useToast } from '@/components/ui';
 import { checkIn, fetchCircle, fetchMeetups, fetchVouchWords, giveVouch, type Meetup } from '@/features/circles/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
@@ -72,7 +72,7 @@ export default function Vouch() {
     setBusy(true);
     try {
       await giveVouch(me, chosen.user_id, wordId, chosen.encounter_id);
-      toast(`You vouched for ${chosen.display_name} 🏅`);
+      toast(`You vouched for ${chosen.display_name}`);
       setSelected(null);
       setWordId(null);
       await refresh();
@@ -97,7 +97,7 @@ export default function Vouch() {
       <Screen>
         <Card accent="trust">
           <View style={{ gap: t.space[2] }}>
-            <AppText variant="h3">📍 With someone right now?</AppText>
+            <GlyphTitle glyph="pin" variant="h3">With someone right now?</GlyphTitle>
             <AppText variant="small" tone="muted">
               You both tap Check In while you&apos;re together. GPS confirms you&apos;re in the same place, and that unlocks vouching. Your exact
               location is never shown to anyone.
@@ -151,7 +151,7 @@ export default function Vouch() {
                   borderColor: isSel ? t.colors.trust : t.colors.border,
                   backgroundColor: t.colors.surface,
                 }}>
-                <Avatar name={m.display_name} emoji={m.avatar_emoji} uri={m.avatar_url} size={44} ring={isSel ? 'trust' : null} />
+                <Avatar name={m.display_name} uri={m.avatar_url} size={44} ring={isSel ? 'trust' : null} />
                 <View style={{ flex: 1 }}>
                   <AppText weight="bold">{m.display_name}</AppText>
                   <AppText variant="caption" tone="subtle">

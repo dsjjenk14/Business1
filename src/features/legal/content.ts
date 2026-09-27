@@ -1,7 +1,7 @@
 /**
  * Terms of Service, Privacy Policy and Community Guidelines shown in the app.
  * Plain-English drafts written from how the app actually works.
- * ⚠️ Have a lawyer review before launch (see docs/LAUNCH-CHECKLIST.md).
+ * NOTE: Have a lawyer review before launch (see docs/LAUNCH-CHECKLIST.md).
  */
 
 export type LegalDoc = { title: string; updated: string; sections: { heading: string; body: string }[] };

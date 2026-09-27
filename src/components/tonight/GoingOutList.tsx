@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
-import { AppText, Badge, Button, Card } from '@/components/ui';
+import { AppText, Badge, Button, Card, GlyphTile } from '@/components/ui';
 import { vibeLabel, type FeedEvent, type FeedPerson } from '@/features/tonight/api';
 import { clockTime, dayTime } from '@/lib/time';
 import { useTheme } from '@/theme';
@@ -25,7 +25,6 @@ export function GoingOutPersonRow({ person, weekend, onEditMine }: { person: Fee
     <PersonRow
       id={person.user_id}
       name={person.is_me ? 'You' : person.display_name}
-      emoji={person.avatar_emoji}
       avatarUrl={person.avatar_url}
       vouches={person.vouch_count}
       ring={person.degree === 1 ? 'trust' : person.degree === 2 ? 'ai' : null}
@@ -64,7 +63,7 @@ export function EventCard({ event, weekend, onRsvp }: { event: FeedEvent; weeken
           accessibilityLabel={`${event.title}. ${detail}`}
           onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(event.id) } })}
           style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-          <AppText style={{ fontSize: 26 }}>{event.emoji ?? '📅'}</AppText>
+          <GlyphTile name={event.emoji ?? 'calendar'} size={40} />
           <View style={{ flex: 1 }}>
             <AppText variant="small" weight="bold">
               {event.title}

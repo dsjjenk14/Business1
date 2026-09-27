@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
 import { PinCard } from '@/components/pins/PinCard';
-import { AppText, Avatar, Badge, Card, Section } from '@/components/ui';
+import { AppText, Avatar, Badge, Card, GlyphTile, isGlyphName, Section } from '@/components/ui';
 import { tierProgress, useAppConfig } from '@/config/useAppConfig';
 import type { FeedPin } from '@/features/pins/api';
 import type { ProfileCard } from '@/features/profiles/api';
@@ -38,7 +38,7 @@ export function ProfileView({
     <>
       <View style={{ alignItems: 'center', gap: t.space[3] }}>
         <View>
-          <Avatar name={card.display_name} uri={card.avatar_url} emoji={card.avatar_emoji} size={104} ring={card.tonight ? 'trust' : 'primary'} />
+          <Avatar name={card.display_name} uri={card.avatar_url} size={104} ring={card.tonight ? 'trust' : 'primary'} />
           {verified ? (
             <View
               accessible
@@ -64,11 +64,11 @@ export function ProfileView({
           ) : null}
         </View>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: t.space[2] }}>
-          {card.top_vouch_word ? <Badge label={`${card.top_vouch_word}${card.city_name ? ` · ${shortCity(card.city_name)}` : ''}`} emoji="🏅" tone="trust" /> : null}
-          {current ? <Badge label={current.name} emoji={current.emoji} tone="trust" /> : null}
-          {card.is_founding_member ? <Badge label="Founding Member" emoji="🏅" tone="sponsored" /> : null}
-          {card.is_premium ? <Badge label="Premium" emoji="⭐" tone="sponsored" /> : null}
-          {card.id_verified ? <Badge label="ID Verified" emoji="🔑" tone="ai" verified /> : null}
+          {card.top_vouch_word ? <Badge label={`${card.top_vouch_word}${card.city_name ? ` · ${shortCity(card.city_name)}` : ''}`} glyph="medal" tone="trust" /> : null}
+          {current ? <Badge label={current.name} glyph={isGlyphName(current.emoji) ? current.emoji : 'medal'} tone="trust" /> : null}
+          {card.is_founding_member ? <Badge label="Founding Member" glyph="star" tone="sponsored" /> : null}
+          {card.is_premium ? <Badge label="Premium" glyph="star" tone="sponsored" /> : null}
+          {card.id_verified ? <Badge label="ID Verified" glyph="check" tone="ai" verified /> : null}
         </View>
         {!card.is_me && card.degree ? (
           <AppText variant="small" tone="muted" align="center">
@@ -99,7 +99,7 @@ export function ProfileView({
       {card.tonight ? (
         <Card accent="trust">
           <AppText variant="small" weight="bold" tone="trust">
-            📍 {card.tonight.is_hosting ? 'Hosting tonight' : 'Going out tonight'}
+            {card.tonight.is_hosting ? 'Hosting tonight' : 'Going out tonight'}
             {card.tonight.place ? ` · ${card.tonight.place}` : ''} · {clockTime(card.tonight.starts_at)}
           </AppText>
           {card.tonight.note ? (
@@ -130,7 +130,7 @@ export function ProfileView({
               accessibilityRole="link"
               onPress={() => router.push({ pathname: '/people/[id]', params: { id: v.voucher_id } })}
               style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-              <Avatar name={v.display_name} emoji={v.avatar_emoji} uri={v.avatar_url} size={36} />
+              <Avatar name={v.display_name} uri={v.avatar_url} size={36} />
               <View style={{ flex: 1 }}>
                 <AppText variant="small" weight="bold">
                   {v.display_name}
@@ -149,7 +149,7 @@ export function ProfileView({
         <Section title="Groups">
           {card.groups.map((g) => (
             <View key={g.id} style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-              <AppText style={{ fontSize: 22 }}>{g.emoji}</AppText>
+              <GlyphTile name={g.emoji} size={36} />
               <View style={{ flex: 1 }}>
                 <AppText variant="small" weight="bold">
                   {g.name}
@@ -160,7 +160,7 @@ export function ProfileView({
                   </AppText>
                 ) : null}
               </View>
-              {g.role === 'owner' ? <Badge label="Owner" emoji="👑" tone="sponsored" /> : null}
+              {g.role === 'owner' ? <Badge label="Owner" glyph="crown" tone="sponsored" /> : null}
             </View>
           ))}
         </Section>

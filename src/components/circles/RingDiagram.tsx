@@ -46,7 +46,7 @@ export function RingDiagram({ me, first, second }: { me: PersonLite; first: Pers
             return (
               <Pressable key={p.id} accessibilityLabel={`${p.display_name}, 2nd degree`} onPress={() => open(p.id)}
                 style={{ position: 'absolute', left: x - 16, top: y - 16, opacity: 0.45 }}>
-                <Avatar name={p.display_name} emoji={p.avatar_emoji} uri={p.avatar_url} size={32} />
+                <Avatar name={p.display_name} uri={p.avatar_url} size={32} />
               </Pressable>
             );
           })}
@@ -55,7 +55,7 @@ export function RingDiagram({ me, first, second }: { me: PersonLite; first: Pers
             return (
               <Pressable key={p.id} accessibilityLabel={`${p.display_name}, in your circle`} onPress={() => open(p.id)}
                 style={{ position: 'absolute', left: x - 22, top: y - 30, alignItems: 'center', width: 44 }}>
-                <Avatar name={p.display_name} emoji={p.avatar_emoji} uri={p.avatar_url} size={44} ring="trust" />
+                <Avatar name={p.display_name} uri={p.avatar_url} size={44} ring="trust" />
                 <AppText variant="caption" numberOfLines={1} style={{ fontSize: 10, lineHeight: 12 }}>
                   {p.display_name.split(' ')[0]}
                 </AppText>
@@ -63,7 +63,7 @@ export function RingDiagram({ me, first, second }: { me: PersonLite; first: Pers
             );
           })}
           <View style={{ position: 'absolute', left: c - 30, top: c - 38, alignItems: 'center', width: 60 }}>
-            <Avatar name={me.display_name} emoji={me.avatar_emoji} uri={me.avatar_url} size={60} ring="primary" />
+            <Avatar name={me.display_name} uri={me.avatar_url} size={60} ring="primary" />
             <AppText variant="caption" weight="bold" style={{ fontSize: 10, lineHeight: 12 }}>
               YOU
             </AppText>

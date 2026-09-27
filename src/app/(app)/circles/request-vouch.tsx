@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 
 import { PersonRow } from '@/components/circles/PersonRow';
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Button, Card, Screen, Section, useToast } from '@/components/ui';
+import { AppText, Button, Card, GlyphTitle, Screen, Section, useToast } from '@/components/ui';
 import { fetchMeetups, requestVouch, type Meetup } from '@/features/circles/api';
 import { friendlyError } from '@/lib/supabase';
 import { timeAgo } from '@/lib/time';
@@ -52,7 +52,6 @@ export default function RequestVouch() {
                 key={m.user_id}
                 id={m.user_id}
                 name={m.display_name}
-                emoji={m.avatar_emoji}
                 avatarUrl={m.avatar_url}
                 vouches={m.vouch_count}
                 detail={`Met${m.place_label ? ` at ${m.place_label}` : ''} · ${timeAgo(m.met_at)}`}
@@ -70,7 +69,7 @@ export default function RequestVouch() {
           )}
         </Section>
         <Card onPress={() => router.push('/circles/vouch')} accessibilityLabel="Check in with someone">
-          <AppText weight="bold">📍 With someone now?</AppText>
+          <GlyphTitle glyph="pin">With someone now?</GlyphTitle>
           <AppText variant="small" tone="muted">
             Check in together first, then you can ask each other for vouches.
           </AppText>

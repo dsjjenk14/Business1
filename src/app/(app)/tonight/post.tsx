@@ -101,7 +101,7 @@ export default function PostGoingOut() {
         lat: location?.lat,
         lng: location?.lng,
       });
-      toast(when === 'tonight' ? "You're on the Tonight feed 📍" : "Your plans are posted 📍");
+      toast(when === 'tonight' ? "You're on the Tonight feed" : 'Your plans are posted');
       goBackOr(router, '/tonight');
     } catch (e) {
       toast(friendlyError(e));
@@ -214,6 +214,7 @@ export default function PostGoingOut() {
               <Chip
                 key={v.key}
                 label={v.label}
+                glyph={v.glyph}
                 selected={vibes.includes(v.key)}
                 onPress={() => setVibes((s) => (s.includes(v.key) ? s.filter((x) => x !== v.key) : [...s, v.key]))}
               />
@@ -224,7 +225,7 @@ export default function PostGoingOut() {
         <TextField label="Say something" optional value={note} onChangeText={setNote} maxLength={200} placeholder="Flying solo, come find me." />
         <Button label={when === 'tonight' ? 'Post to Tonight Feed' : 'Post my plans'} onPress={submit} loading={busy} disabled={!canPost} />
         <AppText variant="caption" tone="subtle">
-          📍 Your location is shared approximately, never exactly. Tonight posts end at 4 AM on their own. Hide your venue any time in Privacy
+          Your location is shared approximately, never exactly. Tonight posts end at 4 AM on their own. Hide your venue any time in Privacy
           settings.
         </AppText>
       </Screen>

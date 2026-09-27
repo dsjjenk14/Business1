@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Card, Screen, Section } from '@/components/ui';
+import { AppText, Card, GlyphTile, Screen, Section } from '@/components/ui';
 import { fetchVenue, type VenueDetail } from '@/features/tonight/api';
 import { dayTime } from '@/lib/time';
 import { useTheme } from '@/theme';
@@ -36,7 +36,7 @@ export default function Venue() {
         ) : (
           <>
             <View style={{ alignItems: 'center', gap: t.space[2] }}>
-              <AppText style={{ fontSize: 44 }}>{venue.emoji ?? '📍'}</AppText>
+              <GlyphTile name={venue.emoji ?? 'pin'} size={64} />
               <AppText variant="h2" align="center" accessibilityRole="header">
                 {venue.name}
               </AppText>
@@ -57,7 +57,7 @@ export default function Venue() {
                   return (
                     <Card key={e.id} onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(e.id) } })} accessibilityLabel={e.title}>
                       <AppText weight="bold">
-                        {e.emoji ?? '📅'} {e.title}
+                        {e.title}
                       </AppText>
                       <AppText variant="small" tone="muted">
                         {[`${e.host_name} hosting`, dayTime(e.starts_at), spots != null ? (spots === 0 ? 'Full' : `${spots} spot${spots === 1 ? '' : 's'} left`) : `${e.going_count} going`].join(' · ')}
@@ -75,7 +75,7 @@ export default function Venue() {
             {venue.description ? <AppText>{venue.description}</AppText> : null}
             {venue.price_level ? (
               <AppText tone="muted">
-                💰 Price: {'$'.repeat(venue.price_level)}
+                Price: {'$'.repeat(venue.price_level)}
               </AppText>
             ) : null}
           </>

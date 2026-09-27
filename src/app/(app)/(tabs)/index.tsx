@@ -88,7 +88,7 @@ export default function Home() {
           {greeting()}
         </AppText>
         <AppText variant="h1" accessibilityRole="header">
-          Hey, {firstName} 👋
+          Hey, {firstName}
         </AppText>
       </View>
 

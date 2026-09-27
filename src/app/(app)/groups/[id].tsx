@@ -4,7 +4,7 @@ import { Alert, Platform, Pressable, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Badge, Button, Card, Screen, Section, useToast } from '@/components/ui';
+import { AppText, Badge, Button, Card, GlyphTile, GlyphTitle, Screen, Section, useToast } from '@/components/ui';
 import { fetchGroup, joinGroup, leaveGroup, reviewRequest, type GroupDetail } from '@/features/groups/api';
 import { rsvp } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
@@ -97,7 +97,7 @@ export default function Group() {
       <BackHeader title="Group" />
       <Screen contentGap={t.space[5]}>
         <View style={{ alignItems: 'center', gap: t.space[2] }}>
-          <AppText style={{ fontSize: 44 }}>{group.emoji}</AppText>
+          <GlyphTile name={group.emoji} size={64} />
           <AppText variant="h2" align="center" accessibilityRole="header">
             {group.name}
           </AppText>
@@ -112,7 +112,7 @@ export default function Group() {
           <View style={{ flexDirection: 'row', gap: t.space[2] }}>
             {group.conversation_id ? (
               <Button
-                label="💬 Chat"
+                label="Chat"
                 size="md"
                 style={{ flex: 1 }}
                 onPress={() => router.push({ pathname: '/chat/[id]', params: { id: String(group.conversation_id) } })}
@@ -130,7 +130,7 @@ export default function Group() {
           </View>
         ) : group.requested ? (
           <Card>
-            <AppText weight="bold">📬 Request sent</AppText>
+            <GlyphTitle glyph="mail">Request sent</GlyphTitle>
             <AppText variant="small" tone="muted">
               {group.owner.display_name} will review it. You&apos;ll get a notification when they respond.
             </AppText>
@@ -152,7 +152,7 @@ export default function Group() {
             {group.pending_requests.map((r) => (
               <Card key={r.id}>
                 <View style={{ gap: t.space[2] }}>
-                  <PersonRow id={r.user.id} name={r.user.display_name} emoji={r.user.avatar_emoji} avatarUrl={r.user.avatar_url} vouches={r.user.vouch_count} />
+                  <PersonRow id={r.user.id} name={r.user.display_name} avatarUrl={r.user.avatar_url} vouches={r.user.vouch_count} />
                   {r.why ? <AppText variant="small">“{r.why}”</AppText> : null}
                   {r.how_found ? (
                     <AppText variant="caption" tone="subtle">
@@ -219,11 +219,10 @@ export default function Group() {
               key={m.id}
               id={m.id}
               name={m.id === me ? 'You' : m.display_name}
-              emoji={m.avatar_emoji}
               avatarUrl={m.avatar_url}
               vouches={m.vouch_count}
               ring={m.in_circle ? 'trust' : null}
-              right={m.role === 'owner' ? <Badge label="👑 Owner" tone="sponsored" /> : m.role === 'admin' ? <Badge label="Admin" tone="ai" /> : null}
+              right={m.role === 'owner' ? <Badge label="Owner" glyph="crown" tone="sponsored" /> : m.role === 'admin' ? <Badge label="Admin" tone="ai" /> : null}
             />
           ))}
         </Section>

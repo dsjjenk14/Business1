@@ -288,7 +288,7 @@ export default function SignUp() {
 
         <Card onPress={pickPhoto} accessibilityLabel={photoUri ? 'Change profile photo' : 'Add a profile photo, optional'}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-            <Avatar name={fullName || 'You'} uri={photoUri} emoji={photoUri ? null : '📷'} size={52} />
+            <Avatar name={fullName || 'You'} uri={photoUri} size={52} />
             <View style={{ flex: 1 }}>
               <AppText weight="bold">{photoUri ? 'Looking good' : 'Add a profile photo'}</AppText>
               <AppText variant="small" tone="muted">

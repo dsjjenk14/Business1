@@ -5,7 +5,7 @@ import { Pressable, Share, View } from 'react-native';
 import { PersonRow } from '@/components/circles/PersonRow';
 import { GroupsList } from '@/components/groups/GroupsList';
 import { RingDiagram } from '@/components/circles/RingDiagram';
-import { AppText, Badge, Button, Card, IconButton, Screen, Section, Segmented, useToast } from '@/components/ui';
+import { AppText, Badge, Button, Card, GlyphTile, GlyphTitle, IconButton, Screen, Section, Segmented, useToast } from '@/components/ui';
 import {
   fetchActivity,
   fetchCircle,
@@ -79,7 +79,7 @@ export default function Circles() {
       {pendingCount > 0 ? (
         <Card accent="primary" onPress={() => router.push('/circles/intros')} accessibilityLabel={`${pendingCount} intros waiting on you`}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-            <AppText style={{ fontSize: 24 }}>👋</AppText>
+            <GlyphTile name="connect" size={40} />
             <View style={{ flex: 1 }}>
               <AppText weight="bold">
                 {pendingCount} intro{pendingCount === 1 ? '' : 's'} waiting on you
@@ -161,7 +161,7 @@ function MyCircle({ circle, card, introsMade, meName, inviteCode }: { circle: Ci
 
       <Card accent="trust">
         <View style={{ gap: t.space[2] }}>
-          <AppText weight="bold">🏅 Vouch someone you met</AppText>
+          <GlyphTitle glyph="medal" tone="trust">Vouch someone you met</GlyphTitle>
           <AppText variant="small" tone="muted">
             Out with someone right now? Both of you tap Check In. Once GPS confirms you&apos;re together, you can vouch for each other.{' '}
             <AppText variant="small" tone="trust" weight="bold">
@@ -186,7 +186,6 @@ function MyCircle({ circle, card, introsMade, meName, inviteCode }: { circle: Ci
               key={`${v.voucher_id}-${v.created_at}`}
               id={v.voucher_id}
               name={`${v.display_name} vouched you`}
-              emoji={v.avatar_emoji}
               avatarUrl={v.avatar_url}
               detail={v.type === 'invite' ? 'Invited you in' : `GPS confirmed${v.place ? ` · ${v.place}` : ''} · ${timeAgo(v.created_at)}`}
               right={v.word ? <Badge label={v.word} tone="trust" /> : null}
@@ -201,7 +200,6 @@ function MyCircle({ circle, card, introsMade, meName, inviteCode }: { circle: Ci
             key={p.id}
             id={p.id}
             name={p.display_name}
-            emoji={p.avatar_emoji}
             avatarUrl={p.avatar_url}
             vouches={p.vouch_count}
             ring={p.out_tonight ? 'trust' : null}
@@ -214,7 +212,7 @@ function MyCircle({ circle, card, introsMade, meName, inviteCode }: { circle: Ci
 
       <Card>
         <View style={{ gap: t.space[2] }}>
-          <AppText weight="bold">👋 Make an intro between two people</AppText>
+          <GlyphTitle glyph="connect">Make an intro between two people</GlyphTitle>
           <AppText variant="small" tone="muted">
             Connect people you know. Your reputation travels with the intro.
             {introsMade ? ` You've made ${introsMade} successful intro${introsMade === 1 ? '' : 's'}.` : ''}
@@ -241,7 +239,7 @@ function Network({ circle, activity }: { circle: CircleOverview; activity: Activ
   return (
     <>
       <Card>
-        <AppText weight="bold">🌐 Your extended network</AppText>
+        <GlyphTitle glyph="globe" tone="ai">Your extended network</GlyphTitle>
         <AppText variant="small" tone="muted">
           These are the people one intro away from you. You can&apos;t message them directly: ask the friend you share for an intro. Once
           they both say yes, you can message right away.
@@ -258,7 +256,6 @@ function Network({ circle, activity }: { circle: CircleOverview; activity: Activ
               key={p.id}
               id={p.id}
               name={p.display_name}
-              emoji={p.avatar_emoji}
               avatarUrl={p.avatar_url}
               vouches={p.vouch_count}
               detail={`${p.via.length} mutual${p.via.length === 1 ? '' : 's'}${p.shared_groups ? ` · ${p.shared_groups} shared group${p.shared_groups === 1 ? '' : 's'}` : ''}`}
@@ -279,7 +276,6 @@ function Network({ circle, activity }: { circle: CircleOverview; activity: Activ
               key={`${a.kind}-${a.actor_id}-${i}`}
               id={a.actor_id}
               name={activityText(a)}
-              emoji={a.actor_emoji}
               avatarUrl={a.actor_avatar}
               detail={timeAgo(a.at)}
             />
@@ -293,7 +289,6 @@ function Network({ circle, activity }: { circle: CircleOverview; activity: Activ
             key={p.id}
             id={p.id}
             name={p.display_name}
-            emoji={p.avatar_emoji}
             avatarUrl={p.avatar_url}
             vouches={p.vouch_count}
             detail={p.top_vouch_word ?? p.headline}

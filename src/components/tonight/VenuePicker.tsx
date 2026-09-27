@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
-import { AppText, TextField } from '@/components/ui';
+import { AppText, Glyph, TextField } from '@/components/ui';
 import { searchVenues, type VenueHit } from '@/features/tonight/api';
 import { useTheme } from '@/theme';
 
@@ -83,7 +83,7 @@ export function VenuePicker({
             borderWidth: t.borderWidth.hairline,
             borderColor: t.colors.border,
           }}>
-          <AppText>{v.emoji ?? '📍'}</AppText>
+          <Glyph name={v.emoji ?? 'pin'} size={18} tone="muted" />
           <View style={{ flex: 1 }}>
             <AppText variant="small" weight="bold">
               {v.name}

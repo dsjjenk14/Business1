@@ -43,7 +43,7 @@ export function GoingOutStrip({ people, amLive }: { people: TonightPerson[]; amL
             accessibilityLabel={`${p.display_name}${p.place ? `, going to ${p.place}` : ', going out tonight'}`}
             onPress={() => router.push({ pathname: '/people/[id]', params: { id: p.user_id } })}
             style={{ alignItems: 'center', gap: 6, width: 64 }}>
-            <Avatar name={p.display_name} emoji={p.avatar_emoji} uri={p.avatar_url} size={56} ring={p.degree === 1 ? 'trust' : 'ai'} />
+            <Avatar name={p.display_name} uri={p.avatar_url} size={56} ring={p.degree === 1 ? 'trust' : 'ai'} />
             <AppText variant="caption" tone="muted" numberOfLines={1}>
               {p.display_name.split(' ')[0]}
             </AppText>

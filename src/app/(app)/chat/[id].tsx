@@ -105,7 +105,7 @@ export default function Chat() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <BackHeader title={info ? `${info.emoji ? `${info.emoji} ` : ''}${info.title}` : 'Chat'} />
+      <BackHeader title={info ? info.title : 'Chat'} />
       {info === null ? (
         <AppText tone="muted" align="center" style={{ padding: t.space[6] }}>
           This chat isn&apos;t available.
@@ -135,7 +135,7 @@ export default function Chat() {
             ListEmptyComponent={
               info ? (
                 <AppText tone="subtle" align="center" style={{ padding: t.space[6], transform: [{ scaleY: -1 }] }}>
-                  No messages yet. Say hi 👋
+                  No messages yet. Say hi.
                 </AppText>
               ) : null
             }
@@ -155,7 +155,7 @@ export default function Chat() {
                   <View style={{ flexDirection: 'row', justifyContent: mine ? 'flex-end' : 'flex-start', alignItems: 'flex-end', gap: t.space[2] }}>
                     {!mine ? (
                       showName ? (
-                        <Avatar name={sender?.display_name ?? 'Member'} emoji={sender?.avatar_emoji ?? null} uri={sender?.avatar_url ?? null} size={28} />
+                        <Avatar name={sender?.display_name ?? 'Member'} uri={sender?.avatar_url ?? null} size={28} />
                       ) : (
                         <View style={{ width: 28 }} />
                       )

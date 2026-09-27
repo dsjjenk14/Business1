@@ -3,8 +3,8 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
-import { AppText, Avatar, Card, useToast } from '@/components/ui';
-import { CATEGORY_LABEL, setBookmarked, setLiked, sharePin, type FeedPin } from '@/features/pins/api';
+import { AppText, Avatar, Card, Glyph, useToast } from '@/components/ui';
+import { CATEGORY_GLYPH, CATEGORY_LABEL, setBookmarked, setLiked, sharePin, type FeedPin } from '@/features/pins/api';
 import { useAuth } from '@/lib/auth';
 import { timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
@@ -84,9 +84,12 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
     <Card>
       <View style={{ gap: t.space[3] }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <AppText variant="caption" weight="bold" tone={CATEGORY_TONE[pin.category]}>
-            {CATEGORY_LABEL[pin.category]}
-          </AppText>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Glyph name={CATEGORY_GLYPH[pin.category]} size={15} tone={CATEGORY_TONE[pin.category]} strokeWidth={2} />
+            <AppText variant="caption" weight="bold" tone={CATEGORY_TONE[pin.category]}>
+              {CATEGORY_LABEL[pin.category]}
+            </AppText>
+          </View>
           {pin.edited_at ? (
             <AppText variant="caption" tone="subtle">
               edited
@@ -103,7 +106,7 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
         <PinPhotos paths={pin.photo_paths} />
 
         <Pressable accessibilityRole="link" accessibilityLabel={`${pin.author_name}'s profile`} onPress={openAuthor} style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[2] }}>
-          <Avatar name={pin.author_name} emoji={pin.author_emoji} uri={pin.author_avatar} size={32} />
+          <Avatar name={pin.author_name} uri={pin.author_avatar} size={32} />
           <View style={{ flex: 1 }}>
             <AppText variant="small" weight="bold">
               {pin.is_mine ? 'You' : pin.author_name}

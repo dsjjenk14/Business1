@@ -4,7 +4,7 @@ import { Pressable, View, useWindowDimensions } from 'react-native';
 import Svg, { Circle, Line } from 'react-native-svg';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Avatar, Screen } from '@/components/ui';
+import { AppText, Avatar, Glyph, Screen } from '@/components/ui';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { usePlan } from '@/features/plan/usePlan';
 import { fetchGoingOut, type GoingOutFeed } from '@/features/tonight/api';
@@ -66,7 +66,7 @@ export default function TonightMap() {
         lng: e.lng as number,
         kind: 'event' as const,
         label: e.title,
-        emoji: e.emoji ?? '📅',
+        emoji: e.emoji ?? 'calendar',
         avatarUrl: null,
         degree: 0,
         onPress: () => router.push({ pathname: '/events/[id]', params: { id: String(e.id) } }),
@@ -136,10 +136,10 @@ export default function TonightMap() {
                 style={{ position: 'absolute', left: x - 22, top: y - 22, width: 44, alignItems: 'center' }}>
                 {d.kind === 'event' ? (
                   <View style={{ width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: t.colors.surfaceAlt, borderWidth: 2, borderColor: t.colors.primary }}>
-                    <AppText>{d.emoji}</AppText>
+                    <Glyph name={d.emoji} size={20} tone="primary" />
                   </View>
                 ) : (
-                  <Avatar name={d.label} emoji={d.emoji} uri={d.avatarUrl} size={36} ring={d.kind === 'me' ? 'primary' : d.degree === 1 ? 'trust' : 'ai'} />
+                  <Avatar name={d.label} uri={d.avatarUrl} size={36} ring={d.kind === 'me' ? 'primary' : d.degree === 1 ? 'trust' : 'ai'} />
                 )}
                 <AppText variant="caption" numberOfLines={1} style={{ maxWidth: 72 }}>
                   {d.label}

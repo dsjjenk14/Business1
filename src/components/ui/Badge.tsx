@@ -4,16 +4,17 @@ import { View } from 'react-native';
 import { useTheme } from '@/theme';
 
 import { AppText } from './AppText';
+import { Glyph, type GlyphName } from './Glyph';
 
 export type BadgeProps = {
   label: string;
   tone?: 'primary' | 'trust' | 'ai' | 'sponsored' | 'neutral';
-  emoji?: string;
+  glyph?: GlyphName;
   verified?: boolean;
 };
 
 /** Tier chips, profile badges, founding-member tags. Shape follows theme.style.badge. */
-export function Badge({ label, tone = 'primary', emoji, verified }: BadgeProps) {
+export function Badge({ label, tone = 'primary', glyph, verified }: BadgeProps) {
   const t = useTheme();
   const color = tone === 'neutral' ? t.colors.textMuted : t.colors[tone];
 
@@ -52,7 +53,7 @@ export function Badge({ label, tone = 'primary', emoji, verified }: BadgeProps) 
         paddingHorizontal: t.space[3],
         paddingVertical: 3,
       }}>
-      {emoji ? <AppText variant="caption">{emoji}</AppText> : null}
+      {glyph ? <Glyph name={glyph} size={13} color={color} strokeWidth={2} /> : null}
       <AppText variant="caption" weight="bold" style={{ color }}>
         {label}
       </AppText>
