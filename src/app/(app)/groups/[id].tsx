@@ -59,7 +59,7 @@ export default function Group() {
 
   function rsvpNext(ev: GroupDetail['next_event']) {
     if (!ev || !me) return;
-    run(() => rsvp(ev.id, me), `You're going to ${ev.title}`);
+    run(() => rsvp(ev.id, me), `You're in: ${ev.title}`);
   }
 
   function confirmLeave() {
@@ -198,9 +198,9 @@ export default function Group() {
                   </AppText>
                 </Pressable>
                 {group.next_event.i_am_going ? (
-                  <Badge label="Going" tone="trust" />
+                  <Badge label="You're in" glyph="check" tone="trust" />
                 ) : isMember && me ? (
-                  <Button label="RSVP" size="md" onPress={() => rsvpNext(group.next_event)} />
+                  <Button label="I'm In" size="md" onPress={() => rsvpNext(group.next_event)} />
                 ) : null}
               </View>
             </Card>

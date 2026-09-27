@@ -104,7 +104,7 @@ export default function Tonight() {
     if (!me) return;
     try {
       await rsvp(e.id, me);
-      toast(`You're going to ${e.title}`);
+      toast(`You're in: ${e.title}`);
       load();
     } catch (err) {
       toast(friendlyError(err));
@@ -197,7 +197,7 @@ export default function Tonight() {
                           </AppText>
                         </View>
                       </Pressable>
-                      {e.i_am_going ? <Badge label="Going" tone="trust" /> : <Button label="RSVP" size="md" onPress={() => onRsvp(e)} />}
+                      {e.i_am_going ? <Badge label="You're in" glyph="check" tone="trust" /> : <Button label="I'm In" size="md" onPress={() => onRsvp(e)} />}
                     </View>
                   </Card>
                 ))}

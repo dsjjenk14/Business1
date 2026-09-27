@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 
-import { AppText, Button, Card } from '@/components/ui';
+import { AppText, Button, Card, GlyphTile } from '@/components/ui';
 import type { TonightPick } from '@/features/tonight/api';
 import { clockTime } from '@/lib/time';
 import { useTheme } from '@/theme';
@@ -22,10 +22,12 @@ export function TonightPickCard({ pick, onRsvp, rsvpd }: { pick: TonightPick; on
         <AppText variant="label" tone="sponsored">
           Pick for tonight
         </AppText>
-        <AppText variant="h3">
-          {pick.emoji ? `${pick.emoji} ` : ''}
-          {pick.title}
-        </AppText>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+          <GlyphTile name={pick.emoji ?? 'calendar'} size={40} tone="sponsored" />
+          <AppText variant="h3" style={{ flex: 1 }}>
+            {pick.title}
+          </AppText>
+        </View>
         <AppText variant="small" tone="muted">
           {[pick.host_name ? `${pick.host_name} hosting` : null, time, pick.neighborhood].filter(Boolean).join(' · ')}
         </AppText>
@@ -35,7 +37,7 @@ export function TonightPickCard({ pick, onRsvp, rsvpd }: { pick: TonightPick; on
             {pick.spots_left === 0 ? 'Full' : `${pick.spots_left} spot${pick.spots_left === 1 ? '' : 's'} left`}
           </AppText>
         ) : null}
-        <Button label={rsvpd ? "You're going ✓" : 'RSVP'} size="md" variant={rsvpd ? 'trust' : 'primary'} disabled={rsvpd || pick.spots_left === 0} onPress={onRsvp} />
+        <Button label={rsvpd ? "You're in" : "I'm In"} size="md" variant={rsvpd ? 'trust' : 'primary'} disabled={rsvpd || pick.spots_left === 0} onPress={onRsvp} />
       </View>
     </Card>
   );

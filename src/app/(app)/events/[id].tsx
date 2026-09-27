@@ -13,7 +13,7 @@ import { friendlyError } from '@/lib/supabase';
 import { clockTime, dayTime } from '@/lib/time';
 import { useTheme } from '@/theme';
 
-/** An event: who's hosting, who's going, RSVP, check in when you're there, then recap and vouch. */
+/** An event: who's hosting, who's going, I'm In, check in when you're there, then recap and vouch. */
 export default function EventScreen() {
   const t = useTheme();
   const router = useRouter();
@@ -76,7 +76,7 @@ export default function EventScreen() {
         toast("You're no longer going");
       } else {
         await rsvp(event.id, me);
-        toast(`You're going to ${event.title}`);
+        toast(`You're in: ${event.title}`);
       }
       await load();
     } catch (e) {
@@ -144,6 +144,7 @@ export default function EventScreen() {
         {event.description ? <AppText>{event.description}</AppText> : null}
 
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: t.space[2], flexWrap: 'wrap' }}>
+          {event.i_am_going && !event.is_host ? <Badge label="You're in" glyph="check" tone="trust" /> : null}
           <Badge label={`${event.going_count} going`} tone="neutral" />
           {spotsLeft != null ? <Badge label={spotsLeft === 0 ? 'Full' : `${spotsLeft} spot${spotsLeft === 1 ? '' : 's'} left`} tone={spotsLeft === 0 ? 'primary' : 'trust'} /> : null}
           {phase === 'live' ? <Badge label="Happening now" tone="primary" /> : phase === 'ended' ? <Badge label="Ended" tone="neutral" /> : null}
@@ -156,7 +157,7 @@ export default function EventScreen() {
             </AppText>
           ) : (
             <Button
-              label={event.i_am_going ? "Can't make it" : spotsLeft === 0 ? 'Full' : 'RSVP'}
+              label={event.i_am_going ? "Can't make it" : spotsLeft === 0 ? 'Full' : "I'm In"}
               variant={event.i_am_going ? 'secondary' : 'primary'}
               onPress={toggleRsvp}
               loading={busy}

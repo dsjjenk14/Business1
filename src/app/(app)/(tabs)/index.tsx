@@ -84,7 +84,7 @@ export default function Home() {
     try {
       await rsvp(pick.event_id, session.user.id);
       setRsvpd(true);
-      toast(`You're going to ${pick.title}`);
+      toast(`You're in: ${pick.title}`);
     } catch (e) {
       toast(friendlyError(e));
     }

@@ -149,7 +149,7 @@ export function MyNightOut({
   );
 }
 
-/** An event card with RSVP. */
+/** An event card with an "I'm In" button. */
 export function EventCard({ event, weekend, onRsvp }: { event: FeedEvent; weekend: boolean; onRsvp: (e: FeedEvent) => void }) {
   const t = useTheme();
   const router = useRouter();
@@ -187,9 +187,9 @@ export function EventCard({ event, weekend, onRsvp }: { event: FeedEvent; weeken
           </View>
         </Pressable>
         {event.i_am_going ? (
-          <Badge label="Going" tone="trust" />
+          <Badge label="You're in" glyph="check" tone="trust" />
         ) : spotsLeft === 0 ? null : (
-          <Button label="RSVP" size="md" onPress={() => onRsvp(event)} />
+          <Button label="I'm In" size="md" onPress={() => onRsvp(event)} />
         )}
       </View>
     </Card>
