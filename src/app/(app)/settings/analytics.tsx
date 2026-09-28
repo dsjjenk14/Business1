@@ -66,8 +66,8 @@ export default function ProfileAnalytics() {
             </Section>
             <Section title="Who viewed you · 30 days">
               <View style={{ flexDirection: 'row', gap: t.space[3] }}>
-                {stat(a.viewers_circle_30d, 'Your circle', 'trust')}
-                {stat(a.viewers_network_30d, 'Your network', 'ai')}
+                {stat(a.viewers_circle_30d, 'Your friends', 'trust')}
+                {stat(a.viewers_network_30d, 'Friends of friends', 'ai')}
                 {stat(a.viewers_other_30d, 'Others')}
               </View>
               <AppText variant="caption" tone="subtle">

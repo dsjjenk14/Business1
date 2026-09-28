@@ -157,7 +157,7 @@ export default function NewEvent() {
 
         <Button label="Post Event" onPress={submit} loading={busy} disabled={!ready} />
         <AppText variant="caption" tone="subtle">
-          Your circle and network see it first; people nearby see it on Tonight. You&apos;re automatically going.
+          Your friends and friends of friends see it first; people nearby see it on Tonight. You&apos;re automatically going.
         </AppText>
       </Screen>
     </KeyboardAvoidingView>

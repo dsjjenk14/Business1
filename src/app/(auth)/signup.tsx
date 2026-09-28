@@ -128,7 +128,7 @@ export default function SignUp() {
           <AppText variant="h1" accessibilityRole="header">
             Join I&apos;m In
           </AppText>
-          <AppText tone="muted">Build your verified network. Free to join. The more you show up, the more unlocks.</AppText>
+          <AppText tone="muted">Build your circle of real friends. Free to join. The more you show up, the more unlocks.</AppText>
         </View>
 
         <TextField label="Full name" value={fullName} onChangeText={(v) => { setFullName(v); clearError('fullName'); }} autoComplete="name" textContentType="name" autoCapitalize="words" error={errors.fullName} />

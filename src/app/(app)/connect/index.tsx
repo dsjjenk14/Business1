@@ -61,7 +61,7 @@ export default function Connect() {
 
   async function shareCode() {
     if (!shared) return;
-    const message = `Connect with me on I'm In: open the app, go to Circles → Add someone → Type a code, and enter ${prettyCode(shared.code)}`;
+    const message = `Connect with me on I'm In: open the app, go to Friends → Add someone → Type a code, and enter ${prettyCode(shared.code)}`;
     if (Platform.OS === 'web') {
       await navigator.clipboard?.writeText(prettyCode(shared.code)).catch(() => undefined);
       toast('Code copied');
@@ -162,7 +162,7 @@ export default function Connect() {
         </Section>
 
         <AppText variant="caption" tone="subtle" align="center">
-          Only connect with people you actually know. You can also meet up and check in together (Circles → Check in), or ask a mutual friend for an intro.
+          Only connect with people you actually know. You can also meet up and check in together (Friends → Check in), or ask a mutual friend for an intro.
         </AppText>
       </Screen>
     </View>

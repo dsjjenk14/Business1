@@ -94,7 +94,7 @@ export default function NewDate() {
                 </AppText>
                 <AppText weight="bold">{person.display_name}</AppText>
                 <AppText variant="caption" tone="muted">
-                  {[`${person.vouch_count ?? 0} vouches`, person.degree === 1 ? '1st degree' : null].filter(Boolean).join(' · ')}
+                  {[`${person.vouch_count ?? 0} vouches`, person.degree === 1 ? 'Friend' : null].filter(Boolean).join(' · ')}
                 </AppText>
               </View>
             </View>

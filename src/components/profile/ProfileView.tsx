@@ -116,8 +116,8 @@ export function ProfileView({
         {!card.is_me && card.degree ? (
           <AppText variant="small" tone="muted" align="center">
             {card.degree === 1
-              ? 'In your circle (1st degree)'
-              : `2nd degree · you both know ${card.via.map((v) => v.display_name).slice(0, 3).join(', ')}`}
+              ? 'Your friend'
+              : `Friend of a friend · you both know ${card.via.map((v) => v.display_name).slice(0, 3).join(', ')}`}
           </AppText>
         ) : null}
       </View>
@@ -125,7 +125,7 @@ export function ProfileView({
       <View style={{ flexDirection: 'row', gap: t.space[3] }}>
         {[
           { n: card.vouch_count, label: 'Vouches', tone: 'trust' as const },
-          { n: card.circle_count, label: 'Circle', tone: 'primary' as const },
+          { n: card.circle_count, label: 'Friends', tone: 'primary' as const },
           { n: follow?.followers ?? null, label: 'Followers', tone: 'ai' as const },
         ].map((s) => (
           <Card key={s.label} style={{ flex: 1, alignItems: 'center', paddingVertical: t.space[3] }}>

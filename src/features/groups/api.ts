@@ -89,3 +89,24 @@ export async function leaveGroup(id: number) {
   const { error } = await supabase.rpc('leave_group', { p_group: id });
   if (error) throw error;
 }
+
+export type GroupAnnouncement = { text: string; at: string; by: string | null };
+
+/** The group's pinned announcement (members only). */
+export async function fetchAnnouncement(groupId: number) {
+  const { data, error } = await supabase.rpc('group_announcement', { p_group: groupId });
+  if (error) throw error;
+  return (data ?? null) as unknown as GroupAnnouncement | null;
+}
+
+/** Owner and co-hosts: pin an announcement (every member gets a notification). Empty text removes it. */
+export async function postAnnouncement(groupId: number, text: string) {
+  const { error } = await supabase.rpc('post_group_announcement', { p_group: groupId, p_text: text });
+  if (error) throw error;
+}
+
+/** Owner only: make someone a co-host, or a regular member again. */
+export async function setGroupRole(groupId: number, userId: string, role: 'admin' | 'member') {
+  const { error } = await supabase.rpc('set_group_role', { p_group: groupId, p_user: userId, p_role: role });
+  if (error) throw error;
+}

@@ -35,16 +35,16 @@ export function RingDiagram({ me, first, second }: { me: PersonLite; first: Pers
       {size > 0 ? (
         <View
           style={{ width: size, height: size }}
-          accessibilityLabel={`Your circle: ${first.length} in your circle, ${second.length} in your network`}>
+          accessibilityLabel={`Your friends: ${first.length} friends, ${second.length} friends of friends`}>
           <View style={{ position: 'absolute', left: c - r2, top: c - r2, width: r2 * 2, height: r2 * 2, borderRadius: r2, borderWidth: 1, borderColor: t.colors.border, borderStyle: 'dashed' }} />
           <View style={{ position: 'absolute', left: c - r1, top: c - r1, width: r1 * 2, height: r1 * 2, borderRadius: r1, borderWidth: 1.5, borderColor: t.colors.primary, opacity: 0.6 }} />
           <AppText variant="caption" tone="subtle" style={{ position: 'absolute', top: 0, width: size, textAlign: 'center' }}>
-            2ND DEGREE
+            FRIENDS OF FRIENDS
           </AppText>
           {outer.map((p, i) => {
             const { x, y } = place(i, outer.length, r2, Math.PI / 12);
             return (
-              <Pressable key={p.id} accessibilityLabel={`${p.display_name}, 2nd degree`} onPress={() => open(p.id)}
+              <Pressable key={p.id} accessibilityLabel={`${p.display_name}, friend of a friend`} onPress={() => open(p.id)}
                 style={{ position: 'absolute', left: x - 16, top: y - 16, opacity: 0.7 }}>
                 <Avatar name={p.display_name} uri={p.avatar_url} size={32} />
               </Pressable>
@@ -53,7 +53,7 @@ export function RingDiagram({ me, first, second }: { me: PersonLite; first: Pers
           {inner.map((p, i) => {
             const { x, y } = place(i, inner.length, r1, 0);
             return (
-              <Pressable key={p.id} accessibilityLabel={`${p.display_name}, in your circle`} onPress={() => open(p.id)}
+              <Pressable key={p.id} accessibilityLabel={`${p.display_name}, your friend`} onPress={() => open(p.id)}
                 style={{ position: 'absolute', left: x - 22, top: y - 30, alignItems: 'center', width: 44 }}>
                 <Avatar name={p.display_name} uri={p.avatar_url} size={44} ring="trust" />
                 <AppText variant="caption" numberOfLines={1} style={{ fontSize: 10, lineHeight: 12 }}>

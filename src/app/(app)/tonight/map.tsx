@@ -6,7 +6,7 @@ import Svg, { Circle, Line } from 'react-native-svg';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Avatar, Glyph, Screen } from '@/components/ui';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
-import { SEARCH_RADIUS_MI } from '@/lib/radius';
+import { DEFAULT_RADIUS_MI } from '@/lib/radius';
 import { fetchGoingOut, type GoingOutFeed } from '@/features/tonight/api';
 import { useTheme } from '@/theme';
 
@@ -29,7 +29,7 @@ export default function TonightMap() {
   const lat = location?.lat;
   const lng = location?.lng;
   const [feed, setFeed] = useState<GoingOutFeed | null>(null);
-  const radius = SEARCH_RADIUS_MI;
+  const radius = DEFAULT_RADIUS_MI;
 
   useFocusEffect(
     useCallback(() => {
@@ -148,12 +148,12 @@ export default function TonightMap() {
           })}
         </View>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[4], justifyContent: 'center' }}>
-          <Legend color={t.colors.trust} label="Your circle" />
-          <Legend color={t.colors.ai} label="Network / nearby" />
+          <Legend color={t.colors.trust} label="Your friends" />
+          <Legend color={t.colors.ai} label="Friends of friends / nearby" />
           <Legend color={t.colors.primary} label="Event" square />
         </View>
         <AppText variant="caption" tone="subtle" align="center">
-          Nearby within {radius} mi, plus your circle and network wherever they are{status === 'denied' ? ' (centered on your profile location; location is off)' : ''}.
+          Nearby within {radius} mi, plus your friends and friends of friends wherever they are{status === 'denied' ? ' (centered on your profile location; location is off)' : ''}.
           Spots are approximate (about a quarter mile), never exact.
         </AppText>
         {feed && dots.length === 0 ? (

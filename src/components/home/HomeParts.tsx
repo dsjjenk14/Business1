@@ -1,8 +1,11 @@
 import { useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
-import { AppText, Avatar, Badge, Button, GlyphTile } from '@/components/ui';
-import type { HomeActivity, HomeEvent } from '@/features/home/api';
+import { AppText, Avatar, Badge, Button, GlyphTile, useToast } from '@/components/ui';
+import { track } from '@/features/analytics/track';
+import { joinGroup } from '@/features/groups/api';
+import type { HomeActivity, HomeEvent, SuggestedGroup } from '@/features/home/api';
+import { friendlyError } from '@/lib/supabase';
 import { dayTime, timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
 
@@ -72,10 +75,47 @@ export function EventRow({ event, subtitle, onIn }: { event: HomeEvent; subtitle
       {event.i_am_going ? (
         <Badge label="You're in" glyph="check" tone="trust" />
       ) : event.capacity != null && event.going_count >= event.capacity ? (
-        <Badge label="Full" tone="neutral" />
+        <Button label="Waitlist" size="md" variant="secondary" onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(event.id) } })} />
       ) : (
         <Button label="I'm In" size="md" onPress={onIn} />
       )}
+    </View>
+  );
+}
+
+/** A group to join: open groups join in one tap, others go to "Request to join". */
+export function GroupSuggestion({ group, onJoined }: { group: SuggestedGroup; onJoined: () => void }) {
+  const t = useTheme();
+  const router = useRouter();
+  const toast = useToast();
+  const open = () => router.push({ pathname: '/groups/[id]', params: { id: String(group.id) } });
+
+  async function join() {
+    if (group.join_type !== 'open') return open();
+    try {
+      await joinGroup(group.id);
+      toast(`You joined ${group.name}`);
+      track('group_joined', { from: 'home' });
+      onJoined();
+    } catch (e) {
+      toast(friendlyError(e));
+    }
+  }
+
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3], minHeight: 56 }}>
+      <Pressable accessibilityRole="link" accessibilityLabel={group.name} onPress={open} style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+        <GlyphTile name={group.emoji} size={44} />
+        <View style={{ flex: 1 }}>
+          <AppText weight="bold" numberOfLines={1}>
+            {group.name}
+          </AppText>
+          <AppText variant="caption" tone="subtle" numberOfLines={1}>
+            {[`${group.members} member${group.members === 1 ? '' : 's'}`, group.schedule].filter(Boolean).join(' · ')}
+          </AppText>
+        </View>
+      </Pressable>
+      <Button label={group.join_type === 'open' ? 'Join' : 'Ask to join'} size="md" variant="secondary" onPress={join} />
     </View>
   );
 }

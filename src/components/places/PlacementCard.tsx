@@ -27,7 +27,7 @@ export function PlacementCard({ place }: { place: FeedPlacement }) {
               {[
                 place.neighborhood,
                 place.distance_mi != null ? `${place.distance_mi} mi` : null,
-                place.network_visited ? `${place.network_visited} from your network have been` : null,
+                place.network_visited ? `${place.network_visited} people you know have been` : null,
               ]
                 .filter(Boolean)
                 .join(' · ')}

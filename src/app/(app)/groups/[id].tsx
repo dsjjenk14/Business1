@@ -4,13 +4,38 @@ import { Alert, Platform, Pressable, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Badge, Button, Card, EmptyState, GlyphTile, GlyphTitle, LoadingDetail, Screen, Section, useToast } from '@/components/ui';
+import {
+  AppText,
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  GlyphTile,
+  GlyphTitle,
+  IconButton,
+  LoadingDetail,
+  OptionsSheet,
+  Screen,
+  Section,
+  TextField,
+  useToast,
+} from '@/components/ui';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
-import { fetchGroup, joinGroup, leaveGroup, reviewRequest, type GroupDetail } from '@/features/groups/api';
+import {
+  fetchAnnouncement,
+  fetchGroup,
+  joinGroup,
+  leaveGroup,
+  postAnnouncement,
+  reviewRequest,
+  setGroupRole,
+  type GroupAnnouncement,
+  type GroupDetail,
+} from '@/features/groups/api';
 import { rsvp } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
-import { dayTime } from '@/lib/time';
+import { dayTime, timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
 
 const HOW_LABEL: Record<string, string> = {
@@ -31,9 +56,14 @@ export default function Group() {
   const [group, setGroup] = useState<GroupDetail | null | undefined>(undefined);
   const [busy, setBusy] = useState(false);
 
+  const [announcement, setAnnouncement] = useState<GroupAnnouncement | null>(null);
+  const [draft, setDraft] = useState<string | null>(null);
+  const [roleFor, setRoleFor] = useState<GroupDetail['members'][number] | null>(null);
+
   const load = useCallback(async () => {
     try {
       setGroup(await fetchGroup(Number(id)));
+      setAnnouncement(await fetchAnnouncement(Number(id)).catch(() => null));
     } catch {
       setGroup(null);
     }
@@ -150,6 +180,60 @@ export default function Group() {
 
         {group.description ? <AppText>{group.description}</AppText> : null}
 
+        {isMember && (announcement || isAdmin) ? (
+          <Card accent="primary">
+            <View style={{ gap: t.space[2] }}>
+              <GlyphTitle glyph="spark">Announcement</GlyphTitle>
+              {draft !== null ? (
+                <>
+                  <TextField label="Announcement" value={draft} onChangeText={setDraft} maxLength={500} multiline placeholder="Saturday 7am at Rock Creek. Bring water." />
+                  <View style={{ flexDirection: 'row', gap: t.space[2] }}>
+                    <Button
+                      label="Post to everyone"
+                      size="md"
+                      style={{ flex: 1 }}
+                      disabled={!draft.trim()}
+                      onPress={() =>
+                        run(async () => {
+                          await postAnnouncement(group.id, draft);
+                          setAnnouncement({ text: draft.trim(), at: new Date().toISOString(), by: null });
+                          setDraft(null);
+                        }, 'Posted. Every member gets a notification.')
+                      }
+                    />
+                    <Button label="Cancel" size="md" variant="secondary" onPress={() => setDraft(null)} />
+                  </View>
+                </>
+              ) : announcement ? (
+                <>
+                  <AppText>{announcement.text}</AppText>
+                  <AppText variant="caption" tone="subtle">
+                    {[announcement.by, timeAgo(announcement.at) === 'now' ? 'just now' : `${timeAgo(announcement.at)} ago`].filter(Boolean).join(' · ')}
+                  </AppText>
+                  {isAdmin ? (
+                    <View style={{ flexDirection: 'row', gap: t.space[2] }}>
+                      <Button label="New announcement" size="md" variant="secondary" style={{ flex: 1 }} onPress={() => setDraft('')} />
+                      <Button label="Remove" size="md" variant="ghost" onPress={() =>
+                          run(async () => {
+                            await postAnnouncement(group.id, '');
+                            setAnnouncement(null);
+                          }, 'Announcement removed')
+                        } />
+                    </View>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  <AppText variant="small" tone="muted">
+                    Pin a message for the whole group. Every member gets a notification.
+                  </AppText>
+                  <Button label="Post an announcement" size="md" variant="secondary" onPress={() => setDraft('')} />
+                </>
+              )}
+            </View>
+          </Card>
+        ) : null}
+
         {isAdmin && group.pending_requests.length ? (
           <Section title={`Join requests (${group.pending_requests.length})`}>
             {group.pending_requests.map((r) => (
@@ -212,7 +296,7 @@ export default function Group() {
 
         {!isMember && circleMembers.length ? (
           <AppText tone="trust" weight="bold">
-            {circleMembers.length} from your circle {circleMembers.length === 1 ? 'is' : 'are'} in this group
+            {circleMembers.length} from your friends {circleMembers.length === 1 ? 'is' : 'are'} in this group
           </AppText>
         ) : null}
 
@@ -225,12 +309,37 @@ export default function Group() {
               avatarUrl={m.avatar_url}
               vouches={m.vouch_count}
               ring={m.in_circle ? 'trust' : null}
-              right={m.role === 'owner' ? <Badge label="Owner" glyph="crown" tone="sponsored" /> : m.role === 'admin' ? <Badge label="Admin" tone="ai" /> : null}
+              right={
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[1] }}>
+                  {m.role === 'owner' ? <Badge label="Owner" glyph="crown" tone="sponsored" /> : m.role === 'admin' ? <Badge label="Co-host" tone="ai" /> : null}
+                  {group.my_role === 'owner' && m.id !== me ? (
+                    <IconButton icon="ellipsis-horizontal" label={`Options for ${m.display_name}`} onPress={() => setRoleFor(m)} />
+                  ) : null}
+                </View>
+              }
             />
           ))}
         </Section>
 
         {isMember && group.my_role !== 'owner' ? <Button label="Leave group" variant="ghost" onPress={confirmLeave} disabled={busy} /> : null}
+        <OptionsSheet
+          visible={!!roleFor}
+          title={roleFor?.display_name}
+          onClose={() => setRoleFor(null)}
+          options={
+            roleFor
+              ? [
+                  roleFor.role === 'admin'
+                    ? { label: 'Remove as co-host', onPress: () => run(() => setGroupRole(group.id, roleFor.id, 'member'), `${roleFor.display_name} is a member again`) }
+                    : {
+                        label: 'Make co-host',
+                        onPress: () => run(() => setGroupRole(group.id, roleFor.id, 'admin'), `${roleFor.display_name} is now a co-host`),
+                      },
+                  { label: 'View profile', onPress: () => router.push({ pathname: '/people/[id]', params: { id: roleFor.id } }) },
+                ]
+              : []
+          }
+        />
       </Screen>
     </View>
   );

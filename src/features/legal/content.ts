@@ -60,8 +60,12 @@ export const PRIVACY: LegalDoc = {
       body: 'Account details you give us: name, email, phone number, date of birth, city, and an optional photo. What you create: pins, replies, photos, vouches, intros, messages and group activity. Location: approximate location to show nearby pins and people, and a precise reading only when you tap Check In or use Date Mode.',
     },
     {
+      heading: 'Usage counts',
+      body: 'To learn which features help people, we count when features are used (for example: a pin was posted, a group chat was started, an event was joined). We record the feature name and a few simple details like a category, never the text of anything you write. These records are kept for 180 days and are only seen by the I’m In team.',
+    },
+    {
       heading: 'Your location',
-      body: 'We never show your exact location to anyone. Locations you share are rounded to about a quarter mile. Precise readings from Check In are only used to confirm you met someone in person. Nobody can see them, not even you, and they’re deleted after 30 days. We only use location while the app is open.',
+      body: 'We never show your exact location to anyone. Locations you share are rounded to about a quarter mile. Precise readings from Check In are only used to confirm you met someone in person. Nobody can see them, not even you, and they’re deleted after 30 days. We use location while the app is open. If you choose to allow it, the phone also watches the places of events and plans you said I’m In to, so you can be marked there when you arrive with the app closed. It never tracks you anywhere else, and you can turn this off in your phone’s Settings.',
     },
     {
       heading: 'What other members see',

@@ -10,7 +10,7 @@ import { AppText, Card, Chip, EmptyState, Glyph, GlyphTitle, IconButton, Loading
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { FILTERS, fetchFeed, type FeedPin, type PinCategory } from '@/features/pins/api';
 import { fetchFeedPlacement, type FeedPlacement } from '@/features/places/api';
-import { SEARCH_RADIUS_MI } from '@/lib/radius';
+import { DEFAULT_RADIUS_MI, SEARCH_RADIUS_MI } from '@/lib/radius';
 import { useTheme } from '@/theme';
 
 type Tab = 'nearby' | 'community';
@@ -33,8 +33,8 @@ export default function Pins() {
   const [error, setError] = useState<string | null>(null);
   const requestId = useRef(0);
 
-  const [radius, setRadius] = useState(SEARCH_RADIUS_MI);
-  const [effectiveRadius, setEffectiveRadius] = useState(SEARCH_RADIUS_MI);
+  const [radius, setRadius] = useState(DEFAULT_RADIUS_MI);
+  const [effectiveRadius, setEffectiveRadius] = useState(DEFAULT_RADIUS_MI);
 
   const load = useCallback(async () => {
     const id = ++requestId.current;
@@ -129,7 +129,7 @@ export default function Pins() {
         <Card>
           <GlyphTitle glyph="globe" tone="ai">They&apos;re In: the whole community</GlyphTitle>
           <AppText variant="small" tone="muted">
-            Pins from everyone on I&apos;m In, not limited by distance. See what&apos;s happening across the network.
+            Pins from everyone on I&apos;m In, not limited by distance. See what&apos;s happening across the community.
           </AppText>
         </Card>
       )}

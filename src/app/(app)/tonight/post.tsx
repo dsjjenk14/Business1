@@ -2,14 +2,16 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Switch, View } from 'react-native';
 
+import { PeoplePicker } from '@/components/chat/PeoplePicker';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { DateTimeChips, upcomingDays } from '@/components/tonight/DateTimeChips';
 import { VenuePicker, type PlaceChoice } from '@/components/tonight/VenuePicker';
 import { AppText, Button, Chip, Screen, Segmented, TextField, useToast } from '@/components/ui';
+import { fetchChatCandidates, type ChatCandidate } from '@/features/chat/api';
 import { track } from '@/features/analytics/track';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
-import { VIBES, deleteGoingOut, postGoingOut, setOpenToJoin, type GoingOutWhen } from '@/features/tonight/api';
+import { VIBES, deleteGoingOut, fetchHereViewers, postGoingOut, setHereAudience, setHereViewers, setOpenToJoin, type GoingOutWhen } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
 import { goBackOr } from '@/lib/navigation';
 import { friendlyError, supabase } from '@/lib/supabase';
@@ -25,6 +27,7 @@ type Existing = {
   vibes: string[];
   note: string | null;
   open_to_join: boolean;
+  here_audience: string;
 };
 
 /**
@@ -45,6 +48,9 @@ export default function PostGoingOut() {
   const [vibes, setVibes] = useState<string[]>([]);
   const [note, setNote] = useState('');
   const [openToJoin, setOpenToJoinState] = useState(true);
+  const [audience, setAudience] = useState<'circle' | 'network' | 'custom'>('circle');
+  const [viewers, setViewers] = useState<Set<string>>(new Set());
+  const [friends, setFriends] = useState<ChatCandidate[] | null>(null);
   const [day, setDay] = useState<string | null>(null);
   const [minutes, setMinutes] = useState<number | null>(null);
   const [existing, setExisting] = useState<Existing[]>([]);
@@ -67,7 +73,7 @@ export default function PostGoingOut() {
     if (!me) return;
     supabase
       .from('going_out_posts')
-      .select('id, when_kind, starts_at, place_text, venue_id, vibes, note, open_to_join, venues(name)')
+      .select('id, when_kind, starts_at, place_text, venue_id, vibes, note, open_to_join, here_audience, venues(name)')
       .eq('user_id', me)
       .gt('expires_at', new Date().toISOString())
       .order('starts_at')
@@ -81,6 +87,7 @@ export default function PostGoingOut() {
           vibes: r.vibes,
           note: r.note,
           open_to_join: r.open_to_join,
+          here_audience: r.here_audience,
         }));
         setExisting(rows);
         const tonight = rows.find((r) => r.when_kind === 'tonight');
@@ -89,9 +96,28 @@ export default function PostGoingOut() {
           setVibes(tonight.vibes);
           setNote(tonight.note ?? '');
           setOpenToJoinState(tonight.open_to_join);
+          setAudience(tonight.here_audience === 'network' ? 'network' : tonight.here_audience === 'custom' ? 'custom' : 'circle');
+          if (tonight.here_audience === 'custom') fetchHereViewers(tonight.id).then((ids) => setViewers(new Set(ids)), () => undefined);
         }
       });
   }, [me, params.when]);
+
+  function chooseCustom() {
+    setAudience('custom');
+    if (!friends)
+      fetchChatCandidates()
+        .then((list) => setFriends(list.filter((p) => p.in_circle)))
+        .catch(() => setFriends([]));
+  }
+
+  function toggleViewer(id: string) {
+    setViewers((v) => {
+      const next = new Set(v);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   const startsAt = (() => {
     if (when === 'tonight') return minutes != null ? marketDate(todayKey, minutes) : null;
@@ -116,6 +142,10 @@ export default function PostGoingOut() {
         lng: location?.lng,
       });
       if (!openToJoin) await setOpenToJoin(postId, false);
+      if (when === 'tonight') {
+        if (audience === 'custom') await setHereViewers(postId, [...viewers]);
+        else await setHereAudience(postId, audience);
+      }
       if (place.venueId) enableArrivalWatch();
       toast(when === 'tonight' ? "You're on the Tonight feed" : 'Your plans are posted');
       track('im_in_posted', { when });
@@ -243,7 +273,7 @@ export default function PostGoingOut() {
           <View style={{ flex: 1 }}>
             <AppText weight="bold">Let people I know join me</AppText>
             <AppText variant="caption" tone="muted">
-              Your circle and network can tap Join so you know they&apos;re coming.
+              Your friends and friends of friends can tap Join so you know they&apos;re coming.
             </AppText>
           </View>
           <Switch
@@ -254,10 +284,39 @@ export default function PostGoingOut() {
           />
         </View>
 
+        {when === 'tonight' ? (
+          <View style={{ gap: t.space[2] }}>
+            <AppText weight="bold">When you get there, who sees it?</AppText>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+              <Chip label="Friends" selected={audience === 'circle'} onPress={() => setAudience('circle')} />
+              <Chip label="Friends of friends" selected={audience === 'network'} onPress={() => setAudience('network')} />
+              <Chip label="Only these people" selected={audience === 'custom'} onPress={chooseCustom} />
+            </View>
+            <AppText variant="caption" tone="muted">
+              {audience === 'circle'
+                ? 'Only your friends see that you’re there. Nobody else.'
+                : audience === 'network'
+                  ? 'Your friends and their friends see that you’re there.'
+                  : viewers.size
+                    ? `Only ${viewers.size} ${viewers.size === 1 ? 'person' : 'people'} you picked see that you’re there.`
+                    : 'Pick the friends who can see that you’re there.'}
+            </AppText>
+            {audience === 'custom' && friends ? (
+              friends.length ? (
+                <PeoplePicker people={friends} selected={viewers} onToggle={toggleViewer} />
+              ) : (
+                <AppText variant="small" tone="muted">
+                  You don&apos;t have friends on I&apos;m In yet.
+                </AppText>
+              )
+            ) : null}
+          </View>
+        ) : null}
+
         <TextField label="Say something" optional value={note} onChangeText={setNote} maxLength={200} placeholder="Flying solo, come find me." />
         <Button label={when === 'tonight' ? "I'm In Tonight" : 'Post my plans'} onPress={submit} loading={busy} disabled={!canPost} />
         <AppText variant="caption" tone="subtle">
-          Your location is shared approximately, never exactly. When you get there, tap I&apos;m In so your circle knows you&apos;re there. Tonight posts end at 4 AM on their own. Hide your venue any time in Privacy
+          Your location is shared approximately, never exactly. When you get there, your phone marks you there, and only the people you chose above see it. Tonight posts end at 4 AM on their own. Hide your venue any time in Privacy
           settings.
         </AppText>
       </Screen>

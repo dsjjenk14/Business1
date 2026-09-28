@@ -9,7 +9,7 @@ import { track } from '@/features/analytics/track';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { preciseLocation } from '@/features/circles/api';
 import { shareEvent } from '@/features/home/api';
-import { checkInOpen, eventCheckIn, eventPhase, fetchEvent, type EventDetail } from '@/features/events/api';
+import { checkInOpen, eventCheckIn, eventPhase, fetchEvent, joinWaitlist, leaveWaitlist, type EventDetail } from '@/features/events/api';
 import { cancelRsvp, rsvp } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
@@ -87,12 +87,32 @@ export default function EventScreen() {
     }
   }
 
+  async function waitlist(join: boolean) {
+    if (!event) return;
+    setBusy(true);
+    try {
+      if (join) {
+        const pos = await joinWaitlist(event.id);
+        toast(`You're #${pos} on the waitlist`);
+        track('waitlist_joined');
+      } else {
+        await leaveWaitlist(event.id);
+        toast('You left the waitlist');
+      }
+      await load();
+    } catch (e) {
+      toast(friendlyError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function share() {
     if (!event) return;
     setSharing(true);
     try {
       await shareEvent(event.id);
-      toast('Shared with your circle');
+      toast('Shared with your friends');
       track('event_shared', { from: 'event' });
     } catch (e) {
       toast(friendlyError(e));
@@ -176,17 +196,39 @@ export default function EventScreen() {
               You&apos;re hosting.
             </AppText>
           ) : (
-            <Button
-              label={event.i_am_going ? "Can't make it" : spotsLeft === 0 ? 'Full' : "I'm In"}
-              variant={event.i_am_going ? 'secondary' : 'primary'}
-              onPress={toggleRsvp}
-              loading={busy}
-              disabled={!event.i_am_going && spotsLeft === 0}
-            />
+            !event.i_am_going && spotsLeft === 0 ? (
+              <View style={{ gap: t.space[2] }}>
+                {event.on_waitlist ? (
+                  <>
+                    <AppText align="center" weight="bold">
+                      You&apos;re #{event.waitlist_position} on the waitlist
+                    </AppText>
+                    <AppText variant="small" tone="muted" align="center">
+                      If a spot opens, you&apos;re in automatically and we&apos;ll let you know.
+                    </AppText>
+                    <Button label="Leave the waitlist" variant="secondary" onPress={() => waitlist(false)} loading={busy} />
+                  </>
+                ) : (
+                  <>
+                    <Button label="Join the waitlist" onPress={() => waitlist(true)} loading={busy} />
+                    <AppText variant="small" tone="muted" align="center">
+                      It&apos;s full{event.waitlist_count ? ` (${event.waitlist_count} waiting)` : ''}. If a spot opens, the next person in line gets it.
+                    </AppText>
+                  </>
+                )}
+              </View>
+            ) : (
+              <Button
+                label={event.i_am_going ? "Can't make it" : "I'm In"}
+                variant={event.i_am_going ? 'secondary' : 'primary'}
+                onPress={toggleRsvp}
+                loading={busy}
+              />
+            )
           )
         ) : null}
 
-        {phase !== 'ended' ? <Button label="Share to my circle" variant="secondary" size="md" onPress={share} loading={sharing} /> : null}
+        {phase !== 'ended' ? <Button label="Share with my friends" variant="secondary" size="md" onPress={share} loading={sharing} /> : null}
 
         {canCheckIn && event.i_am_here ? (
           <Card accent="trust">
@@ -249,7 +291,7 @@ export default function EventScreen() {
               name={p.id === me ? 'You' : p.display_name}
               avatarUrl={p.avatar_url}
               ring={p.degree === 1 ? 'trust' : p.degree === 2 ? 'ai' : null}
-              detail={p.degree === 1 ? 'Your circle' : p.degree === 2 ? 'Your network' : null}
+              detail={p.degree === 1 ? 'Your friends' : p.degree === 2 ? 'Friends of friends' : null}
             />
           ))}
         </Section>

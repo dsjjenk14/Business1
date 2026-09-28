@@ -14,7 +14,7 @@ const OPTIONS: { key: Key; label: string; detail: string }[] = [
   { key: 'show_going_out_venue', label: 'Show where I’m going', detail: 'Show the venue when you go out (otherwise just “going out”)' },
   { key: 'show_vouch_count', label: 'Show my vouch count', detail: 'Others see how many vouches you have' },
   { key: 'allow_intro_requests', label: 'Allow intro requests', detail: 'Let people one intro away ask a mutual friend to introduce you' },
-  { key: 'discoverable', label: 'Show me in search', detail: 'People outside your circle can find you by name' },
+  { key: 'discoverable', label: 'Show me in search', detail: 'People who aren’t your friends can find you by name' },
 ];
 
 /** Privacy switches (saved instantly). */
@@ -51,6 +51,10 @@ export default function Privacy() {
       <BackHeader title="Privacy" />
       <Screen>
         <AppText tone="muted">Your email, phone number, birthday and exact location are never shown to anyone.</AppText>
+        <AppText variant="small" tone="subtle">
+          We count which features get used (like &quot;a pin was posted&quot;) to make I&apos;m In better. We never record what you write. Details are in
+          the Privacy Policy.
+        </AppText>
         <Section title="Who sees what">
           {OPTIONS.map((o) => (
             <View key={o.key} style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3], minHeight: 56 }}>

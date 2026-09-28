@@ -157,18 +157,18 @@ insert into pin_replies (pin_id, author_id, body) values ((select id from pins w
 select is((select exchanges from interactions where (select id from t where k='ben') in (user_a, user_b) and (select id from t where k='ana') in (user_a, user_b)), 1,
   'Comment + owner''s reply = 1 back-and-forth');
 
--- Three more rounds → 4 total: still locked.
+-- One more round → 2 total: still locked.
 do $$ begin
-  for i in 1..3 loop
+  for i in 1..1 loop
     insert into pin_replies (pin_id, author_id, body) values ((select id from pins where body='for everyone'), (select id from t where k='ben'), 'ben ' || i);
     insert into pin_replies (pin_id, author_id, body) values ((select id from pins where body='for everyone'), (select id from t where k='ana'), 'ana ' || i);
   end loop;
 end $$;
-select ok(not private.can_message((select id from t where k='ana'), (select id from t where k='ben')), '4 back-and-forths: still locked');
+select ok(not private.can_message((select id from t where k='ana'), (select id from t where k='ben')), '2 back-and-forths: still locked');
 
 insert into pin_replies (pin_id, author_id, body) values ((select id from pins where body='for everyone'), (select id from t where k='ben'), 'ben 4');
 insert into pin_replies (pin_id, author_id, body) values ((select id from pins where body='for everyone'), (select id from t where k='ana'), 'ana 4');
-select ok(private.can_message((select id from t where k='ana'), (select id from t where k='ben')), '5 back-and-forths: messaging unlocked');
+select ok(private.can_message((select id from t where k='ana'), (select id from t where k='ben')), '3 back-and-forths: messaging unlocked');
 
 -- Premium: skips the wait, never the intro.
 select ok(not private.can_message((select id from t where k='ana'), (select id from t where k='cam')), 'Free: Ana and Cam are connected but haven''t talked, so no messaging');

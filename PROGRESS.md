@@ -5,6 +5,51 @@
 
 ---
 
+## ✅ Tester round: changes from 10 testers (ages 21–45)
+**New members don't hit a wall anymore**
+- A **welcome tour** runs once: 4 short cards (what I'm In is, Pins, Friends and vouches, I'm In), then **Pick your look** (Dark or Light).
+- **Home for newcomers** (fewer than 3 friends): "Add friends" tips, **Popular on I'm In** (posts from everyone), **Groups to join** (one-tap Join), and **Events near you**. These disappear once you have friends.
+- **Messaging unlocks after 3 back-and-forths** on pins (was 5). Intros still unlock it right away.
+
+**Plain words**
+- "Circles" is now **Friends** (the tab, the menu, the screen).
+- "My Circle / Network" is now **Friends / Friends of friends** everywhere: posts, I'm In, profiles, search, events.
+- "1st degree / 2nd degree" is now **Friend / Friend of a friend**.
+- Profile stats are **Vouches · Friends · Followers**.
+
+**Location, your call**
+- When you post I'm In tonight, you pick **who sees that you're there**: Friends, Friends of friends, or **Only these people** (you choose from your friends). It's also on your night-out card on Tonight.
+- Before the phone asks for **"Always" location**, the app explains in plain words why, and what happens if you say no.
+- **Default distance is 25 miles** (the slider still goes to 75). The map uses 25 too.
+
+**Hosts and groups**
+- **Event waitlists:** when an event is full, tap **Join the waitlist**. If someone drops out, the next person in line gets the spot automatically and gets a notification. Full events on Home show a Waitlist button.
+- **Group announcements:** the owner and co-hosts can pin a message to the group, and every member gets a notification. Only members can see it.
+- **Co-hosts:** the owner can make any member a co-host (the "…" next to their name), or undo it.
+
+**Everyday polish**
+- **Reactions** with our own symbols: Love, Fire, Ha, Wow, Great. Tap the heart to like; tap the smile (or hold the heart) to pick a reaction. The top reactions show on each post.
+- **Verified check** next to names on posts.
+- **Tonight filters:** chips for Dinner, Drinks, Music, Brunch and more.
+- **Quieter notifications for new members:** "people joining your plans" starts off (turn it on in Settings → Notifications).
+- The **Privacy screen and Privacy Policy** now explain the usage counts, and the location section now covers "marked there automatically".
+
+**Not done (needs your decision):**
+- Shareable **web links** for profiles and events need a website domain (about $12/year) and hosting. Links only open in the app for now.
+- **Video posts**.
+- **Premium price** (3 testers said $14.99 is high; it's a pricing choice for you).
+
+Migration 026, test file 014. **All 274 database tests pass.** Browser tests passed for:
+- signing up as a brand-new member, the tour, and the light look
+- the new-member Home, and joining a group from it
+- the Friends tab
+- Tonight filters and "Only these people"
+- reactions
+- joining a waitlist
+- posting an announcement, and making a co-host
+
+The accessibility check is clean on 9 screens.
+
 ## ✅ Home, simplified (Dominique: "That's it")
 Home now shows four things and nothing else:
 1. **Your friends' pins.** Pins from your circle and people you follow; not yours, not strangers'. The first 5 show, then "Show more".
@@ -413,6 +458,8 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 ## Decisions log
 | Date | Decision | Why |
 |---|---|---|
+| 2026-09-28 | Plain names: Friends / Friends of friends (not Circle / Network / degrees) | Tester round: jargon confused new users |
+| 2026-09-28 | Messaging unlocks after 3 back-and-forths (was 5); default radius 25 mi | Tester round |
 | 2026-09-28 | Home = people row + Friends/Everyone + one mixed feed; Messages becomes a tab; badges are dots | Product review (PM, dev, UX, two creators); Dominique approved all changes |
 | 2026-09-28 | Follow is public-posts-only: never unlocks messaging, vouches or circle posts | Keeps the circle meaningful while letting creators grow |
 | 2026-09-28 | Radius slider back: 1 to 75 miles for everyone | Dominique |
