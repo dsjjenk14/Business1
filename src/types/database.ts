@@ -1003,6 +1003,25 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"push_outbox": {
+                  Row: {
+                    "body": string,"created_at": string,"id": number,"link": string | null,"sent": boolean,"title": string,"user_id": string
+                  }
+                  Insert: {
+                    "body"?: string,"created_at"?: string,"id"?: number,"link"?: string | null,"sent"?: boolean,"title": string,"user_id": string
+                  }
+                  Update: {
+                    "body"?: string,"created_at"?: string,"id"?: number,"link"?: string | null,"sent"?: boolean,"title"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "push_outbox_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"push_tokens": {
                   Row: {
                     "platform": string,"token": string,"updated_at": string,"user_id": string
@@ -1565,6 +1584,9 @@ isOneToOne: false
 "refresh_vouch_stats":
 { Args: { "p_user": string }; Returns: undefined
                            },
+"register_push_token":
+{ Args: { "p_platform": string,"p_token": string }; Returns: undefined
+                           },
 "report":
 { Args: { "p_details"?: string,"p_message"?: number,"p_pin"?: number,"p_reason": Database["public"]['Enums']["report_reason"],"p_reply"?: number,"p_user"?: string }; Returns: number
                            },
@@ -1653,6 +1675,9 @@ isOneToOne: false
                            },
 "unblock_user":
 { Args: { "p_user": string }; Returns: undefined
+                           },
+"unregister_push_token":
+{ Args: { "p_token": string }; Returns: undefined
                            },
 "venue_detail":
 { Args: { "p_venue": number }; Returns: Json

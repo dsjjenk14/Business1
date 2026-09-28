@@ -51,6 +51,12 @@
         {
           "locationWhenInUsePermission": "I'm In uses your approximate location to show pins and people near you. Your exact location is never shown to anyone."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#D62828"
+        }
       ]
     ],
     "experiments": {

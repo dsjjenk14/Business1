@@ -1,6 +1,7 @@
 import type { Session } from '@supabase/supabase-js';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { unregisterPush } from '@/features/notifications/push';
 import type { Tables } from '@/types/database';
 
 import { supabase } from './supabase';
@@ -50,6 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [fetchProfile]);
 
   const signOut = useCallback(async () => {
+    await unregisterPush();
     await supabase.auth.signOut();
     setProfile(null);
   }, []);
