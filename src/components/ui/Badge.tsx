@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { View } from 'react-native';
 
-import { useTheme } from '@/theme';
+import { useTheme, fontStyle } from '@/theme';
 
 import { AppText } from './AppText';
 import { Glyph, type GlyphName } from './Glyph';
@@ -34,7 +34,7 @@ export function Badge({ label, tone = 'primary', glyph, verified }: BadgeProps) 
           paddingVertical: 3,
         }}>
         <Ionicons name={verified ? 'shield-checkmark' : 'ribbon-outline'} size={12} color={color} />
-        <AppText variant="caption" style={{ color, fontFamily: t.fonts.mono, textTransform: 'uppercase', letterSpacing: 0.8 }}>
+        <AppText variant="caption" style={{ color, ...fontStyle(t.fonts.mono), textTransform: 'uppercase', letterSpacing: 0.8 }}>
           {label}
         </AppText>
       </View>
@@ -42,7 +42,7 @@ export function Badge({ label, tone = 'primary', glyph, verified }: BadgeProps) 
   }
 
   if (look(t).ticket) {
-    // A stamp: square corners, mono small caps.
+    // A small outlined tag.
     return (
       <View
         style={{
@@ -52,12 +52,12 @@ export function Badge({ label, tone = 'primary', glyph, verified }: BadgeProps) 
           gap: 4,
           borderWidth: t.borderWidth.regular,
           borderColor: color,
-          borderRadius: 2,
-          paddingHorizontal: 6,
+          borderRadius: t.radius.pill,
+          paddingHorizontal: 8,
           paddingVertical: 2,
         }}>
         {glyph ? <Glyph name={glyph} size={12} color={color} strokeWidth={2.2} /> : null}
-        <AppText style={{ color, fontFamily: t.fonts.mono, textTransform: 'uppercase', fontSize: 10.5, lineHeight: 14, letterSpacing: 0.6 }}>{label}</AppText>
+        <AppText style={{ color, ...fontStyle(t.fonts.bodyBold), fontSize: 12, lineHeight: 16 }}>{label}</AppText>
       </View>
     );
   }

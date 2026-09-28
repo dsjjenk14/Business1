@@ -26,7 +26,7 @@ export function Button({ label, variant = 'primary', size = 'lg', loading, disab
     trust: { bg: t.colors.trust, fg: t.colors.onTrust, border: t.colors.trust },
     danger: { bg: t.colors.danger, fg: t.colors.onDanger, border: t.colors.danger },
     secondary: ticket
-      ? { bg: 'transparent', fg: t.colors.text, border: t.colors.borderStrong }
+      ? { bg: t.colors.surfaceAlt, fg: t.colors.text, border: t.colors.surfaceAlt }
       : { bg: t.colors.surfaceAlt, fg: t.colors.text, border: t.colors.border },
     ghost: { bg: 'transparent', fg: t.colors.textMuted, border: 'transparent' },
   }[variant];
@@ -41,9 +41,9 @@ export function Button({ label, variant = 'primary', size = 'lg', loading, disab
         {
           minHeight: size === 'lg' ? 52 : 44,
           paddingHorizontal: t.space[5],
-          borderRadius: ticket ? t.radius.sm : t.radius.md,
+          borderRadius: t.radius.md,
           backgroundColor: palette.bg,
-          borderWidth: variant === 'ghost' ? 0 : ticket ? t.borderWidth.strong : t.borderWidth.regular,
+          borderWidth: variant === 'ghost' || ticket ? 0 : t.borderWidth.regular,
           borderColor: palette.border,
           alignItems: 'center',
           justifyContent: 'center',
@@ -60,24 +60,9 @@ export function Button({ label, variant = 'primary', size = 'lg', loading, disab
       ) : (
         <>
           {icon ? <View>{icon}</View> : null}
-          {ticket && variant !== 'ghost' ? (
-            // Poster buttons: the condensed display face, like a wristband or a door sign.
-            <AppText
-              style={{
-                color: palette.fg,
-                fontFamily: t.fonts.display,
-                fontSize: size === 'lg' ? 21 : 18,
-                lineHeight: size === 'lg' ? 24 : 20,
-                letterSpacing: 1,
-                paddingTop: 2,
-              }}>
-              {label}
-            </AppText>
-          ) : (
-            <AppText weight="bold" style={{ color: palette.fg, fontSize: size === 'lg' ? 16 : 14 }}>
-              {label}
-            </AppText>
-          )}
+          <AppText weight="bold" style={{ color: palette.fg, fontSize: size === 'lg' ? 16 : 15, letterSpacing: -0.2 }}>
+            {label}
+          </AppText>
         </>
       )}
     </Pressable>

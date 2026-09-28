@@ -5,6 +5,13 @@
 
 ---
 
+## ✅ New type, OUT button, 9-second video Outs
+- **Font:** the poster font is gone. The app now uses the phone's own typeface (the one iPhone apps like Instagram and Snapchat use), bold and tight for headlines, plain for reading. No more typewriter-style labels or ALL CAPS.
+- **Less "template":** removed the row of colored badges on the welcome screen, the red bars over tab icons, semi-bold text in every post, and long helper text in Circles.
+- **OUT:** the Outs tab has one big round red OUT button. Tap it and the camera opens.
+- **Video Outs:** in the camera, switch to VIDEO and tap to record; it stops by itself at 9 seconds (or tap to stop). The gallery button picks a photo or a video up to 9 seconds. Video Outs play with sound for the people you send them to, and work like photo Outs (6 hours, pins, screenshots). On the web link, recording isn't possible in a browser, so use the gallery button there.
+- Tests: 467 database checks pass; browser run sent a video Out and played it on the friend's side; accessibility scan clean.
+
 ## ✅ Founding 3000, Outs for 6 hours, hide and mute, surprise parties, place search
 - **Founding Members:** the first 3000 members (was 500).
 - **Outs** last 6 hours unless someone pins them (was 1 hour).

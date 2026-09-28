@@ -1,6 +1,8 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ScreenCapture from "expo-screen-capture";
+import { useEventListener } from "expo";
 import { Image } from "expo-image";
+import { useVideoPlayer, VideoView } from "expo-video";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -13,6 +15,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { MAX_OUT_VIDEO_SECONDS } from "@/components/camera/CameraCapture";
 import { AppText, useToast } from "@/components/ui";
 import {
   openOut,
@@ -90,7 +93,8 @@ export default function ViewOuts() {
     if (!out) return;
     const anim = Animated.timing(progress, {
       toValue: 1,
-      duration: SECONDS * 1000,
+      // A video Out runs until it ends (at most 9 seconds); a photo shows for 8.
+      duration: (out.kind === "video" ? MAX_OUT_VIDEO_SECONDS + 1 : SECONDS) * 1000,
       easing: Easing.linear,
       useNativeDriver: false,
     });
@@ -143,13 +147,17 @@ export default function ViewOuts() {
         style={{ flex: 1 }}
       >
         {out ? (
-          <Image
-            source={{ uri: out.url }}
-            style={{ flex: 1 }}
-            contentFit="cover"
-            accessible={false}
-            transition={0}
-          />
+          out.kind === "video" ? (
+            <OutVideo uri={out.url} onEnd={next} />
+          ) : (
+            <Image
+              source={{ uri: out.url }}
+              style={{ flex: 1 }}
+              contentFit="cover"
+              accessible={false}
+              transition={0}
+            />
+          )
         ) : (
           <View
             style={{
@@ -305,5 +313,27 @@ export default function ViewOuts() {
         </View>
       ) : null}
     </View>
+  );
+}
+
+/** A video Out: plays once with sound, then moves on. */
+function OutVideo({ uri, onEnd }: { uri: string; onEnd: () => void }) {
+  const player = useVideoPlayer(uri, (p) => {
+    p.loop = false;
+    p.play();
+  });
+  useEventListener(player, "playToEnd", onEnd);
+  // Start as soon as it's loaded (some browsers ignore an early play()).
+  useEventListener(player, "statusChange", ({ status }) => {
+    if (status === "readyToPlay" && !player.playing) player.play();
+  });
+  return (
+    <VideoView
+      player={player}
+      style={{ flex: 1 }}
+      contentFit="cover"
+      nativeControls={false}
+      accessible={false}
+    />
   );
 }

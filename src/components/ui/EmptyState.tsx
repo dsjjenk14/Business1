@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 
-import { useTheme } from '@/theme';
+import { useTheme, fontStyle } from '@/theme';
 
 import { AppText } from './AppText';
 import { Button } from './Button';
@@ -25,7 +25,7 @@ export function EmptyState({
     <View style={{ alignItems: 'center', gap: t.space[2], paddingVertical: t.space[6], paddingHorizontal: t.space[4] }}>
       {poster ? <Glyph name={glyph} size={40} tone="primary" strokeWidth={1.6} /> : <GlyphTile name={glyph} size={52} />}
       {poster ? (
-        <AppText align="center" accessibilityRole="header" style={{ fontFamily: t.fonts.display, fontSize: 28, lineHeight: 30, letterSpacing: 0.6, color: t.colors.text, marginTop: t.space[1] }}>
+        <AppText align="center" accessibilityRole="header" style={{ ...fontStyle(t.fonts.display), fontSize: 20, lineHeight: 25, letterSpacing: -0.4, color: t.colors.text, marginTop: t.space[1] }}>
           {title}
         </AppText>
       ) : (

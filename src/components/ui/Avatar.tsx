@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { View } from 'react-native';
 
-import { useTheme } from '@/theme';
+import { useTheme, fontStyle } from '@/theme';
 
 import { AppText } from './AppText';
 import { look, tintFor } from './look';
@@ -23,7 +23,7 @@ export function Avatar({ name, uri, size = 44, ring }: AvatarProps) {
     .map((p) => p[0]?.toUpperCase())
     .join('');
   const ringWidth = ring ? Math.max(2, Math.round(size / 18)) : 0;
-  // Guest List: each person gets their own steady color, initials in the poster face.
+  // Each person gets their own steady color for their initials.
   const tint = look(t).flat ? tintFor(t, name) : null;
 
   return (
@@ -45,7 +45,7 @@ export function Avatar({ name, uri, size = 44, ring }: AvatarProps) {
       {uri ? (
         <Image source={{ uri }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
       ) : tint ? (
-        <AppText style={{ fontFamily: t.fonts.display, color: tint.fg, fontSize: size * 0.48, lineHeight: size * 0.52, letterSpacing: 0.5, paddingTop: size * 0.04 }}>
+        <AppText style={{ ...fontStyle(t.fonts.display), color: tint.fg, fontSize: size * 0.38, lineHeight: size * 0.46, letterSpacing: -0.3 }}>
           {initials}
         </AppText>
       ) : (

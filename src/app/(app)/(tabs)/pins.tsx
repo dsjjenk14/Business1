@@ -225,7 +225,7 @@ export default function Pins() {
           right: t.space[4],
           bottom: t.space[4],
           backgroundColor: t.colors.primary,
-          borderRadius: t.style.controls === 'ticket' ? t.radius.sm : t.radius.pill,
+          borderRadius: t.radius.pill,
           paddingHorizontal: t.space[5],
           minHeight: 48,
           justifyContent: 'center',
@@ -236,7 +236,7 @@ export default function Pins() {
           weight="bold"
           style={[
             { color: t.colors.onPrimary },
-            t.style.controls === 'ticket' ? { fontFamily: t.fonts.display, fontSize: 21, lineHeight: 24, letterSpacing: 1, paddingTop: 2 } : null,
+            null,
           ]}>
           + New Pin
         </AppText>

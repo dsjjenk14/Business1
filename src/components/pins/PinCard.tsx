@@ -177,7 +177,7 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
                   variant="caption"
                   tone="subtle"
                   numberOfLines={1}
-                  style={[{ flex: 1 }, flat ? { fontFamily: t.fonts.mono, fontSize: 10.5, letterSpacing: 0.3 } : null]}>
+                  style={{ flex: 1 }}>
                   {[CATEGORY_LABEL[pin.category], meta, pin.edited_at ? 'edited' : null].filter(Boolean).join(' · ')}
                 </AppText>
               </View>
@@ -201,8 +201,8 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
 
         <Pressable accessibilityRole={linkToThread ? 'link' : 'text'} disabled={!linkToThread} onPress={openThread}>
           <AppText
-            variant={hasPhotos || !linkToThread ? 'body' : 'h3'}
-            style={{ fontFamily: hasPhotos ? t.fonts.body : t.fonts.bodyMedium }}
+            variant="body"
+            style={hasPhotos ? undefined : { fontSize: 17, lineHeight: 24 }}
             numberOfLines={linkToThread ? 8 : undefined}>
             {pin.body}
           </AppText>

@@ -14,7 +14,7 @@ const SLIDES: { glyph: GlyphName; title: string; body: string }[] = [
   {
     glyph: 'spark',
     title: 'Welcome to I’m In',
-    body: 'A social app for people you actually know. Share what you’re up to, talk in group chats, and make plans.',
+    body: 'See what’s happening near you, make plans with friends, and meet people others vouch for.',
   },
   {
     glyph: 'pin',
@@ -24,7 +24,7 @@ const SLIDES: { glyph: GlyphName; title: string; body: string }[] = [
   {
     glyph: 'people',
     title: 'Your circle and vouches',
-    body: 'Your circle is people you actually know. Add them by scanning each other’s code, or sending a code. When you meet up in person, you can vouch for people you’d recommend. It’s always your choice.',
+    body: 'Your circle is your friends on I’m In. Add them by scanning each other’s code, or sending a code. When you meet up in person, you can vouch for people you’d recommend. It’s always your choice.',
   },
   {
     glyph: 'moon',

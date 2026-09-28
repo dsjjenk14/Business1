@@ -2,7 +2,7 @@
 -- (circle only, surprise party), places becoming venues, Founding 3000.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(36);
+select plan(40);
 
 create or replace function pg_temp.new_user(p_email text, p_name text) returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();
@@ -130,6 +130,14 @@ insert into event_rsvps (event_id, user_id) values (pg_temp.id('game'), pg_temp.
 select pg_temp.act_as('a');
 select throws_ok(format('select set_event_mode(%s, %L, %L)', pg_temp.id('game'), 'public', pg_temp.uid('c')), '23514', null,
   'A surprise can''t be for someone who already said I''m In');
+
+-- ── Video Outs ────────────────────────────────────────────────────────────
+select pg_temp.act_as('a');
+select ok(send_out(pg_temp.uid('a') || '/clip.mp4', 'Dance floor', array[pg_temp.uid('c')]::uuid[], false) is not null, 'Send a video Out');
+select pg_temp.admin();
+select is(out_open((select id from outs where path like '%/clip.mp4'), pg_temp.uid('c'))->>'kind', 'video', 'It opens as a video');
+select is(out_open((select id from outs where path like '%/s.jpg'), pg_temp.uid('c'))->>'kind', 'photo', 'Photos open as photos');
+select ok((select 'video/mp4' = any(allowed_mime_types) from storage.buckets where id = 'outs'), 'The Outs bucket takes videos');
 
 -- ── Places ────────────────────────────────────────────────────────────────
 select pg_temp.act_as('s');

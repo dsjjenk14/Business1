@@ -42,7 +42,7 @@ export const TERMS: LegalDoc = {
     },
     {
       heading: 'Outs',
-      body: 'Outs are photos that disappear after 6 hours. You choose who gets each one: friends in your circle, or My Out for your circle or your network. Anyone who can see an Out can pin it to keep it, and we tell you when they do. Anyone can also take a screenshot, so only share what you’re comfortable with. If someone takes a screenshot, we tell you.',
+      body: 'Outs are photos or short videos (up to 9 seconds) that disappear after 6 hours. You choose who gets each one: friends in your circle, or My Out for your circle or your network. Anyone who can see an Out can pin it to keep it, and we tell you when they do. Anyone can also take a screenshot, so only share what you’re comfortable with. If someone takes a screenshot, we tell you.',
     },
     {
       heading: 'Split the bill',

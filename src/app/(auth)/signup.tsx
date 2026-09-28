@@ -9,7 +9,7 @@ import { useAppConfig } from '@/config/useAppConfig';
 import { formatUSPhone, normalizeUSPhone } from '@/features/auth/phone';
 import { ageFrom, signUp, toIsoDate } from '@/features/auth/signUp';
 import { friendlyError, supabase } from '@/lib/supabase';
-import { useTheme } from '@/theme';
+import { useTheme, fontStyle } from '@/theme';
 import { goBackOr } from '@/lib/navigation';
 
 type Errors = Partial<Record<'fullName' | 'phone' | 'email' | 'city' | 'dob' | 'password' | 'invite' | 'terms' | 'form', string>>;
@@ -234,7 +234,7 @@ export default function SignUp() {
                   minHeight: 50,
                   textAlign: 'center',
                   color: t.colors.text,
-                  fontFamily: t.fonts.body,
+                  ...fontStyle(t.fonts.body),
                   fontSize: 16,
                   backgroundColor: t.colors.surfaceAlt,
                   borderWidth: t.borderWidth.regular,

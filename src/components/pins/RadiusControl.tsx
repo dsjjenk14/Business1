@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { AppText, Card } from '@/components/ui';
-import { useTheme } from '@/theme';
+import { useTheme, fontStyle } from '@/theme';
 
 /** Radius: a small "Within 75 mi" button that opens a slider (1 mi up to 75 mi for everyone). */
 export function RadiusControl({
@@ -43,7 +43,7 @@ export function RadiusControl({
           gap: 6,
           minHeight: 36,
           paddingHorizontal: t.space[3],
-          borderRadius: ticket ? t.radius.sm : t.radius.pill,
+          borderRadius: t.radius.pill,
           borderWidth: ticket ? 0 : t.borderWidth.hairline,
           borderColor: t.colors.border,
           backgroundColor: ticket ? t.colors.surfaceAlt : t.colors.surface,
@@ -51,7 +51,7 @@ export function RadiusControl({
         })}>
         <Ionicons name="locate-outline" size={16} color={t.colors.primaryText} />
         {ticket ? (
-          <AppText style={{ fontFamily: t.fonts.mono, fontSize: 11.5, lineHeight: 15, letterSpacing: 0.6, textTransform: 'uppercase', color: t.colors.text }}>
+          <AppText style={{ ...fontStyle(t.fonts.bodyMedium), fontSize: 14, lineHeight: 18, color: t.colors.text }}>
             {`Within ${value} mi`}
           </AppText>
         ) : (

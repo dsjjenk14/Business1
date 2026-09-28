@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppText, Avatar, IconButton } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
 import { useUnreadCounts } from '@/features/notifications/useUnreadCounts';
-import { useTheme } from '@/theme';
+import { useTheme, fontStyle } from '@/theme';
 
 import { Logo } from './Logo';
 
@@ -68,15 +68,15 @@ export function BackHeader({ title, right }: { title?: string; right?: React.Rea
       }}>
       <IconButton icon="chevron-back" label="Back" onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} />
       {t.style.section === 'poster' ? (
-        // Poster: the title sits left, big and condensed, like a flyer headline.
+        // The title sits left, bold, like the big social apps.
         <AppText
           numberOfLines={1}
           accessibilityRole="header"
-          style={{ flex: 1, fontFamily: t.fonts.display, fontSize: 26, lineHeight: 30, letterSpacing: 0.8, color: t.colors.text, paddingTop: 2 }}>
+          style={{ flex: 1, ...fontStyle(t.fonts.display), fontSize: 20, lineHeight: 25, letterSpacing: -0.4, color: t.colors.text }}>
           {title ?? ''}
         </AppText>
       ) : (
-        <AppText variant="h3" numberOfLines={1} style={{ flex: 1, textAlign: 'center', fontFamily: t.fonts.display }} accessibilityRole="header">
+        <AppText variant="h3" numberOfLines={1} style={{ flex: 1, textAlign: 'center', ...fontStyle(t.fonts.display) }} accessibilityRole="header">
           {title ?? ''}
         </AppText>
       )}

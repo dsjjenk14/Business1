@@ -4,7 +4,7 @@ import { Pressable, View } from 'react-native';
 
 import { AppText, type IconName } from '@/components/ui';
 import { useNewOuts } from '@/features/outs/useNewOuts';
-import { useTheme } from '@/theme';
+import { useTheme, fontStyle } from '@/theme';
 
 const TABS: Record<string, { label: string; icon: IconName; iconActive: IconName }> = {
   index: { label: 'Home', icon: 'home-outline', iconActive: 'home' },
@@ -57,10 +57,6 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
                 paddingVertical: 4,
                 minWidth: 56,
               }}>
-              {ticket && route.name !== 'outs' ? (
-                // The active tab gets a short red bar on top, like a marker on a list.
-                <View style={{ width: 18, height: 3, borderRadius: 2, marginBottom: 3, backgroundColor: focused ? t.colors.primary : 'transparent' }} />
-              ) : null}
               {route.name === 'outs' ? (
                 <View
                   style={{
@@ -87,7 +83,7 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
                 <Ionicons name={focused ? tab.iconActive : tab.icon} size={22} color={color} />
               )}
               {ticket ? (
-                <AppText style={{ color, fontFamily: t.fonts.mono, textTransform: 'uppercase', fontSize: 9.5, lineHeight: 13, letterSpacing: 0.8 }}>{tab.label}</AppText>
+                <AppText style={{ color, ...fontStyle(t.fonts.bodyMedium), fontSize: 10.5, lineHeight: 13 }}>{tab.label}</AppText>
               ) : (
                 <AppText variant="caption" weight="bold" style={{ color }}>
                   {tab.label}

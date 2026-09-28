@@ -12,7 +12,7 @@ import { playSound } from '@/features/sounds/sounds';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { clockTime, marketDayKey } from '@/lib/time';
-import { useTheme } from '@/theme';
+import { useTheme, fontStyle } from '@/theme';
 
 /** A conversation (group chats for now; direct messages arrive in Phase 5). New messages appear live. */
 export default function Chat() {
@@ -277,7 +277,7 @@ export default function Chat() {
                 borderRadius: t.radius.lg,
                 backgroundColor: t.colors.surface,
                 color: t.colors.text,
-                fontFamily: t.fonts.body,
+                ...fontStyle(t.fonts.body),
                 fontSize: 16,
               }}
             />
