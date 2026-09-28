@@ -104,7 +104,7 @@ export default function WhatsIn() {
                   <EventRow
                     key={e.id}
                     event={e}
-                    subtitle={`${e.going_count} going${e.friends_going ? ` · ${e.friends_going} you know` : ''}`}
+                    subtitle={null}
                     onIn={() => onIn(e)}
                   />
                 ))}

@@ -146,7 +146,7 @@ export default function Home() {
               <EventRow
                 key={e.id}
                 event={e}
-                subtitle={`Trending · ${e.going_count} going${e.friends_going ? ` · ${e.friends_going} you know` : ''}`}
+                subtitle="Trending"
                 onIn={() => onIn(e)}
               />
             ))}
