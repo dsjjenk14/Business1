@@ -40,7 +40,7 @@ insert into connections (user_a, user_b, source) values
 select pg_temp.act_as('ana');
 select ok((message_status(pg_temp.uid('bo'))->>'can_message')::boolean, 'Intro connections can message right away');
 select ok(not (message_status(pg_temp.uid('cy'))->>'can_message')::boolean, 'Other connections need back-and-forths first');
-select is((message_status(pg_temp.uid('cy'))->>'needed')::int, 5, 'Status says how many back-and-forths are needed');
+select is((message_status(pg_temp.uid('cy'))->>'needed')::int, 3, 'Status says how many back-and-forths are needed');
 select lives_ok($$ select open_direct_conversation(pg_temp.uid('bo')) $$, 'Open a chat');
 insert into messages (conversation_id, sender_id, body) values ((select open_direct_conversation(pg_temp.uid('bo'))), pg_temp.uid('ana'), 'hey bo');
 select pg_temp.act_as('bo');

@@ -106,7 +106,7 @@ export function MyNightOut({
   busy: boolean;
   onIn: () => void;
   onEdit: () => void;
-  onAudience: (a: 'circle' | 'network') => void;
+  onAudience: (a: 'circle' | 'network' | 'custom') => void;
 }) {
   const t = useTheme();
   const live = !!me.here_since;
@@ -154,6 +154,7 @@ export function MyNightOut({
           <View style={{ flexDirection: 'row', gap: t.space[2] }}>
             <Chip label="My Circle" selected={audience === 'circle'} onPress={() => onAudience('circle')} />
             <Chip label="My Network" selected={audience === 'network'} onPress={() => onAudience('network')} />
+            <Chip label="Only these people" selected={audience === 'custom'} onPress={() => onAudience('custom')} />
           </View>
           <AppText variant="caption" tone="subtle">
             Only the place is shown, never your exact location. Strangers never see it.

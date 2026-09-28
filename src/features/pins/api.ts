@@ -7,7 +7,9 @@ import type { Database } from '@/types/database';
 
 export type PinCategory = Database['public']['Enums']['pin_category'];
 export type PinAudience = Database['public']['Enums']['pin_audience'];
-export type FeedPin = Database['public']['Functions']['pins_feed']['Returns'][number];
+type RawFeedPin = Database['public']['Functions']['pins_feed']['Returns'][number];
+/** A pin as the feed returns it (a few columns are really optional). */
+export type FeedPin = Omit<RawFeedPin, 'my_reaction'> & { my_reaction: string | null };
 export type FeedMode = 'nearby' | 'trending' | 'community' | 'network' | 'friends' | 'bookmarks' | 'author' | 'single';
 
 export const CATEGORY_LABEL: Record<PinCategory, string> = {
@@ -38,7 +40,7 @@ export const FILTERS: { key: PinCategory | 'all'; label: string; glyph?: GlyphNa
 ];
 
 export const AUDIENCE_OPTIONS: { key: PinAudience; label: string; detail: string }[] = [
-  { key: 'everyone', label: 'Everyone', detail: "Nearby and They're In" },
+  { key: 'everyone', label: 'Everyone', detail: 'Anyone on I’m In' },
   { key: 'network', label: 'My Network', detail: 'Your 1st and 2nd degree' },
   { key: 'circle', label: 'My Circle', detail: '1st degree only' },
 ];
@@ -74,6 +76,22 @@ export async function setLiked(pinId: number, userId: string, liked: boolean) {
     ? await supabase.from('pin_likes').insert({ pin_id: pinId, user_id: userId })
     : await supabase.from('pin_likes').delete().eq('pin_id', pinId).eq('user_id', userId);
   if (error && error.code !== '23505') throw error;
+}
+
+export type Reaction = 'heart' | 'flame' | 'smile' | 'spark' | 'star';
+export const REACTIONS: { key: Reaction; label: string }[] = [
+  { key: 'heart', label: 'Love' },
+  { key: 'flame', label: 'Fire' },
+  { key: 'smile', label: 'Ha' },
+  { key: 'spark', label: 'Wow' },
+  { key: 'star', label: 'Great' },
+];
+
+/** React with one of our symbols (replaces your earlier reaction); null takes it back. Counts as a like. */
+export async function reactToPin(pinId: number, kind: Reaction | null) {
+  // null takes the reaction back (the generated type doesn't know the argument can be null).
+  const { error } = await supabase.rpc('react_to_pin', { p_pin: pinId, p_kind: kind as string });
+  if (error) throw error;
 }
 
 export async function setBookmarked(pinId: number, userId: string, bookmarked: boolean) {

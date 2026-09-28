@@ -20,7 +20,7 @@
 - [ ] **Moderation owner:** Apple expects reports to be acted on within about 24 hours. Make yourself an admin (GitHub → Actions → **Make admin**), then use **Menu → Admin → Reports**. Admins get a notification for each report.
 - [ ] **Twilio** (texts) and an **email-sending service** (Resend or SendGrid free tier). See `docs/DEPLOY.md`.
 - [ ] **Apple Developer account** ($99/year), for TestFlight and the App Store. Step-by-step: `docs/TESTFLIGHT.md`.
-- [ ] **RevenueCat** (free to start) + a $14.99/month subscription in App Store Connect, for in-app Premium. Then add `REVENUECAT_WEBHOOK_SECRET` in Supabase → Edge Functions → Secrets and point RevenueCat's webhook at `…/functions/v1/revenuecat-webhook`.
+- [ ] **Stripe account** (free to open; Stripe keeps about 2.9% + 30¢ per card payment). Turns on Premium payments and ticket sales. Step-by-step: `docs/PAYMENTS.md`.
 - [ ] **App Store privacy "nutrition label":** I'll fill in a draft from the Privacy Policy when we submit.
 
 ## Still to build before a public launch (build plan)

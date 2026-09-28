@@ -28,6 +28,7 @@ export type HomeEvent = {
   host_name: string;
   host_avatar: string | null;
   capacity: number | null;
+  ticket_price_cents: number | null;
   going_count: number;
   friends_going: number;
   i_am_going: boolean;
@@ -40,7 +41,13 @@ export type HomeFeed = {
   activity: HomeActivity[];
   group_events: HomeEvent[];
   friends_hosting: HomeEvent[];
+  /** For new members (few friends yet). Empty once you have friends. */
+  everyone_pins: FeedPin[];
+  suggested_groups: SuggestedGroup[];
+  nearby_events: HomeEvent[];
 };
+
+export type SuggestedGroup = { id: number; name: string; emoji: string; category: string; join_type: 'open' | 'request'; members: number; schedule: string | null };
 
 /** Everything Home shows, in one request. */
 export async function fetchHomeFeed(loc?: { lat: number; lng: number } | null) {

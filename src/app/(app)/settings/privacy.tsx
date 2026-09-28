@@ -51,6 +51,10 @@ export default function Privacy() {
       <BackHeader title="Privacy" />
       <Screen>
         <AppText tone="muted">Your email, phone number, birthday and exact location are never shown to anyone.</AppText>
+        <AppText variant="small" tone="subtle">
+          We count which features get used (like &quot;a pin was posted&quot;) to make I&apos;m In better. We never record what you write. Details are in
+          the Privacy Policy.
+        </AppText>
         <Section title="Who sees what">
           {OPTIONS.map((o) => (
             <View key={o.key} style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3], minHeight: 56 }}>

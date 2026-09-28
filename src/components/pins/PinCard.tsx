@@ -3,10 +3,10 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
-import { AppText, Avatar, Badge, Button, Card, Glyph, OptionsSheet, useToast } from '@/components/ui';
+import { AppText, Avatar, Badge, Button, Card, Glyph, OptionsSheet, useToast, type GlyphName } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
-import { CATEGORY_GLYPH, CATEGORY_LABEL, setBookmarked, setLiked, sharePin, type FeedPin } from '@/features/pins/api';
+import { CATEGORY_GLYPH, CATEGORY_LABEL, REACTIONS, reactToPin, setBookmarked, setLiked, sharePin, type FeedPin, type Reaction } from '@/features/pins/api';
 import { rsvp } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
@@ -85,6 +85,27 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
   const openAuthor = () => (pin.is_mine ? router.push('/profile') : router.push({ pathname: '/people/[id]', params: { id: pin.author_id } }));
 
   const [menu, setMenu] = useState(false);
+  const [picking, setPicking] = useState(false);
+
+  async function react(kind: Reaction | null) {
+    setPicking(false);
+    const was = pin;
+    const next = {
+      ...pin,
+      liked: kind != null,
+      my_reaction: kind,
+      like_count: pin.like_count + (kind != null && !pin.liked ? 1 : kind == null && pin.liked ? -1 : 0),
+      top_reactions: kind && !(pin.top_reactions ?? []).includes(kind) ? [...(pin.top_reactions ?? []), kind] : pin.top_reactions,
+    };
+    onChange?.(next);
+    try {
+      await reactToPin(pin.id, kind);
+      track('pin_reacted', { kind: kind ?? 'none' });
+    } catch {
+      onChange?.(was);
+      toast("Couldn't update. Try again.");
+    }
+  }
   const menuOptions = [
     { label: pin.bookmarked ? 'Remove bookmark' : 'Bookmark', onPress: toggleBookmark },
     { label: 'Open thread', onPress: openThread },
@@ -109,9 +130,12 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
             style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[2] }}>
             <Avatar name={pin.author_name} uri={pin.author_avatar} size={40} />
             <View style={{ flex: 1 }}>
-              <AppText weight="bold" numberOfLines={1}>
-                {pin.is_mine ? 'You' : pin.author_name}
-              </AppText>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <AppText weight="bold" numberOfLines={1} style={{ flexShrink: 1 }}>
+                  {pin.is_mine ? 'You' : pin.author_name}
+                </AppText>
+                {pin.author_verified ? <Ionicons name="checkmark-circle" size={15} color={t.colors.trust} accessibilityLabel="Verified" /> : null}
+              </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 <Glyph name={CATEGORY_GLYPH[pin.category]} size={12} tone={CATEGORY_TONE[pin.category]} strokeWidth={2} />
                 <AppText variant="caption" tone="subtle" numberOfLines={1} style={{ flex: 1 }}>
@@ -143,6 +167,24 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
           <EventStrip pin={pin} onChange={onChange} />
         ) : null}
 
+        {picking ? (
+          <View accessibilityRole="menu" style={{ flexDirection: 'row', alignSelf: 'flex-start', gap: t.space[1], padding: t.space[1], borderRadius: t.radius.pill, backgroundColor: t.colors.surfaceAlt }}>
+            {REACTIONS.map((r) => {
+              const mine = pin.my_reaction === r.key;
+              return (
+                <Pressable
+                  key={r.key}
+                  accessibilityRole="menuitem"
+                  accessibilityLabel={`${r.label}${mine ? ', your reaction' : ''}`}
+                  onPress={() => react(mine ? null : r.key)}
+                  style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: mine ? t.colors.surface : 'transparent' }}>
+                  <Glyph name={r.key} size={24} color={r.key === 'heart' ? t.colors.primary : t.colors.sponsored} />
+                </Pressable>
+              );
+            })}
+          </View>
+        ) : null}
+
         <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: -t.space[2] }}>
           <Action
             icon={pin.liked ? 'heart' : 'heart-outline'}
@@ -150,7 +192,18 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
             label={String(pin.like_count)}
             a11y={pin.liked ? `Unlike. ${pin.like_count} likes` : `Like. ${pin.like_count} likes`}
             onPress={toggleLike}
+            onLongPress={() => setPicking(true)}
           />
+          <Pressable accessibilityRole="button" accessibilityLabel="React" onPress={() => setPicking((v) => !v)} hitSlop={6} style={{ minHeight: 40, minWidth: 36, flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+            {(pin.top_reactions ?? []).filter((k) => k !== 'heart').length ? (
+              (pin.top_reactions ?? [])
+                .filter((k) => k !== 'heart')
+                .slice(0, 2)
+                .map((k) => <Glyph key={k} name={k as GlyphName} size={16} color={t.colors.sponsored} />)
+            ) : (
+              <Glyph name="smile" size={18} color={t.colors.textMuted} />
+            )}
+          </Pressable>
           <Action icon="chatbubble-outline" color={t.colors.textMuted} label={String(pin.reply_count)} a11y={`${pin.reply_count} replies. Open thread`} onPress={openThread} />
           <Action icon="share-outline" color={t.colors.textMuted} a11y="Share" onPress={() => sharePin(pin)} />
           <View style={{ flex: 1 }} />
@@ -167,13 +220,28 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
   );
 }
 
-function Action({ icon, color, label, a11y, onPress }: { icon: React.ComponentProps<typeof Ionicons>['name']; color: string; label?: string; a11y: string; onPress: () => void }) {
+function Action({
+  icon,
+  color,
+  label,
+  a11y,
+  onPress,
+  onLongPress,
+}: {
+  icon: React.ComponentProps<typeof Ionicons>['name'];
+  color: string;
+  label?: string;
+  a11y: string;
+  onPress: () => void;
+  onLongPress?: () => void;
+}) {
   const t = useTheme();
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={a11y}
       onPress={onPress}
+      onLongPress={onLongPress}
       hitSlop={4}
       style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 5, minHeight: 40, minWidth: 44, paddingHorizontal: t.space[2], opacity: pressed ? 0.6 : 1 })}>
       <Ionicons name={icon} size={20} color={color} />
@@ -208,7 +276,8 @@ function EventStrip({ pin, onChange }: { pin: FeedPin; onChange?: (pin: FeedPin)
       track('event_im_in', { from: 'post' });
       enableArrivalWatch();
     } catch (e) {
-      toast(friendlyError(e));
+      if (/ticketed/i.test(friendlyError(e))) router.push({ pathname: '/events/[id]', params: { id: String(pin.event_id) } });
+      else toast(friendlyError(e));
     } finally {
       setBusy(false);
     }

@@ -5,6 +5,78 @@
 
 ---
 
+## ✅ Payments: Premium and ticket sales (built; off until Stripe is connected)
+**Circles stays Circles.** The tester round renamed it to "Friends"; that's undone everywhere (the tab, the menu, posts, I'm In, profiles, search, events). The other tester-round changes stay.
+
+**Premium**
+- The Premium screen has **Get Premium · $14.99/month**. It opens Stripe's secure checkout (card details never touch our app or servers).
+- Subscribers see **Manage or cancel**, which opens Stripe's page to change the card or cancel.
+- A Founding Member's free months are never shortened by paying.
+
+**Selling tickets (I'm In keeps 12%)**
+- **Settings → Payouts:** a host connects a payout account through Stripe (name, date of birth, bank account). Then they can sell tickets.
+- **New event** and the **event page:** the host adds a ticket price (up to $500). The host sees "You get $22 per ticket" on a $25 ticket.
+- Guests tap **Get ticket · $25**. Once paid, they're on the list and both sides get a notification. Paid events can't be joined for free.
+- The host sees **who bought** and can **Refund** anyone in full (including the 12%). The guest is taken off the list and told.
+- If an event fills up while someone is paying, they're **refunded automatically**.
+- **Settings → My tickets** lists what you've bought. **Admin → Ticket fees** shows what I'm In earned each month.
+- The 12% is one setting (`platform_fee_percent`), changeable without an app update.
+
+**Costs:** Stripe charges about 2.9% + 30¢ per card payment, and nothing monthly. On tickets that comes out of I'm In's 12%.
+
+**To turn it on:** create a Stripe account and follow `docs/PAYMENTS.md` (about 30 minutes). Until then, pay buttons say "Payments aren't turned on yet."
+
+Migration 027, test file 015. **All 301 database tests pass.** Also checked:
+- Stripe's messages to the app, sent signed on this computer. A forged one is rejected. A paid ticket is recorded and the guest added. Premium is extended. A sold-out ticket is sent for a refund.
+- Browser tests: buying a ticket and Premium with payments off, the host's view with ticket holders and Refund, and the Payouts screen.
+
+---
+
+## ✅ Tester round: changes from 10 testers (ages 21–45)
+**New members don't hit a wall anymore**
+- A **welcome tour** runs once: 4 short cards (what I'm In is, Pins, Friends and vouches, I'm In), then **Pick your look** (Dark or Light).
+- **Home for newcomers** (fewer than 3 friends): "Add friends" tips, **Popular on I'm In** (posts from everyone), **Groups to join** (one-tap Join), and **Events near you**. These disappear once you have friends.
+- **Messaging unlocks after 3 back-and-forths** on pins (was 5). Intros still unlock it right away.
+
+**Plain words** (undone at your request: it's Circles again)
+- "Circles" was renamed **Friends** (the tab, the menu, the screen).
+- "My Circle / Network" is now **Friends / Friends of friends** everywhere: posts, I'm In, profiles, search, events.
+- "1st degree / 2nd degree" is now **Friend / Friend of a friend**.
+- Profile stats are **Vouches · Friends · Followers**.
+
+**Location, your call**
+- When you post I'm In tonight, you pick **who sees that you're there**: Friends, Friends of friends, or **Only these people** (you choose from your friends). It's also on your night-out card on Tonight.
+- Before the phone asks for **"Always" location**, the app explains in plain words why, and what happens if you say no.
+- **Default distance is 25 miles** (the slider still goes to 75). The map uses 25 too.
+
+**Hosts and groups**
+- **Event waitlists:** when an event is full, tap **Join the waitlist**. If someone drops out, the next person in line gets the spot automatically and gets a notification. Full events on Home show a Waitlist button.
+- **Group announcements:** the owner and co-hosts can pin a message to the group, and every member gets a notification. Only members can see it.
+- **Co-hosts:** the owner can make any member a co-host (the "…" next to their name), or undo it.
+
+**Everyday polish**
+- **Reactions** with our own symbols: Love, Fire, Ha, Wow, Great. Tap the heart to like; tap the smile (or hold the heart) to pick a reaction. The top reactions show on each post.
+- **Verified check** next to names on posts.
+- **Tonight filters:** chips for Dinner, Drinks, Music, Brunch and more.
+- **Quieter notifications for new members:** "people joining your plans" starts off (turn it on in Settings → Notifications).
+- The **Privacy screen and Privacy Policy** now explain the usage counts, and the location section now covers "marked there automatically".
+
+**Not done (needs your decision):**
+- Shareable **web links** for profiles and events need a website domain (about $12/year) and hosting. Links only open in the app for now.
+- **Video posts**.
+- **Premium price** (3 testers said $14.99 is high; it's a pricing choice for you, and one setting: `premium_price_cents`).
+
+Migration 026, test file 014. **All 274 database tests pass.** Browser tests passed for:
+- signing up as a brand-new member, the tour, and the light look
+- the new-member Home, and joining a group from it
+- the Friends tab
+- Tonight filters and "Only these people"
+- reactions
+- joining a waitlist
+- posting an announcement, and making a co-host
+
+The accessibility check is clean on 9 screens.
+
 ## ✅ Home, simplified (Dominique: "That's it")
 Home now shows four things and nothing else:
 1. **Your friends' pins.** Pins from your circle and people you follow; not yours, not strangers'. The first 5 show, then "Show more".
@@ -413,6 +485,8 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 ## Decisions log
 | Date | Decision | Why |
 |---|---|---|
+| 2026-09-28 | Plain names: Friends / Friends of friends (not Circle / Network / degrees) | Tester round: jargon confused new users |
+| 2026-09-28 | Messaging unlocks after 3 back-and-forths (was 5); default radius 25 mi | Tester round |
 | 2026-09-28 | Home = people row + Friends/Everyone + one mixed feed; Messages becomes a tab; badges are dots | Product review (PM, dev, UX, two creators); Dominique approved all changes |
 | 2026-09-28 | Follow is public-posts-only: never unlocks messaging, vouches or circle posts | Keeps the circle meaningful while letting creators grow |
 | 2026-09-28 | Radius slider back: 1 to 75 miles for everyone | Dominique |

@@ -385,15 +385,65 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"events": {
+                },"event_tickets": {
                   Row: {
-                    "approx_location": unknown,"capacity": number | null,"created_at": string,"description": string,"emoji": string | null,"ends_at": string | null,"group_id": number | null,"host_id": string,"id": number,"is_recurring": boolean,"place_text": string | null,"starts_at": string,"title": string,"venue_id": number | null
+                    "amount_cents": number,"created_at": string,"event_id": number,"fee_cents": number,"id": number,"status": string,"stripe_payment_intent": string | null,"stripe_session_id": string,"user_id": string
                   }
                   Insert: {
-                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"group_id"?: number | null,"host_id": string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"starts_at": string,"title": string,"venue_id"?: number | null
+                    "amount_cents": number,"created_at"?: string,"event_id": number,"fee_cents": number,"id"?: number,"status"?: string,"stripe_payment_intent"?: string | null,"stripe_session_id": string,"user_id": string
                   }
                   Update: {
-                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"group_id"?: number | null,"host_id"?: string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"starts_at"?: string,"title"?: string,"venue_id"?: number | null
+                    "amount_cents"?: number,"created_at"?: string,"event_id"?: number,"fee_cents"?: number,"id"?: number,"status"?: string,"stripe_payment_intent"?: string | null,"stripe_session_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "event_tickets_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "event_tickets_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"event_waitlist": {
+                  Row: {
+                    "created_at": string,"event_id": number,"user_id": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"event_id": number,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"event_id"?: number,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "event_waitlist_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "event_waitlist_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"events": {
+                  Row: {
+                    "approx_location": unknown,"capacity": number | null,"created_at": string,"description": string,"emoji": string | null,"ends_at": string | null,"group_id": number | null,"host_id": string,"id": number,"is_recurring": boolean,"place_text": string | null,"starts_at": string,"ticket_price_cents": number | null,"title": string,"venue_id": number | null
+                  }
+                  Insert: {
+                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"group_id"?: number | null,"host_id": string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"starts_at": string,"ticket_price_cents"?: number | null,"title": string,"venue_id"?: number | null
+                  }
+                  Update: {
+                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"group_id"?: number | null,"host_id"?: string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"starts_at"?: string,"ticket_price_cents"?: number | null,"title"?: string,"venue_id"?: number | null
                   }
                   Relationships: [
                     {
@@ -497,6 +547,31 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"going_out_viewers": {
+                  Row: {
+                    "post_id": number,"user_id": string
+                  }
+                  Insert: {
+                    "post_id": number,"user_id": string
+                  }
+                  Update: {
+                    "post_id"?: number,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "going_out_viewers_post_id_fkey"
+      columns: ["post_id"]
+isOneToOne: false
+      referencedRelation: "going_out_posts"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "going_out_viewers_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"group_invites": {
                   Row: {
                     "created_at": string,"group_id": number,"invited_by": string,"user_id": string
@@ -586,16 +661,22 @@ isOneToOne: false
                   ]
                 },"groups": {
                   Row: {
-                    "category": string,"city_id": number | null,"created_at": string,"description": string,"emoji": string,"id": number,"join_type": Database["public"]['Enums']["join_type"],"name": string,"owner_id": string,"schedule_label": string | null
+                    "announcement": string | null,"announcement_at": string | null,"announcement_by": string | null,"category": string,"city_id": number | null,"created_at": string,"description": string,"emoji": string,"id": number,"join_type": Database["public"]['Enums']["join_type"],"name": string,"owner_id": string,"schedule_label": string | null
                   }
                   Insert: {
-                    "category": string,"city_id"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string,"id"?: number,"join_type"?: Database["public"]['Enums']["join_type"],"name": string,"owner_id": string,"schedule_label"?: string | null
+                    "announcement"?: string | null,"announcement_at"?: string | null,"announcement_by"?: string | null,"category": string,"city_id"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string,"id"?: number,"join_type"?: Database["public"]['Enums']["join_type"],"name": string,"owner_id": string,"schedule_label"?: string | null
                   }
                   Update: {
-                    "category"?: string,"city_id"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string,"id"?: number,"join_type"?: Database["public"]['Enums']["join_type"],"name"?: string,"owner_id"?: string,"schedule_label"?: string | null
+                    "announcement"?: string | null,"announcement_at"?: string | null,"announcement_by"?: string | null,"category"?: string,"city_id"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string,"id"?: number,"join_type"?: Database["public"]['Enums']["join_type"],"name"?: string,"owner_id"?: string,"schedule_label"?: string | null
                   }
                   Relationships: [
                     {
+      foreignKeyName: "groups_announcement_by_fkey"
+      columns: ["announcement_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "groups_city_id_fkey"
       columns: ["city_id"]
 isOneToOne: false
@@ -815,6 +896,44 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"payment_customers": {
+                  Row: {
+                    "stripe_customer_id": string,"user_id": string
+                  }
+                  Insert: {
+                    "stripe_customer_id": string,"user_id": string
+                  }
+                  Update: {
+                    "stripe_customer_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payment_customers_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"payout_accounts": {
+                  Row: {
+                    "charges_enabled": boolean,"payouts_enabled": boolean,"stripe_account_id": string,"updated_at": string,"user_id": string
+                  }
+                  Insert: {
+                    "charges_enabled"?: boolean,"payouts_enabled"?: boolean,"stripe_account_id": string,"updated_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "charges_enabled"?: boolean,"payouts_enabled"?: boolean,"stripe_account_id"?: string,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payout_accounts_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"phone_verifications": {
                   Row: {
                     "attempts": number,"code_hash": string,"created_at": string,"expires_at": string,"id": number,"phone": string,"user_id": string,"verified_at": string | null
@@ -861,13 +980,13 @@ isOneToOne: false
                   ]
                 },"pin_likes": {
                   Row: {
-                    "created_at": string,"pin_id": number,"user_id": string
+                    "created_at": string,"kind": string,"pin_id": number,"user_id": string
                   }
                   Insert: {
-                    "created_at"?: string,"pin_id": number,"user_id": string
+                    "created_at"?: string,"kind"?: string,"pin_id": number,"user_id": string
                   }
                   Update: {
-                    "created_at"?: string,"pin_id"?: number,"user_id"?: string
+                    "created_at"?: string,"kind"?: string,"pin_id"?: number,"user_id"?: string
                   }
                   Relationships: [
                     {
@@ -1433,6 +1552,11 @@ isOneToOne: false
               "about": string,"admin_notes": string,"content": string,"created_at": string,"details": string,"hidden": boolean,"id": number,"message_id": number,"pin_id": number,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number,"reported_id": string,"reported_name": string,"reporter_name": string,"reports_on_target": number,"status": Database["public"]['Enums']["report_status"]
             }[]
                            },
+"admin_revenue":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "fee_cents": number,"gross_cents": number,"month": string,"tickets": number
+            }[]
+                           },
 "admin_review_verification":
 { Args: { "p_approve": boolean,"p_note"?: string,"p_request": number }; Returns: undefined
                            },
@@ -1537,6 +1661,11 @@ isOneToOne: false
 "event_detail":
 { Args: { "p_event": number }; Returns: Json
                            },
+"event_ticket_holders":
+{ Args: { "p_event": number }; Returns: {
+              "amount_cents": number,"bought_at": string,"display_name": string,"status": string,"ticket_id": number,"user_id": string
+            }[]
+                           },
 "featured_places":
 { Args: { "p_lat"?: number,"p_lng"?: number }; Returns: {
               "category": string,"distance_mi": number,"ends_at": string,"glyph": string,"kind": string,"name": string,"neighborhood": string,"network_visited": number,"perk": string,"perk_details": string,"placement_id": number,"price_level": number,"venue_id": number
@@ -1562,11 +1691,17 @@ isOneToOne: false
 "going_out_feed":
 { Args: { "p_lat"?: number,"p_lng"?: number,"p_radius_mi"?: number,"p_when": string }; Returns: Json
                            },
+"group_announcement":
+{ Args: { "p_group": number }; Returns: Json
+                           },
 "group_detail":
 { Args: { "p_group": number }; Returns: Json
                            },
 "groups_overview":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"here_viewers":
+{ Args: { "p_post": number }; Returns: (string)[]
                            },
 "home_feed":
 { Args: { "p_lat"?: number,"p_lng"?: number,"p_scope"?: string }; Returns: Json
@@ -1591,11 +1726,17 @@ isOneToOne: false
 "join_group":
 { Args: { "p_group": number }; Returns: string
                            },
+"join_waitlist":
+{ Args: { "p_event": number }; Returns: number
+                           },
 "leave_group":
 { Args: { "p_group": number }; Returns: undefined
                            },
 "leave_group_chat":
 { Args: { "p_conv": number }; Returns: undefined
+                           },
+"leave_waitlist":
+{ Args: { "p_event": number }; Returns: undefined
                            },
 "make_intro":
 { Args: { "p_a": string,"p_b": string,"p_message": string,"p_request"?: number }; Returns: number
@@ -1627,6 +1768,9 @@ isOneToOne: false
 "my_intros":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"my_payout_status":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "my_plan":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
@@ -1638,6 +1782,11 @@ isOneToOne: false
 "my_reports":
 { Args: Record<PropertyKey, never>; Returns: {
               "about": string,"created_at": string,"id": number,"reason": Database["public"]['Enums']["report_reason"],"reported_name": string,"status": Database["public"]['Enums']["report_status"]
+            }[]
+                           },
+"my_tickets":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "amount_cents": number,"bought_at": string,"event_id": number,"place": string,"starts_at": string,"status": string,"ticket_id": number,"title": string
             }[]
                            },
 "my_verification":
@@ -1659,7 +1808,7 @@ isOneToOne: false
                            },
 "pins_feed":
 { Args: { "p_author"?: string,"p_before"?: string,"p_category"?: Database["public"]['Enums']["pin_category"],"p_lat"?: number,"p_limit"?: number,"p_lng"?: number,"p_mode": string,"p_pin"?: number,"p_radius_mi"?: number }; Returns: {
-              "audience": Database["public"]['Enums']["pin_audience"],"author_avatar": string,"author_emoji": string,"author_id": string,"author_name": string,"author_verified": boolean,"author_vouches": number,"body": string,"bookmarked": boolean,"category": Database["public"]['Enums']["pin_category"],"city_name": string,"created_at": string,"distance_mi": number,"edited_at": string,"event_going_count": number,"event_i_am_going": boolean,"event_id": number,"event_starts_at": string,"event_title": string,"id": number,"is_mine": boolean,"like_count": number,"liked": boolean,"photo_paths": (string)[],"place_label": string,"reply_count": number
+              "audience": Database["public"]['Enums']["pin_audience"],"author_avatar": string,"author_emoji": string,"author_id": string,"author_name": string,"author_verified": boolean,"author_vouches": number,"body": string,"bookmarked": boolean,"category": Database["public"]['Enums']["pin_category"],"city_name": string,"created_at": string,"distance_mi": number,"edited_at": string,"event_going_count": number,"event_i_am_going": boolean,"event_id": number,"event_starts_at": string,"event_title": string,"id": number,"is_mine": boolean,"like_count": number,"liked": boolean,"my_reaction": string,"photo_paths": (string)[],"place_label": string,"reply_count": number,"top_reactions": (string)[]
             }[]
                            },
 "plan_limit":
@@ -1667,6 +1816,9 @@ isOneToOne: false
                            },
 "post_going_out":
 { Args: { "p_lat"?: number,"p_lng"?: number,"p_note"?: string,"p_place"?: string,"p_starts_at"?: string,"p_venue_id"?: number,"p_vibes"?: (string)[],"p_when": Database["public"]['Enums']["going_out_when"] }; Returns: number
+                           },
+"post_group_announcement":
+{ Args: { "p_group": number,"p_text": string }; Returns: undefined
                            },
 "post_recap":
 { Args: { "p_body": string,"p_event": number,"p_tags"?: (string)[] }; Returns: number
@@ -1685,6 +1837,9 @@ isOneToOne: false
                            },
 "raise_safety_alert":
 { Args: { "p_lat"?: number,"p_level": Database["public"]['Enums']["safety_level"],"p_lng"?: number }; Returns: Json
+                           },
+"react_to_pin":
+{ Args: { "p_kind": string,"p_pin": number }; Returns: undefined
                            },
 "record_communication":
 { Args: { "p_from": string,"p_to": string }; Returns: undefined
@@ -1747,11 +1902,20 @@ isOneToOne: false
 "set_checkin_interval":
 { Args: { "p_minutes": number }; Returns: undefined
                            },
+"set_group_role":
+{ Args: { "p_group": number,"p_role": Database["public"]['Enums']["group_role"],"p_user": string }; Returns: undefined
+                           },
 "set_here_audience":
 { Args: { "p_audience": string,"p_post": number }; Returns: undefined
                            },
+"set_here_viewers":
+{ Args: { "p_post": number,"p_viewers": (string)[] }; Returns: number
+                           },
 "set_open_to_join":
 { Args: { "p_open": boolean,"p_post": number }; Returns: undefined
+                           },
+"set_ticket_price":
+{ Args: { "p_cents": number,"p_event": number }; Returns: undefined
                            },
 "share_event":
 { Args: { "p_audience"?: Database["public"]['Enums']["pin_audience"],"p_event": number,"p_note"?: string }; Returns: number
@@ -1773,6 +1937,33 @@ isOneToOne: false
                            },
 "start_date_mode":
 { Args: { "p_accuracy_m"?: number,"p_lat": number,"p_lng": number,"p_partner": string }; Returns: number
+                           },
+"stripe_account_updated":
+{ Args: { "p_account": string,"p_charges": boolean,"p_payouts": boolean }; Returns: undefined
+                           },
+"stripe_checkout_check":
+{ Args: { "p_event": number,"p_user": string }; Returns: Json
+                           },
+"stripe_payout_account_set":
+{ Args: { "p_account": string,"p_user": string }; Returns: undefined
+                           },
+"stripe_premium_ended":
+{ Args: { "p_user": string }; Returns: undefined
+                           },
+"stripe_premium_paid":
+{ Args: { "p_until": string,"p_user": string }; Returns: string
+                           },
+"stripe_refund_check":
+{ Args: { "p_host": string,"p_ticket": number }; Returns: Json
+                           },
+"stripe_set_customer":
+{ Args: { "p_customer": string,"p_user": string }; Returns: undefined
+                           },
+"stripe_ticket_paid":
+{ Args: { "p_amount": number,"p_event": number,"p_fee": number,"p_payment_intent": string,"p_session": string,"p_user": string }; Returns: string
+                           },
+"stripe_ticket_refunded":
+{ Args: { "p_payment_intent": string }; Returns: undefined
                            },
 "submit_partner_inquiry":
 { Args: { "p_address"?: string,"p_business": string,"p_contact": string,"p_email": string,"p_message"?: string,"p_phone"?: string }; Returns: number

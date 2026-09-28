@@ -2,7 +2,7 @@ import { isRunningInExpoGo } from 'expo';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import * as TaskManager from 'expo-task-manager';
-import { Platform } from 'react-native';
+import { Alert, Platform } from 'react-native';
 
 import { autoArrive, fetchArrivalRegions } from './api';
 
@@ -70,9 +70,32 @@ export async function enableArrivalWatch() {
     const fg = await Location.requestForegroundPermissionsAsync();
     if (fg.status !== 'granted') return;
     const bg = await Location.getBackgroundPermissionsAsync();
-    if (bg.status !== 'granted' && bg.canAskAgain) await Location.requestBackgroundPermissionsAsync();
+    if (bg.status !== 'granted' && bg.canAskAgain) {
+      // Say why before the phone asks, and what happens if they say no.
+      const ok = await explain(
+        'Mark you there automatically?',
+        'If you allow "Always", your phone notices when you arrive at this event, even with I’m In closed, and marks you there for the people you chose. It only watches the places you said I’m In to, never anywhere else, and your exact location is never shown.',
+        'Continue',
+        'Not now',
+      );
+      if (!ok) return;
+      const res = await Location.requestBackgroundPermissionsAsync();
+      if (res.status !== 'granted') {
+        await explain('No problem', 'You’ll still be marked there whenever I’m In is open when you arrive. You can change this any time in your phone’s Settings.', 'OK');
+        return;
+      }
+    }
     await syncArrivalGeofences();
   } catch {
     // Ignore: arrival still works while the app is open.
   }
+}
+
+/** A native pop-up; resolves true for the main button. */
+function explain(title: string, body: string, yes: string, no?: string) {
+  return new Promise<boolean>((resolve) => {
+    Alert.alert(title, body, [...(no ? [{ text: no, style: 'cancel' as const, onPress: () => resolve(false) }] : []), { text: yes, onPress: () => resolve(true) }], {
+      cancelable: false,
+    });
+  });
 }

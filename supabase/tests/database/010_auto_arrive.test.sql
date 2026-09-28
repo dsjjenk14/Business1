@@ -30,7 +30,7 @@ insert into t values ('al', pg_temp.new_user('al10@test.dev', 'Al Ten')),
 -- ── 75 miles for everyone ────────────────────────────────────────────────
 select is((select free_value from plan_limits where key = 'search_radius_mi'), 75::numeric, 'Free plan searches 75 miles');
 select is((select premium_value from plan_limits where key = 'search_radius_mi'), 75::numeric, 'Premium is the same 75 miles');
-select is((select radius_mi from user_settings where user_id = pg_temp.uid('al'))::numeric, 75::numeric, 'New members start at 75 miles');
+select is((select radius_mi from user_settings where user_id = pg_temp.uid('al'))::numeric, 25::numeric, 'New members start at 25 miles (the slider goes to 75)');
 
 -- ── Event arrival ────────────────────────────────────────────────────────
 insert into venues (name, neighborhood, location, category)

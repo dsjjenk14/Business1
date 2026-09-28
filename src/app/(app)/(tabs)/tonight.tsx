@@ -4,7 +4,7 @@ import { RefreshControl, ScrollView, View } from 'react-native';
 
 import { RadiusControl } from '@/components/pins/RadiusControl';
 import { EmptyCard, EventCard, GoingOutPersonRow, MyNightOut } from '@/components/tonight/GoingOutList';
-import { AppText, Button, Card, IconButton, LoadingList, Section, Segmented, useToast } from '@/components/ui';
+import { AppText, Button, Card, Chip, IconButton, LoadingList, Section, Segmented, useToast } from '@/components/ui';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { preciseLocation } from '@/features/circles/api';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
@@ -16,12 +16,13 @@ import {
   rsvp,
   setHereAudience,
   type Company,
+  VIBES,
   type FeedEvent,
   type FeedPerson,
   type GoingOutFeed,
 } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
-import { SEARCH_RADIUS_MI } from '@/lib/radius';
+import { DEFAULT_RADIUS_MI, SEARCH_RADIUS_MI } from '@/lib/radius';
 import { friendlyError } from '@/lib/supabase';
 import { dayTime } from '@/lib/time';
 import { useTheme } from '@/theme';
@@ -48,8 +49,9 @@ export default function Tonight() {
   const [busy, setBusy] = useState(false);
   const requestId = useRef(0);
 
-  const [radius, setRadius] = useState(SEARCH_RADIUS_MI);
-  const [effectiveRadius, setEffectiveRadius] = useState(SEARCH_RADIUS_MI);
+  const [radius, setRadius] = useState(DEFAULT_RADIUS_MI);
+  const [effectiveRadius, setEffectiveRadius] = useState(DEFAULT_RADIUS_MI);
+  const [vibe, setVibe] = useState<string | null>(null);
   const weekend = tab === 'weekend';
 
   const load = useCallback(async () => {
@@ -92,11 +94,13 @@ export default function Tonight() {
       enableArrivalWatch();
       load();
     } catch (err) {
-      toast(friendlyError(err));
+      // Ticketed event: go to the event page to buy a ticket.
+      if (/ticketed/i.test(friendlyError(err))) router.push({ pathname: '/events/[id]', params: { id: String(e.id) } });
+      else toast(friendlyError(err));
     }
   }
 
-  const people = (feed?.people ?? []).filter((p) => !p.is_me);
+  const people = (feed?.people ?? []).filter((p) => !p.is_me && (!vibe || (p.vibes ?? []).includes(vibe)));
   const mine = feed?.people.find((p) => p.is_me);
   const editMine = () => router.push({ pathname: '/tonight/post', params: mine ? { when: mine.when_kind } : {} });
 
@@ -113,11 +117,15 @@ export default function Tonight() {
     }
   }
 
-  const audienceLabel = (a: string | null | undefined) => (a === 'network' ? 'your network' : 'your circle');
+  const audienceLabel = (a: string | null | undefined) => (a === 'network' ? 'your network' : a === 'custom' ? 'the people you picked' : 'your circle');
   const onIn = () =>
     act(async () => imHere(await preciseLocation().catch(() => location)), `Marked you there. Only ${audienceLabel(mine?.here_audience)} can see it.`);
-  const onAudience = (a: 'circle' | 'network') =>
-    mine ? act(() => setHereAudience(mine.post_id, a), a === 'network' ? 'Your network can see when you’re there' : 'Only your circle can see when you’re there') : undefined;
+  const onAudience = (a: 'circle' | 'network' | 'custom') =>
+    a === 'custom'
+      ? editMine()
+      : mine
+        ? act(() => setHereAudience(mine.post_id, a), a === 'network' ? 'Your network can see when you’re there' : 'Only your circle can see when you’re there')
+        : undefined;
   const onJoin = (p: FeedPerson, status: 'heading' | null) =>
     act(() => joinGoingOut(p.post_id, status), status ? `${p.display_name.split(' ')[0]} knows you’re joining` : 'Cancelled');
 
@@ -151,6 +159,14 @@ export default function Tonight() {
         value={tab}
         onChange={changeTab}
       />
+
+      {/* Filter people by what they're up to (dinner, drinks, music…). */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: t.space[2] }}>
+        <Chip label="All" selected={vibe === null} onPress={() => setVibe(null)} />
+        {VIBES.map((v) => (
+          <Chip key={v.key} label={v.label} glyph={v.glyph} selected={vibe === v.key} onPress={() => setVibe(vibe === v.key ? null : v.key)} />
+        ))}
+      </ScrollView>
 
       {error ? (
         <AppText tone="danger" align="center">

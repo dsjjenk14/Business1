@@ -2,7 +2,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 
-import { ActivityRow, EventRow } from '@/components/home/HomeParts';
+import { ActivityRow, EventRow, GroupSuggestion } from '@/components/home/HomeParts';
 import { PinCard } from '@/components/pins/PinCard';
 import { AppText, Button, Card, EmptyState, LoadingList, Section, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
@@ -10,6 +10,7 @@ import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { cacheHome, fetchHomeFeed, readCachedHome, type HomeEvent, type HomeFeed } from '@/features/home/api';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { useFirstWeekChecklist } from '@/features/onboarding/useFirstWeekChecklist';
+import { welcomeSeen } from '@/features/onboarding/welcome';
 import type { FeedPin } from '@/features/pins/api';
 import { rsvp } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
@@ -39,13 +40,16 @@ export default function Home() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(false);
 
-  // First-week checklist pops up once after first login, until dismissed.
+  // First time on this phone: the welcome tour, then the first-week checklist
+  // (until it's dismissed).
   useEffect(() => {
-    if (dismissed === false && !shownChecklist.current) {
-      shownChecklist.current = true;
-      router.push('/checklist');
-    }
-  }, [dismissed, router]);
+    if (!me || dismissed === null || shownChecklist.current) return;
+    shownChecklist.current = true;
+    welcomeSeen(me).then((seen) => {
+      if (!seen) router.push({ pathname: '/welcome', params: dismissed === false ? { then: 'checklist' } : {} });
+      else if (dismissed === false) router.push('/checklist');
+    });
+  }, [me, dismissed, router]);
 
   const load = useCallback(async () => {
     if (!me) return;
@@ -98,6 +102,8 @@ export default function Home() {
   }
 
   const updatePin = (next: FeedPin) => setFeed((f) => (f ? { ...f, pins: f.pins.map((p) => (p.id === next.id ? next : p)) } : f));
+  const updateEveryonePin = (next: FeedPin) =>
+    setFeed((f) => (f ? { ...f, everyone_pins: f.everyone_pins.map((p) => (p.id === next.id ? next : p)) } : f));
 
   if (!feed) {
     return (
@@ -120,7 +126,7 @@ export default function Home() {
             <View style={{ gap: t.space[2] }}>
               <AppText variant="small" tone="muted">
                 {feed.friend_count === 0
-                  ? 'Add friends to see their pins here.'
+                  ? 'Add friends to see their pins here. Scan each other’s code when you’re together, or send a code to someone you know.'
                   : 'Your friends haven’t posted lately. Post something to get it going.'}
               </AppText>
               <Button
@@ -142,6 +148,39 @@ export default function Home() {
           </View>
         )}
       </Section>
+
+      {/* New members: something to do until friends arrive. */}
+      {feed.everyone_pins?.length ? (
+        <Section title="Popular on I’m In" action={{ label: 'More', onPress: () => router.push('/pins') }}>
+          <View style={{ gap: t.space[3] }}>
+            {feed.everyone_pins.slice(0, 3).map((p) => (
+              <PinCard key={p.id} pin={p} onChange={updateEveryonePin} />
+            ))}
+          </View>
+        </Section>
+      ) : null}
+      {feed.suggested_groups?.length ? (
+        <Section title="Groups to join" action={{ label: 'All groups', onPress: () => router.push({ pathname: '/circles', params: { tab: 'groups' } }) }}>
+          <Card>
+            <View style={{ gap: t.space[2] }}>
+              {feed.suggested_groups.map((g) => (
+                <GroupSuggestion key={g.id} group={g} onJoined={load} />
+              ))}
+            </View>
+          </Card>
+        </Section>
+      ) : null}
+      {feed.nearby_events?.length ? (
+        <Section title="Events near you">
+          <Card>
+            <View style={{ gap: t.space[2] }}>
+              {feed.nearby_events.map((e) => (
+                <EventRow key={e.id} event={e} subtitle={`${e.host_name.split(' ')[0]} is hosting`} onIn={() => onIn(e)} />
+              ))}
+            </View>
+          </Card>
+        </Section>
+      ) : null}
 
       {/* 2. Likes and replies people sent you */}
       <Section title="Likes and replies">

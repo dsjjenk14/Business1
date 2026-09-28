@@ -18,6 +18,15 @@ export type EventDetail = {
   i_am_going: boolean;
   /** The phone's GPS showed you at the event (marked automatically). */
   i_am_here: boolean;
+  ticket_price_cents: number | null;
+  has_ticket: boolean;
+  /** Host only. */
+  tickets_sold: number | null;
+  /** Host only: payouts are set up, so a ticket price can be added. */
+  host_can_sell: boolean | null;
+  on_waitlist: boolean;
+  waitlist_position: number | null;
+  waitlist_count: number;
   going_count: number;
   going: (PersonLite & { degree: number })[];
   has_recap: boolean;
@@ -91,4 +100,16 @@ export function checkInOpen(e: Pick<EventDetail, 'starts_at' | 'ends_at'>, now =
   const start = new Date(e.starts_at).getTime();
   const end = e.ends_at ? new Date(e.ends_at).getTime() : start + 3 * 3600_000;
   return now >= start - 3600_000 && now <= end + 3 * 3600_000;
+}
+
+/** Full event: get in line. When someone drops out, the first person in line gets the spot automatically. */
+export async function joinWaitlist(eventId: number) {
+  const { data, error } = await supabase.rpc('join_waitlist', { p_event: eventId });
+  if (error) throw error;
+  return data as number;
+}
+
+export async function leaveWaitlist(eventId: number) {
+  const { error } = await supabase.rpc('leave_waitlist', { p_event: eventId });
+  if (error) throw error;
 }

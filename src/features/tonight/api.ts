@@ -75,8 +75,8 @@ export type FeedPerson = {
   here_since: string | null;
   /** Your own post only: when "Here now" lapses unless you tap "Still here". */
   live_until: string | null;
-  /** Your own post only: who sees that you're in ("circle" = 1st degree, "network" = 1st + 2nd). */
-  here_audience: 'circle' | 'network' | null;
+  /** Your own post only: who sees that you're there ("circle" = 1st degree, "network" = 1st + 2nd, "custom" = people you picked). */
+  here_audience: 'circle' | 'network' | 'custom' | null;
   open_to_join: boolean;
   heading_count: number;
   joined_here_count: number;
@@ -225,4 +225,17 @@ export async function fetchCompany(postId: number) {
   const { data, error } = await supabase.rpc('my_going_out_company', { p_post: postId });
   if (error) throw error;
   return (data ?? []) as Company[];
+}
+
+/** Show that you're there to only these friends. */
+export async function setHereViewers(postId: number, viewers: string[]) {
+  const { data, error } = await supabase.rpc('set_here_viewers', { p_post: postId, p_viewers: viewers });
+  if (error) throw error;
+  return data as number;
+}
+
+export async function fetchHereViewers(postId: number) {
+  const { data, error } = await supabase.rpc('here_viewers', { p_post: postId });
+  if (error) throw error;
+  return (data ?? []) as string[];
 }

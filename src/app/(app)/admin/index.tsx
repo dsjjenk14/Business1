@@ -15,6 +15,7 @@ import {
   fetchOverview,
   fetchPlacements,
   fetchReports,
+  fetchRevenue,
   fetchUsage,
   fetchVenues,
   fetchVerifications,
@@ -28,8 +29,10 @@ import {
   type Inquiry,
   type Overview,
   type Placement,
+  type RevenueRow,
   type UsageRow,
 } from '@/features/admin/api';
+import { money } from '@/features/payments/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { timeAgo } from '@/lib/time';
@@ -485,6 +488,7 @@ function More({ onChange }: { onChange: () => void }) {
   const { busy, run } = useRun();
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [usage, setUsage] = useState<UsageRow[] | null>(null);
+  const [revenue, setRevenue] = useState<RevenueRow[]>([]);
   const [email, setEmail] = useState('');
   const [days, setDays] = useState(30);
   const load = useCallback(() => {
@@ -494,11 +498,38 @@ function More({ onChange }: { onChange: () => void }) {
     fetchUsage()
       .then(setUsage)
       .catch(() => setUsage([]));
+    fetchRevenue()
+      .then(setRevenue)
+      .catch(() => undefined);
   }, []);
   useEffect(load, [load]);
 
   return (
     <View style={{ gap: t.space[4] }}>
+      <Section title="Ticket fees (I’m In’s 12%)">
+        {revenue.length === 0 ? (
+          <AppText tone="muted">No ticket sales yet.</AppText>
+        ) : (
+          <Card>
+            <View style={{ gap: t.space[2] }}>
+              {revenue.map((r) => (
+                <View key={r.month} style={{ flexDirection: 'row' }}>
+                  <AppText variant="small" style={{ flex: 1 }}>
+                    {new Date(r.month + 'T12:00:00').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                  </AppText>
+                  <AppText variant="small" tone="muted" style={{ width: 90, textAlign: 'right' }}>
+                    {r.tickets} sold
+                  </AppText>
+                  <AppText variant="small" weight="bold" tone="trust" style={{ width: 80, textAlign: 'right' }}>
+                    {money(r.fee_cents)}
+                  </AppText>
+                </View>
+              ))}
+            </View>
+          </Card>
+        )}
+      </Section>
+
       <Section title="Usage (people who did it)">
         {usage === null ? (
           <LoadingList rows={2} avatar={false} />
