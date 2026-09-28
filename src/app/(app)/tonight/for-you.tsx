@@ -87,7 +87,7 @@ export default function TonightForYouScreen() {
             <EmptyState glyph="warning" title="No pick right now" body={aiErrorText(error)} action={{ label: 'Try again', onPress: () => load(false) }} />
           )
         ) : data && !data.pick ? (
-          <EmptyState glyph="moon" title="Quiet night so far" body="Nothing's on near you tonight yet. Post that you're in and see who joins." action={{ label: "I'm In tonight", onPress: () => router.push('/tonight/post') }} />
+          <EmptyState glyph="moon" title="Quiet night so far" body="Nothing's on near you tonight yet. Make plans and see who's in." action={{ label: 'Make plans', onPress: () => router.push('/tonight/post') }} />
         ) : data?.pick ? (
           <>
             <Card accent="ai">

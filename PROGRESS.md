@@ -5,6 +5,9 @@
 
 ---
 
+## ✅ "I'm In" = you're down
+"I'm In" is now only what you tap when someone invites you: an event, a friend's plan for tonight, an intro or a date. Making your own plan is **Make plans**, and the people you choose tap I'm In to join you. When they do, you're told "Reina is in". The welcome tour says it the same way.
+
 ## ✅ Phase 7: AI (People like you, icebreakers, Tonight for You, intro odds, AI Read)
 **Members don't need a Claude account.** The app's server calls Claude with one key the business owns (`ANTHROPIC_API_KEY`), paid per use (about 1 to 3 cents an answer). The key never goes in the app. Until the key is added, AI spots say "coming soon" and everything else works.
 - **Interests:** pick up to 12 in Edit profile (46 choices, like Brunch, Go-go, Pickleball, HBCU life). They show on your profile as "Into".
@@ -662,6 +665,7 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 | 2026-09-28 | Radius slider back: 1 to 75 miles for everyone | Dominique |
 | 2026-09-28 | Adding people: QR in person (counts as a meetup) and a shared code for people who know each other outside the app (doesn't unlock vouching) | Dominique; keeps vouches tied to real meetups |
 | 2026-09-28 | I'm In is a social app, not only going out: Home leads with posting, pins and group chats | Dominique |
+| 2026-09-28 | "I'm In" means you're down: it's the answer to an invite (events, friends' plans, intros, dates). Posting your own plan is "Make plans" | Dominique |
 | 2026-09-28 | AI runs on the business's own Anthropic key; members never need an AI account. 3 free AI uses, unlimited Premium; automatic daily picks and saved results are free | Dominique asked why members would need a Claude account (they don't) |
 | 2026-09-28 | Matching and intro odds are plain math in the database; the AI only picks and explains | Free, instant, works with AI off, and easy to explain |
 | 2026-09-28 | Phase 8 before Phase 7 (AI) | Dominique: "Skip AI, do Phase 8" |

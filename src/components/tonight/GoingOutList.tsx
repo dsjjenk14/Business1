@@ -62,7 +62,7 @@ export function GoingOutPersonRow({
             {person.here_since ? <HereNow since={person.here_since} /> : null}
             {company > 0 ? (
               <AppText variant="caption" tone="muted">
-                {company} joining
+                {company} in
               </AppText>
             ) : null}
           </View>
@@ -71,9 +71,9 @@ export function GoingOutPersonRow({
       right={
         canJoin ? (
           person.my_join ? (
-            <Button label="Joining" size="md" variant="trust" onPress={() => onJoin(person, null)} accessibilityHint="Tap to cancel" />
+            <Button label="You're in" size="md" variant="trust" onPress={() => onJoin(person, null)} accessibilityHint="Tap to cancel" />
           ) : (
-            <Button label="Join" size="md" variant="secondary" onPress={() => onJoin(person, 'heading')} />
+            <Button label="I'm In" size="md" onPress={() => onJoin(person, 'heading')} accessibilityLabel={`I'm in: join ${person.display_name}`} />
           )
         ) : person.is_hosting ? (
           <Badge label="Host" tone="primary" />
@@ -128,7 +128,7 @@ export function MyNightOut({
         </View>
         {company.length ? (
           <AppText variant="small" tone="trust" weight="bold">
-            {[joining.length ? `${names(joining)} ${joining.length === 1 ? 'is' : 'are'} joining you` : null, inToo.length ? `${names(inToo)} in too` : null]
+            {[joining.length ? `${names(joining)} ${joining.length === 1 ? 'is' : 'are'} in` : null, inToo.length ? `${names(inToo)} ${inToo.length === 1 ? 'is' : 'are'} there too` : null]
               .filter(Boolean)
               .join(' · ')}
           </AppText>

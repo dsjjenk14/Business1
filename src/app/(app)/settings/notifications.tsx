@@ -15,7 +15,7 @@ type Key = 'notify_messages' | 'notify_date_requests' | 'notify_rsvps' | 'notify
 const OPTIONS: { key: Key; label: string; detail: string }[] = [
   { key: 'notify_messages', label: 'Messages', detail: 'New messages in your chats and groups' },
   { key: 'notify_date_requests', label: 'Date requests', detail: 'Asks, counters and answers' },
-  { key: 'notify_rsvps', label: 'Plans', detail: 'People joining your night out or your events' },
+  { key: 'notify_rsvps', label: 'Plans', detail: 'People saying I’m In to your plans or events' },
   { key: 'notify_pin_replies', label: 'Pin replies', detail: 'Replies to your pins' },
   { key: 'notify_gps_vouch', label: 'Meetups and vouches', detail: 'When you meet someone in person and when you get vouched for' },
   { key: 'notify_intro_requests', label: 'Intros', detail: 'Intro requests, intros made for you, and vouch requests' },
