@@ -98,7 +98,11 @@ declare
   unread integer;
 begin
   if coalesce((select value #>> '{}' from public.app_config where key = 'environment'), '') <> 'production' then return new; end if;
-  unread := (select count(*) from public.notifications where user_id = new.user_id and read_at is null);
+  -- Icon badge: unread notifications + chats with unread messages (same as the app).
+  unread := (select count(*) from public.notifications where user_id = new.user_id and read_at is null)
+          + (select count(*) from public.conversation_members m join public.conversations c on c.id = m.conversation_id
+              where m.user_id = new.user_id and c.last_message_at is not null
+                and (m.last_read_at is null or c.last_message_at > m.last_read_at));
   select jsonb_agg(jsonb_build_object('to', t.token, 'title', new.title, 'body', new.body, 'sound', 'default',
                                       'badge', unread, 'data', jsonb_build_object('link', new.link)))
     into msgs from public.push_tokens t where t.user_id = new.user_id;
