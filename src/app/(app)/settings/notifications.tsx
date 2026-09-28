@@ -5,11 +5,12 @@ import { Switch, View } from 'react-native';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Button, Card, Screen, Section, useToast } from '@/components/ui';
 import { PUSH_SUPPORTED, registerForPush } from '@/features/notifications/push';
+import { playSound, setSoundsEnabled } from '@/features/sounds/sounds';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 
-type Key = 'notify_messages' | 'notify_date_requests' | 'notify_rsvps' | 'notify_pin_replies' | 'notify_gps_vouch' | 'notify_intro_requests';
+type Key = 'notify_messages' | 'notify_date_requests' | 'notify_rsvps' | 'notify_pin_replies' | 'notify_gps_vouch' | 'notify_intro_requests' | 'app_sounds';
 
 const OPTIONS: { key: Key; label: string; detail: string }[] = [
   { key: 'notify_messages', label: 'Messages', detail: 'New messages in your chats and groups' },
@@ -19,7 +20,7 @@ const OPTIONS: { key: Key; label: string; detail: string }[] = [
   { key: 'notify_gps_vouch', label: 'Meetups and vouches', detail: 'When you meet someone in person and when you get vouched for' },
   { key: 'notify_intro_requests', label: 'Intros', detail: 'Intro requests, intros made for you, and vouch requests' },
 ];
-const COLUMNS = OPTIONS.map((o) => o.key).join(', ');
+const COLUMNS = [...OPTIONS.map((o) => o.key), 'app_sounds'].join(', ');
 
 /** Which push notifications you get. Safety alerts always come through. */
 export default function NotificationSettings() {
@@ -44,6 +45,10 @@ export default function NotificationSettings() {
   async function toggle(key: Key, value: boolean) {
     if (!userId || !values) return;
     setValues({ ...values, [key]: value });
+    if (key === 'app_sounds') {
+      setSoundsEnabled(value);
+      if (value) playSound('in');
+    }
     const patch: Partial<Record<Key, boolean>> = { [key]: value };
     const { error } = await supabase.from('user_settings').update(patch).eq('user_id', userId);
     if (error) {
@@ -91,6 +96,24 @@ export default function NotificationSettings() {
               />
             </View>
           ))}
+        </Section>
+        <Section title="Sounds">
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3], minHeight: 56 }}>
+            <View style={{ flex: 1 }}>
+              <AppText weight="bold">Sounds in the app</AppText>
+              <AppText variant="small" tone="muted">
+                The I&apos;m In chime when something new arrives while the app is open, and a soft sound when you send. Notifications on your
+                lock screen use your phone&apos;s sound settings.
+              </AppText>
+            </View>
+            <Switch
+              accessibilityLabel="Sounds in the app"
+              value={values?.app_sounds ?? true}
+              disabled={!values}
+              onValueChange={(v) => toggle('app_sounds', v)}
+              trackColor={{ true: t.colors.primary, false: t.colors.surfaceAlt }}
+            />
+          </View>
         </Section>
         <AppText variant="caption" tone="subtle">
           Safety alerts from I&apos;m On a Date always come through. Nobody you&apos;ve blocked can reach you.

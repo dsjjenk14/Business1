@@ -48,8 +48,8 @@
         "expo-image-picker",
         {
           "photosPermission": "I'm In uses your photos so you can add a profile picture and photos to your pins.",
-          "cameraPermission": "I'm In uses your camera so you can take a profile picture or verification selfie.",
-          "microphonePermission": false
+          "cameraPermission": "I'm In uses your camera so you can take photos and videos for your posts, your profile picture, or a verification selfie.",
+          "microphonePermission": "I'm In uses your microphone to record sound with videos you post."
         }
       ],
       [
@@ -65,13 +65,16 @@
       [
         "expo-notifications",
         {
-          "color": "#D62828"
+          "color": "#D62828",
+          "sounds": [
+            "./assets/sounds/in.wav"
+          ]
         }
       ],
       [
         "expo-camera",
         {
-          "cameraPermission": "I'm In uses your camera to scan a friend's QR code so you can connect when you're together.",
+          "cameraPermission": "I'm In uses your camera to take Outs and boomerangs, and to scan a friend's QR code so you can connect.",
           "microphonePermission": false,
           "recordAudioAndroid": false
         }
@@ -83,6 +86,13 @@
           "microphonePermission": false,
           "recordAudioAndroid": false,
           "enableBackgroundPlayback": false
+        }
+      ],
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": false,
+          "supportsPictureInPicture": false
         }
       ]
     ],

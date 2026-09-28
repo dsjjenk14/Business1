@@ -4,14 +4,14 @@ import { Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Avatar, Button, Card, Chip, GlyphTitle, Screen, useToast } from '@/components/ui';
-import { checkIn, fetchCircle, fetchMeetups, fetchVouchWords, giveVouch, type Meetup } from '@/features/circles/api';
+import { checkIn, fetchCircle, fetchMeetups, fetchVouchWords, giveVouch, vouchesLeftLabel, type Meetup } from '@/features/circles/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
 
 /**
- * Check In & Vouch.
+ * Check In (records that you met), then, only if you want, vouch.
  * 1. When you're with someone, you both tap Check In. GPS confirms you're together.
  * 2. Pick them, pick one word, vouch. (2 vouches per month; within 14 days of meeting.)
  */
@@ -24,7 +24,8 @@ export default function Vouch() {
 
   const [meetups, setMeetups] = useState<Meetup[] | null>(null);
   const [words, setWords] = useState<{ id: number; word: string }[]>([]);
-  const [left, setLeft] = useState<number | null>(null);
+  // undefined while loading; null = unlimited (Premium).
+  const [left, setLeft] = useState<number | null | undefined>(undefined);
   const [selected, setSelected] = useState<number | null>(null);
   const [wordId, setWordId] = useState<number | null>(null);
   const [checking, setChecking] = useState(false);
@@ -93,13 +94,13 @@ export default function Vouch() {
 
   return (
     <>
-      <BackHeader title="Check In & Vouch" />
+      <BackHeader title="Check In" />
       <Screen>
         <Card accent="trust">
           <View style={{ gap: t.space[2] }}>
             <GlyphTitle glyph="pin" variant="h3">With someone right now?</GlyphTitle>
             <AppText variant="small" tone="muted">
-              You both tap Check In while you&apos;re together. GPS confirms you&apos;re in the same place, and that unlocks vouching. Your exact
+              You both tap Check In while you&apos;re together. GPS confirms you met. That&apos;s all a check-in does: it never vouches for anyone. Your exact
               location is never shown to anyone.
             </AppText>
             <Button label={checking ? 'Checking your location…' : 'Check In'} variant="trust" onPress={doCheckIn} loading={checking} />
@@ -113,11 +114,11 @@ export default function Vouch() {
 
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <AppText variant="label" tone="subtle">
-            People you&apos;ve met (last 14 days)
+            Vouch only if you&apos;d recommend them
           </AppText>
-          {left != null ? (
-            <AppText variant="small" weight="bold" tone={left > 0 ? 'trust' : 'danger'}>
-              {left} vouch{left === 1 ? '' : 'es'} left this month
+          {left !== undefined ? (
+            <AppText variant="small" weight="bold" tone={left == null || left > 0 ? 'trust' : 'danger'}>
+              {vouchesLeftLabel(left)}
             </AppText>
           ) : null}
         </View>
@@ -182,7 +183,7 @@ export default function Vouch() {
               />
               {left === 0 ? (
                 <AppText variant="caption" tone="danger">
-                  You&apos;ve used your vouches for this month. You get more on the 1st.
+                  You&apos;ve used your 5 vouches for this month. You get more on the 1st, or go unlimited with Premium.
                 </AppText>
               ) : null}
             </View>

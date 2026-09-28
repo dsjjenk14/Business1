@@ -3,6 +3,7 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { AppState } from 'react-native';
 
+import { loadSoundSetting, playSound } from '@/features/sounds/sounds';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 
@@ -24,12 +25,41 @@ export function useUnreadCounts() {
 
   useEffect(() => {
     const app = AppState.addEventListener('change', (s) => s === 'active' && refresh());
-    const push = PUSH_SUPPORTED ? Notifications.addNotificationReceivedListener(refresh) : null;
+    const push = PUSH_SUPPORTED
+      ? Notifications.addNotificationReceivedListener(() => {
+          refresh();
+          playSound('in');
+        })
+      : null;
     return () => {
       app.remove();
       push?.remove();
     };
   }, [refresh]);
+
+  // Live: a new notification while the app is open (also works without push,
+  // e.g. on the web). Chimes once, even if a push arrives for the same thing.
+  useEffect(() => {
+    if (!userId) return;
+    loadSoundSetting(userId).catch(() => undefined);
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let closed = false;
+    (async () => {
+      await supabase.realtime.setAuth();
+      if (closed) return;
+      channel = supabase
+        .channel(`notifications:${userId}:${Date.now()}`)
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` }, () => {
+          refresh();
+          playSound('in');
+        })
+        .subscribe();
+    })();
+    return () => {
+      closed = true;
+      if (channel) supabase.removeChannel(channel);
+    };
+  }, [userId, refresh]);
 
   useEffect(() => {
     if (!userId) return;

@@ -17,6 +17,9 @@ export default function AppLayout() {
       <Stack.Screen name="checklist" options={{ presentation: 'transparentModal', animation: 'fade' }} />
       <Stack.Screen name="welcome" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
       <Stack.Screen name="tonight/post" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="outs/new" options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="outs/view" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
+      <Stack.Screen name="boomerang" options={{ presentation: 'fullScreenModal' }} />
       <Stack.Screen name="events/new" options={{ presentation: 'modal' }} />
       <Stack.Screen name="groups/new" options={{ presentation: 'modal' }} />
       <Stack.Screen name="pins/new" options={{ presentation: 'modal' }} />

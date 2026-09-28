@@ -158,7 +158,7 @@ export default function EventScreen() {
         toast(`You're there. You met ${met.length} ${met.length === 1 ? 'person' : 'people'} here.`);
         router.push('/circles/vouch');
       } else {
-        toast("You're there. When others arrive too, you'll be able to vouch for each other.");
+        toast("You're there. You can post Outs from this event now.");
       }
       await load();
     } catch (e) {
@@ -274,10 +274,11 @@ export default function EventScreen() {
             <View style={{ gap: t.space[2] }}>
               <GlyphTitle glyph="arrive" tone="trust">You&apos;re there</GlyphTitle>
               <AppText variant="small" tone="muted">
-                Your phone&apos;s GPS marked you at the event. Everyone else who arrives counts as a real-life meetup, and you can vouch for each
-                other.
+                The app marked you at the event, so you can post Outs from here. Anyone you meet here shows up in Check In; vouching is up to
+                you.
               </AppText>
-              <Button label="Vouch" variant="trust" size="md" onPress={() => router.push('/circles/vouch')} />
+              <Button label="Take an Out" size="md" onPress={() => router.push('/outs/new')} />
+              <Button label="Vouch for someone you met" variant="ghost" size="md" onPress={() => router.push('/circles/vouch')} />
             </View>
           </Card>
         ) : canCheckIn ? (

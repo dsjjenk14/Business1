@@ -4,7 +4,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { DEFAULT_THEME_ID, THEMES } from './themes';
 import type { Theme, ThemeId } from './tokens';
 
-const STORAGE_KEY = 'imin.themeId';
+// v2: the Catalog look became the default, so older saved picks start fresh.
+const STORAGE_KEY = 'imin.themeId.v2';
 
 type ThemeContextValue = {
   theme: Theme;

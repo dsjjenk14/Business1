@@ -41,6 +41,10 @@ export const TERMS: LegalDoc = {
       body: 'Hosts can sell tickets to their events. Payments are handled by Stripe. I’m In keeps an 8% fee from each ticket, Stripe’s card fee is taken from the host’s share, and the rest goes to the host. Refunds are up to the host. If an event fills up before your payment goes through, you are refunded in full.',
     },
     {
+      heading: 'Outs',
+      body: 'Outs are photos you post while you’re at an I’m In event. A friend can open an Out you send them once; My Out can be watched by your circle for 24 hours. After that we delete the photo. Anyone can still take a screenshot, so only share what you’re comfortable with. If someone takes a screenshot, we tell you.',
+    },
+    {
       heading: 'Ending your account',
       body: 'You can delete your account at any time in Settings → Delete account. We may suspend or end accounts that break these terms.',
     },
@@ -85,7 +89,7 @@ export const PRIVACY: LegalDoc = {
     },
     {
       heading: 'Keeping and deleting your data',
-      body: 'We keep your information while your account is open. Delete your account in Settings → Delete account and we delete your profile, photos, pins, replies, vouches, connections and messages. Some records may be kept briefly in backups or where the law requires.',
+      body: 'Outs are deleted once everyone you sent them to has opened them, or after 24 hours, whichever comes first. Videos and boomerangs you post are kept like photos, until you delete the post or your account. We keep your information while your account is open. Delete your account in Settings → Delete account and we delete your profile, photos, pins, replies, vouches, connections and messages. Some records may be kept briefly in backups or where the law requires.',
     },
     {
       heading: 'Your choices and rights',
@@ -116,7 +120,7 @@ export const GUIDELINES: LegalDoc = {
     },
     {
       heading: 'Vouch honestly',
-      body: 'Only vouch for people you actually spent time with, and pick the word that’s true. Vouch rings and paid vouches get detected and removed, along with the accounts involved.',
+      body: 'Checking in with someone never vouches for them; only vouch if you’d recommend them, and take a vouch back if that changes. Only vouch for people you actually spent time with, and pick the word that’s true. Vouch rings and paid vouches get detected and removed, along with the accounts involved.',
     },
     {
       heading: 'Meeting up',

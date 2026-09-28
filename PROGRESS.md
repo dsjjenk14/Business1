@@ -5,6 +5,63 @@
 
 ---
 
+## ✅ New look: Catalog (chic, clean, like a home catalog)
+- **Catalog** (light, now the default): warm linen and white, charcoal text, a brick-clay accent, sage for trust and brass for featured things.
+- **Catalog Night** (dark): warm charcoal with cream text and terracotta.
+- Both use an elegant serif for headings (Fraunces) and a clean sans for everything else (DM Sans), with finer corners, hairline borders, very soft shadows and more air.
+- The layout is the same; only the look changed.
+- Everyone moves to the new look once: light-look members to Catalog, dark-look members to Catalog Night. The older looks are still in Settings → Appearance, and the welcome tour offers Light (Catalog) or Dark (Catalog Night).
+- Every color passes the contrast check for readable text, in both looks.
+- Also fixed: the event "You're there" card now leads with **Take an Out**, and vouching is optional there.
+
+Migration 032.
+
+---
+
+## ✅ Outs, videos, boomerangs, What's In, sounds, vouch limits and unvouching
+**Outs (the new middle tab)**
+- Snapchat-style photos, taken **only at I'm In events**. You have to have said I'm In (or be hosting), the event has to be happening, and the app has to have marked you there (GPS arrival or "I'm here"). Otherwise the Outs tab explains how to unlock it and links to What's In.
+- Snap a photo, add a caption, then send it to friends in your circle (**they can open it once**) and/or post to **My Out** (your circle can watch it for 24 hours).
+- The Outs tab shows new Outs (red square), friends' My Outs (ring = new), and what you sent (opened by 2 of 3, screenshots). The tab button shows a dot when something new arrives.
+- Full-screen viewer: 8 seconds each, tap for the next. It shows which event the Out is from. **If someone takes a screenshot, the sender is told** (on phones).
+- Photos are deleted once everyone has opened them, or after 24 hours. Nobody can open an Out twice or read it any other way.
+
+**Videos and boomerangs on posts**
+- A post can have photos, **a video (up to 30 seconds)**, or **a boomerang** (a quick burst of photos that plays forward and back). Recording a video asks for the microphone so it has sound.
+- Boomerangs can have a song too.
+
+**What's In** (trending: Home banner, and the flame on Pins)
+- **Hot tonight**: the places with the most people In tonight. It shows counts only, never names, and only counts people who let others see their venue.
+- **Trending events** (the ones picking up the most people, with I'm In right there), **trending pins**, and **top rated places**.
+
+**Sounds**
+- The **I'm In chime** (made for the app) plays when something new arrives while the app is open, and a soft blip when you send. Turn it off in Settings → Notifications → Sounds.
+- Notifications on your lock screen already play your phone's sound. The chime is packed into the app so notifications can use it once you build for TestFlight.
+
+**Vouches**
+- **5 vouches a month** on the free plan, **unlimited with Premium** (listed on the Premium screen).
+- **Checking in never vouches.** The screen is now just "Check In", and the meetup notification says vouching is up to you.
+- **Take back a vouch**: from their profile, or Settings → Vouches you gave. They aren't told. It still counts toward this month's 5, so vouches can't be recycled.
+
+**Storage cost to know about:** videos take space. Supabase's free plan includes about 1 GB of file storage; if the app grows, the Pro plan ($25/month) includes about 100 GB.
+
+Migrations 030 and 031, test file 017. **All 382 database tests pass.**
+
+Browser-tested:
+- Outs:
+  - locked when you're not at an event, unlocked once you're there
+  - taking a photo, adding a caption, sending to a friend and My Out
+  - the friend opening it once, with the event name shown
+  - "Opened" for the sender
+- a boomerang post and a video post (saved and playing)
+- What's In
+- taking back a vouch
+- the new check-in wording, the Sounds switch, and Unlimited vouches on Premium
+
+The accessibility scan is clean on all the new screens.
+
+---
+
 ## ✅ Venue ratings, photo filters, music on posts, live video (built; live video off until set up)
 **Rate the place after an event**
 - After an event you went to (at a known venue), the event page asks **Rate Bresca**: 1 to 5 stars and an optional note. You can change it later. Ratings stay open for 30 days.

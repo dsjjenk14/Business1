@@ -1,6 +1,7 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { RefreshControl, ScrollView, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 
 import { ActivityRow, EventRow, GroupSuggestion } from '@/components/home/HomeParts';
 import { LiveNowRow } from '@/components/live/LiveNowRow';
@@ -121,6 +122,21 @@ export default function Home() {
       contentContainerStyle={{ padding: t.space[4], gap: t.space[6], paddingBottom: t.space[8], width: '100%', maxWidth: 640, alignSelf: 'center' }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={t.colors.primary} />}>
       <LiveNowRow />
+
+      <Pressable
+        accessibilityRole="link"
+        accessibilityLabel="What's In: what's trending near you"
+        onPress={() => router.push('/whats-in')}
+        style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3], padding: t.space[3], borderRadius: t.radius.lg, backgroundColor: t.colors.surface, borderWidth: t.borderWidth.regular, borderColor: t.colors.border }}>
+        <Ionicons name="flame" size={24} color={t.colors.primaryText} />
+        <View style={{ flex: 1 }}>
+          <AppText weight="bold">What&apos;s In</AppText>
+          <AppText variant="small" tone="muted">
+            Hot spots tonight, trending events and posts
+          </AppText>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color={t.colors.textSubtle} />
+      </Pressable>
 
       {/* 1. Your friends' pins */}
       <Section title="Your friends’ pins" action={{ label: 'Post', onPress: () => router.push('/pins/new') }}>

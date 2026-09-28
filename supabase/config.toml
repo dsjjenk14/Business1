@@ -444,3 +444,6 @@ verify_jwt = false
 
 [functions.live]
 verify_jwt = false
+
+[functions.open-out]
+verify_jwt = false
