@@ -16,6 +16,7 @@ import { createClient } from '@supabase/supabase-js';
 import {
   CAST, COMMUNITY_FIRST, COMMUNITY_LAST, COMMUNITY_SIZE, CONNECTIONS,
   DEMO_CITIES, DEMO_PASSWORD, GENERIC_REPLIES, GROUPS, PLACES, VENUES,
+  INTERESTS,
 } from './cast.mjs';
 
 // ── Connection + safety guard ────────────────────────────────────────────────
@@ -134,14 +135,17 @@ for (const c of CAST) {
     photo_verified_at: daysAgo(30),
     id_verified_at: c.idVerified ? daysAgo(20) : null,
     created_at: daysAgo(200),
+    interests: INTERESTS[c.key] ?? [],
   }).eq('id', ids[c.key]), `profile ${c.key}`);
 }
+const COMMUNITY_INTERESTS = ['brunch', 'live_music', 'running', 'fitness', 'cocktails', 'rnb', 'art', 'pickleball', 'hip_hop', 'foodie', 'comedy', 'travel', 'hbcu', 'rooftops', 'yoga', 'watch_sports'];
 for (const [i, key] of community.entries()) {
   const cityPool = Object.values(PLACES);
   await must(db.from('profiles').update({
     avatar_emoji: null,
     approx_location: point(cityPool[i % cityPool.length]),
     photo_verified_at: daysAgo(40),
+    interests: COMMUNITY_INTERESTS.filter((_, j) => (i + j) % 4 === 0).slice(0, 5),
   }).eq('id', ids[key]), `profile ${key}`);
 }
 // Maya invited Dominique (her 3 vouches are GPS vouches, so no invite vouch here).

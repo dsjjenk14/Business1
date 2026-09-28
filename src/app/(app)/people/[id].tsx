@@ -2,6 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
+import { IcebreakersCard } from '@/components/ai/ProfileAI';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { ProfileView } from '@/components/profile/ProfileView';
 import { AppText, Button, IconButton, LoadingDetail, OptionsSheet, Screen, useToast } from '@/components/ui';
@@ -124,6 +125,7 @@ export default function PersonProfile() {
           {exchanges != null ? ` (${Math.min(exchanges, needed)} of ${needed} so far)` : ''}. Premium skips the wait.
         </AppText>
       ) : null}
+      <IcebreakersCard userId={card.id} firstName={first} />
       {card.degree === 2 ? (
         <AppText variant="caption" tone="subtle" align="center">
           {first} is one intro away. Ask {card.via[0]?.display_name ?? 'a mutual friend'} to introduce you, and you can message right away.

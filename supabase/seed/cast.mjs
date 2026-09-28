@@ -169,3 +169,26 @@ export const GENERIC_REPLIES = [
   'Adding this to my list.', 'Yes! Been meaning to go.', 'Count me in next time.', 'This is so real.',
   'Saving this.', 'Seconding this one.', 'Went last month, can confirm.', 'Who else is going?',
 ];
+
+/** Interests for People like you (keys from interest_options). */
+export const INTERESTS = {
+  dom: ['pickleball', 'fitness', 'brunch', 'foodie', 'rnb', 'hbcu', 'networking'],
+  maya: ['fitness', 'brunch', 'rooftops', 'rnb', 'travel'],
+  jordan: ['foodie', 'wine', 'cooking', 'jazz', 'networking'],
+  naomi: ['running', 'yoga', 'coffee', 'books', 'wellness'],
+  deshawn: ['hip_hop', 'go_go', 'live_music', 'basketball', 'watch_sports'],
+  simone: ['art', 'live_music', 'cocktails', 'fashion', 'hbcu'],
+  priya: ['fitness', 'pickleball', 'startups', 'tech', 'brunch'],
+  aaliyah: ['hbcu', 'brunch', 'rnb', 'volunteering', 'faith'],
+  reina: ['dancing', 'house', 'art', 'photography', 'festivals'],
+  darius: ['watch_sports', 'golf', 'cocktails', 'networking', 'startups'],
+  marcus: ['live_music', 'hip_hop', 'basketball', 'rooftops'],
+  ari: ['comedy', 'board_games', 'gaming', 'film', 'coffee'],
+  omar: ['art', 'jazz', 'photography', 'film', 'wine'],
+  jade: ['fitness', 'pickleball', 'brunch', 'rnb', 'fashion'],
+  cameron: ['pickleball', 'tennis', 'running', 'networking', 'hbcu'],
+  tyler: ['politics', 'happy_hour', 'watch_sports', 'running'],
+  kendra: ['brunch', 'foodie', 'pickleball', 'rnb', 'travel'],
+  theo: ['tech', 'startups', 'coffee', 'cycling'],
+  lena: ['running', 'books', 'volunteering', 'yoga'],
+};

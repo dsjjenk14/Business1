@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, Switch, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
+import { InterestsPicker } from '@/components/profile/InterestsPicker';
 import { AppText, Avatar, Button, Chip, Screen, TextField, useToast } from '@/components/ui';
 import { useAppConfig } from '@/config/useAppConfig';
 import { uploadAvatar } from '@/features/auth/signUp';
@@ -12,7 +13,7 @@ import { friendlyError, supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 import { goBackOr } from '@/lib/navigation';
 
-/** Edit your photo, name, headline, bio, pronouns, area, and whether your age shows. */
+/** Edit your photo, name, headline, bio, pronouns, area, interests, and whether your age shows. */
 export default function EditProfile() {
   const t = useTheme();
   const router = useRouter();
@@ -27,6 +28,7 @@ export default function EditProfile() {
   const [neighborhood, setNeighborhood] = useState(profile?.neighborhood ?? '');
   const [cityId, setCityId] = useState<number | null>(profile?.city_id ?? null);
   const [showAge, setShowAge] = useState(profile?.show_age ?? true);
+  const [interests, setInterests] = useState<string[]>(profile?.interests ?? []);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +60,7 @@ export default function EditProfile() {
           neighborhood: neighborhood.trim() || null,
           city_id: cityId,
           show_age: showAge,
+          interests,
         })
         .eq('id', profile.id);
       if (e) throw e;
@@ -107,6 +110,8 @@ export default function EditProfile() {
             ))}
           </View>
         </View>
+
+        <InterestsPicker value={interests} onChange={setInterests} />
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
           <View style={{ flex: 1 }}>

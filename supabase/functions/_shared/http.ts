@@ -82,3 +82,23 @@ export async function configNumber(key: string, fallback: number): Promise<numbe
 }
 
 export const enc = encodeURIComponent;
+
+/**
+ * Call a database function as the signed-in caller (their token, not the
+ * server's), so the database's own "who can see what" rules apply.
+ */
+export async function userRpc<T = unknown>(req: Request, fn: string, body: Record<string, unknown> = {}): Promise<{ data: T | null; ok: boolean; status: number }> {
+  const res = await fetch(`${SUPABASE_URL()}/rest/v1/rpc/${fn}`, {
+    method: 'POST',
+    headers: { apikey: ANON_KEY(), Authorization: req.headers.get('Authorization') ?? '', 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const text = await res.text();
+  let data: T | null = null;
+  try {
+    data = text ? (JSON.parse(text) as T) : null;
+  } catch {
+    data = null;
+  }
+  return { data: res.ok ? data : null, ok: res.ok, status: res.status };
+}

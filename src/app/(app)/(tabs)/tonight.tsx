@@ -137,6 +137,7 @@ export default function Tonight() {
         <AppText variant="h1" accessibilityRole="header" style={{ flex: 1 }}>
           Tonight
         </AppText>
+        <IconButton icon="sparkles-outline" label="Tonight for You, an AI pick" onPress={() => router.push('/tonight/for-you')} />
         <IconButton icon="map-outline" label="Map of who's out" onPress={() => router.push({ pathname: '/tonight/map', params: { when: weekend ? 'weekend' : 'tonight' } })} />
         <Button label="I'm In" size="md" onPress={() => router.push({ pathname: '/tonight/post', params: { when: weekend ? 'weekend' : 'tonight' } })} />
       </View>

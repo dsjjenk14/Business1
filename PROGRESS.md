@@ -1,9 +1,23 @@
 # I'm In: Progress
 
 ## Status
-**Current phase:** Phase 8 (polish) is done, except the TestFlight build itself, which needs your Apple Developer account (`docs/TESTFLIGHT.md`). Phase 7 (AI) was skipped for now, at your request; it needs your OK for the paid Claude API. See `docs/LAUNCH-CHECKLIST.md` for what's needed before launch.
+**Current phase:** Phase 8 (polish) is done, except the TestFlight build itself, which needs your Apple Developer account (`docs/TESTFLIGHT.md`). Phase 7 (AI) is built (5 of the 7 features); it turns on once the business's Anthropic key is added as a GitHub secret. See `docs/LAUNCH-CHECKLIST.md` for what's needed before launch.
 
 ---
+
+## ✅ Phase 7: AI (People like you, icebreakers, Tonight for You, intro odds, AI Read)
+**Members don't need a Claude account.** The app's server calls Claude with one key the business owns (`ANTHROPIC_API_KEY`), paid per use (about 1 to 3 cents an answer). The key never goes in the app. Until the key is added, AI spots say "coming soon" and everything else works.
+- **Interests:** pick up to 12 in Edit profile (46 choices, like Brunch, Go-go, Pickleball, HBCU life). They show on your profile as "Into".
+- **People like you** (Home, and Circles → Network): people you don't know yet who share your interests, groups, spots and nights out, from your friends of friends, your groups and your city. The list is plain matching (free, instant). The AI picks the best 5 once a day and says why in one sentence. An Intro button asks the mutual friend.
+- **Icebreakers** on anyone's profile: 3 openers, tap to copy, "New ones" for another set.
+- **AI Read** on every profile: up to 3 badges ("Natural connector") and a two-sentence read from public activity only. Everyone sees the same read.
+- **Tonight for You** (Menu, and the spark button on Tonight): one top pick with reasons and two alternatives.
+- **Intro odds** on Make an Intro: a live % bar with signal chips (free), plus "Explain with AI". Each intro now saves its predicted odds.
+- **Limits:** 3 free AI uses, unlimited with Premium. Saved results and the automatic daily People like you picks don't count.
+- **Privacy:** AI only sees what the member could already see. Circle-only posts never feed matches or the AI Read, and AI never reads messages. The Privacy Policy text is updated.
+- **Not yet:** Momentum Score and Trust Monitor (scheduled jobs), and opt-in chat badges.
+- **Tests:** 34 new database tests (501 total). The AI function was tested end to end against a stand-in for Claude, so no money was spent: answers, saved results, the free limit, a declined request, and bad AI answers filtered out. Every screen was clicked through in the browser.
+- **To turn it on:** see "Needed from Dominique".
 
 ## ✅ Figtree font, trending events up front
 - **Font:** Figtree (Dominique picked it from 6 options) for the whole app in the Original look.
@@ -626,6 +640,7 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 ---
 
 ## Needed from Dominique
+0. **Anthropic API key**, to turn on AI: create one at console.anthropic.com (Settings → API keys) on the business account and add billing there. Then in GitHub: repo → Settings → Secrets and variables → Actions → New repository secret, named `ANTHROPIC_API_KEY`. Paste it only there, never in chat. The next deploy turns AI on.
 1. **Phone test.** The app is live: open it in Expo Go with the link from the chat, then go through `docs/PHASE-1-PHONE-CHECK.md`. Each merged pull request updates it automatically.
 2. **Twilio account** for real texts: Account SID, Auth Token, and a phone number (about $1/month plus about $0.01 per text). Until then, phone codes run in demo mode, and safety texts open your own Messages app.
 
@@ -633,7 +648,7 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 
 ## Next
 - **TestFlight**, as soon as you have the Apple Developer account (`docs/TESTFLIGHT.md`).
-- **Phase 7 (AI)**, when you're ready. The seven AI features are icebreakers, Tonight for You, Trust Monitor, vibe match, momentum score, intro success prediction and AI badges. The Claude API is paid per use, so it waits for your OK.
+- **Momentum Score and Trust Monitor**, the last two AI-phase features (scheduled jobs).
 
 ---
 
@@ -647,6 +662,8 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 | 2026-09-28 | Radius slider back: 1 to 75 miles for everyone | Dominique |
 | 2026-09-28 | Adding people: QR in person (counts as a meetup) and a shared code for people who know each other outside the app (doesn't unlock vouching) | Dominique; keeps vouches tied to real meetups |
 | 2026-09-28 | I'm In is a social app, not only going out: Home leads with posting, pins and group chats | Dominique |
+| 2026-09-28 | AI runs on the business's own Anthropic key; members never need an AI account. 3 free AI uses, unlimited Premium; automatic daily picks and saved results are free | Dominique asked why members would need a Claude account (they don't) |
+| 2026-09-28 | Matching and intro odds are plain math in the database; the AI only picks and explains | Free, instant, works with AI off, and easy to explain |
 | 2026-09-28 | Phase 8 before Phase 7 (AI) | Dominique: "Skip AI, do Phase 8" |
 | 2026-09-28 | Pushes go through Expo's free push service, sent by the database (pg_net) | No extra account or key; Settings switches and blocks are enforced on the server |
 | 2026-09-28 | "I'm In" = tap to say you're going. The app marks you **there** automatically by GPS (within 150 m). | Dominique |
