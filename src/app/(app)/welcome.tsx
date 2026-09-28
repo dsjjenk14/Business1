@@ -96,8 +96,8 @@ export default function Welcome() {
             <View style={{ flexDirection: 'row', gap: t.space[3], alignSelf: 'stretch' }}>
               {(
                 [
-                  { id: 'O', label: 'Dark', bg: '#0C0C0C', fg: '#F5F5F5', accent: '#D62828' },
-                  { id: 'D', label: 'Light', bg: '#FAFAF7', fg: '#111512', accent: '#0F7A4A' },
+                  { id: 'L', label: 'Light', bg: '#F6F3EE', fg: '#1E1B18', accent: '#9A3E2C' },
+                  { id: 'N', label: 'Dark', bg: '#141311', fg: '#F3EEE6', accent: '#B4543E' },
                 ] as const
               ).map((o) => {
                 const selected = t.id === o.id;

@@ -5,6 +5,19 @@
 
 ---
 
+## ✅ New look: Catalog (chic, clean, like a home catalog)
+- **Catalog** (light, now the default): warm linen and white, charcoal text, a brick-clay accent, sage for trust and brass for featured things.
+- **Catalog Night** (dark): warm charcoal with cream text and terracotta.
+- Both use an elegant serif for headings (Fraunces) and a clean sans for everything else (DM Sans), with finer corners, hairline borders, very soft shadows and more air.
+- The layout is the same; only the look changed.
+- Everyone moves to the new look once: light-look members to Catalog, dark-look members to Catalog Night. The older looks are still in Settings → Appearance, and the welcome tour offers Light (Catalog) or Dark (Catalog Night).
+- Every color passes the contrast check for readable text, in both looks.
+- Also fixed: the event "You're there" card now leads with **Take an Out**, and vouching is optional there.
+
+Migration 032.
+
+---
+
 ## ✅ Outs, videos, boomerangs, What's In, sounds, vouch limits and unvouching
 **Outs (the new middle tab)**
 - Snapchat-style photos, taken **only at I'm In events**. You have to have said I'm In (or be hosting), the event has to be happening, and the app has to have marked you there (GPS arrival or "I'm here"). Otherwise the Outs tab explains how to unlock it and links to What's In.

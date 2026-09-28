@@ -1,7 +1,7 @@
 import { SPACE, type Theme, type ThemeType } from './tokens';
 
 /**
- * The five switchable themes. O (Original, the prototype's look) is the default.
+ * The switchable themes. L (Catalog) is the default; N is its dark version.
  *
  * Font family strings must match the keys loaded in `fonts.ts`.
  */
@@ -300,6 +300,134 @@ const D: Theme = {
   style: { section: 'ledger', badge: 'credential', uppercaseLabels: true, monoNumbers: true },
 };
 
-export const THEMES: Record<Theme['id'], Theme> = { O, A, B, C, D };
-export const THEME_ORDER: Theme['id'][] = ['O', 'A', 'B', 'C', 'D'];
-export const DEFAULT_THEME_ID: Theme['id'] = 'O';
+
+/** Catalog type: an elegant serif for headings, generous line heights, airy labels. */
+const catalogType: ThemeType = {
+  hero: { fontSize: 36, lineHeight: 42, letterSpacing: -0.6 },
+  h1: { fontSize: 28, lineHeight: 34, letterSpacing: -0.4 },
+  h2: { fontSize: 21, lineHeight: 28, letterSpacing: -0.2 },
+  h3: { fontSize: 17, lineHeight: 23 },
+  body: { fontSize: 15, lineHeight: 23 },
+  small: { fontSize: 13, lineHeight: 19 },
+  caption: { fontSize: 11.5, lineHeight: 16 },
+  label: { fontSize: 10.5, lineHeight: 14, letterSpacing: 1.8 },
+  number: { fontSize: 28, lineHeight: 32 },
+};
+
+/**
+ * L: Catalog. Chic and calm, like a home catalog: warm linen and white,
+ * charcoal text, a brick-clay accent, sage for trust, brass for featured.
+ * Fraunces headings, DM Sans text, fine lines, soft shadows, lots of air.
+ */
+const L: Theme = {
+  id: 'L',
+  name: 'Catalog',
+  tagline: 'Warm linen, charcoal and clay',
+  mode: 'light',
+  colors: {
+    bg: '#F6F3EE',
+    surface: '#FFFFFF',
+    surfaceAlt: '#EEEAE3',
+    border: '#E4DED5',
+    borderStrong: '#CFC7BB',
+    text: '#1E1B18',
+    textMuted: '#57514A',
+    textSubtle: '#6B645B',
+    primary: '#9A3E2C',
+    primaryText: '#8C3727',
+    onPrimary: '#FFFFFF',
+    secondary: '#1E1B18',
+    onSecondary: '#FFFFFF',
+    trust: '#4B6547',
+    onTrust: '#FFFFFF',
+    ai: '#44607A',
+    onAi: '#FFFFFF',
+    success: '#4B6547',
+    warning: '#8A6424',
+    danger: '#A3372B',
+    onDanger: '#FFFFFF',
+    sponsored: '#86652A',
+    onSponsored: '#FFFFFF',
+    tabBar: '#FBF9F5',
+    tabActive: '#1E1B18',
+    tabInactive: '#6B645B',
+    overlay: 'rgba(30, 27, 24, 0.45)',
+  },
+  fonts: {
+    display: 'Fraunces_500Medium',
+    displayBold: 'Fraunces_600SemiBold',
+    body: 'DMSans_400Regular',
+    bodyMedium: 'DMSans_500Medium',
+    bodyBold: 'DMSans_700Bold',
+    mono: 'DMSans_500Medium',
+  },
+  type: catalogType,
+  radius: { sm: 4, md: 8, lg: 12, xl: 16, pill: 999 },
+  space: SPACE,
+  borderWidth: { hairline: 1, regular: 1, strong: 1.5 },
+  shadow: {
+    card: '0px 1px 2px rgba(30,27,24,0.04), 0px 6px 18px rgba(30,27,24,0.05)',
+    raised: '0px 10px 30px rgba(30,27,24,0.10)',
+    pressed: '0px 0px 0px rgba(0,0,0,0)',
+  },
+  style: { section: 'plain', badge: 'pill', uppercaseLabels: true, monoNumbers: false },
+};
+
+/** N: Catalog Night. The same catalog feel after dark: warm charcoal, cream text, terracotta. */
+const N: Theme = {
+  id: 'N',
+  name: 'Catalog Night',
+  tagline: 'Warm charcoal, cream and terracotta',
+  mode: 'dark',
+  colors: {
+    bg: '#141311',
+    surface: '#1C1A17',
+    surfaceAlt: '#25221E',
+    border: 'rgba(243, 238, 230, 0.09)',
+    borderStrong: '#3A3631',
+    text: '#F3EEE6',
+    textMuted: 'rgba(243, 238, 230, 0.70)',
+    textSubtle: 'rgba(243, 238, 230, 0.56)',
+    primary: '#B4543E',
+    primaryText: '#E08A73',
+    onPrimary: '#FFFFFF',
+    secondary: '#F3EEE6',
+    onSecondary: '#141311',
+    trust: '#9BB894',
+    onTrust: '#141311',
+    ai: '#9DB5CC',
+    onAi: '#141311',
+    success: '#9BB894',
+    warning: '#D2AE6B',
+    danger: '#E58A7C',
+    onDanger: '#141311',
+    sponsored: '#D2AE6B',
+    onSponsored: '#141311',
+    tabBar: '#141311',
+    tabActive: '#F3EEE6',
+    tabInactive: 'rgba(243, 238, 230, 0.56)',
+    overlay: 'rgba(0, 0, 0, 0.7)',
+  },
+  fonts: {
+    display: 'Fraunces_500Medium',
+    displayBold: 'Fraunces_600SemiBold',
+    body: 'DMSans_400Regular',
+    bodyMedium: 'DMSans_500Medium',
+    bodyBold: 'DMSans_700Bold',
+    mono: 'DMSans_500Medium',
+  },
+  type: catalogType,
+  radius: { sm: 4, md: 8, lg: 12, xl: 16, pill: 999 },
+  space: SPACE,
+  borderWidth: { hairline: 1, regular: 1, strong: 1.5 },
+  shadow: {
+    card: '0px 1px 2px rgba(0,0,0,0.25)',
+    raised: '0px 10px 30px rgba(0,0,0,0.45)',
+    pressed: '0px 0px 0px rgba(0,0,0,0)',
+  },
+  style: { section: 'plain', badge: 'pill', uppercaseLabels: true, monoNumbers: false },
+};
+
+export const THEMES: Record<Theme['id'], Theme> = { L, N, O, A, B, C, D };
+export const THEME_ORDER: Theme['id'][] = ['L', 'N', 'O', 'A', 'B', 'C', 'D'];
+export const DEFAULT_THEME_ID: Theme['id'] = 'L';

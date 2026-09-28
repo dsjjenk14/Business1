@@ -11,7 +11,7 @@ import type { FONT_MAP } from './fonts';
 /** Only fonts that are actually loaded can be used (checked at compile time). */
 export type FontName = keyof typeof FONT_MAP;
 
-export type ThemeId = 'O' | 'A' | 'B' | 'C' | 'D';
+export type ThemeId = 'L' | 'N' | 'O' | 'A' | 'B' | 'C' | 'D';
 
 export type ThemeColors = {
   /** Screen background. */
