@@ -1,7 +1,7 @@
 import { SPACE, type Theme, type ThemeType } from './tokens';
 
 /**
- * The switchable themes. L (Catalog) is the default; N is its dark version.
+ * The switchable themes. N (Original colors, catalog layout) is the default; L is its light version.
  *
  * Font family strings must match the keys loaded in `fonts.ts`.
  */
@@ -315,43 +315,42 @@ const catalogType: ThemeType = {
 };
 
 /**
- * L: Catalog. Chic and calm, like a home catalog: warm linen and white,
- * charcoal text, a brick-clay accent, sage for trust, brass for featured.
- * Fraunces headings, DM Sans text, fine lines, soft shadows, lots of air.
+ * L: Original Light. The catalog layout (Fraunces headings, DM Sans text,
+ * fine lines, soft shadows, lots of air) in the original light colors.
  */
 const L: Theme = {
   id: 'L',
-  name: 'Catalog',
-  tagline: 'Warm linen, charcoal and clay',
+  name: 'Original Light',
+  tagline: 'Light, with the original green',
   mode: 'light',
   colors: {
-    bg: '#F6F3EE',
+    bg: '#FAFAF7',
     surface: '#FFFFFF',
-    surfaceAlt: '#EEEAE3',
-    border: '#E4DED5',
-    borderStrong: '#CFC7BB',
-    text: '#1E1B18',
-    textMuted: '#57514A',
-    textSubtle: '#6B645B',
-    primary: '#9A3E2C',
-    primaryText: '#8C3727',
+    surfaceAlt: '#F1F2EE',
+    border: '#E3E5DF',
+    borderStrong: '#C5C9C0',
+    text: '#111512',
+    textMuted: '#4F5750',
+    textSubtle: '#646C65',
+    primary: '#0F7A4A',
+    primaryText: '#0F7A4A',
     onPrimary: '#FFFFFF',
-    secondary: '#1E1B18',
+    secondary: '#111512',
     onSecondary: '#FFFFFF',
-    trust: '#4B6547',
+    trust: '#0F7A4A',
     onTrust: '#FFFFFF',
-    ai: '#44607A',
+    ai: '#5B4BDB',
     onAi: '#FFFFFF',
-    success: '#4B6547',
-    warning: '#8A6424',
-    danger: '#A3372B',
+    success: '#0F7A4A',
+    warning: '#A15C00',
+    danger: '#C62828',
     onDanger: '#FFFFFF',
-    sponsored: '#86652A',
+    sponsored: '#8A5A00',
     onSponsored: '#FFFFFF',
-    tabBar: '#FBF9F5',
-    tabActive: '#1E1B18',
-    tabInactive: '#6B645B',
-    overlay: 'rgba(30, 27, 24, 0.45)',
+    tabBar: '#FFFFFF',
+    tabActive: '#0F7A4A',
+    tabInactive: '#646C65',
+    overlay: 'rgba(17, 21, 18, 0.45)',
   },
   fonts: {
     display: 'Fraunces_500Medium',
@@ -373,40 +372,40 @@ const L: Theme = {
   style: { section: 'plain', badge: 'pill', uppercaseLabels: true, monoNumbers: false },
 };
 
-/** N: Catalog Night. The same catalog feel after dark: warm charcoal, cream text, terracotta. */
+/** N: Original. The catalog layout in the prototype's own colors: near-black, red, gold and green. The default. */
 const N: Theme = {
   id: 'N',
-  name: 'Catalog Night',
-  tagline: 'Warm charcoal, cream and terracotta',
+  name: 'Original',
+  tagline: 'Near-black, red and gold',
   mode: 'dark',
   colors: {
-    bg: '#141311',
-    surface: '#1C1A17',
-    surfaceAlt: '#25221E',
-    border: 'rgba(243, 238, 230, 0.09)',
-    borderStrong: '#3A3631',
-    text: '#F3EEE6',
-    textMuted: 'rgba(243, 238, 230, 0.70)',
-    textSubtle: 'rgba(243, 238, 230, 0.56)',
-    primary: '#B4543E',
-    primaryText: '#E08A73',
+    bg: '#0C0C0C',
+    surface: '#161616',
+    surfaceAlt: '#1E1E1E',
+    border: 'rgba(255, 255, 255, 0.08)',
+    borderStrong: '#333333',
+    text: '#F5F5F5',
+    textMuted: 'rgba(245, 245, 245, 0.62)',
+    textSubtle: 'rgba(245, 245, 245, 0.5)',
+    primary: '#D62828',
+    primaryText: '#FF5C5C',
     onPrimary: '#FFFFFF',
-    secondary: '#F3EEE6',
-    onSecondary: '#141311',
-    trust: '#9BB894',
-    onTrust: '#141311',
-    ai: '#9DB5CC',
-    onAi: '#141311',
-    success: '#9BB894',
-    warning: '#D2AE6B',
-    danger: '#E58A7C',
-    onDanger: '#141311',
-    sponsored: '#D2AE6B',
-    onSponsored: '#141311',
-    tabBar: '#141311',
-    tabActive: '#F3EEE6',
-    tabInactive: 'rgba(243, 238, 230, 0.56)',
-    overlay: 'rgba(0, 0, 0, 0.7)',
+    secondary: '#D4AF37',
+    onSecondary: '#0C0C0C',
+    trust: '#4ADE80',
+    onTrust: '#052E16',
+    ai: '#64A0FF',
+    onAi: '#0C0C0C',
+    success: '#4ADE80',
+    warning: '#D4AF37',
+    danger: '#FF6B6B',
+    onDanger: '#1A0000',
+    sponsored: '#D4AF37',
+    onSponsored: '#0C0C0C',
+    tabBar: '#0C0C0C',
+    tabActive: '#FF4D4D',
+    tabInactive: 'rgba(245, 245, 245, 0.5)',
+    overlay: 'rgba(0, 0, 0, 0.75)',
   },
   fonts: {
     display: 'Fraunces_500Medium',
@@ -429,5 +428,5 @@ const N: Theme = {
 };
 
 export const THEMES: Record<Theme['id'], Theme> = { L, N, O, A, B, C, D };
-export const THEME_ORDER: Theme['id'][] = ['L', 'N', 'O', 'A', 'B', 'C', 'D'];
-export const DEFAULT_THEME_ID: Theme['id'] = 'L';
+export const THEME_ORDER: Theme['id'][] = ['N', 'L', 'O', 'A', 'B', 'C', 'D'];
+export const DEFAULT_THEME_ID: Theme['id'] = 'N';

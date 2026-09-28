@@ -13,18 +13,34 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { AppText } from "@/components/ui";
-import { openOut, reportScreenshot, type OpenedOut } from "@/features/outs/api";
+import { AppText, useToast } from "@/components/ui";
+import {
+  openOut,
+  pinOut,
+  reportScreenshot,
+  unpinOut,
+  type OpenedOut,
+} from "@/features/outs/api";
 import { refreshNewOuts } from "@/features/outs/useNewOuts";
+import { friendlyError } from "@/lib/supabase";
 import { timeAgo } from "@/lib/time";
 import { useTheme } from "@/theme";
 
 const SECONDS = 8;
 
-/** Watching Outs: full screen, 8 seconds each, tap to skip. Direct Outs open once. */
+/** How long until an Out disappears, in words ("Gone in 42 min"). */
+function timeLeft(expiresAt: string) {
+  const min = Math.max(0, Math.round((new Date(expiresAt).getTime() - Date.now()) / 60000));
+  if (min <= 0) return "Gone soon";
+  return min >= 60 ? "Gone in 1 hr" : `Gone in ${min} min`;
+}
+
+/** Watching Outs: full screen, 8 seconds each, tap to skip. Pin one to keep it past the hour. */
 export default function ViewOuts() {
   const t = useTheme();
   const router = useRouter();
+  const toast = useToast();
+  const [pinBusy, setPinBusy] = useState(false);
   const insets = useSafeAreaInsets();
   const { ids } = useLocalSearchParams<{ ids: string }>();
   const list = (ids ?? "").split(",").map(Number).filter(Number.isInteger);
@@ -81,6 +97,28 @@ export default function ViewOuts() {
     anim.start(({ finished }) => finished && next());
     return () => anim.stop();
   }, [out, progress, next]);
+
+  async function togglePin() {
+    if (!out) return;
+    setPinBusy(true);
+    try {
+      if (out.pinned) await unpinOut(out.id);
+      else await pinOut(out.id);
+      setLoaded({ id: out.id, out: { ...out, pinned: !out.pinned } });
+      toast(
+        out.pinned
+          ? "Unpinned. It disappears when the hour is up."
+          : out.is_mine
+            ? "Pinned. It stays in your Pinned Outs."
+            : `Pinned. ${out.sender_name.split(" ")[0]} will know you kept it.`,
+      );
+      refreshNewOuts();
+    } catch (e) {
+      toast(friendlyError(e));
+    } finally {
+      setPinBusy(false);
+    }
+  }
 
   // Tell the sender if someone takes a screenshot.
   useEffect(() => {
@@ -209,6 +247,61 @@ export default function ViewOuts() {
           <AppText align="center" style={{ color: "#FFFFFF", fontSize: 18 }}>
             {out.caption}
           </AppText>
+        </View>
+      ) : null}
+
+      {out ? (
+        <View
+          style={{
+            position: "absolute",
+            left: 16,
+            right: 16,
+            bottom: insets.bottom + 20,
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+          }}
+        >
+          <AppText variant="small" style={{ color: "#FFFFFF" }}>
+            {out.pinned ? "Pinned: it stays" : timeLeft(out.expires_at)}
+          </AppText>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={
+              out.pinned
+                ? "Unpin this Out"
+                : out.is_mine
+                  ? "Pin this Out to keep it"
+                  : `Pin this Out to keep it. ${out.sender_name} will be told`
+            }
+            accessibilityState={{ busy: pinBusy }}
+            disabled={pinBusy}
+            onPress={togglePin}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 6,
+              paddingHorizontal: 16,
+              paddingVertical: 10,
+              borderRadius: 999,
+              backgroundColor: out.pinned ? "#FFFFFF" : "rgba(0,0,0,0.55)",
+              borderWidth: 1,
+              borderColor: "#FFFFFF",
+            }}
+          >
+            <Ionicons
+              name={out.pinned ? "bookmark" : "bookmark-outline"}
+              size={18}
+              color={out.pinned ? "#000000" : "#FFFFFF"}
+            />
+            <AppText
+              weight="bold"
+              style={{ color: out.pinned ? "#000000" : "#FFFFFF" }}
+            >
+              {out.pinned ? "Pinned" : "Pin"}
+            </AppText>
+          </Pressable>
         </View>
       ) : null}
     </View>

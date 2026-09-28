@@ -2,12 +2,26 @@ import { readBytes } from '@/lib/files';
 import { supabase } from '@/lib/supabase';
 
 export type OutsInbox = {
-  received: { sender_id: string; name: string; avatar_url: string | null; unopened: number; latest_at: string; next_out_id: number | null }[];
+  received: { sender_id: string; name: string; avatar_url: string | null; unopened: number; latest_at: string; out_ids: number[]; next_out_id: number | null }[];
   stories: { sender_id: string; name: string; avatar_url: string | null; out_ids: number[]; latest_at: string; all_seen: boolean }[];
-  my_story: { id: number; created_at: string; caption: string | null; views: number; screenshots: number }[];
-  sent: { id: number; created_at: string; to: string; recipients: number; opened: number; screenshots: number }[];
+  my_story: { id: number; created_at: string; caption: string | null; audience: OutAudience; expires_at: string; views: number; pins: number; screenshots: number }[];
+  sent: { id: number; created_at: string; to: string; recipients: number; opened: number; pins: number; screenshots: number }[];
+  /** Outs you pinned: kept until you unpin them. */
+  pinned: { id: number; created_at: string; caption: string | null; sender_id: string; sender_name: string; avatar_url: string | null; event_title: string | null }[];
 };
-export type OpenedOut = { url: string; caption: string | null; sender_name: string; sender_id: string; created_at: string; event_title: string | null };
+export type OutAudience = 'circle' | 'network';
+export type OpenedOut = {
+  id: number;
+  url: string;
+  caption: string | null;
+  sender_name: string;
+  sender_id: string;
+  created_at: string;
+  expires_at: string;
+  event_title: string | null;
+  pinned: boolean;
+  is_mine: boolean;
+};
 export type OutEvent = { id: number; title: string; place: string | null };
 
 export async function fetchOutsInbox() {
@@ -17,7 +31,7 @@ export async function fetchOutsInbox() {
 }
 
 /** Upload the photo, then send it to friends and/or post it to My Out. */
-export async function sendOut(input: { userId: string; uri: string; caption: string; to: string[]; toStory: boolean }) {
+export async function sendOut(input: { userId: string; uri: string; caption: string; to: string[]; toStory: boolean; audience: OutAudience }) {
   const { bytes, contentType } = await readBytes(input.uri);
   const ext = contentType.includes('png') ? 'png' : contentType.includes('webp') ? 'webp' : 'jpg';
   const path = `${input.userId}/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
@@ -28,12 +42,13 @@ export async function sendOut(input: { userId: string; uri: string; caption: str
     p_caption: input.caption.trim(),
     p_recipients: input.to,
     p_to_story: input.toStory,
+    p_audience: input.audience,
   });
   if (error) throw error;
   return data as number;
 }
 
-/** Open an Out. A direct Out can only be opened once. */
+/** Open an Out: anyone it was meant for, as often as they like for an hour; after that, only people who pinned it. */
 export async function openOut(outId: number): Promise<OpenedOut> {
   const { data, error } = await supabase.functions.invoke('open-out', { body: { out_id: outId } });
   if (error) {
@@ -53,7 +68,18 @@ export async function reportScreenshot(outId: number) {
   await supabase.rpc('out_screenshot', { p_out: outId });
 }
 
-/** The I'm In event you're at right now (Outs can only be posted from one), or null. */
+/** Pin an Out to keep it past the hour. The person who took it is told. */
+export async function pinOut(outId: number) {
+  const { error } = await supabase.rpc('pin_out', { p_out: outId });
+  if (error) throw error;
+}
+
+export async function unpinOut(outId: number) {
+  const { error } = await supabase.rpc('unpin_out', { p_out: outId });
+  if (error) throw error;
+}
+
+/** The I'm In event you're at right now (its name goes on your Outs), or null. */
 export async function fetchOutEvent() {
   const { data, error } = await supabase.rpc('my_out_event');
   if (error) throw error;

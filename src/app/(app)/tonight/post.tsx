@@ -11,7 +11,18 @@ import { fetchChatCandidates, type ChatCandidate } from '@/features/chat/api';
 import { track } from '@/features/analytics/track';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
-import { VIBES, deleteGoingOut, fetchHereViewers, postGoingOut, setHereAudience, setHereViewers, setOpenToJoin, type GoingOutWhen } from '@/features/tonight/api';
+import {
+  VIBES,
+  deleteGoingOut,
+  fetchHereViewers,
+  postGoingOut,
+  setHereAudience,
+  setHereViewers,
+  setOpenToJoin,
+  setPlanAudience,
+  type GoingOutWhen,
+  type PlanAudience,
+} from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
 import { goBackOr } from '@/lib/navigation';
 import { friendlyError, supabase } from '@/lib/supabase';
@@ -28,6 +39,7 @@ type Existing = {
   note: string | null;
   open_to_join: boolean;
   here_audience: string;
+  audience: PlanAudience;
 };
 
 /**
@@ -49,6 +61,8 @@ export default function PostGoingOut() {
   const [note, setNote] = useState('');
   const [openToJoin, setOpenToJoinState] = useState(true);
   const [audience, setAudience] = useState<'circle' | 'network' | 'custom'>('circle');
+  // Who sees this plan (and where you're going): chosen for each plan.
+  const [planAudience, setPlanAudienceState] = useState<PlanAudience>('everyone');
   const [viewers, setViewers] = useState<Set<string>>(new Set());
   const [friends, setFriends] = useState<ChatCandidate[] | null>(null);
   const [day, setDay] = useState<string | null>(null);
@@ -73,7 +87,7 @@ export default function PostGoingOut() {
     if (!me) return;
     supabase
       .from('going_out_posts')
-      .select('id, when_kind, starts_at, place_text, venue_id, vibes, note, open_to_join, here_audience, venues(name)')
+      .select('id, when_kind, starts_at, place_text, venue_id, vibes, note, open_to_join, here_audience, audience, venues(name)')
       .eq('user_id', me)
       .gt('expires_at', new Date().toISOString())
       .order('starts_at')
@@ -88,6 +102,7 @@ export default function PostGoingOut() {
           note: r.note,
           open_to_join: r.open_to_join,
           here_audience: r.here_audience,
+          audience: (r.audience === 'circle' || r.audience === 'network' ? r.audience : 'everyone') as PlanAudience,
         }));
         setExisting(rows);
         const tonight = rows.find((r) => r.when_kind === 'tonight');
@@ -96,6 +111,7 @@ export default function PostGoingOut() {
           setVibes(tonight.vibes);
           setNote(tonight.note ?? '');
           setOpenToJoinState(tonight.open_to_join);
+          setPlanAudienceState(tonight.audience);
           setAudience(tonight.here_audience === 'network' ? 'network' : tonight.here_audience === 'custom' ? 'custom' : 'circle');
           if (tonight.here_audience === 'custom') fetchHereViewers(tonight.id).then((ids) => setViewers(new Set(ids)), () => undefined);
         }
@@ -142,13 +158,15 @@ export default function PostGoingOut() {
         lng: location?.lng,
       });
       if (!openToJoin) await setOpenToJoin(postId, false);
+      if (planAudience !== 'everyone') await setPlanAudience(postId, planAudience);
       if (when === 'tonight') {
         if (audience === 'custom') await setHereViewers(postId, [...viewers]);
-        else await setHereAudience(postId, audience);
+        // A circle-only plan keeps "you're there" to your circle too.
+        else await setHereAudience(postId, planAudience === 'circle' ? 'circle' : audience);
       }
       if (place.venueId) enableArrivalWatch();
       toast(when === 'tonight' ? "You're on the Tonight feed" : 'Your plans are posted');
-      track('im_in_posted', { when });
+      track('im_in_posted', { when, audience: planAudience });
       goBackOr(router, '/tonight');
     } catch (e) {
       toast(friendlyError(e));
@@ -284,12 +302,37 @@ export default function PostGoingOut() {
           />
         </View>
 
+        <View style={{ gap: t.space[2] }}>
+          <AppText weight="bold">Who sees this plan and where you&apos;re going?</AppText>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+            <Chip label="Everyone nearby" selected={planAudience === 'everyone'} onPress={() => setPlanAudienceState('everyone')} />
+            <Chip label="My Network (1st + 2nd)" selected={planAudience === 'network'} onPress={() => setPlanAudienceState('network')} />
+            <Chip
+              label="My Circle (1st only)"
+              selected={planAudience === 'circle'}
+              onPress={() => {
+                setPlanAudienceState('circle');
+                if (audience === 'network') setAudience('circle');
+              }}
+            />
+          </View>
+          <AppText variant="caption" tone="muted">
+            {planAudience === 'everyone'
+              ? 'Your circle, your network and people nearby on I’m In.'
+              : planAudience === 'network'
+                ? 'Only your circle and the people they know.'
+                : 'Only people you’re directly connected to. Nobody else.'}
+          </AppText>
+        </View>
+
         {when === 'tonight' ? (
           <View style={{ gap: t.space[2] }}>
             <AppText weight="bold">When you get there, who sees it?</AppText>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
-              <Chip label="My Circle" selected={audience === 'circle'} onPress={() => setAudience('circle')} />
-              <Chip label="My Network" selected={audience === 'network'} onPress={() => setAudience('network')} />
+              <Chip label="My Circle (1st only)" selected={audience === 'circle'} onPress={() => setAudience('circle')} />
+              {planAudience !== 'circle' ? (
+                <Chip label="My Network (1st + 2nd)" selected={audience === 'network'} onPress={() => setAudience('network')} />
+              ) : null}
               <Chip label="Only these people" selected={audience === 'custom'} onPress={chooseCustom} />
             </View>
             <AppText variant="caption" tone="muted">

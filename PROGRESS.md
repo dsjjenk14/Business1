@@ -5,6 +5,25 @@
 
 ---
 
+## ✅ Original colors, Outs for an hour, pin an Out, split the bill, choose who sees each post
+- **Colors:** the original colors are back (near-black, red, gold and green), in the new layout. It's the default for everyone again; the light version uses the original light colors. Other looks are still in Appearance.
+- **Outs anywhere:** you no longer need to be at an event. At an I'm In event, the event's name still goes on your Out.
+- **Outs last 1 hour.** Friends can look as many times as they like during that hour. After that it's gone and the photo is deleted.
+- **Pin an Out** to keep it. The person who took it gets a notice ("Ben pinned your Out"), the same as screenshots. Pinned Outs have their own list in the Outs tab until you unpin them.
+- **Choose who sees each post** (My Circle = 1st-degree connections only):
+  - **Outs:** sent straight to friends in your circle, or to My Out, where each one is set to My Circle (1st only) or My Network (1st + 2nd).
+  - **Pins:** Everyone / My Network / My Circle, picked for each pin (the wording now says "Only your 1st-degree connections").
+  - **Locations:** each going-out plan now picks who sees it and where you're going: Everyone nearby / My Network / My Circle (1st only). "When you get there, who sees it" is still a separate choice, and it can't be wider than the plan.
+- **Split the bill** (Menu → Split the bill, or "Split the bill" on an event after it starts):
+  - snap or pick the receipt photo; only people on the bill can see it
+  - enter the total, pick a tip, tag who was there (your circle, plus people at the event)
+  - split evenly (include yourself or not) or type each person's amount
+  - each friend gets a notice with their share, and a button that opens Venmo, Cash App or PayPal with the amount filled in
+  - they tap "I paid"; you tap "Got it". You can send a reminder (at most every 12 hours) or cancel the bill.
+  - I'm In never touches the money and takes no fee. Add your usernames in Split the bill → Where friends pay you. If you later want payments inside the app, that would go through Stripe and cost fees, so ask first.
+- Terms and privacy text updated (Outs, Split the bill, how long receipts and pinned Outs are kept).
+- Tests: 427 database checks pass (new: pinning, the hour limit, plan and My Out audiences, bills). A browser run covered sending an Out with no event, looking again, pinning (the sender is told), splitting a bill, paying and "Got it", and the plan audience choice.
+
 ## ✅ A web link for testers
 - Every deploy now also publishes the web version at **https://imin-dc.expo.app**, so anyone can try I'm In in their phone's browser. Nothing to install and no Expo account.
 - Built and tested here: it logs in and loads with no errors.
@@ -621,6 +640,8 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 | 2026-10-01 | The map is drawn by the app (no map company) | No cost, no API key, and no third party gets members' locations. A street map can be added later if you want one. |
 | 2026-10-01 | Events can be at a typed place, not just a listed venue | The live database starts with no venue list |
 | 2026-10-01 | Recurring group events stay under Groups, not This Weekend | Decision B9 |
+| 2026-09-28 | Split the bill doesn't move money; friends pay with Venmo / Cash App / PayPal links | No fees, no licensing, no new paid service; in-app payments would need Stripe (ask first) |
+| 2026-09-28 | Outs last 1 hour and can be viewed again during it; pinning keeps one and tells the sender | Dominique |
 | 2026-09-27 | Tiers: New Face 0, In the Mix 5, Connector 20, Plugged In 50, Icon 100 | Dominique: keep the idea, modernize the names |
 | 2026-09-27 | Pin audience: Everyone / My Network (1st + 2nd) / My Circle (1st) | Dominique: "fix this" |
 | 2026-09-27 | GPS check-in never gives a vouch by itself; each person picks their own word | Dominique |

@@ -2,7 +2,7 @@
 -- stories, screenshots, cleanup) and What's In.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(43);
+select plan(53);
 
 create or replace function pg_temp.new_user(p_email text, p_name text) returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();
@@ -68,23 +68,22 @@ select lives_ok(format($q$insert into pin_media (pin_id, kind, frames) values (%
   pg_temp.uid('a') || '/' || pg_temp.id('pin') || '/f3.jpg'), 'Add a boomerang');
 
 -- ── Outs ──────────────────────────────────────────────────────────────────
--- Only at an I'm In event you've arrived at.
+-- Anywhere (not only at events). At an event, the event is attached.
 select pg_temp.act_as('a');
-select throws_ok(format('select send_out(%L, null, array[%L]::uuid[], false)', pg_temp.uid('a') || '/early.jpg', pg_temp.uid('b')),
-  '23514', 'You can post Outs when you''re at an I''m In event. Say I''m In to one, and the app marks you there when you arrive.',
-  'No Outs unless you''re at an event');
-select is(my_out_event(), null, 'The Outs tab knows you''re not at one');
+select ok(send_out(pg_temp.uid('a') || '/anywhere.jpg', null, array[pg_temp.uid('b')]::uuid[], false) is not null, 'Outs work anywhere');
+select pg_temp.admin();
+select is((select title from notifications where user_id = pg_temp.uid('b') and kind = 'out' order by id desc limit 1), 'Ava S. sent you an Out', 'Not at an event: plain notice');
+select is((select round(extract(epoch from expires_at - created_at) / 60)::int from outs where path like '%/anywhere.jpg'), 60, 'An Out lasts an hour');
+select pg_temp.act_as('a');
+select is(my_out_event(), null, 'Not at an event');
 select pg_temp.admin();
 insert into events (host_id, title, starts_at) values (pg_temp.uid('b'), 'Out Party', now() - interval '30 minutes');
 insert into ids select 'ev', id from events where title = 'Out Party';
 insert into event_rsvps (event_id, user_id) values (pg_temp.id('ev'), pg_temp.uid('a'));
-select pg_temp.act_as('a');
-select is(my_out_event(), null, 'Going isn''t enough: you have to be there');
-select pg_temp.admin();
 insert into location_pings (user_id, location, purpose, event_id)
 values (pg_temp.uid('a'), 'SRID=4326;POINT(-77.03 38.9)', 'checkin', pg_temp.id('ev'));
 select pg_temp.act_as('a');
-select is(my_out_event()->>'title', 'Out Party', 'Once you''re marked there, you can post Outs');
+select is(my_out_event()->>'title', 'Out Party', 'Once you''re marked there, the app knows your event');
 select throws_ok(format('select send_out(%L, null, array[%L]::uuid[], false)', pg_temp.uid('b') || '/x.jpg', pg_temp.uid('b')),
   '23514', null, 'Outs must be your own upload');
 select throws_ok(format('select send_out(%L, null, array[%L]::uuid[], false)', pg_temp.uid('a') || '/x.jpg', pg_temp.uid('c')),
@@ -93,28 +92,43 @@ select ok(send_out(pg_temp.uid('a') || '/one.jpg', 'Look!', array[pg_temp.uid('b
 select pg_temp.admin();
 insert into ids select 'out1', id from outs where path like '%/one.jpg';
 select is((select count(*)::int from out_recipients where out_id = pg_temp.id('out1')), 1, 'Strangers in the list are left out');
-select is((select count(*)::int from notifications where user_id = pg_temp.uid('b') and kind = 'out'), 1, 'The friend is told');
-select is((select title from notifications where user_id = pg_temp.uid('b') and kind = 'out'), 'Ava S. sent you an Out from Out Party', 'The notification names the event');
+select is((select title from notifications where user_id = pg_temp.uid('b') and kind = 'out' order by id desc limit 1), 'Ava S. sent you an Out from Out Party', 'The notification names the event');
 select pg_temp.act_as('b');
-select is((outs_inbox()->'received'->0->>'unopened')::int, 1, 'It shows as new in their Outs');
+select is((select (x->>'unopened')::int from jsonb_array_elements(outs_inbox()->'received') x), 2, 'Both show as new in their Outs');
 select is((select count(*)::int from outs), 0, 'Outs can''t be read directly');
 select throws_ok(format('select out_open(%s, %L)', pg_temp.id('out1'), pg_temp.uid('b')), '42501', null, 'Only the server opens Outs');
 select pg_temp.admin();
 select is(out_open(pg_temp.id('out1'), pg_temp.uid('b'))->>'caption', 'Look!', 'The friend opens it');
-select pg_temp.admin();
-select is(out_open(pg_temp.id('out1'), pg_temp.uid('b'))->>'error', 'You already opened this Out.', 'It opens only once');
+select is(out_open(pg_temp.id('out1'), pg_temp.uid('b'))->>'caption', 'Look!', 'And can look again during the hour');
 select is(out_open(pg_temp.id('out1'), pg_temp.uid('c'))->>'error', 'This Out is gone.', 'Nobody else can open it');
 select pg_temp.act_as('b');
 select out_screenshot(pg_temp.id('out1'));
 select pg_temp.admin();
 select is((select count(*)::int from notifications where user_id = pg_temp.uid('a') and kind = 'out_screenshot'), 1, 'Screenshots are reported to the sender');
-select ok(not exists (select 1 from outs_to_clean() where id = pg_temp.id('out1')), 'Just opened: the photo stays long enough to load');
-update out_recipients set opened_at = now() - interval '5 minutes' where out_id = pg_temp.id('out1');
-select ok(exists (select 1 from outs_to_clean() where id = pg_temp.id('out1')), 'Opened by everyone: its photo gets deleted');
+select pg_temp.act_as('c');
+select throws_ok(format('select pin_out(%s)', pg_temp.id('out1')), '23514', null, 'You can''t pin an Out that wasn''t sent to you');
+select pg_temp.act_as('b');
+select ok(pin_out(pg_temp.id('out1')), 'Pin it to keep it');
+select pin_out(pg_temp.id('out1'));
+select pg_temp.admin();
+select is((select count(*)::int from notifications where user_id = pg_temp.uid('a') and kind = 'out_pinned'), 1, 'The sender is told once');
+select is((select title from notifications where user_id = pg_temp.uid('a') and kind = 'out_pinned'), 'Ben S. pinned your Out', 'By name');
+-- The hour passes.
+update outs set expires_at = now() - interval '1 minute' where sender_id = pg_temp.uid('a') and not to_story;
+select is(out_open(pg_temp.id('out1'), pg_temp.uid('b'))->>'caption', 'Look!', 'Pinned: still there after the hour');
+select is(out_open(pg_temp.id('out1'), pg_temp.uid('a'))->>'error', 'This Out is gone. Outs last an hour unless you pin them.', 'Not pinned: gone after the hour');
+select ok(not exists (select 1 from outs_to_clean() where id = pg_temp.id('out1')), 'A pinned Out''s photo is kept');
+select ok(exists (select 1 from outs_to_clean() o join outs x on x.id = o.id where x.path like '%/anywhere.jpg'), 'An unpinned one is deleted');
+select pg_temp.act_as('b');
+select is(jsonb_array_length(outs_inbox()->'pinned'), 1, 'Pinned Outs have their own list');
+select is(jsonb_array_length(outs_inbox()->'received'), 0, 'And leave the new-Outs list after the hour');
+select unpin_out(pg_temp.id('out1'));
+select pg_temp.admin();
+select ok(exists (select 1 from outs_to_clean() where id = pg_temp.id('out1')), 'Unpinned after the hour: its photo is deleted');
 select outs_cleaned(array[pg_temp.id('out1')]);
 select is(out_open(pg_temp.id('out1'), pg_temp.uid('b'))->>'error', 'This Out is gone.', 'Gone after cleanup');
 
--- My Out (story): your circle can watch it for 24 hours.
+-- My Out: your circle (or your network, if you pick that) can watch it for an hour.
 select pg_temp.act_as('a');
 select ok(send_out(pg_temp.uid('a') || '/story.jpg', null, array[]::uuid[], true) is not null, 'Post to My Out');
 select pg_temp.admin();
@@ -128,6 +142,8 @@ select ok(out_open(pg_temp.id('story'), pg_temp.uid('b'))->>'path' is not null, 
 select ok(out_open(pg_temp.id('story'), pg_temp.uid('b'))->>'path' is not null, 'And can watch again while it lasts');
 select pg_temp.act_as('a');
 select is((outs_inbox()->'my_story'->0->>'views')::int, 1, 'You see how many watched');
+select throws_ok(format('select send_out(%L, null, array[]::uuid[], true, %L)', pg_temp.uid('a') || '/s2.jpg', 'everyone'),
+  '23514', null, 'My Out is for your circle or your network, not everyone');
 
 -- ── Unvouch ───────────────────────────────────────────────────────────────
 select pg_temp.admin();

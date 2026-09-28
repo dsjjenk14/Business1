@@ -212,6 +212,14 @@ export async function joinGoingOut(postId: number, status: 'heading' | 'here' | 
   if (error) throw error;
 }
 
+/** Who sees a plan and where you're going: everyone nearby, 1st + 2nd degree, or 1st degree only. */
+export type PlanAudience = 'everyone' | 'network' | 'circle';
+
+export async function setPlanAudience(postId: number, audience: PlanAudience) {
+  const { error } = await supabase.rpc('set_plan_audience', { p_post: postId, p_audience: audience });
+  if (error) throw error;
+}
+
 export async function setHereAudience(postId: number, audience: 'circle' | 'network') {
   const { error } = await supabase.rpc('set_here_audience', { p_post: postId, p_audience: audience });
   if (error) throw error;

@@ -274,8 +274,8 @@ export default function EventScreen() {
             <View style={{ gap: t.space[2] }}>
               <GlyphTitle glyph="arrive" tone="trust">You&apos;re there</GlyphTitle>
               <AppText variant="small" tone="muted">
-                The app marked you at the event, so you can post Outs from here. Anyone you meet here shows up in Check In; vouching is up to
-                you.
+                The app marked you at the event. Outs you take now show they&apos;re from here. Anyone you meet here shows up in Check In;
+                vouching is up to you.
               </AppText>
               <Button label="Take an Out" size="md" onPress={() => router.push('/outs/new')} />
               <Button label="Vouch for someone you met" variant="ghost" size="md" onPress={() => router.push('/circles/vouch')} />
@@ -315,6 +315,23 @@ export default function EventScreen() {
                 )}
                 <Button label="Vouch" size="md" variant="trust" style={{ flex: 1 }} onPress={() => router.push('/circles/vouch')} />
               </View>
+            </View>
+          </Card>
+        ) : null}
+
+        {phase !== 'upcoming' && (event.i_am_going || event.is_host) ? (
+          <Card>
+            <View style={{ gap: t.space[2] }}>
+              <GlyphTitle glyph="receipt">Split the bill</GlyphTitle>
+              <AppText variant="small" tone="muted">
+                Paid for the group? Snap the receipt, tag who was there, and send each person their share.
+              </AppText>
+              <Button
+                label="Split the bill"
+                size="md"
+                variant="secondary"
+                onPress={() => router.push({ pathname: '/bills/new', params: { event: String(event.id), title: event.title } })}
+              />
             </View>
           </Card>
         ) : null}
