@@ -64,7 +64,7 @@ select throws_ok($$ select track('Not A Name!') $$, '23514', null, 'Only simple 
 select throws_ok($$ select admin_usage() $$, '42501', 'Admins only.', 'Only admins read usage');
 
 -- ── Home ─────────────────────────────────────────────────────────────────
-select ok(home_feed() ?& array['people', 'live', 'events', 'pins', 'group_chats', 'circle_count', 'me'], 'Home comes back in one request');
+select ok(home_feed() ?& array['pins', 'activity', 'group_events', 'friends_hosting', 'friend_count'], 'Home comes back in one request: friends'' pins, likes and replies, group events, friends hosting');
 
 select * from finish();
 rollback;

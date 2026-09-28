@@ -5,6 +5,15 @@
 
 ---
 
+## ✅ Home, simplified (Dominique: "That's it")
+Home now shows four things and nothing else:
+1. **Your friends' pins.** Pins from your circle and people you follow; not yours, not strangers'. The first 5 show, then "Show more".
+2. **Likes and replies** people sent you in the last 14 days. Likes are combined per pin ("Alex, Brianna and 7 others liked your pin"), and each reply shows its text. Tap one to open the pin.
+3. **Your group events**, with I'm In.
+4. **Hosted by friends:** events people in your circle are hosting, with I'm In ("Full" when there are no spots left).
+
+Removed from Home: the people row, the Friends/Everyone switch, live cards, new-friend cards and the partner card. Home still loads in one request and opens from the last saved copy. Migration 025.
+
 ## ✅ Messages back at the top; I'm In on shared events
 - The **Messages icon is back in the top bar** (with a dot for unread). The bottom bar is Home, Pins, Tonight, Circles again.
 - When someone **shares an event as a post**, the post now shows the event (name, time, how many are going) with an **I'm In** button, or "You're in" once you've tapped it.
