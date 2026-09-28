@@ -34,7 +34,7 @@ export function GoingOutStrip({ people, amLive }: { people: TonightPerson[]; amL
             </AppText>
           </View>
           <AppText variant="caption" tone={amLive ? 'trust' : 'muted'} numberOfLines={1}>
-            {meHere ? 'In now' : amLive ? 'Tonight' : 'You'}
+            {meHere ? 'There now' : amLive ? 'Tonight' : 'You'}
           </AppText>
         </Pressable>
         {others.map((p) => (
@@ -63,7 +63,7 @@ export function GoingOutStrip({ people, amLive }: { people: TonightPerson[]; amL
               ) : null}
             </View>
             <AppText variant="caption" tone={p.here_since ? 'trust' : 'muted'} numberOfLines={1}>
-              {p.here_since ? 'In now' : p.display_name.split(' ')[0]}
+              {p.here_since ? 'There now' : p.display_name.split(' ')[0]}
             </AppText>
           </Pressable>
         ))}

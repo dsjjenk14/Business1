@@ -3,12 +3,10 @@ import { useCallback, useRef, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 
 import { GroupsList } from '@/components/groups/GroupsList';
-import { RadiusControl } from '@/components/pins/RadiusControl';
 import { EmptyCard, EventCard, GoingOutPersonRow, MyNightOut } from '@/components/tonight/GoingOutList';
 import { AppText, Badge, Button, Card, GlyphTile, IconButton, Section, Segmented, useToast } from '@/components/ui';
-import { fetchGroups, type GroupsOverview } from '@/features/circles/api';
+import { fetchGroups, preciseLocation, type GroupsOverview } from '@/features/circles/api';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
-import { usePlan } from '@/features/plan/usePlan';
 import {
   fetchCompany,
   fetchGoingOut,
@@ -24,12 +22,12 @@ import {
   type GroupEvent,
 } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
+import { SEARCH_RADIUS_MI } from '@/lib/radius';
 import { friendlyError } from '@/lib/supabase';
 import { dayTime } from '@/lib/time';
 import { useTheme } from '@/theme';
 
 type Tab = 'tonight' | 'weekend' | 'groups';
-const TONIGHT_MAX_MI = 75;
 
 /** Tonight: who's going out and what's happening, tonight and this weekend, plus your groups. */
 export default function Tonight() {
@@ -38,14 +36,11 @@ export default function Tonight() {
   const toast = useToast();
   const { session } = useAuth();
   const me = session?.user.id;
-  const { limit, premiumLimit } = usePlan();
   const { location } = useApproxLocation();
   const lat = location?.lat;
   const lng = location?.lng;
 
   const [tab, setTab] = useState<Tab>('tonight');
-  const [radius, setRadius] = useState(10);
-  const [committedRadius, setCommittedRadius] = useState(10);
   const [feed, setFeed] = useState<GoingOutFeed | null>(null);
   const [groups, setGroups] = useState<GroupsOverview | null>(null);
   const [groupEvents, setGroupEvents] = useState<GroupEvent[]>([]);
@@ -56,8 +51,7 @@ export default function Tonight() {
   const [busy, setBusy] = useState(false);
   const requestId = useRef(0);
 
-  const planMax = Math.min(TONIGHT_MAX_MI, limit('search_radius_mi') ?? TONIGHT_MAX_MI);
-  const effectiveRadius = Math.min(committedRadius, planMax);
+  const effectiveRadius = SEARCH_RADIUS_MI;
   const weekend = tab === 'weekend';
 
   const load = useCallback(async () => {
@@ -129,9 +123,9 @@ export default function Tonight() {
 
   const audienceLabel = (a: string | null | undefined) => (a === 'network' ? 'your network' : 'your circle');
   const onIn = () =>
-    act(() => imHere(location), mine?.here_since ? `Still in. ${audienceLabel(mine.here_audience)} can see it.` : `You're in. ${audienceLabel(mine?.here_audience)} can see it.`);
+    act(async () => imHere(await preciseLocation().catch(() => location)), `Marked you there. Only ${audienceLabel(mine?.here_audience)} can see it.`);
   const onAudience = (a: 'circle' | 'network') =>
-    mine ? act(() => setHereAudience(mine.post_id, a), a === 'network' ? 'Your network can see when you’re in' : 'Only your circle can see when you’re in') : undefined;
+    mine ? act(() => setHereAudience(mine.post_id, a), a === 'network' ? 'Your network can see when you’re there' : 'Only your circle can see when you’re there') : undefined;
   const onJoin = (p: FeedPerson, status: 'heading' | null) =>
     act(() => joinGoingOut(p.post_id, status), status ? `${p.display_name.split(' ')[0]} knows you’re joining` : 'Cancelled');
 
@@ -146,18 +140,6 @@ export default function Tonight() {
         <IconButton icon="map-outline" label="Map of who's out" onPress={() => router.push({ pathname: '/tonight/map', params: { when: weekend ? 'weekend' : 'tonight' } })} />
         <Button label="I'm Out" size="md" onPress={() => router.push({ pathname: '/tonight/post', params: { when: weekend ? 'weekend' : 'tonight' } })} />
       </View>
-
-      {tab !== 'groups' ? (
-        <RadiusControl
-          label="Search radius"
-          value={Math.min(radius, planMax)}
-          onChange={setRadius}
-          onCommit={setCommittedRadius}
-          max={TONIGHT_MAX_MI}
-          planMax={planMax}
-          premiumMax={premiumLimit('search_radius_mi')}
-        />
-      ) : null}
 
       <Segmented<Tab>
         options={[

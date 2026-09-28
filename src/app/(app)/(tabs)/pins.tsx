@@ -5,29 +5,24 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PlacementCard } from '@/components/places/PlacementCard';
 import { PinCard } from '@/components/pins/PinCard';
-import { RadiusControl } from '@/components/pins/RadiusControl';
 import { AppText, Button, Card, Chip, Glyph, GlyphTitle, IconButton, Segmented } from '@/components/ui';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { FILTERS, fetchFeed, type FeedPin, type PinCategory } from '@/features/pins/api';
 import { fetchFeedPlacement, type FeedPlacement } from '@/features/places/api';
-import { usePlan } from '@/features/plan/usePlan';
+import { SEARCH_RADIUS_MI } from '@/lib/radius';
 import { useTheme } from '@/theme';
 
 type Tab = 'nearby' | 'community';
-const PINS_MAX_MI = 50;
 
 /** Pins: the heart of the app. Nearby (radius) and They're In (whole community). */
 export default function Pins() {
   const t = useTheme();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { limit, premiumLimit } = usePlan();
   const { location } = useApproxLocation();
 
   const [tab, setTab] = useState<Tab>('nearby');
   const [category, setCategory] = useState<PinCategory | 'all'>('all');
-  const [radius, setRadius] = useState(5);
-  const [committedRadius, setCommittedRadius] = useState(5);
   const [pins, setPins] = useState<FeedPin[] | null>(null);
   const [trending, setTrending] = useState<FeedPin | null>(null);
   const [placement, setPlacement] = useState<FeedPlacement | null>(null);
@@ -37,9 +32,7 @@ export default function Pins() {
   const [error, setError] = useState<string | null>(null);
   const requestId = useRef(0);
 
-  const planMax = Math.min(PINS_MAX_MI, limit('search_radius_mi') ?? PINS_MAX_MI, limit('pins_radius_max_mi') ?? PINS_MAX_MI);
-  const premiumMax = premiumLimit('search_radius_mi');
-  const effectiveRadius = Math.min(committedRadius, planMax);
+  const effectiveRadius = SEARCH_RADIUS_MI;
 
   const load = useCallback(async () => {
     const id = ++requestId.current;
@@ -121,15 +114,9 @@ export default function Pins() {
       />
 
       {tab === 'nearby' ? (
-        <RadiusControl
-          label="Nearby radius"
-          value={Math.min(radius, planMax)}
-          onChange={setRadius}
-          onCommit={setCommittedRadius}
-          max={PINS_MAX_MI}
-          planMax={planMax}
-          premiumMax={premiumMax}
-        />
+        <AppText variant="small" tone="muted">
+          Pins within {SEARCH_RADIUS_MI} miles of you
+        </AppText>
       ) : (
         <Card>
           <GlyphTitle glyph="globe" tone="ai">They&apos;re In: the whole community</GlyphTitle>
