@@ -14,6 +14,8 @@ import { useTheme } from '@/theme';
  * spots and nights out. The list itself is free and instant; the AI picks the
  * best few once a day and says why (marked with the spark).
  */
+const firstName = (name: string) => name.split(' ')[0] ?? name;
+
 export function PeopleLikeYou({ limit = 8, compact = false }: { limit?: number; compact?: boolean }) {
   const t = useTheme();
   const router = useRouter();
@@ -68,7 +70,7 @@ export function PeopleLikeYou({ limit = 8, compact = false }: { limit?: number; 
         <View style={{ flex: 1, gap: 2 }}>
           {picks?.picks.length ? <AIMark label="AI picks" /> : null}
           <AppText variant="caption" tone="subtle">
-            Into the same things, in the same groups, out on the same nights.
+            Into the same things, in the same groups, out on the same nights. A friend you share still has to introduce you.
           </AppText>
         </View>
         {!compact && picks?.picks.length ? (
@@ -104,27 +106,34 @@ export function PeopleLikeYou({ limit = 8, compact = false }: { limit?: number; 
             ring={p.reason ? 'ai' : null}
             detail={p.reason ? null : sharedLine(p.shared) || p.headline}
             extra={
-              p.reason ? (
-                <AppText variant="caption" tone="ai" numberOfLines={compact ? 2 : 3}>
-                  {p.reason}
-                </AppText>
-              ) : null
-            }
-            right={
-              p.degree === 2 && p.via ? (
-                p.intro_requested ? (
-                  <AppText variant="caption" tone="subtle">
-                    Requested
+              <>
+                {p.reason ? (
+                  <AppText variant="caption" tone="ai" numberOfLines={compact ? 2 : 3}>
+                    {p.reason}
                   </AppText>
+                ) : null}
+                {p.degree === 2 && p.via ? (
+                  p.intro_requested ? (
+                    <AppText variant="caption" tone="subtle">
+                      You asked {firstName(p.via.display_name)} to introduce you
+                    </AppText>
+                  ) : (
+                    <AppText
+                      variant="caption"
+                      weight="bold"
+                      tone="trust"
+                      accessibilityRole="button"
+                      accessibilityLabel={`Ask ${p.via.display_name} to introduce you to ${p.display_name}`}
+                      onPress={() => router.push({ pathname: '/circles/request-intro', params: { target: p.user_id } })}>
+                      Ask {firstName(p.via.display_name)} to introduce you →
+                    </AppText>
+                  )
                 ) : (
-                  <Button
-                    label="Intro"
-                    size="md"
-                    accessibilityLabel={`Ask ${p.via.display_name} to introduce you to ${p.display_name}`}
-                    onPress={() => router.push({ pathname: '/circles/request-intro', params: { target: p.user_id } })}
-                  />
-                )
-              ) : null
+                  <AppText variant="caption" tone="subtle">
+                    No mutual friend yet to introduce you
+                  </AppText>
+                )}
+              </>
             }
           />
         ))

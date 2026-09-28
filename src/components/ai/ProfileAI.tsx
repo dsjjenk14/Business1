@@ -76,7 +76,7 @@ export function AIRead({ userId, firstName, initial }: { userId: string; firstNa
 }
 
 /** Three conversation starters for someone new. Tap one to copy it. */
-export function IcebreakersCard({ userId, firstName }: { userId: string; firstName: string }) {
+export function IcebreakersCard({ userId, firstName, connected }: { userId: string; firstName: string; connected: boolean }) {
   const t = useTheme();
   const toast = useToast();
   const [list, setList] = useState<string[] | null>(null);
@@ -118,6 +118,11 @@ export function IcebreakersCard({ userId, firstName }: { userId: string; firstNa
     <Card accent="ai">
       <View style={{ gap: t.space[2] }}>
         <AIMark label="Icebreakers" />
+        {!connected ? (
+          <AppText variant="caption" tone="subtle">
+            For once a friend you share introduces you.
+          </AppText>
+        ) : null}
         {list.map((s) => (
           <Pressable
             key={s}

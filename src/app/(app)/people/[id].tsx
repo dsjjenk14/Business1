@@ -125,7 +125,7 @@ export default function PersonProfile() {
           {exchanges != null ? ` (${Math.min(exchanges, needed)} of ${needed} so far)` : ''}. Premium skips the wait.
         </AppText>
       ) : null}
-      <IcebreakersCard userId={card.id} firstName={first} />
+      <IcebreakersCard userId={card.id} firstName={first} connected={card.degree === 1} />
       {card.degree === 2 ? (
         <AppText variant="caption" tone="subtle" align="center">
           {first} is one intro away. Ask {card.via[0]?.display_name ?? 'a mutual friend'} to introduce you, and you can message right away.
