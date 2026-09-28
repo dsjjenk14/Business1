@@ -5,7 +5,7 @@ import { FlatList, KeyboardAvoidingView, Platform, Pressable, TextInput, View } 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Avatar, Glyph, useToast } from '@/components/ui';
+import { AppText, Avatar, IconButton, Glyph, useToast } from '@/components/ui';
 import { fetchConversation, fetchMessages, markRead, sendMessage, subscribeToMessages, type ChatMessage, type ConversationInfo } from '@/features/chat/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
@@ -106,7 +106,14 @@ export default function Chat() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <BackHeader title={info ? info.title : 'Chat'} />
+      <BackHeader
+        title={info ? info.title : 'Chat'}
+        right={
+          info?.kind === 'chat' ? (
+            <IconButton icon="people-outline" label="Chat details" onPress={() => router.push({ pathname: '/chat/[id]/details', params: { id: String(info.id) } })} />
+          ) : undefined
+        }
+      />
       {other ? (
         <Pressable
           accessibilityRole="link"

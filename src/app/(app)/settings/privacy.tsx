@@ -10,7 +10,7 @@ import { useTheme } from '@/theme';
 type Key = 'show_in_nearby' | 'show_going_out_venue' | 'show_vouch_count' | 'allow_intro_requests' | 'discoverable';
 
 const OPTIONS: { key: Key; label: string; detail: string }[] = [
-  { key: 'show_in_nearby', label: 'Show me when I go out', detail: 'Appear on Home and Tonight when you tap I\'m Out' },
+  { key: 'show_in_nearby', label: 'Show me when I go out', detail: 'Appear on Home and Tonight when you tap I\'m In tonight' },
   { key: 'show_going_out_venue', label: 'Show where I’m going', detail: 'Show the venue when you go out (otherwise just “going out”)' },
   { key: 'show_vouch_count', label: 'Show my vouch count', detail: 'Others see how many vouches you have' },
   { key: 'allow_intro_requests', label: 'Allow intro requests', detail: 'Let people one intro away ask a mutual friend to introduce you' },

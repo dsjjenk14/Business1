@@ -74,6 +74,31 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"connect_codes": {
+                  Row: {
+                    "code": string,"created_at": string,"expires_at": string,"kind": string,"owner_id": string,"used_at": string | null,"used_by": string | null
+                  }
+                  Insert: {
+                    "code": string,"created_at"?: string,"expires_at": string,"kind": string,"owner_id": string,"used_at"?: string | null,"used_by"?: string | null
+                  }
+                  Update: {
+                    "code"?: string,"created_at"?: string,"expires_at"?: string,"kind"?: string,"owner_id"?: string,"used_at"?: string | null,"used_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "connect_codes_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "connect_codes_used_by_fkey"
+      columns: ["used_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"connections": {
                   Row: {
                     "connector_id": string | null,"created_at": string,"source": Database["public"]['Enums']["connection_source"],"user_a": string,"user_b": string
@@ -132,16 +157,22 @@ isOneToOne: false
                   ]
                 },"conversations": {
                   Row: {
-                    "created_at": string,"direct_a": string | null,"direct_b": string | null,"group_id": number | null,"id": number,"kind": string,"last_message_at": string | null
+                    "created_at": string,"created_by": string | null,"direct_a": string | null,"direct_b": string | null,"group_id": number | null,"id": number,"kind": string,"last_message_at": string | null,"name": string | null
                   }
                   Insert: {
-                    "created_at"?: string,"direct_a"?: string | null,"direct_b"?: string | null,"group_id"?: number | null,"id"?: number,"kind": string,"last_message_at"?: string | null
+                    "created_at"?: string,"created_by"?: string | null,"direct_a"?: string | null,"direct_b"?: string | null,"group_id"?: number | null,"id"?: number,"kind": string,"last_message_at"?: string | null,"name"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"direct_a"?: string | null,"direct_b"?: string | null,"group_id"?: number | null,"id"?: number,"kind"?: string,"last_message_at"?: string | null
+                    "created_at"?: string,"created_by"?: string | null,"direct_a"?: string | null,"direct_b"?: string | null,"group_id"?: number | null,"id"?: number,"kind"?: string,"last_message_at"?: string | null,"name"?: string | null
                   }
                   Relationships: [
                     {
+      foreignKeyName: "conversations_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
       foreignKeyName: "conversations_direct_a_fkey"
       columns: ["direct_a"]
 isOneToOne: false
@@ -1341,7 +1372,10 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "admin_act_on_report":
+            "add_to_group_chat":
+{ Args: { "p_conv": number,"p_members": (string)[] }; Returns: number
+                           },
+"admin_act_on_report":
 { Args: { "p_action": string,"p_note"?: string,"p_report": number }; Returns: undefined
                            },
 "admin_grant_premium":
@@ -1380,6 +1414,11 @@ isOneToOne: false
 "cancel_date_request":
 { Args: { "p_request": number }; Returns: undefined
                            },
+"chat_candidates":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "avatar_url": string,"display_name": string,"id": string,"in_circle": boolean
+            }[]
+                           },
 "check_in":
 { Args: { "p_accuracy_m"?: number,"p_event_id"?: number,"p_lat": number,"p_lng": number,"p_venue_id"?: number }; Returns: {
               "already_vouched": boolean,"avatar_emoji": string,"avatar_url": string,"degree": number,"display_name": string,"encounter_id": number,"met_at": string,"place_label": string,"user_id": string,"vouch_count": number
@@ -1403,11 +1442,17 @@ isOneToOne: false
 "counter_date_request":
 { Args: { "p_note"?: string,"p_place"?: string,"p_request": number,"p_starts_at"?: string,"p_venue_id"?: number,"p_vibe"?: string,"p_when": Database["public"]['Enums']["date_when"] }; Returns: number
                            },
+"create_connect_code":
+{ Args: { "p_kind": string }; Returns: Json
+                           },
 "create_event":
 { Args: { "p_capacity"?: number,"p_description"?: string,"p_duration_hours"?: number,"p_emoji"?: string,"p_group"?: number,"p_lat"?: number,"p_lng"?: number,"p_place"?: string,"p_starts_at": string,"p_title": string,"p_venue_id"?: number }; Returns: number
                            },
 "create_group":
 { Args: { "p_category": string,"p_description"?: string,"p_emoji"?: string,"p_invite"?: (string)[],"p_join_type"?: Database["public"]['Enums']["join_type"],"p_name": string,"p_schedule"?: string }; Returns: number
+                           },
+"create_group_chat":
+{ Args: { "p_members": (string)[],"p_name": string }; Returns: number
                            },
 "date_mode_candidates":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -1490,6 +1535,9 @@ isOneToOne: false
                            },
 "leave_group":
 { Args: { "p_group": number }; Returns: undefined
+                           },
+"leave_group_chat":
+{ Args: { "p_conv": number }; Returns: undefined
                            },
 "make_intro":
 { Args: { "p_a": string,"p_b": string,"p_message": string,"p_request"?: number }; Returns: number
@@ -1586,11 +1634,17 @@ isOneToOne: false
 "record_profile_view":
 { Args: { "p_user": string }; Returns: undefined
                            },
+"redeem_connect_code":
+{ Args: { "p_code": string }; Returns: Json
+                           },
 "refresh_vouch_stats":
 { Args: { "p_user": string }; Returns: undefined
                            },
 "register_push_token":
 { Args: { "p_platform": string,"p_token": string }; Returns: undefined
+                           },
+"rename_group_chat":
+{ Args: { "p_conv": number,"p_name": string }; Returns: undefined
                            },
 "report":
 { Args: { "p_details"?: string,"p_message"?: number,"p_pin"?: number,"p_reason": Database["public"]['Enums']["report_reason"],"p_reply"?: number,"p_user"?: string }; Returns: number
@@ -1695,7 +1749,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "connection_source": "invite"|"intro"|"event"|"group"|"date"|"manual","date_session_status": "waiting"|"active"|"ended"|"cancelled","date_status": "pending"|"accepted"|"countered"|"passed"|"cancelled","date_when": "tonight"|"this_weekend"|"next_week"|"specific","encounter_context": "venue"|"event"|"group"|"date"|"nearby","going_out_join_status": "heading"|"here","going_out_when": "tonight"|"weekend"|"scheduled","group_role": "owner"|"admin"|"member","intro_status": "pending"|"accepted"|"declined","join_type": "request"|"open","location_precision": "approximate"|"precise","pin_audience": "everyone"|"network"|"circle","pin_category": "thought"|"question"|"photos"|"event"|"going_out"|"recap","report_reason": "misrepresentation"|"harassment"|"unsafe"|"privacy"|"spam"|"inappropriate"|"other","report_status": "open"|"reviewing"|"resolved"|"dismissed","request_status": "pending"|"accepted"|"declined"|"cancelled","safety_level": "unsafe"|"leaving"|"emergency","user_role": "user"|"admin","vouch_status": "active"|"flagged"|"revoked","vouch_type": "gps"|"invite"
+            "connection_source": "invite"|"intro"|"event"|"group"|"date"|"manual"|"qr"|"code","date_session_status": "waiting"|"active"|"ended"|"cancelled","date_status": "pending"|"accepted"|"countered"|"passed"|"cancelled","date_when": "tonight"|"this_weekend"|"next_week"|"specific","encounter_context": "venue"|"event"|"group"|"date"|"nearby","going_out_join_status": "heading"|"here","going_out_when": "tonight"|"weekend"|"scheduled","group_role": "owner"|"admin"|"member","intro_status": "pending"|"accepted"|"declined","join_type": "request"|"open","location_precision": "approximate"|"precise","pin_audience": "everyone"|"network"|"circle","pin_category": "thought"|"question"|"photos"|"event"|"going_out"|"recap","report_reason": "misrepresentation"|"harassment"|"unsafe"|"privacy"|"spam"|"inappropriate"|"other","report_status": "open"|"reviewing"|"resolved"|"dismissed","request_status": "pending"|"accepted"|"declined"|"cancelled","safety_level": "unsafe"|"leaving"|"emergency","user_role": "user"|"admin","vouch_status": "active"|"flagged"|"revoked","vouch_type": "gps"|"invite"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1815,7 +1869,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "connection_source": ["invite", "intro", "event", "group", "date", "manual"],"date_session_status": ["waiting", "active", "ended", "cancelled"],"date_status": ["pending", "accepted", "countered", "passed", "cancelled"],"date_when": ["tonight", "this_weekend", "next_week", "specific"],"encounter_context": ["venue", "event", "group", "date", "nearby"],"going_out_join_status": ["heading", "here"],"going_out_when": ["tonight", "weekend", "scheduled"],"group_role": ["owner", "admin", "member"],"intro_status": ["pending", "accepted", "declined"],"join_type": ["request", "open"],"location_precision": ["approximate", "precise"],"pin_audience": ["everyone", "network", "circle"],"pin_category": ["thought", "question", "photos", "event", "going_out", "recap"],"report_reason": ["misrepresentation", "harassment", "unsafe", "privacy", "spam", "inappropriate", "other"],"report_status": ["open", "reviewing", "resolved", "dismissed"],"request_status": ["pending", "accepted", "declined", "cancelled"],"safety_level": ["unsafe", "leaving", "emergency"],"user_role": ["user", "admin"],"vouch_status": ["active", "flagged", "revoked"],"vouch_type": ["gps", "invite"]
+            "connection_source": ["invite", "intro", "event", "group", "date", "manual", "qr", "code"],"date_session_status": ["waiting", "active", "ended", "cancelled"],"date_status": ["pending", "accepted", "countered", "passed", "cancelled"],"date_when": ["tonight", "this_weekend", "next_week", "specific"],"encounter_context": ["venue", "event", "group", "date", "nearby"],"going_out_join_status": ["heading", "here"],"going_out_when": ["tonight", "weekend", "scheduled"],"group_role": ["owner", "admin", "member"],"intro_status": ["pending", "accepted", "declined"],"join_type": ["request", "open"],"location_precision": ["approximate", "precise"],"pin_audience": ["everyone", "network", "circle"],"pin_category": ["thought", "question", "photos", "event", "going_out", "recap"],"report_reason": ["misrepresentation", "harassment", "unsafe", "privacy", "spam", "inappropriate", "other"],"report_status": ["open", "reviewing", "resolved", "dismissed"],"request_status": ["pending", "accepted", "declined", "cancelled"],"safety_level": ["unsafe", "leaving", "emergency"],"user_role": ["user", "admin"],"vouch_status": ["active", "flagged", "revoked"],"vouch_type": ["gps", "invite"]
           }
         }
 } as const

@@ -1,17 +1,16 @@
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { RefreshControl, ScrollView, View } from 'react-native';
 
-import { GroupsList } from '@/components/groups/GroupsList';
+import { RadiusControl } from '@/components/pins/RadiusControl';
 import { EmptyCard, EventCard, GoingOutPersonRow, MyNightOut } from '@/components/tonight/GoingOutList';
-import { AppText, Badge, Button, Card, GlyphTile, IconButton, LoadingList, Section, Segmented, useToast } from '@/components/ui';
+import { AppText, Button, Card, IconButton, LoadingList, Section, Segmented, useToast } from '@/components/ui';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
-import { fetchGroups, preciseLocation, type GroupsOverview } from '@/features/circles/api';
+import { preciseLocation } from '@/features/circles/api';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import {
   fetchCompany,
   fetchGoingOut,
-  fetchMyGroupEvents,
   imHere,
   joinGoingOut,
   rsvp,
@@ -20,7 +19,6 @@ import {
   type FeedEvent,
   type FeedPerson,
   type GoingOutFeed,
-  type GroupEvent,
 } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
 import { SEARCH_RADIUS_MI } from '@/lib/radius';
@@ -28,9 +26,9 @@ import { friendlyError } from '@/lib/supabase';
 import { dayTime } from '@/lib/time';
 import { useTheme } from '@/theme';
 
-type Tab = 'tonight' | 'weekend' | 'groups';
+type Tab = 'tonight' | 'weekend';
 
-/** Tonight: who's going out and what's happening, tonight and this weekend, plus your groups. */
+/** Tonight: who's going out and what's happening, tonight and this weekend. (Groups live in Circles.) */
 export default function Tonight() {
   const t = useTheme();
   const router = useRouter();
@@ -43,8 +41,6 @@ export default function Tonight() {
 
   const [tab, setTab] = useState<Tab>('tonight');
   const [feed, setFeed] = useState<GoingOutFeed | null>(null);
-  const [groups, setGroups] = useState<GroupsOverview | null>(null);
-  const [groupEvents, setGroupEvents] = useState<GroupEvent[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [company, setCompany] = useState<Company[]>([]);
@@ -52,25 +48,19 @@ export default function Tonight() {
   const [busy, setBusy] = useState(false);
   const requestId = useRef(0);
 
-  const effectiveRadius = SEARCH_RADIUS_MI;
+  const [radius, setRadius] = useState(SEARCH_RADIUS_MI);
+  const [effectiveRadius, setEffectiveRadius] = useState(SEARCH_RADIUS_MI);
   const weekend = tab === 'weekend';
 
   const load = useCallback(async () => {
     const id = ++requestId.current;
     try {
-      if (tab === 'groups') {
-        const [g, ev] = await Promise.all([fetchGroups(), fetchMyGroupEvents()]);
-        if (id !== requestId.current) return;
-        setGroups(g);
-        setGroupEvents(ev);
-      } else {
-        const f = await fetchGoingOut(tab, { lat, lng, radiusMi: effectiveRadius });
-        if (id !== requestId.current) return;
-        setFeed(f);
-        const mineNow = f.people.find((p) => p.is_me);
-        setMinutesLeft(mineNow?.live_until ? Math.round((new Date(mineNow.live_until).getTime() - Date.now()) / 60000) : null);
-        setCompany(mineNow ? await fetchCompany(mineNow.post_id).catch(() => []) : []);
-      }
+      const f = await fetchGoingOut(tab, { lat, lng, radiusMi: effectiveRadius });
+      if (id !== requestId.current) return;
+      setFeed(f);
+      const mineNow = f.people.find((p) => p.is_me);
+      setMinutesLeft(mineNow?.live_until ? Math.round((new Date(mineNow.live_until).getTime() - Date.now()) / 60000) : null);
+      setCompany(mineNow ? await fetchCompany(mineNow.post_id).catch(() => []) : []);
       setError(null);
     } catch {
       if (id === requestId.current) setError("Couldn't load. Pull down to try again.");
@@ -94,7 +84,7 @@ export default function Tonight() {
     setTab(next);
   }
 
-  async function onRsvp(e: FeedEvent | GroupEvent) {
+  async function onRsvp(e: FeedEvent) {
     if (!me) return;
     try {
       await rsvp(e.id, me);
@@ -140,14 +130,23 @@ export default function Tonight() {
           Tonight
         </AppText>
         <IconButton icon="map-outline" label="Map of who's out" onPress={() => router.push({ pathname: '/tonight/map', params: { when: weekend ? 'weekend' : 'tonight' } })} />
-        <Button label="I'm Out" size="md" onPress={() => router.push({ pathname: '/tonight/post', params: { when: weekend ? 'weekend' : 'tonight' } })} />
+        <Button label="I'm In" size="md" onPress={() => router.push({ pathname: '/tonight/post', params: { when: weekend ? 'weekend' : 'tonight' } })} />
       </View>
+
+      <RadiusControl
+        label="Search radius"
+        value={radius}
+        onChange={setRadius}
+        onCommit={setEffectiveRadius}
+        max={SEARCH_RADIUS_MI}
+        planMax={SEARCH_RADIUS_MI}
+        premiumMax={null}
+      />
 
       <Segmented<Tab>
         options={[
           { key: 'tonight', label: 'Tonight' },
           { key: 'weekend', label: 'This Weekend' },
-          { key: 'groups', label: 'Groups' },
         ]}
         value={tab}
         onChange={changeTab}
@@ -159,41 +158,7 @@ export default function Tonight() {
         </AppText>
       ) : null}
 
-      {tab === 'groups' ? (
-        groups ? (
-          <>
-            {groupEvents.length ? (
-              <Section title="Coming up in your groups">
-                {groupEvents.map((e) => (
-                  <Card key={e.id}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-                      <Pressable
-                        accessibilityRole="link"
-                        accessibilityLabel={`${e.title}, ${e.group_name}`}
-                        onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(e.id) } })}
-                        style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-                        <GlyphTile name={e.emoji ?? 'calendar'} size={40} />
-                        <View style={{ flex: 1 }}>
-                          <AppText variant="small" weight="bold">
-                            {e.title}
-                          </AppText>
-                          <AppText variant="caption" tone="subtle">
-                            {[e.group_name, dayTime(e.starts_at), e.venue_name, `${e.going_count} going`].filter(Boolean).join(' · ')}
-                          </AppText>
-                        </View>
-                      </Pressable>
-                      {e.i_am_going ? <Badge label="You're in" glyph="check" tone="trust" /> : <Button label="I'm In" size="md" onPress={() => onRsvp(e)} />}
-                    </View>
-                  </Card>
-                ))}
-              </Section>
-            ) : null}
-            <GroupsList groups={groups} onChange={setGroups} />
-          </>
-        ) : (
-          <LoadingList />
-        )
-      ) : !feed ? (
+      {!feed ? (
         <LoadingList />
       ) : (
         <>
@@ -225,7 +190,7 @@ export default function Tonight() {
           </Section>
           {!mine ? (
             <Button
-              label={weekend ? "I'm out this weekend" : "I'm out tonight"}
+              label={weekend ? "I'm in this weekend" : "I'm in tonight"}
               variant="secondary"
               onPress={() => router.push({ pathname: '/tonight/post', params: { when: weekend ? 'weekend' : 'tonight' } })}
             />

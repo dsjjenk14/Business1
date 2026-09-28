@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, Share, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
+import { GroupEventsSection } from '@/components/groups/GroupEventsSection';
 import { GroupsList } from '@/components/groups/GroupsList';
 import { RingDiagram } from '@/components/circles/RingDiagram';
 import { AppText, Badge, Button, Card, GlyphTile, GlyphTitle, IconButton, LoadingList, Screen, Section, Segmented, useToast } from '@/components/ui';
@@ -64,6 +65,7 @@ export default function Circles() {
           Circles
         </AppText>
         <IconButton icon="search-outline" label="Search members" onPress={() => router.push('/search')} />
+        <IconButton icon="person-add-outline" label="Add someone" onPress={() => router.push('/connect')} />
       </View>
 
       <Segmented<Tab>
@@ -107,7 +109,10 @@ export default function Circles() {
       ) : tab === 'network' ? (
         <Network circle={circle} activity={activity} />
       ) : groups ? (
-        <GroupsList groups={groups} onChange={setGroups} />
+        <>
+          <GroupEventsSection />
+          <GroupsList groups={groups} onChange={setGroups} />
+        </>
       ) : null}
     </Screen>
   );
@@ -118,22 +123,25 @@ function MyCircle({ circle, card, introsMade, meName, inviteCode }: { circle: Ci
   const router = useRouter();
   return (
     <>
-      {circle.first.length === 0 ? (
-        <Card accent="primary">
-          <View style={{ gap: t.space[2] }}>
-            <AppText weight="bold">Start your circle</AppText>
-            <AppText variant="small" tone="muted">
-              Your circle grows from people you actually know. Share your invite code: when a friend joins with it, you&apos;re connected
-              automatically and you both get a vouch.
-            </AppText>
+      <Card accent="primary">
+        <View style={{ gap: t.space[2] }}>
+          <GlyphTitle glyph="plus">{circle.first.length === 0 ? 'Start your circle' : 'Add someone'}</GlyphTitle>
+          <AppText variant="small" tone="muted">
+            Together right now? Scan each other&apos;s code. Know each other already? Send them a code to type in. Not on I&apos;m In yet? Send your
+            invite code, and you&apos;re connected when they join.
+          </AppText>
+          <View style={{ flexDirection: 'row', gap: t.space[2] }}>
+            <Button label="Add someone" size="md" style={{ flex: 1 }} onPress={() => router.push('/connect')} />
             <Button
-              label="Share my invite code"
+              label="Invite a friend"
               size="md"
+              variant="secondary"
+              style={{ flex: 1 }}
               onPress={() => Share.share({ message: `Join me on I'm In, where trust is earned in real life. Use my invite code ${inviteCode} when you sign up.` })}
             />
           </View>
-        </Card>
-      ) : null}
+        </View>
+      </Card>
       <RingDiagram
         me={{ id: card.id, display_name: meName, avatar_emoji: card.avatar_emoji, avatar_url: card.avatar_url }}
         first={circle.first}

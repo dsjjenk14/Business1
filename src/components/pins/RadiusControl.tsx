@@ -4,10 +4,7 @@ import { View } from 'react-native';
 import { AppText, Card } from '@/components/ui';
 import { useTheme } from '@/theme';
 
-/**
- * Radius slider. The track always shows the full range (e.g. 1–50 mi); on the
- * free plan it stops at the plan limit and says what Premium unlocks.
- */
+/** Radius slider, 1 mi up to the max (75 mi for everyone). */
 export function RadiusControl({
   label,
   value,
@@ -41,6 +38,10 @@ export function RadiusControl({
       </View>
       <Slider
         accessibilityLabel={`${label}, ${value} miles`}
+        accessibilityValue={{ min, max: cap, now: value, text: `${value} miles` }}
+        aria-valuemin={min}
+        aria-valuemax={cap}
+        aria-valuenow={value}
         minimumValue={min}
         maximumValue={cap}
         step={1}

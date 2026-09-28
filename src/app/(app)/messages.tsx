@@ -12,7 +12,7 @@ import { useTheme } from '@/theme';
 
 type Row = {
   conversation_id: number;
-  kind: 'direct' | 'group';
+  kind: 'direct' | 'group' | 'chat';
   title: string;
   glyph: string | null;
   other_id: string | null;
@@ -55,7 +55,7 @@ export default function Messages() {
       accessibilityLabel={`${r.title}${r.unread ? ', unread' : ''}${r.last_body ? `: ${r.last_body}` : ''}`}
       onPress={() => open(r)}
       style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: t.space[3], minHeight: 60, opacity: pressed ? 0.7 : 1 })}>
-      {r.kind === 'group' ? <GlyphTile name={r.glyph} size={44} /> : <Avatar name={r.title} uri={r.avatar_url} size={44} />}
+      {r.kind !== 'direct' ? <GlyphTile name={r.glyph} size={44} /> : <Avatar name={r.title} uri={r.avatar_url} size={44} />}
       <View style={{ flex: 1 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: t.space[2] }}>
           <AppText weight="bold" numberOfLines={1} style={{ flex: 1 }}>
@@ -77,7 +77,7 @@ export default function Messages() {
 
   const waiting = dates.filter((d) => d.status === 'pending' && !d.i_sent);
   const direct = (rows ?? []).filter((r) => r.kind === 'direct');
-  const groups = (rows ?? []).filter((r) => r.kind === 'group');
+  const groups = (rows ?? []).filter((r) => r.kind !== 'direct');
 
   return (
     <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
@@ -115,7 +115,15 @@ export default function Messages() {
                 </AppText>
               )}
             </Section>
-            {groups.length ? <Section title="Group chats">{groups.map(renderRow)}</Section> : null}
+            <Section title="Group chats" action={{ label: 'New group chat', onPress: () => router.push('/chat/new') }}>
+              {groups.length ? (
+                groups.map(renderRow)
+              ) : (
+                <AppText variant="small" tone="muted">
+                  Start a group chat with people in your circle, or join a Group (Circles → Groups) to get its chat.
+                </AppText>
+              )}
+            </Section>
           </>
         )}
       </Screen>

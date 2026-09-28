@@ -147,7 +147,7 @@ export default function PostGoingOut() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <BackHeader title="I'm Out" />
+      <BackHeader title="I'm In" />
       <Screen contentGap={t.space[5]}>
         {existing.length ? (
           <View style={{ gap: t.space[2] }}>
@@ -253,7 +253,7 @@ export default function PostGoingOut() {
         </View>
 
         <TextField label="Say something" optional value={note} onChangeText={setNote} maxLength={200} placeholder="Flying solo, come find me." />
-        <Button label={when === 'tonight' ? "I'm Out Tonight" : 'Post my plans'} onPress={submit} loading={busy} disabled={!canPost} />
+        <Button label={when === 'tonight' ? "I'm In Tonight" : 'Post my plans'} onPress={submit} loading={busy} disabled={!canPost} />
         <AppText variant="caption" tone="subtle">
           Your location is shared approximately, never exactly. When you get there, tap I&apos;m In so your circle knows you&apos;re there. Tonight posts end at 4 AM on their own. Hide your venue any time in Privacy
           settings.

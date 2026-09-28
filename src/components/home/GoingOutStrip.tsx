@@ -5,7 +5,7 @@ import { AppText, Avatar, Section } from '@/components/ui';
 import type { TonightPerson } from '@/features/tonight/api';
 import { useTheme } from '@/theme';
 
-/** "Going out tonight": your I'm Out button first, then people in your network who are out (people who are in now first). */
+/** "Going out tonight": your I'm In button first, then people in your network who are out (people who are in now first). */
 export function GoingOutStrip({ people, amLive }: { people: TonightPerson[]; amLive: boolean }) {
   const t = useTheme();
   const router = useRouter();
@@ -17,7 +17,7 @@ export function GoingOutStrip({ people, amLive }: { people: TonightPerson[]; amL
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: t.space[4], paddingRight: t.space[2] }}>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={amLive ? "You're out tonight. Open Tonight" : "I'm Out: tell your network you're going out tonight"}
+          accessibilityLabel={amLive ? "You're out tonight. Open Tonight" : "I'm In: tell your network you're going out tonight"}
           onPress={() => (amLive ? router.push('/tonight') : router.push({ pathname: '/tonight/post', params: { when: 'tonight' } }))}
           style={{ alignItems: 'center', gap: 6, width: 64 }}>
           <View
@@ -30,7 +30,7 @@ export function GoingOutStrip({ people, amLive }: { people: TonightPerson[]; amL
               backgroundColor: amLive ? t.colors.trust : t.colors.primary,
             }}>
             <AppText weight="bold" style={{ color: amLive ? t.colors.onTrust : t.colors.onPrimary, fontSize: 12, lineHeight: 14, textAlign: 'center' }}>
-              {"I'm\nOut"}
+              {"I'm\nIn"}
             </AppText>
           </View>
           <AppText variant="caption" tone={amLive ? 'trust' : 'muted'} numberOfLines={1}>
