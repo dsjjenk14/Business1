@@ -11,7 +11,7 @@
 ## ✅ Phase 7: AI (People like you, icebreakers, Tonight for You, intro odds, AI Read)
 **Members don't need a Claude account.** The app's server calls Claude with one key the business owns (`ANTHROPIC_API_KEY`), paid per use (about 1 to 3 cents an answer). The key never goes in the app. Until the key is added, AI spots say "coming soon" and everything else works.
 - **Interests:** pick up to 12 in Edit profile (46 choices, like Brunch, Go-go, Pickleball, HBCU life). They show on your profile as "Into".
-- **People like you** (Home, and Circles → Network): people you don't know yet who share your interests, groups, spots and nights out, from your friends of friends, your groups and your city. The list is plain matching (free, instant). The AI picks the best 5 once a day and says why in one sentence. An Intro button asks the mutual friend.
+- **People like you** (Home, and Circles → Network): people you don't know yet who share your interests, groups, spots and nights out, from your friends of friends, your groups and your city. The list is plain matching (free, instant). The AI picks the best 5 once a day and says why in one sentence. A suggestion is never an intro: each person shows "Ask Maya to introduce you" (a friend you share still makes the intro), or "No mutual friend yet". The AI is told never to suggest reaching out directly.
 - **Icebreakers** on anyone's profile: 3 openers, tap to copy, "New ones" for another set.
 - **AI Read** on every profile: up to 3 badges ("Natural connector") and a two-sentence read from public activity only. Everyone sees the same read.
 - **Tonight for You** (Menu, and the spark button on Tonight): one top pick with reasons and two alternatives.
@@ -665,6 +665,7 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 | 2026-09-28 | Radius slider back: 1 to 75 miles for everyone | Dominique |
 | 2026-09-28 | Adding people: QR in person (counts as a meetup) and a shared code for people who know each other outside the app (doesn't unlock vouching) | Dominique; keeps vouches tied to real meetups |
 | 2026-09-28 | I'm In is a social app, not only going out: Home leads with posting, pins and group chats | Dominique |
+| 2026-09-28 | AI suggestions never skip the intro: a mutual friend still has to introduce you | Dominique |
 | 2026-09-28 | "I'm In" means you're down: it's the answer to an invite (events, friends' plans, intros, dates). Posting your own plan is "Make plans" | Dominique |
 | 2026-09-28 | AI runs on the business's own Anthropic key; members never need an AI account. 3 free AI uses, unlimited Premium; automatic daily picks and saved results are free | Dominique asked why members would need a Claude account (they don't) |
 | 2026-09-28 | Matching and intro odds are plain math in the database; the AI only picks and explains | Free, instant, works with AI off, and easy to explain |

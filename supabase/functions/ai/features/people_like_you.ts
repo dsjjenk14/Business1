@@ -44,12 +44,13 @@ export const peopleLikeYou: Feature<Facts, Out, PeopleResult> = {
       dataBlock('people', f.candidates.map((c) => ({
         user_id: c.user_id,
         first_name: c.display_name.split(' ')[0],
-        how_to_meet: c.degree === 2 && c.via ? `intro through ${c.via.display_name.split(' ')[0]}` : 'not connected yet',
+        how_to_meet: c.degree === 2 && c.via ? `needs an intro from ${c.via.display_name.split(' ')[0]}` : 'no mutual friend yet to introduce us',
         in_common: c.shared,
       }))),
       'Pick up to 5 people from <people> I would most likely click with, best first. Weigh real overlap in how we spend time ' +
         '(same group, same spots, same nights out, mutual friends) above a single shared interest. ' +
         'For each, write one sentence (max 22 words) to me about why, naming the specific things we share. ' +
+        'I can only meet people here through an introduction from a mutual friend, so never suggest messaging them or reaching out directly. ' +
         'Use the exact user_id from the data.',
     ].join('\n\n'),
     schema: {
