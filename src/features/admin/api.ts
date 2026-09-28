@@ -84,3 +84,7 @@ export async function setInquiryStatus(id: number, status: string) {
   const { error } = await supabase.from('partner_inquiries').update({ status }).eq('id', id);
   if (error) throw error;
 }
+
+export type UsageRow = { name: string; people_7d: number; events_7d: number; people_30d: number; events_30d: number };
+/** How many people used each feature in the last 7 and 30 days. */
+export const fetchUsage = async () => unwrap<UsageRow[]>(await supabase.rpc('admin_usage'));

@@ -8,7 +8,7 @@ import type { Database } from '@/types/database';
 export type PinCategory = Database['public']['Enums']['pin_category'];
 export type PinAudience = Database['public']['Enums']['pin_audience'];
 export type FeedPin = Database['public']['Functions']['pins_feed']['Returns'][number];
-export type FeedMode = 'nearby' | 'trending' | 'community' | 'network' | 'bookmarks' | 'author' | 'single';
+export type FeedMode = 'nearby' | 'trending' | 'community' | 'network' | 'friends' | 'bookmarks' | 'author' | 'single';
 
 export const CATEGORY_LABEL: Record<PinCategory, string> = {
   thought: 'Thought',

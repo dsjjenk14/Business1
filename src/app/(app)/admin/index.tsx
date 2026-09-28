@@ -15,6 +15,7 @@ import {
   fetchOverview,
   fetchPlacements,
   fetchReports,
+  fetchUsage,
   fetchVenues,
   fetchVerifications,
   grantPremium,
@@ -27,6 +28,7 @@ import {
   type Inquiry,
   type Overview,
   type Placement,
+  type UsageRow,
 } from '@/features/admin/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
@@ -482,17 +484,58 @@ function More({ onChange }: { onChange: () => void }) {
   const t = useTheme();
   const { busy, run } = useRun();
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [usage, setUsage] = useState<UsageRow[] | null>(null);
   const [email, setEmail] = useState('');
   const [days, setDays] = useState(30);
   const load = useCallback(() => {
     fetchInquiries()
       .then(setInquiries)
       .catch(() => undefined);
+    fetchUsage()
+      .then(setUsage)
+      .catch(() => setUsage([]));
   }, []);
   useEffect(load, [load]);
 
   return (
     <View style={{ gap: t.space[4] }}>
+      <Section title="Usage (people who did it)">
+        {usage === null ? (
+          <LoadingList rows={2} avatar={false} />
+        ) : usage.length === 0 ? (
+          <AppText tone="muted">No usage yet.</AppText>
+        ) : (
+          <Card>
+            <View style={{ gap: t.space[2] }}>
+              <View style={{ flexDirection: 'row' }}>
+                <AppText variant="caption" tone="subtle" style={{ flex: 1 }}>
+                  WHAT
+                </AppText>
+                <AppText variant="caption" tone="subtle" style={{ width: 64, textAlign: 'right' }}>
+                  7 DAYS
+                </AppText>
+                <AppText variant="caption" tone="subtle" style={{ width: 64, textAlign: 'right' }}>
+                  30 DAYS
+                </AppText>
+              </View>
+              {usage.map((u) => (
+                <View key={u.name} style={{ flexDirection: 'row' }}>
+                  <AppText variant="small" style={{ flex: 1 }}>
+                    {u.name.replace(/_/g, ' ')}
+                  </AppText>
+                  <AppText variant="small" weight="bold" style={{ width: 64, textAlign: 'right' }}>
+                    {u.people_7d}
+                  </AppText>
+                  <AppText variant="small" tone="muted" style={{ width: 64, textAlign: 'right' }}>
+                    {u.people_30d}
+                  </AppText>
+                </View>
+              ))}
+            </View>
+          </Card>
+        )}
+      </Section>
+
       <Section title="Partner inquiries">
         {inquiries.length === 0 ? <AppText tone="muted">No inquiries yet.</AppText> : null}
         {inquiries.map((q) => (

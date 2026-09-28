@@ -305,9 +305,9 @@ for (const e of eventDefs) {
 const tonightEnd = dcTime(1, 2);
 const goingOut = [
   { who: 'maya', when: 'tonight', starts: dcTime(0, 19), venue: 'foundingfarmers', vibes: ['solo', 'dinner'], note: 'Flying solo. Come find me.' },
-  { who: 'jordan', when: 'tonight', starts: dcTime(0, 19, 30), venue: 'bresca', vibes: ['dinner', 'small_group'], hosting: true, event: 'bresca' },
+  { who: 'jordan', when: 'tonight', starts: dcTime(0, 19, 30), venue: 'bresca', vibes: ['dinner', 'small_group'], hosting: true, event: 'bresca', inNow: 40 },
   { who: 'deshawn', when: 'tonight', starts: dcTime(0, 21), venue: 'tailupgoat', vibes: ['drinks'] },
-  { who: 'aaliyah', when: 'tonight', starts: dcTime(0, 20), venue: 'bresca', vibes: ['dinner'], note: 'Bresca dinner w/ Jordan', event: 'bresca' },
+  { who: 'aaliyah', when: 'tonight', starts: dcTime(0, 20), venue: 'bresca', vibes: ['dinner'], note: 'Bresca dinner w/ Jordan', event: 'bresca', inNow: 15, audience: 'network' },
   { who: 'reina', when: 'tonight', starts: dcTime(0, 19), venue: 'songbyrd', vibes: ['music'], hosting: true, event: 'songbyrd' },
   { who: 'omar', when: 'tonight', starts: dcTime(0, 18), venue: 'fridge', vibes: ['small_group'], note: 'Gallery Night' },
   { who: 'maya', when: 'weekend', starts: dcTime(SAT, 11), venue: 'sfoglina', vibes: ['brunch', 'small_group'], note: 'Sfoglina brunch' },
@@ -326,6 +326,8 @@ for (const g of goingOut) {
     approx_location: v ? point([v.lng, v.lat]) : point(PLACES.dc),
     vibes: g.vibes, note: g.note ?? null, is_hosting: !!g.hosting, event_id: g.event ? eventIds[g.event] : null,
     created_at: minutesAgo(30 + Math.floor(rand() * 120)),
+    // A couple of people are already "In" (there now), so Home has live moments.
+    ...(g.inNow ? { arrived_at: minutesAgo(g.inNow), live_until: new Date(Date.now() + 3 * 3_600_000).toISOString(), here_audience: g.audience ?? 'circle' } : {}),
   }).select('id'), `going out ${g.who}`);
   goingOutIds[`${g.who}-${g.when}`] = row.id;
 }

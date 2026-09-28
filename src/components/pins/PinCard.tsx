@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
-import { AppText, Avatar, Card, Glyph, useToast } from '@/components/ui';
+import { AppText, Avatar, Card, Glyph, OptionsSheet, useToast } from '@/components/ui';
 import { CATEGORY_GLYPH, CATEGORY_LABEL, setBookmarked, setLiked, sharePin, type FeedPin } from '@/features/pins/api';
 import { useAuth } from '@/lib/auth';
 import { timeAgo } from '@/lib/time';
@@ -80,44 +80,62 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
   const openThread = () => router.push({ pathname: '/pins/[id]', params: { id: String(pin.id) } });
   const openAuthor = () => (pin.is_mine ? router.push('/profile') : router.push({ pathname: '/people/[id]', params: { id: pin.author_id } }));
 
+  const [menu, setMenu] = useState(false);
+  const menuOptions = [
+    { label: pin.bookmarked ? 'Remove bookmark' : 'Bookmark', onPress: toggleBookmark },
+    { label: 'Open thread', onPress: openThread },
+    ...(!pin.is_mine
+      ? [
+          { label: `View ${pin.author_name.split(' ')[0]}'s profile`, onPress: openAuthor },
+          { label: 'Report this pin', danger: true, onPress: () => router.push({ pathname: '/report', params: { pin: String(pin.id), name: pin.author_name } }) },
+        ]
+      : []),
+  ];
+  const hasPhotos = pin.photo_paths.length > 0;
+
   return (
     <Card>
       <View style={{ gap: t.space[3] }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <Glyph name={CATEGORY_GLYPH[pin.category]} size={15} tone={CATEGORY_TONE[pin.category]} strokeWidth={2} />
-            <AppText variant="caption" weight="bold" tone={CATEGORY_TONE[pin.category]}>
-              {CATEGORY_LABEL[pin.category]}
-            </AppText>
-          </View>
-          {pin.edited_at ? (
-            <AppText variant="caption" tone="subtle">
-              edited
-            </AppText>
-          ) : null}
+        {/* Who, when, where. */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[2] }}>
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel={`${pin.author_name}'s profile`}
+            onPress={openAuthor}
+            style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[2] }}>
+            <Avatar name={pin.author_name} uri={pin.author_avatar} size={40} />
+            <View style={{ flex: 1 }}>
+              <AppText weight="bold" numberOfLines={1}>
+                {pin.is_mine ? 'You' : pin.author_name}
+              </AppText>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Glyph name={CATEGORY_GLYPH[pin.category]} size={12} tone={CATEGORY_TONE[pin.category]} strokeWidth={2} />
+                <AppText variant="caption" tone="subtle" numberOfLines={1} style={{ flex: 1 }}>
+                  {[CATEGORY_LABEL[pin.category], meta, pin.edited_at ? 'edited' : null].filter(Boolean).join(' · ')}
+                </AppText>
+              </View>
+            </View>
+          </Pressable>
+          <Action icon="ellipsis-horizontal" color={t.colors.textMuted} a11y="More options" onPress={() => setMenu(true)} />
         </View>
 
+        {/* Photos first, edge to edge. */}
+        {hasPhotos ? (
+          <Pressable accessibilityRole={linkToThread ? 'link' : 'image'} disabled={!linkToThread} onPress={openThread} style={{ marginHorizontal: -t.space[4] }}>
+            <PinPhotos paths={pin.photo_paths} bleed />
+          </Pressable>
+        ) : null}
+
         <Pressable accessibilityRole={linkToThread ? 'link' : 'text'} disabled={!linkToThread} onPress={openThread}>
-          <AppText variant={linkToThread ? 'body' : 'h3'} style={{ fontFamily: linkToThread ? t.fonts.bodyMedium : t.fonts.bodyBold }}>
-            &ldquo;{pin.body}&rdquo;
+          <AppText
+            variant={hasPhotos || !linkToThread ? 'body' : 'h3'}
+            style={{ fontFamily: hasPhotos ? t.fonts.body : t.fonts.bodyMedium }}
+            numberOfLines={linkToThread ? 8 : undefined}>
+            {pin.body}
           </AppText>
         </Pressable>
 
-        <PinPhotos paths={pin.photo_paths} />
-
-        <Pressable accessibilityRole="link" accessibilityLabel={`${pin.author_name}'s profile`} onPress={openAuthor} style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[2] }}>
-          <Avatar name={pin.author_name} uri={pin.author_avatar} size={32} />
-          <View style={{ flex: 1 }}>
-            <AppText variant="small" weight="bold">
-              {pin.is_mine ? 'You' : pin.author_name}
-            </AppText>
-            <AppText variant="caption" tone="subtle" numberOfLines={1}>
-              {meta}
-            </AppText>
-          </View>
-        </Pressable>
-
-        <View style={{ flexDirection: 'row', alignItems: 'center', borderTopWidth: t.borderWidth.hairline, borderColor: t.colors.border, paddingTop: t.space[2] }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: -t.space[2] }}>
           <Action
             icon={pin.liked ? 'heart' : 'heart-outline'}
             color={pin.liked ? t.colors.primary : t.colors.textMuted}
@@ -126,6 +144,7 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
             onPress={toggleLike}
           />
           <Action icon="chatbubble-outline" color={t.colors.textMuted} label={String(pin.reply_count)} a11y={`${pin.reply_count} replies. Open thread`} onPress={openThread} />
+          <Action icon="share-outline" color={t.colors.textMuted} a11y="Share" onPress={() => sharePin(pin)} />
           <View style={{ flex: 1 }} />
           <Action
             icon={pin.bookmarked ? 'bookmark' : 'bookmark-outline'}
@@ -133,17 +152,9 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
             a11y={pin.bookmarked ? 'Remove bookmark' : 'Bookmark'}
             onPress={toggleBookmark}
           />
-          <Action icon="share-outline" color={t.colors.textMuted} a11y="Share" onPress={() => sharePin(pin)} />
-          {!pin.is_mine ? (
-            <Action
-              icon="flag-outline"
-              color={t.colors.textSubtle}
-              a11y="Report this pin"
-              onPress={() => router.push({ pathname: '/report', params: { pin: String(pin.id), name: pin.author_name } })}
-            />
-          ) : null}
         </View>
       </View>
+      <OptionsSheet visible={menu} options={menuOptions} onClose={() => setMenu(false)} />
     </Card>
   );
 }

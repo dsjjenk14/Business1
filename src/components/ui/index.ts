@@ -14,3 +14,4 @@ export { ToastProvider, useToast } from './Toast';
 export { Glyph, GlyphTile, GlyphTitle, isGlyphName, type GlyphName } from './Glyph';
 export { LoadingDetail, LoadingList, Skeleton } from './Skeleton';
 export { EmptyState } from './EmptyState';
+export { OptionsSheet, type SheetOption } from './OptionsSheet';

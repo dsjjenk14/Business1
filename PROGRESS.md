@@ -5,6 +5,48 @@
 
 ---
 
+## ✅ New Home and the product review (Dominique: "make all the changes")
+- **The new Home is "what's happening with my people right now."**
+  - **People row at the top** (like stories):
+    - **Post** comes first, then **I'm In tonight**.
+    - Then friends who are **there now** (green ring), **going out** (red ring, shows where), or **posted today** (blue ring).
+  - A **Friends | Everyone** switch.
+    - Friends means your circle and network, plus the public posts of people you follow.
+    - Everyone means the whole community.
+  - **One mixed feed:**
+    - live moments ("Aaliyah and Jordan are In at Bresca", with Join)
+    - posts
+    - upcoming events your circle is going to (**I'm In** and **Share to my circle**)
+    - "New in your circle: Alex" cards
+    - one labeled partner card
+  - **Removed:** the greeting, the vouch card (it's on your profile), the going-out strip (it's the people row now), and the Tonight pick (events cover it). The date strip only shows when a date is active or a request is waiting.
+  - **Brand-new members** see "Add your first friends" and can switch to Everyone, so Home is never empty.
+  - Home loads in **one request** and **opens instantly** from the last saved copy, then refreshes.
+- **Slim header:** logo, then Post (+), notifications, your photo, menu. Badges are now **small dots, not numbers**.
+- **Messages is a tab** (Home, Pins, Tonight, Messages, Circles), with a dot for unread chats.
+- **Posts look like a social app:**
+  - Who posted and when sits at the top.
+  - **Photos come first, edge to edge** (portrait size), and the text has no quote marks.
+  - Like, reply and share sit on the left, bookmark on the right.
+  - **Report moved into the "…" menu.**
+- **Radius:** a small **"Within 75 mi"** button that opens the slider.
+- **Profiles:**
+  - At most **two badges** (what people vouch them for, and Founding Member or Premium).
+  - Stats are **Vouches · Circle · Followers**.
+  - **Follow / Following / Follow back** and **Share profile** buttons.
+  - A **Photos grid**, next to "All posts".
+- **Follow:**
+  - Anyone can follow anyone's public ("Everyone") posts.
+  - It never shows circle-only posts, and never unlocks messaging or vouching.
+  - Blocking ends it.
+  - The person gets a notification.
+- **Share an event to your circle:** from Home or the event page. It posts a circle-only event pin.
+- **Usage counts:**
+  - The app records which features get used: Home opened, posts, messages, group chats made, codes made, connections, I'm In, events joined and shared, follows. It never stores any text.
+  - **Admin → More → Usage** shows how many people used each one in the last 7 and 30 days.
+  - Records are deleted after 180 days.
+- Migration 023, test file 013. **All 255 database tests pass.** The browser test of the whole redesign passed, and the accessibility check is clean on 10 screens.
+
 ## ✅ Social app, adding people, group chats (Dominique's changes)
 - **More than going out.**
   - Home now opens with **"What's on your mind?"** (post a pin in one tap).
@@ -355,6 +397,8 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 ## Decisions log
 | Date | Decision | Why |
 |---|---|---|
+| 2026-09-28 | Home = people row + Friends/Everyone + one mixed feed; Messages becomes a tab; badges are dots | Product review (PM, dev, UX, two creators); Dominique approved all changes |
+| 2026-09-28 | Follow is public-posts-only: never unlocks messaging, vouches or circle posts | Keeps the circle meaningful while letting creators grow |
 | 2026-09-28 | Radius slider back: 1 to 75 miles for everyone | Dominique |
 | 2026-09-28 | Adding people: QR in person (counts as a meetup) and a shared code for people who know each other outside the app (doesn't unlock vouching) | Dominique; keeps vouches tied to real meetups |
 | 2026-09-28 | I'm In is a social app, not only going out: Home leads with posting, pins and group chats | Dominique |

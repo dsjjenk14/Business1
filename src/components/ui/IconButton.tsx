@@ -3,8 +3,6 @@ import { Pressable, View } from 'react-native';
 
 import { useTheme } from '@/theme';
 
-import { AppText } from './AppText';
-
 export type IconName = React.ComponentProps<typeof Ionicons>['name'];
 
 export function IconButton({
@@ -30,23 +28,8 @@ export function IconButton({
       style={({ pressed }) => ({ width: 44, height: 44, alignItems: 'center', justifyContent: 'center', opacity: pressed ? 0.6 : 1 })}>
       <Ionicons name={icon} size={size} color={t.colors.text} />
       {badgeCount ? (
-        <View
-          style={{
-            position: 'absolute',
-            top: 6,
-            right: 4,
-            minWidth: 17,
-            height: 17,
-            paddingHorizontal: 4,
-            borderRadius: 9,
-            backgroundColor: t.colors.primary,
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <AppText variant="caption" weight="bold" style={{ color: t.colors.onPrimary, fontSize: 10, lineHeight: 12 }}>
-            {badgeCount > 9 ? '9+' : badgeCount}
-          </AppText>
-        </View>
+        // A calm dot, not a number: "something new", without the homework feeling.
+        <View style={{ position: 'absolute', top: 9, right: 9, width: 9, height: 9, borderRadius: 5, backgroundColor: t.colors.primary, borderWidth: 1.5, borderColor: t.colors.bg }} />
       ) : null}
     </Pressable>
   );

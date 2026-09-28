@@ -1,12 +1,32 @@
 import * as Notifications from 'expo-notifications';
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { AppState } from 'react-native';
 
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 
 import { PUSH_SUPPORTED } from './push';
+
+type Counts = { notifications: number; messages: number };
+
+// The latest counts, shared with places that can't load them themselves (the tab bar).
+let shared: Counts = { notifications: 0, messages: 0 };
+const listeners = new Set<() => void>();
+function publish(next: Counts) {
+  shared = next;
+  listeners.forEach((l) => l());
+}
+/** The last unread counts the header loaded (for the tab bar's Messages dot). */
+export function useSharedUnreadCounts() {
+  return useSyncExternalStore(
+    (l) => {
+      listeners.add(l);
+      return () => listeners.delete(l);
+    },
+    () => shared,
+  );
+}
 
 /**
  * Unread notification and message counts for the header badges. Refreshes
@@ -46,6 +66,7 @@ export function useUnreadCounts() {
       }).length;
       if (cancelled) return;
       setCounts({ notifications: notifications ?? 0, messages });
+      publish({ notifications: notifications ?? 0, messages });
       if (PUSH_SUPPORTED) Notifications.setBadgeCountAsync((notifications ?? 0) + messages).catch(() => undefined);
     }
 

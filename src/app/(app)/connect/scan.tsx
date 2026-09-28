@@ -6,6 +6,7 @@ import { Platform, View } from 'react-native';
 import { ConnectedCard } from '@/components/connect/ConnectedCard';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, EmptyState, Screen, useToast } from '@/components/ui';
+import { track } from '@/features/analytics/track';
 import { codeFromScan, redeemConnectCode, type ConnectResult } from '@/features/connect/api';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
@@ -26,6 +27,7 @@ export default function ScanToConnect() {
     handling.current = true;
     try {
       setResult(await redeemConnectCode(code));
+      track('connected', { how: 'qr' });
     } catch (e) {
       toast(friendlyError(e));
       // Let them try again after a moment.
