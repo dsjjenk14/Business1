@@ -19,13 +19,10 @@
 - [ ] **Public web pages** for the Privacy Policy and Terms. The App Store listing needs a Privacy Policy URL. I can publish them as simple pages once the text is final.
 - [ ] **Moderation owner:** Apple expects reports to be acted on within about 24 hours. Make yourself an admin (GitHub → Actions → **Make admin**), then use **Menu → Admin → Reports**. Admins get a notification for each report.
 - [ ] **Twilio** (texts) and an **email-sending service** (Resend or SendGrid free tier). See `docs/DEPLOY.md`.
-- [ ] **Apple Developer account** ($99/year), for TestFlight and the App Store.
+- [ ] **Apple Developer account** ($99/year), for TestFlight and the App Store. Step-by-step: `docs/TESTFLIGHT.md`.
 - [ ] **RevenueCat** (free to start) + a $14.99/month subscription in App Store Connect, for in-app Premium. Then add `REVENUECAT_WEBHOOK_SECRET` in Supabase → Edge Functions → Secrets and point RevenueCat's webhook at `…/functions/v1/revenuecat-webhook`.
 - [ ] **App Store privacy "nutrition label":** I'll fill in a draft from the Privacy Policy when we submit.
 
 ## Still to build before a public launch (build plan)
-- Phase 4: Tonight tab, map, groups (join requests, group chat), event recap
-- Phase 5: chats, date requests, Date Mode, safety check-ins and the "I feel unsafe" flow. **Recommended before strangers start meeting up.**
-- Phase 6: Premium, Featured Places, the admin view, ID and photo verification
-- Phase 7: AI features
-- Phase 8: push notifications, polish, TestFlight build
+- Phase 7: AI features (waiting on your OK for the paid Claude API)
+- The TestFlight build itself (waiting on the Apple Developer account; everything else for it is ready)

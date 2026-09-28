@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import { PersonRow } from '@/components/circles/PersonRow';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Badge, Button, Card, EmptyState, GlyphTile, GlyphTitle, LoadingDetail, Screen, Section, useToast } from '@/components/ui';
+import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { preciseLocation } from '@/features/circles/api';
 import { checkInOpen, eventCheckIn, eventPhase, fetchEvent, type EventDetail } from '@/features/events/api';
 import { cancelRsvp, rsvp } from '@/features/tonight/api';
@@ -73,6 +74,7 @@ export default function EventScreen() {
       } else {
         await rsvp(event.id, me);
         toast(`You're in: ${event.title}`);
+        enableArrivalWatch();
       }
       await load();
     } catch (e) {

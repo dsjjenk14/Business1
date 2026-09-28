@@ -5,6 +5,7 @@ import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { GroupsList } from '@/components/groups/GroupsList';
 import { EmptyCard, EventCard, GoingOutPersonRow, MyNightOut } from '@/components/tonight/GoingOutList';
 import { AppText, Badge, Button, Card, GlyphTile, IconButton, LoadingList, Section, Segmented, useToast } from '@/components/ui';
+import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { fetchGroups, preciseLocation, type GroupsOverview } from '@/features/circles/api';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import {
@@ -98,6 +99,7 @@ export default function Tonight() {
     try {
       await rsvp(e.id, me);
       toast(`You're in: ${e.title}`);
+      enableArrivalWatch();
       load();
     } catch (err) {
       toast(friendlyError(err));

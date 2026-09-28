@@ -1363,6 +1363,11 @@ isOneToOne: false
               "avatar_url": string,"display_name": string,"gesture": string,"id": number,"kind": string,"member_since": string,"selfie_path": string,"submitted_at": string,"user_id": string,"vouch_count": number
             }[]
                            },
+"arrival_regions":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "key": string,"lat": number,"lng": number,"radius_m": number,"title": string
+            }[]
+                           },
 "arrival_targets":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
