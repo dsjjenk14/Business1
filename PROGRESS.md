@@ -5,6 +5,17 @@
 
 ---
 
+## ✅ Arriving is automatic; radius is always 75 miles (Dominique's changes)
+- **I'm In** is what you tap to say you're going to an event.
+- **Arriving is automatic.** While the app is open, every 2 minutes it checks whether you have an event (or a night-out place) coming up. If you do, it reads your GPS, and when you're within about 150 meters (500 feet) the app marks you **there**. This works for events and for the place in your "I'm Out" post.
+  - The event page shows "You're there".
+  - The Tonight list shows "There now". Only your circle sees it (or your network, if you pick that).
+  - If you have no plans, it never reads your GPS.
+  - An "I'm here" button stays as a backup, for when GPS is off or the event has no place on the map.
+  - **Still to do:** marking you there while the app is closed needs "background location". That works only in the App Store version, not in Expo Go. We'll turn it on with the TestFlight build.
+- **Radius is always 75 miles** for everyone, on Pins, Tonight and the map. The sliders are gone, and it's no longer a Premium perk.
+- Migration 018 and test file 010. All 207 database tests pass.
+
 ## ✅ Phase 6: Money and verification
 
 ### What works
@@ -288,6 +299,8 @@ The seven AI features (icebreakers, Tonight for You, Trust Monitor, vibe match, 
 ## Decisions log
 | Date | Decision | Why |
 |---|---|---|
+| 2026-09-28 | "I'm In" = tap to say you're going. The app marks you **there** automatically by GPS (within 150 m). | Dominique |
+| 2026-09-28 | Search radius is always 75 miles for everyone (no slider, not a Premium perk) | Dominique |
 | 2026-09-27 | ~~Theme E "Top 8"~~ removed, along with Top 8 friends and profile customization | Dominique: "No Top 8" |
 | 2026-09-27 | Default theme is **Original** (the prototype's colors: #0C0C0C, red #D62828, green #4ADE80, gold #D4AF37, blue #64A0FF; Bebas Neue + Syne). A–D stay as alternates. | Dominique: "change to the original color scheme" |
 | 2026-09-27 | In the Original theme, gray secondary text is 62% white (the prototype used 40%) | 40% was too faint to read comfortably (it failed the accessibility contrast check) |

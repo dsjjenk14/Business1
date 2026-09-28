@@ -56,7 +56,7 @@ update pins set audience = 'circle' where body = 'circle only pin';
 select pg_temp.act_as((select id from t where k = 'cy'));
 select ok(not exists (select 1 from pins_feed('nearby', p_radius_mi => 5) where body = 'tysons pin'), '5 mi radius: the Tysons pin is out of range');
 select ok(exists (select 1 from pins_feed('nearby', p_radius_mi => 10) where body = 'tysons pin'), '10 mi radius: the Tysons pin is in range');
-select ok(not exists (select 1 from pins_feed('nearby', p_radius_mi => 50) where body = 'far pin'), 'Free plan: asking for 50 mi is capped at 10 mi');
+select ok(exists (select 1 from pins_feed('nearby', p_radius_mi => 50) where body = 'far pin'), 'Free plan: 50 mi reaches the far pin (75 mi for everyone)');
 select ok(exists (select 1 from pins_feed('community') where body = 'far pin'), 'They''re In shows pins at any distance');
 select ok(not exists (select 1 from pins_feed('community') where body = 'circle only pin'), 'Strangers never see circle-only pins');
 select ok((select distance_mi from pins_feed('nearby', p_radius_mi => 10) where body = 'tysons pin') between 5 and 8,

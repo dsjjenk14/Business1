@@ -6,7 +6,7 @@ import Svg, { Circle, Line } from 'react-native-svg';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Avatar, Glyph, Screen } from '@/components/ui';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
-import { usePlan } from '@/features/plan/usePlan';
+import { SEARCH_RADIUS_MI } from '@/lib/radius';
 import { fetchGoingOut, type GoingOutFeed } from '@/features/tonight/api';
 import { useTheme } from '@/theme';
 
@@ -28,9 +28,8 @@ export default function TonightMap() {
   const { location, status } = useApproxLocation();
   const lat = location?.lat;
   const lng = location?.lng;
-  const { limit } = usePlan();
   const [feed, setFeed] = useState<GoingOutFeed | null>(null);
-  const radius = Math.min(10, limit('search_radius_mi') ?? 10);
+  const radius = SEARCH_RADIUS_MI;
 
   useFocusEffect(
     useCallback(() => {

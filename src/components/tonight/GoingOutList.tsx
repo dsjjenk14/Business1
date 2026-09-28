@@ -9,22 +9,22 @@ import { useTheme } from '@/theme';
 
 const degreeLabel = (d: number) => (d === 1 ? '1st' : d === 2 ? '2nd' : null);
 
-/** "In now · since 9:10 PM" with a live dot. */
+/** "There now · since 9:10 PM" with a live dot. */
 export function HereNow({ since, compact }: { since: string; compact?: boolean }) {
   const t = useTheme();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
       <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: t.colors.trust }} />
       <AppText variant="caption" weight="bold" tone="trust">
-        {compact ? 'In now' : `In now · since ${clockTime(since)}`}
+        {compact ? 'There now' : `There now · since ${clockTime(since)}`}
       </AppText>
     </View>
   );
 }
 
 /**
- * Someone going out. Shows where, when and vibe, plus "In now" once they've
- * tapped I'm In at the place. People you know can tap Join.
+ * Someone going out. Shows where, when and vibe, plus "There now" once their
+ * phone's GPS shows them at the place. People you know can tap Join.
  */
 export function GoingOutPersonRow({
   person,
@@ -86,9 +86,9 @@ export function GoingOutPersonRow({
 }
 
 /**
- * Your night out. Tap I'm In when you get there: the people you choose (your
- * circle, or your network) see "In now". It turns off on its own after a few
- * hours; Still in keeps it on.
+ * Your night out. When your GPS shows you at the place, the app marks you
+ * there and the people you choose (your circle, or your network) see
+ * "There now". It stays on while you're there and turns off after a few hours.
  */
 export function MyNightOut({
   me,
@@ -101,7 +101,7 @@ export function MyNightOut({
 }: {
   me: FeedPerson;
   company: Company[];
-  /** Minutes until "In now" turns off (computed by the screen when it loads). */
+  /** Minutes until "There now" turns off (computed by the screen when it loads). */
   minutesLeft: number | null;
   busy: boolean;
   onIn: () => void;
@@ -120,7 +120,7 @@ export function MyNightOut({
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
           <GlyphTile name={live ? 'live' : 'moon'} size={44} tone={live ? 'trust' : 'primary'} />
           <View style={{ flex: 1 }}>
-            <AppText weight="bold">{live ? "You're in" : 'Your night out'}</AppText>
+            <AppText weight="bold">{live ? "You're there" : 'Your night out'}</AppText>
             <AppText variant="small" tone="muted" numberOfLines={2}>
               {[me.place, live && me.here_since ? `since ${clockTime(me.here_since)}` : clockTime(me.starts_at)].filter(Boolean).join(' · ')}
             </AppText>
@@ -133,15 +133,23 @@ export function MyNightOut({
               .join(' · ')}
           </AppText>
         ) : null}
-        {live && minutesLeft != null && minutesLeft < 45 ? (
-          <AppText variant="caption" tone="sponsored">
-            &quot;In now&quot; turns off in {Math.max(minutesLeft, 0)} min. Still there? Tap Still in.
+        {live ? (
+          <AppText variant="caption" tone="subtle">
+            Your phone&apos;s GPS marked you there. It stays on while you&apos;re there{minutesLeft != null ? ` (at least ${Math.max(minutesLeft, 0)} more min)` : ''}.
           </AppText>
-        ) : null}
-        <Button label={live ? 'Still in' : "I'm In"} size="md" variant="trust" onPress={onIn} loading={busy} />
+        ) : (
+          <View style={{ gap: t.space[2] }}>
+            <AppText variant="small" tone="muted">
+              {me.venue_id
+                ? `When you get to ${me.place ?? 'the place'}, the app notices and marks you there. No need to tap anything.`
+                : 'Pick a place from the list (Edit plans) and the app will mark you there when you arrive.'}
+            </AppText>
+            <Button label="I'm here" size="md" variant="secondary" onPress={onIn} loading={busy} />
+          </View>
+        )}
         <View style={{ gap: t.space[2] }}>
           <AppText variant="caption" tone="subtle">
-            {live ? 'Who sees you’re in' : 'When you tap I’m In, who sees it'}
+            {live ? 'Who sees you’re there' : 'When you get there, who sees it'}
           </AppText>
           <View style={{ flexDirection: 'row', gap: t.space[2] }}>
             <Chip label="My Circle" selected={audience === 'circle'} onPress={() => onAudience('circle')} />

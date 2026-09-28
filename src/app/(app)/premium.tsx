@@ -26,13 +26,10 @@ export default function Premium() {
   );
 
   const lim = (key: string) => planLimits[key];
-  const radiusFree = lim('search_radius_mi')?.free ?? 10;
-  const radiusPremium = lim('search_radius_mi')?.premium ?? 75;
   const exchanges = lim('messaging_min_exchanges')?.free ?? 5;
   const aiFree = lim('ai_uses')?.free ?? 3;
 
   const features: { glyph: GlyphName; title: string; free: string; premium: string }[] = [
-    { glyph: 'globe', title: 'Bigger radius', free: `Search up to ${radiusFree} miles`, premium: `See people and plans up to ${radiusPremium} miles away` },
     { glyph: 'chat', title: 'Message sooner', free: `${exchanges} back-and-forths before messaging someone in your circle`, premium: 'Message your circle right away (intros still come first for everyone else)' },
     { glyph: 'spark', title: 'AI without limits', free: `${aiFree} AI uses in total`, premium: 'Unlimited icebreakers, tonight picks and more' },
     { glyph: 'flame', title: 'Priority on Tonight', free: 'Standard placement', premium: 'Your plans show near the top of Tonight' },
@@ -91,7 +88,6 @@ export default function Premium() {
           <View style={{ borderRadius: t.radius.md, borderWidth: t.borderWidth.hairline, borderColor: t.colors.border, overflow: 'hidden' }}>
             {[
               ['', 'Free', 'Premium'],
-              ['Search radius', `${radiusFree} mi`, `${radiusPremium} mi`],
               ['Messaging', `After ${exchanges}`, 'Right away'],
               ['AI features', `${aiFree} uses`, 'Unlimited'],
               ['Tonight placement', 'Standard', 'Priority'],

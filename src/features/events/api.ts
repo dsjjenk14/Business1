@@ -16,6 +16,8 @@ export type EventDetail = {
   place: string | null;
   group: { id: number; name: string; emoji: string } | null;
   i_am_going: boolean;
+  /** The phone's GPS showed you at the event (marked automatically). */
+  i_am_here: boolean;
   going_count: number;
   going: (PersonLite & { degree: number })[];
   has_recap: boolean;

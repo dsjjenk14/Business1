@@ -58,6 +58,7 @@ select throws_ok($$ insert into venue_placements (venue_id, kind, perk, starts_a
   values ((select id from venues where name = 'Perk Bar'), 'sponsored', '10% off', now(), now() + interval '7 days') $$,
   '42501', null, 'Members can''t create placements');
 select pg_temp.act_as('boss');
+update venue_placements set ends_at = now() - interval '1 minute';  -- only this test's placement is live
 insert into venue_placements (venue_id, kind, perk, starts_at, ends_at)
 values ((select id from venues where name = 'Perk Bar'), 'sponsored', '10% off for I''m In members', now() - interval '1 hour', now() + interval '7 days');
 select pg_temp.act_as('bo');
@@ -73,7 +74,7 @@ select is((select count(*)::int from featured_places()), 0, 'Ended placements di
 select lives_ok($$ select submit_partner_inquiry('Perk Bar', 'Pat Owner', 'pat@perkbar.test', null, null, 'We''d love to partner') $$, 'A venue can ask to partner');
 select is((select count(*)::int from partner_inquiries), 0, 'Members can''t read inquiries');
 select pg_temp.act_as('boss');
-select is((select count(*)::int from partner_inquiries), 1, 'Admins can');
+select is((select count(*)::int from partner_inquiries where business_name = 'Perk Bar'), 1, 'Admins can');
 
 -- ── Photo verification ───────────────────────────────────────────────────
 select pg_temp.act_as('bo');

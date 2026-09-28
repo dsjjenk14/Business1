@@ -59,7 +59,7 @@ select ok((select going_out_feed('weekend', 38.60, -77.30, 10)->'people' @> '[{"
 select ok(not (select going_out_feed('tonight', 38.60, -77.30, 10)->'people' @> '[{"display_name":"Far S."}]'), 'Strangers outside the radius are hidden');
 select is((select x->>'place' from jsonb_array_elements(going_out_feed('tonight', 38.60, -77.30, 10)->'people') x where x->>'display_name' = 'Di S.'),
   null, 'Venue hidden when the member turned off "show my venue"');
-select is((select (going_out_feed('tonight', 38.60, -77.30, 500)->>'radius_mi')::int), 10, 'Free plan radius is capped at 10 miles');
+select is((select (going_out_feed('tonight', 38.60, -77.30, 500)->>'radius_mi')::int), 75, 'Radius is capped at 75 miles for everyone');
 select is((select count(*)::int from going_out_posts), 0, 'Other people''s posts can''t be read directly (only through the feed)');
 select pg_temp.act_as('bo');
 select post_going_out('tonight', p_place => 'Changed plans', p_lat => 38.60, p_lng => -77.30);

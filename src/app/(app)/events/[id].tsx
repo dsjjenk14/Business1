@@ -13,7 +13,7 @@ import { friendlyError } from '@/lib/supabase';
 import { clockTime, dayTime } from '@/lib/time';
 import { useTheme } from '@/theme';
 
-/** An event: who's hosting, who's going, I'm In, check in when you're there, then recap and vouch. */
+/** An event: who's hosting, who's going, I'm In, marked there by GPS on arrival, then recap and vouch. */
 export default function EventScreen() {
   const t = useTheme();
   const router = useRouter();
@@ -93,11 +93,12 @@ export default function EventScreen() {
       const loc = await preciseLocation();
       const met = await eventCheckIn(event.id, loc);
       if (met.length) {
-        toast(`Checked in. You met ${met.length} ${met.length === 1 ? 'person' : 'people'} here.`);
+        toast(`You're there. You met ${met.length} ${met.length === 1 ? 'person' : 'people'} here.`);
         router.push('/circles/vouch');
       } else {
-        toast("Checked in. When others check in too, you'll be able to vouch for each other.");
+        toast("You're there. When others arrive too, you'll be able to vouch for each other.");
       }
+      await load();
     } catch (e) {
       toast(friendlyError(e));
     } finally {
@@ -144,7 +145,11 @@ export default function EventScreen() {
         {event.description ? <AppText>{event.description}</AppText> : null}
 
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: t.space[2], flexWrap: 'wrap' }}>
-          {event.i_am_going && !event.is_host ? <Badge label="You're in" glyph="check" tone="trust" /> : null}
+          {event.i_am_here ? (
+            <Badge label="You're there" glyph="arrive" tone="trust" />
+          ) : event.i_am_going && !event.is_host ? (
+            <Badge label="You're in" glyph="check" tone="trust" />
+          ) : null}
           <Badge label={`${event.going_count} going`} tone="neutral" />
           {spotsLeft != null ? <Badge label={spotsLeft === 0 ? 'Full' : `${spotsLeft} spot${spotsLeft === 1 ? '' : 's'} left`} tone={spotsLeft === 0 ? 'primary' : 'trust'} /> : null}
           {phase === 'live' ? <Badge label="Happening now" tone="primary" /> : phase === 'ended' ? <Badge label="Ended" tone="neutral" /> : null}
@@ -166,14 +171,27 @@ export default function EventScreen() {
           )
         ) : null}
 
-        {canCheckIn ? (
+        {canCheckIn && event.i_am_here ? (
           <Card accent="trust">
             <View style={{ gap: t.space[2] }}>
-              <GlyphTitle glyph="arrive" tone="trust">At the event?</GlyphTitle>
+              <GlyphTitle glyph="arrive" tone="trust">You&apos;re there</GlyphTitle>
               <AppText variant="small" tone="muted">
-                Check in with GPS. Anyone else who checks in here counts as a real-life meetup, and you can vouch for each other.
+                Your phone&apos;s GPS marked you at the event. Everyone else who arrives counts as a real-life meetup, and you can vouch for each
+                other.
               </AppText>
-              <Button label="Check in here" variant="trust" size="md" onPress={checkIn} loading={busy} />
+              <Button label="Vouch" variant="trust" size="md" onPress={() => router.push('/circles/vouch')} />
+            </View>
+          </Card>
+        ) : canCheckIn ? (
+          <Card accent="trust">
+            <View style={{ gap: t.space[2] }}>
+              <GlyphTitle glyph="arrive" tone="trust">On your way?</GlyphTitle>
+              <AppText variant="small" tone="muted">
+                {event.venue
+                  ? 'When you get there, the app notices from your GPS and marks you there. Keep the app open on arrival.'
+                  : 'This event has no mapped place, so tap below when you get there.'}
+              </AppText>
+              <Button label="I'm here" variant="secondary" size="md" onPress={checkIn} loading={busy} />
             </View>
           </Card>
         ) : null}
