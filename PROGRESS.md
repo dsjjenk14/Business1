@@ -5,6 +5,13 @@
 
 ---
 
+## ✅ Messages back at the top; I'm In on shared events
+- The **Messages icon is back in the top bar** (with a dot for unread). The bottom bar is Home, Pins, Tonight, Circles again.
+- When someone **shares an event as a post**, the post now shows the event (name, time, how many are going) with an **I'm In** button, or "You're in" once you've tapped it.
+- Events everywhere else already had I'm In: the event page, Tonight, and the event cards on Home.
+- You can't share the same event twice.
+- Migration 024. **All 257 database tests pass.**
+
 ## ✅ New Home and the product review (Dominique: "make all the changes")
 - **The new Home is "what's happening with my people right now."**
   - **People row at the top** (like stories):

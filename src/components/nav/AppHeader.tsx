@@ -9,7 +9,7 @@ import { useTheme } from '@/theme';
 
 import { Logo } from './Logo';
 
-/** Slim header on the main tabs: logo left; post, notifications, profile, menu right. (Messages is a tab.) */
+/** Slim header on the main tabs: logo left; post, messages, notifications, profile, menu right. */
 export function AppHeader() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
@@ -33,6 +33,7 @@ export function AppHeader() {
         <Logo />
       </View>
       <IconButton icon="add-circle-outline" label="Post" onPress={() => router.push('/pins/new')} />
+      <IconButton icon="chatbubble-ellipses-outline" label="Messages" badgeCount={unread.messages} onPress={() => router.push('/messages')} />
       <IconButton icon="notifications-outline" label="Notifications" badgeCount={unread.notifications} onPress={() => router.push('/notifications')} />
       <Pressable
         accessibilityRole="button"
