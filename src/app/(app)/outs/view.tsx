@@ -32,10 +32,10 @@ const SECONDS = 8;
 function timeLeft(expiresAt: string) {
   const min = Math.max(0, Math.round((new Date(expiresAt).getTime() - Date.now()) / 60000));
   if (min <= 0) return "Gone soon";
-  return min >= 60 ? "Gone in 1 hr" : `Gone in ${min} min`;
+  return min >= 60 ? `Gone in ${Math.round(min / 60)} hr` : `Gone in ${min} min`;
 }
 
-/** Watching Outs: full screen, 8 seconds each, tap to skip. Pin one to keep it past the hour. */
+/** Watching Outs: full screen, 8 seconds each, tap to skip. Pin one to keep it past 6 hours. */
 export default function ViewOuts() {
   const t = useTheme();
   const router = useRouter();
@@ -107,7 +107,7 @@ export default function ViewOuts() {
       setLoaded({ id: out.id, out: { ...out, pinned: !out.pinned } });
       toast(
         out.pinned
-          ? "Unpinned. It disappears when the hour is up."
+          ? "Unpinned. It disappears when its 6 hours are up."
           : out.is_mine
             ? "Pinned. It stays in your Pinned Outs."
             : `Pinned. ${out.sender_name.split(" ")[0]} will know you kept it.`,

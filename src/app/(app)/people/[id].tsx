@@ -4,10 +4,10 @@ import { View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
 import { ProfileView } from '@/components/profile/ProfileView';
-import { AppText, Button, LoadingDetail, Screen, useToast } from '@/components/ui';
+import { AppText, Button, IconButton, LoadingDetail, OptionsSheet, Screen, useToast } from '@/components/ui';
 import { fetchFeed, type FeedPin } from '@/features/pins/api';
 import { fetchProfileCard, type ProfileCard } from '@/features/profiles/api';
-import { blockUser } from '@/features/safety/api';
+import { blockUser, fetchPersonPrivacy, setHiddenFrom, setMuted, type PersonPrivacy } from '@/features/safety/api';
 import { fetchVouchesGiven, unvouch } from '@/features/circles/api';
 import { confirmThen } from '@/lib/confirm';
 import { fetchMessageStatus, openDirectChat } from '@/features/chat/api';
@@ -27,6 +27,8 @@ export default function PersonProfile() {
   const [card, setCard] = useState<ProfileCard | null | undefined>(undefined);
   const [pins, setPins] = useState<FeedPin[]>([]);
   const [confirmBlock, setConfirmBlock] = useState(false);
+  const [menu, setMenu] = useState(false);
+  const [privacy, setPrivacy] = useState<PersonPrivacy | null>(null);
   const [iVouched, setIVouched] = useState(false);
   const [opening, setOpening] = useState(false);
   const [exchanges, setExchanges] = useState<number | null>(null);
@@ -42,6 +44,9 @@ export default function PersonProfile() {
         }
         setCard(c);
         setPins(p);
+        fetchPersonPrivacy(id)
+          .then((v) => !cancelled && setPrivacy(v))
+          .catch(() => undefined);
         fetchVouchesGiven()
           .then((v) => !cancelled && setIVouched(v.some((x) => x.user_id === id)))
           .catch(() => undefined);
@@ -127,9 +132,43 @@ export default function PersonProfile() {
     </View>
   ) : null;
 
+  async function toggle(kind: 'muted' | 'hidden') {
+    if (!card || !privacy) return;
+    const on = !privacy[kind];
+    try {
+      if (kind === 'muted') await setMuted(card.id, on);
+      else await setHiddenFrom(card.id, on);
+      setPrivacy({ ...privacy, [kind]: on });
+      toast(
+        kind === 'muted'
+          ? on
+            ? `Muted. You won’t see ${first}’s posts. They aren’t told.`
+            : `Unmuted ${first}`
+          : on
+            ? `${first} won’t see your posts, My Out or plans. They aren’t told.`
+            : `${first} can see your posts again`,
+      );
+    } catch (e) {
+      toast(friendlyError(e));
+    }
+  }
+
+  const menuOptions = card
+    ? [
+        { label: privacy?.muted ? `Unmute ${first}` : `Mute ${first} (hide their posts from me)`, onPress: () => toggle('muted') },
+        { label: privacy?.hidden ? `Show my posts to ${first} again` : `Hide my posts from ${first}`, onPress: () => toggle('hidden') },
+        { label: `Report ${first}`, onPress: () => router.push({ pathname: '/report', params: { user: card.id, name: card.display_name } }) },
+        { label: `Block ${first}`, danger: true, onPress: () => setConfirmBlock(true) },
+      ]
+    : [];
+
   return (
     <>
-      <BackHeader title={card?.display_name ?? 'Profile'} />
+      <BackHeader
+        title={card?.display_name ?? 'Profile'}
+        right={card ? <IconButton icon="ellipsis-horizontal" label={`Options for ${card.display_name}`} onPress={() => setMenu(true)} /> : undefined}
+      />
+      <OptionsSheet visible={menu} options={menuOptions} onClose={() => setMenu(false)} />
       <Screen>
         {card ? (
           <ProfileView card={card} pins={pins} onPinChange={(n) => setPins((l) => l.map((p) => (p.id === n.id ? n : p)))} actions={actions}>

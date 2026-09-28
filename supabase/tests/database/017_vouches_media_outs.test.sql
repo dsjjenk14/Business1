@@ -73,7 +73,7 @@ select pg_temp.act_as('a');
 select ok(send_out(pg_temp.uid('a') || '/anywhere.jpg', null, array[pg_temp.uid('b')]::uuid[], false) is not null, 'Outs work anywhere');
 select pg_temp.admin();
 select is((select title from notifications where user_id = pg_temp.uid('b') and kind = 'out' order by id desc limit 1), 'Ava S. sent you an Out', 'Not at an event: plain notice');
-select is((select round(extract(epoch from expires_at - created_at) / 60)::int from outs where path like '%/anywhere.jpg'), 60, 'An Out lasts an hour');
+select is((select round(extract(epoch from expires_at - created_at) / 60)::int from outs where path like '%/anywhere.jpg'), 360, 'An Out lasts 6 hours');
 select pg_temp.act_as('a');
 select is(my_out_event(), null, 'Not at an event');
 select pg_temp.admin();
@@ -116,7 +116,7 @@ select is((select title from notifications where user_id = pg_temp.uid('a') and 
 -- The hour passes.
 update outs set expires_at = now() - interval '1 minute' where sender_id = pg_temp.uid('a') and not to_story;
 select is(out_open(pg_temp.id('out1'), pg_temp.uid('b'))->>'caption', 'Look!', 'Pinned: still there after the hour');
-select is(out_open(pg_temp.id('out1'), pg_temp.uid('a'))->>'error', 'This Out is gone. Outs last an hour unless you pin them.', 'Not pinned: gone after the hour');
+select is(out_open(pg_temp.id('out1'), pg_temp.uid('a'))->>'error', 'This Out is gone. Outs last 6 hours unless you pin them.', 'Not pinned: gone after 6 hours');
 select ok(not exists (select 1 from outs_to_clean() where id = pg_temp.id('out1')), 'A pinned Out''s photo is kept');
 select ok(exists (select 1 from outs_to_clean() o join outs x on x.id = o.id where x.path like '%/anywhere.jpg'), 'An unpinned one is deleted');
 select pg_temp.act_as('b');

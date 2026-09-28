@@ -4,15 +4,18 @@ import { useCallback, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
+import { PeoplePicker } from '@/components/chat/PeoplePicker';
 import { MediaPicker, type MediaDraft } from '@/components/media/MediaPicker';
 import { MusicPicker } from '@/components/music/MusicPicker';
 import { PhotoFilters, type Filtered } from '@/components/pins/PhotoFilters';
 import { PhotoPicker } from '@/components/pins/PhotoPicker';
 import { AppText, Button, Chip, type GlyphName, Screen, TextField, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
+import { fetchChatCandidates, type ChatCandidate } from '@/features/chat/api';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import type { Song } from '@/features/music/api';
 import { AUDIENCE_OPTIONS, createPin, type PinAudience, type PinCategory } from '@/features/pins/api';
+import { setPinHiddenFrom } from '@/features/safety/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
@@ -39,6 +42,10 @@ export default function NewPin() {
   const [filtered, setFiltered] = useState<Filtered>({});
   const [media, setMedia] = useState<MediaDraft>(null);
   const [audience, setAudience] = useState<PinAudience>('everyone');
+  // Hide this pin from specific people (they aren't told).
+  const [hideFrom, setHideFrom] = useState<Set<string>>(new Set());
+  const [people, setPeople] = useState<ChatCandidate[] | null>(null);
+  const [showHide, setShowHide] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -73,7 +80,8 @@ export default function NewPin() {
         music: photos.length || media?.kind === 'boomerang' ? music : null,
         media,
       });
-      track('pin_posted', { category, photos: photos.length, audience, music: !!(photos.length && music), filters: Object.keys(filtered).length });
+      if (hideFrom.size) await setPinHiddenFrom(pinId, [...hideFrom]).catch(() => toast('Couldn’t hide it from everyone you picked. Try again from the pin.'));
+      track('pin_posted', { category, photos: photos.length, audience, music: !!(photos.length && music), filters: Object.keys(filtered).length, hidden_from: hideFrom.size });
       toast(failedPhotos ? `Pin dropped, but ${failedPhotos} photo(s) or video didn't upload` : 'Pin dropped');
       router.replace({ pathname: '/pins/[id]', params: { id: String(pinId) } });
     } catch (e) {
@@ -154,6 +162,51 @@ export default function NewPin() {
               );
             })}
           </View>
+        </View>
+
+        <View style={{ gap: t.space[2] }}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ expanded: showHide }}
+            onPress={() => {
+              setShowHide((v) => !v);
+              if (!people)
+                fetchChatCandidates()
+                  .then(setPeople)
+                  .catch(() => setPeople([]));
+            }}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[2], minHeight: 44 }}>
+            <Ionicons name="eye-off-outline" size={18} color={t.colors.textMuted} />
+            <AppText weight="bold" style={{ flex: 1 }}>
+              Hide from specific people{hideFrom.size ? ` (${hideFrom.size})` : ''}
+            </AppText>
+            <Ionicons name={showHide ? 'chevron-up' : 'chevron-down'} size={18} color={t.colors.textMuted} />
+          </Pressable>
+          {showHide ? (
+            <>
+              <AppText variant="caption" tone="muted">
+                They won&apos;t see this pin anywhere. They aren&apos;t told.
+              </AppText>
+              {people?.length ? (
+                <PeoplePicker
+                  people={people}
+                  selected={hideFrom}
+                  onToggle={(id) =>
+                    setHideFrom((s) => {
+                      const n = new Set(s);
+                      if (n.has(id)) n.delete(id);
+                      else n.add(id);
+                      return n;
+                    })
+                  }
+                />
+              ) : (
+                <AppText variant="small" tone="subtle">
+                  {people ? 'No one to pick yet.' : 'Loading…'}
+                </AppText>
+              )}
+            </>
+          ) : null}
         </View>
 
         <AppText variant="caption" tone="subtle">

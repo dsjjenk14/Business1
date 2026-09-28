@@ -10,6 +10,7 @@ import {
   Badge,
   Button,
   Card,
+  Chip,
   DateTile,
   EmptyState,
   GlyphTitle,
@@ -27,7 +28,7 @@ import { track } from '@/features/analytics/track';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { preciseLocation } from '@/features/circles/api';
 import { shareEvent } from '@/features/home/api';
-import { checkInOpen, eventCheckIn, eventPhase, fetchEvent, joinWaitlist, leaveWaitlist, type EventDetail } from '@/features/events/api';
+import { checkInOpen, eventCheckIn, eventPhase, fetchEvent, joinWaitlist, leaveWaitlist, setEventMode, type EventDetail } from '@/features/events/api';
 import { fetchTicketHolders, money, openPayment, parsePrice, refundTicket, setTicketPrice, ticketSplit, type TicketHolder } from '@/features/payments/api';
 import { fetchEventRating, rateVenue, type EventRating } from '@/features/ratings/api';
 import { cancelRsvp, rsvp } from '@/features/tonight/api';
@@ -217,6 +218,22 @@ export default function EventScreen() {
             </AppText>
           ) : null}
         </Ticket>
+
+        {event.surprise_for ? (
+          <Card accent="sponsored">
+            <View style={{ gap: t.space[1] }}>
+              <GlyphTitle glyph="party" tone="sponsored">
+                {`Shh! A surprise for ${event.surprise_for.display_name.split(' ')[0]}`}
+              </GlyphTitle>
+              <AppText variant="small" tone="muted">
+                {event.surprise_for.display_name.split(' ')[0]} can&apos;t see this event, posts about it or notices about it until it&apos;s over. Don&apos;t
+                spill.
+              </AppText>
+            </View>
+          </Card>
+        ) : null}
+
+        {event.is_host ? <EventModeControls event={event} onChanged={load} /> : null}
 
         {event.description ? <AppText>{event.description}</AppText> : null}
 
@@ -594,5 +611,38 @@ function HostTickets({ event, onChange }: { event: EventDetail; onChange: () => 
         <Button label="Save price" size="md" onPress={() => save(parsePrice(price))} loading={busy} disabled={parsePrice(price) == null} />
       </View>
     </Card>
+  );
+}
+
+/** Host only: who can see the event. */
+function EventModeControls({ event, onChanged }: { event: EventDetail; onChanged: () => void }) {
+  const t = useTheme();
+  const toast = useToast();
+  const [busy, setBusy] = useState(false);
+  async function change(visibility: 'public' | 'circle', surpriseFor: string | null) {
+    setBusy(true);
+    try {
+      await setEventMode(event.id, visibility, surpriseFor);
+      toast(surpriseFor ? 'Saved' : event.surprise_for && !surpriseFor ? 'The surprise is off' : visibility === 'circle' ? 'Only your circle can see it now' : 'Anyone can find it now');
+      onChanged();
+    } catch (e) {
+      toast(friendlyError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <View style={{ gap: t.space[2] }}>
+      <AppText variant="label" tone="muted">
+        Who can see it
+      </AppText>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+        <Chip label="Public" selected={event.visibility === 'public'} onPress={() => !busy && change('public', event.surprise_for?.id ?? null)} />
+        <Chip label="My Circle only" selected={event.visibility === 'circle'} onPress={() => !busy && change('circle', event.surprise_for?.id ?? null)} />
+        {event.surprise_for ? (
+          <Chip label="End the surprise" glyph="party" onPress={() => !busy && change(event.visibility, null)} />
+        ) : null}
+      </View>
+    </View>
   );
 }

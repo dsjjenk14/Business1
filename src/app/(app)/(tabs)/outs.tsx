@@ -10,7 +10,7 @@ import { timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
 
 /**
- * Outs: photos that disappear after an hour. Send one to friends in your
+ * Outs: photos that disappear after 6 hours. Send one to friends in your
  * circle or post it to My Out (your circle, or your network if you choose).
  * Pinning an Out keeps it; the person who took it is told.
  */
@@ -67,7 +67,7 @@ export default function Outs() {
             Take an Out
           </AppText>
           <AppText style={{ color: t.colors.onPrimary, fontFamily: t.fonts.mono, fontSize: 10.5, lineHeight: 15, letterSpacing: 0.8, textTransform: 'uppercase' }}>
-            {event ? `At ${event.title} · ` : ''}Gone in 1 hr unless pinned
+            {event ? `At ${event.title} · ` : ''}Gone in 6 hrs unless pinned
           </AppText>
         </View>
       </Pressable>
@@ -99,7 +99,7 @@ export default function Outs() {
 
           <Section title="Received">
             {inbox.received.length === 0 ? (
-              <EmptyState glyph="camera" title="No Outs right now" body="When friends in your circle send you an Out, it shows up here for an hour." />
+              <EmptyState glyph="camera" title="No Outs right now" body="When friends in your circle send you an Out, it shows up here for 6 hours." />
             ) : (
               inbox.received.map((r) => (
                 <Card
@@ -183,7 +183,7 @@ export default function Outs() {
             <AppText variant="caption" tone="subtle">
               My Out: {inbox.my_story.length} photo{inbox.my_story.length === 1 ? '' : 's'}, seen by {Math.max(0, ...inbox.my_story.map((s) => s.views))}
               {inbox.my_story.some((s) => s.pins) ? `, pinned by ${inbox.my_story.reduce((a, s) => a + s.pins, 0)}` : ''}
-              {inbox.my_story.some((s) => s.screenshots) ? `, ${inbox.my_story.reduce((a, s) => a + s.screenshots, 0)} screenshot(s)` : ''}. Each one is gone an hour
+              {inbox.my_story.some((s) => s.screenshots) ? `, ${inbox.my_story.reduce((a, s) => a + s.screenshots, 0)} screenshot(s)` : ''}. Each one is gone 6 hours
               after you post it, unless someone pins it.
             </AppText>
           ) : null}
