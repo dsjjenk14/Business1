@@ -17,9 +17,10 @@
 - [ ] **Support email.** The app shows `support@imin.app` as a placeholder. Tell me the real address; it's one setting (`app_config.support_email`).
 - [ ] **Lawyer review** of the Terms, Privacy Policy and Community Guidelines (`src/features/legal/content.ts`). They're plain-English drafts written from how the app actually works.
 - [ ] **Public web pages** for the Privacy Policy and Terms. The App Store listing needs a Privacy Policy URL. I can publish them as simple pages once the text is final.
-- [ ] **Moderation owner:** Apple expects reports to be acted on within about 24 hours. Until the admin view (Phase 6), reports can be reviewed in Supabase → Table editor → `reports`. Make your account an admin (`profiles.role = 'admin'`) to get a notification for each report.
+- [ ] **Moderation owner:** Apple expects reports to be acted on within about 24 hours. Make yourself an admin (GitHub → Actions → **Make admin**), then use **Menu → Admin → Reports**. Admins get a notification for each report.
 - [ ] **Twilio** (texts) and an **email-sending service** (Resend or SendGrid free tier). See `docs/DEPLOY.md`.
 - [ ] **Apple Developer account** ($99/year), for TestFlight and the App Store.
+- [ ] **RevenueCat** (free to start) + a $14.99/month subscription in App Store Connect, for in-app Premium. Then add `REVENUECAT_WEBHOOK_SECRET` in Supabase → Edge Functions → Secrets and point RevenueCat's webhook at `…/functions/v1/revenuecat-webhook`.
 - [ ] **App Store privacy "nutrition label":** I'll fill in a draft from the Privacy Policy when we submit.
 
 ## Still to build before a public launch (build plan)

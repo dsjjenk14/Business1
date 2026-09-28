@@ -1,100 +1,126 @@
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Avatar, Card, Screen, Section } from '@/components/ui';
+import { AppText, Avatar, Card, GlyphTile, Screen, Section } from '@/components/ui';
+import { fetchMyDates, type MyDate } from '@/features/dates/api';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
 
-type Row = { id: number; title: string; emoji: string | null; avatarUrl: string | null; last: string; at: string | null; unread: boolean; group: boolean };
+type Row = {
+  conversation_id: number;
+  kind: 'direct' | 'group';
+  title: string;
+  glyph: string | null;
+  other_id: string | null;
+  avatar_url: string | null;
+  last_body: string | null;
+  last_sender_id: string | null;
+  last_at: string | null;
+  unread: boolean;
+};
 
-/** Inbox: group chats and direct messages. Starting DMs and "Ask on a Date" come in Phase 5. */
+/** Messages: date requests waiting on you, direct chats, and group chats. */
 export default function Messages() {
   const t = useTheme();
   const router = useRouter();
   const { session } = useAuth();
   const me = session?.user.id;
   const [rows, setRows] = useState<Row[] | null>(null);
+  const [dates, setDates] = useState<MyDate[]>([]);
 
-  useEffect(() => {
-    if (!me) return;
-    (async () => {
-      const { data: memberships } = await supabase
-        .from('conversation_members')
-        .select('last_read_at, conversations(id, kind, direct_a, direct_b, last_message_at, groups(name, emoji))')
-        .eq('user_id', me);
-      const convs = (memberships ?? []).flatMap((m) => (m.conversations ? [{ ...m.conversations, last_read_at: m.last_read_at }] : []));
-      const otherIds = convs.filter((c) => c.kind === 'direct').map((c) => (c.direct_a === me ? c.direct_b : c.direct_a)).filter(Boolean) as string[];
-      const [{ data: people }, { data: lastMessages }] = await Promise.all([
-        supabase.from('profiles').select('id, display_name, avatar_emoji, avatar_url').in('id', otherIds),
-        supabase.from('messages').select('conversation_id, body, created_at').in('conversation_id', convs.map((c) => c.id)).order('created_at', { ascending: false }),
-      ]);
-      const result: Row[] = convs
-        .filter((c) => c.last_message_at)
-        .map((c) => {
-          const last = lastMessages?.find((m) => m.conversation_id === c.id);
-          const other = people?.find((p) => p.id === (c.direct_a === me ? c.direct_b : c.direct_a));
-          return {
-            id: c.id,
-            group: c.kind === 'group',
-            title: c.kind === 'group' ? c.groups?.name ?? 'Group' : other?.display_name ?? 'Member',
-            emoji: c.kind === 'group' ? c.groups?.emoji ?? null : other?.avatar_emoji ?? null,
-            avatarUrl: c.kind === 'group' ? null : other?.avatar_url ?? null,
-            last: last?.body ?? '',
-            at: c.last_message_at,
-            unread: !!c.last_message_at && (!c.last_read_at || c.last_message_at > c.last_read_at),
-          };
-        })
-        .sort((a, b) => (b.at ?? '').localeCompare(a.at ?? ''));
-      setRows(result);
-    })();
-  }, [me]);
-
-  const renderRow = (r: Row) => (
-    <Card key={r.id} onPress={() => router.push({ pathname: '/chat/[id]', params: { id: String(r.id) } })} accessibilityLabel={`${r.title}${r.unread ? ', unread' : ''}`}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-        <Avatar name={r.title} emoji={r.emoji} uri={r.avatarUrl} size={44} />
-        <View style={{ flex: 1 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <AppText weight="bold">{r.title}</AppText>
-            <AppText variant="caption" tone="subtle">
-              {r.at ? timeAgo(r.at) : ''}
-            </AppText>
-          </View>
-          <AppText variant="small" tone={r.unread ? 'text' : 'muted'} numberOfLines={1}>
-            {r.last}
-          </AppText>
-        </View>
-      </View>
-    </Card>
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      Promise.all([supabase.rpc('inbox'), fetchMyDates().catch(() => [])]).then(([inbox, d]) => {
+        if (cancelled) return;
+        setRows(((inbox.data ?? []) as Row[]).filter(Boolean));
+        setDates(d);
+      });
+      return () => {
+        cancelled = true;
+      };
+    }, []),
   );
 
-  return (
-    <>
-      <BackHeader title="Messages" />
-      <Screen>
-        {rows && rows.length === 0 ? (
-          <AppText tone="muted" align="center">
-            No messages yet. You can message people in your circle once you&apos;ve interacted a few times.
+  const open = (r: Row) => router.push({ pathname: '/chat/[id]', params: { id: String(r.conversation_id) } });
+
+  const renderRow = (r: Row) => (
+    <Pressable
+      key={r.conversation_id}
+      accessibilityRole="link"
+      accessibilityLabel={`${r.title}${r.unread ? ', unread' : ''}${r.last_body ? `: ${r.last_body}` : ''}`}
+      onPress={() => open(r)}
+      style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: t.space[3], minHeight: 60, opacity: pressed ? 0.7 : 1 })}>
+      {r.kind === 'group' ? <GlyphTile name={r.glyph} size={44} /> : <Avatar name={r.title} uri={r.avatar_url} size={44} />}
+      <View style={{ flex: 1 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: t.space[2] }}>
+          <AppText weight="bold" numberOfLines={1} style={{ flex: 1 }}>
+            {r.title}
           </AppText>
-        ) : null}
-        {rows && rows.some((r) => !r.group) ? (
-          <Section title="Direct" bare>
-            <View style={{ gap: t.space[2] }}>{rows.filter((r) => !r.group).map(renderRow)}</View>
-          </Section>
-        ) : null}
-        {rows && rows.some((r) => r.group) ? (
-          <Section title="Group chats" bare>
-            <View style={{ gap: t.space[2] }}>{rows.filter((r) => r.group).map(renderRow)}</View>
-          </Section>
-        ) : null}
-        <AppText variant="caption" tone="subtle" align="center">
-          Opening chats and replying arrives in Phase 5.
+          {r.last_at ? (
+            <AppText variant="caption" tone="subtle">
+              {timeAgo(r.last_at)}
+            </AppText>
+          ) : null}
+        </View>
+        <AppText variant="small" tone={r.unread ? 'text' : 'muted'} weight={r.unread ? 'bold' : undefined} numberOfLines={1}>
+          {r.last_body ? `${r.last_sender_id === me ? 'You: ' : ''}${r.last_body}` : 'No messages yet'}
         </AppText>
+      </View>
+      {r.unread ? <View accessibilityLabel="Unread" style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: t.colors.primary }} /> : null}
+    </Pressable>
+  );
+
+  const waiting = dates.filter((d) => d.status === 'pending' && !d.i_sent);
+  const direct = (rows ?? []).filter((r) => r.kind === 'direct');
+  const groups = (rows ?? []).filter((r) => r.kind === 'group');
+
+  return (
+    <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
+      <BackHeader title="Messages" />
+      <Screen contentGap={t.space[5]}>
+        {waiting.length ? (
+          <Section title="Date requests">
+            {waiting.map((d) => (
+              <Card key={d.id} accent="primary" onPress={() => router.push({ pathname: '/dates/[id]', params: { id: String(d.id) } })} accessibilityLabel={`Date request from ${d.other_name}`}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+                  <Avatar name={d.other_name} uri={d.other_avatar_url} size={40} />
+                  <View style={{ flex: 1 }}>
+                    <AppText weight="bold">{d.other_name} asked you on a date</AppText>
+                    <AppText variant="small" tone="muted">
+                      {d.label}
+                    </AppText>
+                  </View>
+                </View>
+              </Card>
+            ))}
+          </Section>
+        ) : null}
+
+        {rows === null ? (
+          <AppText tone="subtle" align="center">
+            Loading…
+          </AppText>
+        ) : (
+          <>
+            <Section title="Chats">
+              {direct.length ? (
+                direct.map(renderRow)
+              ) : (
+                <AppText variant="small" tone="muted">
+                  No chats yet. Open someone&apos;s profile and tap Message. You can message people you met through an intro right away, and
+                  anyone else in your circle after 5 back-and-forths on Pins.
+                </AppText>
+              )}
+            </Section>
+            {groups.length ? <Section title="Group chats">{groups.map(renderRow)}</Section> : null}
+          </>
+        )}
       </Screen>
-    </>
+    </View>
   );
 }

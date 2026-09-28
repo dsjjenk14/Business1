@@ -38,7 +38,7 @@ export default function Blocked() {
         {list?.length === 0 ? <AppText tone="subtle">You haven&apos;t blocked anyone.</AppText> : null}
         {list?.map((m) => (
           <View key={m.user_id} style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-            <Avatar name={m.display_name} emoji={m.avatar_emoji} uri={m.avatar_url} size={40} />
+            <Avatar name={m.display_name} uri={m.avatar_url} size={40} />
             <AppText weight="bold" style={{ flex: 1 }}>
               {m.display_name}
             </AppText>

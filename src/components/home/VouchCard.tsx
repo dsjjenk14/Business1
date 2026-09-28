@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 
-import { AppText, Badge, Card } from '@/components/ui';
+import { AppText, Badge, Card, isGlyphName } from '@/components/ui';
 import { tierProgress, useAppConfig } from '@/config/useAppConfig';
 import { useTheme } from '@/theme';
 
@@ -27,9 +27,9 @@ export function VouchCard({ vouchCount, onPress }: { vouchCount: number; onPress
           </AppText>
         </View>
         <View style={{ flex: 1, gap: t.space[2] }}>
-          {current ? <Badge label={current.name} emoji={current.emoji} tone="trust" /> : null}
+          {current ? <Badge label={current.name} glyph={isGlyphName(current.emoji) ? current.emoji : 'medal'} tone="trust" /> : null}
           <AppText variant="small" tone="muted">
-            {next ? `${remaining} more to ${next.name} ${next.emoji}` : 'Top tier. Legend status.'}
+            {next ? `${remaining} more to ${next.name}` : 'Top tier. Legend status.'}
           </AppText>
           <View
             accessibilityRole="progressbar"

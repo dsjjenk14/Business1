@@ -1,7 +1,109 @@
 # I'm In: Progress
 
 ## Status
-**Current phase:** Phase 4 (Going out) is done. Next is Phase 5 (messaging, dates and safety). See `docs/LAUNCH-CHECKLIST.md` for what's needed before launch.
+**Current phase:** Phase 6 (money and verification) is done, except the parts that need your accounts (see below). Next is Phase 7 (AI). See `docs/LAUNCH-CHECKLIST.md` for what's needed before launch.
+
+---
+
+## ✅ Phase 6: Money and verification
+
+### What works
+Tested in the browser as an admin (Dominique) and as a member (Maya), with no errors and no sideways scrolling. The one browser error in the run came from a test-only fake selfie. Screenshots are in `docs/screenshots/phase-6`.
+- **Premium:**
+  - **Founding Members get 3 months of Premium free, automatically.** Everyone who already joined as a Founding Member got their 3 months counted from their join date.
+  - **Premium screen:** $14.99/month, six cards showing what free limits and what Premium unlocks, and a comparison table. It pulls the numbers from the config table.
+  - **Settings → Your plan** shows your status (for example "Founding Member #1: free until December 27").
+  - The free-plan limits were already enforced by the server: radius, the messaging wait, Tonight priority, analytics and the badge.
+- **Profile analytics (Premium):**
+  - Views over 7 and 30 days, a 14-day chart, and who viewed (your circle / your network / others) as **counts only**. Nobody is ever named.
+  - Likes, replies, vouches and intro requests over 30 days.
+  - Free members see a Premium prompt.
+- **Featured and Sponsored places:**
+  - A **Featured Places** screen, and each partner's **member perk**. The venue page shows the perk.
+  - One clearly labeled card in the Home feed (it takes one of the two "From your network" slots) and one in Pins → Nearby after the third pin.
+  - "N from your network have met up here" is shown on the cards.
+- **Become a Partner:** a form for venues. Admins get a notification, and one person can send at most 3 inquiries a day.
+- **Admin view** (menu → Admin, only for admins; works on your phone or in a web browser):
+  - **Reports:** see the reported content and reason, then Remove content / Restore / Resolved / Dismiss. Every open report about the same content closes together.
+  - **Verify:** the selfie next to the profile photo, then Approve or Decline with a note.
+  - **Places:** add venues (the address fills in the location on a phone, or tap "use my location"), and start Featured or Sponsored placements with a perk and length (7, 14, 30 or 90 days).
+  - **More:** partner inquiries (email them, mark contacted / signed / closed), and give or remove Premium by email.
+- **Photo verification:** you take a live selfie doing a random gesture ("Touch your chin"). It's stored privately, and only admins can see it. An admin compares it with your profile photo, and approval adds the verified check. That also lets you create groups without a verified phone.
+- **ID verification and background check:** they show on the Verification screen as "Coming soon". They need a paid partner (see below).
+- **Making you an admin on the live app:** in GitHub, go to **Actions → Make admin → Run workflow**, then type the email you signed up with.
+- **RevenueCat, ready to connect:** the server piece that turns App Store purchases into Premium (`revenuecat-webhook`) is written and switched off until RevenueCat is set up. It never shortens a Founding Member's free months.
+
+### Tests
+**193 automated database tests** (22 new). They cover:
+- founding Premium, and later members starting on free
+- analytics being Premium-only, counting once per person per day, and never counting yourself
+- only admins can create placements; ended placements disappear
+- partner inquiries are private to admins
+- the photo check and its review
+- admin-only tools
+- granting Premium by email
+
+### Needs your accounts (I didn't connect anything paid)
+- **In-app subscriptions (RevenueCat + App Store):** a free RevenueCat account, your Apple Developer account, and a $14.99 subscription product in App Store Connect. Buying also needs an App Store build of the app, not Expo Go. Until then, the Premium button explains that subscriptions come with the App Store version, and Founding Members already have Premium.
+- **ID verification and background checks:** these need a paid partner. Examples: Persona or Stripe Identity for ID (about $1–2 per check), and Checkr for background checks (about $30 per check). Tell me if and when you want them.
+
+---
+
+## ✅ Phase 5: Messaging, dates and safety
+
+### What works
+Tested with two people (Dominique and DeShawn in separate browsers, with GPS placed apart and then together), with no errors and no sideways scrolling. Screenshots are in `docs/screenshots/phase-5`.
+
+- **Messages:** one inbox with date requests waiting on you, chats and group chats, with unread markers and the last message.
+  - **Message** on a profile opens the chat. You can message people you met through an intro right away, and anyone else in your circle after 5 back-and-forths.
+  - If a chat isn't open to you yet, the profile shows your progress ("3 of 5 so far").
+- **Ask on a Date:** every 1:1 chat has an **Ask on a Date** button above the keyboard.
+  - **Asking:** pick when (tonight, this weekend, next week, or a day and time), a vibe, a spot (a listed venue or a typed place) and an optional note.
+  - **Answering:** the other person can **Accept**, **Suggest a Different Time** (the spot carries over unless they change it), or **Pass**.
+  - **Passing is graceful:** the sender only hears "Not this time. No explanation needed."
+  - Date requests only go to people you can message, and only one can be waiting between two people.
+- **I'm On a Date (Date Mode):** pick someone you connected with (an accepted date or someone in your circle) and tap **Activate**.
+  - Your date confirms on their phone. It turns on only when both GPS readings are within **1 mile** and taken within 10 minutes of each other.
+  - If it can't turn on, the screen says exactly why ("You're 3.1 mi apart", "DeShawn hasn't confirmed yet").
+  - **While it's on:** a check-in timer (30 min to 2 hours), a big **I'm safe** button, one-tap help, and your trusted contacts on standby. Home shows a "On a date with…" strip.
+  - A missed check-in is recorded and you get a reminder (the server checks every 5 minutes).
+- **Safety:**
+  - **Trusted contacts:** up to 5, who don't need the app. Numbers are checked and stored as +1…
+  - **"I need help"** has three steps: I feel unsafe → I need to leave → Emergency.
+    - Each step opens your phone's Messages app with your contacts and your location filled in, so you tap Send.
+    - Emergency also calls 911.
+    - "I'm safe" closes the alert and offers to text your contacts that you're okay.
+  - Admins are notified of every emergency.
+- **Reporting:** members can long-press a chat message to report it.
+
+### Tests
+**169 automated database tests** (31 new). They cover:
+- who can message whom and the progress count
+- the inbox
+- date requests: only to people you can message, one waiting at a time, counter keeps or replaces the spot, accept, graceful pass
+- Date Mode: only with connections, too far apart doesn't activate and says how far, close enough activates and starts the timer
+- missed check-ins get flagged
+- phone number format
+- help alerts return who to text
+
+### Waiting on Twilio
+Right now, texting your trusted contacts works by opening your own Messages app, and you tap Send. That needs no service and works today. Once Twilio is set up, I'll add automatic texts, including texting your contacts when you miss a check-in.
+
+---
+
+## ✅ No emojis: I'm In's own symbols (at Dominique's request)
+- **Symbols:** every emoji in the app is replaced with a custom symbol set drawn for I'm In (`src/components/ui/Glyph.tsx`). It covers categories, vibes, events, groups, tiers, trust, status and safety, all on one grid with one line weight. Avatars show initials or a photo.
+- **Database:** tier symbols are seed, loop, link, bolt and crown. Groups, events and venues only accept symbol names, and notifications contain no emoji.
+
+## ✅ I'm In at a place (Go Live, reworked at Dominique's request)
+- Post that you're going out (the **I'm Out** button), then tap **I'm In** when you get there. People who can see it get "In now · since 9:10 PM".
+- It turns off on its own after 3 hours. **Still in** keeps it on, and **Edit plans** removes it. There's no "heading out" or "heading home".
+- **Privacy:** because "In now" says where you are right now, you choose who sees it:
+  - **My Circle** (1st degree, the default) or **My Network** (1st and 2nd).
+  - Strangers and blocked members never see it.
+  - Only the place is shown, never your exact location.
+- **Join:** people you know tap Join, and you see "Maya is joining you". You can turn joining off for the night.
+- Screenshots are in `docs/screenshots/im-out`.
 
 ---
 
@@ -169,18 +271,17 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 ### Not done in Phase 1 (on purpose)
 - Pins, Tonight and Circles show "Coming in Phase N" placeholders.
 - Home's Going Out strip, network pins and AI pick come in Phase 2.
-- I haven't run it on a real iPhone yet (see "Needed from Dominique").
 
 ---
 
 ## Needed from Dominique
-1. **Phone test.** Accounts are created and connected to GitHub. Remaining: add the secrets in GitHub (see `docs/DEPLOY.md`, about 15 minutes), then say the word and I'll open the pull request to `main`. Merging it deploys everything. After that, go through `docs/PHASE-1-PHONE-CHECK.md`.
-2. **Twilio account** for real texts: Account SID, Auth Token, and a phone number (about $1/month plus about $0.01 per text). Until then, texting runs in demo mode.
+1. **Phone test.** The app is live: open it in Expo Go with the link from the chat, then go through `docs/PHASE-1-PHONE-CHECK.md`. Each merged pull request updates it automatically.
+2. **Twilio account** for real texts: Account SID, Auth Token, and a phone number (about $1/month plus about $0.01 per text). Until then, phone codes run in demo mode, and safety texts open your own Messages app.
 
 ---
 
-## Next: Phase 5 (Messaging, dates and safety)
-Direct messages (unlocked after 5 back-and-forths, or right away after an intro), Ask on a Date, Date Mode, and the date safety features.
+## Next: Phase 7 (AI)
+The seven AI features (icebreakers, Tonight for You, Trust Monitor, vibe match, momentum score, intro success prediction, AI badges). The Claude API is paid per use, so I'll ask you before turning it on.
 
 ---
 
@@ -201,6 +302,15 @@ Direct messages (unlocked after 5 back-and-forths, or right away after an intro)
 | 2026-09-29 | Intro rules: the first person must be in your circle; the second can be your circle or network | Matches the prototype's Make an Intro screen |
 | 2026-09-29 | Passing on an intro only tells the connector, with no details | "Passing is always graceful" |
 | 2026-09-29 | "People you might click with" is rule-based (mutual friends plus shared groups) until the Phase 7 AI version, and carries no ✦ label | Never label something as AI when it isn't |
+| 2026-10-06 | Founding Members' 3 free months start at signup (earlier founders: from their join date) | "Founding members get 3 months free" |
+| 2026-10-06 | Profile analytics show counts only, never who viewed you | Privacy: nobody should feel watched |
+| 2026-10-06 | Photo verification is reviewed by a person (a live selfie with a random gesture) | Automated face matching needs a paid partner; a person reviewing is free and reliable at launch scale |
+| 2026-10-06 | A sponsored or featured card can take one of the two Home "From your network" slots, and one Pins slot (after the 3rd pin), always labeled | Decision B6 and "never disguised" |
+| 2026-10-04 | **No emojis anywhere.** The app draws its own symbols. | Dominique |
+| 2026-10-04 | Go Live became **I'm In at a place**: post your plans, tap I'm In when you arrive, and people can Join. No heading out or heading home. | Dominique |
+| 2026-10-05 | "In now" is seen by **your circle by default**; you can widen it to your network. Never strangers, never an exact location. | Dominique flagged it may be a privacy issue |
+| 2026-10-04 | Safety texts open the phone's own Messages app (you tap Send) until Twilio is set up | Decision C7: safety is not the place to fake an automatic text |
+| 2026-10-04 | A counter-proposal keeps the original spot unless a new one is given | Suggesting a new time shouldn't silently drop the place |
 | 2026-10-01 | Creating a group needs a **verified phone** (config `group_create_requires`: none / phone / photo) | Photo verification isn't built until Phase 6; a phone is a real barrier to fake groups in the meantime |
 | 2026-10-01 | "This Weekend" = now through Sunday 11:59 PM (DC). Plans further out use "Pick a Time" | Matches how people talk about "this weekend" |
 | 2026-10-01 | The map is drawn by the app (no map company) | No cost, no API key, and no third party gets members' locations. A street map can be added later if you want one. |

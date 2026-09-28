@@ -74,3 +74,26 @@ export function subscribeToMessages(conversationId: number, onMessage: (m: ChatM
     if (channel) supabase.removeChannel(channel);
   };
 }
+
+export type MessageStatus = {
+  can_message: boolean;
+  blocked: boolean;
+  degree: number | null;
+  via_intro: boolean;
+  exchanges: number;
+  needed: number;
+  conversation_id: number | null;
+};
+
+export async function fetchMessageStatus(other: string) {
+  const { data, error } = await supabase.rpc('message_status', { p_other: other });
+  if (error) throw error;
+  return data as unknown as MessageStatus;
+}
+
+/** Opens (or creates) the 1:1 chat with someone you can message. */
+export async function openDirectChat(other: string) {
+  const { data, error } = await supabase.rpc('open_direct_conversation', { p_other: other });
+  if (error) throw error;
+  return data as number;
+}

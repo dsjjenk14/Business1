@@ -76,7 +76,7 @@ export default function EditProfile() {
       <BackHeader title="Edit profile" />
       <Screen contentGap={t.space[5]}>
         <Pressable accessibilityRole="button" accessibilityLabel="Change profile photo" onPress={pickPhoto} style={{ alignItems: 'center', gap: t.space[2] }}>
-          <Avatar name={displayName || 'You'} uri={photoUri ?? profile.avatar_url} emoji={profile.avatar_emoji} size={96} ring="primary" />
+          <Avatar name={displayName || 'You'} uri={photoUri ?? profile.avatar_url} size={96} ring="primary" />
           <AppText variant="small" weight="bold" tone="primary">
             Change photo
           </AppText>

@@ -8,21 +8,22 @@ import { useTheme } from '@/theme';
 export function PersonRow({
   id,
   name,
-  emoji,
   avatarUrl,
   detail,
   vouches,
   right,
   ring,
+  extra,
 }: {
   id: string;
   name: string;
-  emoji: string | null;
   avatarUrl: string | null;
   detail?: string | null;
   vouches?: number | null;
   right?: React.ReactNode;
   ring?: 'trust' | 'primary' | 'ai' | null;
+  /** Extra line under the detail (e.g. a live status). */
+  extra?: React.ReactNode;
 }) {
   const t = useTheme();
   const router = useRouter();
@@ -33,7 +34,7 @@ export function PersonRow({
         accessibilityLabel={`${name}'s profile`}
         onPress={() => router.push({ pathname: '/people/[id]', params: { id } })}
         style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-        <Avatar name={name} emoji={emoji} uri={avatarUrl} size={40} ring={ring ?? null} />
+        <Avatar name={name} uri={avatarUrl} size={40} ring={ring ?? null} />
         <View style={{ flex: 1 }}>
           <AppText variant="small" weight="bold" numberOfLines={1}>
             {name}
@@ -44,6 +45,7 @@ export function PersonRow({
               {detail}
             </AppText>
           ) : null}
+          {extra}
         </View>
       </Pressable>
       {right}

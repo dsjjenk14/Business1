@@ -1,6 +1,7 @@
 import * as Linking from 'expo-linking';
 import { Share } from 'react-native';
 
+import type { GlyphName } from '@/components/ui/Glyph';
 import { supabase } from '@/lib/supabase';
 import type { Database } from '@/types/database';
 
@@ -10,21 +11,30 @@ export type FeedPin = Database['public']['Functions']['pins_feed']['Returns'][nu
 export type FeedMode = 'nearby' | 'trending' | 'community' | 'network' | 'bookmarks' | 'author' | 'single';
 
 export const CATEGORY_LABEL: Record<PinCategory, string> = {
-  thought: '💭 Thought',
-  question: '❓ Question',
-  photos: '📷 Photos',
-  event: '🎉 Event',
-  going_out: '📍 Going Out',
-  recap: '🎉 Recap',
+  thought: 'Thought',
+  question: 'Question',
+  photos: 'Photos',
+  event: 'Event',
+  going_out: 'Going Out',
+  recap: 'Recap',
 };
 
-export const FILTERS: { key: PinCategory | 'all'; label: string }[] = [
+export const CATEGORY_GLYPH: Record<PinCategory, GlyphName> = {
+  thought: 'thought',
+  question: 'question',
+  photos: 'camera',
+  event: 'calendar',
+  going_out: 'pin',
+  recap: 'party',
+};
+
+export const FILTERS: { key: PinCategory | 'all'; label: string; glyph?: GlyphName }[] = [
   { key: 'all', label: 'All' },
-  { key: 'thought', label: '💭 Thoughts' },
-  { key: 'question', label: '❓ Q&A' },
-  { key: 'photos', label: '📷 Photos' },
-  { key: 'event', label: '🎉 Events' },
-  { key: 'going_out', label: '📍 Going Out' },
+  { key: 'thought', label: 'Thoughts', glyph: 'thought' },
+  { key: 'question', label: 'Q&A', glyph: 'question' },
+  { key: 'photos', label: 'Photos', glyph: 'camera' },
+  { key: 'event', label: 'Events', glyph: 'calendar' },
+  { key: 'going_out', label: 'Going Out', glyph: 'pin' },
 ];
 
 export const AUDIENCE_OPTIONS: { key: PinAudience; label: string; detail: string }[] = [

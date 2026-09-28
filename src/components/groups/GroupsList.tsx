@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
-import { AppText, Badge, Button, Card, Section, useToast } from '@/components/ui';
+import { AppText, Badge, Button, Card, GlyphTile, GlyphTitle, Section, useToast } from '@/components/ui';
 import { fetchGroups, type GroupRow, type GroupsOverview } from '@/features/circles/api';
 import { joinGroup } from '@/features/groups/api';
 import { friendlyError } from '@/lib/supabase';
@@ -32,7 +32,7 @@ export function GroupsList({ groups, onChange }: { groups: GroupsOverview; onCha
         accessibilityLabel={`${g.name}, ${g.member_count} members`}
         onPress={() => open(g)}
         style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-        <AppText style={{ fontSize: 26 }}>{g.emoji}</AppText>
+        <GlyphTile name={g.emoji} size={40} />
         <View style={{ flex: 1 }}>
           <AppText variant="small" weight="bold">
             {g.name}
@@ -81,7 +81,7 @@ export function GroupsList({ groups, onChange }: { groups: GroupsOverview; onCha
       {groups.from_circle.length ? <Section title="From your circle">{groups.from_circle.map((g) => row(g, 'join'))}</Section> : null}
       {groups.discover.length ? <Section title="Discover more">{groups.discover.map((g) => row(g, 'join'))}</Section> : null}
       <Card onPress={() => router.push('/groups/new')} accessibilityLabel="Create your own group">
-        <AppText weight="bold">➕ Create your own group</AppText>
+        <GlyphTitle glyph="plus">Create your own group</GlyphTitle>
         <AppText variant="small" tone="muted">
           Give your people a home base. You control who joins.
         </AppText>

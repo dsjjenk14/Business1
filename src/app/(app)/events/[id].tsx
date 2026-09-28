@@ -4,7 +4,7 @@ import { View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Badge, Button, Card, Screen, Section, useToast } from '@/components/ui';
+import { AppText, Badge, Button, Card, GlyphTile, GlyphTitle, Screen, Section, useToast } from '@/components/ui';
 import { preciseLocation } from '@/features/circles/api';
 import { checkInOpen, eventCheckIn, eventPhase, fetchEvent, type EventDetail } from '@/features/events/api';
 import { cancelRsvp, rsvp } from '@/features/tonight/api';
@@ -13,7 +13,7 @@ import { friendlyError } from '@/lib/supabase';
 import { clockTime, dayTime } from '@/lib/time';
 import { useTheme } from '@/theme';
 
-/** An event: who's hosting, who's going, RSVP, check in when you're there, then recap and vouch. */
+/** An event: who's hosting, who's going, I'm In, check in when you're there, then recap and vouch. */
 export default function EventScreen() {
   const t = useTheme();
   const router = useRouter();
@@ -76,7 +76,7 @@ export default function EventScreen() {
         toast("You're no longer going");
       } else {
         await rsvp(event.id, me);
-        toast(`You're going to ${event.title}`);
+        toast(`You're in: ${event.title}`);
       }
       await load();
     } catch (e) {
@@ -110,7 +110,7 @@ export default function EventScreen() {
       <BackHeader title="Event" />
       <Screen contentGap={t.space[5]}>
         <View style={{ alignItems: 'center', gap: t.space[2] }}>
-          <AppText style={{ fontSize: 44 }}>{event.emoji ?? '📅'}</AppText>
+          <GlyphTile name={event.emoji ?? 'calendar'} size={64} />
           <AppText variant="h2" align="center" accessibilityRole="header">
             {event.title}
           </AppText>
@@ -124,11 +124,11 @@ export default function EventScreen() {
               weight="bold"
               accessibilityRole="link"
               onPress={() => router.push({ pathname: '/venues/[id]', params: { id: String(event.venue?.id) } })}>
-              📍 {event.venue.name}
+              {event.venue.name}
               {event.venue.neighborhood ? ` · ${event.venue.neighborhood}` : ''}
             </AppText>
           ) : event.place ? (
-            <AppText tone="muted">📍 {event.place}</AppText>
+            <AppText tone="muted">{event.place}</AppText>
           ) : null}
           {event.group ? (
             <AppText
@@ -136,7 +136,7 @@ export default function EventScreen() {
               tone="muted"
               accessibilityRole="link"
               onPress={() => router.push({ pathname: '/groups/[id]', params: { id: String(event.group?.id) } })}>
-              {event.group.emoji} {event.group.name}
+              {event.group.name}
             </AppText>
           ) : null}
         </View>
@@ -144,6 +144,7 @@ export default function EventScreen() {
         {event.description ? <AppText>{event.description}</AppText> : null}
 
         <View style={{ flexDirection: 'row', justifyContent: 'center', gap: t.space[2], flexWrap: 'wrap' }}>
+          {event.i_am_going && !event.is_host ? <Badge label="You're in" glyph="check" tone="trust" /> : null}
           <Badge label={`${event.going_count} going`} tone="neutral" />
           {spotsLeft != null ? <Badge label={spotsLeft === 0 ? 'Full' : `${spotsLeft} spot${spotsLeft === 1 ? '' : 's'} left`} tone={spotsLeft === 0 ? 'primary' : 'trust'} /> : null}
           {phase === 'live' ? <Badge label="Happening now" tone="primary" /> : phase === 'ended' ? <Badge label="Ended" tone="neutral" /> : null}
@@ -156,7 +157,7 @@ export default function EventScreen() {
             </AppText>
           ) : (
             <Button
-              label={event.i_am_going ? "Can't make it" : spotsLeft === 0 ? 'Full' : 'RSVP'}
+              label={event.i_am_going ? "Can't make it" : spotsLeft === 0 ? 'Full' : "I'm In"}
               variant={event.i_am_going ? 'secondary' : 'primary'}
               onPress={toggleRsvp}
               loading={busy}
@@ -168,7 +169,7 @@ export default function EventScreen() {
         {canCheckIn ? (
           <Card accent="trust">
             <View style={{ gap: t.space[2] }}>
-              <AppText weight="bold">📍 At the event?</AppText>
+              <GlyphTitle glyph="arrive" tone="trust">At the event?</GlyphTitle>
               <AppText variant="small" tone="muted">
                 Check in with GPS. Anyone else who checks in here counts as a real-life meetup, and you can vouch for each other.
               </AppText>
@@ -180,7 +181,7 @@ export default function EventScreen() {
         {phase === 'ended' && event.i_am_going ? (
           <Card accent="primary">
             <View style={{ gap: t.space[2] }}>
-              <AppText weight="bold">🎉 How was it?</AppText>
+              <GlyphTitle glyph="party">How was it?</GlyphTitle>
               <AppText variant="small" tone="muted">
                 Drop a recap pin with photos and tag who was there. Then vouch for people you met.
               </AppText>
@@ -202,7 +203,7 @@ export default function EventScreen() {
         ) : null}
 
         <Section title="Hosted by">
-          <PersonRow id={event.host.id} name={event.host.display_name} emoji={event.host.avatar_emoji} avatarUrl={event.host.avatar_url} vouches={event.host.vouch_count} />
+          <PersonRow id={event.host.id} name={event.host.display_name} avatarUrl={event.host.avatar_url} vouches={event.host.vouch_count} />
         </Section>
 
         <Section title={`Going (${event.going_count})`}>
@@ -211,7 +212,6 @@ export default function EventScreen() {
               key={p.id}
               id={p.id}
               name={p.id === me ? 'You' : p.display_name}
-              emoji={p.avatar_emoji}
               avatarUrl={p.avatar_url}
               ring={p.degree === 1 ? 'trust' : p.degree === 2 ? 'ai' : null}
               detail={p.degree === 1 ? 'Your circle' : p.degree === 2 ? 'Your network' : null}

@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Avatar, Button, Card, Screen, TextField, useToast } from '@/components/ui';
+import { AppText, Avatar, Button, Card, GlyphTitle, Screen, TextField, useToast } from '@/components/ui';
 import { fetchCircle, makeIntro, type CircleOverview } from '@/features/circles/api';
 import { goBackOr } from '@/lib/navigation';
 import { friendlyError } from '@/lib/supabase';
@@ -48,7 +48,7 @@ export default function MakeIntro() {
     setError(null);
     try {
       await makeIntro(a, b, message, params.request ? Number(params.request) : undefined);
-      toast('Intro sent 👋');
+      toast('Intro sent');
       goBackOr(router, '/circles');
     } catch (e) {
       setError(friendlyError(e));
@@ -85,7 +85,7 @@ export default function MakeIntro() {
                   backgroundColor: t.colors.surface,
                   opacity: fromRequest && !sel ? 0.4 : 1,
                 }}>
-                <Avatar name={o.display_name} emoji={o.avatar_emoji} uri={o.avatar_url} size={36} />
+                <Avatar name={o.display_name} uri={o.avatar_url} size={36} />
                 <AppText weight="bold" style={{ flex: 1 }}>
                   {o.display_name}
                 </AppText>
@@ -105,7 +105,7 @@ export default function MakeIntro() {
       <BackHeader title="Make an Intro" />
       <Screen>
         <Card accent="primary">
-          <AppText weight="bold">👋 You are the connector</AppText>
+          <GlyphTitle glyph="connect">You are the connector</GlyphTitle>
           <AppText variant="small" tone="muted">
             Both people see your name as the person who made it happen. Your reputation travels with this intro. Once they both accept, they
             can message each other right away.

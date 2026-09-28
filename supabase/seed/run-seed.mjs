@@ -14,7 +14,7 @@ import { execSync } from 'node:child_process';
 import { createClient } from '@supabase/supabase-js';
 
 import {
-  CAST, COMMUNITY_EMOJI, COMMUNITY_FIRST, COMMUNITY_LAST, COMMUNITY_SIZE, CONNECTIONS,
+  CAST, COMMUNITY_FIRST, COMMUNITY_LAST, COMMUNITY_SIZE, CONNECTIONS,
   DEMO_CITIES, DEMO_PASSWORD, GENERIC_REPLIES, GROUPS, PLACES, VENUES,
 } from './cast.mjs';
 
@@ -32,7 +32,7 @@ const creds = process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
 const host = new URL(creds.url).hostname;
 const isLocal = host === 'localhost' || host === '127.0.0.1';
 if (!isLocal && process.env.SEED_ALLOW_REMOTE !== 'yes') {
-  console.error(`✋ Refusing to seed ${host}. The seed only runs against a local Supabase.`);
+  console.error(`Refusing to seed ${host}. The seed only runs against a local Supabase.`);
   process.exit(1);
 }
 
@@ -46,12 +46,12 @@ async function must(promise, what) {
 
 const envRow = await must(db.from('app_config').select('value').eq('key', 'environment').maybeSingle(), 'read environment');
 if (envRow?.value === 'production') {
-  console.error('✋ This database is marked production. Seed aborted.');
+  console.error('This database is marked production. Seed aborted.');
   process.exit(1);
 }
 const { count: profileCount } = await db.from('profiles').select('id', { count: 'exact', head: true });
 if (profileCount > 0) {
-  console.error('✋ Database already has members. Run `npm run db:reset` first, then seed.');
+  console.error('Database already has members. Run `npm run db:reset` first, then seed.');
   process.exit(1);
 }
 
@@ -127,7 +127,7 @@ for (const c of CAST) {
     headline: c.headline,
     bio: c.bio,
     pronouns: c.pronouns,
-    avatar_emoji: c.emoji,
+    avatar_emoji: null,
     neighborhood: c.hood,
     city_id: cities[c.city],
     approx_location: c.loc ? point(PLACES[c.loc]) : point([DEMO_CITIES.find((d) => d.slug === c.city).lng, DEMO_CITIES.find((d) => d.slug === c.city).lat]),
@@ -139,7 +139,7 @@ for (const c of CAST) {
 for (const [i, key] of community.entries()) {
   const cityPool = Object.values(PLACES);
   await must(db.from('profiles').update({
-    avatar_emoji: COMMUNITY_EMOJI[i % COMMUNITY_EMOJI.length],
+    avatar_emoji: null,
     approx_location: point(cityPool[i % cityPool.length]),
     photo_verified_at: daysAgo(40),
   }).eq('id', ids[key]), `profile ${key}`);
@@ -276,17 +276,17 @@ for (const g of GROUPS) {
 
 // ── 8. Events + RSVPs ─────────────────────────────────────────────────────
 const eventDefs = [
-  { key: 'bresca', host: 'jordan', venue: 'bresca', title: 'Community Dinner @ Bresca', emoji: '🍽️', starts: dcTime(0, 19, 30), capacity: 6,
+  { key: 'bresca', host: 'jordan', venue: 'bresca', title: 'Community Dinner @ Bresca', emoji: 'dinner', starts: dcTime(0, 19, 30), capacity: 6,
     rsvps: ['aaliyah', 'darius', 'simone', 'deshawn'] },
-  { key: 'songbyrd', host: 'reina', venue: 'songbyrd', title: 'Indie Night @ Songbyrd', emoji: '🎶', starts: dcTime(0, 19), capacity: null,
+  { key: 'songbyrd', host: 'reina', venue: 'songbyrd', title: 'Indie Night @ Songbyrd', emoji: 'music', starts: dcTime(0, 19), capacity: null,
     rsvps: ['ari', 'omar', 'tyler', 'member03', 'member07', 'member11'] },
-  { key: 'otf', host: 'priya', venue: 'otf', group: 'otf', title: 'OTF Tysons Saturday Class', emoji: '🏋️', starts: dcTime(SAT, 9), capacity: 24, recurring: true,
+  { key: 'otf', host: 'priya', venue: 'otf', group: 'otf', title: 'OTF Tysons Saturday Class', emoji: 'fitness', starts: dcTime(SAT, 9), capacity: 24, recurring: true,
     rsvps: ['maya', 'jade', 'dom', ...community.slice(0, 15)] },
-  { key: 'run', host: 'naomi', venue: 'rockcreek', group: 'run', title: 'DC Morning Runners', emoji: '🏃', starts: dcTime(SAT, 7), capacity: null, recurring: true,
+  { key: 'run', host: 'naomi', venue: 'rockcreek', group: 'run', title: 'DC Morning Runners', emoji: 'route', starts: dcTime(SAT, 7), capacity: null, recurring: true,
     rsvps: ['jordan', 'lena', 'tyler'] },
-  { key: 'pkl', host: 'cameron', venue: 'watkins', group: 'pkl', title: 'DC Pickleball Crew', emoji: '🏓', starts: dcTime(SUN, 8), capacity: 12, recurring: true,
+  { key: 'pkl', host: 'cameron', venue: 'watkins', group: 'pkl', title: 'DC Pickleball Crew', emoji: 'paddle', starts: dcTime(SUN, 8), capacity: 12, recurring: true,
     rsvps: ['jordan', 'dom', 'member02', 'member05', 'member09'] },
-  { key: 'gallery', host: 'omar', venue: 'fridge', group: 'gallery', title: 'Gallery Night', emoji: '🎨', starts: dcTime(SAT, 18), capacity: null,
+  { key: 'gallery', host: 'omar', venue: 'fridge', group: 'gallery', title: 'Gallery Night', emoji: 'art', starts: dcTime(SAT, 18), capacity: null,
     rsvps: ['reina', 'ari'] },
 ];
 const eventIds = {};
@@ -427,7 +427,7 @@ async function groupChat(groupKey, lines) {
     await must(db.from('messages').insert({ conversation_id: conv.id, sender_id: ids[who], body, created_at: minutesAgo(mins) }), 'group msg');
   }
 }
-await groupChat('otf', [['priya', 'Saturday 9AM is confirmed! Who is bringing the bands?', 40], ['maya', 'Sfoglina brunch after? 🙋', 30]]);
+await groupChat('otf', [['priya', 'Saturday 9AM is confirmed! Who is bringing the bands?', 40], ['maya', 'Sfoglina brunch after?', 30]]);
 await groupChat('pkl', [['cameron', 'Courts locked in Sunday 8AM. 6 confirmed.', 130], ['jordan', 'Silver Branch beers after?', 120]]);
 await groupChat('run', [['naomi', 'Saturday route: P St → Beach Drive → back. ~4 miles.', 250], ['jordan', 'See everyone at 7!', 240]]);
 for (const g of ['supper', 'howard', 'gallery', 'wine', 'wellness', 'books']) await groupChat(g, []);
@@ -463,7 +463,16 @@ await must(db.from('notifications').insert([
 // ── Done ──────────────────────────────────────────────────────────────────
 const dom = await must(db.from('profiles').select('display_name, vouch_count, is_founding_member, invite_code').eq('id', ids.dom).single(), 'check dom');
 const jordan = await must(db.from('profiles').select('vouch_count, top_vouch_word').eq('id', ids.jordan).single(), 'check jordan');
-console.log(`\n✅ Seeded ${CAST.length} cast + ${COMMUNITY_SIZE} community members, ${planned.length} vouches.`);
+// ── 12. Phase 6 demo: Dominique is an admin; two partner venues with perks ─
+await must(db.from('profiles').update({ role: 'admin' }).eq('id', ids.dom), 'admin');
+const inDays = (d) => new Date(Date.now() + d * 86_400_000).toISOString();
+await must(db.from('venue_placements').insert([
+  { venue_id: venue.bresca, kind: 'featured', perk: 'Complimentary glass of bubbles for I\'m In members', perk_details: 'Tasting menu nights, Tue to Thu. Show your I\'m In profile.', starts_at: inDays(-1), ends_at: inDays(30) },
+  { venue_id: venue.foundingfarmers, kind: 'sponsored', perk: '15% off for I\'m In members', perk_details: 'Weeknights before 7 PM.', starts_at: inDays(-1), ends_at: inDays(14) },
+]), 'placements');
+await must(db.from('partner_inquiries').insert({ business_name: 'Songbyrd', contact_name: 'Reina V.', email: 'booking@songbyrd.test', message: 'Would love to do a member night.' }), 'inquiry');
+
+console.log(`\nSeeded ${CAST.length} cast + ${COMMUNITY_SIZE} community members, ${planned.length} vouches.`);
 console.log(`   ${dom.display_name}: ${dom.vouch_count} vouches, founding=${dom.is_founding_member}, invite code ${dom.invite_code}`);
 console.log(`   Jordan: ${jordan.vouch_count} vouches, top word ${jordan.top_vouch_word}`);
 console.log(`\n   Demo login → dom@imin.test / ${DEMO_PASSWORD}`);

@@ -2,37 +2,79 @@ import { useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
-import { AppText, Badge, Button, Card } from '@/components/ui';
-import { vibeLabel, type FeedEvent, type FeedPerson } from '@/features/tonight/api';
+import { AppText, Badge, Button, Card, Chip, GlyphTile } from '@/components/ui';
+import { vibeLabel, type Company, type FeedEvent, type FeedPerson } from '@/features/tonight/api';
 import { clockTime, dayTime } from '@/lib/time';
 import { useTheme } from '@/theme';
 
 const degreeLabel = (d: number) => (d === 1 ? '1st' : d === 2 ? '2nd' : null);
 
-/** One person going out: where, when, vibe. Your own row lets you edit or end. */
-export function GoingOutPersonRow({ person, weekend, onEditMine }: { person: FeedPerson; weekend: boolean; onEditMine: () => void }) {
+/** "In now · since 9:10 PM" with a live dot. */
+export function HereNow({ since, compact }: { since: string; compact?: boolean }) {
+  const t = useTheme();
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+      <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: t.colors.trust }} />
+      <AppText variant="caption" weight="bold" tone="trust">
+        {compact ? 'In now' : `In now · since ${clockTime(since)}`}
+      </AppText>
+    </View>
+  );
+}
+
+/**
+ * Someone going out. Shows where, when and vibe, plus "In now" once they've
+ * tapped I'm In at the place. People you know can tap Join.
+ */
+export function GoingOutPersonRow({
+  person,
+  weekend,
+  onJoin,
+}: {
+  person: FeedPerson;
+  weekend: boolean;
+  onJoin: (p: FeedPerson, status: 'heading' | null) => void;
+}) {
+  const t = useTheme();
   const detail = [
     person.place,
     person.neighborhood,
-    weekend ? dayTime(person.starts_at) : clockTime(person.starts_at),
+    person.here_since ? null : weekend ? dayTime(person.starts_at) : clockTime(person.starts_at),
     person.vibes.slice(0, 2).map(vibeLabel).join(', ') || null,
-    person.distance_mi != null && !person.is_me ? `${person.distance_mi} mi` : null,
+    person.distance_mi != null ? `${person.distance_mi} mi` : null,
   ]
     .filter(Boolean)
     .join(' · ');
   const degree = degreeLabel(person.degree);
+  const company = person.heading_count + person.joined_here_count;
+  const canJoin = person.open_to_join && !weekend && (person.degree === 1 || person.degree === 2);
   return (
     <PersonRow
       id={person.user_id}
-      name={person.is_me ? 'You' : person.display_name}
-      emoji={person.avatar_emoji}
+      name={person.display_name}
       avatarUrl={person.avatar_url}
       vouches={person.vouch_count}
-      ring={person.degree === 1 ? 'trust' : person.degree === 2 ? 'ai' : null}
+      ring={person.here_since ? 'trust' : person.degree === 1 ? 'trust' : person.degree === 2 ? 'ai' : null}
       detail={person.note ? `${detail}${detail ? ' · ' : ''}“${person.note}”` : detail}
+      extra={
+        person.here_since || company > 0 ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[2], marginTop: 2 }}>
+            {person.here_since ? <HereNow since={person.here_since} /> : null}
+            {company > 0 ? (
+              <AppText variant="caption" tone="muted">
+                {company} joining
+              </AppText>
+            ) : null}
+          </View>
+        ) : null
+      }
       right={
-        person.is_me ? (
-          <Button label="Edit" size="md" variant="secondary" onPress={onEditMine} />
+        canJoin ? (
+          person.my_join ? (
+            <Button label="Joining" size="md" variant="trust" onPress={() => onJoin(person, null)} accessibilityHint="Tap to cancel" />
+          ) : (
+            <Button label="Join" size="md" variant="secondary" onPress={() => onJoin(person, 'heading')} />
+          )
         ) : person.is_hosting ? (
           <Badge label="Host" tone="primary" />
         ) : degree ? (
@@ -43,7 +85,79 @@ export function GoingOutPersonRow({ person, weekend, onEditMine }: { person: Fee
   );
 }
 
-/** An event card with RSVP. */
+/**
+ * Your night out. Tap I'm In when you get there: the people you choose (your
+ * circle, or your network) see "In now". It turns off on its own after a few
+ * hours; Still in keeps it on.
+ */
+export function MyNightOut({
+  me,
+  company,
+  minutesLeft,
+  busy,
+  onIn,
+  onEdit,
+  onAudience,
+}: {
+  me: FeedPerson;
+  company: Company[];
+  /** Minutes until "In now" turns off (computed by the screen when it loads). */
+  minutesLeft: number | null;
+  busy: boolean;
+  onIn: () => void;
+  onEdit: () => void;
+  onAudience: (a: 'circle' | 'network') => void;
+}) {
+  const t = useTheme();
+  const live = !!me.here_since;
+  const names = (list: Company[]) => list.map((c) => c.display_name.split(' ')[0]).join(', ');
+  const joining = company.filter((c) => c.status === 'heading');
+  const inToo = company.filter((c) => c.status === 'here');
+  const audience = me.here_audience ?? 'circle';
+  return (
+    <Card accent={live ? 'trust' : 'primary'}>
+      <View style={{ gap: t.space[3] }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+          <GlyphTile name={live ? 'live' : 'moon'} size={44} tone={live ? 'trust' : 'primary'} />
+          <View style={{ flex: 1 }}>
+            <AppText weight="bold">{live ? "You're in" : 'Your night out'}</AppText>
+            <AppText variant="small" tone="muted" numberOfLines={2}>
+              {[me.place, live && me.here_since ? `since ${clockTime(me.here_since)}` : clockTime(me.starts_at)].filter(Boolean).join(' · ')}
+            </AppText>
+          </View>
+        </View>
+        {company.length ? (
+          <AppText variant="small" tone="trust" weight="bold">
+            {[joining.length ? `${names(joining)} ${joining.length === 1 ? 'is' : 'are'} joining you` : null, inToo.length ? `${names(inToo)} in too` : null]
+              .filter(Boolean)
+              .join(' · ')}
+          </AppText>
+        ) : null}
+        {live && minutesLeft != null && minutesLeft < 45 ? (
+          <AppText variant="caption" tone="sponsored">
+            &quot;In now&quot; turns off in {Math.max(minutesLeft, 0)} min. Still there? Tap Still in.
+          </AppText>
+        ) : null}
+        <Button label={live ? 'Still in' : "I'm In"} size="md" variant="trust" onPress={onIn} loading={busy} />
+        <View style={{ gap: t.space[2] }}>
+          <AppText variant="caption" tone="subtle">
+            {live ? 'Who sees you’re in' : 'When you tap I’m In, who sees it'}
+          </AppText>
+          <View style={{ flexDirection: 'row', gap: t.space[2] }}>
+            <Chip label="My Circle" selected={audience === 'circle'} onPress={() => onAudience('circle')} />
+            <Chip label="My Network" selected={audience === 'network'} onPress={() => onAudience('network')} />
+          </View>
+          <AppText variant="caption" tone="subtle">
+            Only the place is shown, never your exact location. Strangers never see it.
+          </AppText>
+        </View>
+        <Button label="Edit plans" size="md" variant="secondary" onPress={onEdit} disabled={busy} />
+      </View>
+    </Card>
+  );
+}
+
+/** An event card with an "I'm In" button. */
 export function EventCard({ event, weekend, onRsvp }: { event: FeedEvent; weekend: boolean; onRsvp: (e: FeedEvent) => void }) {
   const t = useTheme();
   const router = useRouter();
@@ -64,7 +178,7 @@ export function EventCard({ event, weekend, onRsvp }: { event: FeedEvent; weeken
           accessibilityLabel={`${event.title}. ${detail}`}
           onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(event.id) } })}
           style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-          <AppText style={{ fontSize: 26 }}>{event.emoji ?? '📅'}</AppText>
+          <GlyphTile name={event.emoji ?? 'calendar'} size={40} />
           <View style={{ flex: 1 }}>
             <AppText variant="small" weight="bold">
               {event.title}
@@ -81,9 +195,9 @@ export function EventCard({ event, weekend, onRsvp }: { event: FeedEvent; weeken
           </View>
         </Pressable>
         {event.i_am_going ? (
-          <Badge label="Going" tone="trust" />
+          <Badge label="You're in" glyph="check" tone="trust" />
         ) : spotsLeft === 0 ? null : (
-          <Button label="RSVP" size="md" onPress={() => onRsvp(event)} />
+          <Button label="I'm In" size="md" onPress={() => onRsvp(event)} />
         )}
       </View>
     </Card>

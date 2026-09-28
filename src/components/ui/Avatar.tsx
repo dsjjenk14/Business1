@@ -8,13 +8,12 @@ import { AppText } from './AppText';
 export type AvatarProps = {
   name: string;
   uri?: string | null;
-  emoji?: string | null;
   size?: number;
   /** Colored ring, e.g. for someone who's live tonight. */
   ring?: 'primary' | 'trust' | 'ai' | null;
 };
 
-export function Avatar({ name, uri, emoji, size = 44, ring }: AvatarProps) {
+export function Avatar({ name, uri, size = 44, ring }: AvatarProps) {
   const t = useTheme();
   const initials = name
     .split(/\s+/)
@@ -42,10 +41,6 @@ export function Avatar({ name, uri, emoji, size = 44, ring }: AvatarProps) {
       }}>
       {uri ? (
         <Image source={{ uri }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
-      ) : emoji ? (
-        <AppText style={{ fontSize: size * 0.52, lineHeight: size * 0.66 }} accessible={false}>
-          {emoji}
-        </AppText>
       ) : (
         <AppText weight="bold" tone="muted" style={{ fontSize: size * 0.36, lineHeight: size * 0.44 }}>
           {initials}

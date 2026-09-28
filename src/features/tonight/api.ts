@@ -1,3 +1,4 @@
+import type { GlyphName } from '@/components/ui/Glyph';
 import { supabase } from '@/lib/supabase';
 import type { Database } from '@/types/database';
 
@@ -32,19 +33,18 @@ export async function cancelRsvp(eventId: number, userId: string) {
   if (error) throw error;
 }
 
-export const VIBES: { key: string; label: string }[] = [
-  { key: 'solo', label: 'Solo' },
-  { key: 'small_group', label: 'Small group' },
-  { key: 'drinks', label: '🍹 Drinks' },
-  { key: 'dinner', label: '🍽️ Dinner' },
-  { key: 'music', label: '🎵 Music' },
-  { key: 'brunch', label: '🥂 Brunch' },
-  { key: 'fitness', label: '🏋️ Fitness' },
-  { key: 'outdoors', label: '🌿 Outdoors' },
+export const VIBES: { key: string; label: string; glyph: GlyphName }[] = [
+  { key: 'solo', label: 'Solo', glyph: 'person' },
+  { key: 'small_group', label: 'Small group', glyph: 'people' },
+  { key: 'drinks', label: 'Drinks', glyph: 'drinks' },
+  { key: 'dinner', label: 'Dinner', glyph: 'dinner' },
+  { key: 'music', label: 'Music', glyph: 'music' },
+  { key: 'brunch', label: 'Brunch', glyph: 'brunch' },
+  { key: 'fitness', label: 'Fitness', glyph: 'fitness' },
+  { key: 'outdoors', label: 'Outdoors', glyph: 'outdoors' },
 ];
 
-/** "🍹 Drinks" → "Drinks" (drops the emoji, keeps words like "Small group" whole). */
-export const vibeLabel = (key: string) => VIBES.find((v) => v.key === key)?.label.replace(/^[^\p{L}]+\s/u, '') ?? key;
+export const vibeLabel = (key: string) => VIBES.find((v) => v.key === key)?.label ?? key;
 
 // ── Tonight / This Weekend feed ─────────────────────────────────────────────
 export type GoingOutWhen = 'tonight' | 'weekend' | 'scheduled';
@@ -71,6 +71,16 @@ export type FeedPerson = {
   distance_mi: number | null;
   lat: number | null;
   lng: number | null;
+  /** Set when they tapped "I'm In" at the place (only shown to the audience they chose). */
+  here_since: string | null;
+  /** Your own post only: when "Here now" lapses unless you tap "Still here". */
+  live_until: string | null;
+  /** Your own post only: who sees that you're in ("circle" = 1st degree, "network" = 1st + 2nd). */
+  here_audience: 'circle' | 'network' | null;
+  open_to_join: boolean;
+  heading_count: number;
+  joined_here_count: number;
+  my_join: 'heading' | 'here' | null;
 };
 
 export type FeedEvent = {
@@ -176,6 +186,7 @@ export type VenueDetail = {
   lat: number;
   lng: number;
   network_visited: number;
+  placement: { kind: 'featured' | 'sponsored'; perk: string; perk_details: string; ends_at: string } | null;
   events: { id: number; title: string; emoji: string | null; starts_at: string; host_name: string; going_count: number; capacity: number | null }[];
 };
 
@@ -183,4 +194,35 @@ export async function fetchVenue(id: number) {
   const { data, error } = await supabase.rpc('venue_detail', { p_venue: id });
   if (error) throw error;
   return data as unknown as VenueDetail | null;
+}
+
+// ── I'm Out (live) ──────────────────────────────────────────────────────────
+export async function imHere(coords?: { lat: number; lng: number } | null) {
+  const { data, error } = await supabase.rpc('im_here', { p_lat: coords?.lat ?? undefined, p_lng: coords?.lng ?? undefined });
+  if (error) throw error;
+  return data as string;
+}
+
+export async function joinGoingOut(postId: number, status: 'heading' | 'here' | null) {
+  // null cancels (sent as SQL null; leaving it out would mean the default, 'heading').
+  const { error } = await supabase.rpc('join_going_out', { p_post: postId, p_status: status as 'heading' });
+  if (error) throw error;
+}
+
+export async function setHereAudience(postId: number, audience: 'circle' | 'network') {
+  const { error } = await supabase.rpc('set_here_audience', { p_post: postId, p_audience: audience });
+  if (error) throw error;
+}
+
+export async function setOpenToJoin(postId: number, open: boolean) {
+  const { error } = await supabase.rpc('set_open_to_join', { p_post: postId, p_open: open });
+  if (error) throw error;
+}
+
+export type Company = { user_id: string; display_name: string; avatar_url: string | null; status: 'heading' | 'here'; updated_at: string };
+
+export async function fetchCompany(postId: number) {
+  const { data, error } = await supabase.rpc('my_going_out_company', { p_post: postId });
+  if (error) throw error;
+  return (data ?? []) as Company[];
 }

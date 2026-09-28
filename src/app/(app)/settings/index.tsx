@@ -24,7 +24,8 @@ export default function Settings() {
       title: 'Account',
       rows: [
         { label: 'Edit profile', icon: 'person-outline', href: '/settings/profile' },
-        { label: 'Verify phone number', icon: 'call-outline', href: '/verify-phone' },
+        { label: 'Your plan', icon: 'star-outline', href: '/settings/plan' },
+        { label: 'Verification', icon: 'shield-checkmark-outline', href: '/settings/verification', detail: 'Phone, photo, ID' },
         { label: 'Appearance', icon: 'color-palette-outline', href: '/settings/appearance' },
       ],
     },

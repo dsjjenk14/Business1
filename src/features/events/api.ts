@@ -31,7 +31,7 @@ export async function createEvent(input: {
   title: string;
   startsAt: Date;
   venueId?: number | null;
-  emoji?: string;
+  glyph?: string;
   description?: string;
   capacity?: number | null;
   groupId?: number | null;
@@ -44,7 +44,7 @@ export async function createEvent(input: {
     p_title: input.title.trim(),
     p_starts_at: input.startsAt.toISOString(),
     p_venue_id: input.venueId ?? undefined,
-    p_emoji: input.emoji || undefined,
+    p_emoji: input.glyph || undefined,
     p_description: input.description?.trim() ?? '',
     p_capacity: input.capacity ?? undefined,
     p_group: input.groupId ?? undefined,

@@ -2,14 +2,14 @@ import type { PersonLite } from '@/features/circles/api';
 import { supabase } from '@/lib/supabase';
 
 export const GROUP_CATEGORIES = [
-  { key: 'fitness', label: '🏋️ Fitness', emoji: '🏋️' },
-  { key: 'food', label: '🍽️ Food', emoji: '🍽️' },
-  { key: 'music_arts', label: '🎵 Music & Arts', emoji: '🎵' },
-  { key: 'outdoors', label: '🌿 Outdoors', emoji: '🌿' },
-  { key: 'social', label: '🍷 Social', emoji: '🍷' },
-  { key: 'alumni', label: '🎓 Alumni', emoji: '🎓' },
-  { key: 'professional', label: '💼 Professional', emoji: '💼' },
-  { key: 'other', label: '✨ Other', emoji: '✨' },
+  { key: 'fitness', label: 'Fitness', glyph: 'fitness' },
+  { key: 'food', label: 'Food', glyph: 'dinner' },
+  { key: 'music_arts', label: 'Music & Arts', glyph: 'music' },
+  { key: 'outdoors', label: 'Outdoors', glyph: 'outdoors' },
+  { key: 'social', label: 'Social', glyph: 'wine' },
+  { key: 'alumni', label: 'Alumni', glyph: 'cap' },
+  { key: 'professional', label: 'Professional', glyph: 'briefcase' },
+  { key: 'other', label: 'Other', glyph: 'spark' },
 ] as const;
 export type GroupCategory = (typeof GROUP_CATEGORIES)[number]['key'];
 
@@ -52,7 +52,7 @@ export async function createGroup(input: {
   category: GroupCategory;
   description: string;
   joinType: 'open' | 'request';
-  emoji?: string;
+  glyph?: string;
   schedule?: string;
   invite: string[];
 }) {
@@ -61,7 +61,7 @@ export async function createGroup(input: {
     p_category: input.category,
     p_description: input.description.trim(),
     p_join_type: input.joinType,
-    p_emoji: input.emoji || undefined,
+    p_emoji: input.glyph || undefined,
     p_schedule: input.schedule?.trim() || undefined,
     p_invite: input.invite,
   });

@@ -15,7 +15,7 @@ Open the app in **Expo Go** on your iPhone, then go down the list. Anything that
 - [ ] Forgot password: you should get the email (check spam).
 
 ## Phase 2 additions
-- [ ] Home: tap **Go Live**, add a place, then check you show on Tonight and a Going Out pin appears in Pins.
+- [ ] Home: tap **I'm Out**, add a place, then check you show on Tonight and a Going Out pin appears in Pins.
 - [ ] Pins → Nearby: allow location when asked. Pins show "~X mi away". Drag the radius slider.
 - [ ] Pins → They're In: pins from other cities show city names.
 - [ ] Like, bookmark, and share a pin. Share should open the iPhone share sheet.
@@ -40,3 +40,10 @@ Open the app in **Expo Go** on your iPhone, then go down the list. Anything that
 - [ ] RSVP to Community Dinner @ Bresca, then tap **Can't make it** on its page.
 - [ ] Settings → verify your phone, then Circles → Groups → **Create your own group**, and invite someone from your circle.
 - [ ] With a friend: they ask to join your group, you approve it, and you both open **💬 Chat**. Messages show up on both phones right away.
+
+## I'm Out and Phase 5 additions (needs a friend)
+- [ ] Tonight → **I'm Out**, pick a place, post. Tap **I'm In**: your friend (in your circle) sees "In now" on Tonight and Home. They tap **Join**, and you see "… is joining you".
+- [ ] Messages → open a chat → **Ask on a Date**. Your friend opens it and taps **Suggest a Different Time**, then you **Accept**.
+- [ ] Settings/menu → **Safety & Check In** → add yourself as a trusted contact (another phone number you have).
+- [ ] Menu → **I'm On a Date** → pick your friend → **Activate**. Your friend opens the notification and taps **I'm here: confirm**. It turns on only when you're within 1 mile.
+- [ ] Tap **I'm safe**. Then **I need help → I feel unsafe**: Messages should open with your contact and a map link. Send it, then tap **I'm safe now**.

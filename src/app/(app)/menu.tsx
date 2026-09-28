@@ -3,7 +3,7 @@ import { useRouter, type Href } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Screen, Section, type IconName } from '@/components/ui';
+import { AppText, Glyph, Screen, Section, type IconName } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/theme';
 import { goBackOr } from '@/lib/navigation';
@@ -26,7 +26,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
     title: 'Discover',
     items: [
       { label: 'Make an Intro', icon: 'hand-left-outline', href: '/circles/make-intro' },
-      { label: 'Featured Places', icon: 'megaphone-outline', soon: 6 },
+      { label: 'Featured Places', icon: 'megaphone-outline', href: '/places' },
       { label: 'Search Members', icon: 'search-outline', href: '/search' },
       { label: 'Check In & Vouch', icon: 'ribbon-outline', href: '/circles/vouch' },
       { label: 'Intros', icon: 'people-outline', href: '/circles/intros' },
@@ -37,7 +37,9 @@ const GROUPS: { title: string; items: Item[] }[] = [
     title: 'You',
     items: [
       { label: 'My Profile', icon: 'person-outline', href: '/profile' },
-      { label: 'Safety & Check In', icon: 'shield-checkmark-outline', soon: 5 },
+      { label: "I'm On a Date", icon: 'heart-outline', href: '/date-mode' },
+      { label: 'Safety & Check In', icon: 'shield-checkmark-outline', href: '/safety' },
+      { label: 'Premium', icon: 'star-outline', href: '/premium' },
       { label: 'Appearance', icon: 'color-palette-outline', href: '/settings/appearance' },
       { label: 'Settings', icon: 'settings-outline', href: '/settings' },
     ],
@@ -47,13 +49,15 @@ const GROUPS: { title: string; items: Item[] }[] = [
 export default function Menu() {
   const t = useTheme();
   const router = useRouter();
-  const { signOut } = useAuth();
+  const { signOut, profile } = useAuth();
+  const groups: typeof GROUPS =
+    profile?.role === 'admin' ? [...GROUPS, { title: 'Team', items: [{ label: 'Admin', icon: 'construct-outline', href: '/admin' }] }] : GROUPS;
 
   return (
     <>
       <BackHeader title="Menu" />
       <Screen>
-        {GROUPS.map((group) => (
+        {groups.map((group) => (
           <Section key={group.title} title={group.title} bare>
             <View>
               {group.items.map((item) => (
@@ -76,8 +80,8 @@ export default function Menu() {
                     opacity: pressed ? 0.6 : item.href ? 1 : 0.55,
                   })}>
                   <Ionicons name={item.icon} size={20} color={item.ai ? t.colors.ai : t.colors.text} />
+                  {item.ai ? <Glyph name="spark" size={14} tone="ai" strokeWidth={2} /> : null}
                   <AppText style={{ flex: 1 }} tone={item.ai ? 'ai' : 'text'}>
-                    {item.ai ? '✦ ' : ''}
                     {item.label}
                   </AppText>
                   {item.soon ? (

@@ -38,7 +38,7 @@ export function AppHeader() {
         onPress={() => router.push('/profile')}
         hitSlop={6}
         style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
-        <Avatar name={profile?.display_name ?? 'You'} uri={profile?.avatar_url} emoji={profile?.avatar_emoji} size={32} ring="primary" />
+        <Avatar name={profile?.display_name ?? 'You'} uri={profile?.avatar_url} size={32} ring="primary" />
       </Pressable>
       <IconButton icon="chatbubble-ellipses-outline" label="Messages" badgeCount={unread.messages} onPress={() => router.push('/messages')} />
       <IconButton icon="notifications-outline" label="Notifications" badgeCount={unread.notifications} onPress={() => router.push('/notifications')} />

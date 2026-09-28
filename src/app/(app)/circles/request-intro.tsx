@@ -58,7 +58,7 @@ export default function RequestIntro() {
         {card ? (
           <>
             <View style={{ alignItems: 'center', gap: t.space[2] }}>
-              <Avatar name={card.display_name} emoji={card.avatar_emoji} uri={card.avatar_url} size={72} />
+              <Avatar name={card.display_name} uri={card.avatar_url} size={72} />
               <AppText variant="h2">{card.display_name}</AppText>
               <AppText variant="small" tone="muted" align="center">
                 {first} is one intro away. Pick who to ask. If they make the intro and you both say yes, you can message right away.
@@ -86,7 +86,7 @@ export default function RequestIntro() {
                       borderColor: sel ? t.colors.primary : t.colors.border,
                       backgroundColor: t.colors.surface,
                     }}>
-                    <Avatar name={v.display_name} emoji={v.avatar_emoji} size={36} />
+                    <Avatar name={v.display_name} size={36} />
                     <AppText weight="bold" style={{ flex: 1 }}>
                       {v.display_name}
                     </AppText>

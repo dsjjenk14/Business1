@@ -4,6 +4,9 @@ begin;
 create extension if not exists pgtap with schema extensions;
 select plan(38);
 
+-- Test members are on the free plan (no founding Premium) unless a test says otherwise.
+update app_config set value = '0' where key = 'founding_member_limit';
+
 -- Helper to create an auth user (fires the real signup trigger).
 create or replace function pg_temp.new_user(p_email text, p_meta jsonb)
 returns uuid language plpgsql as $$
@@ -40,7 +43,11 @@ select throws_ok(
 
 create temp table t (k text primary key, id uuid);
 grant all on t to authenticated;
+update app_config set value = '1000000' where key = 'founding_member_limit';
 insert into t values ('ana', pg_temp.new_user('ana@test.dev', '{"full_name":"Ana Rivera","birthdate":"1990-05-05","city_slug":"washington-dc"}'));
+-- Keep Ana on the free plan for the limit tests below (her founding Premium is tested in 009).
+update app_config set value = '0' where key = 'founding_member_limit';
+delete from entitlements where user_id = (select id from t where k = 'ana');
 
 select is((select display_name from profiles where id = (select id from t where k='ana')), 'Ana R.', 'Display name defaults to "First L."');
 select ok((select is_founding_member from profiles where id = (select id from t where k='ana')), 'Early members are Founding Members');

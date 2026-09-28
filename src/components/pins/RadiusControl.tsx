@@ -57,7 +57,7 @@ export function RadiusControl({
           {min} mi
         </AppText>
         <AppText variant="caption" tone={cap < max ? 'sponsored' : 'subtle'}>
-          {cap < max && premiumMax ? `${cap} mi · ⭐ Premium goes to ${Math.min(max, premiumMax)} mi` : `${cap} mi`}
+          {cap < max && premiumMax ? `${cap} mi · Premium goes to ${Math.min(max, premiumMax)} mi` : `${cap} mi`}
         </AppText>
       </View>
     </Card>

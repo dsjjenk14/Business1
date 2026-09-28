@@ -35,7 +35,6 @@ export default function Search() {
             key={r.id}
             id={r.id}
             name={r.display_name}
-            emoji={r.avatar_emoji}
             avatarUrl={r.avatar_url}
             vouches={r.vouch_count}
             detail={r.degree === 1 ? '1st degree' : r.degree === 2 ? `2nd degree${r.via_name ? ` · via ${r.via_name}` : ''}` : r.headline}

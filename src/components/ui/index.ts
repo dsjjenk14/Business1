@@ -11,3 +11,4 @@ export { TextField } from './TextField';
 export { Chip } from './Chip';
 export { Segmented } from './Segmented';
 export { ToastProvider, useToast } from './Toast';
+export { Glyph, GlyphTile, GlyphTitle, isGlyphName, type GlyphName } from './Glyph';

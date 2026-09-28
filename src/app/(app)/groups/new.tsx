@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Button, Card, Chip, Screen, TextField, useToast } from '@/components/ui';
+import { AppText, Button, Card, Chip, Glyph, type GlyphName, Screen, TextField, useToast } from '@/components/ui';
 import { fetchCircle, type CircleOverview } from '@/features/circles/api';
 import { GROUP_CATEGORIES, createGroup, type GroupCategory } from '@/features/groups/api';
 import { useAuth } from '@/lib/auth';
@@ -52,7 +52,7 @@ export default function NewGroup() {
         description,
         joinType,
         schedule,
-        emoji: GROUP_CATEGORIES.find((c) => c.key === category)?.emoji,
+        glyph: GROUP_CATEGORIES.find((c) => c.key === category)?.glyph,
         invite,
       });
       toast(invite.length ? `Group created. ${invite.length} invite${invite.length === 1 ? '' : 's'} sent.` : 'Group created');
@@ -64,7 +64,7 @@ export default function NewGroup() {
     }
   }
 
-  const joinOption = (key: 'request' | 'open', icon: string, title: string, body: string) => {
+  const joinOption = (key: 'request' | 'open', icon: GlyphName, title: string, body: string) => {
     const selected = joinType === key;
     return (
       <Pressable
@@ -82,7 +82,7 @@ export default function NewGroup() {
           borderColor: selected ? t.colors.primary : t.colors.border,
           backgroundColor: t.colors.surface,
         }}>
-        <AppText style={{ fontSize: 22 }}>{icon}</AppText>
+        <Glyph name={icon} size={22} tone={selected ? 'primary' : 'muted'} />
         <View style={{ flex: 1 }}>
           <AppText variant="small" weight="bold">
             {title}
@@ -124,7 +124,7 @@ export default function NewGroup() {
           </AppText>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
             {GROUP_CATEGORIES.map((c) => (
-              <Chip key={c.key} label={c.label} selected={category === c.key} onPress={() => setCategory(c.key)} />
+              <Chip key={c.key} label={c.label} glyph={c.glyph} selected={category === c.key} onPress={() => setCategory(c.key)} />
             ))}
           </View>
         </View>
@@ -136,8 +136,8 @@ export default function NewGroup() {
           <AppText variant="small" weight="medium" tone="muted">
             Join type
           </AppText>
-          {joinOption('request', '🔒', 'Request to join', 'You approve each member. Best for trust-based groups.')}
-          {joinOption('open', '🌐', 'Open to all members', 'Anyone on I’m In can join directly.')}
+          {joinOption('request', 'lock', 'Request to join', 'You approve each member. Best for trust-based groups.')}
+          {joinOption('open', 'globe', 'Open to all members', 'Anyone on I’m In can join directly.')}
         </View>
 
         {circle.length ? (
@@ -152,7 +152,6 @@ export default function NewGroup() {
                   key={p.id}
                   id={p.id}
                   name={p.display_name}
-                  emoji={p.avatar_emoji}
                   avatarUrl={p.avatar_url}
                   vouches={p.vouch_count}
                   right={

@@ -3,11 +3,13 @@ import { useCallback, useRef, useState } from 'react';
 import { FlatList, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { PlacementCard } from '@/components/places/PlacementCard';
 import { PinCard } from '@/components/pins/PinCard';
 import { RadiusControl } from '@/components/pins/RadiusControl';
-import { AppText, Button, Card, Chip, IconButton, Segmented } from '@/components/ui';
+import { AppText, Button, Card, Chip, Glyph, GlyphTitle, IconButton, Segmented } from '@/components/ui';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { FILTERS, fetchFeed, type FeedPin, type PinCategory } from '@/features/pins/api';
+import { fetchFeedPlacement, type FeedPlacement } from '@/features/places/api';
 import { usePlan } from '@/features/plan/usePlan';
 import { useTheme } from '@/theme';
 
@@ -28,6 +30,7 @@ export default function Pins() {
   const [committedRadius, setCommittedRadius] = useState(5);
   const [pins, setPins] = useState<FeedPin[] | null>(null);
   const [trending, setTrending] = useState<FeedPin | null>(null);
+  const [placement, setPlacement] = useState<FeedPlacement | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [done, setDone] = useState(false);
@@ -42,13 +45,15 @@ export default function Pins() {
     const id = ++requestId.current;
     const common = { lat: location?.lat, lng: location?.lng, radiusMi: effectiveRadius, category: category === 'all' ? null : category };
     try {
-      const [feed, top] = await Promise.all([
+      const [feed, top, place] = await Promise.all([
         fetchFeed({ ...common, mode: tab }),
         tab === 'nearby' ? fetchFeed({ ...common, category: null, mode: 'trending', limit: 1 }) : Promise.resolve([]),
+        tab === 'nearby' ? fetchFeedPlacement(common.lat, common.lng).catch(() => null) : Promise.resolve(null),
       ]);
       if (id !== requestId.current) return;
       setPins(feed);
       setTrending(top[0] ?? null);
+      setPlacement(place);
       setDone(feed.length < 30);
       setError(null);
     } catch {
@@ -105,8 +110,8 @@ export default function Pins() {
 
       <Segmented<Tab>
         options={[
-          { key: 'nearby', label: '📍 Nearby' },
-          { key: 'community', label: "🌐 They're In" },
+          { key: 'nearby', label: 'Nearby' },
+          { key: 'community', label: "They're In" },
         ]}
         value={tab}
         onChange={(k) => {
@@ -127,7 +132,7 @@ export default function Pins() {
         />
       ) : (
         <Card>
-          <AppText weight="bold">🌐 They&apos;re In: the whole community</AppText>
+          <GlyphTitle glyph="globe" tone="ai">They&apos;re In: the whole community</GlyphTitle>
           <AppText variant="small" tone="muted">
             Pins from everyone on I&apos;m In, not limited by distance. See what&apos;s happening across the network.
           </AppText>
@@ -136,7 +141,7 @@ export default function Pins() {
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: t.space[2] }}>
         {FILTERS.map((f) => (
-          <Chip key={f.key} label={f.label} selected={category === f.key} onPress={() => setCategory(f.key)} />
+          <Chip key={f.key} label={f.label} glyph={f.glyph} selected={category === f.key} onPress={() => setCategory(f.key)} />
         ))}
       </ScrollView>
 
@@ -155,7 +160,7 @@ export default function Pins() {
             borderColor: t.colors.primary,
             backgroundColor: t.colors.surface,
           }}>
-          <AppText style={{ fontSize: 22 }}>🔥</AppText>
+          <Glyph name="flame" size={26} tone="primary" />
           <View style={{ flex: 1 }}>
             <AppText variant="caption" weight="bold" tone="primary">
               TRENDING WITHIN {effectiveRadius} MI
@@ -179,7 +184,16 @@ export default function Pins() {
       <FlatList
         data={pins ?? []}
         keyExtractor={(p) => String(p.id)}
-        renderItem={({ item }) => <PinCard pin={item} locationMode={tab === 'nearby' ? 'distance' : 'city'} onChange={updatePin} />}
+        renderItem={({ item, index }) => (
+          <>
+            <PinCard pin={item} locationMode={tab === 'nearby' ? 'distance' : 'city'} onChange={updatePin} />
+            {index === 2 && placement ? (
+              <View style={{ marginTop: t.space[3] }}>
+                <PlacementCard place={placement} />
+              </View>
+            ) : null}
+          </>
+        )}
         ItemSeparatorComponent={() => <View style={{ height: t.space[3] }} />}
         ListHeaderComponent={header}
         ListEmptyComponent={
