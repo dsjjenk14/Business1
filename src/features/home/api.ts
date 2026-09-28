@@ -1,70 +1,69 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import type { FeedPin } from '@/features/pins/api';
-import type { FeedPlacement } from '@/features/places/api';
-import type { DateModeStatus } from '@/features/dates/api';
 import { supabase } from '@/lib/supabase';
 
-export type HomeScope = 'friends' | 'everyone';
+export type HomeActivity = {
+  kind: 'like' | 'reply';
+  actor_id: string;
+  actor_name: string;
+  actor_avatar: string | null;
+  /** Likes are grouped per pin: the second liker's name, and how many in all. */
+  second_name: string | null;
+  count: number;
+  pin_id: number;
+  pin_body: string;
+  text: string | null;
+  at: string;
+};
 
-export type HomePerson = { id: string; display_name: string; avatar_url: string | null; kind: 'in' | 'out' | 'posted'; place: string | null };
-export type HomeLive = { id: string; display_name: string; avatar_url: string | null; place: string; since: string; circle_there: number };
 export type HomeEvent = {
   id: number;
   title: string;
   emoji: string | null;
   starts_at: string;
-  venue_name: string | null;
-  circle_going: number;
+  place: string | null;
+  group_name: string | null;
+  host_id: string;
+  host_name: string;
+  host_avatar: string | null;
+  capacity: number | null;
   going_count: number;
+  friends_going: number;
   i_am_going: boolean;
 };
-export type HomeConnection = { id: string; display_name: string; avatar_url: string | null; since: string; source: string };
 
+/** Home: your friends' pins, likes and replies you got, your group events, events friends are hosting. */
 export type HomeFeed = {
-  circle_count: number;
-  me: { out_tonight: boolean; in_now: boolean };
-  people: HomePerson[];
-  live: HomeLive[];
-  events: HomeEvent[];
-  new_connections: HomeConnection[];
+  friend_count: number;
   pins: FeedPin[];
-  placement: FeedPlacement | null;
-  date_mode: DateModeStatus | null;
-  dates_waiting: number;
+  activity: HomeActivity[];
+  group_events: HomeEvent[];
+  friends_hosting: HomeEvent[];
 };
 
 /** Everything Home shows, in one request. */
-export async function fetchHomeFeed(scope: HomeScope, loc?: { lat: number; lng: number } | null) {
-  const { data, error } = await supabase.rpc('home_feed', { p_scope: scope, p_lat: loc?.lat ?? undefined, p_lng: loc?.lng ?? undefined });
+export async function fetchHomeFeed(loc?: { lat: number; lng: number } | null) {
+  const { data, error } = await supabase.rpc('home_feed', { p_lat: loc?.lat ?? undefined, p_lng: loc?.lng ?? undefined });
   if (error) throw error;
   return data as unknown as HomeFeed;
 }
 
 // The last Home is kept on the phone so the app opens instantly, then refreshes.
-const cacheKey = (userId: string, scope: HomeScope) => `home:${userId}:${scope}`;
+const cacheKey = (userId: string) => `home:v2:${userId}`;
 
-export async function readCachedHome(userId: string, scope: HomeScope) {
+export async function readCachedHome(userId: string) {
   try {
-    const raw = await AsyncStorage.getItem(cacheKey(userId, scope));
+    const raw = await AsyncStorage.getItem(cacheKey(userId));
     return raw ? (JSON.parse(raw) as HomeFeed) : null;
   } catch {
     return null;
   }
 }
 
-export function cacheHome(userId: string, scope: HomeScope, feed: HomeFeed) {
-  AsyncStorage.setItem(cacheKey(userId, scope), JSON.stringify(feed)).catch(() => undefined);
+export function cacheHome(userId: string, feed: HomeFeed) {
+  AsyncStorage.setItem(cacheKey(userId), JSON.stringify(feed)).catch(() => undefined);
 }
-
-export async function readScope(): Promise<HomeScope> {
-  try {
-    return (await AsyncStorage.getItem('home:scope')) === 'everyone' ? 'everyone' : 'friends';
-  } catch {
-    return 'friends';
-  }
-}
-export const saveScope = (s: HomeScope) => AsyncStorage.setItem('home:scope', s).catch(() => undefined);
 
 export async function shareEvent(eventId: number, note?: string) {
   const { data, error } = await supabase.rpc('share_event', { p_event: eventId, p_note: note ?? undefined });

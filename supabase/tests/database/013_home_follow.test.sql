@@ -1,7 +1,7 @@
 -- Follow, the Friends feed, sharing an event, usage counts, and home_feed().
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(16);
+select plan(18);
 
 create or replace function pg_temp.new_user(p_email text, p_name text) returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();
@@ -52,6 +52,10 @@ select pg_temp.act_as('fa');
 select isnt(share_event((select id from events where title = 'Rooftop Friday')), null, 'Share an event to your circle');
 select pg_temp.admin();
 select is((select audience::text || '/' || category::text from pins where author_id = pg_temp.uid('fa')), 'circle/event', 'It''s a circle-only event pin');
+select pg_temp.act_as('fa');
+select throws_ok(format('select share_event(%s)', (select id from events where title = 'Rooftop Friday')), '23514', 'You already shared this event.', 'Sharing twice is blocked');
+select is((select event_title from pins_feed('friends') where event_id is not null limit 1), 'Rooftop Friday', 'The feed carries the event, for the I''m In button');
+select pg_temp.admin();
 
 -- ── Usage counts ─────────────────────────────────────────────────────────
 select pg_temp.act_as('fa');
@@ -60,7 +64,7 @@ select throws_ok($$ select track('Not A Name!') $$, '23514', null, 'Only simple 
 select throws_ok($$ select admin_usage() $$, '42501', 'Admins only.', 'Only admins read usage');
 
 -- ── Home ─────────────────────────────────────────────────────────────────
-select ok(home_feed() ?& array['people', 'live', 'events', 'pins', 'group_chats', 'circle_count', 'me'], 'Home comes back in one request');
+select ok(home_feed() ?& array['pins', 'activity', 'group_events', 'friends_hosting', 'friend_count'], 'Home comes back in one request: friends'' pins, likes and replies, group events, friends hosting');
 
 select * from finish();
 rollback;

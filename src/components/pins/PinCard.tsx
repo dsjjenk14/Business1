@@ -3,10 +3,14 @@ import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
-import { AppText, Avatar, Card, Glyph, OptionsSheet, useToast } from '@/components/ui';
+import { AppText, Avatar, Badge, Button, Card, Glyph, OptionsSheet, useToast } from '@/components/ui';
+import { track } from '@/features/analytics/track';
+import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { CATEGORY_GLYPH, CATEGORY_LABEL, setBookmarked, setLiked, sharePin, type FeedPin } from '@/features/pins/api';
+import { rsvp } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
-import { timeAgo } from '@/lib/time';
+import { friendlyError } from '@/lib/supabase';
+import { dayTime, timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
 
 import { PinPhotos } from './PinPhotos';
@@ -135,6 +139,10 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
           </AppText>
         </Pressable>
 
+        {pin.event_id && pin.event_title && pin.event_starts_at ? (
+          <EventStrip pin={pin} onChange={onChange} />
+        ) : null}
+
         <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: -t.space[2] }}>
           <Action
             icon={pin.liked ? 'heart' : 'heart-outline'}
@@ -175,5 +183,67 @@ function Action({ icon, color, label, a11y, onPress }: { icon: React.ComponentPr
         </AppText>
       ) : null}
     </Pressable>
+  );
+}
+
+/** The event a post shares, with I'm In right on the post. */
+function EventStrip({ pin, onChange }: { pin: FeedPin; onChange?: (pin: FeedPin) => void }) {
+  const t = useTheme();
+  const router = useRouter();
+  const toast = useToast();
+  const { session } = useAuth();
+  const me = session?.user.id;
+  const [busy, setBusy] = useState(false);
+  const starts = pin.event_starts_at as string;
+  const [now] = useState(() => Date.now());
+  const over = new Date(starts).getTime() < now - 3 * 3600_000;
+
+  async function imIn() {
+    if (!me || !pin.event_id) return;
+    setBusy(true);
+    try {
+      await rsvp(pin.event_id, me);
+      onChange?.({ ...pin, event_i_am_going: true, event_going_count: (pin.event_going_count ?? 0) + 1 });
+      toast(`You're in: ${pin.event_title}`);
+      track('event_im_in', { from: 'post' });
+      enableArrivalWatch();
+    } catch (e) {
+      toast(friendlyError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: t.space[3],
+        padding: t.space[3],
+        borderRadius: t.radius.md,
+        backgroundColor: t.colors.surfaceAlt,
+      }}>
+      <Pressable
+        accessibilityRole="link"
+        accessibilityLabel={`Event: ${pin.event_title}, ${dayTime(starts)}`}
+        onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(pin.event_id) } })}
+        style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+        <Glyph name="calendar" size={22} tone="primary" />
+        <View style={{ flex: 1 }}>
+          <AppText variant="small" weight="bold" numberOfLines={1}>
+            {pin.event_title}
+          </AppText>
+          <AppText variant="caption" tone="subtle" numberOfLines={1}>
+            {[dayTime(starts), pin.event_going_count != null ? `${pin.event_going_count} going` : null].filter(Boolean).join(' · ')}
+          </AppText>
+        </View>
+      </Pressable>
+      {over ? null : pin.event_i_am_going ? (
+        <Badge label="You're in" glyph="check" tone="trust" />
+      ) : (
+        <Button label="I'm In" size="md" onPress={imIn} loading={busy} />
+      )}
+    </View>
   );
 }

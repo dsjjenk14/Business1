@@ -1659,7 +1659,7 @@ isOneToOne: false
                            },
 "pins_feed":
 { Args: { "p_author"?: string,"p_before"?: string,"p_category"?: Database["public"]['Enums']["pin_category"],"p_lat"?: number,"p_limit"?: number,"p_lng"?: number,"p_mode": string,"p_pin"?: number,"p_radius_mi"?: number }; Returns: {
-              "audience": Database["public"]['Enums']["pin_audience"],"author_avatar": string,"author_emoji": string,"author_id": string,"author_name": string,"author_verified": boolean,"author_vouches": number,"body": string,"bookmarked": boolean,"category": Database["public"]['Enums']["pin_category"],"city_name": string,"created_at": string,"distance_mi": number,"edited_at": string,"id": number,"is_mine": boolean,"like_count": number,"liked": boolean,"photo_paths": (string)[],"place_label": string,"reply_count": number
+              "audience": Database["public"]['Enums']["pin_audience"],"author_avatar": string,"author_emoji": string,"author_id": string,"author_name": string,"author_verified": boolean,"author_vouches": number,"body": string,"bookmarked": boolean,"category": Database["public"]['Enums']["pin_category"],"city_name": string,"created_at": string,"distance_mi": number,"edited_at": string,"event_going_count": number,"event_i_am_going": boolean,"event_id": number,"event_starts_at": string,"event_title": string,"id": number,"is_mine": boolean,"like_count": number,"liked": boolean,"photo_paths": (string)[],"place_label": string,"reply_count": number
             }[]
                            },
 "plan_limit":
