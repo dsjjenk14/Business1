@@ -196,7 +196,7 @@ export async function fetchVenue(id: number) {
   return data as unknown as VenueDetail | null;
 }
 
-// ── I'm Out (live) ──────────────────────────────────────────────────────────
+// ── I'm In tonight (live) ──────────────────────────────────────────────────────────
 export async function imHere(coords?: { lat: number; lng: number } | null) {
   const { data, error } = await supabase.rpc('im_here', { p_lat: coords?.lat ?? undefined, p_lng: coords?.lng ?? undefined });
   if (error) throw error;

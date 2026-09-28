@@ -2,7 +2,46 @@ import type { PersonLite } from '@/features/circles/api';
 import { supabase } from '@/lib/supabase';
 
 export type ChatMessage = { id: number; sender_id: string; body: string; created_at: string };
-export type ConversationInfo = { id: number; kind: 'direct' | 'group'; group_id: number | null; title: string; emoji: string | null; members: PersonLite[] };
+export type ConversationInfo = {
+  id: number;
+  kind: 'direct' | 'group' | 'chat';
+  group_id: number | null;
+  /** A group chat's own name (null: shown as the members' names). */
+  name: string | null;
+  title: string;
+  emoji: string | null;
+  members: PersonLite[];
+};
+export type ChatCandidate = { id: string; display_name: string; avatar_url: string | null; in_circle: boolean };
+
+/** People you can add to a group chat: your circle, and people you've chatted with. */
+export async function fetchChatCandidates() {
+  const { data, error } = await supabase.rpc('chat_candidates');
+  if (error) throw error;
+  return (data ?? []) as ChatCandidate[];
+}
+
+export async function createGroupChat(name: string, members: string[]) {
+  const { data, error } = await supabase.rpc('create_group_chat', { p_name: name, p_members: members });
+  if (error) throw error;
+  return data as number;
+}
+
+export async function addToGroupChat(conversationId: number, members: string[]) {
+  const { data, error } = await supabase.rpc('add_to_group_chat', { p_conv: conversationId, p_members: members });
+  if (error) throw error;
+  return data as number;
+}
+
+export async function renameGroupChat(conversationId: number, name: string) {
+  const { error } = await supabase.rpc('rename_group_chat', { p_conv: conversationId, p_name: name });
+  if (error) throw error;
+}
+
+export async function leaveGroupChat(conversationId: number) {
+  const { error } = await supabase.rpc('leave_group_chat', { p_conv: conversationId });
+  if (error) throw error;
+}
 
 export async function fetchConversation(id: number) {
   const { data, error } = await supabase.rpc('conversation_info', { p_conv: id });

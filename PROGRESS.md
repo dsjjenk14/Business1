@@ -5,6 +5,34 @@
 
 ---
 
+## ✅ Social app, adding people, group chats (Dominique's changes)
+- **More than going out.**
+  - Home now opens with **"What's on your mind?"** (post a pin in one tap).
+  - Then come the latest 5 pins from your network, or from the whole community while your network is quiet.
+  - Then **Your group chats**.
+  - Going out, dates, vouches and the tonight pick come after that.
+  - The welcome screen leads with "a social app for people you actually know".
+- **Adding people** (Circles → **Add someone**, or the person+ icon at the top):
+  - **Together right now:** one of you shows a QR code, the other scans it.
+    - It counts as meeting in person, so you can vouch for each other straight away.
+    - Each code works once, for 5 minutes.
+    - Scanning with the phone's own camera also works: it opens I'm In and connects.
+  - **Know each other outside the app:** one of you taps **Get a code**, which gives a 6-character code like `BAF-YFG`.
+    - Send it however you like; the other person types it in, and you're connected.
+    - Each code works once, for 24 hours.
+    - A code connection doesn't count as meeting in person, so no vouching until you meet up.
+  - Guessing is blocked (10 wrong tries an hour), you can't use your own code, and blocked people can't connect.
+  - Meeting up (GPS check-in), intros and invite codes still work as before.
+- **Group chats in Messages.**
+  - **New group chat**: name it (optional) and pick at least two people from your circle or people you've chatted with (up to 50 in a chat).
+  - Inside the chat, the people icon at the top opens the details: rename it, see who's in, add people, or leave.
+  - Group chats get push notifications like any message.
+- **Tonight:**
+  - The **radius slider is back** on Tonight and Pins. It goes from 1 to 75 miles, the same for everyone.
+  - The **Groups tab is removed** from Tonight; Groups now live only in Circles, along with "Coming up in your groups".
+  - The **I'm Out** button now says **I'm In**.
+- Migration 022, test file 012. **All 239 database tests pass**, and the browser test of the whole flow passed with two people.
+
 ## ✅ Phase 8: Polish
 - **Push notifications.**
   - Your phone registers when you sign in (on iPhone this works in Expo Go too).
@@ -327,6 +355,9 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 ## Decisions log
 | Date | Decision | Why |
 |---|---|---|
+| 2026-09-28 | Radius slider back: 1 to 75 miles for everyone | Dominique |
+| 2026-09-28 | Adding people: QR in person (counts as a meetup) and a shared code for people who know each other outside the app (doesn't unlock vouching) | Dominique; keeps vouches tied to real meetups |
+| 2026-09-28 | I'm In is a social app, not only going out: Home leads with posting, pins and group chats | Dominique |
 | 2026-09-28 | Phase 8 before Phase 7 (AI) | Dominique: "Skip AI, do Phase 8" |
 | 2026-09-28 | Pushes go through Expo's free push service, sent by the database (pg_net) | No extra account or key; Settings switches and blocks are enforced on the server |
 | 2026-09-28 | "I'm In" = tap to say you're going. The app marks you **there** automatically by GPS (within 150 m). | Dominique |

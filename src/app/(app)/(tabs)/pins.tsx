@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PlacementCard } from '@/components/places/PlacementCard';
 import { PinCard } from '@/components/pins/PinCard';
+import { RadiusControl } from '@/components/pins/RadiusControl';
 import { AppText, Card, Chip, EmptyState, Glyph, GlyphTitle, IconButton, LoadingList, Segmented } from '@/components/ui';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { FILTERS, fetchFeed, type FeedPin, type PinCategory } from '@/features/pins/api';
@@ -32,7 +33,8 @@ export default function Pins() {
   const [error, setError] = useState<string | null>(null);
   const requestId = useRef(0);
 
-  const effectiveRadius = SEARCH_RADIUS_MI;
+  const [radius, setRadius] = useState(SEARCH_RADIUS_MI);
+  const [effectiveRadius, setEffectiveRadius] = useState(SEARCH_RADIUS_MI);
 
   const load = useCallback(async () => {
     const id = ++requestId.current;
@@ -114,9 +116,15 @@ export default function Pins() {
       />
 
       {tab === 'nearby' ? (
-        <AppText variant="small" tone="muted">
-          Pins within {SEARCH_RADIUS_MI} miles of you
-        </AppText>
+        <RadiusControl
+          label="Nearby radius"
+          value={radius}
+          onChange={setRadius}
+          onCommit={setEffectiveRadius}
+          max={SEARCH_RADIUS_MI}
+          planMax={SEARCH_RADIUS_MI}
+          premiumMax={null}
+        />
       ) : (
         <Card>
           <GlyphTitle glyph="globe" tone="ai">They&apos;re In: the whole community</GlyphTitle>
@@ -190,7 +198,7 @@ export default function Pins() {
             <EmptyState
               glyph="pin"
               title="Nothing here yet"
-              body={tab === 'nearby' ? 'No pins within 75 miles yet. Be the first to drop one.' : 'No pins in this category yet.'}
+              body={tab === 'nearby' ? `No pins within ${effectiveRadius} miles yet. Widen the radius, or be the first to drop one.` : 'No pins in this category yet.'}
               action={{ label: 'Drop a pin', onPress: () => router.push('/pins/new') }}
             />
           )

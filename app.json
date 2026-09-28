@@ -67,6 +67,14 @@
         {
           "color": "#D62828"
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "I'm In uses your camera to scan a friend's QR code so you can connect when you're together.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
       ]
     ],
     "experiments": {

@@ -29,13 +29,14 @@ export default function Onboarding() {
             Real people.{'\n'}Real trust.
           </AppText>
           <AppText variant="body" tone="muted">
-            The only app where reputation means something. Vouches come from people who actually met you, confirmed by GPS.
+            A social app for people you actually know. Share pins, talk in group chats, make plans, and build a reputation that means something.
           </AppText>
         </View>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[3] }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          <Badge label="Pins and group chats" tone="primary" glyph="chat" />
           <Badge label="GPS-verified vouches" tone="trust" glyph="pin" />
-          <Badge label="One intro away" tone="primary" glyph="connect" />
-          <Badge label="Going out tonight" tone="ai" glyph="moon" />
+          <Badge label="One intro away" tone="ai" glyph="connect" />
+          <Badge label="Plans tonight" tone="sponsored" glyph="moon" />
         </View>
       </View>
 
