@@ -84,7 +84,7 @@ export default function WhatsIn() {
             tintColor={t.colors.primary}
           />
         }>
-        <AppText tone="muted">What&apos;s trending near you right now.</AppText>
+        <AppText tone="muted">Trending events, hot spots and posts near you right now.</AppText>
         {!data ? (
           <LoadingList rows={5} />
         ) : empty ? (
@@ -94,6 +94,23 @@ export default function WhatsIn() {
               When people say I&apos;m In, post and plan things near you, the busiest spots show up here.
             </AppText>
           </Card>
+        ) : null}
+
+        {data?.events.length ? (
+          <Section title="Trending events">
+            <Card>
+              <View style={{ gap: t.space[2] }}>
+                {data.events.map((e) => (
+                  <EventRow
+                    key={e.id}
+                    event={e}
+                    subtitle={`${e.going_count} going${e.friends_going ? ` · ${e.friends_going} you know` : ''}`}
+                    onIn={() => onIn(e)}
+                  />
+                ))}
+              </View>
+            </Card>
+          </Section>
         ) : null}
 
         {data?.hot_tonight.length ? (
@@ -122,23 +139,6 @@ export default function WhatsIn() {
                 </View>
               </Card>
             ))}
-          </Section>
-        ) : null}
-
-        {data?.events.length ? (
-          <Section title="Trending events">
-            <Card>
-              <View style={{ gap: t.space[2] }}>
-                {data.events.map((e) => (
-                  <EventRow
-                    key={e.id}
-                    event={e}
-                    subtitle={`${e.going_count} going${e.friends_going ? ` · ${e.friends_going} you know` : ''}`}
-                    onIn={() => onIn(e)}
-                  />
-                ))}
-              </View>
-            </Card>
           </Section>
         ) : null}
 
