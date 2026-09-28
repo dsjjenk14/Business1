@@ -9,7 +9,7 @@ import { useTheme } from '@/theme';
 
 import { Logo } from './Logo';
 
-/** Header on the 4 main tabs: logo left; profile, messages, notifications, menu right. */
+/** Slim header on the main tabs: logo left; post, notifications, profile, menu right. (Messages is a tab.) */
 export function AppHeader() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
@@ -32,16 +32,16 @@ export function AppHeader() {
       <View style={{ flex: 1, paddingLeft: t.space[1] }}>
         <Logo />
       </View>
+      <IconButton icon="add-circle-outline" label="Post" onPress={() => router.push('/pins/new')} />
+      <IconButton icon="notifications-outline" label="Notifications" badgeCount={unread.notifications} onPress={() => router.push('/notifications')} />
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Your profile"
         onPress={() => router.push('/profile')}
         hitSlop={6}
         style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
-        <Avatar name={profile?.display_name ?? 'You'} uri={profile?.avatar_url} size={32} ring="primary" />
+        <Avatar name={profile?.display_name ?? 'You'} uri={profile?.avatar_url} size={30} ring="primary" />
       </Pressable>
-      <IconButton icon="chatbubble-ellipses-outline" label="Messages" badgeCount={unread.messages} onPress={() => router.push('/messages')} />
-      <IconButton icon="notifications-outline" label="Notifications" badgeCount={unread.notifications} onPress={() => router.push('/notifications')} />
       <IconButton icon="menu" label="Menu" onPress={() => router.push('/menu')} />
     </View>
   );

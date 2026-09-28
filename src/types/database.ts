@@ -23,7 +23,26 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "app_config": {
+            "analytics_events": {
+                  Row: {
+                    "created_at": string,"id": number,"name": string,"props": NonNullable<Json>,"user_id": string | null
+                  }
+                  Insert: {
+                    "created_at"?: string,"id"?: number,"name": string,"props"?: NonNullable<Json>,"user_id"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: number,"name"?: string,"props"?: NonNullable<Json>,"user_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "analytics_events_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"app_config": {
                   Row: {
                     "description": string,"key": string,"value": NonNullable<Json>
                   }
@@ -394,6 +413,31 @@ isOneToOne: false
       columns: ["venue_id"]
 isOneToOne: false
       referencedRelation: "venues"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"follows": {
+                  Row: {
+                    "created_at": string,"followee_id": string,"follower_id": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"followee_id": string,"follower_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"followee_id"?: string,"follower_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "follows_followee_id_fkey"
+      columns: ["followee_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "follows_follower_id_fkey"
+      columns: ["follower_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
       referencedColumns: ["id"]
     }
                   ]
@@ -1392,6 +1436,11 @@ isOneToOne: false
 "admin_review_verification":
 { Args: { "p_approve": boolean,"p_note"?: string,"p_request": number }; Returns: undefined
                            },
+"admin_usage":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "events_30d": number,"events_7d": number,"name": string,"people_30d": number,"people_7d": number
+            }[]
+                           },
 "admin_verifications":
 { Args: Record<PropertyKey, never>; Returns: {
               "avatar_url": string,"display_name": string,"gesture": string,"id": number,"kind": string,"member_since": string,"selfie_path": string,"submitted_at": string,"user_id": string,"vouch_count": number
@@ -1498,6 +1547,12 @@ isOneToOne: false
               "distance_mi": number,"glyph": string,"kind": string,"name": string,"neighborhood": string,"network_visited": number,"perk": string,"placement_id": number,"venue_id": number
             }[]
                            },
+"follow_info":
+{ Args: { "p_user": string }; Returns: Json
+                           },
+"follow_user":
+{ Args: { "p_user": string }; Returns: undefined
+                           },
 "generate_invite_code":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
@@ -1512,6 +1567,9 @@ isOneToOne: false
                            },
 "groups_overview":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"home_feed":
+{ Args: { "p_lat"?: number,"p_lng"?: number,"p_scope"?: string }; Returns: Json
                            },
 "im_here":
 { Args: { "p_lat"?: number,"p_lng"?: number,"p_post"?: number }; Returns: string
@@ -1695,6 +1753,9 @@ isOneToOne: false
 "set_open_to_join":
 { Args: { "p_open": boolean,"p_post": number }; Returns: undefined
                            },
+"share_event":
+{ Args: { "p_audience"?: Database["public"]['Enums']["pin_audience"],"p_event": number,"p_note"?: string }; Returns: number
+                           },
 "short_name":
 { Args: { "p_full": string }; Returns: string
                            },
@@ -1732,7 +1793,13 @@ isOneToOne: false
               "emoji": string,"event_id": number,"going_count": number,"host_name": string,"neighborhood": string,"network_going": (string)[],"spots_left": number,"starts_at": string,"title": string,"venue_name": string
             }[]
                            },
+"track":
+{ Args: { "p_name": string,"p_props"?: Json }; Returns: undefined
+                           },
 "unblock_user":
+{ Args: { "p_user": string }; Returns: undefined
+                           },
+"unfollow_user":
 { Args: { "p_user": string }; Returns: undefined
                            },
 "unregister_push_token":

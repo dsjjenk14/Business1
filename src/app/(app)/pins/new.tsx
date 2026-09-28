@@ -6,6 +6,7 @@ import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { PhotoPicker } from '@/components/pins/PhotoPicker';
 import { AppText, Button, Chip, type GlyphName, Screen, TextField, useToast } from '@/components/ui';
+import { track } from '@/features/analytics/track';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { AUDIENCE_OPTIONS, createPin, type PinAudience, type PinCategory } from '@/features/pins/api';
 import { useAuth } from '@/lib/auth';
@@ -58,6 +59,7 @@ export default function NewPin() {
         lng: location?.lng,
         photoUris: photos,
       });
+      track('pin_posted', { category, photos: photos.length, audience });
       toast(failedPhotos ? `Pin dropped, but ${failedPhotos} photo(s) didn't upload` : 'Pin dropped');
       router.replace({ pathname: '/pins/[id]', params: { id: String(pinId) } });
     } catch (e) {

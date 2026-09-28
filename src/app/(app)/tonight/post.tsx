@@ -6,6 +6,7 @@ import { BackHeader } from '@/components/nav/AppHeader';
 import { DateTimeChips, upcomingDays } from '@/components/tonight/DateTimeChips';
 import { VenuePicker, type PlaceChoice } from '@/components/tonight/VenuePicker';
 import { AppText, Button, Chip, Screen, Segmented, TextField, useToast } from '@/components/ui';
+import { track } from '@/features/analytics/track';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { VIBES, deleteGoingOut, postGoingOut, setOpenToJoin, type GoingOutWhen } from '@/features/tonight/api';
@@ -117,6 +118,7 @@ export default function PostGoingOut() {
       if (!openToJoin) await setOpenToJoin(postId, false);
       if (place.venueId) enableArrivalWatch();
       toast(when === 'tonight' ? "You're on the Tonight feed" : 'Your plans are posted');
+      track('im_in_posted', { when });
       goBackOr(router, '/tonight');
     } catch (e) {
       toast(friendlyError(e));

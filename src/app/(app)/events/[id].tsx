@@ -5,8 +5,10 @@ import { View } from 'react-native';
 import { PersonRow } from '@/components/circles/PersonRow';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Badge, Button, Card, EmptyState, GlyphTile, GlyphTitle, LoadingDetail, Screen, Section, useToast } from '@/components/ui';
+import { track } from '@/features/analytics/track';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { preciseLocation } from '@/features/circles/api';
+import { shareEvent } from '@/features/home/api';
 import { checkInOpen, eventCheckIn, eventPhase, fetchEvent, type EventDetail } from '@/features/events/api';
 import { cancelRsvp, rsvp } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
@@ -24,6 +26,7 @@ export default function EventScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [event, setEvent] = useState<EventDetail | null | undefined>(undefined);
   const [busy, setBusy] = useState(false);
+  const [sharing, setSharing] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -81,6 +84,20 @@ export default function EventScreen() {
       toast(friendlyError(e));
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function share() {
+    if (!event) return;
+    setSharing(true);
+    try {
+      await shareEvent(event.id);
+      toast('Shared with your circle');
+      track('event_shared', { from: 'event' });
+    } catch (e) {
+      toast(friendlyError(e));
+    } finally {
+      setSharing(false);
     }
   }
 
@@ -168,6 +185,8 @@ export default function EventScreen() {
             />
           )
         ) : null}
+
+        {phase !== 'ended' ? <Button label="Share to my circle" variant="secondary" size="md" onPress={share} loading={sharing} /> : null}
 
         {canCheckIn && event.i_am_here ? (
           <Card accent="trust">

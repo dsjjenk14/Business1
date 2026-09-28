@@ -6,6 +6,7 @@ import QRCode from 'react-native-qrcode-svg';
 import { ConnectedCard } from '@/components/connect/ConnectedCard';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Button, Card, GlyphTitle, Screen, Section, TextField, useToast } from '@/components/ui';
+import { track } from '@/features/analytics/track';
 import { createConnectCode, prettyCode, qrLink, redeemConnectCode, type ConnectCode, type ConnectResult } from '@/features/connect/api';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
@@ -43,6 +44,7 @@ export default function Connect() {
   async function makeQr() {
     try {
       setQr(await createConnectCode('qr'));
+      track('connect_code_made', { kind: 'qr' });
     } catch (e) {
       toast(friendlyError(e));
     }
@@ -51,6 +53,7 @@ export default function Connect() {
   async function makeCode() {
     try {
       setShared(await createConnectCode('code'));
+      track('connect_code_made', { kind: 'code' });
     } catch (e) {
       toast(friendlyError(e));
     }
@@ -71,6 +74,7 @@ export default function Connect() {
     setBusy(true);
     try {
       const r = await redeemConnectCode(typed);
+      track('connected', { how: 'code' });
       setResult(r);
       setTyped('');
     } catch (e) {

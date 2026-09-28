@@ -1,12 +1,16 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useRouter } from 'expo-router';
-import { Pressable, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { Pressable, Share, View } from 'react-native';
 
 import { PinCard } from '@/components/pins/PinCard';
-import { AppText, Avatar, Badge, Card, GlyphTile, isGlyphName, Section } from '@/components/ui';
+import { PhotoGrid } from '@/components/profile/PhotoGrid';
+import { AppText, Avatar, Badge, Button, Card, GlyphTile, isGlyphName, Section, Segmented, useToast } from '@/components/ui';
+import { track } from '@/features/analytics/track';
 import { tierProgress, useAppConfig } from '@/config/useAppConfig';
 import type { FeedPin } from '@/features/pins/api';
-import type { ProfileCard } from '@/features/profiles/api';
+import { fetchFollowInfo, profileLink, setFollowing, type FollowInfo, type ProfileCard } from '@/features/profiles/api';
+import { friendlyError } from '@/lib/supabase';
 import { clockTime, shortCity, timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
 
@@ -33,6 +37,34 @@ export function ProfileView({
   const place = card.neighborhood || card.city_name;
   const subtitle = [card.age ? String(card.age) : null, place, card.pronouns].filter(Boolean).join(' · ');
   const verified = card.id_verified || card.photo_verified;
+  const toast = useToast();
+  const [follow, setFollow] = useState<FollowInfo | null>(null);
+  const [postsView, setPostsView] = useState<'grid' | 'all'>('grid');
+  const hasPhotos = pins.some((p) => p.photo_paths.length > 0);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchFollowInfo(card.id)
+        .then(setFollow)
+        .catch(() => undefined);
+    }, [card.id]),
+  );
+
+  async function toggleFollow() {
+    if (!follow) return;
+    const next = !follow.i_follow;
+    setFollow({ ...follow, i_follow: next, followers: follow.followers + (next ? 1 : -1) });
+    try {
+      await setFollowing(card.id, next);
+      track(next ? 'followed' : 'unfollowed');
+    } catch (e) {
+      setFollow(follow);
+      toast(friendlyError(e));
+    }
+  }
+
+  const shareProfile = () =>
+    Share.share({ message: `${card.is_me ? 'Find me' : `Check out ${card.display_name}`} on I'm In: ${profileLink(card.id)}` }).catch(() => undefined);
 
   return (
     <>
@@ -63,13 +95,24 @@ export function ProfileView({
             </AppText>
           ) : null}
         </View>
+        {/* Two badges at most: what people vouch them for (or their level), and one status. */}
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: t.space[2] }}>
-          {card.top_vouch_word ? <Badge label={`${card.top_vouch_word}${card.city_name ? ` · ${shortCity(card.city_name)}` : ''}`} glyph="medal" tone="trust" /> : null}
-          {current ? <Badge label={current.name} glyph={isGlyphName(current.emoji) ? current.emoji : 'medal'} tone="trust" /> : null}
-          {card.is_founding_member ? <Badge label="Founding Member" glyph="star" tone="sponsored" /> : null}
-          {card.is_premium ? <Badge label="Premium" glyph="star" tone="sponsored" /> : null}
-          {card.id_verified ? <Badge label="ID Verified" glyph="check" tone="ai" verified /> : null}
+          {card.top_vouch_word ? (
+            <Badge label={`${card.top_vouch_word}${card.city_name ? ` · ${shortCity(card.city_name)}` : ''}`} glyph="medal" tone="trust" />
+          ) : current ? (
+            <Badge label={current.name} glyph={isGlyphName(current.emoji) ? current.emoji : 'medal'} tone="trust" />
+          ) : null}
+          {card.is_founding_member ? (
+            <Badge label="Founding Member" glyph="star" tone="sponsored" />
+          ) : card.is_premium ? (
+            <Badge label="Premium" glyph="star" tone="sponsored" />
+          ) : null}
         </View>
+        {card.id_verified ? (
+          <AppText variant="caption" tone="subtle" align="center">
+            ID verified
+          </AppText>
+        ) : null}
         {!card.is_me && card.degree ? (
           <AppText variant="small" tone="muted" align="center">
             {card.degree === 1
@@ -83,7 +126,7 @@ export function ProfileView({
         {[
           { n: card.vouch_count, label: 'Vouches', tone: 'trust' as const },
           { n: card.circle_count, label: 'Circle', tone: 'primary' as const },
-          { n: card.groups.length, label: 'Groups', tone: 'ai' as const },
+          { n: follow?.followers ?? null, label: 'Followers', tone: 'ai' as const },
         ].map((s) => (
           <Card key={s.label} style={{ flex: 1, alignItems: 'center', paddingVertical: t.space[3] }}>
             <AppText variant="number" tone={s.tone}>
@@ -111,6 +154,20 @@ export function ProfileView({
       ) : null}
 
       {actions}
+
+      <View style={{ flexDirection: 'row', gap: t.space[2] }}>
+        {!card.is_me && follow ? (
+          <Button
+            label={follow.i_follow ? 'Following' : follow.follows_me ? 'Follow back' : 'Follow'}
+            size="md"
+            variant={follow.i_follow ? 'secondary' : 'primary'}
+            style={{ flex: 1 }}
+            onPress={toggleFollow}
+            accessibilityLabel={follow.i_follow ? `Unfollow ${card.display_name}` : `Follow ${card.display_name}`}
+          />
+        ) : null}
+        <Button label="Share profile" size="md" variant="secondary" style={{ flex: 1 }} onPress={shareProfile} />
+      </View>
 
       {card.bio ? (
         <Section title="About">
@@ -166,16 +223,28 @@ export function ProfileView({
         </Section>
       ) : null}
 
-      <Section title="Pins">
+      <Section title="Posts">
         {pins.length === 0 ? (
           <AppText variant="small" tone="muted">
-            No pins you can see yet.
+            No posts you can see yet.
           </AppText>
         ) : (
           <View style={{ gap: t.space[3] }}>
-            {pins.map((p) => (
-              <PinCard key={p.id} pin={p} onChange={onPinChange} />
-            ))}
+            {hasPhotos ? (
+              <Segmented<'grid' | 'all'>
+                options={[
+                  { key: 'grid', label: 'Photos' },
+                  { key: 'all', label: 'All posts' },
+                ]}
+                value={postsView}
+                onChange={setPostsView}
+              />
+            ) : null}
+            {hasPhotos && postsView === 'grid' ? (
+              <PhotoGrid pins={pins} />
+            ) : (
+              pins.map((p) => <PinCard key={p.id} pin={p} onChange={onPinChange} />)
+            )}
           </View>
         )}
       </Section>

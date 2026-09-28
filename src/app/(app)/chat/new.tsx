@@ -5,6 +5,7 @@ import { View } from 'react-native';
 import { PeoplePicker } from '@/components/chat/PeoplePicker';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Button, EmptyState, LoadingList, Screen, Section, TextField, useToast } from '@/components/ui';
+import { track } from '@/features/analytics/track';
 import { addToGroupChat, createGroupChat, fetchChatCandidates, fetchConversation, type ChatCandidate } from '@/features/chat/api';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
@@ -61,6 +62,7 @@ export default function NewGroupChat() {
         router.back();
       } else {
         const id = await createGroupChat(name, [...selected]);
+        track('group_chat_created', { people: selected.size });
         router.replace({ pathname: '/chat/[id]', params: { id: String(id) } });
       }
     } catch (e) {

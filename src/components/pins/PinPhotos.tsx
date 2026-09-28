@@ -6,7 +6,7 @@ import { signPhotoPaths } from '@/features/pins/api';
 import { useTheme } from '@/theme';
 
 /** Up to 6 photos in a tidy grid. Links are signed because the bucket is private. */
-export function PinPhotos({ paths }: { paths: string[] }) {
+export function PinPhotos({ paths, bleed }: { paths: string[]; /** Edge to edge in a card: no rounded corners. */ bleed?: boolean }) {
   const t = useTheme();
   const [urls, setUrls] = useState<Record<string, string>>({});
   const key = paths.join('|');
@@ -23,11 +23,11 @@ export function PinPhotos({ paths }: { paths: string[] }) {
   const cols = paths.length === 1 ? 1 : paths.length === 2 || paths.length === 4 ? 2 : 3;
 
   return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 4, borderRadius: t.radius.md, overflow: 'hidden' }}>
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: bleed ? 2 : 4, borderRadius: bleed ? 0 : t.radius.md, overflow: 'hidden' }}>
       {paths.map((p, i) => (
         <View
           key={p}
-          style={{ width: `${100 / cols - (cols > 1 ? 1.5 : 0)}%`, aspectRatio: cols === 1 ? 4 / 3 : 1, backgroundColor: t.colors.surfaceAlt }}>
+          style={{ width: `${100 / cols - (cols > 1 ? (bleed ? 0.6 : 1.5) : 0)}%`, aspectRatio: cols === 1 ? 4 / 5 : 1, backgroundColor: t.colors.surfaceAlt }}>
           {urls[p] ? (
             <Image source={{ uri: urls[p] }} style={{ width: '100%', height: '100%' }} contentFit="cover" accessibilityLabel={`Photo ${i + 1}`} />
           ) : null}

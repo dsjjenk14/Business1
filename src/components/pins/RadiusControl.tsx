@@ -1,10 +1,12 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import Slider from '@react-native-community/slider';
-import { View } from 'react-native';
+import { useState } from 'react';
+import { Pressable, View } from 'react-native';
 
 import { AppText, Card } from '@/components/ui';
 import { useTheme } from '@/theme';
 
-/** Radius slider, 1 mi up to the max (75 mi for everyone). */
+/** Radius: a small "Within 75 mi" button that opens a slider (1 mi up to 75 mi for everyone). */
 export function RadiusControl({
   label,
   value,
@@ -25,16 +27,46 @@ export function RadiusControl({
   premiumMax: number | null;
 }) {
   const t = useTheme();
+  const [open, setOpen] = useState(false);
   const cap = Math.min(max, planMax);
+  if (!open) {
+    return (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${label}: within ${value} miles. Change`}
+        onPress={() => setOpen(true)}
+        style={({ pressed }) => ({
+          alignSelf: 'flex-start',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 6,
+          minHeight: 36,
+          paddingHorizontal: t.space[3],
+          borderRadius: t.radius.pill,
+          borderWidth: t.borderWidth.hairline,
+          borderColor: t.colors.border,
+          backgroundColor: t.colors.surface,
+          opacity: pressed ? 0.7 : 1,
+        })}>
+        <Ionicons name="locate-outline" size={16} color={t.colors.primaryText} />
+        <AppText variant="small" weight="bold">
+          Within {value} mi
+        </AppText>
+        <Ionicons name="chevron-down" size={14} color={t.colors.textMuted} />
+      </Pressable>
+    );
+  }
   return (
     <Card style={{ paddingVertical: t.space[3] }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <AppText variant="label" tone="subtle">
           {label}
         </AppText>
-        <AppText weight="bold" tone="primary">
-          {value} mi
-        </AppText>
+        <Pressable accessibilityRole="button" accessibilityLabel={`Done: ${value} miles`} onPress={() => setOpen(false)} hitSlop={8}>
+          <AppText weight="bold" tone="primary">
+            {value} mi · Done
+          </AppText>
+        </Pressable>
       </View>
       <Slider
         accessibilityLabel={`${label}, ${value} miles`}

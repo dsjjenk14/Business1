@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Avatar, IconButton, Glyph, useToast } from '@/components/ui';
+import { track } from '@/features/analytics/track';
 import { fetchConversation, fetchMessages, markRead, sendMessage, subscribeToMessages, type ChatMessage, type ConversationInfo } from '@/features/chat/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
@@ -90,6 +91,7 @@ export default function Chat() {
     setSending(true);
     try {
       const m = await sendMessage(conversationId, me, body);
+      track('message_sent', { kind: info?.kind ?? 'direct' });
       setDraft('');
       addMessages([m]);
     } catch (e) {
