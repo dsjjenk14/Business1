@@ -898,13 +898,13 @@ isOneToOne: false
                   ]
                 },"payment_customers": {
                   Row: {
-                    "stripe_customer_id": string,"user_id": string
+                    "stripe_customer_id": string,"subscribed": boolean,"user_id": string
                   }
                   Insert: {
-                    "stripe_customer_id": string,"user_id": string
+                    "stripe_customer_id": string,"subscribed"?: boolean,"user_id": string
                   }
                   Update: {
-                    "stripe_customer_id"?: string,"user_id"?: string
+                    "stripe_customer_id"?: string,"subscribed"?: boolean,"user_id"?: string
                   }
                   Relationships: [
                     {
@@ -1952,6 +1952,9 @@ isOneToOne: false
                            },
 "stripe_premium_paid":
 { Args: { "p_until": string,"p_user": string }; Returns: string
+                           },
+"stripe_premium_state":
+{ Args: { "p_user": string }; Returns: Json
                            },
 "stripe_refund_check":
 { Args: { "p_host": string,"p_ticket": number }; Returns: Json

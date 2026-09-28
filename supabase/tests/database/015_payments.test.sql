@@ -1,8 +1,8 @@
--- Payments: ticket prices need payouts, the 12% fee, a ticket gets you in,
+-- Payments: ticket prices need payouts, the 8% fee (host covers the card fee), a ticket gets you in,
 -- refunds, Premium from Stripe, and server-only Stripe functions.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(27);
+select plan(35);
 
 create or replace function pg_temp.new_user(p_email text, p_name text) returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();
@@ -50,17 +50,20 @@ select throws_ok(format('insert into event_rsvps (event_id, user_id) values (%s,
 select throws_ok(format('select stripe_checkout_check(%s, %L)', (select id from events where title = 'Paid Party'), pg_temp.uid('bu')), '42501', null,
   'Members can''t call the Stripe functions');
 select pg_temp.admin();
-select is((stripe_checkout_check((select id from events where title = 'Paid Party'), pg_temp.uid('bu')))->>'fee_cents', '240', 'I''m In''s 12% of $20 is $2.40');
+select is((stripe_checkout_check((select id from events where title = 'Paid Party'), pg_temp.uid('bu')))->>'fee_cents', '248', 'Held back from the host: 8% of $20 ($1.60) + card fee ($0.88)');
+select is((stripe_checkout_check((select id from events where title = 'Paid Party'), pg_temp.uid('bu')))->>'platform_cents', '160', 'I''m In''s 8% of $20 is $1.60');
 select is((stripe_checkout_check((select id from events where title = 'Paid Party'), pg_temp.uid('bu')))->>'destination', 'acct_test_ho', 'The rest goes to the host''s account');
-select is(stripe_ticket_paid('cs_test_1', (select id from events where title = 'Paid Party'), pg_temp.uid('bu'), 2000, 240, 'pi_test_1'), 'ok', 'Stripe says paid: ticket recorded');
-select is(stripe_ticket_paid('cs_test_1', (select id from events where title = 'Paid Party'), pg_temp.uid('bu'), 2000, 240, 'pi_test_1'), 'duplicate', 'The same payment twice is ignored');
+select is(stripe_ticket_paid('cs_test_1', (select id from events where title = 'Paid Party'), pg_temp.uid('bu'), 2000, 248, 'pi_test_1'), 'ok', 'Stripe says paid: ticket recorded');
+select is(stripe_ticket_paid('cs_test_1', (select id from events where title = 'Paid Party'), pg_temp.uid('bu'), 2000, 248, 'pi_test_1'), 'duplicate', 'The same payment twice is ignored');
 select ok(exists (select 1 from event_rsvps where event_id = (select id from events where title = 'Paid Party') and user_id = pg_temp.uid('bu')), 'The buyer is in');
 select pg_temp.act_as('bu');
 select ok((event_detail((select id from events where title = 'Paid Party'))->>'has_ticket')::boolean, 'The event shows your ticket');
 select pg_temp.act_as('ho');
-select is((my_payout_status()->'sales'->>'host_cents')::int, 1760, 'The host sees $17.60 (after the 12% fee)');
+select is((my_payout_status()->'sales'->>'host_cents')::int, 1752, 'The host sees $17.52 (after 8% and the card fee)');
+select is((my_payout_status()->'sales'->>'fee_cents')::int, 160, 'The host sees I''m In''s fee: $1.60');
+select is((my_payout_status()->'sales'->>'card_fee_cents')::int, 88, 'The host sees the card fee: $0.88');
 select pg_temp.act_as('ad');
-select ok((select fee_cents from admin_revenue() limit 1) >= 240, 'Admins see the fees kept (at least this sale''s $2.40)');
+select ok((select fee_cents from admin_revenue() limit 1) >= 160, 'Admins see what I''m In kept (at least this sale''s $1.60)');
 
 -- ── Refund ───────────────────────────────────────────────────────────────
 select pg_temp.admin();
@@ -70,8 +73,8 @@ select ok(not exists (select 1 from event_rsvps where event_id = (select id from
 -- ── Sold out while paying: refunded ──────────────────────────────────────
 update events set capacity = 1 where title = 'Paid Party';
 insert into event_rsvps (event_id, user_id) select id, pg_temp.uid('ho') from events where title = 'Paid Party' on conflict do nothing;
-select is(stripe_ticket_paid('cs_test_2', (select id from events where title = 'Paid Party'), pg_temp.uid('bu'), 2000, 240, 'pi_test_2'), 'overflow', 'Full: the ticket is marked for refund');
-select is(stripe_ticket_paid('cs_test_2', (select id from events where title = 'Paid Party'), pg_temp.uid('bu'), 2000, 240, 'pi_test_2'), 'overflow', 'A repeat still asks for the refund');
+select is(stripe_ticket_paid('cs_test_2', (select id from events where title = 'Paid Party'), pg_temp.uid('bu'), 2000, 248, 'pi_test_2'), 'overflow', 'Full: the ticket is marked for refund');
+select is(stripe_ticket_paid('cs_test_2', (select id from events where title = 'Paid Party'), pg_temp.uid('bu'), 2000, 248, 'pi_test_2'), 'overflow', 'A repeat still asks for the refund');
 
 -- ── Host refunds ─────────────────────────────────────────────────────────
 select stripe_ticket_refunded('pi_test_1');
@@ -90,6 +93,18 @@ select pg_temp.admin();
 select ok(stripe_premium_paid(pg_temp.uid('bu'), now() + interval '31 days') > now() + interval '30 days', 'Premium paid for a month');
 select pg_temp.act_as('bu');
 select ok((my_plan()->>'is_premium')::boolean, 'Premium is on');
+select pg_temp.admin();
+select stripe_set_customer(pg_temp.uid('bu'), 'cus_test_bu');
+select stripe_premium_paid(pg_temp.uid('bu'), now() + interval '31 days');
+select is((stripe_premium_state(pg_temp.uid('bu'))->>'subscribed')::boolean, true, 'Paying members are marked subscribed (no paying twice)');
+select pg_temp.act_as('bu');
+select is((my_plan()->>'subscribed')::boolean, true, 'The app sees the subscription (shows Manage or cancel)');
+select pg_temp.admin();
+select stripe_premium_ended(pg_temp.uid('bu'));
+select is((stripe_premium_state(pg_temp.uid('bu'))->>'subscribed')::boolean, false, 'Cancelled: no longer subscribed');
+select ok((select premium_until from entitlements where user_id = pg_temp.uid('bu')) > now() + interval '30 days', 'Cancelling keeps Premium until the paid month ends');
+select pg_temp.act_as('bu');
+select throws_ok(format('select stripe_premium_state(%L)', pg_temp.uid('bu')), '42501', null, 'Members can''t call the Premium check');
 
 select * from finish();
 rollback;

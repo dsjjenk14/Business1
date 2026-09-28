@@ -38,7 +38,7 @@ export const TERMS: LegalDoc = {
     },
     {
       heading: 'Tickets',
-      body: 'Hosts can sell tickets to their events. Payments are handled by Stripe. I’m In keeps a 12% fee from each ticket and the rest goes to the host. Refunds are up to the host. If an event fills up before your payment goes through, you are refunded in full.',
+      body: 'Hosts can sell tickets to their events. Payments are handled by Stripe. I’m In keeps an 8% fee from each ticket, Stripe’s card fee is taken from the host’s share, and the rest goes to the host. Refunds are up to the host. If an event fills up before your payment goes through, you are refunded in full.',
     },
     {
       heading: 'Ending your account',

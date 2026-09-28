@@ -8,14 +8,15 @@ Until then, the pay buttons show "Payments aren't turned on yet."
 | What | Who pays | Where the money goes |
 |---|---|---|
 | **Premium** ($14.99/month) | The member, by card | All to I'm In |
-| **Event ticket** (price set by the host, up to $500) | The guest, by card | **12% to I'm In**, the rest to the host |
+| **Event ticket** (price set by the host, up to $500) | The guest, by card | **8% to I'm In**; the host gets the rest, minus Stripe's card fee |
 
 - **Stripe's own fee** is about **2.9% + 30¢** per card payment (US cards). There's no monthly fee.
-  - On tickets, Stripe's fee comes out of I'm In's 12%. Example: a $25 ticket gives I'm In $3.00, minus about $1.03 to Stripe, so I'm In keeps about $1.97. The host gets $22.00.
+  - On tickets, **the host pays Stripe's card fee**, so I'm In keeps its full 8%. Example: a $25 ticket: the guest pays $25.00, I'm In keeps $2.00, Stripe's card fee is about $1.03, and the host gets about $21.97.
+  - On Premium, I'm In pays the card fee: about 73¢ of each $14.99.
   - Hosts get paid out by Stripe to their own bank account, usually in 2 business days.
-- The 12% is one setting (`app_config.platform_fee_percent`), so you can change it later without an app update.
+- The 8% is one setting (`app_config.platform_fee_percent`), so you can change it later without an app update. Stripe's card fee is set in `card_fee_percent` (2.9) and `card_fee_fixed_cents` (30).
 - If an event fills up while someone is paying, they're **refunded automatically** in full.
-- Hosts can **refund** any guest from the event page (Ticket holders → Refund). The guest gets all their money back, including I'm In's 12%, is taken off the list, and is notified.
+- Hosts can **refund** any guest from the event page (Ticket holders → Refund). The guest gets all their money back, including I'm In's fee, is taken off the list, and is notified.
 
 ## Turning it on (about 30 minutes, one time)
 
@@ -36,10 +37,10 @@ Until then, the pay buttons show "Payments aren't turned on yet."
 
 ## Where it lives in the app
 
-- **Premium** screen: "Get Premium" opens Stripe's secure checkout. Subscribers see "Manage or cancel".
+- **Premium** (Menu → Premium, or Settings → Premium): "Get Premium" opens Stripe's secure checkout. Members with free Premium (like Founding Members) see "Keep Premium": they add a card now and aren't charged until their free months end. Subscribers see "Manage or cancel".
 - **Settings → Payouts**: hosts set up where their ticket money goes, and see their sales.
 - **New event**: once payouts are set up, the host can add a ticket price.
-- **Event page**: guests tap "Get ticket · $X". The host sees tickets sold, what they earn, and who bought (with Refund).
+- **Event page**: guests tap "Buy Tickets · $X". The host sees tickets sold, what they earn, and who bought (with Refund).
 - **Settings → My tickets**: everything you've bought.
 - **Menu → Admin → Ticket fees**: what I'm In earned each month.
 

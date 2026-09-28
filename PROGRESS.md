@@ -5,6 +5,14 @@
 
 ---
 
+## ✅ Payments follow-up: 8% fee, Buy Tickets, easy to find Premium
+- **Ticket fee is 8%, and the host covers Stripe's card fee.** $25 ticket: the guest pays $25, I'm In keeps $2.00, Stripe's card fee is about $1.03, and the host gets about $21.97. Hosts see the split before they set a price and on their Payouts screen (Total sales, I'm In fee, Card fees, Yours).
+- The button says **Buy Tickets · $25**.
+- **Premium is easy to pay for:** the pay button is now at the top of the Premium screen, and **Settings → Premium** opens it. It was hidden for anyone who already had free Premium. Founding Members now see **Keep Premium**: they add a card and aren't charged until their free months end. Subscribers see **Manage or cancel**, and can't be charged twice.
+- Migration 028. **All 309 database tests pass.** Browser-tested: Buy Tickets, Keep Premium, the host's split and the Settings row.
+
+---
+
 ## ✅ Payments: Premium and ticket sales (built; off until Stripe is connected)
 **Circles stays Circles.** The tester round renamed it to "Friends"; that's undone everywhere (the tab, the menu, posts, I'm In, profiles, search, events). The other tester-round changes stay.
 
@@ -13,7 +21,7 @@
 - Subscribers see **Manage or cancel**, which opens Stripe's page to change the card or cancel.
 - A Founding Member's free months are never shortened by paying.
 
-**Selling tickets (I'm In keeps 12%)**
+**Selling tickets (was 12%; now 8% plus the host covers the card fee, see above)**
 - **Settings → Payouts:** a host connects a payout account through Stripe (name, date of birth, bank account). Then they can sell tickets.
 - **New event** and the **event page:** the host adds a ticket price (up to $500). The host sees "You get $22 per ticket" on a $25 ticket.
 - Guests tap **Get ticket · $25**. Once paid, they're on the list and both sides get a notification. Paid events can't be joined for free.

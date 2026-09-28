@@ -80,7 +80,7 @@ export function EventRow({ event, subtitle, onIn }: { event: HomeEvent; subtitle
           label={money(event.ticket_price_cents)}
           size="md"
           onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(event.id) } })}
-          accessibilityLabel={`Get a ticket for ${event.title}, ${money(event.ticket_price_cents)}`}
+          accessibilityLabel={`Buy tickets for ${event.title}, ${money(event.ticket_price_cents)}`}
         />
       ) : event.capacity != null && event.going_count >= event.capacity ? (
         <Button label="Waitlist" size="md" variant="secondary" onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(event.id) } })} />
