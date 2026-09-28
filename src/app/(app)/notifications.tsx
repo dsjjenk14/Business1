@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AIMark, AppText, Card, Screen } from '@/components/ui';
+import { AIMark, AppText, Card, EmptyState, LoadingList, Screen } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { timeAgo } from '@/lib/time';
@@ -35,10 +35,10 @@ export default function Notifications() {
     <>
       <BackHeader title="Notifications" />
       <Screen contentGap={t.space[3]}>
-        {items === null ? null : items.length === 0 ? (
-          <AppText tone="muted" align="center">
-            Nothing yet. When people reply, vouch, or head out, you&apos;ll see it here.
-          </AppText>
+        {items === null ? (
+          <LoadingList rows={4} />
+        ) : items.length === 0 ? (
+          <EmptyState glyph="spark" title="Nothing yet" body="When people reply, vouch, or head out, you’ll see it here." />
         ) : (
           items.map((n) => (
             <Card key={n.id} accent={n.is_ai ? 'ai' : !n.read_at ? 'primary' : undefined} onPress={n.link ? () => router.push(n.link as Href) : undefined} accessibilityLabel={`${n.title}. ${n.body}`}>

@@ -1,0 +1,32 @@
+# Builds the iPhone app in the cloud and sends it to TestFlight.
+# Run it from GitHub: Actions → "TestFlight build" → Run workflow.
+# Needs (one time): an Apple Developer account, the app created in App Store
+# Connect, and an App Store Connect API key saved as GitHub secrets
+# (see docs/TESTFLIGHT.md). Not run yet: it waits for the Apple account.
+name: TestFlight build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Save the App Store Connect key for EAS
+        run: printf '%s' "$ASC_KEY" > "$RUNNER_TEMP/asc-key.p8"
+        env:
+          ASC_KEY: ${{ secrets.ASC_API_KEY_P8 }}
+      - name: Build and send to TestFlight
+        run: npx eas-cli@latest build --platform ios --profile production --non-interactive --auto-submit --no-wait
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_ASC_API_KEY_PATH: ${{ runner.temp }}/asc-key.p8
+          EXPO_ASC_KEY_ID: ${{ secrets.ASC_API_KEY_ID }}
+          EXPO_ASC_ISSUER_ID: ${{ secrets.ASC_API_ISSUER_ID }}
+          EXPO_APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}

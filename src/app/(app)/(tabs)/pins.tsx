@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PlacementCard } from '@/components/places/PlacementCard';
 import { PinCard } from '@/components/pins/PinCard';
-import { AppText, Button, Card, Chip, Glyph, GlyphTitle, IconButton, Segmented } from '@/components/ui';
+import { AppText, Card, Chip, EmptyState, Glyph, GlyphTitle, IconButton, LoadingList, Segmented } from '@/components/ui';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { FILTERS, fetchFeed, type FeedPin, type PinCategory } from '@/features/pins/api';
 import { fetchFeedPlacement, type FeedPlacement } from '@/features/places/api';
@@ -185,24 +185,21 @@ export default function Pins() {
         ListHeaderComponent={header}
         ListEmptyComponent={
           pins === null ? (
-            <AppText tone="subtle" align="center">
-              Loading pins…
-            </AppText>
+            <LoadingList rows={4} />
           ) : (
-            <Card>
-              <AppText weight="bold">Nothing here yet</AppText>
-              <AppText variant="small" tone="muted">
-                {tab === 'nearby' ? 'No pins in this radius. Widen it, or be the first to drop one.' : 'No pins in this category yet.'}
-              </AppText>
-              <Button label="Drop a pin" size="md" onPress={() => router.push('/pins/new')} style={{ marginTop: t.space[2] }} />
-            </Card>
+            <EmptyState
+              glyph="pin"
+              title="Nothing here yet"
+              body={tab === 'nearby' ? 'No pins within 75 miles yet. Be the first to drop one.' : 'No pins in this category yet.'}
+              action={{ label: 'Drop a pin', onPress: () => router.push('/pins/new') }}
+            />
           )
         }
         ListFooterComponent={
           loadingMore ? (
-            <AppText tone="subtle" align="center" style={{ padding: t.space[4] }}>
-              Loading more…
-            </AppText>
+            <View style={{ paddingTop: t.space[4] }}>
+              <LoadingList rows={1} />
+            </View>
           ) : null
         }
         onEndReached={loadMore}

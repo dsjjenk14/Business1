@@ -5,7 +5,7 @@ import { KeyboardAvoidingView, Platform, View } from 'react-native';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { DateTimeChips, upcomingDays } from '@/components/tonight/DateTimeChips';
 import { VenuePicker, type PlaceChoice } from '@/components/tonight/VenuePicker';
-import { AppText, Avatar, Button, Card, Chip, Screen, TextField, useToast } from '@/components/ui';
+import { AppText, Avatar, Button, Card, Chip, LoadingList, Screen, TextField, useToast } from '@/components/ui';
 import { DATE_VIBES, DATE_WHEN, counterDateRequest, fetchDate, sendDateRequest, type DateDetail, type DateWhen } from '@/features/dates/api';
 import { fetchProfileCard, type ProfileCard } from '@/features/profiles/api';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
@@ -53,7 +53,7 @@ export default function NewDate() {
           if (!cancelled) setPerson(c);
         }
       } catch {
-        // Shown as "Loading…" below; the send button explains any problem.
+        // Placeholders stay below; the send button explains any problem.
       }
     })();
     return () => {
@@ -100,7 +100,7 @@ export default function NewDate() {
             </View>
           </Card>
         ) : (
-          <AppText tone="subtle">Loading…</AppText>
+          <LoadingList />
         )}
 
         {original ? (

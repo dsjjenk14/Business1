@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Avatar, Button, Card, Chip, GlyphTile, GlyphTitle, Screen, useToast } from '@/components/ui';
+import { AppText, Avatar, Button, Card, Chip, GlyphTile, GlyphTitle, LoadingDetail, Screen, useToast } from '@/components/ui';
 import { preciseLocation } from '@/features/circles/api';
 import {
   checkInSafe,
@@ -93,9 +93,7 @@ export default function DateMode() {
       <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
         {header}
         <Screen>
-          <AppText tone="subtle" align="center">
-            Loading…
-          </AppText>
+          <LoadingDetail />
         </Screen>
       </View>
     );

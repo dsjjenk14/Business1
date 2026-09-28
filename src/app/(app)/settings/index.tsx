@@ -26,6 +26,7 @@ export default function Settings() {
         { label: 'Edit profile', icon: 'person-outline', href: '/settings/profile' },
         { label: 'Your plan', icon: 'star-outline', href: '/settings/plan' },
         { label: 'Verification', icon: 'shield-checkmark-outline', href: '/settings/verification', detail: 'Phone, photo, ID' },
+        { label: 'Notifications', icon: 'notifications-outline', href: '/settings/notifications' },
         { label: 'Appearance', icon: 'color-palette-outline', href: '/settings/appearance' },
       ],
     },

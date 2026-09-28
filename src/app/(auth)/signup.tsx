@@ -173,6 +173,7 @@ export default function SignUp() {
                   key={c.slug}
                   accessibilityRole="radio"
                   accessibilityState={{ checked: selected }}
+                  aria-checked={selected}
                   onPress={() => {
                     setCitySlug(c.slug);
                     clearError('city');
@@ -312,6 +313,7 @@ export default function SignUp() {
         <Pressable
           accessibilityRole="checkbox"
           accessibilityState={{ checked: agreed }}
+          aria-checked={agreed}
           accessibilityLabel="I agree to the Terms of Service and Community Guidelines and I've read the Privacy Policy"
           onPress={() => {
             setAgreed((a) => !a);

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Linking, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Badge, Button, Card, Chip, Glyph, Screen, Section, Segmented, TextField, useToast, type GlyphName } from '@/components/ui';
+import { AppText, Badge, Button, Card, Chip, EmptyState, Glyph, LoadingList, Screen, Section, Segmented, Skeleton, TextField, useToast, type GlyphName } from '@/components/ui';
 import {
   actOnReport,
   addPlacement,
@@ -56,7 +56,7 @@ export default function Admin() {
       <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
         <BackHeader title="Admin" />
         <Screen>
-          <AppText tone="muted">{profile ? 'Admins only.' : 'Loading…'}</AppText>
+          {profile ? <EmptyState glyph="lock" title="Admins only" /> : <LoadingList rows={2} />}
         </Screen>
       </View>
     );
@@ -138,7 +138,7 @@ function Reports({ onChange }: { onChange: () => void }) {
         <Chip label={`Open (${open.length})`} selected={!showClosed} onPress={() => setShowClosed(false)} />
         <Chip label="All" selected={showClosed} onPress={() => setShowClosed(true)} />
       </View>
-      {rows === null ? <AppText tone="subtle">Loading…</AppText> : list.length === 0 ? <AppText tone="muted">Nothing waiting. Nice.</AppText> : null}
+      {rows === null ? <LoadingList rows={2} /> : list.length === 0 ? <AppText tone="muted">Nothing waiting. Nice.</AppText> : null}
       {list.map((r) => (
         <Card key={r.id} accent={r.status === 'open' ? 'primary' : undefined}>
           <View style={{ gap: t.space[2] }}>
@@ -215,7 +215,7 @@ function Verify({ onChange }: { onChange: () => void }) {
 
   return (
     <View style={{ gap: t.space[3] }}>
-      {rows === null ? <AppText tone="subtle">Loading…</AppText> : rows.length === 0 ? <AppText tone="muted">No photo checks waiting.</AppText> : null}
+      {rows === null ? <LoadingList rows={2} /> : rows.length === 0 ? <AppText tone="muted">No photo checks waiting.</AppText> : null}
       {(rows ?? []).map((r) => (
         <Card key={r.id}>
           <View style={{ gap: t.space[3] }}>
@@ -233,7 +233,7 @@ function Verify({ onChange }: { onChange: () => void }) {
                 {urls[r.id] ? (
                   <Image source={{ uri: urls[r.id] }} style={{ width: '100%', aspectRatio: 0.8, borderRadius: t.radius.md }} contentFit="cover" />
                 ) : (
-                  <AppText variant="caption">Loading…</AppText>
+                  <Skeleton height={200} radius={t.radius.md} />
                 )}
               </View>
               <View style={{ flex: 1, gap: 4 }}>

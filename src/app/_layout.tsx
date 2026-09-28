@@ -6,6 +6,8 @@ import { useEffect } from 'react';
 
 import { ToastProvider } from '@/components/ui';
 import { AppConfigProvider } from '@/config/useAppConfig';
+// Registers the background arrival task (must run at startup, outside React).
+import '@/features/arrival/geofence';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { FONT_MAP, THEMES, ThemeProvider, useTheme, useThemeContext, type ThemeId } from '@/theme';

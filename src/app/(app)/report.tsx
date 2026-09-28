@@ -69,6 +69,7 @@ export default function Report() {
                 key={r.key}
                 accessibilityRole="radio"
                 accessibilityState={{ checked: sel }}
+                aria-checked={sel}
                 onPress={() => setReason(r.key)}
                 style={{
                   flexDirection: 'row',

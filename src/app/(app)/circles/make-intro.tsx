@@ -72,6 +72,7 @@ export default function MakeIntro() {
                 key={o.id}
                 accessibilityRole="radio"
                 accessibilityState={{ checked: sel, disabled: fromRequest }}
+                aria-checked={sel}
                 disabled={fromRequest}
                 onPress={() => onPick(o.id)}
                 style={{

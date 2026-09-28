@@ -27,6 +27,8 @@ export type ThemeColors = {
   textSubtle: string;
   /** The one accent that does the heavy lifting on a screen. */
   primary: string;
+  /** The primary color when used for text (links, labels): always readable on bg, surface and surfaceAlt. */
+  primaryText: string;
   onPrimary: string;
   /** Secondary accent, used sparingly (section bars, highlights). */
   secondary: string;

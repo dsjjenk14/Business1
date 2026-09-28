@@ -37,19 +37,35 @@
           "imageWidth": 160
         }
       ],
-      "expo-secure-store",
+      [
+        "expo-secure-store",
+        {
+          "faceIDPermission": false
+        }
+      ],
       "expo-image",
       [
         "expo-image-picker",
         {
           "photosPermission": "I'm In uses your photos so you can add a profile picture and photos to your pins.",
-          "cameraPermission": "I'm In uses your camera so you can take a profile picture or verification selfie."
+          "cameraPermission": "I'm In uses your camera so you can take a profile picture or verification selfie.",
+          "microphonePermission": false
         }
       ],
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "I'm In uses your approximate location to show pins and people near you. Your exact location is never shown to anyone."
+          "locationWhenInUsePermission": "I'm In uses your approximate location to show pins and people near you. Your exact location is never shown to anyone.",
+          "locationAlwaysAndWhenInUsePermission": "I'm In can notice when you arrive at an event or place you said I'm In to, even when the app is closed, so the people you chose see you're there. It only watches those places, and your exact location is never shown to anyone.",
+          "isAndroidBackgroundLocationEnabled": true,
+          "locationAlwaysPermission": "I'm In can notice when you arrive at an event or place you said I'm In to, even when the app is closed, so the people you chose see you're there. It only watches those places, and your exact location is never shown to anyone.",
+          "motionUsagePermission": false
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#D62828"
         }
       ]
     ],

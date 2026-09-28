@@ -1,13 +1,35 @@
-import { useEffect, useState } from 'react';
+import * as Notifications from 'expo-notifications';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import { AppState } from 'react-native';
 
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 
-/** Unread notification and message counts for the header badges. */
+import { PUSH_SUPPORTED } from './push';
+
+/**
+ * Unread notification and message counts for the header badges. Refreshes
+ * when the screen comes into view, when the app comes back to the front, and
+ * when a push arrives; also keeps the app icon badge in step.
+ */
 export function useUnreadCounts() {
   const { session } = useAuth();
   const userId = session?.user.id;
   const [counts, setCounts] = useState({ notifications: 0, messages: 0 });
+  const [tick, setTick] = useState(0);
+  const refresh = useCallback(() => setTick((n) => n + 1), []);
+
+  useFocusEffect(refresh);
+
+  useEffect(() => {
+    const app = AppState.addEventListener('change', (s) => s === 'active' && refresh());
+    const push = PUSH_SUPPORTED ? Notifications.addNotificationReceivedListener(refresh) : null;
+    return () => {
+      app.remove();
+      push?.remove();
+    };
+  }, [refresh]);
 
   useEffect(() => {
     if (!userId) return;
@@ -22,14 +44,16 @@ export function useUnreadCounts() {
         const last = m.conversations?.last_message_at;
         return last && (!m.last_read_at || last > m.last_read_at);
       }).length;
-      if (!cancelled) setCounts({ notifications: notifications ?? 0, messages });
+      if (cancelled) return;
+      setCounts({ notifications: notifications ?? 0, messages });
+      if (PUSH_SUPPORTED) Notifications.setBadgeCountAsync((notifications ?? 0) + messages).catch(() => undefined);
     }
 
     load();
     return () => {
       cancelled = true;
     };
-  }, [userId]);
+  }, [userId, tick]);
 
   return counts;
 }

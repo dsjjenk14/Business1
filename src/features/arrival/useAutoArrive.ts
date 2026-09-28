@@ -3,33 +3,18 @@ import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 
 import { useToast } from '@/components/ui';
-import { supabase } from '@/lib/supabase';
 
-export type Arrival = { kind: 'event' | 'place'; id: number; title: string; place: string | null };
+import { arrivalTargets, autoArrive } from './api';
+import { syncArrivalGeofences } from './geofence';
 
 const CHECK_EVERY_MS = 2 * 60_000;
-
-export async function arrivalTargets() {
-  const { data, error } = await supabase.rpc('arrival_targets');
-  if (error) throw error;
-  return (data as number) ?? 0;
-}
-
-export async function autoArrive(coords: { lat: number; lng: number; accuracy: number | null }) {
-  const { data, error } = await supabase.rpc('auto_arrive', {
-    p_lat: coords.lat,
-    p_lng: coords.lng,
-    p_accuracy_m: coords.accuracy ?? undefined,
-  });
-  if (error) throw error;
-  return (data as unknown as Arrival[]) ?? [];
-}
 
 /**
  * "I'm In" is what you tap to say you're going. Getting there is automatic:
  * while the app is open, every couple of minutes, if you have an event or a
  * night-out place coming up, the phone reads its GPS and the server marks you
  * there when you're at the place. With no plans, GPS is never read.
+ * (In the App Store build, geofence.ts also covers arriving with the app closed.)
  */
 export function useAutoArrive(enabled: boolean) {
   const toast = useToast();
@@ -43,6 +28,7 @@ export function useAutoArrive(enabled: boolean) {
       if (running.current || AppState.currentState !== 'active') return;
       running.current = true;
       try {
+        syncArrivalGeofences();
         if ((await arrivalTargets()) === 0) return;
         const perm = await Location.getForegroundPermissionsAsync();
         const granted = perm.status === 'granted' || (perm.canAskAgain && (await Location.requestForegroundPermissionsAsync()).status === 'granted');

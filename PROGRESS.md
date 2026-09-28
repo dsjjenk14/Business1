@@ -1,9 +1,36 @@
 # I'm In: Progress
 
 ## Status
-**Current phase:** Phase 6 (money and verification) is done, except the parts that need your accounts (see below). Next is Phase 7 (AI). See `docs/LAUNCH-CHECKLIST.md` for what's needed before launch.
+**Current phase:** Phase 8 (polish) is done, except the TestFlight build itself, which needs your Apple Developer account (`docs/TESTFLIGHT.md`). Phase 7 (AI) was skipped for now, at your request; it needs your OK for the paid Claude API. See `docs/LAUNCH-CHECKLIST.md` for what's needed before launch.
 
 ---
+
+## ✅ Phase 8: Polish
+- **Push notifications.**
+  - Your phone registers when you sign in (on iPhone this works in Expo Go too).
+  - You get a push for everything that shows in the bell (vouches, intros, date requests, people joining you, safety alerts…) and for every new chat message. Tapping it opens the right screen.
+  - The app icon badge shows unread notifications plus chats with new messages.
+  - **Settings → Notifications** has six switches (Messages, Date requests, Plans, Pin replies, Meetups and vouches, Intros). Safety alerts always come through, and blocked people never reach you.
+  - Only the live database actually sends. Test copies only record what they would have sent.
+  - It uses Expo's free push service, so there's no new account and no key.
+- **Loading and empty screens.**
+  - Soft pulsing placeholder rows instead of "Loading…" text everywhere. They hold still if the phone's Reduce Motion setting is on.
+  - Friendly empty states, for example "This event isn't available" and "Nothing here yet".
+- **Accessibility.**
+  - Checked 22 screens against the web accessibility standard (WCAG 2 AA). All pass, except one small web-only warning on Premium.
+  - Fixes made:
+    - Red text now uses a slightly lighter red that's easier to read (buttons keep the original red).
+    - Avatar initials are brighter.
+    - Screen readers now hear which option is selected.
+    - Small chips are easier to tap.
+- **Speed.**
+  - Added 67 database indexes (one for every link between tables that didn't have one), so lookups and account deletion stay fast as the app grows.
+  - The unread badges update when you come back to the app or a push arrives, without constant checking.
+- **Ready for TestFlight.**
+  - Arriving works even with the app closed. The phone watches the places you said I'm In to, and asks for "Always" location right after you tap I'm In.
+  - Every permission message is specific to I'm In. Unused ones (microphone, Face ID, motion) are removed, since Apple rejects generic wording.
+  - There's a one-button **Actions → TestFlight build** workflow, plus step-by-step instructions in `docs/TESTFLIGHT.md`.
+- Migrations 019–021, test file 011. **All 219 database tests pass**, and typecheck, lint and the contrast check are clean.
 
 ## ✅ Arriving is automatic; radius is always 75 miles (Dominique's changes)
 - **I'm In** is what you tap to say you're going to an event.
@@ -291,14 +318,17 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 
 ---
 
-## Next: Phase 7 (AI)
-The seven AI features (icebreakers, Tonight for You, Trust Monitor, vibe match, momentum score, intro success prediction, AI badges). The Claude API is paid per use, so I'll ask you before turning it on.
+## Next
+- **TestFlight**, as soon as you have the Apple Developer account (`docs/TESTFLIGHT.md`).
+- **Phase 7 (AI)**, when you're ready. The seven AI features are icebreakers, Tonight for You, Trust Monitor, vibe match, momentum score, intro success prediction and AI badges. The Claude API is paid per use, so it waits for your OK.
 
 ---
 
 ## Decisions log
 | Date | Decision | Why |
 |---|---|---|
+| 2026-09-28 | Phase 8 before Phase 7 (AI) | Dominique: "Skip AI, do Phase 8" |
+| 2026-09-28 | Pushes go through Expo's free push service, sent by the database (pg_net) | No extra account or key; Settings switches and blocks are enforced on the server |
 | 2026-09-28 | "I'm In" = tap to say you're going. The app marks you **there** automatically by GPS (within 150 m). | Dominique |
 | 2026-09-28 | Search radius is always 75 miles for everyone (no slider, not a Premium perk) | Dominique |
 | 2026-09-27 | ~~Theme E "Top 8"~~ removed, along with Top 8 friends and profile customization | Dominique: "No Top 8" |

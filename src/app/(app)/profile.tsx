@@ -4,7 +4,7 @@ import { Share, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
 import { ProfileView } from '@/components/profile/ProfileView';
-import { AppText, Button, Card, Screen, Section } from '@/components/ui';
+import { AppText, Button, Card, LoadingDetail, Screen, Section } from '@/components/ui';
 import { fetchFeed, type FeedPin } from '@/features/pins/api';
 import { fetchProfileCard, type ProfileCard } from '@/features/profiles/api';
 import { useAuth } from '@/lib/auth';
@@ -91,9 +91,7 @@ export default function MyProfile() {
             </View>
           </ProfileView>
         ) : (
-          <AppText tone="subtle" align="center">
-            Loading…
-          </AppText>
+          <LoadingDetail />
         )}
       </Screen>
     </>

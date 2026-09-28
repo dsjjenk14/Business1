@@ -42,7 +42,7 @@ export function Avatar({ name, uri, size = 44, ring }: AvatarProps) {
       {uri ? (
         <Image source={{ uri }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
       ) : (
-        <AppText weight="bold" tone="muted" style={{ fontSize: size * 0.36, lineHeight: size * 0.44 }}>
+        <AppText weight="bold" style={{ fontSize: size * 0.36, lineHeight: size * 0.44 }}>
           {initials}
         </AppText>
       )}

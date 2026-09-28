@@ -23,7 +23,7 @@ for tid in 'OABCD':
     bg=parse(col['bg'])[0]; surf=over(col['surface'],col['bg'])
     checks=[('text','bg',4.5),('textMuted','bg',4.5),('textSubtle','bg',4.5),('textMuted','surface',4.5),('textSubtle','surface',3.0),
             ('onPrimary','primary',4.5),('onTrust','trust',4.5),('onAi','ai',4.5),('onSponsored','sponsored',4.5),('onDanger','danger',4.5),('onSecondary','secondary',4.5),
-            ('primary','bg',3),('trust','bg',3),('ai','bg',3),('tabInactive','tabBar',3),('tabActive','tabBar',3),('sponsored','surface',3)]
+            ('primary','bg',3),('primaryText','bg',4.5),('primaryText','surface',4.5),('primaryText','surfaceAlt',4.5),('trust','bg',3),('ai','bg',3),('tabInactive','tabBar',3),('tabActive','tabBar',3),('sponsored','surface',3)]
     for a,b,need in checks:
         B=bg if b=='bg' else surf if b=='surface' else over(col[b],col['bg'])
         A=over(col[a],col['bg']) if col[a].startswith('rgba') else parse(col[a])[0]

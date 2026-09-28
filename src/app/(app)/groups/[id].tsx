@@ -4,7 +4,8 @@ import { Alert, Platform, Pressable, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Badge, Button, Card, GlyphTile, GlyphTitle, Screen, Section, useToast } from '@/components/ui';
+import { AppText, Badge, Button, Card, EmptyState, GlyphTile, GlyphTitle, LoadingDetail, Screen, Section, useToast } from '@/components/ui';
+import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { fetchGroup, joinGroup, leaveGroup, reviewRequest, type GroupDetail } from '@/features/groups/api';
 import { rsvp } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
@@ -59,7 +60,7 @@ export default function Group() {
 
   function rsvpNext(ev: GroupDetail['next_event']) {
     if (!ev || !me) return;
-    run(() => rsvp(ev.id, me), `You're in: ${ev.title}`);
+    run(() => rsvp(ev.id, me).then(enableArrivalWatch), `You're in: ${ev.title}`);
   }
 
   function confirmLeave() {
@@ -80,9 +81,11 @@ export default function Group() {
       <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
         <BackHeader title="Group" />
         <Screen>
-          <AppText tone={group === undefined ? 'subtle' : 'muted'} align="center">
-            {group === undefined ? 'Loading…' : 'This group isn’t available.'}
-          </AppText>
+          {group === undefined ? (
+            <LoadingDetail />
+          ) : (
+            <EmptyState glyph="people" title="This group isn’t available" body="It may have been removed, or it’s private." />
+          )}
         </Screen>
       </View>
     );

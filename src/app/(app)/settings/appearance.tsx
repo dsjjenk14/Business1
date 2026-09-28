@@ -31,6 +31,7 @@ export default function Appearance() {
               key={id}
               accessibilityRole="radio"
               accessibilityState={{ checked: selected }}
+              aria-checked={selected}
               accessibilityLabel={`${option.name}: ${option.tagline}`}
               onPress={() => choose(id)}
               style={{

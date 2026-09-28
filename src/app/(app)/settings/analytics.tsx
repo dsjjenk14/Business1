@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Button, Card, Screen, Section } from '@/components/ui';
+import { AppText, Button, Card, LoadingList, Screen, Section } from '@/components/ui';
 import { fetchAnalytics, type Analytics } from '@/features/plan/api';
 import { useTheme } from '@/theme';
 
@@ -36,7 +36,7 @@ export default function ProfileAnalytics() {
       <BackHeader title="Profile Analytics" />
       <Screen contentGap={t.space[4]}>
         {!a ? (
-          <AppText tone="subtle">Loading…</AppText>
+          <LoadingList />
         ) : a.locked ? (
           <Card accent="sponsored">
             <AppText weight="bold">A Premium feature</AppText>

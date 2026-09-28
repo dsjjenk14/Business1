@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Avatar, Button, Screen, TextField, useToast } from '@/components/ui';
+import { AppText, Avatar, Button, LoadingList, Screen, TextField, useToast } from '@/components/ui';
 import { requestIntro } from '@/features/circles/api';
 import { fetchProfileCard, type ProfileCard } from '@/features/profiles/api';
 import { goBackOr } from '@/lib/navigation';
@@ -75,6 +75,7 @@ export default function RequestIntro() {
                     key={v.id}
                     accessibilityRole="radio"
                     accessibilityState={{ checked: sel }}
+                    aria-checked={sel}
                     onPress={() => setVia(v.id)}
                     style={{
                       flexDirection: 'row',
@@ -119,9 +120,7 @@ export default function RequestIntro() {
             <Button label="Send request" onPress={send} loading={busy} disabled={!via} />
           </>
         ) : (
-          <AppText tone="subtle" align="center">
-            Loading…
-          </AppText>
+          <LoadingList />
         )}
       </Screen>
     </KeyboardAvoidingView>
