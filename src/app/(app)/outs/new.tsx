@@ -7,17 +7,17 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Switch, TextInpu
 import { CameraCapture } from '@/components/camera/CameraCapture';
 import { PeoplePicker } from '@/components/chat/PeoplePicker';
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Button, EmptyState, useToast } from '@/components/ui';
+import { AppText, Button, Chip, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { fetchChatCandidates, type ChatCandidate } from '@/features/chat/api';
-import { fetchOutEvent, sendOut, type OutEvent } from '@/features/outs/api';
+import { fetchOutEvent, sendOut, type OutAudience, type OutEvent } from '@/features/outs/api';
 import { refreshNewOuts } from '@/features/outs/useNewOuts';
 import { playSound } from '@/features/sounds/sounds';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 
-/** Take an Out: snap, add a caption, send to friends and/or My Out. */
+/** Take an Out anywhere: snap, add a caption, send to friends and/or My Out. Gone in an hour unless pinned. */
 export default function NewOut() {
   const t = useTheme();
   const router = useRouter();
@@ -29,8 +29,11 @@ export default function NewOut() {
   const [people, setPeople] = useState<ChatCandidate[]>([]);
   const [to, setTo] = useState<Set<string>>(new Set());
   const [toStory, setToStory] = useState(false);
+  // Each My Out picks who sees it: 1st degree only (the default) or 1st + 2nd.
+  const [audience, setAudience] = useState<OutAudience>('circle');
   const [busy, setBusy] = useState(false);
-  const [event, setEvent] = useState<OutEvent | null | undefined>(undefined);
+  // At an I'm In event, its name goes on the Out.
+  const [event, setEvent] = useState<OutEvent | null>(null);
 
   useEffect(() => {
     fetchOutEvent()
@@ -46,8 +49,8 @@ export default function NewOut() {
     if (!session || !photo) return;
     setBusy(true);
     try {
-      await sendOut({ userId: session.user.id, uri: photo, caption, to: [...to], toStory });
-      track('out_sent', { to: to.size, story: toStory });
+      await sendOut({ userId: session.user.id, uri: photo, caption, to: [...to], toStory, audience });
+      track('out_sent', { to: to.size, story: toStory, audience: toStory ? audience : null });
       playSound('sent');
       toast(to.size ? `Out sent to ${to.size} ${to.size === 1 ? 'friend' : 'friends'}` : 'Posted to My Out');
       refreshNewOuts();
@@ -57,22 +60,6 @@ export default function NewOut() {
     } finally {
       setBusy(false);
     }
-  }
-
-  if (event === null) {
-    return (
-      <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
-        <BackHeader title="Take an Out" />
-        <View style={{ flex: 1, justifyContent: 'center', padding: t.space[5] }}>
-          <EmptyState
-            glyph="camera"
-            title="Outs open at events"
-            body="You can post Outs when you're at an event on I'm In. Say I'm In to one, and when you get there the app marks you there."
-            action={{ label: 'Find something happening', onPress: () => router.replace('/whats-in') }}
-          />
-        </View>
-      </View>
-    );
   }
 
   if (!photo) {
@@ -122,13 +109,27 @@ export default function NewOut() {
           <View style={{ flex: 1 }}>
             <AppText weight="bold">My Out</AppText>
             <AppText variant="small" tone="muted">
-              Your circle can watch it for 24 hours.
+              {audience === 'circle' ? 'Your circle' : 'Your network'} can watch it for an hour.
             </AppText>
           </View>
-          <Switch value={toStory} onValueChange={setToStory} accessibilityLabel="My Out: your circle can watch it for 24 hours" />
+          <Switch value={toStory} onValueChange={setToStory} accessibilityLabel="My Out: people you choose can watch it for an hour" />
         </Pressable>
+        {toStory ? (
+          <View style={{ gap: t.space[2] }}>
+            <AppText weight="bold">Who sees this My Out?</AppText>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+              <Chip label="My Circle (1st only)" selected={audience === 'circle'} onPress={() => setAudience('circle')} />
+              <Chip label="My Network (1st + 2nd)" selected={audience === 'network'} onPress={() => setAudience('network')} />
+            </View>
+            <AppText variant="caption" tone="muted">
+              {audience === 'circle'
+                ? 'Only people you’re directly connected to. Nobody else.'
+                : 'Your circle, plus the people they know.'}
+            </AppText>
+          </View>
+        ) : null}
         <AppText variant="label" tone="subtle">
-          Friends (they can open it once)
+          Friends in your circle (they can look for an hour)
         </AppText>
         {circle.length ? (
           <PeoplePicker

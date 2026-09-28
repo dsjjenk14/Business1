@@ -23,6 +23,7 @@ export default function AppLayout() {
       <Stack.Screen name="events/new" options={{ presentation: 'modal' }} />
       <Stack.Screen name="groups/new" options={{ presentation: 'modal' }} />
       <Stack.Screen name="pins/new" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="bills/new" options={{ presentation: 'modal' }} />
     </Stack>
   );
 }

@@ -1,12 +1,12 @@
 /**
- * Opening an Out. The database decides if you may (a direct Out opens once;
- * a My Out can be watched again for 24 hours) and marks it opened; this
- * returns a link to the photo that works for one minute. Nobody can read
- * Outs straight from Storage.
+ * Opening an Out. The database decides if you may (for an hour: the people it
+ * was sent to, or its My Out audience; after that, only people who pinned it)
+ * and marks it opened; this returns a link to the photo that works for one
+ * minute. Nobody can read Outs straight from Storage.
  *
- * It also deletes photos that are finished (opened by everyone, or expired).
+ * It also deletes photos that are finished (the hour is up and nobody pinned it).
  *
- * POST { out_id } → { url, caption, sender_name, created_at, event_title }
+ * POST { out_id } → { id, url, caption, sender_name, created_at, expires_at, event_title, pinned, is_mine }
  */
 import { adminRest, corsHeaders, getCaller, json } from '../_shared/http.ts';
 
@@ -58,6 +58,9 @@ Deno.serve(async (req) => {
     sender_id?: string;
     created_at?: string;
     event_title?: string | null;
+    expires_at?: string;
+    pinned?: boolean;
+    is_mine?: boolean;
     error?: string;
   }>(
     'rpc/out_open',
@@ -71,11 +74,15 @@ Deno.serve(async (req) => {
   await cleanUp().catch(() => undefined);
   if (!url) return json({ error: 'Outs aren’t available right now.' }, 502);
   return json({
+    id: outId,
     url,
     caption: data.caption ?? null,
     sender_name: data.sender_name,
     sender_id: data.sender_id,
     created_at: data.created_at,
     event_title: data.event_title ?? null,
+    expires_at: data.expires_at,
+    pinned: !!data.pinned,
+    is_mine: !!data.is_mine,
   });
 });

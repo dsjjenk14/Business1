@@ -27,6 +27,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
     items: [
       { label: 'Make an Intro', icon: 'hand-left-outline', href: '/circles/make-intro' },
       { label: 'Places', icon: 'star-half-outline', href: '/places' },
+      { label: 'Split the bill', icon: 'receipt-outline', href: '/bills' },
       { label: 'Search Members', icon: 'search-outline', href: '/search' },
       { label: 'Check In', icon: 'location-outline', href: '/circles/vouch' },
       { label: 'Vouches you gave', icon: 'ribbon-outline', href: '/settings/vouches' },
