@@ -5,6 +5,10 @@
 
 ---
 
+## ✅ Figtree font, trending events up front
+- **Font:** Figtree (Dominique picked it from 6 options) for the whole app in the Original look.
+- **What's In:** trending events are now the first thing on the What's In page, and the top 3 trending events show right on Home inside the What's In card, with I'm In buttons.
+
 ## ✅ New type, OUT button, 9-second video Outs
 - **Font:** the poster font is gone. The app now uses the phone's own typeface (the one iPhone apps like Instagram and Snapchat use), bold and tight for headlines, plain for reading. No more typewriter-style labels or ALL CAPS.
 - **Less "template":** removed the row of colored badges on the welcome screen, the red bars over tab icons, semi-bold text in every post, and long helper text in Circles.

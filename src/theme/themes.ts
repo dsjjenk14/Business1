@@ -303,8 +303,8 @@ const D: Theme = {
 
 
 /**
- * The house type: the phone's own typeface (SF Pro on iPhone), heavy and tight
- * for headlines like the big social apps, plain and readable for everything else.
+ * The house type: Figtree (Dominique's pick), heavy and tight for headlines,
+ * plain and readable for everything else.
  */
 const guestType: ThemeType = {
   hero: { fontSize: 36, lineHeight: 40, letterSpacing: -0.9 },
@@ -318,12 +318,12 @@ const guestType: ThemeType = {
   number: { fontSize: 30, lineHeight: 34, letterSpacing: -0.6 },
 };
 const guestFonts = {
-  display: 'System800',
-  displayBold: 'System900',
-  body: 'System400',
-  bodyMedium: 'System600',
-  bodyBold: 'System700',
-  mono: 'System600',
+  display: 'Figtree_800ExtraBold',
+  displayBold: 'Figtree_900Black',
+  body: 'Figtree_400Regular',
+  bodyMedium: 'Figtree_600SemiBold',
+  bodyBold: 'Figtree_700Bold',
+  mono: 'Figtree_600SemiBold',
 } as const;
 const guestStyle: Theme['style'] = {
   section: 'poster',

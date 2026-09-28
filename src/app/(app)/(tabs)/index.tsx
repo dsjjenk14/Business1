@@ -15,6 +15,7 @@ import { useFirstWeekChecklist } from '@/features/onboarding/useFirstWeekCheckli
 import { welcomeSeen } from '@/features/onboarding/welcome';
 import type { FeedPin } from '@/features/pins/api';
 import { rsvp } from '@/features/tonight/api';
+import { fetchWhatsIn } from '@/features/trending/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
@@ -38,6 +39,8 @@ export default function Home() {
   const shownChecklist = useRef(false);
 
   const [feed, setFeed] = useState<HomeFeed | null>(null);
+  // What's In: the top trending events, right on Home.
+  const [trending, setTrending] = useState<HomeEvent[]>([]);
   const [morePins, setMorePins] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(false);
@@ -56,8 +59,9 @@ export default function Home() {
   const load = useCallback(async () => {
     if (!me) return;
     try {
-      const next = await fetchHomeFeed(location);
+      const [next, w] = await Promise.all([fetchHomeFeed(location), fetchWhatsIn(location?.lat, location?.lng).catch(() => null)]);
       setFeed(next);
+      if (w) setTrending(w.events.slice(0, 3));
       setError(false);
       cacheHome(me, next);
     } catch {
@@ -123,18 +127,32 @@ export default function Home() {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={t.colors.primary} />}>
       <LiveNowRow />
 
-      <Pressable
-        accessibilityRole="link"
-        accessibilityLabel="What's In: what's trending near you"
-        onPress={() => router.push('/whats-in')}
-        style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3], padding: t.space[4], borderRadius: t.radius.lg, backgroundColor: t.colors.surface, borderLeftWidth: 3, borderColor: t.colors.primary }}>
-        <Ionicons name="flame" size={28} color={t.colors.primaryText} />
-        <View style={{ flex: 1, gap: 2 }}>
-          <AppText variant="h2">What&apos;s In</AppText>
-          <Stamp>Hot spots · events · posts</Stamp>
-        </View>
-        <Ionicons name="chevron-forward" size={20} color={t.colors.textSubtle} />
-      </Pressable>
+      <View style={{ borderRadius: t.radius.lg, backgroundColor: t.colors.surface, borderLeftWidth: 3, borderColor: t.colors.primary, overflow: 'hidden' }}>
+        <Pressable
+          accessibilityRole="link"
+          accessibilityLabel="What's In: trending events, hot spots and posts near you"
+          onPress={() => router.push('/whats-in')}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3], padding: t.space[4] }}>
+          <Ionicons name="flame" size={26} color={t.colors.primaryText} />
+          <View style={{ flex: 1, gap: 2 }}>
+            <AppText variant="h2">What&apos;s In</AppText>
+            <Stamp>Trending events · hot spots · posts</Stamp>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={t.colors.textSubtle} />
+        </Pressable>
+        {trending.length ? (
+          <View style={{ paddingHorizontal: t.space[4], paddingBottom: t.space[3], gap: t.space[2] }}>
+            {trending.map((e) => (
+              <EventRow
+                key={e.id}
+                event={e}
+                subtitle="Trending"
+                onIn={() => onIn(e)}
+              />
+            ))}
+          </View>
+        ) : null}
+      </View>
 
       {/* 1. Your friends' pins */}
       <Section title="Your friends’ pins" action={{ label: 'Post', onPress: () => router.push('/pins/new') }}>
