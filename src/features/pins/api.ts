@@ -2,6 +2,7 @@ import * as Linking from 'expo-linking';
 import { Share } from 'react-native';
 
 import type { GlyphName } from '@/components/ui/Glyph';
+import { attachMusic, type Song } from '@/features/music/api';
 import { supabase } from '@/lib/supabase';
 import type { Database } from '@/types/database';
 
@@ -151,6 +152,8 @@ export async function createPin(input: {
   lat?: number | null;
   lng?: number | null;
   photoUris: string[];
+  /** A song for a photo post (30-second Apple Music preview). */
+  music?: Song | null;
 }): Promise<{ pinId: number; failedPhotos: number }> {
   const location = input.lat != null && input.lng != null ? `SRID=4326;POINT(${input.lng} ${input.lat})` : undefined;
   const { data, error } = await supabase
@@ -161,7 +164,21 @@ export async function createPin(input: {
   if (error) throw error;
 
   const failedPhotos = await uploadPinPhotos(input.userId, data.id, input.photoUris);
+  if (input.music) await attachMusic(data.id, input.music).catch(() => undefined);
   return { pinId: data.id, failedPhotos };
+}
+
+/** Photo bytes from a file/blob URI, or from a data URI (filtered photos). */
+async function readPhoto(uri: string): Promise<{ blob: ArrayBuffer; contentType: string }> {
+  const m = /^data:([^;,]+);base64,(.*)$/.exec(uri);
+  if (m) {
+    const bin = atob(m[2]!);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return { blob: bytes.buffer, contentType: m[1]! };
+  }
+  const response = await fetch(uri);
+  return { blob: await response.arrayBuffer(), contentType: response.headers.get('content-type') ?? 'image/jpeg' };
 }
 
 /** Uploads photos for a pin to <user>/<pin>/<n>.jpg. Returns how many failed. */
@@ -170,9 +187,7 @@ export async function uploadPinPhotos(userId: string, pinId: number, photoUris: 
   const uris = photoUris.slice(0, MAX_PHOTOS);
   for (const [i, uri] of uris.entries()) {
     try {
-      const response = await fetch(uri);
-      const blob = await response.arrayBuffer();
-      const contentType = response.headers.get('content-type') ?? 'image/jpeg';
+      const { blob, contentType } = await readPhoto(uri);
       const ext = contentType.includes('png') ? 'png' : contentType.includes('webp') ? 'webp' : 'jpg';
       const path = `${userId}/${pinId}/${i + 1}.${ext}`;
       const up = await supabase.storage.from('pin-photos').upload(path, blob, { contentType, upsert: true });

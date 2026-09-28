@@ -5,10 +5,11 @@ import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { DateTimeChips, upcomingDays } from '@/components/tonight/DateTimeChips';
 import { VenuePicker, type PlaceChoice } from '@/components/tonight/VenuePicker';
+import { useAppConfig } from '@/config/useAppConfig';
 import { AppText, Button, Chip, type GlyphName, isGlyphName, Screen, TextField, useToast } from '@/components/ui';
 import { createEvent } from '@/features/events/api';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
-import { fetchPayoutStatus, money, parsePrice, setTicketPrice, type PayoutStatus } from '@/features/payments/api';
+import { fetchPayoutStatus, money, parsePrice, setTicketPrice, ticketSplit, type PayoutStatus } from '@/features/payments/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError, supabase } from '@/lib/supabase';
 import { marketDate } from '@/lib/time';
@@ -34,6 +35,7 @@ export default function NewEvent() {
   const t = useTheme();
   const router = useRouter();
   const toast = useToast();
+  const { settings } = useAppConfig();
   const { session } = useAuth();
   const me = session?.user.id;
   const params = useLocalSearchParams<{ group?: string }>();
@@ -160,7 +162,8 @@ export default function NewEvent() {
           <View style={{ gap: t.space[1] }}>
             <TextField label="Ticket price ($)" optional value={price} onChangeText={setPrice} keyboardType="decimal-pad" placeholder="Free" maxLength={7} />
             <AppText variant="caption" tone="subtle">
-              Leave empty for a free event. I&apos;m In keeps 12% of each ticket; Stripe takes its card fee; the rest is yours.
+              Leave empty for a free event. I&apos;m In keeps {ticketSplit(0, settings).feePercent}% of each ticket and Stripe takes its card fee (2.9% + 30¢); the rest is yours.
+              {parsePrice(price) != null ? ` At ${money(parsePrice(price))}, you get about ${money(ticketSplit(parsePrice(price) ?? 0, settings).host)}.` : ''}
             </AppText>
           </View>
         ) : (

@@ -38,7 +38,7 @@ export default function Plan() {
                 ? `Free as Founding Member #${plan.member_number}, until ${plan.premium_until ? fmt(plan.premium_until) : '—'}. After that it's optional.`
                 : plan.source === 'admin'
                   ? `Given by the I'm In team, until ${plan.premium_until ? fmt(plan.premium_until) : '—'}.`
-                  : `Renews ${plan.premium_until ? fmt(plan.premium_until) : '—'}. Manage or cancel in your App Store settings.`}
+                  : `Renews ${plan.premium_until ? fmt(plan.premium_until) : '—'}. Manage or cancel on the Premium screen.`}
             </AppText>
           </Card>
         ) : (
@@ -49,7 +49,7 @@ export default function Plan() {
             </AppText>
           </Card>
         )}
-        <Button label={plan?.is_premium ? 'What Premium includes' : 'See Premium'} variant="secondary" onPress={() => router.push('/premium')} />
+        <Button label={plan?.is_premium ? 'Premium: keep, manage or cancel' : 'Get Premium'} onPress={() => router.push('/premium')} />
         {plan?.is_premium ? <Button label="Profile analytics" variant="secondary" onPress={() => router.push('/settings/analytics')} /> : null}
       </Screen>
     </View>

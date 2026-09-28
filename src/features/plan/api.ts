@@ -1,6 +1,14 @@
 import { supabase } from '@/lib/supabase';
 
-export type MyPlan = { is_premium: boolean; premium_until: string | null; source: string | null; is_founding_member: boolean; member_number: number | null };
+export type MyPlan = {
+  is_premium: boolean;
+  premium_until: string | null;
+  source: string | null;
+  is_founding_member: boolean;
+  member_number: number | null;
+  /** Paying monthly through Stripe (including a trial that bills later). */
+  subscribed?: boolean;
+};
 
 export async function fetchMyPlan() {
   const { data, error } = await supabase.rpc('my_plan');

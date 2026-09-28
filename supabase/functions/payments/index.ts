@@ -67,6 +67,16 @@ Deno.serve(async (req) => {
       case 'premium': {
         const email = await emailOf(caller.id);
         const customer = await customerFor(caller.id, email);
+        const state = await rpc<{ subscribed: boolean; premium_until: string | null }>('stripe_premium_state', { p_user: caller.id });
+        if (state.subscribed) {
+          // Already paying: send them to manage it instead of paying twice.
+          const portal = await stripe<{ url: string }>('/billing_portal/sessions', { customer, return_url: back('premium') });
+          return json({ url: portal.url });
+        }
+        // Free Premium (e.g. Founding Members): billing starts when it runs out.
+        // Stripe needs a trial end at least 2 days away.
+        const freeUntil = state.premium_until ? Math.floor(new Date(state.premium_until).getTime() / 1000) : 0;
+        const trialEnd = freeUntil > Math.floor(Date.now() / 1000) + 2 * 86400 ? freeUntil : undefined;
         const { data: cfg } = await adminRest<{ value: unknown }[]>(`app_config?select=value&key=eq.premium_price_cents`);
         const cents = Number(cfg?.[0]?.value ?? 1499);
         const session = await stripe<{ url: string }>('/checkout/sessions', {
@@ -74,7 +84,7 @@ Deno.serve(async (req) => {
           customer,
           client_reference_id: caller.id,
           line_items: [{ quantity: 1, price_data: { currency: 'usd', unit_amount: cents, recurring: { interval: 'month' }, product_data: { name: 'I’m In Premium' } } }],
-          subscription_data: { metadata: { user_id: caller.id } },
+          subscription_data: { metadata: { user_id: caller.id }, ...(trialEnd ? { trial_end: trialEnd } : {}) },
           metadata: { kind: 'premium', user_id: caller.id },
           allow_promotion_codes: true,
           success_url: back('premium'),

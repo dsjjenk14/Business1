@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 
 import { ActivityRow, EventRow, GroupSuggestion } from '@/components/home/HomeParts';
+import { LiveNowRow } from '@/components/live/LiveNowRow';
 import { PinCard } from '@/components/pins/PinCard';
 import { AppText, Button, Card, EmptyState, LoadingList, Section, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
@@ -119,6 +120,8 @@ export default function Home() {
     <ScrollView
       contentContainerStyle={{ padding: t.space[4], gap: t.space[6], paddingBottom: t.space[8], width: '100%', maxWidth: 640, alignSelf: 'center' }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={t.colors.primary} />}>
+      <LiveNowRow />
+
       {/* 1. Your friends' pins */}
       <Section title="Your friends’ pins" action={{ label: 'Post', onPress: () => router.push('/pins/new') }}>
         {feed.pins.length === 0 ? (

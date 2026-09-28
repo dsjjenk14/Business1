@@ -13,6 +13,8 @@ import { friendlyError } from '@/lib/supabase';
 import { dayTime, timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
 
+import { PinMusic } from '@/components/music/MusicChip';
+
 import { PinPhotos } from './PinPhotos';
 
 export type PinCardProps = {
@@ -153,6 +155,7 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
             <PinPhotos paths={pin.photo_paths} bleed />
           </Pressable>
         ) : null}
+        {hasPhotos ? <PinMusic pinId={pin.id} /> : null}
 
         <Pressable accessibilityRole={linkToThread ? 'link' : 'text'} disabled={!linkToThread} onPress={openThread}>
           <AppText

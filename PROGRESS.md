@@ -5,6 +5,39 @@
 
 ---
 
+## ✅ Venue ratings, photo filters, music on posts, live video (built; live video off until set up)
+**Rate the place after an event**
+- After an event you went to (at a known venue), the event page asks **Rate Bresca**: 1 to 5 stars and an optional note. You can change it later. Ratings stay open for 30 days.
+- **Venue pages** show the average stars and what people said.
+- **Places** (Menu → Places) now opens with **Rate the places you went** and **Top rated near you**, a ranked list. It uses a fair average, so one 5-star rating doesn't beat forty 4.8s. Featured partner spots are below.
+
+**Photo filters**
+- When you add photos to a post, pick a filter for each one: Golden, Cool, Vivid, Fade, Vintage, B&W or Noir. The filter is saved into the photo, so everyone sees it the same way.
+
+**Music on photo posts**
+- **Add music**: search almost any song and attach a 30-second Apple Music preview. The post shows the cover, the song and artist, a play button, and a link to the full song on Apple Music. One song plays at a time. Free, and no account needed.
+
+**Live video (built, switched off)**
+- **Go live** to your circle, your network or everyone. Your circle gets a notification. A **Live now** row at the top of Home shows who's live. Viewers can comment, and Report is on every live video. It ends by itself after 2 hours, and nothing is recorded.
+- To turn it on you need an Apple Developer account (TestFlight) and a LiveKit account (free to start). See `docs/LIVE-VIDEO.md`. The video player itself gets added in that step, because it can't run in Expo Go.
+
+Migration 029, test file 016. **All 339 database tests pass.** Browser-tested:
+- rating a venue, the venue page and the ranking
+- a photo post with the Noir filter (checked that the photo really came out black and white) and a song
+- going live, a friend watching and commenting, and ending it
+
+The accessibility scan is clean on all the new screens.
+
+---
+
+## ✅ Payments follow-up: 8% fee, Buy Tickets, easy to find Premium
+- **Ticket fee is 8%, and the host covers Stripe's card fee.** $25 ticket: the guest pays $25, I'm In keeps $2.00, Stripe's card fee is about $1.03, and the host gets about $21.97. Hosts see the split before they set a price and on their Payouts screen (Total sales, I'm In fee, Card fees, Yours).
+- The button says **Buy Tickets · $25**.
+- **Premium is easy to pay for:** the pay button is now at the top of the Premium screen, and **Settings → Premium** opens it. It was hidden for anyone who already had free Premium. Founding Members now see **Keep Premium**: they add a card and aren't charged until their free months end. Subscribers see **Manage or cancel**, and can't be charged twice.
+- Migration 028. **All 309 database tests pass.** Browser-tested: Buy Tickets, Keep Premium, the host's split and the Settings row.
+
+---
+
 ## ✅ Payments: Premium and ticket sales (built; off until Stripe is connected)
 **Circles stays Circles.** The tester round renamed it to "Friends"; that's undone everywhere (the tab, the menu, posts, I'm In, profiles, search, events). The other tester-round changes stay.
 
@@ -13,7 +46,7 @@
 - Subscribers see **Manage or cancel**, which opens Stripe's page to change the card or cancel.
 - A Founding Member's free months are never shortened by paying.
 
-**Selling tickets (I'm In keeps 12%)**
+**Selling tickets (was 12%; now 8% plus the host covers the card fee, see above)**
 - **Settings → Payouts:** a host connects a payout account through Stripe (name, date of birth, bank account). Then they can sell tickets.
 - **New event** and the **event page:** the host adds a ticket price (up to $500). The host sees "You get $22 per ticket" on a $25 ticket.
 - Guests tap **Get ticket · $25**. Once paid, they're on the list and both sides get a notification. Paid events can't be joined for free.
@@ -63,7 +96,7 @@ Migration 027, test file 015. **All 301 database tests pass.** Also checked:
 
 **Not done (needs your decision):**
 - Shareable **web links** for profiles and events need a website domain (about $12/year) and hosting. Links only open in the app for now.
-- **Video posts**.
+- **Video posts** (not built yet; live video is built).
 - **Premium price** (3 testers said $14.99 is high; it's a pricing choice for you, and one setting: `premium_price_cents`).
 
 Migration 026, test file 014. **All 274 database tests pass.** Browser tests passed for:

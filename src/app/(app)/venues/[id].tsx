@@ -3,9 +3,9 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Card, GlyphTile, GlyphTitle, LoadingDetail, Screen, Section, SponsoredLabel } from '@/components/ui';
+import { AppText, Card, GlyphTile, GlyphTitle, LoadingDetail, Screen, Section, SponsoredLabel, Stars } from '@/components/ui';
 import { fetchVenue, type VenueDetail } from '@/features/tonight/api';
-import { dayTime } from '@/lib/time';
+import { dayTime, timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
 
 /** A venue: what it is, who you know that's been, and what's happening there. */
@@ -41,6 +41,13 @@ export default function Venue() {
               <AppText tone="muted" align="center">
                 {[venue.address, venue.neighborhood].filter(Boolean).join(' · ')}
               </AppText>
+              {venue.rating?.count && venue.rating.avg != null ? (
+                <Stars value={Number(venue.rating.avg)} count={venue.rating.count} />
+              ) : (
+                <AppText variant="small" tone="subtle">
+                  No ratings yet. Go to an event here and rate it.
+                </AppText>
+              )}
               {venue.network_visited > 0 ? (
                 <AppText tone="trust" weight="bold">
                   {venue.network_visited} from your network have met up here
@@ -88,6 +95,25 @@ export default function Venue() {
                 </AppText>
               )}
             </Section>
+
+            {venue.reviews?.length ? (
+              <Section title="What people said">
+                {venue.reviews.map((r, i) => (
+                  <Card key={`${r.name}-${r.at}-${i}`}>
+                    <View style={{ gap: t.space[1] }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <AppText weight="bold">{r.name}</AppText>
+                        <Stars value={r.stars} size={14} />
+                      </View>
+                      <AppText variant="small">{r.note}</AppText>
+                      <AppText variant="caption" tone="subtle">
+                        {timeAgo(r.at)}
+                      </AppText>
+                    </View>
+                  </Card>
+                ))}
+              </Section>
+            ) : null}
 
             {venue.description ? <AppText>{venue.description}</AppText> : null}
             {venue.price_level ? (

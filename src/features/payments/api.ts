@@ -43,7 +43,7 @@ export type PayoutStatus = {
   charges_enabled: boolean;
   payouts_enabled: boolean;
   fee_percent: number;
-  sales: { tickets?: number; gross_cents?: number; fee_cents?: number; host_cents?: number };
+  sales: { tickets?: number; gross_cents?: number; fee_cents?: number; card_fee_cents?: number; host_cents?: number };
 };
 
 export async function fetchPayoutStatus() {
@@ -90,4 +90,19 @@ export async function fetchTicketHolders(eventId: number) {
 /** Host only: refund a ticket in full. The guest is taken off the list and told. */
 export async function refundTicket(ticketId: number) {
   await callPayments<{ refunded: boolean }>({ action: 'refund_ticket', ticket_id: ticketId });
+}
+
+/**
+ * How a ticket price splits: I'm In's fee (platform_fee_percent) and Stripe's
+ * card fee both come out of the host's share. Mirrors the database's math.
+ */
+export function ticketSplit(cents: number, settings: Record<string, unknown>) {
+  const num = (key: string, fallback: number) => {
+    const v = Number(settings[key]);
+    return Number.isFinite(v) ? v : fallback;
+  };
+  const feePercent = num('platform_fee_percent', 8);
+  const fee = Math.round((cents * feePercent) / 100);
+  const card = Math.round((cents * num('card_fee_percent', 2.9)) / 100) + num('card_fee_fixed_cents', 30);
+  return { feePercent, fee, card, host: Math.max(0, cents - fee - card) };
 }

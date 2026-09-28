@@ -10,8 +10,8 @@ import { useTheme } from '@/theme';
 
 /**
  * Payouts: hosts connect a Stripe account to sell tickets. Buyers pay the
- * ticket price; I'm In keeps its fee (12%), and Stripe sends the rest to the
- * host (minus Stripe's card processing fee).
+ * ticket price; I'm In keeps its fee (8%), the host covers Stripe's card fee,
+ * and Stripe sends the rest to the host.
  */
 export default function Payouts() {
   const t = useTheme();
@@ -83,13 +83,14 @@ export default function Payouts() {
                       ['Tickets sold', String(status.sales.tickets)],
                       ['Total sales', money(status.sales.gross_cents)],
                       [`I’m In fee (${fee}%)`, `−${money(status.sales.fee_cents)}`],
+                      ['Card fees (Stripe)', `−${money(status.sales.card_fee_cents ?? 0)}`],
                       ['Yours', money(status.sales.host_cents)],
                     ].map(([label, value], i) => (
                       <View key={label} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <AppText variant="small" weight={i === 3 ? 'bold' : undefined}>
+                        <AppText variant="small" weight={i === 4 ? 'bold' : undefined}>
                           {label}
                         </AppText>
-                        <AppText variant="small" weight={i === 3 ? 'bold' : undefined} tone={i === 3 ? 'trust' : 'text'}>
+                        <AppText variant="small" weight={i === 4 ? 'bold' : undefined} tone={i === 4 ? 'trust' : 'text'}>
                           {value}
                         </AppText>
                       </View>
@@ -101,9 +102,9 @@ export default function Payouts() {
 
             <Section title="How it works">
               <AppText variant="small" tone="muted">
-                People pay by card through Stripe when they tap Get ticket. I&apos;m In keeps {fee}% of each ticket. Stripe takes its card processing
-                fee, and sends the rest to your bank on a regular schedule. Refunds are done from your payouts dashboard; the person is taken off the
-                guest list automatically.
+                People pay by card through Stripe when they tap Buy Tickets. I&apos;m In keeps {fee}% of each ticket, and Stripe&apos;s card fee (2.9% +
+                30¢) comes out of your share. Stripe sends the rest to your bank on a regular schedule. To refund someone, open your event and tap
+                Refund next to their name; they&apos;re taken off the guest list automatically.
               </AppText>
             </Section>
           </>

@@ -506,7 +506,7 @@ function More({ onChange }: { onChange: () => void }) {
 
   return (
     <View style={{ gap: t.space[4] }}>
-      <Section title="Ticket fees (I’m In’s 12%)">
+      <Section title="Ticket fees (what I’m In kept)">
         {revenue.length === 0 ? (
           <AppText tone="muted">No ticket sales yet.</AppText>
         ) : (

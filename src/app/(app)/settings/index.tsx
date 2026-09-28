@@ -24,7 +24,7 @@ export default function Settings() {
       title: 'Account',
       rows: [
         { label: 'Edit profile', icon: 'person-outline', href: '/settings/profile' },
-        { label: 'Your plan', icon: 'star-outline', href: '/settings/plan' },
+        { label: 'Premium', icon: 'star-outline', href: '/premium', detail: 'Get Premium, or manage it' },
         { label: 'My tickets', icon: 'ticket-outline', href: '/settings/tickets' },
         { label: 'Payouts', icon: 'cash-outline', href: '/settings/payouts', detail: 'Sell tickets to your events' },
         { label: 'Verification', icon: 'shield-checkmark-outline', href: '/settings/verification', detail: 'Phone, photo, ID' },

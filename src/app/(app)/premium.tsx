@@ -47,6 +47,21 @@ export default function Premium() {
   const exchanges = lim('messaging_min_exchanges')?.free ?? 5;
   const aiFree = lim('ai_uses')?.free ?? 3;
 
+  // Everyone can pay from here: new members, members on free Premium (billing
+  // starts when the free months end), and subscribers (manage or cancel).
+  const payButton = !plan ? null : plan.subscribed ? (
+    <Button label="Manage or cancel" variant="secondary" onPress={() => pay('manage_premium')} loading={busy} />
+  ) : plan.is_premium && plan.premium_until ? (
+    <View style={{ gap: t.space[1] }}>
+      <Button label={`Keep Premium · ${PREMIUM_PRICE}/month`} onPress={() => pay('premium')} loading={busy} />
+      <AppText variant="caption" tone="subtle" align="center">
+        Add a card now. You won&apos;t be charged until {fmtDate(plan.premium_until)}.
+      </AppText>
+    </View>
+  ) : (
+    <Button label={`Get Premium · ${PREMIUM_PRICE}/month`} onPress={() => pay('premium')} loading={busy} />
+  );
+
   const features: { glyph: GlyphName; title: string; free: string; premium: string }[] = [
     { glyph: 'chat', title: 'Message sooner', free: `${exchanges} back-and-forths before messaging someone in your circle`, premium: 'Message your circle right away (intros still come first for everyone else)' },
     { glyph: 'spark', title: 'AI without limits', free: `${aiFree} AI uses in total`, premium: 'Unlimited icebreakers, tonight picks and more' },
@@ -78,10 +93,14 @@ export default function Premium() {
             <AppText variant="small" tone="muted">
               {plan.source === 'founding'
                 ? `Founding Member #${plan.member_number}: free until ${fmtDate(plan.premium_until)}.`
-                : `Active until ${fmtDate(plan.premium_until)}.`}
+                : plan.subscribed
+                  ? `Renews monthly. Paid through ${fmtDate(plan.premium_until)}.`
+                  : `Active until ${fmtDate(plan.premium_until)}.`}
             </AppText>
           </Card>
         ) : null}
+
+        {payButton}
 
         <View style={{ gap: t.space[3] }}>
           {features.map((f) => (
@@ -135,11 +154,7 @@ export default function Premium() {
           </View>
         </Section>
 
-        {!plan?.is_premium ? (
-          <Button label={`Get Premium · ${PREMIUM_PRICE}/month`} onPress={() => pay('premium')} loading={busy} />
-        ) : plan.source === 'stripe' ? (
-          <Button label="Manage or cancel" variant="secondary" onPress={() => pay('manage_premium')} loading={busy} />
-        ) : null}
+        {payButton}
         <AppText variant="caption" tone="subtle" align="center">
           Premium never skips intros: people outside your circle are always one intro away, on every plan. Payments are handled by Stripe;
           cancel any time from this screen.

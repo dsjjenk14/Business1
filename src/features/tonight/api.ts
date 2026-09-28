@@ -188,6 +188,9 @@ export type VenueDetail = {
   network_visited: number;
   placement: { kind: 'featured' | 'sponsored'; perk: string; perk_details: string; ends_at: string } | null;
   events: { id: number; title: string; emoji: string | null; starts_at: string; host_name: string; going_count: number; capacity: number | null }[];
+  /** From people who went to events here. */
+  rating: { avg: number | null; count: number } | null;
+  reviews: { name: string; stars: number; note: string; at: string }[];
 };
 
 export async function fetchVenue(id: number) {

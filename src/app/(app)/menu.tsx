@@ -26,7 +26,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
     title: 'Discover',
     items: [
       { label: 'Make an Intro', icon: 'hand-left-outline', href: '/circles/make-intro' },
-      { label: 'Featured Places', icon: 'megaphone-outline', href: '/places' },
+      { label: 'Places', icon: 'star-half-outline', href: '/places' },
       { label: 'Search Members', icon: 'search-outline', href: '/search' },
       { label: 'Check In & Vouch', icon: 'ribbon-outline', href: '/circles/vouch' },
       { label: 'Intros', icon: 'people-outline', href: '/circles/intros' },
