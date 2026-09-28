@@ -26,6 +26,7 @@ export function Chip({
       accessibilityState={{ selected: !!selected }}
       accessibilityLabel={accessibilityLabel ?? label}
       onPress={onPress}
+      hitSlop={{ top: 4, bottom: 4 }}
       style={({ pressed }) => ({
         minHeight: 36,
         paddingHorizontal: t.space[3],

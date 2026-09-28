@@ -4,7 +4,7 @@ import { View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Badge, Button, Card, GlyphTile, GlyphTitle, Screen, Section, useToast } from '@/components/ui';
+import { AppText, Badge, Button, Card, EmptyState, GlyphTile, GlyphTitle, LoadingDetail, Screen, Section, useToast } from '@/components/ui';
 import { preciseLocation } from '@/features/circles/api';
 import { checkInOpen, eventCheckIn, eventPhase, fetchEvent, type EventDetail } from '@/features/events/api';
 import { cancelRsvp, rsvp } from '@/features/tonight/api';
@@ -43,9 +43,7 @@ export default function EventScreen() {
       <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
         <BackHeader title="Event" />
         <Screen>
-          <AppText tone="subtle" align="center">
-            Loading…
-          </AppText>
+          <LoadingDetail />
         </Screen>
       </View>
     );
@@ -55,9 +53,7 @@ export default function EventScreen() {
       <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
         <BackHeader title="Event" />
         <Screen>
-          <AppText tone="muted" align="center">
-            This event isn&apos;t available.
-          </AppText>
+          <EmptyState glyph="calendar" title="This event isn’t available" body="It may have been cancelled, or it’s only for a group you’re not in." />
         </Screen>
       </View>
     );

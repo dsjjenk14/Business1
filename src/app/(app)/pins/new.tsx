@@ -110,6 +110,7 @@ export default function NewPin() {
                   key={o.key}
                   accessibilityRole="radio"
                   accessibilityState={{ checked: selected }}
+                  aria-checked={selected}
                   onPress={() => setAudience(o.key)}
                   style={{
                     flexDirection: 'row',

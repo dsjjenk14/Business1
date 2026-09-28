@@ -140,6 +140,7 @@ export default function Vouch() {
                 key={m.encounter_id}
                 accessibilityRole="radio"
                 accessibilityState={{ checked: isSel }}
+                aria-checked={isSel}
                 onPress={() => setSelected(m.encounter_id)}
                 style={{
                   flexDirection: 'row',

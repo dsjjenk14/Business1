@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Button, Card, GlyphTitle, Screen } from '@/components/ui';
+import { AppText, Button, Card, GlyphTitle, LoadingList, Screen } from '@/components/ui';
 import { fetchMyPlan, type MyPlan } from '@/features/plan/api';
 import { useTheme } from '@/theme';
 
@@ -27,7 +27,7 @@ export default function Plan() {
       <BackHeader title="Your Plan" />
       <Screen contentGap={t.space[4]}>
         {!plan ? (
-          <AppText tone="subtle">Loading…</AppText>
+          <LoadingList />
         ) : plan.is_premium ? (
           <Card accent="sponsored">
             <GlyphTitle glyph="star" tone="sponsored">

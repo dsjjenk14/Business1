@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Card, GlyphTile, GlyphTitle, Screen, Section, SponsoredLabel } from '@/components/ui';
+import { AppText, Card, GlyphTile, GlyphTitle, LoadingDetail, Screen, Section, SponsoredLabel } from '@/components/ui';
 import { fetchVenue, type VenueDetail } from '@/features/tonight/api';
 import { dayTime } from '@/lib/time';
 import { useTheme } from '@/theme';
@@ -26,9 +26,7 @@ export default function Venue() {
       <BackHeader title={venue?.name ?? 'Venue'} />
       <Screen contentGap={t.space[5]}>
         {venue === undefined ? (
-          <AppText tone="subtle" align="center">
-            Loading…
-          </AppText>
+          <LoadingDetail />
         ) : !venue ? (
           <AppText tone="muted" align="center">
             This venue isn&apos;t available.

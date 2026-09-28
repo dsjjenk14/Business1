@@ -16,7 +16,7 @@ export type BadgeProps = {
 /** Tier chips, profile badges, founding-member tags. Shape follows theme.style.badge. */
 export function Badge({ label, tone = 'primary', glyph, verified }: BadgeProps) {
   const t = useTheme();
-  const color = tone === 'neutral' ? t.colors.textMuted : t.colors[tone];
+  const color = tone === 'neutral' ? t.colors.textMuted : tone === 'primary' ? t.colors.primaryText : t.colors[tone];
 
   if (t.style.badge === 'credential') {
     return (

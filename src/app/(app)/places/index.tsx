@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Card, GlyphTile, GlyphTitle, Screen, SponsoredLabel } from '@/components/ui';
+import { AppText, Card, GlyphTile, GlyphTitle, LoadingList, Screen, SponsoredLabel } from '@/components/ui';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { fetchFeaturedPlaces, type FeaturedPlace } from '@/features/places/api';
 import { useTheme } from '@/theme';
@@ -31,9 +31,7 @@ export default function FeaturedPlaces() {
       <Screen contentGap={t.space[4]}>
         <AppText tone="muted">Partner spots with perks for I&apos;m In members. Every one is labeled, and partners never see who you are.</AppText>
         {places === null ? (
-          <AppText tone="subtle" align="center">
-            Loading…
-          </AppText>
+          <LoadingList />
         ) : places.length === 0 ? (
           <Card>
             <AppText weight="bold">No featured places yet</AppText>

@@ -4,7 +4,7 @@ import { View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
 import { ProfileView } from '@/components/profile/ProfileView';
-import { AppText, Button, Screen, useToast } from '@/components/ui';
+import { AppText, Button, LoadingDetail, Screen, useToast } from '@/components/ui';
 import { fetchFeed, type FeedPin } from '@/features/pins/api';
 import { fetchProfileCard, type ProfileCard } from '@/features/profiles/api';
 import { blockUser } from '@/features/safety/api';
@@ -167,9 +167,7 @@ export default function PersonProfile() {
             </View>
           </ProfileView>
         ) : (
-          <AppText tone="subtle" align="center">
-            Loading…
-          </AppText>
+          <LoadingDetail />
         )}
       </Screen>
     </>

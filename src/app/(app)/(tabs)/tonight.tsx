@@ -4,7 +4,7 @@ import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 
 import { GroupsList } from '@/components/groups/GroupsList';
 import { EmptyCard, EventCard, GoingOutPersonRow, MyNightOut } from '@/components/tonight/GoingOutList';
-import { AppText, Badge, Button, Card, GlyphTile, IconButton, Section, Segmented, useToast } from '@/components/ui';
+import { AppText, Badge, Button, Card, GlyphTile, IconButton, LoadingList, Section, Segmented, useToast } from '@/components/ui';
 import { fetchGroups, preciseLocation, type GroupsOverview } from '@/features/circles/api';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import {
@@ -189,14 +189,10 @@ export default function Tonight() {
             <GroupsList groups={groups} onChange={setGroups} />
           </>
         ) : (
-          <AppText tone="subtle" align="center">
-            Loading…
-          </AppText>
+          <LoadingList />
         )
       ) : !feed ? (
-        <AppText tone="subtle" align="center">
-          Loading…
-        </AppText>
+        <LoadingList />
       ) : (
         <>
           {mine && !weekend ? (

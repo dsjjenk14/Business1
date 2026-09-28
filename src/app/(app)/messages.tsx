@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Avatar, Card, GlyphTile, Screen, Section } from '@/components/ui';
+import { AppText, Avatar, Card, GlyphTile, LoadingList, Screen, Section } from '@/components/ui';
 import { fetchMyDates, type MyDate } from '@/features/dates/api';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
@@ -102,9 +102,7 @@ export default function Messages() {
         ) : null}
 
         {rows === null ? (
-          <AppText tone="subtle" align="center">
-            Loading…
-          </AppText>
+          <LoadingList />
         ) : (
           <>
             <Section title="Chats">

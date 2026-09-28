@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BackHeader } from '@/components/nav/AppHeader';
 import { PinCard } from '@/components/pins/PinCard';
-import { AppText, Avatar, Button, Card, IconButton, TextField, useToast } from '@/components/ui';
+import { AppText, Avatar, Button, Card, IconButton, LoadingDetail, TextField, useToast } from '@/components/ui';
 import { addReply, deletePin, editPin, fetchFeed, fetchReplies, type FeedPin, type Reply } from '@/features/pins/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
@@ -124,7 +124,7 @@ export default function PinThread() {
             <PinCard pin={pin} linkToThread={false} locationMode="none" onChange={setPin} />
           )
         ) : (
-          <AppText tone="subtle">Loading…</AppText>
+          <LoadingDetail />
         )}
 
         <AppText variant="label" tone="subtle" style={{ marginTop: t.space[2] }}>

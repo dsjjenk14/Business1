@@ -5,7 +5,7 @@ import { Pressable, Share, View } from 'react-native';
 import { PersonRow } from '@/components/circles/PersonRow';
 import { GroupsList } from '@/components/groups/GroupsList';
 import { RingDiagram } from '@/components/circles/RingDiagram';
-import { AppText, Badge, Button, Card, GlyphTile, GlyphTitle, IconButton, Screen, Section, Segmented, useToast } from '@/components/ui';
+import { AppText, Badge, Button, Card, GlyphTile, GlyphTitle, IconButton, LoadingList, Screen, Section, Segmented, useToast } from '@/components/ui';
 import {
   fetchActivity,
   fetchCircle,
@@ -101,9 +101,7 @@ export default function Circles() {
       ) : null}
 
       {!circle || !card ? (
-        <AppText tone="subtle" align="center">
-          Loading…
-        </AppText>
+        <LoadingList />
       ) : tab === 'circle' ? (
         <MyCircle circle={circle} card={card} introsMade={intros?.made_count ?? 0} meName={profile?.display_name ?? 'You'} inviteCode={profile?.invite_code ?? ''} />
       ) : tab === 'network' ? (

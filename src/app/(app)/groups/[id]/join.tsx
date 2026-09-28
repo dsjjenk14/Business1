@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, Platform, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Button, Card, Chip, GlyphTile, Screen, TextField, useToast } from '@/components/ui';
+import { AppText, Button, Card, Chip, GlyphTile, LoadingList, Screen, TextField, useToast } from '@/components/ui';
 import { HOW_FOUND, fetchGroup, requestToJoin, type GroupDetail } from '@/features/groups/api';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
@@ -130,9 +130,7 @@ export default function JoinGroup() {
             <Button label="Cancel" variant="ghost" onPress={() => router.back()} />
           </>
         ) : (
-          <AppText tone="subtle" align="center">
-            Loading…
-          </AppText>
+          <LoadingList />
         )}
       </Screen>
     </KeyboardAvoidingView>

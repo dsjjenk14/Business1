@@ -45,7 +45,7 @@ export function RingDiagram({ me, first, second }: { me: PersonLite; first: Pers
             const { x, y } = place(i, outer.length, r2, Math.PI / 12);
             return (
               <Pressable key={p.id} accessibilityLabel={`${p.display_name}, 2nd degree`} onPress={() => open(p.id)}
-                style={{ position: 'absolute', left: x - 16, top: y - 16, opacity: 0.45 }}>
+                style={{ position: 'absolute', left: x - 16, top: y - 16, opacity: 0.7 }}>
                 <Avatar name={p.display_name} uri={p.avatar_url} size={32} />
               </Pressable>
             );

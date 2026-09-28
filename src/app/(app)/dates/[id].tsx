@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Avatar, Button, Card, GlyphTile, GlyphTitle, Screen, useToast, type GlyphName } from '@/components/ui';
+import { AppText, Avatar, Button, Card, EmptyState, GlyphTile, GlyphTitle, LoadingDetail, Screen, useToast, type GlyphName } from '@/components/ui';
 import { openDirectChat } from '@/features/chat/api';
 import { cancelDateRequest, dateVibe, fetchDate, respondDateRequest, type DateDetail } from '@/features/dates/api';
 import { friendlyError } from '@/lib/supabase';
@@ -60,9 +60,11 @@ export default function DateScreen() {
       <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
         <BackHeader title="Date Request" />
         <Screen>
-          <AppText tone={d === undefined ? 'subtle' : 'muted'} align="center">
-            {d === undefined ? 'Loading…' : 'This date request isn’t available.'}
-          </AppText>
+          {d === undefined ? (
+            <LoadingDetail />
+          ) : (
+            <EmptyState glyph="heart" title="This date request isn’t available" body="It may have been cancelled." />
+          )}
         </Screen>
       </View>
     );

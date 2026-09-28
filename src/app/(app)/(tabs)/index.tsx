@@ -8,7 +8,7 @@ import { GoingOutStrip } from '@/components/home/GoingOutStrip';
 import { TonightPickCard } from '@/components/home/TonightPickCard';
 import { VouchCard } from '@/components/home/VouchCard';
 import { PinCard } from '@/components/pins/PinCard';
-import { AppText, Card, Screen, Section, useToast } from '@/components/ui';
+import { AppText, Card, LoadingList, Screen, Section, useToast } from '@/components/ui';
 import { useFirstWeekChecklist } from '@/features/onboarding/useFirstWeekChecklist';
 import { fetchDateMode, fetchMyDates, type DateModeStatus, type MyDate } from '@/features/dates/api';
 import { fetchFeedPlacement, type FeedPlacement } from '@/features/places/api';
@@ -116,7 +116,9 @@ export default function Home() {
       <VouchCard vouchCount={profile?.vouch_count ?? 0} onPress={() => router.push('/profile')} />
 
       <Section title="From your network" action={{ label: 'See all', onPress: () => router.push('/pins') }}>
-        {networkPins === null ? null : networkPins.length === 0 ? (
+        {networkPins === null ? (
+          <LoadingList rows={2} />
+        ) : networkPins.length === 0 ? (
           <Card>
             <AppText variant="small" tone="muted">
               When people in your circle and network drop pins, the latest show up here.
