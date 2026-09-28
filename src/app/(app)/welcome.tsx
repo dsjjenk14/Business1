@@ -29,7 +29,7 @@ const SLIDES: { glyph: GlyphName; title: string; body: string }[] = [
   {
     glyph: 'moon',
     title: 'I’m In',
-    body: 'Tap I’m In on an event or a night out so your circle knows you’re going. You always choose who sees it.',
+    body: 'When someone invites you to an event or a night out, tap I’m In to say you’re down. Make your own plans and see who’s in. You always choose who sees them.',
   },
 ];
 

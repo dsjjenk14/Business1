@@ -127,7 +127,7 @@ export default function Tonight() {
         ? act(() => setHereAudience(mine.post_id, a), a === 'network' ? 'Your network can see when you’re there' : 'Only your circle can see when you’re there')
         : undefined;
   const onJoin = (p: FeedPerson, status: 'heading' | null) =>
-    act(() => joinGoingOut(p.post_id, status), status ? `${p.display_name.split(' ')[0]} knows you’re joining` : 'Cancelled');
+    act(() => joinGoingOut(p.post_id, status), status ? `${p.display_name.split(' ')[0]} knows you’re in` : 'Cancelled');
 
   return (
     <ScrollView
@@ -137,8 +137,9 @@ export default function Tonight() {
         <AppText variant="h1" accessibilityRole="header" style={{ flex: 1 }}>
           Tonight
         </AppText>
+        <IconButton icon="sparkles-outline" label="Tonight for You, an AI pick" onPress={() => router.push('/tonight/for-you')} />
         <IconButton icon="map-outline" label="Map of who's out" onPress={() => router.push({ pathname: '/tonight/map', params: { when: weekend ? 'weekend' : 'tonight' } })} />
-        <Button label="I'm In" size="md" onPress={() => router.push({ pathname: '/tonight/post', params: { when: weekend ? 'weekend' : 'tonight' } })} />
+        <Button label="Make plans" size="md" onPress={() => router.push({ pathname: '/tonight/post', params: { when: weekend ? 'weekend' : 'tonight' } })} />
       </View>
 
       <RadiusControl
@@ -199,14 +200,14 @@ export default function Tonight() {
             ) : (
               <AppText variant="small" tone="muted">
                 {weekend
-                  ? `Nobody within ${feed.radius_mi} mi has posted weekend plans yet. Be the first.`
-                  : `Nobody within ${feed.radius_mi} mi has said they're going out tonight yet. Be the first.`}
+                  ? `Nobody within ${feed.radius_mi} mi has made weekend plans yet. Make some and see who’s in.`
+                  : `Nobody within ${feed.radius_mi} mi has made plans tonight yet. Make some and see who’s in.`}
               </AppText>
             )}
           </Section>
           {!mine ? (
             <Button
-              label={weekend ? "I'm in this weekend" : "I'm in tonight"}
+              label={weekend ? 'Make weekend plans' : 'Make plans tonight'}
               variant="secondary"
               onPress={() => router.push({ pathname: '/tonight/post', params: { when: weekend ? 'weekend' : 'tonight' } })}
             />

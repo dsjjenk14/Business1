@@ -16,6 +16,7 @@ import { welcomeSeen } from '@/features/onboarding/welcome';
 import type { FeedPin } from '@/features/pins/api';
 import { rsvp } from '@/features/tonight/api';
 import { fetchWhatsIn } from '@/features/trending/api';
+import { PeopleLikeYou } from '@/components/ai/PeopleLikeYou';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
@@ -183,6 +184,8 @@ export default function Home() {
           </View>
         )}
       </Section>
+
+      <PeopleLikeYou limit={3} compact />
 
       {/* New members: something to do until friends arrive. */}
       {feed.everyone_pins?.length ? (

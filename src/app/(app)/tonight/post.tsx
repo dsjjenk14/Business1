@@ -197,7 +197,7 @@ export default function PostGoingOut() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <BackHeader title="I'm In" />
+      <BackHeader title="Make plans" />
       <Screen contentGap={t.space[5]}>
         {existing.length ? (
           <View style={{ gap: t.space[2] }}>
@@ -291,7 +291,7 @@ export default function PostGoingOut() {
           <View style={{ flex: 1 }}>
             <AppText weight="bold">Let people I know join me</AppText>
             <AppText variant="caption" tone="muted">
-              Your circle and network can tap Join so you know they&apos;re coming.
+              Your circle and network can tap I&apos;m In so you know they&apos;re coming.
             </AppText>
           </View>
           <Switch
@@ -357,7 +357,10 @@ export default function PostGoingOut() {
         ) : null}
 
         <TextField label="Say something" optional value={note} onChangeText={setNote} maxLength={200} placeholder="Flying solo, come find me." />
-        <Button label={when === 'tonight' ? "I'm In Tonight" : 'Post my plans'} onPress={submit} loading={busy} disabled={!canPost} />
+        <Button label={when === 'tonight' ? 'Post my plan for tonight' : 'Post my plans'} onPress={submit} loading={busy} disabled={!canPost} />
+        <AppText variant="small" tone="muted" align="center">
+          The people you chose see your plan and tap I&apos;m In to join you.
+        </AppText>
         <AppText variant="caption" tone="subtle">
           Your location is shared approximately, never exactly. When you get there, your phone marks you there, and only the people you chose above see it. Tonight posts end at 4 AM on their own. Hide your venue any time in Privacy
           settings.

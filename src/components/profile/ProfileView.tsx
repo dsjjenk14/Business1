@@ -5,6 +5,7 @@ import { Pressable, Share, View } from 'react-native';
 
 import { PinCard } from '@/components/pins/PinCard';
 import { PhotoGrid } from '@/components/profile/PhotoGrid';
+import { AIRead } from '@/components/ai/ProfileAI';
 import { AppText, Avatar, Badge, Button, Card, GlyphTile, isGlyphName, Section, Segmented, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { tierProgress, useAppConfig } from '@/config/useAppConfig';
@@ -168,6 +169,18 @@ export function ProfileView({
         ) : null}
         <Button label="Share profile" size="md" variant="secondary" style={{ flex: 1 }} onPress={shareProfile} />
       </View>
+
+      {card.interests?.length ? (
+        <Section title="Into">
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+            {card.interests.map((i) => (
+              <Badge key={i.key} label={i.label} tone="neutral" />
+            ))}
+          </View>
+        </Section>
+      ) : null}
+
+      <AIRead key={card.id} userId={card.id} firstName={card.display_name.split(' ')[0] ?? ''} initial={card.ai_read} />
 
       {card.bio ? (
         <Section title="About">

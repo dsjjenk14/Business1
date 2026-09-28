@@ -32,7 +32,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
       { label: 'Check In', icon: 'location-outline', href: '/circles/vouch' },
       { label: 'Vouches you gave', icon: 'ribbon-outline', href: '/settings/vouches' },
       { label: 'Intros', icon: 'people-outline', href: '/circles/intros' },
-      { label: 'Tonight for You', icon: 'sparkles-outline', soon: 7, ai: true },
+      { label: 'Tonight for You', icon: 'sparkles-outline', href: '/tonight/for-you', ai: true },
     ],
   },
   {

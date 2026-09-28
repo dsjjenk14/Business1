@@ -2,6 +2,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 
+import { IntroOddsPanel } from '@/components/ai/IntroOddsPanel';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Avatar, Button, Card, GlyphTitle, Screen, TextField, useToast } from '@/components/ui';
 import { fetchCircle, makeIntro, type CircleOverview } from '@/features/circles/api';
@@ -14,7 +15,7 @@ type Option = { id: string; display_name: string; avatar_emoji: string | null; a
 /**
  * Make an Intro: pick two people you know and say why they should meet.
  * Both have to accept. You're credited as the connector.
- * (The ✦ AI success prediction joins this screen in Phase 7.)
+ * Once both are picked, the odds they actually meet up show live.
  */
 export default function MakeIntro() {
   const t = useTheme();
@@ -114,6 +115,7 @@ export default function MakeIntro() {
         </Card>
         {picker('First person · your circle', fromRequest ? all.filter((o) => o.id === a) : first, a, setA, b)}
         {picker('Second person', fromRequest ? all.filter((o) => o.id === b) : all, b, setB, a)}
+        {a && b ? <IntroOddsPanel a={a} b={b} /> : null}
         <TextField
           label="Why they should meet"
           value={message}

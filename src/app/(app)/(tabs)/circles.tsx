@@ -2,6 +2,7 @@ import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, Share, View } from 'react-native';
 
+import { PeopleLikeYou } from '@/components/ai/PeopleLikeYou';
 import { PersonRow } from '@/components/circles/PersonRow';
 import { GroupEventsSection } from '@/components/groups/GroupEventsSection';
 import { GroupsList } from '@/components/groups/GroupsList';
@@ -232,7 +233,6 @@ function MyCircle({ circle, card, introsMade, meName, inviteCode }: { circle: Ci
 
 function Network({ circle, activity }: { circle: CircleOverview; activity: Activity[] }) {
   const router = useRouter();
-  const suggestions = circle.second.filter((p) => !p.requested).slice(0, 3);
 
   const activityText = (a: Activity) => {
     if (a.kind === 'vouch') return `${a.actor_name} vouched for ${a.subject_name}${a.detail ? ` · ${a.detail}` : ''}`;
@@ -245,31 +245,14 @@ function Network({ circle, activity }: { circle: CircleOverview; activity: Activ
   return (
     <>
       <Card>
-        <GlyphTitle glyph="globe" tone="ai">Your extended network</GlyphTitle>
+        <GlyphTitle glyph="globe">Your extended network</GlyphTitle>
         <AppText variant="small" tone="muted">
           These are the people one intro away from you. You can&apos;t message them directly: ask the friend you share for an intro. Once
           they both say yes, you can message right away.
         </AppText>
       </Card>
 
-      {suggestions.length ? (
-        <Section title="People you might click with">
-          <AppText variant="caption" tone="subtle">
-            Based on the friends and groups you share.
-          </AppText>
-          {suggestions.map((p) => (
-            <PersonRow
-              key={p.id}
-              id={p.id}
-              name={p.display_name}
-              avatarUrl={p.avatar_url}
-              vouches={p.vouch_count}
-              detail={`${p.via.length} mutual${p.via.length === 1 ? '' : 's'}${p.shared_groups ? ` · ${p.shared_groups} shared group${p.shared_groups === 1 ? '' : 's'}` : ''}`}
-              right={<Button label="Intro" size="md" onPress={() => requestIntro(p.id)} />}
-            />
-          ))}
-        </Section>
-      ) : null}
+      <PeopleLikeYou />
 
       <Section title="Network activity">
         {activity.length === 0 ? (

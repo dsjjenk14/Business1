@@ -69,6 +69,15 @@ jobs:
           else
             echo "LiveKit secrets not set: live video stays off."
           fi
+      - name: AI key (only if the Anthropic secret is set)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            npx supabase secrets set ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" --project-ref "${{ secrets.SUPABASE_PROJECT_ID || 'yscrfhaedexogvegbvzm' }}"
+          else
+            echo "Anthropic secret not set: AI features show 'coming soon'."
+          fi
       - name: Deploy Edge Functions
         run: npx supabase functions deploy --project-ref "${{ secrets.SUPABASE_PROJECT_ID || 'yscrfhaedexogvegbvzm' }}"
       - name: Mark database as production (blocks demo data)

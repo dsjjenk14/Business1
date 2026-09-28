@@ -450,3 +450,6 @@ verify_jwt = false
 
 [functions.open-out]
 verify_jwt = false
+
+[functions.ai]
+verify_jwt = false
