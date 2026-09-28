@@ -9,10 +9,10 @@ const TABS: Record<string, { label: string; icon: IconName; iconActive: IconName
   index: { label: 'Home', icon: 'home-outline', iconActive: 'home' },
   pins: { label: 'Pins', icon: 'pin-outline', iconActive: 'pin' },
   tonight: { label: 'Tonight', icon: 'moon-outline', iconActive: 'moon' },
-  circles: { label: 'Friends', icon: 'people-circle-outline', iconActive: 'people-circle' },
+  circles: { label: 'Circles', icon: 'people-circle-outline', iconActive: 'people-circle' },
 };
 
-/** The tab bar: Home, Pins, Tonight, Friends. */
+/** The tab bar: Home, Pins, Tonight, Circles. */
 export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
   const t = useTheme();
 

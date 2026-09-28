@@ -5,7 +5,7 @@ import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Screen, TextField } from '@/components/ui';
 import { searchMembers, type SearchResult } from '@/features/circles/api';
 
-/** Search members by name. Your friends and friends of friends come first. */
+/** Search members by name. Your circle and network come first. */
 export default function Search() {
   const [q, setQ] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -37,7 +37,7 @@ export default function Search() {
             name={r.display_name}
             avatarUrl={r.avatar_url}
             vouches={r.vouch_count}
-            detail={r.degree === 1 ? 'Friend' : r.degree === 2 ? `Friend of a friend${r.via_name ? ` · via ${r.via_name}` : ''}` : r.headline}
+            detail={r.degree === 1 ? '1st degree' : r.degree === 2 ? `2nd degree${r.via_name ? ` · via ${r.via_name}` : ''}` : r.headline}
           />
         ))}
         {q.trim().length >= 2 && shown.length === 0 ? (

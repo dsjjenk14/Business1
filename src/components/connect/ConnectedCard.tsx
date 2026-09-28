@@ -20,7 +20,7 @@ export function ConnectedCard({ result }: { result: ConnectResult }) {
         <AppText variant="small" tone="muted" align="center">
           {result.kind === 'qr'
             ? `You met in person, so you can vouch for each other now.`
-            : `${first} is now your friend. You can message each other.`}
+            : `${first} is in your circle. You can message each other.`}
         </AppText>
         <View style={{ flexDirection: 'row', gap: t.space[2], alignSelf: 'stretch' }}>
           <Button label="View profile" size="md" variant="secondary" style={{ flex: 1 }} onPress={() => router.push({ pathname: '/people/[id]', params: { id: result.user.id } })} />

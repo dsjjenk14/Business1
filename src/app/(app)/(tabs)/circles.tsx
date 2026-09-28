@@ -24,7 +24,7 @@ import { useTheme } from '@/theme';
 
 type Tab = 'circle' | 'network' | 'groups';
 
-/** Friends: your friends, friends of friends (one intro away), and Groups. */
+/** Circles: My Circle, Network (one intro away), and Groups. */
 export default function Circles() {
   const t = useTheme();
   const router = useRouter();
@@ -52,7 +52,7 @@ export default function Circles() {
 
   useFocusEffect(
     useCallback(() => {
-      load().catch(() => toast("Couldn't load your friends. Try again."));
+      load().catch(() => toast("Couldn't load your circle. Try again."));
     }, [load, toast]),
   );
 
@@ -62,7 +62,7 @@ export default function Circles() {
     <Screen>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <AppText variant="h1" accessibilityRole="header" style={{ flex: 1 }}>
-          Friends
+          Circles
         </AppText>
         <IconButton icon="search-outline" label="Search members" onPress={() => router.push('/search')} />
         <IconButton icon="person-add-outline" label="Add someone" onPress={() => router.push('/connect')} />
@@ -70,8 +70,8 @@ export default function Circles() {
 
       <Segmented<Tab>
         options={[
-          { key: 'circle', label: 'Friends' },
-          { key: 'network', label: 'Friends of friends' },
+          { key: 'circle', label: 'My Circle' },
+          { key: 'network', label: 'Network' },
           { key: 'groups', label: 'Groups' },
         ]}
         value={tab}
@@ -125,7 +125,7 @@ function MyCircle({ circle, card, introsMade, meName, inviteCode }: { circle: Ci
     <>
       <Card accent="primary">
         <View style={{ gap: t.space[2] }}>
-          <GlyphTitle glyph="plus">{circle.first.length === 0 ? 'Add your first friends' : 'Add someone'}</GlyphTitle>
+          <GlyphTitle glyph="plus">{circle.first.length === 0 ? 'Start your circle' : 'Add someone'}</GlyphTitle>
           <AppText variant="small" tone="muted">
             Together right now? Scan each other&apos;s code. Know each other already? Send them a code to type in. Not on I&apos;m In yet? Send your
             invite code, and you&apos;re connected when they join.
@@ -150,8 +150,8 @@ function MyCircle({ circle, card, introsMade, meName, inviteCode }: { circle: Ci
 
       <View style={{ flexDirection: 'row', gap: t.space[3] }}>
         {[
-          { n: circle.first.length, label: 'Friends', tone: 'primary' as const },
-          { n: circle.second.length, label: 'Friends of friends', tone: 'ai' as const },
+          { n: circle.first.length, label: '1st degree', tone: 'primary' as const },
+          { n: circle.second.length, label: '2nd degree', tone: 'ai' as const },
           { n: circle.vouch_count, label: 'Vouches', tone: 'trust' as const },
         ].map((s) => (
           <Card key={s.label} style={{ flex: 1, alignItems: 'center', paddingVertical: t.space[3] }}>
@@ -200,7 +200,7 @@ function MyCircle({ circle, card, introsMade, meName, inviteCode }: { circle: Ci
         )}
       </Section>
 
-      <Section title={`Your friends (${circle.first.length})`}>
+      <Section title={`Your circle · 1st degree (${circle.first.length})`}>
         {circle.first.map((p) => (
           <PersonRow
             key={p.id}
@@ -271,10 +271,10 @@ function Network({ circle, activity }: { circle: CircleOverview; activity: Activ
         </Section>
       ) : null}
 
-      <Section title="What your friends are up to">
+      <Section title="Network activity">
         {activity.length === 0 ? (
           <AppText variant="small" tone="muted">
-            Quiet so far. When your friends vouch, connect, or go out, it shows here.
+            Quiet so far. When your circle vouches, connects, or goes out, it shows here.
           </AppText>
         ) : (
           activity.slice(0, 8).map((a, i) => (
@@ -289,7 +289,7 @@ function Network({ circle, activity }: { circle: CircleOverview; activity: Activ
         )}
       </Section>
 
-      <Section title={`Friends of friends (${circle.second.length}) · one intro away`}>
+      <Section title={`All 2nd degree (${circle.second.length}) · one intro away`}>
         {circle.second.map((p) => (
           <PersonRow
             key={p.id}

@@ -11,7 +11,7 @@ import { useAuth } from '@/lib/auth';
 import { friendlyError, supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 
-/** Create a group: name, category, description, how people join, and founding members from your friends. */
+/** Create a group: name, category, description, how people join, and founding members from your circle. */
 export default function NewGroup() {
   const t = useTheme();
   const router = useRouter();
@@ -102,7 +102,7 @@ export default function NewGroup() {
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <BackHeader title="Create a Group" />
       <Screen contentGap={t.space[5]}>
-        <AppText tone="muted">Groups give your people a home base. Every member is a real, verified person: no anonymous joiners.</AppText>
+        <AppText tone="muted">Groups give your network a home base. Every member is a real, verified person: no anonymous joiners.</AppText>
 
         {phoneVerified === false ? (
           <Card accent="primary">

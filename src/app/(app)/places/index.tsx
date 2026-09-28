@@ -63,7 +63,7 @@ export default function FeaturedPlaces() {
                 </GlyphTitle>
                 {p.network_visited ? (
                   <AppText variant="caption" tone="trust">
-                    {p.network_visited} from your friends of friends have met up here
+                    {p.network_visited} from your network have met up here
                   </AppText>
                 ) : null}
               </View>

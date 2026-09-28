@@ -1,15 +1,16 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { Alert, Platform, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Badge, Button, Card, EmptyState, GlyphTile, GlyphTitle, LoadingDetail, Screen, Section, useToast } from '@/components/ui';
+import { AppText, Badge, Button, Card, EmptyState, GlyphTile, GlyphTitle, LoadingDetail, Screen, Section, TextField, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { preciseLocation } from '@/features/circles/api';
 import { shareEvent } from '@/features/home/api';
 import { checkInOpen, eventCheckIn, eventPhase, fetchEvent, joinWaitlist, leaveWaitlist, type EventDetail } from '@/features/events/api';
+import { fetchTicketHolders, money, openPayment, parsePrice, refundTicket, setTicketPrice, type TicketHolder } from '@/features/payments/api';
 import { cancelRsvp, rsvp } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
@@ -23,7 +24,7 @@ export default function EventScreen() {
   const toast = useToast();
   const { session } = useAuth();
   const me = session?.user.id;
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, paid } = useLocalSearchParams<{ id: string; paid?: string }>();
   const [event, setEvent] = useState<EventDetail | null | undefined>(undefined);
   const [busy, setBusy] = useState(false);
   const [sharing, setSharing] = useState(false);
@@ -41,6 +42,14 @@ export default function EventScreen() {
       load();
     }, [load]),
   );
+
+  // Back from paying: the ticket appears once Stripe confirms (a few seconds).
+  useEffect(() => {
+    if (paid !== '1') return;
+    toast('Payment received. Your ticket shows here in a moment.');
+    const timer = setTimeout(load, 3000);
+    return () => clearTimeout(timer);
+  }, [paid, load, toast]);
 
   if (event === undefined) {
     return (
@@ -87,6 +96,22 @@ export default function EventScreen() {
     }
   }
 
+  async function buyTicket() {
+    if (!event) return;
+    setBusy(true);
+    try {
+      track('ticket_checkout_opened');
+      await openPayment('ticket', event.id);
+      await load();
+      // Stripe confirms the payment a moment later.
+      setTimeout(load, 4000);
+    } catch (e) {
+      toast(e instanceof Error ? e.message : 'Payments aren’t available right now.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function waitlist(join: boolean) {
     if (!event) return;
     setBusy(true);
@@ -112,7 +137,7 @@ export default function EventScreen() {
     setSharing(true);
     try {
       await shareEvent(event.id);
-      toast('Shared with your friends');
+      toast('Shared with your circle');
       track('event_shared', { from: 'event' });
     } catch (e) {
       toast(friendlyError(e));
@@ -192,9 +217,21 @@ export default function EventScreen() {
 
         {phase !== 'ended' ? (
           event.is_host ? (
-            <AppText variant="small" tone="muted" align="center">
-              You&apos;re hosting.
-            </AppText>
+            <HostTickets event={event} onChange={load} />
+          ) : event.ticket_price_cents != null && !event.i_am_going && spotsLeft !== 0 ? (
+            <View style={{ gap: t.space[2] }}>
+              <Button label={`Get ticket · ${money(event.ticket_price_cents)}`} onPress={buyTicket} loading={busy} />
+              <AppText variant="caption" tone="subtle" align="center">
+                Paid securely by card through Stripe.
+              </AppText>
+            </View>
+          ) : event.has_ticket ? (
+            <View style={{ gap: t.space[1], alignItems: 'center' }}>
+              <Badge label="You have a ticket" glyph="check" tone="trust" />
+              <AppText variant="caption" tone="subtle" align="center">
+                Need a refund? Message the host.
+              </AppText>
+            </View>
           ) : (
             !event.i_am_going && spotsLeft === 0 ? (
               <View style={{ gap: t.space[2] }}>
@@ -228,7 +265,7 @@ export default function EventScreen() {
           )
         ) : null}
 
-        {phase !== 'ended' ? <Button label="Share with my friends" variant="secondary" size="md" onPress={share} loading={sharing} /> : null}
+        {phase !== 'ended' ? <Button label="Share to my circle" variant="secondary" size="md" onPress={share} loading={sharing} /> : null}
 
         {canCheckIn && event.i_am_here ? (
           <Card accent="trust">
@@ -291,11 +328,155 @@ export default function EventScreen() {
               name={p.id === me ? 'You' : p.display_name}
               avatarUrl={p.avatar_url}
               ring={p.degree === 1 ? 'trust' : p.degree === 2 ? 'ai' : null}
-              detail={p.degree === 1 ? 'Your friends' : p.degree === 2 ? 'Friends of friends' : null}
+              detail={p.degree === 1 ? 'Your circle' : p.degree === 2 ? 'Your network' : null}
             />
           ))}
         </Section>
       </Screen>
     </View>
+  );
+}
+
+/** Host view: sell tickets (price, sales), or set up payouts first. */
+/** Host: who has tickets, with a full refund for each. */
+function TicketHolders({ eventId, version, onChange }: { eventId: number; version: number; onChange: () => void }) {
+  const t = useTheme();
+  const toast = useToast();
+  const [holders, setHolders] = useState<TicketHolder[]>([]);
+  const [busyId, setBusyId] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetchTicketHolders(eventId)
+      .then(setHolders)
+      .catch(() => undefined);
+  }, [eventId, version]);
+
+  async function refund(h: TicketHolder) {
+    setBusyId(h.ticket_id);
+    try {
+      await refundTicket(h.ticket_id);
+      toast(`Refunded ${h.display_name}`);
+      setHolders((list) => list.map((x) => (x.ticket_id === h.ticket_id ? { ...x, status: 'refunded' } : x)));
+      onChange();
+    } catch (e) {
+      toast(e instanceof Error ? e.message : 'Couldn’t refund right now.');
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  function confirmRefund(h: TicketHolder) {
+    const title = `Refund ${h.display_name}?`;
+    const body = `They get ${money(h.amount_cents)} back and come off the list. This can’t be undone.`;
+    if (Platform.OS === 'web') {
+      if (window.confirm(`${title} ${body}`)) refund(h);
+      return;
+    }
+    Alert.alert(title, body, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Refund', style: 'destructive', onPress: () => refund(h) },
+    ]);
+  }
+
+  if (!holders.length) return null;
+  return (
+    <View style={{ gap: t.space[1], marginTop: t.space[1] }}>
+      <AppText variant="caption" tone="subtle" weight="bold">
+        TICKET HOLDERS
+      </AppText>
+      {holders.map((h) => (
+        <View key={h.ticket_id} style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[2], minHeight: 44 }}>
+          <AppText style={{ flex: 1 }} numberOfLines={1}>
+            {h.display_name}
+          </AppText>
+          {h.status === 'paid' ? (
+            <Button
+              label="Refund"
+              size="md"
+              variant="ghost"
+              accessibilityLabel={`Refund ${h.display_name}`}
+              loading={busyId === h.ticket_id}
+              onPress={() => confirmRefund(h)}
+            />
+          ) : (
+            <AppText variant="small" tone="subtle">
+              Refunded
+            </AppText>
+          )}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function HostTickets({ event, onChange }: { event: EventDetail; onChange: () => void }) {
+  const t = useTheme();
+  const router = useRouter();
+  const toast = useToast();
+  const [price, setPrice] = useState(event.ticket_price_cents != null ? String(event.ticket_price_cents / 100) : '');
+  const [editing, setEditing] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const sold = event.tickets_sold ?? 0;
+
+  async function save(cents: number | null) {
+    setBusy(true);
+    try {
+      await setTicketPrice(event.id, cents);
+      toast(cents == null ? 'This event is free now' : `Tickets are ${money(cents)}`);
+      setEditing(false);
+      onChange();
+    } catch (e) {
+      toast(friendlyError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (event.ticket_price_cents != null && !editing) {
+    return (
+      <Card>
+        <View style={{ gap: t.space[2] }}>
+          <AppText weight="bold">
+            Tickets: {money(event.ticket_price_cents)} · {sold} sold
+          </AppText>
+          <AppText variant="small" tone="muted">
+            You get {money(Math.round(event.ticket_price_cents * 0.88))} per ticket (I&apos;m In keeps 12%), minus Stripe&apos;s card fee.
+          </AppText>
+          {sold === 0 ? (
+            <View style={{ flexDirection: 'row', gap: t.space[2] }}>
+              <Button label="Change price" size="md" variant="secondary" style={{ flex: 1 }} onPress={() => setEditing(true)} />
+              <Button label="Make it free" size="md" variant="ghost" onPress={() => save(null)} loading={busy} />
+            </View>
+          ) : null}
+          <TicketHolders eventId={event.id} version={sold} onChange={onChange} />
+        </View>
+      </Card>
+    );
+  }
+
+  if (!event.host_can_sell) {
+    return (
+      <Card>
+        <View style={{ gap: t.space[2] }}>
+          <AppText variant="small" tone="muted">
+            You&apos;re hosting. Want to sell tickets? Set up payouts first so you can get paid.
+          </AppText>
+          <Button label="Set up payouts" size="md" variant="secondary" onPress={() => router.push('/settings/payouts')} />
+        </View>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <View style={{ gap: t.space[2] }}>
+        <AppText weight="bold">Sell tickets</AppText>
+        <TextField label="Ticket price ($)" value={price} onChangeText={setPrice} keyboardType="decimal-pad" placeholder="25" maxLength={7} />
+        <AppText variant="caption" tone="subtle">
+          I&apos;m In keeps 12% of each ticket. Stripe takes its card fee. The rest goes to you.
+        </AppText>
+        <Button label="Save price" size="md" onPress={() => save(parsePrice(price))} loading={busy} disabled={parsePrice(price) == null} />
+      </View>
+    </Card>
   );
 }

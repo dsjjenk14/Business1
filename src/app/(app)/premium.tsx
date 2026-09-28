@@ -5,7 +5,9 @@ import { View } from 'react-native';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Button, Card, GlyphTile, Screen, Section, useToast, type GlyphName } from '@/components/ui';
 import { useAppConfig } from '@/config/useAppConfig';
-import { PREMIUM_PRICE, PURCHASES_AVAILABLE, fetchMyPlan, type MyPlan } from '@/features/plan/api';
+import { track } from '@/features/analytics/track';
+import { openPayment } from '@/features/payments/api';
+import { PREMIUM_PRICE, fetchMyPlan, type MyPlan } from '@/features/plan/api';
 import { useTheme } from '@/theme';
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
@@ -16,24 +18,40 @@ export default function Premium() {
   const toast = useToast();
   const { planLimits } = useAppConfig();
   const [plan, setPlan] = useState<MyPlan | null>(null);
+  const [busy, setBusy] = useState(false);
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchMyPlan()
-        .then(setPlan)
-        .catch(() => undefined);
-    }, []),
-  );
+  const refresh = useCallback(() => {
+    fetchMyPlan()
+      .then(setPlan)
+      .catch(() => undefined);
+  }, []);
+
+  async function pay(action: 'premium' | 'manage_premium') {
+    setBusy(true);
+    try {
+      if (action === 'premium') track('premium_checkout_opened');
+      await openPayment(action);
+      refresh();
+      // The payment is confirmed by Stripe a moment later; check again shortly.
+      setTimeout(refresh, 4000);
+    } catch (e) {
+      toast(e instanceof Error ? e.message : 'Payments aren’t available right now.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  useFocusEffect(refresh);
 
   const lim = (key: string) => planLimits[key];
   const exchanges = lim('messaging_min_exchanges')?.free ?? 5;
   const aiFree = lim('ai_uses')?.free ?? 3;
 
   const features: { glyph: GlyphName; title: string; free: string; premium: string }[] = [
-    { glyph: 'chat', title: 'Message sooner', free: `${exchanges} back-and-forths before messaging a friend`, premium: 'Message your friends right away (intros still come first for everyone else)' },
+    { glyph: 'chat', title: 'Message sooner', free: `${exchanges} back-and-forths before messaging someone in your circle`, premium: 'Message your circle right away (intros still come first for everyone else)' },
     { glyph: 'spark', title: 'AI without limits', free: `${aiFree} AI uses in total`, premium: 'Unlimited icebreakers, tonight picks and more' },
     { glyph: 'flame', title: 'Priority on Tonight', free: 'Standard placement', premium: 'Your plans show near the top of Tonight' },
-    { glyph: 'clock', title: 'Profile analytics', free: 'Not included', premium: 'Views, who they are (friends / friends of friends / others), and activity' },
+    { glyph: 'clock', title: 'Profile analytics', free: 'Not included', premium: 'Views, who they are (circle / network / others), and activity' },
     { glyph: 'star', title: 'Premium badge', free: 'Not included', premium: 'A Premium badge on your profile' },
   ];
 
@@ -118,20 +136,13 @@ export default function Premium() {
         </Section>
 
         {!plan?.is_premium ? (
-          <Button
-            label="Start Free Trial"
-            onPress={() =>
-              toast(
-                PURCHASES_AVAILABLE
-                  ? 'Opening the App Store…'
-                  : 'Subscriptions open with the App Store version of I’m In. Founding Members already have Premium free.',
-              )
-            }
-          />
+          <Button label={`Get Premium · ${PREMIUM_PRICE}/month`} onPress={() => pay('premium')} loading={busy} />
+        ) : plan.source === 'stripe' ? (
+          <Button label="Manage or cancel" variant="secondary" onPress={() => pay('manage_premium')} loading={busy} />
         ) : null}
         <AppText variant="caption" tone="subtle" align="center">
-          Premium never skips intros: people who aren&apos;t your friends are always one intro away, on every plan. Cancel any time in your App Store
-          settings.
+          Premium never skips intros: people outside your circle are always one intro away, on every plan. Payments are handled by Stripe;
+          cancel any time from this screen.
         </AppText>
       </Screen>
     </View>

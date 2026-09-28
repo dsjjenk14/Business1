@@ -18,6 +18,12 @@ export type EventDetail = {
   i_am_going: boolean;
   /** The phone's GPS showed you at the event (marked automatically). */
   i_am_here: boolean;
+  ticket_price_cents: number | null;
+  has_ticket: boolean;
+  /** Host only. */
+  tickets_sold: number | null;
+  /** Host only: payouts are set up, so a ticket price can be added. */
+  host_can_sell: boolean | null;
   on_waitlist: boolean;
   waitlist_position: number | null;
   waitlist_count: number;

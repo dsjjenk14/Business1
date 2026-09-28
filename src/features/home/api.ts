@@ -28,6 +28,7 @@ export type HomeEvent = {
   host_name: string;
   host_avatar: string | null;
   capacity: number | null;
+  ticket_price_cents: number | null;
   going_count: number;
   friends_going: number;
   i_am_going: boolean;

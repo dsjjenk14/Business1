@@ -75,7 +75,7 @@ export type FeedPerson = {
   here_since: string | null;
   /** Your own post only: when "Here now" lapses unless you tap "Still here". */
   live_until: string | null;
-  /** Your own post only: who sees that you're there ("circle" = friends, "network" = friends of friends, "custom" = people you picked). */
+  /** Your own post only: who sees that you're there ("circle" = 1st degree, "network" = 1st + 2nd, "custom" = people you picked). */
   here_audience: 'circle' | 'network' | 'custom' | null;
   open_to_join: boolean;
   heading_count: number;

@@ -43,7 +43,7 @@ export default function Venue() {
               </AppText>
               {venue.network_visited > 0 ? (
                 <AppText tone="trust" weight="bold">
-                  {venue.network_visited} people you know have met up here
+                  {venue.network_visited} from your network have met up here
                 </AppText>
               ) : null}
             </View>

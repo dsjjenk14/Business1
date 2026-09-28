@@ -108,7 +108,7 @@ export default function JoinGroup() {
                   People you know in this group
                 </AppText>
                 {known.map((m) => (
-                  <PersonRow key={m.id} id={m.id} name={m.display_name} avatarUrl={m.avatar_url} vouches={m.vouch_count} ring="trust" detail="Friend" />
+                  <PersonRow key={m.id} id={m.id} name={m.display_name} avatarUrl={m.avatar_url} vouches={m.vouch_count} ring="trust" detail="1st degree" />
                 ))}
               </View>
             ) : null}

@@ -14,7 +14,7 @@ const OPTIONS: { key: Key; label: string; detail: string }[] = [
   { key: 'show_going_out_venue', label: 'Show where I’m going', detail: 'Show the venue when you go out (otherwise just “going out”)' },
   { key: 'show_vouch_count', label: 'Show my vouch count', detail: 'Others see how many vouches you have' },
   { key: 'allow_intro_requests', label: 'Allow intro requests', detail: 'Let people one intro away ask a mutual friend to introduce you' },
-  { key: 'discoverable', label: 'Show me in search', detail: 'People who aren’t your friends can find you by name' },
+  { key: 'discoverable', label: 'Show me in search', detail: 'People outside your circle can find you by name' },
 ];
 
 /** Privacy switches (saved instantly). */

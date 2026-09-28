@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Platform, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
 import { DateTimeChips, upcomingDays } from '@/components/tonight/DateTimeChips';
@@ -8,6 +8,7 @@ import { VenuePicker, type PlaceChoice } from '@/components/tonight/VenuePicker'
 import { AppText, Button, Chip, type GlyphName, isGlyphName, Screen, TextField, useToast } from '@/components/ui';
 import { createEvent } from '@/features/events/api';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
+import { fetchPayoutStatus, money, parsePrice, setTicketPrice, type PayoutStatus } from '@/features/payments/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError, supabase } from '@/lib/supabase';
 import { marketDate } from '@/lib/time';
@@ -45,6 +46,14 @@ export default function NewEvent() {
   const [duration, setDuration] = useState(3);
   const [place, setPlace] = useState<PlaceChoice>({ venueId: null, text: '' });
   const [capacity, setCapacity] = useState<number | null>(null);
+  const [price, setPrice] = useState('');
+  const [payouts, setPayouts] = useState<PayoutStatus | null>(null);
+
+  useEffect(() => {
+    fetchPayoutStatus()
+      .then(setPayouts)
+      .catch(() => undefined);
+  }, []);
   const [description, setDescription] = useState('');
   const [groups, setGroups] = useState<{ id: number; name: string; emoji: string }[]>([]);
   const [groupId, setGroupId] = useState<number | null>(params.group ? Number(params.group) : null);
@@ -82,7 +91,15 @@ export default function NewEvent() {
         lat: location?.lat,
         lng: location?.lng,
       });
-      toast(groupId ? 'Event posted. Your group has been told.' : 'Event posted 🎉');
+      const cents = payouts?.charges_enabled ? parsePrice(price) : null;
+      if (cents != null) {
+        try {
+          await setTicketPrice(id, cents);
+        } catch (e) {
+          toast(friendlyError(e));
+        }
+      }
+      toast(groupId ? 'Event posted. Your group has been told.' : cents != null ? `Event posted. Tickets are ${money(cents)}.` : 'Event posted');
       router.replace({ pathname: '/events/[id]', params: { id: String(id) } });
     } catch (e) {
       toast(friendlyError(e));
@@ -139,6 +156,21 @@ export default function NewEvent() {
           </View>
         </View>
 
+        {payouts?.charges_enabled ? (
+          <View style={{ gap: t.space[1] }}>
+            <TextField label="Ticket price ($)" optional value={price} onChangeText={setPrice} keyboardType="decimal-pad" placeholder="Free" maxLength={7} />
+            <AppText variant="caption" tone="subtle">
+              Leave empty for a free event. I&apos;m In keeps 12% of each ticket; Stripe takes its card fee; the rest is yours.
+            </AppText>
+          </View>
+        ) : (
+          <Pressable accessibilityRole="link" onPress={() => router.push('/settings/payouts')}>
+            <AppText variant="small" tone="primary" weight="bold">
+              Want to sell tickets? Set up payouts →
+            </AppText>
+          </Pressable>
+        )}
+
         {groups.length ? (
           <View style={{ gap: t.space[2] }}>
             <AppText variant="small" weight="medium" tone="muted">
@@ -157,7 +189,7 @@ export default function NewEvent() {
 
         <Button label="Post Event" onPress={submit} loading={busy} disabled={!ready} />
         <AppText variant="caption" tone="subtle">
-          Your friends and friends of friends see it first; people nearby see it on Tonight. You&apos;re automatically going.
+          Your circle and network see it first; people nearby see it on Tonight. You&apos;re automatically going.
         </AppText>
       </Screen>
     </KeyboardAvoidingView>

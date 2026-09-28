@@ -17,7 +17,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
       { label: 'Home', icon: 'home-outline', href: '/' },
       { label: 'Pins', icon: 'pin-outline', href: '/pins' },
       { label: 'Tonight', icon: 'moon-outline', href: '/tonight' },
-      { label: 'Friends', icon: 'people-circle-outline', href: '/circles' },
+      { label: 'Circles', icon: 'people-circle-outline', href: '/circles' },
       { label: 'Messages', icon: 'chatbubble-ellipses-outline', href: '/messages' },
       { label: 'Notifications', icon: 'notifications-outline', href: '/notifications' },
     ],

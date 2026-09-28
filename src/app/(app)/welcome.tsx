@@ -19,17 +19,17 @@ const SLIDES: { glyph: GlyphName; title: string; body: string }[] = [
   {
     glyph: 'pin',
     title: 'Pins',
-    body: 'Pins are posts: a thought, a question, photos, or plans. Friends like and reply. Home shows your friends’ pins.',
+    body: 'Pins are posts: a thought, a question, photos, or plans. People like and reply. Home shows your friends’ pins.',
   },
   {
     glyph: 'people',
-    title: 'Friends and vouches',
-    body: 'Add friends by scanning each other’s code, or sending a code. When you meet up in person, you can vouch for each other. Vouches only come from real meetups.',
+    title: 'Your circle and vouches',
+    body: 'Your circle is people you actually know. Add them by scanning each other’s code, or sending a code. When you meet up in person, you can vouch for each other.',
   },
   {
     glyph: 'moon',
     title: 'I’m In',
-    body: 'Tap I’m In on an event or a night out so your friends know you’re going. You always choose who sees it.',
+    body: 'Tap I’m In on an event or a night out so your circle knows you’re going. You always choose who sees it.',
   },
 ];
 

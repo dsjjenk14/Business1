@@ -88,3 +88,7 @@ export async function setInquiryStatus(id: number, status: string) {
 export type UsageRow = { name: string; people_7d: number; events_7d: number; people_30d: number; events_30d: number };
 /** How many people used each feature in the last 7 and 30 days. */
 export const fetchUsage = async () => unwrap<UsageRow[]>(await supabase.rpc('admin_usage'));
+
+export type RevenueRow = { month: string; tickets: number; gross_cents: number; fee_cents: number };
+/** Ticket sales and I'm In's fees, by month (last 12). */
+export const fetchRevenue = async () => unwrap<RevenueRow[]>(await supabase.rpc('admin_revenue'));

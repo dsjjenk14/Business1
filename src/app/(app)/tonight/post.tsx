@@ -273,7 +273,7 @@ export default function PostGoingOut() {
           <View style={{ flex: 1 }}>
             <AppText weight="bold">Let people I know join me</AppText>
             <AppText variant="caption" tone="muted">
-              Your friends and friends of friends can tap Join so you know they&apos;re coming.
+              Your circle and network can tap Join so you know they&apos;re coming.
             </AppText>
           </View>
           <Switch
@@ -288,25 +288,25 @@ export default function PostGoingOut() {
           <View style={{ gap: t.space[2] }}>
             <AppText weight="bold">When you get there, who sees it?</AppText>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
-              <Chip label="Friends" selected={audience === 'circle'} onPress={() => setAudience('circle')} />
-              <Chip label="Friends of friends" selected={audience === 'network'} onPress={() => setAudience('network')} />
+              <Chip label="My Circle" selected={audience === 'circle'} onPress={() => setAudience('circle')} />
+              <Chip label="My Network" selected={audience === 'network'} onPress={() => setAudience('network')} />
               <Chip label="Only these people" selected={audience === 'custom'} onPress={chooseCustom} />
             </View>
             <AppText variant="caption" tone="muted">
               {audience === 'circle'
-                ? 'Only your friends see that you’re there. Nobody else.'
+                ? 'Only your circle sees that you’re there. Nobody else.'
                 : audience === 'network'
-                  ? 'Your friends and their friends see that you’re there.'
+                  ? 'Your circle and network see that you’re there.'
                   : viewers.size
                     ? `Only ${viewers.size} ${viewers.size === 1 ? 'person' : 'people'} you picked see that you’re there.`
-                    : 'Pick the friends who can see that you’re there.'}
+                    : 'Pick the people in your circle who can see that you’re there.'}
             </AppText>
             {audience === 'custom' && friends ? (
               friends.length ? (
                 <PeoplePicker people={friends} selected={viewers} onToggle={toggleViewer} />
               ) : (
                 <AppText variant="small" tone="muted">
-                  You don&apos;t have friends on I&apos;m In yet.
+                  Your circle is empty so far.
                 </AppText>
               )
             ) : null}

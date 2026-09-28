@@ -276,7 +276,8 @@ function EventStrip({ pin, onChange }: { pin: FeedPin; onChange?: (pin: FeedPin)
       track('event_im_in', { from: 'post' });
       enableArrivalWatch();
     } catch (e) {
-      toast(friendlyError(e));
+      if (/ticketed/i.test(friendlyError(e))) router.push({ pathname: '/events/[id]', params: { id: String(pin.event_id) } });
+      else toast(friendlyError(e));
     } finally {
       setBusy(false);
     }

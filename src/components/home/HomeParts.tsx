@@ -5,6 +5,7 @@ import { AppText, Avatar, Badge, Button, GlyphTile, useToast } from '@/component
 import { track } from '@/features/analytics/track';
 import { joinGroup } from '@/features/groups/api';
 import type { HomeActivity, HomeEvent, SuggestedGroup } from '@/features/home/api';
+import { money } from '@/features/payments/api';
 import { friendlyError } from '@/lib/supabase';
 import { dayTime, timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
@@ -74,6 +75,13 @@ export function EventRow({ event, subtitle, onIn }: { event: HomeEvent; subtitle
       </Pressable>
       {event.i_am_going ? (
         <Badge label="You're in" glyph="check" tone="trust" />
+      ) : event.ticket_price_cents != null ? (
+        <Button
+          label={money(event.ticket_price_cents)}
+          size="md"
+          onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(event.id) } })}
+          accessibilityLabel={`Get a ticket for ${event.title}, ${money(event.ticket_price_cents)}`}
+        />
       ) : event.capacity != null && event.going_count >= event.capacity ? (
         <Button label="Waitlist" size="md" variant="secondary" onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(event.id) } })} />
       ) : (

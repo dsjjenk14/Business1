@@ -129,7 +129,7 @@ export default function Pins() {
         <Card>
           <GlyphTitle glyph="globe" tone="ai">They&apos;re In: the whole community</GlyphTitle>
           <AppText variant="small" tone="muted">
-            Pins from everyone on I&apos;m In, not limited by distance. See what&apos;s happening across the community.
+            Pins from everyone on I&apos;m In, not limited by distance. See what&apos;s happening across the network.
           </AppText>
         </Card>
       )}

@@ -41,8 +41,8 @@ export const FILTERS: { key: PinCategory | 'all'; label: string; glyph?: GlyphNa
 
 export const AUDIENCE_OPTIONS: { key: PinAudience; label: string; detail: string }[] = [
   { key: 'everyone', label: 'Everyone', detail: 'Anyone on I’m In' },
-  { key: 'network', label: 'Friends of friends', detail: 'Your friends and their friends' },
-  { key: 'circle', label: 'Friends', detail: 'Only your friends' },
+  { key: 'network', label: 'My Network', detail: 'Your 1st and 2nd degree' },
+  { key: 'circle', label: 'My Circle', detail: '1st degree only' },
 ];
 
 export async function fetchFeed(args: {

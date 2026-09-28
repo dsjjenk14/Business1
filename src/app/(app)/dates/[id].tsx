@@ -94,7 +94,7 @@ export default function DateScreen() {
           <View style={{ flex: 1 }}>
             <AppText weight="bold">{d.other.display_name}</AppText>
             <AppText variant="caption" tone="muted">
-              {[`${d.other.vouch_count} vouches`, d.other.degree === 1 ? 'Friend' : d.other.via ? `via ${d.other.via}` : null].filter(Boolean).join(' · ')}
+              {[`${d.other.vouch_count} vouches`, d.other.degree === 1 ? '1st degree' : d.other.via ? `via ${d.other.via}` : null].filter(Boolean).join(' · ')}
             </AppText>
           </View>
         </View>

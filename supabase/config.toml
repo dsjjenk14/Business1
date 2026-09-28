@@ -432,3 +432,9 @@ verify_jwt = false
 
 [functions.revenuecat-webhook]
 verify_jwt = false
+
+[functions.payments]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false

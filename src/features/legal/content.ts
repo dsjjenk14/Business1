@@ -34,7 +34,11 @@ export const TERMS: LegalDoc = {
     },
     {
       heading: 'Premium',
-      body: 'Premium is an optional subscription billed through the App Store. Prices, free trials and renewals are shown before you subscribe. You can cancel any time in your App Store settings.',
+      body: 'Premium is an optional monthly subscription paid by card through Stripe. The price is shown before you pay, and it renews each month until you cancel. You can cancel any time in Premium → Manage or cancel.',
+    },
+    {
+      heading: 'Tickets',
+      body: 'Hosts can sell tickets to their events. Payments are handled by Stripe. I’m In keeps a 12% fee from each ticket and the rest goes to the host. Refunds are up to the host. If an event fills up before your payment goes through, you are refunded in full.',
     },
     {
       heading: 'Ending your account',
@@ -77,7 +81,7 @@ export const PRIVACY: LegalDoc = {
     },
     {
       heading: 'Who we share with',
-      body: 'We don’t sell your personal information. We use service providers to run the app, bound to protect your data: hosting and database (Supabase), text messages (Twilio), app delivery and notifications (Expo), subscriptions (Apple and RevenueCat), and AI processing (Anthropic). We share information if the law requires it or to protect someone’s safety.',
+      body: 'We don’t sell your personal information. We use service providers to run the app, bound to protect your data: hosting and database (Supabase), text messages (Twilio), app delivery and notifications (Expo), payments (Stripe; we never see or store your full card number), and AI processing (Anthropic). We share information if the law requires it or to protect someone’s safety.',
     },
     {
       heading: 'Keeping and deleting your data',

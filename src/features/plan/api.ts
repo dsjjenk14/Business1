@@ -38,11 +38,5 @@ export function recordProfileView(userId: string) {
   );
 }
 
-/** Premium price and trial copy (App Store pricing is set in App Store Connect). */
+/** Premium's monthly price (the charge itself is set by config.premium_price_cents on the server). */
 export const PREMIUM_PRICE = '$14.99';
-
-/**
- * Buying Premium in the app needs RevenueCat + an App Store build. Until
- * that's connected, this is false and the Premium screen says so honestly.
- */
-export const PURCHASES_AVAILABLE = false;

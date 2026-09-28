@@ -87,7 +87,7 @@ export function GoingOutPersonRow({
 
 /**
  * Your night out. When your GPS shows you at the place, the app marks you
- * there and the people you choose (your friends, or friends of friends) see
+ * there and the people you choose (your circle, or your network) see
  * "There now". It stays on while you're there and turns off after a few hours.
  */
 export function MyNightOut({
@@ -152,8 +152,8 @@ export function MyNightOut({
             {live ? 'Who sees you’re there' : 'When you get there, who sees it'}
           </AppText>
           <View style={{ flexDirection: 'row', gap: t.space[2] }}>
-            <Chip label="Friends" selected={audience === 'circle'} onPress={() => onAudience('circle')} />
-            <Chip label="Friends of friends" selected={audience === 'network'} onPress={() => onAudience('network')} />
+            <Chip label="My Circle" selected={audience === 'circle'} onPress={() => onAudience('circle')} />
+            <Chip label="My Network" selected={audience === 'network'} onPress={() => onAudience('network')} />
             <Chip label="Only these people" selected={audience === 'custom'} onPress={() => onAudience('custom')} />
           </View>
           <AppText variant="caption" tone="subtle">
@@ -198,7 +198,7 @@ export function EventCard({ event, weekend, onRsvp }: { event: FeedEvent; weeken
             </AppText>
             {event.network_going > 0 ? (
               <AppText variant="caption" tone="trust">
-                {event.network_going} people you know going
+                {event.network_going} from your network going
               </AppText>
             ) : null}
           </View>

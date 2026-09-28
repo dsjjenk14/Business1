@@ -385,6 +385,31 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"event_tickets": {
+                  Row: {
+                    "amount_cents": number,"created_at": string,"event_id": number,"fee_cents": number,"id": number,"status": string,"stripe_payment_intent": string | null,"stripe_session_id": string,"user_id": string
+                  }
+                  Insert: {
+                    "amount_cents": number,"created_at"?: string,"event_id": number,"fee_cents": number,"id"?: number,"status"?: string,"stripe_payment_intent"?: string | null,"stripe_session_id": string,"user_id": string
+                  }
+                  Update: {
+                    "amount_cents"?: number,"created_at"?: string,"event_id"?: number,"fee_cents"?: number,"id"?: number,"status"?: string,"stripe_payment_intent"?: string | null,"stripe_session_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "event_tickets_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "event_tickets_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"event_waitlist": {
                   Row: {
                     "created_at": string,"event_id": number,"user_id": string
@@ -412,13 +437,13 @@ isOneToOne: false
                   ]
                 },"events": {
                   Row: {
-                    "approx_location": unknown,"capacity": number | null,"created_at": string,"description": string,"emoji": string | null,"ends_at": string | null,"group_id": number | null,"host_id": string,"id": number,"is_recurring": boolean,"place_text": string | null,"starts_at": string,"title": string,"venue_id": number | null
+                    "approx_location": unknown,"capacity": number | null,"created_at": string,"description": string,"emoji": string | null,"ends_at": string | null,"group_id": number | null,"host_id": string,"id": number,"is_recurring": boolean,"place_text": string | null,"starts_at": string,"ticket_price_cents": number | null,"title": string,"venue_id": number | null
                   }
                   Insert: {
-                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"group_id"?: number | null,"host_id": string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"starts_at": string,"title": string,"venue_id"?: number | null
+                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"group_id"?: number | null,"host_id": string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"starts_at": string,"ticket_price_cents"?: number | null,"title": string,"venue_id"?: number | null
                   }
                   Update: {
-                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"group_id"?: number | null,"host_id"?: string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"starts_at"?: string,"title"?: string,"venue_id"?: number | null
+                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"group_id"?: number | null,"host_id"?: string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"starts_at"?: string,"ticket_price_cents"?: number | null,"title"?: string,"venue_id"?: number | null
                   }
                   Relationships: [
                     {
@@ -867,6 +892,44 @@ isOneToOne: false
       foreignKeyName: "partner_inquiries_submitted_by_fkey"
       columns: ["submitted_by"]
 isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"payment_customers": {
+                  Row: {
+                    "stripe_customer_id": string,"user_id": string
+                  }
+                  Insert: {
+                    "stripe_customer_id": string,"user_id": string
+                  }
+                  Update: {
+                    "stripe_customer_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payment_customers_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"payout_accounts": {
+                  Row: {
+                    "charges_enabled": boolean,"payouts_enabled": boolean,"stripe_account_id": string,"updated_at": string,"user_id": string
+                  }
+                  Insert: {
+                    "charges_enabled"?: boolean,"payouts_enabled"?: boolean,"stripe_account_id": string,"updated_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "charges_enabled"?: boolean,"payouts_enabled"?: boolean,"stripe_account_id"?: string,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payout_accounts_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
       referencedRelation: "profiles"
       referencedColumns: ["id"]
     }
@@ -1489,6 +1552,11 @@ isOneToOne: false
               "about": string,"admin_notes": string,"content": string,"created_at": string,"details": string,"hidden": boolean,"id": number,"message_id": number,"pin_id": number,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number,"reported_id": string,"reported_name": string,"reporter_name": string,"reports_on_target": number,"status": Database["public"]['Enums']["report_status"]
             }[]
                            },
+"admin_revenue":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "fee_cents": number,"gross_cents": number,"month": string,"tickets": number
+            }[]
+                           },
 "admin_review_verification":
 { Args: { "p_approve": boolean,"p_note"?: string,"p_request": number }; Returns: undefined
                            },
@@ -1593,6 +1661,11 @@ isOneToOne: false
 "event_detail":
 { Args: { "p_event": number }; Returns: Json
                            },
+"event_ticket_holders":
+{ Args: { "p_event": number }; Returns: {
+              "amount_cents": number,"bought_at": string,"display_name": string,"status": string,"ticket_id": number,"user_id": string
+            }[]
+                           },
 "featured_places":
 { Args: { "p_lat"?: number,"p_lng"?: number }; Returns: {
               "category": string,"distance_mi": number,"ends_at": string,"glyph": string,"kind": string,"name": string,"neighborhood": string,"network_visited": number,"perk": string,"perk_details": string,"placement_id": number,"price_level": number,"venue_id": number
@@ -1695,6 +1768,9 @@ isOneToOne: false
 "my_intros":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"my_payout_status":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "my_plan":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
@@ -1706,6 +1782,11 @@ isOneToOne: false
 "my_reports":
 { Args: Record<PropertyKey, never>; Returns: {
               "about": string,"created_at": string,"id": number,"reason": Database["public"]['Enums']["report_reason"],"reported_name": string,"status": Database["public"]['Enums']["report_status"]
+            }[]
+                           },
+"my_tickets":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "amount_cents": number,"bought_at": string,"event_id": number,"place": string,"starts_at": string,"status": string,"ticket_id": number,"title": string
             }[]
                            },
 "my_verification":
@@ -1833,6 +1914,9 @@ isOneToOne: false
 "set_open_to_join":
 { Args: { "p_open": boolean,"p_post": number }; Returns: undefined
                            },
+"set_ticket_price":
+{ Args: { "p_cents": number,"p_event": number }; Returns: undefined
+                           },
 "share_event":
 { Args: { "p_audience"?: Database["public"]['Enums']["pin_audience"],"p_event": number,"p_note"?: string }; Returns: number
                            },
@@ -1853,6 +1937,33 @@ isOneToOne: false
                            },
 "start_date_mode":
 { Args: { "p_accuracy_m"?: number,"p_lat": number,"p_lng": number,"p_partner": string }; Returns: number
+                           },
+"stripe_account_updated":
+{ Args: { "p_account": string,"p_charges": boolean,"p_payouts": boolean }; Returns: undefined
+                           },
+"stripe_checkout_check":
+{ Args: { "p_event": number,"p_user": string }; Returns: Json
+                           },
+"stripe_payout_account_set":
+{ Args: { "p_account": string,"p_user": string }; Returns: undefined
+                           },
+"stripe_premium_ended":
+{ Args: { "p_user": string }; Returns: undefined
+                           },
+"stripe_premium_paid":
+{ Args: { "p_until": string,"p_user": string }; Returns: string
+                           },
+"stripe_refund_check":
+{ Args: { "p_host": string,"p_ticket": number }; Returns: Json
+                           },
+"stripe_set_customer":
+{ Args: { "p_customer": string,"p_user": string }; Returns: undefined
+                           },
+"stripe_ticket_paid":
+{ Args: { "p_amount": number,"p_event": number,"p_fee": number,"p_payment_intent": string,"p_session": string,"p_user": string }; Returns: string
+                           },
+"stripe_ticket_refunded":
+{ Args: { "p_payment_intent": string }; Returns: undefined
                            },
 "submit_partner_inquiry":
 { Args: { "p_address"?: string,"p_business": string,"p_contact": string,"p_email": string,"p_message"?: string,"p_phone"?: string }; Returns: number
