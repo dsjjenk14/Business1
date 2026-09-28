@@ -44,7 +44,7 @@ select throws_ok(format('select follow_user(%L)', pg_temp.uid('fa')), '23514', n
 select pg_temp.admin();
 select is((select count(*)::int from notifications where user_id = pg_temp.uid('go') and kind = 'follow'), 1, 'They''re told');
 insert into blocks (blocker_id, blocked_id) values (pg_temp.uid('go'), pg_temp.uid('fa'));
-select is((select count(*)::int from follows), 0, 'Blocking ends the follow');
+select is((select count(*)::int from follows where follower_id = pg_temp.uid('fa') or followee_id = pg_temp.uid('fa')), 0, 'Blocking ends the follow');
 
 -- ── Share an event ───────────────────────────────────────────────────────
 insert into events (host_id, title, starts_at) values (pg_temp.uid('ha'), 'Rooftop Friday', now() + interval '1 day');
