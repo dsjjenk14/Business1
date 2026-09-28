@@ -158,7 +158,7 @@ export default function EventScreen() {
         toast(`You're there. You met ${met.length} ${met.length === 1 ? 'person' : 'people'} here.`);
         router.push('/circles/vouch');
       } else {
-        toast("You're there. When others arrive too, you'll be able to vouch for each other.");
+        toast("You're there. You can post Outs from this event now.");
       }
       await load();
     } catch (e) {

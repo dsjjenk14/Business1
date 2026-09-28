@@ -14,7 +14,8 @@ let currentToken: string | null = null;
 if (PUSH_SUPPORTED) {
   // While the app is open, still show the banner (the in-app bell updates too).
   Notifications.setNotificationHandler({
-    handleNotification: async () => ({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: true, shouldSetBadge: true }),
+    // While the app is open, the app plays its own I'm In chime instead (see useUnreadCounts).
+    handleNotification: async () => ({ shouldShowBanner: true, shouldShowList: true, shouldPlaySound: false, shouldSetBadge: true }),
   });
 }
 

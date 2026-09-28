@@ -28,7 +28,8 @@ export type CircleOverview = {
     requested: boolean;
     score: number;
   })[];
-  vouches_left: number;
+  /** Vouches you can still give this month; null = unlimited (Premium). */
+  vouches_left: number | null;
   vouch_count: number;
 };
 
@@ -106,3 +107,22 @@ export const requestIntro = async (target: string, via: string, note: string) =>
   unwrap<number>(await supabase.rpc('request_intro', { p_target: target, p_via: via, p_note: note }));
 export const declineIntroRequest = async (id: number) => unwrap<null>(await supabase.rpc('decline_intro_request', { p_request: id }));
 
+
+/** "3 vouches left this month" / "Unlimited vouches (Premium)". */
+export const vouchesLeftLabel = (left: number | null) =>
+  left == null ? 'Unlimited vouches with Premium' : `${left} vouch${left === 1 ? '' : 'es'} left this month`;
+
+export type VouchGiven = { user_id: string; display_name: string; avatar_url: string | null; vouches: number; last_word: string | null; last_at: string };
+
+/** People you've vouched for (not counting ones you took back). */
+export async function fetchVouchesGiven() {
+  const { data, error } = await supabase.rpc('my_vouches_given');
+  if (error) throw error;
+  return (data ?? []) as VouchGiven[];
+}
+
+/** Take back your vouch for someone. It still counts toward this month's limit. */
+export async function unvouch(userId: string) {
+  const { error } = await supabase.rpc('unvouch', { p_user: userId });
+  if (error) throw error;
+}

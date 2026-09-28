@@ -19,7 +19,7 @@ export function ConnectedCard({ result }: { result: ConnectResult }) {
         </AppText>
         <AppText variant="small" tone="muted" align="center">
           {result.kind === 'qr'
-            ? `You met in person, so you can vouch for each other now.`
+            ? `You met in person. If you'd recommend them, you can vouch for them. It's up to you.`
             : `${first} is in your circle. You can message each other.`}
         </AppText>
         <View style={{ flexDirection: 'row', gap: t.space[2], alignSelf: 'stretch' }}>

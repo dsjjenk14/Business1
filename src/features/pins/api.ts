@@ -2,7 +2,9 @@ import * as Linking from 'expo-linking';
 import { Share } from 'react-native';
 
 import type { GlyphName } from '@/components/ui/Glyph';
+import { attachBoomerang, attachVideo } from '@/features/media/api';
 import { attachMusic, type Song } from '@/features/music/api';
+import { readBytes } from '@/lib/files';
 import { supabase } from '@/lib/supabase';
 import type { Database } from '@/types/database';
 
@@ -154,6 +156,8 @@ export async function createPin(input: {
   photoUris: string[];
   /** A song for a photo post (30-second Apple Music preview). */
   music?: Song | null;
+  /** A video or boomerang instead of photos. */
+  media?: { kind: 'video'; uri: string; durationS: number | null } | { kind: 'boomerang'; frames: string[] } | null;
 }): Promise<{ pinId: number; failedPhotos: number }> {
   const location = input.lat != null && input.lng != null ? `SRID=4326;POINT(${input.lng} ${input.lat})` : undefined;
   const { data, error } = await supabase
@@ -164,21 +168,17 @@ export async function createPin(input: {
   if (error) throw error;
 
   const failedPhotos = await uploadPinPhotos(input.userId, data.id, input.photoUris);
-  if (input.music) await attachMusic(data.id, input.music).catch(() => undefined);
-  return { pinId: data.id, failedPhotos };
-}
-
-/** Photo bytes from a file/blob URI, or from a data URI (filtered photos). */
-async function readPhoto(uri: string): Promise<{ blob: ArrayBuffer; contentType: string }> {
-  const m = /^data:([^;,]+);base64,(.*)$/.exec(uri);
-  if (m) {
-    const bin = atob(m[2]!);
-    const bytes = new Uint8Array(bin.length);
-    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    return { blob: bytes.buffer, contentType: m[1]! };
+  let failedMedia = 0;
+  if (input.media) {
+    try {
+      if (input.media.kind === 'video') await attachVideo(input.userId, data.id, input.media.uri, input.media.durationS);
+      else await attachBoomerang(input.userId, data.id, input.media.frames);
+    } catch {
+      failedMedia = 1;
+    }
   }
-  const response = await fetch(uri);
-  return { blob: await response.arrayBuffer(), contentType: response.headers.get('content-type') ?? 'image/jpeg' };
+  if (input.music) await attachMusic(data.id, input.music).catch(() => undefined);
+  return { pinId: data.id, failedPhotos: failedPhotos + failedMedia };
 }
 
 /** Uploads photos for a pin to <user>/<pin>/<n>.jpg. Returns how many failed. */
@@ -187,7 +187,7 @@ export async function uploadPinPhotos(userId: string, pinId: number, photoUris: 
   const uris = photoUris.slice(0, MAX_PHOTOS);
   for (const [i, uri] of uris.entries()) {
     try {
-      const { blob, contentType } = await readPhoto(uri);
+      const { bytes: blob, contentType } = await readBytes(uri);
       const ext = contentType.includes('png') ? 'png' : contentType.includes('webp') ? 'webp' : 'jpg';
       const path = `${userId}/${pinId}/${i + 1}.${ext}`;
       const up = await supabase.storage.from('pin-photos').upload(path, blob, { contentType, upsert: true });

@@ -8,6 +8,7 @@ import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Avatar, IconButton, Glyph, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { fetchConversation, fetchMessages, markRead, sendMessage, subscribeToMessages, type ChatMessage, type ConversationInfo } from '@/features/chat/api';
+import { playSound } from '@/features/sounds/sounds';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { clockTime, marketDayKey } from '@/lib/time';
@@ -63,7 +64,10 @@ export default function Chat() {
       conversationId,
       (m) => {
         addMessages([m]);
-        if (me && m.sender_id !== me) markRead(conversationId, me);
+        if (me && m.sender_id !== me) {
+          markRead(conversationId, me);
+          playSound('in');
+        }
       },
       // (Re)connected: catch up on anything sent while the connection was down.
       () => {
@@ -94,6 +98,7 @@ export default function Chat() {
       track('message_sent', { kind: info?.kind ?? 'direct' });
       setDraft('');
       addMessages([m]);
+      playSound('sent');
     } catch (e) {
       toast(friendlyError(e));
     } finally {

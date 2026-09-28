@@ -1,9 +1,10 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
+import { MediaPicker, type MediaDraft } from '@/components/media/MediaPicker';
 import { MusicPicker } from '@/components/music/MusicPicker';
 import { PhotoFilters, type Filtered } from '@/components/pins/PhotoFilters';
 import { PhotoPicker } from '@/components/pins/PhotoPicker';
@@ -19,7 +20,7 @@ import { useTheme } from '@/theme';
 const TYPES: { key: PinCategory; label: string; glyph: GlyphName; placeholder: string }[] = [
   { key: 'thought', label: 'Thought', glyph: 'thought', placeholder: "What's on your mind?" },
   { key: 'question', label: 'Question', glyph: 'question', placeholder: 'Ask your city something…' },
-  { key: 'photos', label: 'Photos', glyph: 'camera', placeholder: 'Say something about these photos…' },
+  { key: 'photos', label: 'Photos & video', glyph: 'camera', placeholder: 'Say something about this…' },
   { key: 'event', label: 'Event', glyph: 'calendar', placeholder: "What's happening, when, and where?" },
 ];
 
@@ -36,11 +37,17 @@ export default function NewPin() {
   const [photos, setPhotos] = useState<string[]>([]);
   const [music, setMusic] = useState<Song | null>(null);
   const [filtered, setFiltered] = useState<Filtered>({});
+  const [media, setMedia] = useState<MediaDraft>(null);
   const [audience, setAudience] = useState<PinAudience>('everyone');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const type = TYPES.find((x) => x.key === category)!;
+  // A video or boomerang makes this a Photos pin.
+  const onMedia = useCallback((m: MediaDraft) => {
+    setMedia(m);
+    if (m) setCategory('photos');
+  }, []);
 
   async function submit() {
     if (!session) return;
@@ -48,8 +55,8 @@ export default function NewPin() {
       setError('Write something first.');
       return;
     }
-    if (category === 'photos' && photos.length === 0) {
-      setError('Add at least one photo for a Photos pin.');
+    if (category === 'photos' && photos.length === 0 && !media) {
+      setError('Add a photo, video or boomerang for a Photos pin.');
       return;
     }
     setBusy(true);
@@ -63,10 +70,11 @@ export default function NewPin() {
         lat: location?.lat,
         lng: location?.lng,
         photoUris: photos.map((p) => filtered[p]?.uri ?? p),
-        music: photos.length ? music : null,
+        music: photos.length || media?.kind === 'boomerang' ? music : null,
+        media,
       });
       track('pin_posted', { category, photos: photos.length, audience, music: !!(photos.length && music), filters: Object.keys(filtered).length });
-      toast(failedPhotos ? `Pin dropped, but ${failedPhotos} photo(s) didn't upload` : 'Pin dropped');
+      toast(failedPhotos ? `Pin dropped, but ${failedPhotos} photo(s) or video didn't upload` : 'Pin dropped');
       router.replace({ pathname: '/pins/[id]', params: { id: String(pinId) } });
     } catch (e) {
       setError(friendlyError(e));
@@ -104,9 +112,12 @@ export default function NewPin() {
           hint={`${body.length}/2000`}
         />
 
-        <PhotoPicker photos={photos} onChange={setPhotos} display={Object.fromEntries(Object.entries(filtered).map(([k, v]) => [k, v.uri]))} />
+        {!media ? (
+          <PhotoPicker photos={photos} onChange={setPhotos} display={Object.fromEntries(Object.entries(filtered).map(([k, v]) => [k, v.uri]))} />
+        ) : null}
         {photos.length ? <PhotoFilters photos={photos} value={filtered} onChange={setFiltered} /> : null}
-        {photos.length ? <MusicPicker value={music} onChange={setMusic} /> : null}
+        {!photos.length ? <MediaPicker value={media} onChange={onMedia} /> : null}
+        {photos.length || media?.kind === 'boomerang' ? <MusicPicker value={music} onChange={setMusic} /> : null}
 
         <View style={{ gap: t.space[2] }}>
           <AppText variant="label" tone="subtle">

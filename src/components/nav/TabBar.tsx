@@ -3,18 +3,21 @@ import type { BottomTabBarProps } from 'expo-router/tabs';
 import { Pressable, View } from 'react-native';
 
 import { AppText, type IconName } from '@/components/ui';
+import { useNewOuts } from '@/features/outs/useNewOuts';
 import { useTheme } from '@/theme';
 
 const TABS: Record<string, { label: string; icon: IconName; iconActive: IconName }> = {
   index: { label: 'Home', icon: 'home-outline', iconActive: 'home' },
   pins: { label: 'Pins', icon: 'pin-outline', iconActive: 'pin' },
+  outs: { label: 'Outs', icon: 'camera-outline', iconActive: 'camera' },
   tonight: { label: 'Tonight', icon: 'moon-outline', iconActive: 'moon' },
   circles: { label: 'Circles', icon: 'people-circle-outline', iconActive: 'people-circle' },
 };
 
-/** The tab bar: Home, Pins, Tonight, Circles. */
+/** The tab bar: Home, Pins, Outs (in the middle, the main button), Tonight, Circles. */
 export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
   const t = useTheme();
+  const outsNew = useNewOuts();
 
   return (
     <View
@@ -39,7 +42,7 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
             key={route.key}
             accessibilityRole="tab"
             accessibilityState={{ selected: focused }}
-            accessibilityLabel={tab.label}
+            accessibilityLabel={route.name === 'outs' && outsNew ? `${tab.label}, ${outsNew} new` : tab.label}
             onPress={() => {
               const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
               if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
@@ -51,9 +54,29 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
                 gap: 2,
                 paddingHorizontal: t.space[3],
                 paddingVertical: 4,
-                minWidth: 64,
+                minWidth: 56,
               }}>
-              <Ionicons name={focused ? tab.iconActive : tab.icon} size={22} color={color} />
+              {route.name === 'outs' ? (
+                <View
+                  style={{
+                    width: 44,
+                    height: 30,
+                    borderRadius: 15,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: focused ? t.colors.primary : t.colors.surfaceAlt,
+                  }}>
+                  <Ionicons name={tab.iconActive} size={20} color={focused ? t.colors.onPrimary : t.colors.primaryText} />
+                  {outsNew ? (
+                    <View
+                      accessibilityLabel={`${outsNew} new`}
+                      style={{ position: 'absolute', top: -3, right: -3, width: 12, height: 12, borderRadius: 6, backgroundColor: t.colors.primary, borderWidth: 2, borderColor: t.colors.tabBar }}
+                    />
+                  ) : null}
+                </View>
+              ) : (
+                <Ionicons name={focused ? tab.iconActive : tab.icon} size={22} color={color} />
+              )}
               <AppText variant="caption" weight="bold" style={{ color }}>
                 {tab.label}
               </AppText>

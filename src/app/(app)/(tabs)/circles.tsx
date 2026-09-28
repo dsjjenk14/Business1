@@ -16,6 +16,7 @@ import {
   type CircleOverview,
   type GroupsOverview,
   type MyIntros,
+  vouchesLeftLabel,
 } from '@/features/circles/api';
 import { fetchProfileCard, type ProfileCard } from '@/features/profiles/api';
 import { useAuth } from '@/lib/auth';
@@ -167,15 +168,15 @@ function MyCircle({ circle, card, introsMade, meName, inviteCode }: { circle: Ci
 
       <Card accent="trust">
         <View style={{ gap: t.space[2] }}>
-          <GlyphTitle glyph="medal" tone="trust">Vouch someone you met</GlyphTitle>
+          <GlyphTitle glyph="medal" tone="trust">Met someone? Check in, then vouch if you want</GlyphTitle>
           <AppText variant="small" tone="muted">
-            Out with someone right now? Both of you tap Check In. Once GPS confirms you&apos;re together, you can vouch for each other.{' '}
+            Out with someone right now? Both of you tap Check In to record that you met. Vouching is a separate choice, only for people you&apos;d recommend.{' '}
             <AppText variant="small" tone="trust" weight="bold">
-              {circle.vouches_left} vouch{circle.vouches_left === 1 ? '' : 'es'} left this month.
+              {vouchesLeftLabel(circle.vouches_left)}.
             </AppText>
           </AppText>
           <View style={{ flexDirection: 'row', gap: t.space[2] }}>
-            <Button label="Check In & Vouch" variant="trust" size="md" style={{ flex: 1 }} onPress={() => router.push('/circles/vouch')} />
+            <Button label="Check In" variant="trust" size="md" style={{ flex: 1 }} onPress={() => router.push('/circles/vouch')} />
             <Button label="Request a vouch" variant="secondary" size="md" style={{ flex: 1 }} onPress={() => router.push('/circles/request-vouch')} />
           </View>
         </View>

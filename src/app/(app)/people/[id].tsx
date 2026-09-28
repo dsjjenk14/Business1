@@ -8,6 +8,8 @@ import { AppText, Button, LoadingDetail, Screen, useToast } from '@/components/u
 import { fetchFeed, type FeedPin } from '@/features/pins/api';
 import { fetchProfileCard, type ProfileCard } from '@/features/profiles/api';
 import { blockUser } from '@/features/safety/api';
+import { fetchVouchesGiven, unvouch } from '@/features/circles/api';
+import { confirmThen } from '@/lib/confirm';
 import { fetchMessageStatus, openDirectChat } from '@/features/chat/api';
 import { recordProfileView } from '@/features/plan/api';
 import { goBackOr } from '@/lib/navigation';
@@ -25,6 +27,7 @@ export default function PersonProfile() {
   const [card, setCard] = useState<ProfileCard | null | undefined>(undefined);
   const [pins, setPins] = useState<FeedPin[]>([]);
   const [confirmBlock, setConfirmBlock] = useState(false);
+  const [iVouched, setIVouched] = useState(false);
   const [opening, setOpening] = useState(false);
   const [exchanges, setExchanges] = useState<number | null>(null);
 
@@ -39,6 +42,9 @@ export default function PersonProfile() {
         }
         setCard(c);
         setPins(p);
+        fetchVouchesGiven()
+          .then((v) => !cancelled && setIVouched(v.some((x) => x.user_id === id)))
+          .catch(() => undefined);
         if (c) recordProfileView(c.id);
         if (c && c.degree === 1 && !c.can_message) {
           fetchMessageStatus(c.id)
@@ -164,6 +170,25 @@ export default function PersonProfile() {
                   <Button label="Block" variant="ghost" size="md" style={{ flex: 1 }} onPress={() => setConfirmBlock(true)} />
                 </View>
               )}
+              {iVouched ? (
+                <Button
+                  label={`Take back my vouch for ${first}`}
+                  variant="ghost"
+                  size="md"
+                  onPress={() =>
+                    confirmThen(`Take back your vouch for ${first}?`, 'It comes off their profile. It still counts toward your vouches this month.', async () => {
+                      try {
+                        await unvouch(card.id);
+                        setIVouched(false);
+                        toast(`You took back your vouch for ${first}`);
+                        fetchProfileCard(id).then(setCard).catch(() => undefined);
+                      } catch (e) {
+                        toast(friendlyError(e));
+                      }
+                    })
+                  }
+                />
+              ) : null}
             </View>
           </ProfileView>
         ) : (

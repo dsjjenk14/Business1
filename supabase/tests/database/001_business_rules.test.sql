@@ -3,6 +3,8 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 select plan(38);
+-- These checks use a 2-vouch month so the budget runs out quickly (the real free limit is 5).
+update plan_limits set free_value = 2 where key = 'vouches_per_month';
 
 -- Test members are on the free plan (no founding Premium) unless a test says otherwise.
 update app_config set value = '0' where key = 'founding_member_limit';
@@ -112,7 +114,7 @@ select is(my_vouches_left_this_month(), 0, 'Monthly budget: 2 vouches used, 0 le
 select throws_ok(
   format($$ insert into vouches (voucher_id, vouchee_id, type, word_id, encounter_id) values (%L, %L, 'gps', 3, %s) $$,
     (select id from t where k='ana'), (select id from t where k='ben'), (select id from enc where place_label='Rock Creek')),
-  '23514', 'You''ve used your vouches for this month. You get more on the 1st.', 'A 3rd vouch in the same month is blocked');
+  '23514', 'You''ve used your 2 vouches for this month. You get more on the 1st, or go unlimited with Premium.', 'A 3rd vouch in the same month is blocked');
 select pg_temp.act_as_admin();
 select is((select vouch_count from profiles where id = (select id from t where k='cam')), 3,
   'vouch_count stays in sync (invite vouch + 2 GPS vouches)');

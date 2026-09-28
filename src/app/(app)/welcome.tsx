@@ -24,7 +24,7 @@ const SLIDES: { glyph: GlyphName; title: string; body: string }[] = [
   {
     glyph: 'people',
     title: 'Your circle and vouches',
-    body: 'Your circle is people you actually know. Add them by scanning each other’s code, or sending a code. When you meet up in person, you can vouch for each other.',
+    body: 'Your circle is people you actually know. Add them by scanning each other’s code, or sending a code. When you meet up in person, you can vouch for people you’d recommend. It’s always your choice.',
   },
   {
     glyph: 'moon',

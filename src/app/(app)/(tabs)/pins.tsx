@@ -99,6 +99,7 @@ export default function Pins() {
         <AppText variant="h1" accessibilityRole="header" style={{ flex: 1 }}>
           Pins
         </AppText>
+        <IconButton icon="flame-outline" label="What's In: trending" onPress={() => router.push('/whats-in')} />
         <IconButton icon="bookmark-outline" label="Bookmarks" onPress={() => router.push('/pins/bookmarks')} />
         <IconButton icon="create-outline" label="New pin" onPress={() => router.push('/pins/new')} />
       </View>

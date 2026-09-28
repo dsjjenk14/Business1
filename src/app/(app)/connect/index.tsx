@@ -95,7 +95,7 @@ export default function Connect() {
             <View style={{ gap: t.space[3] }}>
               <GlyphTitle glyph="people">Scan to connect</GlyphTitle>
               <AppText variant="small" tone="muted">
-                One of you shows a code, the other scans it. You&apos;re connected, and since you met in person, you can vouch for each other.
+                One of you shows a code, the other scans it. You&apos;re connected. Vouching is separate: only if you&apos;d recommend them.
               </AppText>
               {qr ? (
                 <View style={{ alignItems: 'center', gap: t.space[2] }}>

@@ -62,7 +62,9 @@ export default function Premium() {
     <Button label={`Get Premium · ${PREMIUM_PRICE}/month`} onPress={() => pay('premium')} loading={busy} />
   );
 
+  const vouches = lim('vouches_per_month')?.free ?? 5;
   const features: { glyph: GlyphName; title: string; free: string; premium: string }[] = [
+    { glyph: 'medal', title: 'Unlimited vouches', free: `${vouches} vouches a month`, premium: 'Vouch for everyone you meet, no monthly limit' },
     { glyph: 'chat', title: 'Message sooner', free: `${exchanges} back-and-forths before messaging someone in your circle`, premium: 'Message your circle right away (intros still come first for everyone else)' },
     { glyph: 'spark', title: 'AI without limits', free: `${aiFree} AI uses in total`, premium: 'Unlimited icebreakers, tonight picks and more' },
     { glyph: 'flame', title: 'Priority on Tonight', free: 'Standard placement', premium: 'Your plans show near the top of Tonight' },
@@ -125,6 +127,7 @@ export default function Premium() {
           <View style={{ borderRadius: t.radius.md, borderWidth: t.borderWidth.hairline, borderColor: t.colors.border, overflow: 'hidden' }}>
             {[
               ['', 'Free', 'Premium'],
+              ['Vouches', `${vouches} a month`, 'Unlimited'],
               ['Messaging', `After ${exchanges}`, 'Right away'],
               ['AI features', `${aiFree} uses`, 'Unlimited'],
               ['Tonight placement', 'Standard', 'Priority'],

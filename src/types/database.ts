@@ -921,6 +921,81 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"out_recipients": {
+                  Row: {
+                    "opened_at": string | null,"out_id": number,"screenshot_at": string | null,"user_id": string
+                  }
+                  Insert: {
+                    "opened_at"?: string | null,"out_id": number,"screenshot_at"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "opened_at"?: string | null,"out_id"?: number,"screenshot_at"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "out_recipients_out_id_fkey"
+      columns: ["out_id"]
+isOneToOne: false
+      referencedRelation: "outs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "out_recipients_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"out_story_views": {
+                  Row: {
+                    "out_id": number,"screenshot_at": string | null,"viewed_at": string,"viewer_id": string
+                  }
+                  Insert: {
+                    "out_id": number,"screenshot_at"?: string | null,"viewed_at"?: string,"viewer_id": string
+                  }
+                  Update: {
+                    "out_id"?: number,"screenshot_at"?: string | null,"viewed_at"?: string,"viewer_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "out_story_views_out_id_fkey"
+      columns: ["out_id"]
+isOneToOne: false
+      referencedRelation: "outs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "out_story_views_viewer_id_fkey"
+      columns: ["viewer_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"outs": {
+                  Row: {
+                    "caption": string | null,"created_at": string,"event_id": number | null,"expires_at": string,"file_deleted_at": string | null,"id": number,"path": string,"sender_id": string,"to_story": boolean
+                  }
+                  Insert: {
+                    "caption"?: string | null,"created_at"?: string,"event_id"?: number | null,"expires_at"?: string,"file_deleted_at"?: string | null,"id"?: number,"path": string,"sender_id": string,"to_story"?: boolean
+                  }
+                  Update: {
+                    "caption"?: string | null,"created_at"?: string,"event_id"?: number | null,"expires_at"?: string,"file_deleted_at"?: string | null,"id"?: number,"path"?: string,"sender_id"?: string,"to_story"?: boolean
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "outs_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "outs_sender_id_fkey"
+      columns: ["sender_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"partner_inquiries": {
                   Row: {
                     "address": string | null,"business_name": string,"contact_name": string,"created_at": string,"email": string,"id": number,"message": string,"phone": string | null,"status": string,"submitted_by": string | null
@@ -1044,6 +1119,25 @@ isOneToOne: false
       columns: ["user_id"]
 isOneToOne: false
       referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"pin_media": {
+                  Row: {
+                    "created_at": string,"duration_s": number | null,"frames": (string)[] | null,"kind": string,"path": string | null,"pin_id": number,"poster_path": string | null
+                  }
+                  Insert: {
+                    "created_at"?: string,"duration_s"?: number | null,"frames"?: (string)[] | null,"kind": string,"path"?: string | null,"pin_id": number,"poster_path"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"duration_s"?: number | null,"frames"?: (string)[] | null,"kind"?: string,"path"?: string | null,"pin_id"?: number,"poster_path"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "pin_media_pin_id_fkey"
+      columns: ["pin_id"]
+isOneToOne: true
+      referencedRelation: "pins"
       referencedColumns: ["id"]
     }
                   ]
@@ -1412,13 +1506,13 @@ isOneToOne: false
                   ]
                 },"user_settings": {
                   Row: {
-                    "allow_intro_requests": boolean,"discoverable": boolean,"notify_date_requests": boolean,"notify_gps_vouch": boolean,"notify_intro_requests": boolean,"notify_messages": boolean,"notify_pin_replies": boolean,"notify_rsvps": boolean,"radius_mi": number,"show_going_out_venue": boolean,"show_in_nearby": boolean,"show_vouch_count": boolean,"theme_id": string,"updated_at": string,"user_id": string
+                    "allow_intro_requests": boolean,"app_sounds": boolean,"discoverable": boolean,"notify_date_requests": boolean,"notify_gps_vouch": boolean,"notify_intro_requests": boolean,"notify_messages": boolean,"notify_pin_replies": boolean,"notify_rsvps": boolean,"radius_mi": number,"show_going_out_venue": boolean,"show_in_nearby": boolean,"show_vouch_count": boolean,"theme_id": string,"updated_at": string,"user_id": string
                   }
                   Insert: {
-                    "allow_intro_requests"?: boolean,"discoverable"?: boolean,"notify_date_requests"?: boolean,"notify_gps_vouch"?: boolean,"notify_intro_requests"?: boolean,"notify_messages"?: boolean,"notify_pin_replies"?: boolean,"notify_rsvps"?: boolean,"radius_mi"?: number,"show_going_out_venue"?: boolean,"show_in_nearby"?: boolean,"show_vouch_count"?: boolean,"theme_id"?: string,"updated_at"?: string,"user_id": string
+                    "allow_intro_requests"?: boolean,"app_sounds"?: boolean,"discoverable"?: boolean,"notify_date_requests"?: boolean,"notify_gps_vouch"?: boolean,"notify_intro_requests"?: boolean,"notify_messages"?: boolean,"notify_pin_replies"?: boolean,"notify_rsvps"?: boolean,"radius_mi"?: number,"show_going_out_venue"?: boolean,"show_in_nearby"?: boolean,"show_vouch_count"?: boolean,"theme_id"?: string,"updated_at"?: string,"user_id": string
                   }
                   Update: {
-                    "allow_intro_requests"?: boolean,"discoverable"?: boolean,"notify_date_requests"?: boolean,"notify_gps_vouch"?: boolean,"notify_intro_requests"?: boolean,"notify_messages"?: boolean,"notify_pin_replies"?: boolean,"notify_rsvps"?: boolean,"radius_mi"?: number,"show_going_out_venue"?: boolean,"show_in_nearby"?: boolean,"show_vouch_count"?: boolean,"theme_id"?: string,"updated_at"?: string,"user_id"?: string
+                    "allow_intro_requests"?: boolean,"app_sounds"?: boolean,"discoverable"?: boolean,"notify_date_requests"?: boolean,"notify_gps_vouch"?: boolean,"notify_intro_requests"?: boolean,"notify_messages"?: boolean,"notify_pin_replies"?: boolean,"notify_rsvps"?: boolean,"radius_mi"?: number,"show_going_out_venue"?: boolean,"show_in_nearby"?: boolean,"show_vouch_count"?: boolean,"theme_id"?: string,"updated_at"?: string,"user_id"?: string
                   }
                   Relationships: [
                     {
@@ -1878,6 +1972,9 @@ isOneToOne: false
 "my_intros":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"my_out_event":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "my_payout_status":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
@@ -1902,6 +1999,11 @@ isOneToOne: false
 "my_verification":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"my_vouches_given":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "avatar_url": string,"display_name": string,"last_at": string,"last_word": string,"user_id": string,"vouches": number
+            }[]
+                           },
 "my_vouches_left_this_month":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
@@ -1912,6 +2014,23 @@ isOneToOne: false
                            },
 "open_direct_conversation":
 { Args: { "p_other": string }; Returns: number
+                           },
+"out_open":
+{ Args: { "p_out": number,"p_user": string }; Returns: Json
+                           },
+"out_screenshot":
+{ Args: { "p_out": number }; Returns: undefined
+                           },
+"outs_cleaned":
+{ Args: { "p_ids": (number)[] }; Returns: undefined
+                           },
+"outs_inbox":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"outs_to_clean":
+{ Args: { "p_limit"?: number }; Returns: {
+              "id": number,"path": string
+            }[]
                            },
 "photo_verification_challenge":
 { Args: Record<PropertyKey, never>; Returns: Json
@@ -2023,6 +2142,9 @@ isOneToOne: false
 "send_date_request":
 { Args: { "p_note"?: string,"p_place"?: string,"p_starts_at"?: string,"p_to": string,"p_venue_id"?: number,"p_vibe"?: string,"p_when": Database["public"]['Enums']["date_when"] }; Returns: number
                            },
+"send_out":
+{ Args: { "p_caption": string,"p_path": string,"p_recipients": (string)[],"p_to_story"?: boolean }; Returns: number
+                           },
 "set_checkin_interval":
 { Args: { "p_minutes": number }; Returns: undefined
                            },
@@ -2131,6 +2253,9 @@ isOneToOne: false
 "unregister_push_token":
 { Args: { "p_token": string }; Returns: undefined
                            },
+"unvouch":
+{ Args: { "p_user": string }; Returns: number
+                           },
 "venue_detail":
 { Args: { "p_venue": number }; Returns: Json
                            },
@@ -2139,6 +2264,9 @@ isOneToOne: false
                            },
 "weekend_ends_at":
 { Args: Record<PropertyKey, never>; Returns: string
+                           },
+"whats_in":
+{ Args: { "p_lat"?: number,"p_lng"?: number,"p_radius_mi"?: number }; Returns: Json
                            }
           }
           Enums: {
