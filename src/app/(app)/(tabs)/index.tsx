@@ -6,7 +6,7 @@ import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { ActivityRow, EventRow, GroupSuggestion } from '@/components/home/HomeParts';
 import { LiveNowRow } from '@/components/live/LiveNowRow';
 import { PinCard } from '@/components/pins/PinCard';
-import { AppText, Button, Card, EmptyState, LoadingList, Section, useToast } from '@/components/ui';
+import { AppText, Button, Card, EmptyState, LoadingList, Section, Stamp, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { cacheHome, fetchHomeFeed, readCachedHome, type HomeEvent, type HomeFeed } from '@/features/home/api';
@@ -127,13 +127,11 @@ export default function Home() {
         accessibilityRole="link"
         accessibilityLabel="What's In: what's trending near you"
         onPress={() => router.push('/whats-in')}
-        style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3], padding: t.space[3], borderRadius: t.radius.lg, backgroundColor: t.colors.surface, borderWidth: t.borderWidth.regular, borderColor: t.colors.border }}>
-        <Ionicons name="flame" size={24} color={t.colors.primaryText} />
-        <View style={{ flex: 1 }}>
-          <AppText weight="bold">What&apos;s In</AppText>
-          <AppText variant="small" tone="muted">
-            Hot spots tonight, trending events and posts
-          </AppText>
+        style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3], padding: t.space[4], borderRadius: t.radius.lg, backgroundColor: t.colors.surface, borderLeftWidth: 3, borderColor: t.colors.primary }}>
+        <Ionicons name="flame" size={28} color={t.colors.primaryText} />
+        <View style={{ flex: 1, gap: 2 }}>
+          <AppText variant="h2">What&apos;s In</AppText>
+          <Stamp>Hot spots · events · posts</Stamp>
         </View>
         <Ionicons name="chevron-forward" size={20} color={t.colors.textSubtle} />
       </Pressable>

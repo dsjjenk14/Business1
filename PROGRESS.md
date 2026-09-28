@@ -5,6 +5,18 @@
 
 ---
 
+## ✅ New look: "Guest List" (so it doesn't look like a template)
+Same colors (near-black, red, gold, green), new personality: a nightlife poster and a guest list.
+- **Type:** Bebas Neue poster headlines (the prototype's own logo font), DM Sans for reading, and a mono "ticket stamp" face for times, counts and small labels.
+- **Section headers:** big condensed titles with a line to the edge, instead of tiny grey labels.
+- **Feed:** posts run edge to edge with a thin line between them, like a real social feed, instead of a stack of boxes.
+- **Surfaces:** no outlines on cards; highlights show as a colored bar down the left side.
+- **Controls:** square-cut poster buttons, tag-style filters, underlined tabs, and fields with a line underneath that lights up red.
+- **Signature pieces:** the event page is a ticket with a tear-off stub and notches; events show a tear-off date block; the logo is "I'M" plus a red "IN"; the Outs button is a camera shutter.
+- **People:** each person's initials get their own steady color, instead of grey circles.
+- The light version (Original Light) uses the same design. Other looks in Appearance keep their own shapes.
+- Checked: typecheck, lint, theme contrast, accessibility scan (clean), 427 database tests, the Outs and bill-splitting browser run.
+
 ## ✅ Original colors, Outs for an hour, pin an Out, split the bill, choose who sees each post
 - **Colors:** the original colors are back (near-black, red, gold and green), in the new layout. It's the default for everyone again; the light version uses the original light colors. Other looks are still in Appearance.
 - **Outs anywhere:** you no longer need to be at an event. At an I'm In event, the event's name still goes on your Out.

@@ -36,6 +36,7 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
         if (!tab) return null;
         const focused = state.index === index;
         const color = focused ? t.colors.tabActive : t.colors.tabInactive;
+        const ticket = t.style.controls === 'ticket';
 
         return (
           <Pressable
@@ -56,17 +57,25 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
                 paddingVertical: 4,
                 minWidth: 56,
               }}>
+              {ticket && route.name !== 'outs' ? (
+                // The active tab gets a short red bar on top, like a marker on a list.
+                <View style={{ width: 18, height: 3, borderRadius: 2, marginBottom: 3, backgroundColor: focused ? t.colors.primary : 'transparent' }} />
+              ) : null}
               {route.name === 'outs' ? (
                 <View
                   style={{
-                    width: 44,
-                    height: 30,
-                    borderRadius: 15,
+                    width: ticket ? 46 : 44,
+                    height: ticket ? 46 : 30,
+                    borderRadius: ticket ? 23 : 15,
+                    marginTop: ticket ? -8 : 0,
                     alignItems: 'center',
                     justifyContent: 'center',
-                    backgroundColor: focused ? t.colors.primary : t.colors.surfaceAlt,
+                    backgroundColor: ticket || focused ? t.colors.primary : t.colors.surfaceAlt,
+                    // Ticket look: a camera shutter, with an inner ring.
+                    borderWidth: ticket ? 3 : 0,
+                    borderColor: focused ? t.colors.text : t.colors.tabBar,
                   }}>
-                  <Ionicons name={tab.iconActive} size={20} color={focused ? t.colors.onPrimary : t.colors.primaryText} />
+                  <Ionicons name={tab.iconActive} size={20} color={ticket || focused ? t.colors.onPrimary : t.colors.primaryText} />
                   {outsNew ? (
                     <View
                       accessibilityLabel={`${outsNew} new`}
@@ -77,9 +86,13 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
               ) : (
                 <Ionicons name={focused ? tab.iconActive : tab.icon} size={22} color={color} />
               )}
-              <AppText variant="caption" weight="bold" style={{ color }}>
-                {tab.label}
-              </AppText>
+              {ticket ? (
+                <AppText style={{ color, fontFamily: t.fonts.mono, textTransform: 'uppercase', fontSize: 9.5, lineHeight: 13, letterSpacing: 0.8 }}>{tab.label}</AppText>
+              ) : (
+                <AppText variant="caption" weight="bold" style={{ color }}>
+                  {tab.label}
+                </AppText>
+              )}
             </View>
           </Pressable>
         );

@@ -63,11 +63,11 @@ export default function Outs() {
           <Ionicons name="camera" size={26} color={t.colors.onPrimary} />
         </View>
         <View style={{ flex: 1 }}>
-          <AppText variant="h3" style={{ color: t.colors.onPrimary }}>
+          <AppText variant="h1" style={{ color: t.colors.onPrimary }}>
             Take an Out
           </AppText>
-          <AppText variant="small" style={{ color: t.colors.onPrimary }}>
-            {event ? `You're at ${event.title}. ` : ''}Gone in an hour unless someone pins it.
+          <AppText style={{ color: t.colors.onPrimary, fontFamily: t.fonts.mono, fontSize: 10.5, lineHeight: 15, letterSpacing: 0.8, textTransform: 'uppercase' }}>
+            {event ? `At ${event.title} · ` : ''}Gone in 1 hr unless pinned
           </AppText>
         </View>
       </Pressable>

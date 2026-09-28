@@ -120,9 +120,12 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
       : []),
   ];
   const hasPhotos = pin.photo_paths.length > 0;
+  const flat = t.style.surface === 'flat';
+  // Flat look: posts run edge to edge with a hairline between them, like a real feed.
+  const Wrap = flat ? FlatPost : Card;
 
   return (
-    <Card>
+    <Wrap>
       <View style={{ gap: t.space[3] }}>
         {/* Who, when, where. */}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[2] }}>
@@ -141,7 +144,11 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 <Glyph name={CATEGORY_GLYPH[pin.category]} size={12} tone={CATEGORY_TONE[pin.category]} strokeWidth={2} />
-                <AppText variant="caption" tone="subtle" numberOfLines={1} style={{ flex: 1 }}>
+                <AppText
+                  variant="caption"
+                  tone="subtle"
+                  numberOfLines={1}
+                  style={[{ flex: 1 }, flat ? { fontFamily: t.fonts.mono, fontSize: 10.5, letterSpacing: 0.3 } : null]}>
                   {[CATEGORY_LABEL[pin.category], meta, pin.edited_at ? 'edited' : null].filter(Boolean).join(' · ')}
                 </AppText>
               </View>
@@ -225,8 +232,13 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
         </View>
       </View>
       <OptionsSheet visible={menu} options={menuOptions} onClose={() => setMenu(false)} />
-    </Card>
+    </Wrap>
   );
+}
+
+function FlatPost({ children }: { children: React.ReactNode }) {
+  const t = useTheme();
+  return <View style={{ paddingTop: t.space[2], paddingBottom: t.space[3], borderBottomWidth: t.borderWidth.hairline, borderColor: t.colors.border }}>{children}</View>;
 }
 
 function Action({

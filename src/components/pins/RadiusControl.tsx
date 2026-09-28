@@ -28,6 +28,7 @@ export function RadiusControl({
 }) {
   const t = useTheme();
   const [open, setOpen] = useState(false);
+  const ticket = t.style.controls === 'ticket';
   const cap = Math.min(max, planMax);
   if (!open) {
     return (
@@ -42,16 +43,22 @@ export function RadiusControl({
           gap: 6,
           minHeight: 36,
           paddingHorizontal: t.space[3],
-          borderRadius: t.radius.pill,
-          borderWidth: t.borderWidth.hairline,
+          borderRadius: ticket ? t.radius.sm : t.radius.pill,
+          borderWidth: ticket ? 0 : t.borderWidth.hairline,
           borderColor: t.colors.border,
-          backgroundColor: t.colors.surface,
+          backgroundColor: ticket ? t.colors.surfaceAlt : t.colors.surface,
           opacity: pressed ? 0.7 : 1,
         })}>
         <Ionicons name="locate-outline" size={16} color={t.colors.primaryText} />
-        <AppText variant="small" weight="bold">
-          Within {value} mi
-        </AppText>
+        {ticket ? (
+          <AppText style={{ fontFamily: t.fonts.mono, fontSize: 11.5, lineHeight: 15, letterSpacing: 0.6, textTransform: 'uppercase', color: t.colors.text }}>
+            {`Within ${value} mi`}
+          </AppText>
+        ) : (
+          <AppText variant="small" weight="bold">
+            Within {value} mi
+          </AppText>
+        )}
         <Ionicons name="chevron-down" size={14} color={t.colors.textMuted} />
       </Pressable>
     );

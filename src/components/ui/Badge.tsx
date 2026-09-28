@@ -5,6 +5,7 @@ import { useTheme } from '@/theme';
 
 import { AppText } from './AppText';
 import { Glyph, type GlyphName } from './Glyph';
+import { look } from './look';
 
 export type BadgeProps = {
   label: string;
@@ -33,9 +34,30 @@ export function Badge({ label, tone = 'primary', glyph, verified }: BadgeProps) 
           paddingVertical: 3,
         }}>
         <Ionicons name={verified ? 'shield-checkmark' : 'ribbon-outline'} size={12} color={color} />
-        <AppText variant="caption" style={{ color, fontFamily: t.fonts.mono, letterSpacing: 0.8 }}>
-          {label.toUpperCase()}
+        <AppText variant="caption" style={{ color, fontFamily: t.fonts.mono, textTransform: 'uppercase', letterSpacing: 0.8 }}>
+          {label}
         </AppText>
+      </View>
+    );
+  }
+
+  if (look(t).ticket) {
+    // A stamp: square corners, mono small caps.
+    return (
+      <View
+        style={{
+          alignSelf: 'flex-start',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 4,
+          borderWidth: t.borderWidth.regular,
+          borderColor: color,
+          borderRadius: 2,
+          paddingHorizontal: 6,
+          paddingVertical: 2,
+        }}>
+        {glyph ? <Glyph name={glyph} size={12} color={color} strokeWidth={2.2} /> : null}
+        <AppText style={{ color, fontFamily: t.fonts.mono, textTransform: 'uppercase', fontSize: 10.5, lineHeight: 14, letterSpacing: 0.6 }}>{label}</AppText>
       </View>
     );
   }

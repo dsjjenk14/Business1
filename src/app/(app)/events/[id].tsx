@@ -5,7 +5,24 @@ import { Alert, Platform, View } from 'react-native';
 import { PersonRow } from '@/components/circles/PersonRow';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { useAppConfig } from '@/config/useAppConfig';
-import { AppText, Badge, Button, Card, EmptyState, GlyphTile, GlyphTitle, LoadingDetail, Screen, Section, Stars, StarsInput, TextField, useToast } from '@/components/ui';
+import {
+  AppText,
+  Badge,
+  Button,
+  Card,
+  DateTile,
+  EmptyState,
+  GlyphTitle,
+  LoadingDetail,
+  Screen,
+  Section,
+  Stamp,
+  Stars,
+  StarsInput,
+  TextField,
+  Ticket,
+  useToast,
+} from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { preciseLocation } from '@/features/circles/api';
@@ -172,14 +189,11 @@ export default function EventScreen() {
     <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
       <BackHeader title="Event" />
       <Screen contentGap={t.space[5]}>
-        <View style={{ alignItems: 'center', gap: t.space[2] }}>
-          <GlyphTile name={event.emoji ?? 'calendar'} size={64} />
-          <AppText variant="h2" align="center" accessibilityRole="header">
+        {/* The event as a ticket: what and where on the main part, the date on the stub. */}
+        <Ticket stub={<DateTile iso={event.starts_at} size={58} />}>
+          <Stamp tone="primary">{`Admit one · ${dayTime(event.starts_at)}${event.ends_at ? ` – ${clockTime(event.ends_at)}` : ''}`}</Stamp>
+          <AppText variant="h1" accessibilityRole="header" style={{ marginTop: t.space[1] }}>
             {event.title}
-          </AppText>
-          <AppText tone="muted" align="center">
-            {dayTime(event.starts_at)}
-            {event.ends_at ? ` – ${clockTime(event.ends_at)}` : ''}
           </AppText>
           {event.venue ? (
             <AppText
@@ -202,11 +216,11 @@ export default function EventScreen() {
               {event.group.name}
             </AppText>
           ) : null}
-        </View>
+        </Ticket>
 
         {event.description ? <AppText>{event.description}</AppText> : null}
 
-        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: t.space[2], flexWrap: 'wrap' }}>
+        <View style={{ flexDirection: 'row', gap: t.space[2], flexWrap: 'wrap' }}>
           {event.i_am_here ? (
             <Badge label="You're there" glyph="arrive" tone="trust" />
           ) : event.i_am_going && !event.is_host ? (

@@ -4,6 +4,7 @@ import { useTheme } from '@/theme';
 
 import { AppText } from './AppText';
 import { Glyph, type GlyphName } from './Glyph';
+import { look } from './look';
 
 /** Selectable pill, used for filters and choices. */
 export function Chip({
@@ -20,6 +21,7 @@ export function Chip({
   glyph?: GlyphName;
 }) {
   const t = useTheme();
+  const { ticket } = look(t);
   return (
     <Pressable
       accessibilityRole="button"
@@ -34,17 +36,31 @@ export function Chip({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        borderRadius: t.radius.pill,
-        borderWidth: t.borderWidth.regular,
+        borderRadius: ticket ? t.radius.sm : t.radius.pill,
+        borderWidth: ticket ? 0 : t.borderWidth.regular,
         borderColor: selected ? t.colors.primary : t.colors.border,
-        backgroundColor: selected ? t.colors.primary : t.colors.surface,
+        backgroundColor: selected ? t.colors.primary : ticket ? t.colors.surfaceAlt : t.colors.surface,
         opacity: pressed ? 0.8 : 1,
       })}>
       {glyph ? <Glyph name={glyph} size={label ? 15 : 20} color={selected ? t.colors.onPrimary : t.colors.textMuted} strokeWidth={2} /> : null}
       {label ? (
-        <AppText variant="small" weight="bold" style={{ color: selected ? t.colors.onPrimary : t.colors.textMuted }}>
-          {label}
-        </AppText>
+        ticket ? (
+          // Tag style: mono small caps, like a wristband stamp.
+          <AppText
+            style={{
+              color: selected ? t.colors.onPrimary : t.colors.text,
+              fontFamily: t.fonts.mono, textTransform: 'uppercase',
+              fontSize: 11.5,
+              lineHeight: 15,
+              letterSpacing: 0.6,
+            }}>
+            {label}
+          </AppText>
+        ) : (
+          <AppText variant="small" weight="bold" style={{ color: selected ? t.colors.onPrimary : t.colors.textMuted }}>
+            {label}
+          </AppText>
+        )
       ) : null}
     </Pressable>
   );
