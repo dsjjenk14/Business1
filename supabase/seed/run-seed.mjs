@@ -463,6 +463,15 @@ await must(db.from('notifications').insert([
 // ── Done ──────────────────────────────────────────────────────────────────
 const dom = await must(db.from('profiles').select('display_name, vouch_count, is_founding_member, invite_code').eq('id', ids.dom).single(), 'check dom');
 const jordan = await must(db.from('profiles').select('vouch_count, top_vouch_word').eq('id', ids.jordan).single(), 'check jordan');
+// ── 12. Phase 6 demo: Dominique is an admin; two partner venues with perks ─
+await must(db.from('profiles').update({ role: 'admin' }).eq('id', ids.dom), 'admin');
+const inDays = (d) => new Date(Date.now() + d * 86_400_000).toISOString();
+await must(db.from('venue_placements').insert([
+  { venue_id: venue.bresca, kind: 'featured', perk: 'Complimentary glass of bubbles for I\'m In members', perk_details: 'Tasting menu nights, Tue to Thu. Show your I\'m In profile.', starts_at: inDays(-1), ends_at: inDays(30) },
+  { venue_id: venue.foundingfarmers, kind: 'sponsored', perk: '15% off for I\'m In members', perk_details: 'Weeknights before 7 PM.', starts_at: inDays(-1), ends_at: inDays(14) },
+]), 'placements');
+await must(db.from('partner_inquiries').insert({ business_name: 'Songbyrd', contact_name: 'Reina V.', email: 'booking@songbyrd.test', message: 'Would love to do a member night.' }), 'inquiry');
+
 console.log(`\nSeeded ${CAST.length} cast + ${COMMUNITY_SIZE} community members, ${planned.length} vouches.`);
 console.log(`   ${dom.display_name}: ${dom.vouch_count} vouches, founding=${dom.is_founding_member}, invite code ${dom.invite_code}`);
 console.log(`   Jordan: ${jordan.vouch_count} vouches, top word ${jordan.top_vouch_word}`);

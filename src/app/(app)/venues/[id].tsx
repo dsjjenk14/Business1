@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Card, GlyphTile, Screen, Section } from '@/components/ui';
+import { AppText, Card, GlyphTile, GlyphTitle, Screen, Section, SponsoredLabel } from '@/components/ui';
 import { fetchVenue, type VenueDetail } from '@/features/tonight/api';
 import { dayTime } from '@/lib/time';
 import { useTheme } from '@/theme';
@@ -49,6 +49,25 @@ export default function Venue() {
                 </AppText>
               ) : null}
             </View>
+
+            {venue.placement ? (
+              <Card accent="sponsored">
+                <View style={{ gap: t.space[2] }}>
+                  <SponsoredLabel kind={venue.placement.kind === 'sponsored' ? 'Sponsored' : 'Featured'} />
+                  <GlyphTitle glyph="star" tone="sponsored">
+                    {venue.placement.perk}
+                  </GlyphTitle>
+                  {venue.placement.perk_details ? (
+                    <AppText variant="small" tone="muted">
+                      {venue.placement.perk_details}
+                    </AppText>
+                  ) : null}
+                  <AppText variant="caption" tone="subtle">
+                    Show your I&apos;m In profile when you order. Partners don&apos;t get your information.
+                  </AppText>
+                </View>
+              </Card>
+            ) : null}
 
             <Section title="Happening here">
               {venue.events.length ? (

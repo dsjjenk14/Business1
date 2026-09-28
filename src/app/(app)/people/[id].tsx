@@ -9,6 +9,7 @@ import { fetchFeed, type FeedPin } from '@/features/pins/api';
 import { fetchProfileCard, type ProfileCard } from '@/features/profiles/api';
 import { blockUser } from '@/features/safety/api';
 import { fetchMessageStatus, openDirectChat } from '@/features/chat/api';
+import { recordProfileView } from '@/features/plan/api';
 import { goBackOr } from '@/lib/navigation';
 import { friendlyError } from '@/lib/supabase';
 import { useAppConfig } from '@/config/useAppConfig';
@@ -38,6 +39,7 @@ export default function PersonProfile() {
         }
         setCard(c);
         setPins(p);
+        if (c) recordProfileView(c.id);
         if (c && c.degree === 1 && !c.can_message) {
           fetchMessageStatus(c.id)
             .then((m) => !cancelled && setExchanges(m.exchanges))

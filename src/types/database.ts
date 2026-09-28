@@ -721,6 +721,25 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"partner_inquiries": {
+                  Row: {
+                    "address": string | null,"business_name": string,"contact_name": string,"created_at": string,"email": string,"id": number,"message": string,"phone": string | null,"status": string,"submitted_by": string | null
+                  }
+                  Insert: {
+                    "address"?: string | null,"business_name": string,"contact_name": string,"created_at"?: string,"email": string,"id"?: number,"message"?: string,"phone"?: string | null,"status"?: string,"submitted_by"?: string | null
+                  }
+                  Update: {
+                    "address"?: string | null,"business_name"?: string,"contact_name"?: string,"created_at"?: string,"email"?: string,"id"?: number,"message"?: string,"phone"?: string | null,"status"?: string,"submitted_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "partner_inquiries_submitted_by_fkey"
+      columns: ["submitted_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"phone_verifications": {
                   Row: {
                     "attempts": number,"code_hash": string,"created_at": string,"expires_at": string,"id": number,"phone": string,"user_id": string,"verified_at": string | null
@@ -934,6 +953,31 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"profile_views": {
+                  Row: {
+                    "day": string,"viewed_id": string,"viewer_id": string
+                  }
+                  Insert: {
+                    "day"?: string,"viewed_id": string,"viewer_id": string
+                  }
+                  Update: {
+                    "day"?: string,"viewed_id"?: string,"viewer_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "profile_views_viewed_id_fkey"
+      columns: ["viewed_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "profile_views_viewer_id_fkey"
+      columns: ["viewer_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"profiles": {
                   Row: {
                     "approx_location": unknown,"avatar_emoji": string | null,"avatar_url": string | null,"bio": string,"city_id": number | null,"created_at": string,"display_name": string,"full_name": string,"headline": string,"id": string,"id_verified_at": string | null,"invite_code": string,"invited_by": string | null,"is_founding_member": boolean,"location_precision": Database["public"]['Enums']["location_precision"],"member_number": number,"neighborhood": string | null,"photo_verified_at": string | null,"pronouns": string | null,"role": Database["public"]['Enums']["user_role"],"show_age": boolean,"top_vouch_word": string | null,"updated_at": string,"vouch_count": number
@@ -1109,6 +1153,31 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"venue_placements": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"ends_at": string,"id": number,"kind": string,"perk": string,"perk_details": string,"starts_at": string,"venue_id": number
+                  }
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"ends_at": string,"id"?: number,"kind": string,"perk": string,"perk_details"?: string,"starts_at": string,"venue_id": number
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"ends_at"?: string,"id"?: number,"kind"?: string,"perk"?: string,"perk_details"?: string,"starts_at"?: string,"venue_id"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "venue_placements_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "venue_placements_venue_id_fkey"
+      columns: ["venue_id"]
+isOneToOne: false
+      referencedRelation: "venues"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"venues": {
                   Row: {
                     "address": string | null,"category": string | null,"city_id": number | null,"created_at": string,"description": string,"emoji": string | null,"id": number,"location": unknown,"name": string,"neighborhood": string | null,"price_level": number | null
@@ -1125,6 +1194,31 @@ isOneToOne: true
       columns: ["city_id"]
 isOneToOne: false
       referencedRelation: "cities"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"verification_requests": {
+                  Row: {
+                    "created_at": string,"gesture": string | null,"id": number,"kind": string,"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"selfie_path": string | null,"status": string,"submitted_at": string | null,"user_id": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"gesture"?: string | null,"id"?: number,"kind": string,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"selfie_path"?: string | null,"status"?: string,"submitted_at"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"gesture"?: string | null,"id"?: number,"kind"?: string,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"selfie_path"?: string | null,"status"?: string,"submitted_at"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "verification_requests_reviewed_by_fkey"
+      columns: ["reviewed_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "verification_requests_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
       referencedColumns: ["id"]
     }
                   ]
@@ -1228,7 +1322,29 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "block_user":
+            "admin_act_on_report":
+{ Args: { "p_action": string,"p_note"?: string,"p_report": number }; Returns: undefined
+                           },
+"admin_grant_premium":
+{ Args: { "p_days": number,"p_email": string }; Returns: string
+                           },
+"admin_overview":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"admin_reports":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "about": string,"admin_notes": string,"content": string,"created_at": string,"details": string,"hidden": boolean,"id": number,"message_id": number,"pin_id": number,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number,"reported_id": string,"reported_name": string,"reporter_name": string,"reports_on_target": number,"status": Database["public"]['Enums']["report_status"]
+            }[]
+                           },
+"admin_review_verification":
+{ Args: { "p_approve": boolean,"p_note"?: string,"p_request": number }; Returns: undefined
+                           },
+"admin_verifications":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "avatar_url": string,"display_name": string,"gesture": string,"id": number,"kind": string,"member_since": string,"selfie_path": string,"submitted_at": string,"user_id": string,"vouch_count": number
+            }[]
+                           },
+"block_user":
 { Args: { "p_user": string }; Returns: undefined
                            },
 "cancel_date_request":
@@ -1296,6 +1412,16 @@ isOneToOne: false
                            },
 "event_detail":
 { Args: { "p_event": number }; Returns: Json
+                           },
+"featured_places":
+{ Args: { "p_lat"?: number,"p_lng"?: number }; Returns: {
+              "category": string,"distance_mi": number,"ends_at": string,"glyph": string,"kind": string,"name": string,"neighborhood": string,"network_visited": number,"perk": string,"perk_details": string,"placement_id": number,"price_level": number,"venue_id": number
+            }[]
+                           },
+"feed_placement":
+{ Args: { "p_lat"?: number,"p_lng"?: number }; Returns: {
+              "distance_mi": number,"glyph": string,"kind": string,"name": string,"neighborhood": string,"network_visited": number,"perk": string,"placement_id": number,"venue_id": number
+            }[]
                            },
 "generate_invite_code":
 { Args: Record<PropertyKey, never>; Returns: string
@@ -1365,6 +1491,9 @@ isOneToOne: false
 "my_intros":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"my_plan":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "my_recent_meetups":
 { Args: { "p_minutes"?: number }; Returns: {
               "already_vouched": boolean,"avatar_emoji": string,"avatar_url": string,"degree": number,"display_name": string,"encounter_id": number,"met_at": string,"place_label": string,"user_id": string,"vouch_count": number
@@ -1374,6 +1503,9 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: {
               "about": string,"created_at": string,"id": number,"reason": Database["public"]['Enums']["report_reason"],"reported_name": string,"status": Database["public"]['Enums']["report_status"]
             }[]
+                           },
+"my_verification":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "my_vouches_left_this_month":
 { Args: Record<PropertyKey, never>; Returns: number
@@ -1385,6 +1517,9 @@ isOneToOne: false
                            },
 "open_direct_conversation":
 { Args: { "p_other": string }; Returns: number
+                           },
+"photo_verification_challenge":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "pins_feed":
 { Args: { "p_author"?: string,"p_before"?: string,"p_category"?: Database["public"]['Enums']["pin_category"],"p_lat"?: number,"p_limit"?: number,"p_lng"?: number,"p_mode": string,"p_pin"?: number,"p_radius_mi"?: number }; Returns: {
@@ -1406,6 +1541,9 @@ isOneToOne: false
 "profile_age":
 { Args: { "p_user": string }; Returns: number
                            },
+"profile_analytics":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "profile_card":
 { Args: { "p_user": string }; Returns: Json
                            },
@@ -1414,6 +1552,9 @@ isOneToOne: false
                            },
 "record_communication":
 { Args: { "p_from": string,"p_to": string }; Returns: undefined
+                           },
+"record_profile_view":
+{ Args: { "p_user": string }; Returns: undefined
                            },
 "refresh_vouch_stats":
 { Args: { "p_user": string }; Returns: undefined
@@ -1484,6 +1625,12 @@ isOneToOne: false
                            },
 "start_date_mode":
 { Args: { "p_accuracy_m"?: number,"p_lat": number,"p_lng": number,"p_partner": string }; Returns: number
+                           },
+"submit_partner_inquiry":
+{ Args: { "p_address"?: string,"p_business": string,"p_contact": string,"p_email": string,"p_message"?: string,"p_phone"?: string }; Returns: number
+                           },
+"submit_photo_verification":
+{ Args: { "p_path": string,"p_request": number }; Returns: undefined
                            },
 "tonight_ends_at":
 { Args: Record<PropertyKey, never>; Returns: string

@@ -3,6 +3,9 @@ begin;
 create extension if not exists pgtap with schema extensions;
 select plan(16);
 
+-- Test members are on the free plan (no founding Premium) unless a test says otherwise.
+update app_config set value = '0' where key = 'founding_member_limit';
+
 create or replace function pg_temp.new_user(p_email text, p_name text, p_terms boolean default true) returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();
 begin

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 
 import { DateStrip } from '@/components/home/DateStrip';
+import { PlacementCard } from '@/components/places/PlacementCard';
 import { GoingOutStrip } from '@/components/home/GoingOutStrip';
 import { TonightPickCard } from '@/components/home/TonightPickCard';
 import { VouchCard } from '@/components/home/VouchCard';
@@ -10,6 +11,7 @@ import { PinCard } from '@/components/pins/PinCard';
 import { AppText, Card, Screen, Section, useToast } from '@/components/ui';
 import { useFirstWeekChecklist } from '@/features/onboarding/useFirstWeekChecklist';
 import { fetchDateMode, fetchMyDates, type DateModeStatus, type MyDate } from '@/features/dates/api';
+import { fetchFeedPlacement, type FeedPlacement } from '@/features/places/api';
 import { fetchFeed, type FeedPin } from '@/features/pins/api';
 import { fetchTonightNetwork, fetchTonightPick, rsvp, type TonightPerson, type TonightPick } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
@@ -43,6 +45,7 @@ export default function Home() {
   const [rsvpd, setRsvpd] = useState(false);
   const [dateMode, setDateMode] = useState<DateModeStatus | null>(null);
   const [dates, setDates] = useState<MyDate[]>([]);
+  const [placement, setPlacement] = useState<FeedPlacement | null>(null);
 
   // First-week checklist pops up once after first login, until dismissed.
   useEffect(() => {
@@ -61,14 +64,16 @@ export default function Home() {
         fetchTonightPick(),
         fetchDateMode().catch(() => null),
         fetchMyDates().catch(() => []),
+        fetchFeedPlacement().catch(() => null),
       ])
-        .then(([people, pins, p, mode, d]) => {
+        .then(([people, pins, p, mode, d, place]) => {
           if (cancelled) return;
           setTonight(people);
           setNetworkPins(pins);
           setPick(p);
           setDateMode(mode);
           setDates(d);
+          setPlacement(place);
           setRsvpd(false);
         })
         .catch(() => {});
@@ -119,9 +124,11 @@ export default function Home() {
           </Card>
         ) : (
           <View style={{ gap: t.space[3] }}>
-            {networkPins.map((p) => (
+            {/* Two slots: a partner placement (always labeled) can take the second one. */}
+            {networkPins.slice(0, placement ? 1 : 2).map((p) => (
               <PinCard key={p.id} pin={p} onChange={(n) => setNetworkPins((l) => l?.map((x) => (x.id === n.id ? n : x)) ?? null)} />
             ))}
+            {placement ? <PlacementCard place={placement} /> : null}
           </View>
         )}
       </Section>
