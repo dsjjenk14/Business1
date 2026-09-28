@@ -162,7 +162,7 @@ export default function Connect() {
         </Section>
 
         <AppText variant="caption" tone="subtle" align="center">
-          Only connect with people you actually know. You can also meet up and check in together (Circles → Check in), or ask a mutual friend for an intro.
+          Only add people you know. You can also meet up and check in together (Circles → Check in), or ask a mutual friend for an intro.
         </AppText>
       </Screen>
     </View>

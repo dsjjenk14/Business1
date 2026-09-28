@@ -29,7 +29,7 @@ export default function Onboarding() {
             Real people.{'\n'}Real trust.
           </AppText>
           <AppText variant="body" tone="muted">
-            A social app for people you actually know. Share pins, talk in group chats, make plans, and build a reputation that means something.
+            See where everyone’s going tonight, make plans with friends, and meet people others vouch for.
           </AppText>
         </View>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[3] }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
