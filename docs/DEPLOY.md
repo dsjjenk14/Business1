@@ -63,3 +63,9 @@ Open the failed run in the **Actions** tab and tell me which step is red. I can 
 ## Or: let Claude deploy
 
 Add `SUPABASE_ACCESS_TOKEN` and `EXPO_TOKEN` as environment variables in the Claude session settings, allow network access to `supabase.com`, `api.supabase.com`, `*.supabase.co`, `expo.dev`, `api.expo.dev` and `u.expo.dev`, then start a new session and say "deploy I'm In". It runs `npm run deploy`.
+
+## Sharing with testers
+
+Every deploy also publishes the web version at **https://imin-dc.expo.app**
+(EAS Hosting, free plan). See `docs/TESTERS.md` for what to send testers and the
+one Supabase setting to add.

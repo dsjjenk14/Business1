@@ -5,6 +5,13 @@
 
 ---
 
+## ✅ A web link for testers
+- Every deploy now also publishes the web version at **https://imin-dc.expo.app**, so anyone can try I'm In in their phone's browser. Nothing to install and no Expo account.
+- Built and tested here: it logs in and loads with no errors.
+- Before sending it out, add the web address to Supabase's allowed redirect URLs, and turn off "Confirm email" (or set up an email service). Steps are in `docs/TESTERS.md`.
+
+---
+
 ## ✅ New look: Catalog (chic, clean, like a home catalog)
 - **Catalog** (light, now the default): warm linen and white, charcoal text, a brick-clay accent, sage for trust and brass for featured things.
 - **Catalog Night** (dark): warm charcoal with cream text and terracotta.

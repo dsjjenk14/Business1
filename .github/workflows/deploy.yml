@@ -1,7 +1,8 @@
 # Deploys I'm In whenever main changes (or when run by hand from the Actions tab).
 #
 #  1. Supabase: applies new database migrations and deploys Edge Functions.
-#  2. App: publishes an over-the-air update you open on your phone in Expo Go.
+#  2. App: publishes an over-the-air update you open on your phone in Expo Go,
+#     and the web version testers can open in any browser (imin-dc.expo.app).
 #
 # Needs these repository secrets (Settings → Secrets and variables → Actions):
 #   SUPABASE_ACCESS_TOKEN   Supabase → Account → Access Tokens
@@ -76,7 +77,7 @@ jobs:
           SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID || 'yscrfhaedexogvegbvzm' }}
 
   app:
-    name: Publish app update (Expo)
+    name: Publish app update (Expo) and web version
     needs: supabase
     runs-on: ubuntu-latest
     env:
@@ -92,3 +93,10 @@ jobs:
       - run: npm ci
       - name: Publish update to the "production" channel
         run: npx eas-cli@latest update --channel production --message "${{ github.event.head_commit.message || 'Manual deploy' }}" --non-interactive
+      # The web version, for testers without Expo Go: https://imin-dc.expo.app
+      # (EAS Hosting, free plan). The phone update above goes out first, so a
+      # web hiccup never holds it back.
+      - name: Build the web version
+        run: npx expo export --platform web
+      - name: Publish the web version (EAS Hosting)
+        run: npx eas-cli@latest deploy --prod --non-interactive --dev-domain imin-dc
