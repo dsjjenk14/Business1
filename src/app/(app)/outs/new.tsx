@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Switch, TextInput, View } from 'react-native';
 
 import { CameraCapture } from '@/components/camera/CameraCapture';
+import { VideoPlayer } from '@/components/media/VideoPlayer';
 import { PeoplePicker } from '@/components/chat/PeoplePicker';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Button, Chip, useToast } from '@/components/ui';
@@ -15,7 +16,7 @@ import { refreshNewOuts } from '@/features/outs/useNewOuts';
 import { playSound } from '@/features/sounds/sounds';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
-import { useTheme } from '@/theme';
+import { useTheme, fontStyle } from '@/theme';
 
 /** Take an Out anywhere: snap, add a caption, send to friends and/or My Out. Gone in 6 hours unless pinned. */
 export default function NewOut() {
@@ -23,7 +24,9 @@ export default function NewOut() {
   const router = useRouter();
   const toast = useToast();
   const { session } = useAuth();
-  const [photo, setPhoto] = useState<string | null>(null);
+  // What you captured: a photo, or a video of up to 9 seconds.
+  const [shot, setShot] = useState<{ kind: 'photo' | 'video'; uri: string; durationS: number | null } | null>(null);
+  const photo = shot?.uri ?? null;
   const [caption, setCaption] = useState('');
   const [step, setStep] = useState<'snap' | 'send'>('snap');
   const [people, setPeople] = useState<ChatCandidate[]>([]);
@@ -49,8 +52,8 @@ export default function NewOut() {
     if (!session || !photo) return;
     setBusy(true);
     try {
-      await sendOut({ userId: session.user.id, uri: photo, caption, to: [...to], toStory, audience });
-      track('out_sent', { to: to.size, story: toStory, audience: toStory ? audience : null });
+      await sendOut({ userId: session.user.id, uri: photo, kind: shot?.kind ?? 'photo', caption, to: [...to], toStory, audience });
+      track('out_sent', { to: to.size, story: toStory, audience: toStory ? audience : null, kind: shot?.kind ?? 'photo' });
       playSound('sent');
       toast(to.size ? `Out sent to ${to.size} ${to.size === 1 ? 'friend' : 'friends'}` : 'Posted to My Out');
       refreshNewOuts();
@@ -65,8 +68,12 @@ export default function NewOut() {
   if (!photo) {
     return (
       <View style={{ flex: 1, backgroundColor: '#000000' }}>
-        <BackHeader title={event ? `Out at ${event.title}` : 'Take an Out'} />
-        <CameraCapture mode="photo" onCaptured={(uris) => setPhoto(uris[0] ?? null)} />
+        <BackHeader title={event ? `Out at ${event.title}` : 'Out'} />
+        <CameraCapture
+          mode="photo"
+          onCaptured={(uris) => uris[0] && setShot({ kind: 'photo', uri: uris[0], durationS: null })}
+          onVideo={(uri, durationS) => setShot({ kind: 'video', uri, durationS })}
+        />
       </View>
     );
   }
@@ -76,7 +83,13 @@ export default function NewOut() {
       <KeyboardAvoidingView style={{ flex: 1, backgroundColor: '#000000' }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <BackHeader title="Your Out" />
         <View style={{ flex: 1 }}>
-          <Image source={{ uri: photo }} style={{ flex: 1 }} contentFit="cover" accessibilityLabel="Your photo" />
+          {shot?.kind === 'video' ? (
+            <View style={{ flex: 1, justifyContent: 'center' }}>
+              <VideoPlayer uri={photo} rounded={false} autoPlay />
+            </View>
+          ) : (
+            <Image source={{ uri: photo }} style={{ flex: 1 }} contentFit="cover" accessibilityLabel="Your photo" />
+          )}
           <View style={{ position: 'absolute', left: 0, right: 0, top: '60%', backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: t.space[4], paddingVertical: t.space[2] }}>
             <TextInput
               value={caption}
@@ -85,12 +98,12 @@ export default function NewOut() {
               placeholderTextColor="rgba(255,255,255,0.7)"
               maxLength={120}
               accessibilityLabel="Caption"
-              style={{ color: '#FFFFFF', fontSize: 18, textAlign: 'center', fontFamily: t.fonts.bodyMedium, minHeight: 32 }}
+              style={{ color: '#FFFFFF', fontSize: 18, textAlign: 'center', ...fontStyle(t.fonts.bodyMedium), minHeight: 32 }}
             />
           </View>
         </View>
         <View style={{ flexDirection: 'row', gap: t.space[2], padding: t.space[4] }}>
-          <Button label="Retake" variant="secondary" style={{ flex: 1 }} onPress={() => setPhoto(null)} />
+          <Button label="Retake" variant="secondary" style={{ flex: 1 }} onPress={() => setShot(null)} />
           <Button label="Send to" style={{ flex: 1 }} onPress={() => setStep('send')} icon={<Ionicons name="arrow-forward" size={18} color={t.colors.onPrimary} />} />
         </View>
       </KeyboardAvoidingView>

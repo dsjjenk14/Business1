@@ -1,6 +1,6 @@
 import { Pressable } from 'react-native';
 
-import { useTheme } from '@/theme';
+import { useTheme, fontStyle } from '@/theme';
 
 import { AppText } from './AppText';
 import { Glyph, type GlyphName } from './Glyph';
@@ -36,7 +36,7 @@ export function Chip({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        borderRadius: ticket ? t.radius.sm : t.radius.pill,
+        borderRadius: t.radius.pill,
         borderWidth: ticket ? 0 : t.borderWidth.regular,
         borderColor: selected ? t.colors.primary : t.colors.border,
         backgroundColor: selected ? t.colors.primary : ticket ? t.colors.surfaceAlt : t.colors.surface,
@@ -45,15 +45,7 @@ export function Chip({
       {glyph ? <Glyph name={glyph} size={label ? 15 : 20} color={selected ? t.colors.onPrimary : t.colors.textMuted} strokeWidth={2} /> : null}
       {label ? (
         ticket ? (
-          // Tag style: mono small caps, like a wristband stamp.
-          <AppText
-            style={{
-              color: selected ? t.colors.onPrimary : t.colors.text,
-              fontFamily: t.fonts.mono, textTransform: 'uppercase',
-              fontSize: 11.5,
-              lineHeight: 15,
-              letterSpacing: 0.6,
-            }}>
+          <AppText style={{ color: selected ? t.colors.onPrimary : t.colors.text, ...fontStyle(t.fonts.bodyMedium), fontSize: 14, lineHeight: 18, letterSpacing: -0.1 }}>
             {label}
           </AppText>
         ) : (

@@ -6,10 +6,26 @@
  * the whole look change in one place.
  */
 
-import type { FONT_MAP } from './fonts';
+import { Platform, type TextStyle } from 'react-native';
 
-/** Only fonts that are actually loaded can be used (checked at compile time). */
-export type FontName = keyof typeof FONT_MAP;
+import type { FONT_MAP, SYSTEM_FONTS } from './fonts';
+
+/** Only fonts that are actually loaded (or the phone's own) can be used (checked at compile time). */
+export type FontName = keyof typeof FONT_MAP | (typeof SYSTEM_FONTS)[number];
+
+const WEB_SYSTEM_STACK = '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+
+/**
+ * Style for a theme font. Loaded fonts are used by name; the system font is
+ * the platform default at a weight (so bold stays bold on every platform).
+ */
+export function fontStyle(name: FontName): Pick<TextStyle, 'fontFamily' | 'fontWeight'> {
+  if (name.startsWith('System')) {
+    const weight = name.slice(6) as TextStyle['fontWeight'];
+    return Platform.OS === 'web' ? { fontFamily: WEB_SYSTEM_STACK, fontWeight: weight } : { fontWeight: weight };
+  }
+  return { fontFamily: name };
+}
 
 export type ThemeId = 'L' | 'N' | 'O' | 'A' | 'B' | 'C' | 'D';
 

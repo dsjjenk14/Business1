@@ -1,6 +1,6 @@
 import { Pressable, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { useTheme } from '@/theme';
+import { useTheme, fontStyle } from '@/theme';
 
 import { AppText } from './AppText';
 import { look } from './look';
@@ -35,12 +35,11 @@ export function Section({ title, action, children, style, bare }: SectionProps) 
 
   const header = poster ? (
     <View accessibilityRole="header" style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3], marginBottom: t.space[3] }}>
-      <AppText style={{ fontFamily: t.fonts.display, fontSize: 24, lineHeight: 26, letterSpacing: 0.8, color: t.colors.text }}>{title}</AppText>
-      <View style={{ flex: 1, height: 1, backgroundColor: t.colors.border }} />
+      <AppText style={{ flex: 1, ...fontStyle(t.fonts.display), fontSize: 20, lineHeight: 25, letterSpacing: -0.4, color: t.colors.text }}>{title}</AppText>
       {action ? (
         <Pressable accessibilityRole="link" onPress={action.onPress} hitSlop={10}>
-          <AppText variant="label" tone="primary">
-            {`${action.label} →`}
+          <AppText variant="small" weight="bold" tone="primary">
+            {action.label}
           </AppText>
         </Pressable>
       ) : null}

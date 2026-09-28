@@ -303,34 +303,34 @@ const D: Theme = {
 
 
 /**
- * Guest List type: Bebas Neue posters for headlines, DM Sans for reading,
- * JetBrains Mono for the small print (times, counts, labels), like a ticket.
+ * The house type: the phone's own typeface (SF Pro on iPhone), heavy and tight
+ * for headlines like the big social apps, plain and readable for everything else.
  */
 const guestType: ThemeType = {
-  hero: { fontSize: 60, lineHeight: 56, letterSpacing: 0.5 },
-  h1: { fontSize: 42, lineHeight: 42, letterSpacing: 0.6 },
-  h2: { fontSize: 28, lineHeight: 30, letterSpacing: 0.6 },
-  h3: { fontSize: 17, lineHeight: 22 },
-  body: { fontSize: 15, lineHeight: 22 },
-  small: { fontSize: 13, lineHeight: 18 },
-  caption: { fontSize: 11.5, lineHeight: 16 },
-  label: { fontSize: 10.5, lineHeight: 14, letterSpacing: 1.4 },
-  number: { fontSize: 40, lineHeight: 40, letterSpacing: 0.5 },
+  hero: { fontSize: 36, lineHeight: 40, letterSpacing: -0.9 },
+  h1: { fontSize: 28, lineHeight: 33, letterSpacing: -0.6 },
+  h2: { fontSize: 21, lineHeight: 26, letterSpacing: -0.4 },
+  h3: { fontSize: 17, lineHeight: 22, letterSpacing: -0.2 },
+  body: { fontSize: 16, lineHeight: 22, letterSpacing: -0.1 },
+  small: { fontSize: 14, lineHeight: 19 },
+  caption: { fontSize: 12, lineHeight: 16 },
+  label: { fontSize: 13, lineHeight: 18, letterSpacing: -0.1 },
+  number: { fontSize: 30, lineHeight: 34, letterSpacing: -0.6 },
 };
 const guestFonts = {
-  display: 'BebasNeue_400Regular',
-  displayBold: 'BebasNeue_400Regular',
-  body: 'DMSans_400Regular',
-  bodyMedium: 'DMSans_500Medium',
-  bodyBold: 'DMSans_700Bold',
-  mono: 'JetBrainsMono_500Medium',
+  display: 'System800',
+  displayBold: 'System900',
+  body: 'System400',
+  bodyMedium: 'System600',
+  bodyBold: 'System700',
+  mono: 'System600',
 } as const;
 const guestStyle: Theme['style'] = {
   section: 'poster',
   badge: 'pill',
-  uppercaseLabels: true,
+  uppercaseLabels: false,
   monoNumbers: false,
-  monoLabels: true,
+  monoLabels: false,
   surface: 'flat',
   controls: 'ticket',
 };
@@ -372,7 +372,7 @@ const L: Theme = {
   },
   fonts: guestFonts,
   type: guestType,
-  radius: { sm: 3, md: 6, lg: 10, xl: 14, pill: 999 },
+  radius: { sm: 6, md: 12, lg: 16, xl: 22, pill: 999 },
   space: SPACE,
   borderWidth: { hairline: 1, regular: 1, strong: 1.5 },
   shadow: {
@@ -424,7 +424,7 @@ const N: Theme = {
   },
   fonts: guestFonts,
   type: guestType,
-  radius: { sm: 3, md: 6, lg: 10, xl: 14, pill: 999 },
+  radius: { sm: 6, md: 12, lg: 16, xl: 22, pill: 999 },
   space: SPACE,
   borderWidth: { hairline: 1, regular: 1, strong: 1.5 },
   shadow: {

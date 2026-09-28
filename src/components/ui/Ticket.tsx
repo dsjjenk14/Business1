@@ -1,6 +1,6 @@
 import { Pressable, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { useTheme } from '@/theme';
+import { useTheme, fontStyle } from '@/theme';
 
 import { AppText } from './AppText';
 
@@ -58,9 +58,9 @@ export function Ticket({
   );
 }
 
-/** The small print on a ticket: mono, spaced out, like a stamp ("SAT · 9:00 PM"). */
+/** The small print on a ticket ("Sat · 9:00 PM"). */
 export function Stamp({ children, tone = 'muted' }: { children: string; tone?: 'muted' | 'primary' | 'trust' | 'text' }) {
   const t = useTheme();
   const color = tone === 'muted' ? t.colors.textMuted : tone === 'primary' ? t.colors.primaryText : tone === 'trust' ? t.colors.trust : t.colors.text;
-  return <AppText style={{ color, fontFamily: t.fonts.mono, textTransform: 'uppercase', fontSize: 10.5, lineHeight: 14, letterSpacing: 1 }}>{children}</AppText>;
+  return <AppText style={{ color, ...fontStyle(t.fonts.bodyMedium), fontSize: 13, lineHeight: 17 }}>{children}</AppText>;
 }

@@ -1,6 +1,6 @@
 import { Text, type TextProps } from 'react-native';
 
-import { MAX_FONT_SCALE, useTheme, type Theme } from '@/theme';
+import { fontStyle, MAX_FONT_SCALE, useTheme, type FontName, type Theme } from '@/theme';
 
 type Variant = keyof Theme['type'];
 type Tone = 'text' | 'muted' | 'subtle' | 'primary' | 'trust' | 'ai' | 'danger' | 'sponsored' | 'onPrimary' | 'onTrust';
@@ -20,7 +20,7 @@ export function AppText({ variant = 'body', tone = 'text', weight, align, style,
   const t = useTheme();
   const type = t.type[variant];
 
-  let fontFamily: string;
+  let fontFamily: FontName;
   if (variant === 'number' && t.style.monoNumbers) fontFamily = t.fonts.mono;
   else if (variant === 'number' || DISPLAY_VARIANTS.includes(variant)) fontFamily = weight === 'bold' || variant === 'hero' ? t.fonts.displayBold : t.fonts.display;
   else if (variant === 'label' && t.style.monoLabels) fontFamily = t.fonts.mono;
@@ -48,7 +48,7 @@ export function AppText({ variant = 'body', tone = 'text', weight, align, style,
     <Text
       maxFontSizeMultiplier={MAX_FONT_SCALE}
       style={[
-        { fontFamily, color: colorMap[tone], fontSize: type.fontSize, lineHeight: type.lineHeight, letterSpacing: type.letterSpacing, textAlign: align },
+        { ...fontStyle(fontFamily), color: colorMap[tone], fontSize: type.fontSize, lineHeight: type.lineHeight, letterSpacing: type.letterSpacing, textAlign: align },
         upper ? { textTransform: 'uppercase' } : null,
         style,
       ]}

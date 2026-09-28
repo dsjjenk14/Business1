@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Logo } from '@/components/nav/Logo';
-import { AppText, Badge, Button } from '@/components/ui';
+import { AppText, Button } from '@/components/ui';
 import { useTheme } from '@/theme';
 
 /** First screen: Log In / Create Account. */
@@ -31,12 +31,6 @@ export default function Onboarding() {
           <AppText variant="body" tone="muted">
             See where everyone’s going tonight, make plans with friends, and meet people others vouch for.
           </AppText>
-        </View>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[3] }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          <Badge label="Pins and group chats" tone="primary" glyph="chat" />
-          <Badge label="GPS-verified vouches" tone="trust" glyph="pin" />
-          <Badge label="One intro away" tone="ai" glyph="connect" />
-          <Badge label="Plans tonight" tone="sponsored" glyph="moon" />
         </View>
       </View>
 

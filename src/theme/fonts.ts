@@ -33,3 +33,9 @@ export const FONT_MAP = {
   Syne_600SemiBold,
   Syne_700Bold,
 };
+
+/**
+ * The phone's own typeface (SF Pro on iPhone, Roboto on Android, the system
+ * face on the web), by weight. Nothing to download.
+ */
+export const SYSTEM_FONTS = ['System400', 'System500', 'System600', 'System700', 'System800', 'System900'] as const;

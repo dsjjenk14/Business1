@@ -6,7 +6,7 @@
  *
  * It also deletes photos that are finished (the hour is up and nobody pinned it).
  *
- * POST { out_id } → { id, url, caption, sender_name, created_at, expires_at, event_title, pinned, is_mine }
+ * POST { out_id } → { id, url, kind, caption, sender_name, created_at, expires_at, event_title, pinned, is_mine }
  */
 import { adminRest, corsHeaders, getCaller, json } from '../_shared/http.ts';
 
@@ -22,7 +22,10 @@ async function signedUrl(path: string): Promise<string | null> {
   });
   if (!res.ok) return null;
   const { signedURL } = (await res.json()) as { signedURL?: string };
-  return signedURL ? `${SUPABASE_URL()}/storage/v1${signedURL}` : null;
+  // The link the phone opens. Locally the functions reach Storage on an internal
+  // address, so tests can set a public one; in production they're the same.
+  const base = Deno.env.get('PUBLIC_SUPABASE_URL') ?? SUPABASE_URL();
+  return signedURL ? `${base}/storage/v1${signedURL}` : null;
 }
 
 /** Delete finished Outs' photos (a batch per call keeps this quick). */
@@ -59,6 +62,7 @@ Deno.serve(async (req) => {
     created_at?: string;
     event_title?: string | null;
     expires_at?: string;
+    kind?: 'photo' | 'video';
     pinned?: boolean;
     is_mine?: boolean;
     error?: string;
@@ -76,6 +80,7 @@ Deno.serve(async (req) => {
   return json({
     id: outId,
     url,
+    kind: data.kind ?? 'photo',
     caption: data.caption ?? null,
     sender_name: data.sender_name,
     sender_id: data.sender_id,

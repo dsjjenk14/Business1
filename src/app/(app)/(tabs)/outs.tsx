@@ -7,7 +7,7 @@ import { AppText, Avatar, Card, EmptyState, LoadingList, Section } from '@/compo
 import { fetchOutEvent, fetchOutsInbox, type OutEvent, type OutsInbox } from '@/features/outs/api';
 import { refreshNewOuts } from '@/features/outs/useNewOuts';
 import { timeAgo } from '@/lib/time';
-import { useTheme } from '@/theme';
+import { useTheme, fontStyle } from '@/theme';
 
 /**
  * Outs: photos that disappear after 6 hours. Send one to friends in your
@@ -54,23 +54,31 @@ export default function Outs() {
           tintColor={t.colors.primary}
         />
       }>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={event ? `Take an Out at ${event.title}` : 'Take an Out'}
-        onPress={() => router.push('/outs/new')}
-        style={{ borderRadius: t.radius.lg, backgroundColor: t.colors.primary, padding: t.space[5], flexDirection: 'row', alignItems: 'center', gap: t.space[4] }}>
-        <View style={{ width: 56, height: 56, borderRadius: 28, borderWidth: 4, borderColor: t.colors.onPrimary, alignItems: 'center', justifyContent: 'center' }}>
-          <Ionicons name="camera" size={26} color={t.colors.onPrimary} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <AppText variant="h1" style={{ color: t.colors.onPrimary }}>
-            Take an Out
+      {/* OUT: one big button, straight to the camera. Tap for a photo, hold for up to 9 seconds of video. */}
+      <View style={{ alignItems: 'center', gap: t.space[2], paddingVertical: t.space[2] }}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={event ? `Out at ${event.title}: open the camera` : 'Out: open the camera'}
+          onPress={() => router.push('/outs/new')}
+          style={({ pressed }) => ({
+            width: 132,
+            height: 132,
+            borderRadius: 66,
+            backgroundColor: t.colors.primary,
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderWidth: 6,
+            borderColor: t.colors.surfaceAlt,
+            transform: [{ scale: pressed ? 0.95 : 1 }],
+          })}>
+          <AppText style={{ ...fontStyle(t.fonts.displayBold), color: t.colors.onPrimary, fontSize: 38, lineHeight: 44, letterSpacing: -1 }}>OUT</AppText>
+        </Pressable>
+        {event ? (
+          <AppText variant="small" tone="muted">
+            At {event.title}
           </AppText>
-          <AppText style={{ color: t.colors.onPrimary, fontFamily: t.fonts.mono, fontSize: 10.5, lineHeight: 15, letterSpacing: 0.8, textTransform: 'uppercase' }}>
-            {event ? `At ${event.title} · ` : ''}Gone in 6 hrs unless pinned
-          </AppText>
-        </View>
-      </Pressable>
+        ) : null}
+      </View>
 
       {!inbox ? (
         <LoadingList rows={4} />

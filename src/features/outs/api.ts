@@ -13,6 +13,8 @@ export type OutAudience = 'circle' | 'network';
 export type OpenedOut = {
   id: number;
   url: string;
+  /** Photo, or a short video. */
+  kind: 'photo' | 'video';
   caption: string | null;
   sender_name: string;
   sender_id: string;
@@ -31,9 +33,34 @@ export async function fetchOutsInbox() {
 }
 
 /** Upload the photo, then send it to friends and/or post it to My Out. */
-export async function sendOut(input: { userId: string; uri: string; caption: string; to: string[]; toStory: boolean; audience: OutAudience }) {
-  const { bytes, contentType } = await readBytes(input.uri);
-  const ext = contentType.includes('png') ? 'png' : contentType.includes('webp') ? 'webp' : 'jpg';
+export async function sendOut(input: {
+  userId: string;
+  uri: string;
+  /** A photo, or a video of up to 9 seconds. */
+  kind: 'photo' | 'video';
+  caption: string;
+  to: string[];
+  toStory: boolean;
+  audience: OutAudience;
+}) {
+  const video = input.kind === 'video';
+  const read = await readBytes(input.uri, video ? 'video/mp4' : 'image/jpeg');
+  const bytes = read.bytes;
+  // Phones don't always say what a file is; go by what was captured.
+  const contentType = video
+    ? /quicktime|\.mov$/i.test(read.contentType + input.uri)
+      ? 'video/quicktime'
+      : /webm/i.test(read.contentType)
+        ? 'video/webm'
+        : 'video/mp4'
+    : read.contentType;
+  const ext = video
+    ? { 'video/quicktime': 'mov', 'video/webm': 'webm' }[contentType] ?? 'mp4'
+    : contentType.includes('png')
+      ? 'png'
+      : contentType.includes('webp')
+        ? 'webp'
+        : 'jpg';
   const path = `${input.userId}/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
   const up = await supabase.storage.from('outs').upload(path, bytes, { contentType });
   if (up.error) throw up.error;

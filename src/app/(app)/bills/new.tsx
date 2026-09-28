@@ -11,7 +11,7 @@ import { track } from '@/features/analytics/track';
 import { createBill, evenShares, fetchBillPeople, money, parseMoney, type BillPerson } from '@/features/bills/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
-import { useTheme } from '@/theme';
+import { useTheme, fontStyle } from '@/theme';
 
 const TIPS = [0, 15, 18, 20, 22];
 
@@ -258,7 +258,7 @@ export default function NewBill() {
                         width: 110,
                         textAlign: 'right',
                         color: t.colors.text,
-                        fontFamily: t.fonts.bodyBold,
+                        ...fontStyle(t.fonts.bodyBold),
                         fontSize: 16,
                         paddingHorizontal: t.space[3],
                         paddingVertical: t.space[2],

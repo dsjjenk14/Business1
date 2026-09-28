@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { forwardRef, useState } from 'react';
 import { Pressable, TextInput, View, type TextInputProps } from 'react-native';
 
-import { MAX_FONT_SCALE, useTheme } from '@/theme';
+import { MAX_FONT_SCALE, useTheme, fontStyle } from '@/theme';
 
 import { AppText } from './AppText';
 import { look } from './look';
@@ -65,7 +65,7 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
             rest.onBlur?.(e);
           }}
           style={[
-            { flex: 1, minHeight: 50, color: t.colors.text, fontFamily: t.fonts.body, fontSize: 16, outlineStyle: 'none' } as object,
+            { flex: 1, minHeight: 50, color: t.colors.text, ...fontStyle(t.fonts.body), fontSize: 16, outlineStyle: 'none' } as object,
             style,
           ]}
           {...rest}

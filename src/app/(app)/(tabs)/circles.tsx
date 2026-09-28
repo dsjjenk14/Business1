@@ -128,8 +128,7 @@ function MyCircle({ circle, card, introsMade, meName, inviteCode }: { circle: Ci
         <View style={{ gap: t.space[2] }}>
           <GlyphTitle glyph="plus">{circle.first.length === 0 ? 'Start your circle' : 'Add someone'}</GlyphTitle>
           <AppText variant="small" tone="muted">
-            Together right now? Scan each other&apos;s code. Know each other already? Send them a code to type in. Not on I&apos;m In yet? Send your
-            invite code, and you&apos;re connected when they join.
+            Scan each other&apos;s code, or send an invite.
           </AppText>
           <View style={{ flexDirection: 'row', gap: t.space[2] }}>
             <Button label="Add someone" size="md" style={{ flex: 1 }} onPress={() => router.push('/connect')} />

@@ -11,7 +11,7 @@ import { addReply, deletePin, editPin, fetchFeed, fetchReplies, type FeedPin, ty
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { timeAgo } from '@/lib/time';
-import { MAX_FONT_SCALE, useTheme } from '@/theme';
+import { MAX_FONT_SCALE, useTheme, fontStyle } from '@/theme';
 import { goBackOr } from '@/lib/navigation';
 
 /** One pin with its reply thread. The author can edit or delete it. */
@@ -196,7 +196,7 @@ export default function PinThread() {
               borderRadius: t.radius.lg,
               backgroundColor: t.colors.surfaceAlt,
               color: t.colors.text,
-              fontFamily: t.fonts.body,
+              ...fontStyle(t.fonts.body),
               fontSize: 15,
             },
             { outlineStyle: 'none' } as object,
