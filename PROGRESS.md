@@ -5,6 +5,34 @@
 
 ---
 
+## ✅ Founding 3000, Outs for 6 hours, hide and mute, surprise parties, place search
+- **Founding Members:** the first 3000 members (was 500).
+- **Outs** last 6 hours unless someone pins them (was 1 hour).
+- **Block, mute, hide** (all from the ••• at the top of anyone's profile, or the ••• on their post):
+  - **Block:** as before (you disappear for each other), now easy to find.
+  - **Mute:** you stop seeing their pins, My Out and plans.
+  - **Hide my posts from them:** they stop seeing your pins, My Out and plans.
+  - Nobody is told. Settings → Hidden and muted lists everyone, with undo.
+  - **Hide one pin** from specific people when you post it ("Hide from specific people").
+- **Event modes** (when you host, and changeable on the event page):
+  - **Public:** anyone can find it (as before).
+  - **My Circle only:** your circle, your group's members and people who said I'm In.
+  - **Surprise party:** pick the guest of honor. They can't see the event, posts about it or any notices about it until it's over. Guests see "Shh! A surprise for …".
+- **Place search:** start typing in any "Where?" box and places near you drop down: I'm In venues first, then restaurants, bars, parks and neighborhoods from the map. Picking one links it (it becomes a venue page, so ratings and "who's here" work). Uses Photon, a free OpenStreetMap search (no key, no cost). It's meant for fair use; if the app grows a lot, we can switch to a paid map search (I'd ask first).
+- Tests: 463 database checks pass (new: hide, mute, per-pin hide, surprise, circle only, places). Browser run: place dropdown, mute from a profile, Hidden and muted, a surprise party hidden from its guest of honor. Accessibility scan clean.
+
+## ✅ New look: "Guest List" (so it doesn't look like a template)
+Same colors (near-black, red, gold, green), new personality: a nightlife poster and a guest list.
+- **Type:** Bebas Neue poster headlines (the prototype's own logo font), DM Sans for reading, and a mono "ticket stamp" face for times, counts and small labels.
+- **Section headers:** big condensed titles with a line to the edge, instead of tiny grey labels.
+- **Feed:** posts run edge to edge with a thin line between them, like a real social feed, instead of a stack of boxes.
+- **Surfaces:** no outlines on cards; highlights show as a colored bar down the left side.
+- **Controls:** square-cut poster buttons, tag-style filters, underlined tabs, and fields with a line underneath that lights up red.
+- **Signature pieces:** the event page is a ticket with a tear-off stub and notches; events show a tear-off date block; the logo is "I'M" plus a red "IN"; the Outs button is a camera shutter.
+- **People:** each person's initials get their own steady color, instead of grey circles.
+- The light version (Original Light) uses the same design. Other looks in Appearance keep their own shapes.
+- Checked: typecheck, lint, theme contrast, accessibility scan (clean), 427 database tests, the Outs and bill-splitting browser run.
+
 ## ✅ Original colors, Outs for an hour, pin an Out, split the bill, choose who sees each post
 - **Colors:** the original colors are back (near-black, red, gold and green), in the new layout. It's the default for everyone again; the light version uses the original light colors. Other looks are still in Appearance.
 - **Outs anywhere:** you no longer need to be at an event. At an I'm In event, the event's name still goes on your Out.
@@ -640,6 +668,9 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 | 2026-10-01 | The map is drawn by the app (no map company) | No cost, no API key, and no third party gets members' locations. A street map can be added later if you want one. |
 | 2026-10-01 | Events can be at a typed place, not just a listed venue | The live database starts with no venue list |
 | 2026-10-01 | Recurring group events stay under Groups, not This Weekend | Decision B9 |
+| 2026-09-28 | Founding Members = the first 3000 | Dominique |
+| 2026-09-28 | Outs last 6 hours unless pinned | Dominique |
+| 2026-09-28 | Place search uses Photon (free OpenStreetMap search, no key) | Free; a paid map search is only worth it at scale (ask first) |
 | 2026-09-28 | Split the bill doesn't move money; friends pay with Venmo / Cash App / PayPal links | No fees, no licensing, no new paid service; in-app payments would need Stripe (ask first) |
 | 2026-09-28 | Outs last 1 hour and can be viewed again during it; pinning keeps one and tells the sender | Dominique |
 | 2026-09-27 | Tiers: New Face 0, In the Mix 5, Connector 20, Plugged In 50, Icon 100 | Dominique: keep the idea, modernize the names |

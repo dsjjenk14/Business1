@@ -12,6 +12,9 @@ export type EventDetail = {
   is_recurring: boolean;
   host: PersonLite & { vouch_count: number };
   is_host: boolean;
+  visibility: 'public' | 'circle';
+  /** Surprise party: who it's for (everyone else can see it). */
+  surprise_for: { id: string; display_name: string } | null;
   venue: { id: number; name: string; address: string | null; neighborhood: string | null } | null;
   place: string | null;
   group: { id: number; name: string; emoji: string } | null;
@@ -38,6 +41,14 @@ export async function fetchEvent(id: number) {
   return data as unknown as EventDetail | null;
 }
 
+export type EventVisibility = 'public' | 'circle';
+
+/** Change who can see an event (host only). */
+export async function setEventMode(eventId: number, visibility: EventVisibility, surpriseFor: string | null) {
+  const { error } = await supabase.rpc('set_event_mode', { p_event: eventId, p_visibility: visibility, p_surprise_for: surpriseFor ?? undefined });
+  if (error) throw error;
+}
+
 export async function createEvent(input: {
   title: string;
   startsAt: Date;
@@ -50,6 +61,10 @@ export async function createEvent(input: {
   place?: string;
   lat?: number | null;
   lng?: number | null;
+  /** public (anyone), circle (your circle, the group, and people going). */
+  visibility?: EventVisibility;
+  /** Surprise party: hidden from this person until it's over. */
+  surpriseFor?: string | null;
 }) {
   const { data, error } = await supabase.rpc('create_event', {
     p_title: input.title.trim(),
@@ -63,6 +78,8 @@ export async function createEvent(input: {
     p_place: input.place?.trim() || undefined,
     p_lat: input.lat ?? undefined,
     p_lng: input.lng ?? undefined,
+    p_visibility: input.visibility ?? 'public',
+    p_surprise_for: input.surpriseFor ?? undefined,
   });
   if (error) throw error;
   return data as number;

@@ -42,7 +42,7 @@ export const TERMS: LegalDoc = {
     },
     {
       heading: 'Outs',
-      body: 'Outs are photos that disappear after an hour. You choose who gets each one: friends in your circle, or My Out for your circle or your network. Anyone who can see an Out can pin it to keep it, and we tell you when they do. Anyone can also take a screenshot, so only share what you’re comfortable with. If someone takes a screenshot, we tell you.',
+      body: 'Outs are photos that disappear after 6 hours. You choose who gets each one: friends in your circle, or My Out for your circle or your network. Anyone who can see an Out can pin it to keep it, and we tell you when they do. Anyone can also take a screenshot, so only share what you’re comfortable with. If someone takes a screenshot, we tell you.',
     },
     {
       heading: 'Split the bill',
@@ -93,7 +93,7 @@ export const PRIVACY: LegalDoc = {
     },
     {
       heading: 'Keeping and deleting your data',
-      body: 'Outs are deleted an hour after they’re sent, unless someone pinned them; a pinned Out is kept until everyone who pinned it unpins it, or the sender deletes their account. Receipt photos for split bills are seen only by the people on the bill and kept with the bill. Videos and boomerangs you post are kept like photos, until you delete the post or your account. We keep your information while your account is open. Delete your account in Settings → Delete account and we delete your profile, photos, pins, replies, vouches, connections and messages. Some records may be kept briefly in backups or where the law requires.',
+      body: 'Outs are deleted 6 hours after they’re sent, unless someone pinned them; a pinned Out is kept until everyone who pinned it unpins it, or the sender deletes their account. Receipt photos for split bills are seen only by the people on the bill and kept with the bill. Videos and boomerangs you post are kept like photos, until you delete the post or your account. We keep your information while your account is open. Delete your account in Settings → Delete account and we delete your profile, photos, pins, replies, vouches, connections and messages. Some records may be kept briefly in backups or where the law requires.',
     },
     {
       heading: 'Your choices and rights',

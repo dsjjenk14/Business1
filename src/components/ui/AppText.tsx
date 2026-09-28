@@ -23,6 +23,7 @@ export function AppText({ variant = 'body', tone = 'text', weight, align, style,
   let fontFamily: string;
   if (variant === 'number' && t.style.monoNumbers) fontFamily = t.fonts.mono;
   else if (variant === 'number' || DISPLAY_VARIANTS.includes(variant)) fontFamily = weight === 'bold' || variant === 'hero' ? t.fonts.displayBold : t.fonts.display;
+  else if (variant === 'label' && t.style.monoLabels) fontFamily = t.fonts.mono;
   else if (weight === 'bold' || variant === 'h3' || variant === 'label') fontFamily = t.fonts.bodyBold;
   else if (weight === 'medium') fontFamily = t.fonts.bodyMedium;
   else fontFamily = t.fonts.body;
@@ -40,18 +41,19 @@ export function AppText({ variant = 'body', tone = 'text', weight, align, style,
     onTrust: t.colors.onTrust,
   };
 
-  const isLabel = variant === 'label';
-  const content = isLabel && t.style.uppercaseLabels && typeof children === 'string' ? children.toUpperCase() : children;
+  // Uppercase is visual only, so screen readers still read the words normally.
+  const upper = variant === 'label' && t.style.uppercaseLabels;
 
   return (
     <Text
       maxFontSizeMultiplier={MAX_FONT_SCALE}
       style={[
         { fontFamily, color: colorMap[tone], fontSize: type.fontSize, lineHeight: type.lineHeight, letterSpacing: type.letterSpacing, textAlign: align },
+        upper ? { textTransform: 'uppercase' } : null,
         style,
       ]}
       {...rest}>
-      {content}
+      {children}
     </Text>
   );
 }

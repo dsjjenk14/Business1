@@ -5,6 +5,7 @@ import { Pressable, TextInput, View, type TextInputProps } from 'react-native';
 import { MAX_FONT_SCALE, useTheme } from '@/theme';
 
 import { AppText } from './AppText';
+import { look } from './look';
 
 export type TextFieldProps = TextInputProps & {
   label: string;
@@ -23,21 +24,29 @@ export const TextField = forwardRef<TextInput, TextFieldProps>(function TextFiel
   const [hidden, setHidden] = useState(true);
 
   const borderColor = error ? t.colors.danger : focused ? t.colors.primary : t.colors.border;
+  const { ticket } = look(t);
 
   return (
     <View style={{ gap: t.space[1] + 2 }}>
-      <AppText variant="small" weight="medium" tone="muted" nativeID={`${label}-label`}>
-        {label}
-        {optional ? <AppText variant="small" tone="subtle">  · Optional</AppText> : null}
-      </AppText>
+      {ticket ? (
+        <AppText variant="label" tone="muted" nativeID={`${label}-label`}>
+          {`${label}${optional ? '  · optional' : ''}`}
+        </AppText>
+      ) : (
+        <AppText variant="small" weight="medium" tone="muted" nativeID={`${label}-label`}>
+          {label}
+          {optional ? <AppText variant="small" tone="subtle">  · Optional</AppText> : null}
+        </AppText>
+      )}
       <View
         style={{
           flexDirection: 'row',
           alignItems: 'center',
           backgroundColor: t.colors.surfaceAlt,
-          borderWidth: t.borderWidth.regular,
-          borderColor,
-          borderRadius: t.radius.md,
+          // Ticket: no box outline, just a line underneath that lights up.
+          ...(ticket
+            ? { borderBottomWidth: 2, borderColor: error || focused ? borderColor : t.colors.borderStrong, borderTopLeftRadius: t.radius.sm, borderTopRightRadius: t.radius.sm }
+            : { borderWidth: t.borderWidth.regular, borderColor, borderRadius: t.radius.md }),
           paddingHorizontal: t.space[4],
         }}>
         <TextInput

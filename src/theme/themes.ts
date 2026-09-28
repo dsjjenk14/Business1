@@ -301,23 +301,41 @@ const D: Theme = {
 };
 
 
-/** Catalog type: an elegant serif for headings, generous line heights, airy labels. */
-const catalogType: ThemeType = {
-  hero: { fontSize: 36, lineHeight: 42, letterSpacing: -0.6 },
-  h1: { fontSize: 28, lineHeight: 34, letterSpacing: -0.4 },
-  h2: { fontSize: 21, lineHeight: 28, letterSpacing: -0.2 },
-  h3: { fontSize: 17, lineHeight: 23 },
-  body: { fontSize: 15, lineHeight: 23 },
-  small: { fontSize: 13, lineHeight: 19 },
-  caption: { fontSize: 11.5, lineHeight: 16 },
-  label: { fontSize: 10.5, lineHeight: 14, letterSpacing: 1.8 },
-  number: { fontSize: 28, lineHeight: 32 },
-};
 
 /**
- * L: Original Light. The catalog layout (Fraunces headings, DM Sans text,
- * fine lines, soft shadows, lots of air) in the original light colors.
+ * Guest List type: Bebas Neue posters for headlines, DM Sans for reading,
+ * JetBrains Mono for the small print (times, counts, labels), like a ticket.
  */
+const guestType: ThemeType = {
+  hero: { fontSize: 60, lineHeight: 56, letterSpacing: 0.5 },
+  h1: { fontSize: 42, lineHeight: 42, letterSpacing: 0.6 },
+  h2: { fontSize: 28, lineHeight: 30, letterSpacing: 0.6 },
+  h3: { fontSize: 17, lineHeight: 22 },
+  body: { fontSize: 15, lineHeight: 22 },
+  small: { fontSize: 13, lineHeight: 18 },
+  caption: { fontSize: 11.5, lineHeight: 16 },
+  label: { fontSize: 10.5, lineHeight: 14, letterSpacing: 1.4 },
+  number: { fontSize: 40, lineHeight: 40, letterSpacing: 0.5 },
+};
+const guestFonts = {
+  display: 'BebasNeue_400Regular',
+  displayBold: 'BebasNeue_400Regular',
+  body: 'DMSans_400Regular',
+  bodyMedium: 'DMSans_500Medium',
+  bodyBold: 'DMSans_700Bold',
+  mono: 'JetBrainsMono_500Medium',
+} as const;
+const guestStyle: Theme['style'] = {
+  section: 'poster',
+  badge: 'pill',
+  uppercaseLabels: true,
+  monoNumbers: false,
+  monoLabels: true,
+  surface: 'flat',
+  controls: 'ticket',
+};
+
+/** L: Original Light. The Guest List look in the original light colors. */
 const L: Theme = {
   id: 'L',
   name: 'Original Light',
@@ -352,16 +370,9 @@ const L: Theme = {
     tabInactive: '#646C65',
     overlay: 'rgba(17, 21, 18, 0.45)',
   },
-  fonts: {
-    display: 'Fraunces_500Medium',
-    displayBold: 'Fraunces_600SemiBold',
-    body: 'DMSans_400Regular',
-    bodyMedium: 'DMSans_500Medium',
-    bodyBold: 'DMSans_700Bold',
-    mono: 'DMSans_500Medium',
-  },
-  type: catalogType,
-  radius: { sm: 4, md: 8, lg: 12, xl: 16, pill: 999 },
+  fonts: guestFonts,
+  type: guestType,
+  radius: { sm: 3, md: 6, lg: 10, xl: 14, pill: 999 },
   space: SPACE,
   borderWidth: { hairline: 1, regular: 1, strong: 1.5 },
   shadow: {
@@ -369,10 +380,14 @@ const L: Theme = {
     raised: '0px 10px 30px rgba(30,27,24,0.10)',
     pressed: '0px 0px 0px rgba(0,0,0,0)',
   },
-  style: { section: 'plain', badge: 'pill', uppercaseLabels: true, monoNumbers: false },
+  style: guestStyle,
 };
 
-/** N: Original. The catalog layout in the prototype's own colors: near-black, red, gold and green. The default. */
+/**
+ * N: Original. The default. The prototype's own colors (near-black, red, gold,
+ * green) in the Guest List look: poster headlines, ticket-stamp small print,
+ * flat surfaces, square-cut controls and a ticket-stub notch.
+ */
 const N: Theme = {
   id: 'N',
   name: 'Original',
@@ -403,28 +418,21 @@ const N: Theme = {
     sponsored: '#D4AF37',
     onSponsored: '#0C0C0C',
     tabBar: '#0C0C0C',
-    tabActive: '#FF4D4D',
+    tabActive: '#F5F5F5',
     tabInactive: 'rgba(245, 245, 245, 0.5)',
     overlay: 'rgba(0, 0, 0, 0.75)',
   },
-  fonts: {
-    display: 'Fraunces_500Medium',
-    displayBold: 'Fraunces_600SemiBold',
-    body: 'DMSans_400Regular',
-    bodyMedium: 'DMSans_500Medium',
-    bodyBold: 'DMSans_700Bold',
-    mono: 'DMSans_500Medium',
-  },
-  type: catalogType,
-  radius: { sm: 4, md: 8, lg: 12, xl: 16, pill: 999 },
+  fonts: guestFonts,
+  type: guestType,
+  radius: { sm: 3, md: 6, lg: 10, xl: 14, pill: 999 },
   space: SPACE,
   borderWidth: { hairline: 1, regular: 1, strong: 1.5 },
   shadow: {
-    card: '0px 1px 2px rgba(0,0,0,0.25)',
+    card: '0px 0px 0px rgba(0,0,0,0)',
     raised: '0px 10px 30px rgba(0,0,0,0.45)',
     pressed: '0px 0px 0px rgba(0,0,0,0)',
   },
-  style: { section: 'plain', badge: 'pill', uppercaseLabels: true, monoNumbers: false },
+  style: guestStyle,
 };
 
 export const THEMES: Record<Theme['id'], Theme> = { L, N, O, A, B, C, D };

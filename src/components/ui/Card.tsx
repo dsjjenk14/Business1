@@ -2,6 +2,8 @@ import { Pressable, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { useTheme } from '@/theme';
 
+import { look } from './look';
+
 export type CardProps = {
   children: React.ReactNode;
   onPress?: () => void;
@@ -15,14 +17,23 @@ export function Card({ children, onPress, accessibilityLabel, accent, style }: C
   const t = useTheme();
   const accentColor = accent ? t.colors[accent] : undefined;
 
-  const base: ViewStyle = {
-    backgroundColor: t.colors.surface,
-    borderRadius: t.radius.lg,
-    borderWidth: t.borderWidth.hairline,
-    borderColor: accentColor ?? t.colors.border,
-    padding: t.space[4],
-    boxShadow: t.shadow.card,
-  };
+  const base: ViewStyle = look(t).flat
+    ? {
+        // Flat: a filled surface, no outline. An accent shows as a bar down the left edge.
+        backgroundColor: t.colors.surface,
+        borderRadius: t.radius.lg,
+        borderLeftWidth: accentColor ? 3 : 0,
+        borderColor: accentColor ?? 'transparent',
+        padding: t.space[4],
+      }
+    : {
+        backgroundColor: t.colors.surface,
+        borderRadius: t.radius.lg,
+        borderWidth: t.borderWidth.hairline,
+        borderColor: accentColor ?? t.colors.border,
+        padding: t.space[4],
+        boxShadow: t.shadow.card,
+      };
 
   if (!onPress) return <View style={[base, style]}>{children}</View>;
   return (

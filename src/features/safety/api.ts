@@ -113,3 +113,38 @@ export function alertMessage(level: SafetyLevel, info: AlertInfo, coords?: { lat
   if (level === 'leaving') return `${info.name} here: I'm leaving a situation that doesn't feel safe. Please stay by your phone.${withWho}${where}`;
   return `${info.name} here: I don't feel safe right now. Please check on me.${withWho}${where}`;
 }
+
+// ── Hide and mute ────────────────────────────────────────────────────────────
+export type PersonPrivacy = { blocked: boolean; muted: boolean; hidden: boolean };
+export type HiddenOrMuted = { user_id: string; display_name: string; avatar_url: string | null; hidden: boolean; muted: boolean };
+
+/** What you've set for one person. */
+export async function fetchPersonPrivacy(userId: string) {
+  const { data, error } = await supabase.rpc('person_privacy', { p_user: userId });
+  if (error) throw error;
+  return data as unknown as PersonPrivacy;
+}
+
+/** Mute: you stop seeing their pins, My Out and plans. They aren't told. */
+export async function setMuted(userId: string, on: boolean) {
+  const { error } = await supabase.rpc('set_muted', { p_user: userId, p_on: on });
+  if (error) throw error;
+}
+
+/** Hide my posts from them: they stop seeing your pins, My Out and plans. They aren't told. */
+export async function setHiddenFrom(userId: string, on: boolean) {
+  const { error } = await supabase.rpc('set_hidden_from', { p_user: userId, p_on: on });
+  if (error) throw error;
+}
+
+export async function fetchHiddenAndMuted() {
+  const { data, error } = await supabase.rpc('my_hidden_and_muted');
+  if (error) throw error;
+  return (data ?? []) as HiddenOrMuted[];
+}
+
+/** Hide one pin from chosen people. */
+export async function setPinHiddenFrom(pinId: number, userIds: string[]) {
+  const { error } = await supabase.rpc('set_pin_hidden_from', { p_pin: pinId, p_users: userIds });
+  if (error) throw error;
+}

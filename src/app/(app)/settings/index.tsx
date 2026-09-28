@@ -38,6 +38,7 @@ export default function Settings() {
       rows: [
         { label: 'Privacy', icon: 'lock-closed-outline', href: '/settings/privacy', detail: 'Who sees what' },
         { label: 'Blocked members', icon: 'ban-outline', href: '/settings/blocked' },
+        { label: 'Hidden and muted', icon: 'eye-off-outline', href: '/settings/hidden' },
         { label: 'My reports', icon: 'flag-outline', href: '/settings/reports' },
       ],
     },

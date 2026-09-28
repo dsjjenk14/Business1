@@ -115,7 +115,7 @@ export default function NewBill() {
         <TextField label="What for" value={title} onChangeText={setTitle} maxLength={80} placeholder="Dinner at Rosa’s" />
 
         <View style={{ gap: t.space[2] }}>
-          <AppText variant="small" weight="medium" tone="muted">
+          <AppText variant="label" tone="muted">
             Receipt
           </AppText>
           {receipt ? (
@@ -163,7 +163,7 @@ export default function NewBill() {
         />
 
         <View style={{ gap: t.space[2] }}>
-          <AppText variant="small" weight="medium" tone="muted">
+          <AppText variant="label" tone="muted">
             Tip
           </AppText>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
@@ -180,7 +180,7 @@ export default function NewBill() {
         </View>
 
         <View style={{ gap: t.space[2] }}>
-          <AppText variant="small" weight="medium" tone="muted">
+          <AppText variant="label" tone="muted">
             Who was there
           </AppText>
           {!people ? (

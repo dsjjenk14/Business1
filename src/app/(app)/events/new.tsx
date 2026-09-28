@@ -7,7 +7,9 @@ import { DateTimeChips, upcomingDays } from '@/components/tonight/DateTimeChips'
 import { VenuePicker, type PlaceChoice } from '@/components/tonight/VenuePicker';
 import { useAppConfig } from '@/config/useAppConfig';
 import { AppText, Button, Chip, type GlyphName, isGlyphName, Screen, TextField, useToast } from '@/components/ui';
-import { createEvent } from '@/features/events/api';
+import { PeoplePicker } from '@/components/chat/PeoplePicker';
+import { fetchChatCandidates, type ChatCandidate } from '@/features/chat/api';
+import { createEvent, type EventVisibility } from '@/features/events/api';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { fetchPayoutStatus, money, parsePrice, setTicketPrice, ticketSplit, type PayoutStatus } from '@/features/payments/api';
 import { useAuth } from '@/lib/auth';
@@ -57,6 +59,10 @@ export default function NewEvent() {
       .catch(() => undefined);
   }, []);
   const [description, setDescription] = useState('');
+  // Who can see it: public, circle only, or a surprise party hidden from one person.
+  const [mode, setMode] = useState<'public' | 'circle' | 'surprise'>('public');
+  const [guest, setGuest] = useState<string | null>(null);
+  const [circle, setCircle] = useState<ChatCandidate[] | null>(null);
   const [groups, setGroups] = useState<{ id: number; name: string; emoji: string }[]>([]);
   const [groupId, setGroupId] = useState<number | null>(params.group ? Number(params.group) : null);
   const [busy, setBusy] = useState(false);
@@ -74,7 +80,7 @@ export default function NewEvent() {
   }, [me]);
 
   const startsAt = day && minutes != null ? marketDate(day, minutes) : null;
-  const ready = title.trim().length >= 2 && !!startsAt && !busy;
+  const ready = !(mode === 'surprise' && !guest) && title.trim().length >= 2 && !!startsAt && !busy;
 
   async function submit() {
     if (!startsAt) return;
@@ -92,6 +98,8 @@ export default function NewEvent() {
         groupId,
         lat: location?.lat,
         lng: location?.lng,
+        visibility: (mode === 'circle' ? 'circle' : 'public') as EventVisibility,
+        surpriseFor: mode === 'surprise' ? guest : null,
       });
       const cents = payouts?.charges_enabled ? parsePrice(price) : null;
       if (cents != null) {
@@ -146,6 +154,47 @@ export default function NewEvent() {
         </View>
 
         <VenuePicker value={place} onChange={setPlace} lat={location?.lat} lng={location?.lng} />
+
+        <View style={{ gap: t.space[2] }}>
+          <AppText variant="label" tone="muted">
+            Who can see it
+          </AppText>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+            <Chip label="Public" selected={mode === 'public'} onPress={() => setMode('public')} />
+            <Chip label="My Circle only" selected={mode === 'circle'} onPress={() => setMode('circle')} />
+            <Chip
+              label="Surprise party"
+              glyph="party"
+              selected={mode === 'surprise'}
+              onPress={() => {
+                setMode('surprise');
+                if (!circle)
+                  fetchChatCandidates()
+                    .then((l) => setCircle(l.filter((p) => p.in_circle)))
+                    .catch(() => setCircle([]));
+              }}
+            />
+          </View>
+          <AppText variant="caption" tone="muted">
+            {mode === 'public'
+              ? 'Anyone on I’m In can find it.'
+              : mode === 'circle'
+                ? 'Only your circle, your group’s members and people who say I’m In can see it.'
+                : 'Everyone can see it except the guest of honor. They won’t see the event, posts about it or any notices until it’s over.'}
+          </AppText>
+          {mode === 'surprise' ? (
+            <View style={{ gap: t.space[2] }}>
+              <AppText weight="bold">Who&apos;s it for?</AppText>
+              {circle?.length ? (
+                <PeoplePicker people={circle} selected={new Set(guest ? [guest] : [])} onToggle={(id) => setGuest((g) => (g === id ? null : id))} />
+              ) : (
+                <AppText variant="small" tone="subtle">
+                  {circle ? 'Pick from your circle. Your circle is empty so far.' : 'Loading…'}
+                </AppText>
+              )}
+            </View>
+          ) : null}
+        </View>
 
         <View style={{ gap: t.space[2] }}>
           <AppText variant="small" weight="medium" tone="muted">

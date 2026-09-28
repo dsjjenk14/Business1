@@ -48,7 +48,7 @@ export async function sendOut(input: { userId: string; uri: string; caption: str
   return data as number;
 }
 
-/** Open an Out: anyone it was meant for, as often as they like for an hour; after that, only people who pinned it. */
+/** Open an Out: anyone it was meant for, as often as they like for 6 hours; after that, only people who pinned it. */
 export async function openOut(outId: number): Promise<OpenedOut> {
   const { data, error } = await supabase.functions.invoke('open-out', { body: { out_id: outId } });
   if (error) {
@@ -68,7 +68,7 @@ export async function reportScreenshot(outId: number) {
   await supabase.rpc('out_screenshot', { p_out: outId });
 }
 
-/** Pin an Out to keep it past the hour. The person who took it is told. */
+/** Pin an Out to keep it past 6 hours. The person who took it is told. */
 export async function pinOut(outId: number) {
   const { error } = await supabase.rpc('pin_out', { p_out: outId });
   if (error) throw error;

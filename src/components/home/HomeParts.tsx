@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
-import { AppText, Avatar, Badge, Button, GlyphTile, useToast } from '@/components/ui';
+import { AppText, Avatar, Badge, Button, DateTile, GlyphTile, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { joinGroup } from '@/features/groups/api';
 import type { HomeActivity, HomeEvent, SuggestedGroup } from '@/features/home/api';
@@ -58,7 +58,7 @@ export function EventRow({ event, subtitle, onIn }: { event: HomeEvent; subtitle
         accessibilityLabel={`${event.title}, ${dayTime(event.starts_at)}`}
         onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(event.id) } })}
         style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-        <GlyphTile name={event.emoji ?? 'calendar'} size={44} />
+        <DateTile iso={event.starts_at} size={44} />
         <View style={{ flex: 1 }}>
           <AppText weight="bold" numberOfLines={1}>
             {event.title}

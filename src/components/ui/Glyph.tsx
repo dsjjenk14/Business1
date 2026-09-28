@@ -174,11 +174,11 @@ export function GlyphTile({
         {
           width: size,
           height: size,
-          borderRadius: Math.round(size * 0.3),
+          borderRadius: t.style.controls === 'ticket' ? t.radius.sm : Math.round(size * 0.3),
           alignItems: 'center',
           justifyContent: 'center',
           backgroundColor: t.colors.surfaceAlt,
-          borderWidth: t.borderWidth.hairline,
+          borderWidth: t.style.surface === 'flat' ? 0 : t.borderWidth.hairline,
           borderColor: t.colors.border,
         },
         style,

@@ -104,7 +104,7 @@ export default function WhatsIn() {
                 onPress={() => router.push({ pathname: '/venues/[id]', params: { id: String(h.venue_id) } })}
                 accessibilityLabel={`${h.name}: ${h.people} ${h.people === 1 ? 'person is' : 'people are'} In tonight${h.friends ? `, ${h.friends} you know` : ''}`}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-                  <AppText variant="h3" tone="primary" style={{ width: 24, textAlign: 'center' }}>
+                  <AppText variant="h1" tone="primary" style={{ width: 30, textAlign: 'center' }}>
                     {i + 1}
                   </AppText>
                   <GlyphTile name={h.glyph ?? 'pin'} size={40} />

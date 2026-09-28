@@ -17,7 +17,7 @@ import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 
-/** Take an Out anywhere: snap, add a caption, send to friends and/or My Out. Gone in an hour unless pinned. */
+/** Take an Out anywhere: snap, add a caption, send to friends and/or My Out. Gone in 6 hours unless pinned. */
 export default function NewOut() {
   const t = useTheme();
   const router = useRouter();
@@ -109,10 +109,10 @@ export default function NewOut() {
           <View style={{ flex: 1 }}>
             <AppText weight="bold">My Out</AppText>
             <AppText variant="small" tone="muted">
-              {audience === 'circle' ? 'Your circle' : 'Your network'} can watch it for an hour.
+              {audience === 'circle' ? 'Your circle' : 'Your network'} can watch it for 6 hours.
             </AppText>
           </View>
-          <Switch value={toStory} onValueChange={setToStory} accessibilityLabel="My Out: people you choose can watch it for an hour" />
+          <Switch value={toStory} onValueChange={setToStory} accessibilityLabel="My Out: people you choose can watch it for 6 hours" />
         </Pressable>
         {toStory ? (
           <View style={{ gap: t.space[2] }}>
@@ -129,7 +129,7 @@ export default function NewOut() {
           </View>
         ) : null}
         <AppText variant="label" tone="subtle">
-          Friends in your circle (they can look for an hour)
+          Friends in your circle (they can look for 6 hours)
         </AppText>
         {circle.length ? (
           <PeoplePicker

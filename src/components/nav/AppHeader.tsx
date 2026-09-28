@@ -67,9 +67,19 @@ export function BackHeader({ title, right }: { title?: string; right?: React.Rea
         minHeight: 56,
       }}>
       <IconButton icon="chevron-back" label="Back" onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))} />
-      <AppText variant="h3" numberOfLines={1} style={{ flex: 1, textAlign: 'center', fontFamily: t.fonts.display }} accessibilityRole="header">
-        {title ?? ''}
-      </AppText>
+      {t.style.section === 'poster' ? (
+        // Poster: the title sits left, big and condensed, like a flyer headline.
+        <AppText
+          numberOfLines={1}
+          accessibilityRole="header"
+          style={{ flex: 1, fontFamily: t.fonts.display, fontSize: 26, lineHeight: 30, letterSpacing: 0.8, color: t.colors.text, paddingTop: 2 }}>
+          {title ?? ''}
+        </AppText>
+      ) : (
+        <AppText variant="h3" numberOfLines={1} style={{ flex: 1, textAlign: 'center', fontFamily: t.fonts.display }} accessibilityRole="header">
+          {title ?? ''}
+        </AppText>
+      )}
       <View style={{ width: 44, alignItems: 'flex-end' }}>{right}</View>
     </View>
   );

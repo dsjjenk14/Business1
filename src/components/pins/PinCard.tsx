@@ -8,7 +8,9 @@ import { track } from '@/features/analytics/track';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { CATEGORY_GLYPH, CATEGORY_LABEL, REACTIONS, reactToPin, setBookmarked, setLiked, sharePin, type FeedPin, type Reaction } from '@/features/pins/api';
 import { rsvp } from '@/features/tonight/api';
+import { blockUser, setMuted } from '@/features/safety/api';
 import { useAuth } from '@/lib/auth';
+import { confirmThen } from '@/lib/confirm';
 import { friendlyError } from '@/lib/supabase';
 import { dayTime, timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
@@ -109,20 +111,50 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
       toast("Couldn't update. Try again.");
     }
   }
+  // Muted or blocked from this post: it leaves the feed right away.
+  const [gone, setGone] = useState(false);
+  const firstName = pin.author_name.split(' ')[0];
+  async function mute() {
+    try {
+      await setMuted(pin.author_id, true);
+      setGone(true);
+      toast(`Muted ${firstName}. You won’t see their posts. They aren’t told.`);
+    } catch (e) {
+      toast(friendlyError(e));
+    }
+  }
+  function block() {
+    confirmThen(`Block ${firstName}?`, 'You won’t see each other anywhere on I’m In, and you’ll be disconnected. They aren’t told.', async () => {
+      try {
+        await blockUser(pin.author_id);
+        setGone(true);
+        toast(`${firstName} is blocked`);
+      } catch (e) {
+        toast(friendlyError(e));
+      }
+    });
+  }
+
   const menuOptions = [
     { label: pin.bookmarked ? 'Remove bookmark' : 'Bookmark', onPress: toggleBookmark },
     { label: 'Open thread', onPress: openThread },
     ...(!pin.is_mine
       ? [
-          { label: `View ${pin.author_name.split(' ')[0]}'s profile`, onPress: openAuthor },
+          { label: `View ${firstName}'s profile`, onPress: openAuthor },
+          { label: `Mute ${firstName}`, onPress: mute },
           { label: 'Report this pin', danger: true, onPress: () => router.push({ pathname: '/report', params: { pin: String(pin.id), name: pin.author_name } }) },
+          { label: `Block ${firstName}`, danger: true, onPress: block },
         ]
       : []),
   ];
   const hasPhotos = pin.photo_paths.length > 0;
+  const flat = t.style.surface === 'flat';
+  // Flat look: posts run edge to edge with a hairline between them, like a real feed.
+  const Wrap = flat ? FlatPost : Card;
+  if (gone) return null;
 
   return (
-    <Card>
+    <Wrap>
       <View style={{ gap: t.space[3] }}>
         {/* Who, when, where. */}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[2] }}>
@@ -141,7 +173,11 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 <Glyph name={CATEGORY_GLYPH[pin.category]} size={12} tone={CATEGORY_TONE[pin.category]} strokeWidth={2} />
-                <AppText variant="caption" tone="subtle" numberOfLines={1} style={{ flex: 1 }}>
+                <AppText
+                  variant="caption"
+                  tone="subtle"
+                  numberOfLines={1}
+                  style={[{ flex: 1 }, flat ? { fontFamily: t.fonts.mono, fontSize: 10.5, letterSpacing: 0.3 } : null]}>
                   {[CATEGORY_LABEL[pin.category], meta, pin.edited_at ? 'edited' : null].filter(Boolean).join(' · ')}
                 </AppText>
               </View>
@@ -225,8 +261,13 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
         </View>
       </View>
       <OptionsSheet visible={menu} options={menuOptions} onClose={() => setMenu(false)} />
-    </Card>
+    </Wrap>
   );
+}
+
+function FlatPost({ children }: { children: React.ReactNode }) {
+  const t = useTheme();
+  return <View style={{ paddingTop: t.space[2], paddingBottom: t.space[3], borderBottomWidth: t.borderWidth.hairline, borderColor: t.colors.border }}>{children}</View>;
 }
 
 function Action({

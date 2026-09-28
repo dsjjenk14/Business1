@@ -152,7 +152,7 @@ export default function Pins() {
             gap: t.space[3],
             padding: t.space[3],
             borderRadius: t.radius.lg,
-            borderWidth: t.borderWidth.regular,
+            ...(t.style.surface === 'flat' ? { borderLeftWidth: 3 } : { borderWidth: t.borderWidth.regular }),
             borderColor: t.colors.primary,
             backgroundColor: t.colors.surface,
           }}>
@@ -225,14 +225,19 @@ export default function Pins() {
           right: t.space[4],
           bottom: t.space[4],
           backgroundColor: t.colors.primary,
-          borderRadius: t.radius.pill,
+          borderRadius: t.style.controls === 'ticket' ? t.radius.sm : t.radius.pill,
           paddingHorizontal: t.space[5],
           minHeight: 48,
           justifyContent: 'center',
           boxShadow: t.shadow.raised,
           opacity: pressed ? 0.85 : 1,
         })}>
-        <AppText weight="bold" style={{ color: t.colors.onPrimary }}>
+        <AppText
+          weight="bold"
+          style={[
+            { color: t.colors.onPrimary },
+            t.style.controls === 'ticket' ? { fontFamily: t.fonts.display, fontSize: 21, lineHeight: 24, letterSpacing: 1, paddingTop: 2 } : null,
+          ]}>
           + New Pin
         </AppText>
       </Pressable>

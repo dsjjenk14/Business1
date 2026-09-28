@@ -95,14 +95,20 @@ export type Theme = {
   shadow: { card: string; raised: string; pressed: string };
   /** Personality switches that change component shape, not just color. */
   style: {
-    /** How section boxes look. */
-    section: 'plain' | 'glass' | 'ledger';
+    /** How section boxes look. poster = big condensed title with a rule, open content. */
+    section: 'plain' | 'glass' | 'ledger' | 'poster';
+    /** boxed = bordered cards; flat = filled surfaces with no outline, accents as a side bar. */
+    surface?: 'boxed' | 'flat';
+    /** soft = rounded controls; ticket = square-cut, stamped controls (poster buttons, tag chips, underline tabs). */
+    controls?: 'soft' | 'ticket';
     /** How badges and tier chips look. */
     badge: 'pill' | 'credential';
     /** Uppercase small labels ("GOING OUT TONIGHT"). */
     uppercaseLabels: boolean;
     /** Use the mono font for counts and scores. */
     monoNumbers: boolean;
+    /** Small labels in the mono face, like a ticket stamp. */
+    monoLabels?: boolean;
   };
 };
 
