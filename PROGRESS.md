@@ -5,6 +5,11 @@
 
 ---
 
+## ✅ Pins fixed: Nearby works without GPS
+- **What was broken:** a new member who hadn't shared their phone's location saw an empty Nearby tab on Pins. A pin they posted never showed up there either, because it had no place on the map.
+- **Fix:** without GPS, Nearby (on Pins, Tonight and What's In) now centers on your city. A pin posted without a location is placed in your city (pins already posted that way were fixed too). When the phone does share its location, that still wins.
+- **Tested:** as a brand-new account on the same kind of web build that's live, and with 4 new database tests (505 total).
+
 ## ✅ "I'm In" = you're down
 "I'm In" is now only what you tap when someone invites you: an event, a friend's plan for tonight, an intro or a date. Making your own plan is **Make plans**, and the people you choose tap I'm In to join you. When they do, you're told "Reina is in". The welcome tour says it the same way.
 
