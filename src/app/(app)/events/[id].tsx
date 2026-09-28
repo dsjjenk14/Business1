@@ -5,13 +5,14 @@ import { Alert, Platform, View } from 'react-native';
 import { PersonRow } from '@/components/circles/PersonRow';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { useAppConfig } from '@/config/useAppConfig';
-import { AppText, Badge, Button, Card, EmptyState, GlyphTile, GlyphTitle, LoadingDetail, Screen, Section, TextField, useToast } from '@/components/ui';
+import { AppText, Badge, Button, Card, EmptyState, GlyphTile, GlyphTitle, LoadingDetail, Screen, Section, Stars, StarsInput, TextField, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { preciseLocation } from '@/features/circles/api';
 import { shareEvent } from '@/features/home/api';
 import { checkInOpen, eventCheckIn, eventPhase, fetchEvent, joinWaitlist, leaveWaitlist, type EventDetail } from '@/features/events/api';
 import { fetchTicketHolders, money, openPayment, parsePrice, refundTicket, setTicketPrice, ticketSplit, type TicketHolder } from '@/features/payments/api';
+import { fetchEventRating, rateVenue, type EventRating } from '@/features/ratings/api';
 import { cancelRsvp, rsvp } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
@@ -317,6 +318,8 @@ export default function EventScreen() {
           </Card>
         ) : null}
 
+        {phase !== 'upcoming' ? <RateVenue eventId={event.id} /> : null}
+
         <Section title="Hosted by">
           <PersonRow id={event.host.id} name={event.host.display_name} avatarUrl={event.host.avatar_url} vouches={event.host.vouch_count} />
         </Section>
@@ -339,6 +342,82 @@ export default function EventScreen() {
 }
 
 /** Host view: sell tickets (price, sales), or set up payouts first. */
+/** After an event you went to: rate the place (1–5 stars, optional note). */
+function RateVenue({ eventId }: { eventId: number }) {
+  const t = useTheme();
+  const router = useRouter();
+  const toast = useToast();
+  const [state, setState] = useState<EventRating | null>(null);
+  const [stars, setStars] = useState(0);
+  const [note, setNote] = useState('');
+  const [editing, setEditing] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    fetchEventRating(eventId)
+      .then((r) => {
+        setState(r);
+        setStars(r?.my_stars ?? 0);
+        setNote(r?.my_note ?? '');
+      })
+      .catch(() => undefined);
+  }, [eventId]);
+
+  if (!state?.can_rate || !state.venue_id) return null;
+
+  async function save() {
+    setBusy(true);
+    try {
+      await rateVenue(eventId, stars, note);
+      setState((s) => (s ? { ...s, my_stars: stars, my_note: note.trim() || null } : s));
+      setEditing(false);
+      toast(`Thanks! You rated ${state?.venue_name}`);
+    } catch (e) {
+      toast(friendlyError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const openVenue = () => router.push({ pathname: '/venues/[id]', params: { id: String(state.venue_id) } });
+
+  if (state.my_stars && !editing) {
+    return (
+      <Card>
+        <View style={{ gap: t.space[2] }}>
+          <AppText weight="bold">You rated {state.venue_name}</AppText>
+          <Stars value={state.my_stars} size={18} />
+          {state.my_note ? (
+            <AppText variant="small" tone="muted">
+              &ldquo;{state.my_note}&rdquo;
+            </AppText>
+          ) : null}
+          <View style={{ flexDirection: 'row', gap: t.space[2] }}>
+            <Button label="Change" size="md" variant="secondary" style={{ flex: 1 }} onPress={() => setEditing(true)} />
+            <Button label="See the place" size="md" variant="ghost" onPress={openVenue} />
+          </View>
+        </View>
+      </Card>
+    );
+  }
+
+  return (
+    <Card accent="sponsored">
+      <View style={{ gap: t.space[2] }}>
+        <GlyphTitle glyph="star" tone="sponsored">
+          {`Rate ${state.venue_name}`}
+        </GlyphTitle>
+        <AppText variant="small" tone="muted">
+          How was the place? Your rating helps people pick where to go.
+        </AppText>
+        <StarsInput value={stars} onChange={setStars} />
+        <TextField label="Anything to add?" optional value={note} onChangeText={setNote} placeholder="Great music, slow bar…" maxLength={280} />
+        <Button label="Save rating" size="md" onPress={save} loading={busy} disabled={!stars} />
+      </View>
+    </Card>
+  );
+}
+
 /** Host: who has tickets, with a full refund for each. */
 function TicketHolders({ eventId, version, onChange }: { eventId: number; version: number; onChange: () => void }) {
   const t = useTheme();

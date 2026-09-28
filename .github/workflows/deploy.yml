@@ -13,6 +13,8 @@
 # Optional, turns on payments (see docs/PAYMENTS.md):
 #   STRIPE_SECRET_KEY       Stripe → Developers → API keys → Secret key
 #   STRIPE_WEBHOOK_SECRET   Stripe → Developers → Webhooks → your endpoint → Signing secret
+# Optional, for live video (see docs/LIVE-VIDEO.md):
+#   LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET   LiveKit Cloud → your project → Settings → Keys
 # Never loads demo data: the database is marked production on every deploy.
 # See docs/DEPLOY.md for the step-by-step.
 name: Deploy
@@ -54,6 +56,17 @@ jobs:
             npx supabase secrets set STRIPE_SECRET_KEY="$STRIPE_SECRET_KEY" STRIPE_WEBHOOK_SECRET="$STRIPE_WEBHOOK_SECRET" --project-ref "${{ secrets.SUPABASE_PROJECT_ID || 'yscrfhaedexogvegbvzm' }}"
           else
             echo "Stripe secrets not set: payments stay off."
+          fi
+      - name: Live video keys (only if the LiveKit secrets are set)
+        env:
+          LIVEKIT_URL: ${{ secrets.LIVEKIT_URL }}
+          LIVEKIT_API_KEY: ${{ secrets.LIVEKIT_API_KEY }}
+          LIVEKIT_API_SECRET: ${{ secrets.LIVEKIT_API_SECRET }}
+        run: |
+          if [ -n "$LIVEKIT_URL" ] && [ -n "$LIVEKIT_API_KEY" ] && [ -n "$LIVEKIT_API_SECRET" ]; then
+            npx supabase secrets set LIVEKIT_URL="$LIVEKIT_URL" LIVEKIT_API_KEY="$LIVEKIT_API_KEY" LIVEKIT_API_SECRET="$LIVEKIT_API_SECRET" --project-ref "${{ secrets.SUPABASE_PROJECT_ID || 'yscrfhaedexogvegbvzm' }}"
+          else
+            echo "LiveKit secrets not set: live video stays off."
           fi
       - name: Deploy Edge Functions
         run: npx supabase functions deploy --project-ref "${{ secrets.SUPABASE_PROJECT_ID || 'yscrfhaedexogvegbvzm' }}"

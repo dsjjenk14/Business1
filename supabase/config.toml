@@ -438,3 +438,9 @@ verify_jwt = false
 
 [functions.stripe-webhook]
 verify_jwt = false
+
+[functions.music-search]
+verify_jwt = false
+
+[functions.live]
+verify_jwt = false

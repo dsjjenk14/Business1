@@ -81,7 +81,7 @@ export const PRIVACY: LegalDoc = {
     },
     {
       heading: 'Who we share with',
-      body: 'We don’t sell your personal information. We use service providers to run the app, bound to protect your data: hosting and database (Supabase), text messages (Twilio), app delivery and notifications (Expo), payments (Stripe; we never see or store your full card number), and AI processing (Anthropic). We share information if the law requires it or to protect someone’s safety.',
+      body: 'We don’t sell your personal information. We use service providers to run the app, bound to protect your data: hosting and database (Supabase), text messages (Twilio), app delivery and notifications (Expo), payments (Stripe; we never see or store your full card number), song previews on posts (Apple Music: when you play one, it streams from Apple), live video (LiveKit, only while you’re watching or broadcasting; live videos aren’t recorded), and AI processing (Anthropic). We share information if the law requires it or to protect someone’s safety.',
     },
     {
       heading: 'Keeping and deleting your data',

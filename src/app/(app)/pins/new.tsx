@@ -4,10 +4,13 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
+import { MusicPicker } from '@/components/music/MusicPicker';
+import { PhotoFilters, type Filtered } from '@/components/pins/PhotoFilters';
 import { PhotoPicker } from '@/components/pins/PhotoPicker';
 import { AppText, Button, Chip, type GlyphName, Screen, TextField, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
+import type { Song } from '@/features/music/api';
 import { AUDIENCE_OPTIONS, createPin, type PinAudience, type PinCategory } from '@/features/pins/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
@@ -31,6 +34,8 @@ export default function NewPin() {
   const [category, setCategory] = useState<PinCategory>('thought');
   const [body, setBody] = useState('');
   const [photos, setPhotos] = useState<string[]>([]);
+  const [music, setMusic] = useState<Song | null>(null);
+  const [filtered, setFiltered] = useState<Filtered>({});
   const [audience, setAudience] = useState<PinAudience>('everyone');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,9 +62,10 @@ export default function NewPin() {
         audience,
         lat: location?.lat,
         lng: location?.lng,
-        photoUris: photos,
+        photoUris: photos.map((p) => filtered[p]?.uri ?? p),
+        music: photos.length ? music : null,
       });
-      track('pin_posted', { category, photos: photos.length, audience });
+      track('pin_posted', { category, photos: photos.length, audience, music: !!(photos.length && music), filters: Object.keys(filtered).length });
       toast(failedPhotos ? `Pin dropped, but ${failedPhotos} photo(s) didn't upload` : 'Pin dropped');
       router.replace({ pathname: '/pins/[id]', params: { id: String(pinId) } });
     } catch (e) {
@@ -98,7 +104,9 @@ export default function NewPin() {
           hint={`${body.length}/2000`}
         />
 
-        <PhotoPicker photos={photos} onChange={setPhotos} />
+        <PhotoPicker photos={photos} onChange={setPhotos} display={Object.fromEntries(Object.entries(filtered).map(([k, v]) => [k, v.uri]))} />
+        {photos.length ? <PhotoFilters photos={photos} value={filtered} onChange={setFiltered} /> : null}
+        {photos.length ? <MusicPicker value={music} onChange={setMusic} /> : null}
 
         <View style={{ gap: t.space[2] }}>
           <AppText variant="label" tone="subtle">

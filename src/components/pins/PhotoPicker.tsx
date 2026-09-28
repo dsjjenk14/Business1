@@ -8,7 +8,16 @@ import { MAX_PHOTOS } from '@/features/pins/api';
 import { useTheme } from '@/theme';
 
 /** Pick up to 6 photos from the library, with thumbnails you can remove. */
-export function PhotoPicker({ photos, onChange }: { photos: string[]; onChange: (next: string[]) => void }) {
+export function PhotoPicker({
+  photos,
+  onChange,
+  display,
+}: {
+  photos: string[];
+  onChange: (next: string[]) => void;
+  /** What to show for each photo (e.g. with its filter). */
+  display?: Record<string, string>;
+}) {
   const t = useTheme();
 
   async function addPhotos() {
@@ -31,7 +40,7 @@ export function PhotoPicker({ photos, onChange }: { photos: string[]; onChange: 
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
             {photos.map((uri, i) => (
               <View key={uri} style={{ width: 96, height: 96, borderRadius: t.radius.md, overflow: 'hidden', backgroundColor: t.colors.surfaceAlt }}>
-                <Image source={{ uri }} style={{ width: '100%', height: '100%' }} contentFit="cover" accessibilityLabel={`Photo ${i + 1}`} />
+                <Image source={{ uri: display?.[uri] ?? uri }} style={{ width: '100%', height: '100%' }} contentFit="cover" accessibilityLabel={`Photo ${i + 1}`} />
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={`Remove photo ${i + 1}`}
