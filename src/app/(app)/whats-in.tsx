@@ -119,7 +119,7 @@ export default function WhatsIn() {
               <Card
                 key={h.venue_id}
                 onPress={() => router.push({ pathname: '/venues/[id]', params: { id: String(h.venue_id) } })}
-                accessibilityLabel={`${h.name}: ${h.people} ${h.people === 1 ? 'person is' : 'people are'} In tonight${h.friends ? `, ${h.friends} you know` : ''}`}>
+                accessibilityLabel={`${h.name}: ${h.people} ${h.people === 1 ? 'person is' : 'people are'} In tonight${h.friends ? `, ${h.friends} Insiders` : ''}`}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
                   <AppText variant="h1" tone="primary" style={{ width: 30, textAlign: 'center' }}>
                     {i + 1}
@@ -130,7 +130,7 @@ export default function WhatsIn() {
                       {h.name}
                     </AppText>
                     <AppText variant="small" tone="primary" weight="bold">
-                      {h.people} In tonight{h.friends ? ` · ${h.friends} you know` : ''}
+                      {h.people} In tonight{h.friends ? ` · ${h.friends} Insiders` : ''}
                     </AppText>
                     <AppText variant="caption" tone="subtle">
                       {[h.neighborhood, h.distance_mi != null ? `${h.distance_mi} mi` : null].filter(Boolean).join(' · ')}

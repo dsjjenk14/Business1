@@ -6,17 +6,19 @@ import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { AppText, Avatar, Card, EmptyState, LoadingList, Section } from '@/components/ui';
 import { fetchOutEvent, fetchOutsInbox, type OutEvent, type OutsInbox } from '@/features/outs/api';
 import { refreshNewOuts } from '@/features/outs/useNewOuts';
+import { useAuth } from '@/lib/auth';
 import { timeAgo } from '@/lib/time';
 import { useTheme, fontStyle } from '@/theme';
 
 /**
- * Outs: photos that disappear after 6 hours. Send one to friends in your
- * circle or post it to My Out (your circle, or your network if you choose).
+ * Outs: photos that disappear after 6, 12 or 24 hours (the sender picks). Send
+ * one to your Insiders or post it to your Out (your Insiders, or your network).
  * Pinning an Out keeps it; the person who took it is told.
  */
 export default function Outs() {
   const t = useTheme();
   const router = useRouter();
+  const { profile } = useAuth();
   const [inbox, setInbox] = useState<OutsInbox | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   // The I'm In event you're at, if any: its name goes on your Outs.
@@ -84,12 +86,14 @@ export default function Outs() {
         <LoadingList rows={4} />
       ) : (
         <>
-          {/* My Out and friends' My Outs */}
+          {/* Your Out and your Insiders' Outs */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: t.space[4] }}>
             <StoryBubble
-              name="My Out"
+              name="Your Out"
+              avatarName={profile?.display_name ?? 'You'}
+              avatarUrl={profile?.avatar_url}
               ring={inbox.my_story.length > 0}
-              label={inbox.my_story.length ? `My Out, ${inbox.my_story.length} posted, seen by ${Math.max(0, ...inbox.my_story.map((s) => s.views))}` : 'Add to My Out'}
+              label={inbox.my_story.length ? `Your Out, ${inbox.my_story.length} posted, seen by ${Math.max(0, ...inbox.my_story.map((s) => s.views))}` : 'Add to your Out'}
               onPress={() => (inbox.my_story.length ? view(inbox.my_story.map((s) => s.id)) : router.push('/outs/new'))}
               plus={!inbox.my_story.length}
             />
@@ -107,7 +111,7 @@ export default function Outs() {
 
           <Section title="Received">
             {inbox.received.length === 0 ? (
-              <EmptyState glyph="camera" title="No Outs right now" body="When friends in your circle send you an Out, it shows up here for 6 hours." />
+              <EmptyState glyph="camera" title="No Outs right now" body="When your Insiders send you an Out, it shows up here until its time is up (6, 12 or 24 hours)." />
             ) : (
               inbox.received.map((r) => (
                 <Card
@@ -189,10 +193,10 @@ export default function Outs() {
 
           {inbox.my_story.length ? (
             <AppText variant="caption" tone="subtle">
-              My Out: {inbox.my_story.length} photo{inbox.my_story.length === 1 ? '' : 's'}, seen by {Math.max(0, ...inbox.my_story.map((s) => s.views))}
+              Your Out: {inbox.my_story.length} photo{inbox.my_story.length === 1 ? '' : 's'}, seen by {Math.max(0, ...inbox.my_story.map((s) => s.views))}
               {inbox.my_story.some((s) => s.pins) ? `, pinned by ${inbox.my_story.reduce((a, s) => a + s.pins, 0)}` : ''}
-              {inbox.my_story.some((s) => s.screenshots) ? `, ${inbox.my_story.reduce((a, s) => a + s.screenshots, 0)} screenshot(s)` : ''}. Each one is gone 6 hours
-              after you post it, unless someone pins it.
+              {inbox.my_story.some((s) => s.screenshots) ? `, ${inbox.my_story.reduce((a, s) => a + s.screenshots, 0)} screenshot(s)` : ''}. Each one is gone when its time is up
+              (6, 12 or 24 hours, you pick), unless someone pins it.
             </AppText>
           ) : null}
         </>
@@ -208,8 +212,11 @@ function StoryBubble({
   label,
   onPress,
   plus,
+  avatarName,
 }: {
   name: string;
+  /** Whose photo or initials to show (defaults to the name). */
+  avatarName?: string;
   avatarUrl?: string | null;
   ring: boolean;
   label: string;
@@ -220,7 +227,7 @@ function StoryBubble({
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={{ alignItems: 'center', gap: 4, width: 72 }}>
       <View style={{ padding: 2, borderRadius: 34, borderWidth: 2, borderColor: ring ? t.colors.primary : t.colors.border }}>
-        <Avatar name={name} uri={avatarUrl ?? null} size={56} />
+        <Avatar name={avatarName ?? name} uri={avatarUrl ?? null} size={56} />
         {plus ? (
           <View style={{ position: 'absolute', right: -2, bottom: -2, width: 22, height: 22, borderRadius: 11, backgroundColor: t.colors.primary, alignItems: 'center', justifyContent: 'center' }}>
             <Ionicons name="add" size={16} color={t.colors.onPrimary} />

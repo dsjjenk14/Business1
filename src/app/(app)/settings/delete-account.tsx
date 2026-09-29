@@ -35,7 +35,7 @@ export default function DeleteAccount() {
           <View style={{ gap: t.space[2] }}>
             <AppText variant="h3">This can&apos;t be undone</AppText>
             <AppText variant="small" tone="muted">
-              Deleting your account permanently removes your profile, photos, pins, replies, vouches (given and received), connections,
+              Deleting your account permanently removes your profile, photos, pins, replies, vouches (given and received), Insiders,
               intros and messages. Groups you own are handed to another member.
             </AppText>
             <AppText variant="small" tone="muted">

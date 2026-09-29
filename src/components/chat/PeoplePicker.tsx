@@ -36,7 +36,7 @@ export function PeoplePicker({
             <View style={{ flex: 1 }}>
               <AppText weight="bold">{p.display_name}</AppText>
               <AppText variant="caption" tone="subtle">
-                {p.in_circle ? 'Your circle' : 'You’ve chatted'}
+                {p.in_circle ? 'Your Insiders' : 'You’ve chatted'}
               </AppText>
             </View>
             <Ionicons name={on ? 'checkmark-circle' : 'ellipse-outline'} size={26} color={on ? t.colors.primary : t.colors.textSubtle} />

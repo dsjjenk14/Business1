@@ -111,7 +111,7 @@ export default function Messages() {
               ) : (
                 <AppText variant="small" tone="muted">
                   No chats yet. Open someone&apos;s profile and tap Message. You can message people you met through an intro right away, and
-                  anyone else in your circle after 3 back-and-forths on Pins.
+                  any of your other Insiders after 3 back-and-forths on Pins.
                 </AppText>
               )}
             </Section>
@@ -120,7 +120,7 @@ export default function Messages() {
                 groups.map(renderRow)
               ) : (
                 <AppText variant="small" tone="muted">
-                  Start a group chat with people in your circle, or join a Group (Circles → Groups) to get its chat.
+                  Start a group chat with your Insiders, or join a Group (Insiders → Groups) to get its chat.
                 </AppText>
               )}
             </Section>

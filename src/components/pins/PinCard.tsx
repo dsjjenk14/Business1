@@ -124,7 +124,7 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
     }
   }
   function block() {
-    confirmThen(`Block ${firstName}?`, 'You won’t see each other anywhere on I’m In, and you’ll be disconnected. They aren’t told.', async () => {
+    confirmThen(`Block ${firstName}?`, 'You won’t see each other anywhere on I’m In, and you’ll stop being Insiders. They aren’t told.', async () => {
       try {
         await blockUser(pin.author_id);
         setGone(true);

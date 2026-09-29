@@ -1,4 +1,31 @@
-# Live video
+# Live video and virtual event rooms
+
+## Virtual events (built, needs the same LiveKit keys)
+
+Group admins can make an event **Online** or **Both** (in person and online) and
+pick how people join:
+
+- **Video call**: everyone on camera
+- **Voice chat**: everyone can talk, no cameras
+- **Livestream**: the host and the group's admins on camera; everyone else
+  watches, chats and sends reactions (heart, fire, raise hand)
+- **Your own link**: Zoom, Google Meet, Instagram Live, YouTube and so on.
+  Only people going see the link.
+
+The room opens 15 minutes before the start, only for the host, the group's
+admins and people who said I'm In. Chat isn't saved and nothing is recorded.
+
+**Phones:** Expo Go can't do live audio and video, so tapping Join opens the
+same room in the browser. It works on iPhone Safari, with no sign-in needed:
+the link carries a pass for that one room. The App Store build can open rooms
+inside the app later.
+
+**Turning it on:** the same three LiveKit secrets as live video (below). Until
+they're set, "Join" says rooms are coming soon, and "Your own link" works
+already. LiveKit Cloud is free to start, then paid per participant-minute:
+a 10-person, 1-hour video call is 600 participant-minutes. Check their pricing
+page.
+
 
 Everything for live video is built, except the video player itself. It stays
 **off and hidden** until you're ready.

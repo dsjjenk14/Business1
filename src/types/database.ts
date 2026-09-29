@@ -380,6 +380,100 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"drink_cashouts": {
+                  Row: {
+                    "cents": number,"created_at": string,"id": number,"status": string,"stripe_transfer": string | null,"user_id": string
+                  }
+                  Insert: {
+                    "cents": number,"created_at"?: string,"id"?: never,"status"?: string,"stripe_transfer"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "cents"?: number,"created_at"?: string,"id"?: never,"status"?: string,"stripe_transfer"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "drink_cashouts_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"drink_earnings": {
+                  Row: {
+                    "available_cents": number,"lifetime_cents": number,"user_id": string
+                  }
+                  Insert: {
+                    "available_cents"?: number,"lifetime_cents"?: number,"user_id": string
+                  }
+                  Update: {
+                    "available_cents"?: number,"lifetime_cents"?: number,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "drink_earnings_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"drink_gifts": {
+                  Row: {
+                    "anonymous": boolean,"cents": number,"created_at": string,"drink_key": string,"event_id": number | null,"from_user": string | null,"host_cents": number,"id": number,"live_id": number | null,"to_user": string
+                  }
+                  Insert: {
+                    "anonymous"?: boolean,"cents": number,"created_at"?: string,"drink_key": string,"event_id"?: number | null,"from_user"?: string | null,"host_cents": number,"id"?: never,"live_id"?: number | null,"to_user": string
+                  }
+                  Update: {
+                    "anonymous"?: boolean,"cents"?: number,"created_at"?: string,"drink_key"?: string,"event_id"?: number | null,"from_user"?: string | null,"host_cents"?: number,"id"?: never,"live_id"?: number | null,"to_user"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "drink_gifts_drink_key_fkey"
+      columns: ["drink_key"]
+isOneToOne: false
+      referencedRelation: "drink_menu"
+      referencedColumns: ["key"]
+    },{
+      foreignKeyName: "drink_gifts_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "drink_gifts_from_user_fkey"
+      columns: ["from_user"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "drink_gifts_live_id_fkey"
+      columns: ["live_id"]
+isOneToOne: false
+      referencedRelation: "live_streams"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "drink_gifts_to_user_fkey"
+      columns: ["to_user"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"drink_menu": {
+                  Row: {
+                    "cents": number,"key": string,"name": string,"sort": number
+                  }
+                  Insert: {
+                    "cents": number,"key": string,"name": string,"sort"?: number
+                  }
+                  Update: {
+                    "cents"?: number,"key"?: string,"name"?: string,"sort"?: number
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"encounters": {
                   Row: {
                     "context": Database["public"]['Enums']["encounter_context"],"created_at": string,"distance_m": number,"event_id": number | null,"id": number,"overlap_end": string,"overlap_start": string,"place_label": string | null,"user_a": string,"user_b": string,"venue_id": number | null
@@ -433,6 +527,25 @@ isOneToOne: false
       columns: ["user_id"]
 isOneToOne: true
       referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"event_links": {
+                  Row: {
+                    "event_id": number,"url": string
+                  }
+                  Insert: {
+                    "event_id": number,"url": string
+                  }
+                  Update: {
+                    "event_id"?: number,"url"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "event_links_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: true
+      referencedRelation: "events"
       referencedColumns: ["id"]
     }
                   ]
@@ -513,13 +626,13 @@ isOneToOne: false
                   ]
                 },"events": {
                   Row: {
-                    "approx_location": unknown,"capacity": number | null,"created_at": string,"description": string,"emoji": string | null,"ends_at": string | null,"group_id": number | null,"host_id": string,"id": number,"is_recurring": boolean,"place_text": string | null,"starts_at": string,"surprise_for": string | null,"ticket_price_cents": number | null,"title": string,"venue_id": number | null,"visibility": string
+                    "approx_location": unknown,"capacity": number | null,"created_at": string,"description": string,"emoji": string | null,"ends_at": string | null,"format": string,"group_id": number | null,"host_id": string,"id": number,"is_recurring": boolean,"place_text": string | null,"room_kind": string | null,"starts_at": string,"surprise_for": string | null,"ticket_price_cents": number | null,"title": string,"venue_id": number | null,"visibility": string
                   }
                   Insert: {
-                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"group_id"?: number | null,"host_id": string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"starts_at": string,"surprise_for"?: string | null,"ticket_price_cents"?: number | null,"title": string,"venue_id"?: number | null,"visibility"?: string
+                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"format"?: string,"group_id"?: number | null,"host_id": string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"room_kind"?: string | null,"starts_at": string,"surprise_for"?: string | null,"ticket_price_cents"?: number | null,"title": string,"venue_id"?: number | null,"visibility"?: string
                   }
                   Update: {
-                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"group_id"?: number | null,"host_id"?: string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"starts_at"?: string,"surprise_for"?: string | null,"ticket_price_cents"?: number | null,"title"?: string,"venue_id"?: number | null,"visibility"?: string
+                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"format"?: string,"group_id"?: number | null,"host_id"?: string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"room_kind"?: string | null,"starts_at"?: string,"surprise_for"?: string | null,"ticket_price_cents"?: number | null,"title"?: string,"venue_id"?: number | null,"visibility"?: string
                   }
                   Relationships: [
                     {
@@ -1143,13 +1256,13 @@ isOneToOne: false
                   ]
                 },"outs": {
                   Row: {
-                    "audience": string,"caption": string | null,"created_at": string,"event_id": number | null,"expires_at": string,"file_deleted_at": string | null,"id": number,"path": string,"sender_id": string,"to_story": boolean
+                    "audience": string,"caption": string | null,"created_at": string,"effect": string | null,"event_id": number | null,"expires_at": string,"file_deleted_at": string | null,"hidden_from": (string)[],"id": number,"path": string,"sender_id": string,"to_story": boolean
                   }
                   Insert: {
-                    "audience"?: string,"caption"?: string | null,"created_at"?: string,"event_id"?: number | null,"expires_at"?: string,"file_deleted_at"?: string | null,"id"?: number,"path": string,"sender_id": string,"to_story"?: boolean
+                    "audience"?: string,"caption"?: string | null,"created_at"?: string,"effect"?: string | null,"event_id"?: number | null,"expires_at"?: string,"file_deleted_at"?: string | null,"hidden_from"?: (string)[],"id"?: number,"path": string,"sender_id": string,"to_story"?: boolean
                   }
                   Update: {
-                    "audience"?: string,"caption"?: string | null,"created_at"?: string,"event_id"?: number | null,"expires_at"?: string,"file_deleted_at"?: string | null,"id"?: number,"path"?: string,"sender_id"?: string,"to_story"?: boolean
+                    "audience"?: string,"caption"?: string | null,"created_at"?: string,"effect"?: string | null,"event_id"?: number | null,"expires_at"?: string,"file_deleted_at"?: string | null,"hidden_from"?: (string)[],"id"?: number,"path"?: string,"sender_id"?: string,"to_story"?: boolean
                   }
                   Relationships: [
                     {
@@ -1338,13 +1451,13 @@ isOneToOne: false
                   ]
                 },"pin_media": {
                   Row: {
-                    "created_at": string,"duration_s": number | null,"frames": (string)[] | null,"kind": string,"path": string | null,"pin_id": number,"poster_path": string | null
+                    "created_at": string,"duration_s": number | null,"effect": string | null,"frames": (string)[] | null,"kind": string,"motion": string,"path": string | null,"pin_id": number,"poster_path": string | null
                   }
                   Insert: {
-                    "created_at"?: string,"duration_s"?: number | null,"frames"?: (string)[] | null,"kind": string,"path"?: string | null,"pin_id": number,"poster_path"?: string | null
+                    "created_at"?: string,"duration_s"?: number | null,"effect"?: string | null,"frames"?: (string)[] | null,"kind": string,"motion"?: string,"path"?: string | null,"pin_id": number,"poster_path"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"duration_s"?: number | null,"frames"?: (string)[] | null,"kind"?: string,"path"?: string | null,"pin_id"?: number,"poster_path"?: string | null
+                    "created_at"?: string,"duration_s"?: number | null,"effect"?: string | null,"frames"?: (string)[] | null,"kind"?: string,"motion"?: string,"path"?: string | null,"pin_id"?: number,"poster_path"?: string | null
                   }
                   Relationships: [
                     {
@@ -1931,6 +2044,44 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"wallet_topups": {
+                  Row: {
+                    "cents": number,"created_at": string,"id": number,"stripe_session": string,"user_id": string
+                  }
+                  Insert: {
+                    "cents": number,"created_at"?: string,"id"?: never,"stripe_session": string,"user_id": string
+                  }
+                  Update: {
+                    "cents"?: number,"created_at"?: string,"id"?: never,"stripe_session"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "wallet_topups_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"wallets": {
+                  Row: {
+                    "balance_cents": number,"updated_at": string,"user_id": string
+                  }
+                  Insert: {
+                    "balance_cents"?: number,"updated_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "balance_cents"?: number,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "wallets_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Views: {
@@ -2078,6 +2229,12 @@ isOneToOne: false
 "delete_going_out":
 { Args: { "p_post": number }; Returns: undefined
                            },
+"drink_cashout_done":
+{ Args: { "p_cashout": number,"p_ok": boolean,"p_transfer": string }; Returns: undefined
+                           },
+"drink_cashout_start":
+{ Args: { "p_user": string }; Returns: Json
+                           },
 "effective_radius_mi":
 { Args: { "p_limit_key": string,"p_requested": number }; Returns: number
                            },
@@ -2099,6 +2256,9 @@ isOneToOne: false
                            },
 "event_rating":
 { Args: { "p_event": number }; Returns: Json
+                           },
+"event_room_join_check":
+{ Args: { "p_event": number,"p_user": string }; Returns: Json
                            },
 "event_ticket_holders":
 { Args: { "p_event": number }; Returns: {
@@ -2273,6 +2433,9 @@ isOneToOne: false
 "my_vouches_left_this_month":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
+"my_wallet":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "network_activity":
 { Args: { "p_limit"?: number }; Returns: {
               "actor_avatar": string,"actor_emoji": string,"actor_id": string,"actor_name": string,"at": string,"detail": string,"kind": string,"subject_id": string,"subject_name": string
@@ -2423,14 +2586,20 @@ isOneToOne: false
 "send_date_request":
 { Args: { "p_note"?: string,"p_place"?: string,"p_starts_at"?: string,"p_to": string,"p_venue_id"?: number,"p_vibe"?: string,"p_when": Database["public"]['Enums']["date_when"] }; Returns: number
                            },
+"send_drink":
+{ Args: { "p_anonymous"?: boolean,"p_drink": string,"p_event"?: number,"p_live"?: number }; Returns: Json
+                           },
 "send_out":
-{ Args: { "p_audience"?: string,"p_caption": string,"p_path": string,"p_recipients": (string)[],"p_to_story"?: boolean }; Returns: number
+{ Args: { "p_audience"?: string,"p_caption": string,"p_hide_from"?: (string)[],"p_hours"?: number,"p_path": string,"p_recipients": (string)[],"p_to_story"?: boolean }; Returns: number
                            },
 "set_checkin_interval":
 { Args: { "p_minutes": number }; Returns: undefined
                            },
 "set_event_mode":
 { Args: { "p_event": number,"p_surprise_for"?: string,"p_visibility": string }; Returns: undefined
+                           },
+"set_event_virtual":
+{ Args: { "p_event": number,"p_format": string,"p_join_url"?: string,"p_room_kind"?: string }; Returns: undefined
                            },
 "set_group_role":
 { Args: { "p_group": number,"p_role": Database["public"]['Enums']["group_role"],"p_user": string }; Returns: undefined
@@ -2449,6 +2618,9 @@ isOneToOne: false
                            },
 "set_open_to_join":
 { Args: { "p_open": boolean,"p_post": number }; Returns: undefined
+                           },
+"set_out_effect":
+{ Args: { "p_effect": string,"p_out": number }; Returns: undefined
                            },
 "set_payment_handles":
 { Args: { "p_cashapp": string,"p_paypal": string,"p_venmo": string }; Returns: undefined
@@ -2569,6 +2741,9 @@ isOneToOne: false
                            },
 "visible_vouch_count":
 { Args: { "p_user": string }; Returns: number
+                           },
+"wallet_credit":
+{ Args: { "p_cents": number,"p_session": string,"p_user": string }; Returns: boolean
                            },
 "weekend_ends_at":
 { Args: Record<PropertyKey, never>; Returns: string

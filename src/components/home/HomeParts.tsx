@@ -67,7 +67,7 @@ export function EventRow({ event, subtitle, onIn }: { event: HomeEvent; subtitle
             {[dayTime(event.starts_at), event.place].filter(Boolean).join(' · ')}
           </AppText>
           <AppText variant="caption" tone="muted" numberOfLines={1}>
-            {[subtitle, event.friends_going ? `${event.friends_going} friend${event.friends_going === 1 ? '' : 's'} going` : `${event.going_count} going`]
+            {[subtitle, event.friends_going ? `${event.friends_going} Insider${event.friends_going === 1 ? '' : 's'} going` : `${event.going_count} going`]
               .filter(Boolean)
               .join(' · ')}
           </AppText>

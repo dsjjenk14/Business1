@@ -87,18 +87,24 @@ export const enc = encodeURIComponent;
  * Call a database function as the signed-in caller (their token, not the
  * server's), so the database's own "who can see what" rules apply.
  */
-export async function userRpc<T = unknown>(req: Request, fn: string, body: Record<string, unknown> = {}): Promise<{ data: T | null; ok: boolean; status: number }> {
+export async function userRpc<T = unknown>(
+  req: Request,
+  fn: string,
+  body: Record<string, unknown> = {},
+): Promise<{ data: T | null; ok: boolean; status: number; error: string | null }> {
   const res = await fetch(`${SUPABASE_URL()}/rest/v1/rpc/${fn}`, {
     method: 'POST',
     headers: { apikey: ANON_KEY(), Authorization: req.headers.get('Authorization') ?? '', 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
   const text = await res.text();
-  let data: T | null = null;
+  let parsed: unknown = null;
   try {
-    data = text ? (JSON.parse(text) as T) : null;
+    parsed = text ? JSON.parse(text) : null;
   } catch {
-    data = null;
+    parsed = null;
   }
-  return { data: res.ok ? data : null, ok: res.ok, status: res.status };
+  // On failure, the database's own message (e.g. "Add drink credit to send this.").
+  const error = res.ok ? null : ((parsed as { message?: string } | null)?.message ?? 'Something went wrong.');
+  return { data: res.ok ? (parsed as T) : null, ok: res.ok, status: res.status, error };
 }

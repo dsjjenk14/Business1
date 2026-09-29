@@ -16,6 +16,8 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { MAX_OUT_VIDEO_SECONDS } from "@/components/camera/CameraCapture";
+import { EffectOverlay } from "@/components/media/EffectOverlay";
+import type { EffectKey } from "@/features/photos/effects";
 import { AppText, useToast } from "@/components/ui";
 import {
   openOut,
@@ -38,7 +40,7 @@ function timeLeft(expiresAt: string) {
   return min >= 60 ? `Gone in ${Math.round(min / 60)} hr` : `Gone in ${min} min`;
 }
 
-/** Watching Outs: full screen, 8 seconds each, tap to skip. Pin one to keep it past 6 hours. */
+/** Watching Outs: full screen, 8 seconds each, tap to skip. Pin one to keep it after its time is up. */
 export default function ViewOuts() {
   const t = useTheme();
   const router = useRouter();
@@ -111,7 +113,7 @@ export default function ViewOuts() {
       setLoaded({ id: out.id, out: { ...out, pinned: !out.pinned } });
       toast(
         out.pinned
-          ? "Unpinned. It disappears when its 6 hours are up."
+          ? "Unpinned. It disappears when its time is up."
           : out.is_mine
             ? "Pinned. It stays in your Pinned Outs."
             : `Pinned. ${out.sender_name.split(" ")[0]} will know you kept it.`,
@@ -148,7 +150,7 @@ export default function ViewOuts() {
       >
         {out ? (
           out.kind === "video" ? (
-            <OutVideo uri={out.url} onEnd={next} />
+            <OutVideo uri={out.url} onEnd={next} effect={out.effect} />
           ) : (
             <Image
               source={{ uri: out.url }}
@@ -317,7 +319,7 @@ export default function ViewOuts() {
 }
 
 /** A video Out: plays once with sound, then moves on. */
-function OutVideo({ uri, onEnd }: { uri: string; onEnd: () => void }) {
+function OutVideo({ uri, onEnd, effect }: { uri: string; onEnd: () => void; effect?: EffectKey | null }) {
   const player = useVideoPlayer(uri, (p) => {
     p.loop = false;
     p.play();
@@ -328,12 +330,15 @@ function OutVideo({ uri, onEnd }: { uri: string; onEnd: () => void }) {
     if (status === "readyToPlay" && !player.playing) player.play();
   });
   return (
-    <VideoView
-      player={player}
-      style={{ flex: 1 }}
-      contentFit="cover"
-      nativeControls={false}
-      accessible={false}
-    />
+    <View style={{ flex: 1 }}>
+      <VideoView
+        player={player}
+        style={{ flex: 1 }}
+        contentFit="cover"
+        nativeControls={false}
+        accessible={false}
+      />
+      <EffectOverlay effect={effect} />
+    </View>
   );
 }

@@ -56,6 +56,8 @@ function RootNavigator() {
         </Stack.Protected>
         {/* Readable whether signed in or not. */}
         <Stack.Screen name="legal/[doc]" />
+        {/* Event rooms opened from a phone: the link carries its own pass. */}
+        <Stack.Screen name="room" />
       </Stack>
     </ToastProvider>
   );

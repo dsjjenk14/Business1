@@ -41,12 +41,16 @@ export const TERMS: LegalDoc = {
       body: 'Hosts can sell tickets to their events. Payments are handled by Stripe. I’m In keeps an 8% fee from each ticket, Stripe’s card fee is taken from the host’s share, and the rest goes to the host. Refunds are up to the host. If an event fills up before your payment goes through, you are refunded in full.',
     },
     {
+      heading: 'Drinks and drink credit',
+      body: 'You can buy drink credit by card (through Stripe) and use it to send drinks to people while they’re live. Drink credit is only for sending drinks on I’m In: it has no cash value, can’t be transferred or withdrawn, and a drink can’t be refunded once it’s sent. The person you send a drink to earns a share of it (70% unless we tell you otherwise) as real money, paid through their Stripe payout account; they’re responsible for any taxes on it. We may reverse drinks and earnings tied to fraud, chargebacks or rule-breaking.',
+    },
+    {
       heading: 'Outs',
-      body: 'Outs are photos or short videos (up to 9 seconds) that disappear after 6 hours. You choose who gets each one: friends in your circle, or My Out for your circle or your network. Anyone who can see an Out can pin it to keep it, and we tell you when they do. Anyone can also take a screenshot, so only share what you’re comfortable with. If someone takes a screenshot, we tell you.',
+      body: 'Outs are photos or short videos (up to 9 seconds) that disappear after 6, 12 or 24 hours (the sender picks). You choose who gets each one: your Insiders, or your Out for your Insiders or your network. You can also hide an Out from anyone you choose; they aren’t told. Anyone who can see an Out can pin it to keep it, and we tell you when they do. Anyone can also take a screenshot, so only share what you’re comfortable with. If someone takes a screenshot, we tell you.',
     },
     {
       heading: 'Split the bill',
-      body: 'Split the bill lets you ask friends for their share of something you paid for. I’m In doesn’t move money: friends pay you directly with Venmo, Cash App or PayPal, under those services’ own terms, and I’m In takes no fee. Marking a share as paid is just a note between you and your friends.',
+      body: 'Split the bill lets you ask people for their share of something you paid for. I’m In doesn’t move money: people pay you directly with Venmo, Cash App or PayPal, under those services’ own terms, and I’m In takes no fee. Marking a share as paid is just a note between you and them.',
     },
     {
       heading: 'Ending your account',
@@ -85,7 +89,7 @@ export const PRIVACY: LegalDoc = {
     },
     {
       heading: 'AI features',
-      body: 'Some features use AI (always marked ✦): People like you, icebreakers, Tonight for You and intro odds. They use the interests you pick and patterns like when you go out, RSVPs, groups, venues and vouch words, and only what you could already see in the app. Circle-only posts never feed matches, and AI never reads your messages. The AI runs on our servers through Anthropic; you don’t need an AI account, and your information isn’t used to train their models.',
+      body: 'Some features use AI (always marked ✦): People like you, icebreakers, Tonight for You and intro odds. They use the interests you pick and patterns like when you go out, RSVPs, groups, venues and vouch words, and only what you could already see in the app. Insiders-only posts never feed matches, and AI never reads your messages. The AI runs on our servers through Anthropic; you don’t need an AI account, and your information isn’t used to train their models.',
     },
     {
       heading: 'Who we share with',
@@ -93,7 +97,7 @@ export const PRIVACY: LegalDoc = {
     },
     {
       heading: 'Keeping and deleting your data',
-      body: 'Outs are deleted 6 hours after they’re sent, unless someone pinned them; a pinned Out is kept until everyone who pinned it unpins it, or the sender deletes their account. Receipt photos for split bills are seen only by the people on the bill and kept with the bill. Videos and boomerangs you post are kept like photos, until you delete the post or your account. We keep your information while your account is open. Delete your account in Settings → Delete account and we delete your profile, photos, pins, replies, vouches, connections and messages. Some records may be kept briefly in backups or where the law requires.',
+      body: 'Outs are deleted 6, 12 or 24 hours after they’re sent (the sender picks), unless someone pinned them; a pinned Out is kept until everyone who pinned it unpins it, or the sender deletes their account. Receipt photos for split bills are seen only by the people on the bill and kept with the bill. Videos and boomerangs you post are kept like photos, until you delete the post or your account. We keep your information while your account is open. Delete your account in Settings → Delete account and we delete your profile, photos, pins, replies, vouches, Insiders and messages. Some records may be kept briefly in backups or where the law requires.',
     },
     {
       heading: 'Your choices and rights',
@@ -128,7 +132,7 @@ export const GUIDELINES: LegalDoc = {
     },
     {
       heading: 'Meeting up',
-      body: 'Meet in public places. Tell a friend where you’ll be. Use Date Mode and safety check-ins. Passing on a date or an intro is always okay, and no explanation is needed.',
+      body: 'Meet in public places. Tell someone you trust where you’ll be. Use Date Mode and safety check-ins. Passing on a date or an intro is always okay, and no explanation is needed.',
     },
     {
       heading: 'If something’s wrong',

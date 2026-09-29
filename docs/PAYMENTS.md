@@ -57,3 +57,29 @@ in-app purchase there (Apple keeps 15–30%).
 - Database: `supabase/migrations/20261015000027_payments.sql` (tests: `015_payments.test.sql`).
 - Edge Functions: `payments` (checkout, payout setup, portal) and `stripe-webhook` (verifies the Stripe signature on every call).
 - Card details never touch our servers or the app; Stripe's hosted pages collect them.
+
+## Drinks (gifts to people who are live)
+
+Viewers send cocktails to whoever is live (a live video, or the host of a
+virtual event's room). Each drink is real money for the host.
+
+- **Buying credit:** Drinks & credit → pick $5 / $10 / $25 / $50 / $100 → Stripe
+  Checkout. The Stripe webhook adds the credit (once per checkout).
+- **The menu** (price = what the sender pays): Lemon Drop $1, Mojito $2,
+  Margarita $3, Paloma $5, Espresso Martini $10, Old Fashioned $20,
+  French 75 $50, Champagne Tower $100. Prices live in the `drink_menu` table.
+- **The split:** the host earns 70% (`app_config.drink_host_share_pct`), I'm In
+  keeps 30%, which also covers Stripe's card fee on the credit purchase.
+- **Cashing out:** hosts with payouts set up tap Cash out once they have $10
+  (`drink_cashout_min_cents`). That's a Stripe transfer to their account.
+  Money from new credit purchases takes about 2 days to clear in Stripe; a
+  cash-out before then fails safely and the balance stays put.
+- **Limits:** 30 drinks per person per minute (`drinks_per_minute`). You can't
+  send drinks to yourself, to people who blocked you, or when they're not live.
+- **Apple:** in the App Store version, digital credit bought inside the app
+  normally has to use Apple's in-app purchase (Apple takes 15–30%). In the US,
+  apps may instead link out to a web checkout, which is what this does. Before
+  launching in the App Store, confirm the current rules and decide which way
+  to go (RevenueCat is already set up for in-app purchases).
+- Have a lawyer look over the drink credit terms (Terms → "Drinks and drink
+  credit") before launch.

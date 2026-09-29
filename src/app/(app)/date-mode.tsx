@@ -254,7 +254,7 @@ export default function DateMode() {
           </AppText>
           {candidates.length === 0 ? (
             <AppText variant="small" tone="muted">
-              Only people you connected with on I&apos;m In appear here: an accepted date or someone in your circle.
+              Only people you know on I&apos;m In appear here: an accepted date or one of your Insiders.
             </AppText>
           ) : (
             candidates.map((c) => {

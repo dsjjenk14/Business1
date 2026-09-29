@@ -10,7 +10,7 @@ import { goBackOr } from '@/lib/navigation';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 
-/** 2nd degree: ask a mutual friend to introduce you. */
+/** 2nd degree: ask an Insider you share to introduce you. */
 export default function RequestIntro() {
   const t = useTheme();
   const router = useRouter();
@@ -40,7 +40,7 @@ export default function RequestIntro() {
     setError(null);
     try {
       await requestIntro(target, via, note);
-      toast(`Asked ${card?.via.find((v) => v.id === via)?.display_name ?? 'your friend'} for an intro`);
+      toast(`Asked ${card?.via.find((v) => v.id === via)?.display_name ?? 'your Insider'} for an intro`);
       goBackOr(router, '/circles');
     } catch (e) {
       setError(friendlyError(e));

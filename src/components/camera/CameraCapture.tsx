@@ -2,29 +2,45 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Easing, Platform, Pressable, View } from 'react-native';
+import { ActivityIndicator, Animated, Easing, Platform, Pressable, ScrollView, View } from 'react-native';
 
 import { AppText, EmptyState, useToast } from '@/components/ui';
-import { BOOMERANG_FRAMES } from '@/features/media/api';
+import { BOOMERANG_FRAMES, MOTIONS, type Motion } from '@/features/media/api';
 import { useTheme } from '@/theme';
 
 /** Longest video an Out can be. */
 export const MAX_OUT_VIDEO_SECONDS = 9;
 
+export type CaptureMode = 'photo' | 'video' | Motion;
+
+const LABEL: Record<CaptureMode, string> = {
+  photo: 'PHOTO',
+  video: 'VIDEO',
+  boomerang: 'BOOMERANG',
+  slowmo: 'SLO-MO',
+  rewind: 'REWIND',
+  loop: 'LOOP',
+};
+const isMotion = (m: CaptureMode): m is Motion => MOTIONS.some((x) => x.key === m);
+
 /**
- * Full-screen camera. "photo" takes one picture (Outs); "boomerang" takes a
- * quick burst of frames that play forward and back. With `onVideo`, a
- * Photo / Video switch appears: video records up to 9 seconds (tap to stop
- * early), and the gallery button can pick a photo or a short video.
+ * Full-screen camera with a row of modes: photo, video (up to
+ * `maxVideoSeconds`, tap to stop early), and burst modes that shoot a quick
+ * run of frames: boomerang, slo-mo, rewind and loop. The gallery button picks
+ * a photo (or a short video when video is one of the modes).
  */
 export function CameraCapture({
-  mode,
-  onCaptured,
+  modes,
+  maxVideoSeconds = MAX_OUT_VIDEO_SECONDS,
+  onPhoto,
   onVideo,
+  onMotion,
 }: {
-  mode: 'photo' | 'boomerang';
-  onCaptured: (uris: string[]) => void;
+  modes: CaptureMode[];
+  maxVideoSeconds?: number;
+  onPhoto?: (uri: string) => void;
   onVideo?: (uri: string, durationS: number | null) => void;
+  onMotion?: (frames: string[], motion: Motion) => void;
 }) {
   const t = useTheme();
   const cam = useRef<CameraView>(null);
@@ -34,9 +50,9 @@ export function CameraCapture({
   const [ready, setReady] = useState(false);
   const toast = useToast();
   const [progress, setProgress] = useState(0);
-  // Video (Outs only). Recording in a browser isn't supported, so the web offers the gallery instead.
-  const canRecord = !!onVideo && Platform.OS !== 'web';
-  const [kind, setKind] = useState<'photo' | 'video'>('photo');
+  // Recording in a browser isn't supported, so the web offers the gallery for video instead.
+  const available = modes.filter((m) => (m === 'video' ? Platform.OS !== 'web' && !!onVideo : true));
+  const [mode, setMode] = useState<CaptureMode>(available[0] ?? 'photo');
   const [recording, setRecording] = useState(false);
   const [mic, requestMic] = useMicrophonePermissions();
   const [bar] = useState(() => new Animated.Value(0));
@@ -47,28 +63,23 @@ export function CameraCapture({
       bar.setValue(0);
       return;
     }
-    const anim = Animated.timing(bar, { toValue: 1, duration: MAX_OUT_VIDEO_SECONDS * 1000, easing: Easing.linear, useNativeDriver: false });
+    const anim = Animated.timing(bar, { toValue: 1, duration: maxVideoSeconds * 1000, easing: Easing.linear, useNativeDriver: false });
     anim.start();
     return () => anim.stop();
-  }, [recording, bar]);
+  }, [recording, bar, maxVideoSeconds]);
 
   if (!permission) return <View style={{ flex: 1, backgroundColor: '#000000' }} />;
   if (!permission.granted) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', padding: t.space[5], backgroundColor: t.colors.bg }}>
-        <EmptyState
-          glyph="camera"
-          title="Camera is off"
-          body="Allow the camera to take Outs and boomerangs."
-          action={{ label: 'Allow camera', onPress: requestPermission }}
-        />
+        <EmptyState glyph="camera" title="Camera is off" body="Allow the camera to take photos, videos and boomerangs." action={{ label: 'Allow camera', onPress: requestPermission }} />
       </View>
     );
   }
 
-  async function chooseVideo() {
-    setKind('video');
-    if (mic && !mic.granted && mic.canAskAgain) await requestMic().catch(() => undefined);
+  async function pickMode(m: CaptureMode) {
+    setMode(m);
+    if (m === 'video' && mic && !mic.granted && mic.canAskAgain) await requestMic().catch(() => undefined);
   }
 
   async function record() {
@@ -80,8 +91,8 @@ export function CameraCapture({
     setRecording(true);
     startedAt.current = Date.now();
     try {
-      const video = await cam.current.recordAsync({ maxDuration: MAX_OUT_VIDEO_SECONDS });
-      const seconds = Math.min(MAX_OUT_VIDEO_SECONDS, (Date.now() - startedAt.current) / 1000);
+      const video = await cam.current.recordAsync({ maxDuration: maxVideoSeconds });
+      const seconds = Math.min(maxVideoSeconds, (Date.now() - startedAt.current) / 1000);
       if (video?.uri && seconds >= 0.5) onVideo?.(video.uri, Math.round(seconds * 10) / 10);
       else if (video?.uri) toast('Hold on a little longer to record.');
     } catch {
@@ -95,17 +106,17 @@ export function CameraCapture({
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: onVideo ? ['images', 'videos'] : ['images'],
-        videoMaxDuration: MAX_OUT_VIDEO_SECONDS,
+        videoMaxDuration: maxVideoSeconds,
         quality: 0.8,
       });
       const a = result.canceled ? null : result.assets[0];
       if (!a) return;
       if (a.type === 'video') {
         const seconds = a.duration != null ? a.duration / 1000 : null;
-        if (seconds != null && seconds > MAX_OUT_VIDEO_SECONDS + 0.5) return toast(`Videos can be up to ${MAX_OUT_VIDEO_SECONDS} seconds.`);
+        if (seconds != null && seconds > maxVideoSeconds + 0.5) return toast(`Videos can be up to ${maxVideoSeconds} seconds.`);
         onVideo?.(a.uri, seconds);
       } else {
-        onCaptured([a.uri]);
+        onPhoto?.(a.uri);
       }
     } catch {
       toast('Couldn’t open that.');
@@ -113,13 +124,13 @@ export function CameraCapture({
   }
 
   async function shoot() {
-    if (kind === 'video') return record();
+    if (mode === 'video') return record();
     if (!cam.current || busy || !ready) return;
     setBusy(true);
     try {
       if (mode === 'photo') {
         const pic = await cam.current.takePictureAsync({ quality: 0.8, shutterSound: false });
-        if (pic?.uri) onCaptured([pic.uri]);
+        if (pic?.uri) onPhoto?.(pic.uri);
       } else {
         const frames: string[] = [];
         for (let i = 0; i < BOOMERANG_FRAMES; i++) {
@@ -127,7 +138,7 @@ export function CameraCapture({
           if (pic?.uri) frames.push(pic.uri);
           setProgress((i + 1) / BOOMERANG_FRAMES);
         }
-        if (frames.length >= 3) onCaptured(frames);
+        if (frames.length >= 3) onMotion?.(frames, mode);
       }
     } catch {
       toast('The camera isn’t ready. Try again in a second.');
@@ -137,6 +148,9 @@ export function CameraCapture({
     }
   }
 
+  const shutterLabel =
+    mode === 'video' ? (recording ? 'Stop recording' : `Record video, up to ${maxVideoSeconds} seconds`) : mode === 'photo' ? 'Take photo' : `Capture ${LABEL[mode].toLowerCase()}`;
+
   return (
     <View style={{ flex: 1, backgroundColor: '#000000' }}>
       <CameraView
@@ -144,9 +158,9 @@ export function CameraCapture({
         style={{ flex: 1 }}
         facing={facing}
         mirror={facing === 'front'}
-        animateShutter={mode === 'photo' && kind === 'photo'}
-        mode={kind === 'video' ? 'video' : 'picture'}
-        mute={kind === 'video' && !mic?.granted}
+        animateShutter={mode === 'photo'}
+        mode={mode === 'video' ? 'video' : 'picture'}
+        mute={mode === 'video' && !mic?.granted}
         onCameraReady={() => setReady(true)}
       />
       {recording ? (
@@ -155,34 +169,29 @@ export function CameraCapture({
         </View>
       ) : null}
       <View style={{ position: 'absolute', left: 0, right: 0, bottom: 36, alignItems: 'center', gap: t.space[3] }}>
-        {mode === 'boomerang' ? (
+        {isMotion(mode) ? (
           <AppText weight="bold" style={{ color: '#FFFFFF' }}>
-            {busy ? `Capturing… ${Math.round(progress * 100)}%` : 'Tap to capture a boomerang'}
+            {busy ? `Capturing… ${Math.round(progress * 100)}%` : 'Tap and hold still for a second'}
           </AppText>
         ) : null}
-        {canRecord && !recording ? (
-          <View accessibilityRole="tablist" style={{ flexDirection: 'row', gap: t.space[5] }}>
-            {(['photo', 'video'] as const).map((k) => (
-              <Pressable
-                key={k}
-                accessibilityRole="tab"
-                accessibilityState={{ selected: kind === k }}
-                onPress={() => (k === 'video' ? chooseVideo() : setKind('photo'))}
-                hitSlop={10}>
-                <AppText weight="bold" style={{ color: kind === k ? '#FFD60A' : '#FFFFFF', letterSpacing: 0.5 }}>
-                  {k === 'photo' ? 'PHOTO' : 'VIDEO'}
+        {available.length > 1 && !recording && !busy ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: t.space[5], paddingHorizontal: t.space[5] }} accessibilityRole="tablist">
+            {available.map((k) => (
+              <Pressable key={k} accessibilityRole="tab" accessibilityState={{ selected: mode === k }} onPress={() => pickMode(k)} hitSlop={10}>
+                <AppText weight="bold" style={{ color: mode === k ? '#FFD60A' : '#FFFFFF', letterSpacing: 0.5 }}>
+                  {LABEL[k]}
                 </AppText>
               </Pressable>
             ))}
-          </View>
+          </ScrollView>
         ) : null}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 40 }}>
-          {onVideo || mode === 'photo' ? (
+          {onPhoto || onVideo ? (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={onVideo ? 'Pick a photo or video' : 'Pick a photo'}
               onPress={pickFromGallery}
-              disabled={recording}
+              disabled={recording || busy}
               hitSlop={8}
               style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center', opacity: recording ? 0 : 1 }}>
               <Ionicons name="images-outline" size={28} color="#FFFFFF" />
@@ -192,9 +201,7 @@ export function CameraCapture({
           )}
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={
-              mode === 'boomerang' ? 'Capture boomerang' : kind === 'video' ? (recording ? 'Stop recording' : `Record video, up to ${MAX_OUT_VIDEO_SECONDS} seconds`) : 'Take photo'
-            }
+            accessibilityLabel={shutterLabel}
             onPress={shoot}
             disabled={busy || !ready}
             style={{
@@ -205,12 +212,14 @@ export function CameraCapture({
               borderColor: '#FFFFFF',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: busy ? t.colors.primary : kind === 'video' ? 'rgba(214,40,40,0.35)' : 'rgba(255,255,255,0.2)',
+              backgroundColor: busy ? t.colors.primary : mode === 'video' ? 'rgba(214,40,40,0.35)' : 'rgba(255,255,255,0.2)',
             }}>
             {busy ? (
               <ActivityIndicator color="#FFFFFF" />
-            ) : kind === 'video' ? (
+            ) : mode === 'video' ? (
               <View style={{ width: recording ? 28 : 56, height: recording ? 28 : 56, borderRadius: recording ? 6 : 28, backgroundColor: t.colors.primary }} />
+            ) : isMotion(mode) ? (
+              <Ionicons name="infinite" size={30} color="#FFFFFF" />
             ) : null}
           </Pressable>
           <Pressable
@@ -220,7 +229,7 @@ export function CameraCapture({
               setReady(false);
               setFacing((f) => (f === 'back' ? 'front' : 'back'));
             }}
-            disabled={recording}
+            disabled={recording || busy}
             hitSlop={8}
             style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center', opacity: recording ? 0 : 1 }}>
             <Ionicons name="camera-reverse-outline" size={30} color="#FFFFFF" />

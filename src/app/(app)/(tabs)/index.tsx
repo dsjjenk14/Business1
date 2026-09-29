@@ -1,12 +1,12 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { RefreshControl, ScrollView, View } from 'react-native';
 
 import { ActivityRow, EventRow, GroupSuggestion } from '@/components/home/HomeParts';
+import { WhatsInHero } from '@/components/home/WhatsInHero';
 import { LiveNowRow } from '@/components/live/LiveNowRow';
 import { PinCard } from '@/components/pins/PinCard';
-import { AppText, Button, Card, EmptyState, LoadingList, Section, Stamp, useToast } from '@/components/ui';
+import { AppText, Button, Card, EmptyState, LoadingList, Section, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { cacheHome, fetchHomeFeed, readCachedHome, type HomeEvent, type HomeFeed } from '@/features/home/api';
@@ -15,7 +15,7 @@ import { useFirstWeekChecklist } from '@/features/onboarding/useFirstWeekCheckli
 import { welcomeSeen } from '@/features/onboarding/welcome';
 import type { FeedPin } from '@/features/pins/api';
 import { rsvp } from '@/features/tonight/api';
-import { fetchWhatsIn } from '@/features/trending/api';
+import { fetchWhatsIn, type HotSpot } from '@/features/trending/api';
 import { PeopleLikeYou } from '@/components/ai/PeopleLikeYou';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
@@ -42,6 +42,7 @@ export default function Home() {
   const [feed, setFeed] = useState<HomeFeed | null>(null);
   // What's In: the top trending events, right on Home.
   const [trending, setTrending] = useState<HomeEvent[]>([]);
+  const [hotSpots, setHotSpots] = useState<HotSpot[]>([]);
   const [morePins, setMorePins] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(false);
@@ -62,7 +63,10 @@ export default function Home() {
     try {
       const [next, w] = await Promise.all([fetchHomeFeed(location), fetchWhatsIn(location?.lat, location?.lng).catch(() => null)]);
       setFeed(next);
-      if (w) setTrending(w.events.slice(0, 3));
+      if (w) {
+        setTrending(w.events.slice(0, 6));
+        setHotSpots(w.hot_tonight.slice(0, 3));
+      }
       setError(false);
       cacheHome(me, next);
     } catch {
@@ -128,42 +132,17 @@ export default function Home() {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={t.colors.primary} />}>
       <LiveNowRow />
 
-      <View style={{ borderRadius: t.radius.lg, backgroundColor: t.colors.surface, borderLeftWidth: 3, borderColor: t.colors.primary, overflow: 'hidden' }}>
-        <Pressable
-          accessibilityRole="link"
-          accessibilityLabel="What's In: trending events, hot spots and posts near you"
-          onPress={() => router.push('/whats-in')}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3], padding: t.space[4] }}>
-          <Ionicons name="flame" size={26} color={t.colors.primaryText} />
-          <View style={{ flex: 1, gap: 2 }}>
-            <AppText variant="h2">What&apos;s In</AppText>
-            <Stamp>Trending events · hot spots · posts</Stamp>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color={t.colors.textSubtle} />
-        </Pressable>
-        {trending.length ? (
-          <View style={{ paddingHorizontal: t.space[4], paddingBottom: t.space[3], gap: t.space[2] }}>
-            {trending.map((e) => (
-              <EventRow
-                key={e.id}
-                event={e}
-                subtitle="Trending"
-                onIn={() => onIn(e)}
-              />
-            ))}
-          </View>
-        ) : null}
-      </View>
+      <WhatsInHero events={trending} spots={hotSpots} onIn={onIn} />
 
-      {/* 1. Your friends' pins */}
-      <Section title="Your friends’ pins" action={{ label: 'Post', onPress: () => router.push('/pins/new') }}>
+      {/* 1. Your Insiders' pins */}
+      <Section title="Your Insiders’ pins" action={{ label: 'Post', onPress: () => router.push('/pins/new') }}>
         {feed.pins.length === 0 ? (
           <Card>
             <View style={{ gap: t.space[2] }}>
               <AppText variant="small" tone="muted">
                 {feed.friend_count === 0
-                  ? 'Add friends to see their pins here. Scan each other’s code when you’re together, or send a code to someone you know.'
-                  : 'Your friends haven’t posted lately. Post something to get it going.'}
+                  ? 'Add Insiders to see their pins here. Scan each other’s code when you’re together, or send a code to someone you know.'
+                  : 'Your Insiders haven’t posted lately. Post something to get it going.'}
               </AppText>
               <Button
                 label={feed.friend_count === 0 ? 'Add someone' : 'Post a pin'}
@@ -255,10 +234,10 @@ export default function Home() {
       </Section>
 
       {/* 4. Events your friends are hosting */}
-      <Section title="Hosted by friends">
+      <Section title="Hosted by Insiders">
         {feed.friends_hosting.length === 0 ? (
           <AppText variant="small" tone="muted">
-            None of your friends are hosting anything right now.
+            None of your Insiders are hosting anything right now.
           </AppText>
         ) : (
           <Card>

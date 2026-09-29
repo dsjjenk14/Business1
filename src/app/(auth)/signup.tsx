@@ -275,7 +275,7 @@ export default function SignUp() {
             autoCapitalize="characters"
             autoCorrect={false}
             error={errors.invite}
-            success={inviter ? `${inviter} invited you ✓  You'll be connected and both get a vouch.` : null}
+            success={inviter ? `${inviter} invited you ✓  You'll be each other's Insiders and both get a vouch.` : null}
             hint="If someone gave you a code, it connects you to them automatically and gives you both a vouch."
           />
         ) : (
@@ -293,7 +293,7 @@ export default function SignUp() {
             <View style={{ flex: 1 }}>
               <AppText weight="bold">{photoUri ? 'Looking good' : 'Add a profile photo'}</AppText>
               <AppText variant="small" tone="muted">
-                Optional. Members with photos get more connections.
+                Optional. Members with photos get more Insiders.
               </AppText>
             </View>
           </View>

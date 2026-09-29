@@ -26,7 +26,7 @@ import { useTheme } from '@/theme';
 
 type Tab = 'circle' | 'network' | 'groups';
 
-/** Circles: My Circle, Network (one intro away), and Groups. */
+/** Circles: My Insiders, Network (one intro away), and Groups. */
 export default function Circles() {
   const t = useTheme();
   const router = useRouter();
@@ -54,7 +54,7 @@ export default function Circles() {
 
   useFocusEffect(
     useCallback(() => {
-      load().catch(() => toast("Couldn't load your circle. Try again."));
+      load().catch(() => toast("Couldn't load your Insiders. Try again."));
     }, [load, toast]),
   );
 
@@ -64,7 +64,7 @@ export default function Circles() {
     <Screen>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <AppText variant="h1" accessibilityRole="header" style={{ flex: 1 }}>
-          Circles
+          Insiders
         </AppText>
         <IconButton icon="search-outline" label="Search members" onPress={() => router.push('/search')} />
         <IconButton icon="person-add-outline" label="Add someone" onPress={() => router.push('/connect')} />
@@ -72,7 +72,7 @@ export default function Circles() {
 
       <Segmented<Tab>
         options={[
-          { key: 'circle', label: 'My Circle' },
+          { key: 'circle', label: 'My Insiders' },
           { key: 'network', label: 'Network' },
           { key: 'groups', label: 'Groups' },
         ]}
@@ -127,14 +127,14 @@ function MyCircle({ circle, card, introsMade, meName, inviteCode }: { circle: Ci
     <>
       <Card accent="primary">
         <View style={{ gap: t.space[2] }}>
-          <GlyphTitle glyph="plus">{circle.first.length === 0 ? 'Start your circle' : 'Add someone'}</GlyphTitle>
+          <GlyphTitle glyph="plus">{circle.first.length === 0 ? 'Get your first Insiders' : 'Add someone'}</GlyphTitle>
           <AppText variant="small" tone="muted">
             Scan each other&apos;s code, or send an invite.
           </AppText>
           <View style={{ flexDirection: 'row', gap: t.space[2] }}>
             <Button label="Add someone" size="md" style={{ flex: 1 }} onPress={() => router.push('/connect')} />
             <Button
-              label="Invite a friend"
+              label="Invite someone"
               size="md"
               variant="secondary"
               style={{ flex: 1 }}
@@ -201,7 +201,7 @@ function MyCircle({ circle, card, introsMade, meName, inviteCode }: { circle: Ci
         )}
       </Section>
 
-      <Section title={`Your circle · 1st degree (${circle.first.length})`}>
+      <Section title={`Your Insiders (${circle.first.length})`}>
         {circle.first.map((p) => (
           <PersonRow
             key={p.id}
@@ -257,7 +257,7 @@ function Network({ circle, activity }: { circle: CircleOverview; activity: Activ
       <Section title="Network activity">
         {activity.length === 0 ? (
           <AppText variant="small" tone="muted">
-            Quiet so far. When your circle vouches, connects, or goes out, it shows here.
+            Quiet so far. When your Insiders vouch, add people, or go out, it shows here.
           </AppText>
         ) : (
           activity.slice(0, 8).map((a, i) => (

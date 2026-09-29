@@ -5,6 +5,68 @@
 
 ---
 
+## ✅ Out settings and rotating Out filters
+- **Send screen back to how it was**, with one small "Lasts 6 hours" row. Tap it to open **Out settings**:
+  - **How long it lasts:** three cards (6, 12, 24 hours), each with a clock that fills up.
+  - **Hide from:** pick anyone who shouldn't see this Out. They don't see it on your Out, can't open or pin it, and aren't sent it even if they were picked. They aren't told.
+- **24 new Out filters, 8 at a time:** a new set of 8 comes every 3 days, then the cycle starts over. The screen says when the next 8 arrive.
+  - Many are made to flatter: they smooth skin and add a soft glow (Glow Up, Velvet, Porcelain, Soft Focus, Dewy, Flawless, Satin, Blush and more), and others set a mood (Last Call, Neon Night, Blue Hour, Midnight, Gold Rush).
+  - Each filter shows a swatch of how it colors skin.
+- **Tested:** 7 new database tests (571 total). In a browser: picked a filter, opened Out settings, chose 24 hours, hid it from Maya and sent it. It saved as a 24-hour Out hidden from 1 person.
+
+## ✅ Insiders, Out hours, anonymous drinks, new What's In
+- **Insiders:** the people you know are now your **Insiders** everywhere: the tab, your profile, notices, the AI's wording. The old words "friends", "followers" and "connections" are gone from the app.
+  - Following someone's posts is now **Tap in** (button: "Tap in" / "Tapped in" / "Tap in back"). Your profile shows "Insiders" and "Tapped in" counts.
+- **Out hours:** when you send an Out you pick **6, 12 or 24 hours** (6 is the default). The notice says how long it lasts.
+- **"MO" fixed:** your Out bubble on the Outs tab shows your own photo (or initials) and says "Your Out". "My Out" is now "Your Out" everywhere.
+- **Anonymous drinks:** in the drink menu, turn on "Send anonymously". The person live and everyone watching see "Someone" instead of your name. Only the app's records know who sent it.
+- **What's In on Home:** a bold poster at the top: "WHAT'S IN" over a glow, tonight's top 3 hot spots, and trending events as cards you swipe and tap I'm In on.
+- **Tested:** 10 new database tests (564 total), plus clicking through Home, Outs, the hour picker, Insiders and the drink menu in a browser. Zero errors.
+
+## ✅ Send drinks to people who are live (like TikTok gifts, but cocktails)
+- **The menu:** 8 custom cocktails drawn for I'm In (no emojis): Lemon Drop $1, Mojito $2, Margarita $3, Paloma $5, Espresso Martini $10, Old Fashioned $20, French 75 $50, Champagne Tower $100.
+- **Sending:**
+  - Tap the gold glass while someone is live, either on a live video or in a virtual event's room.
+  - The drink pops up big on screen for everyone: "DeShawn L. sent an Espresso Martini".
+  - The host gets a notification.
+- **Paying:** Drinks & credit (Menu or Settings) → add $5–$100 of credit by card through Stripe.
+- **Hosts earn 70%** of every drink as real money. They cash out to their bank through their Stripe payouts once they have $10.
+  - The 70% and the prices are settings you can change.
+- **Safety:** 30 drinks a minute at most, no drinks to yourself or people who blocked you, only while someone is really live, and every payment is counted once.
+- **Terms:** new "Drinks and drink credit" section. Have a lawyer check it before launch.
+- **Tested:**
+  - 22 new database tests (551 total).
+  - A test Stripe payment added $25 once, even though the notice came in twice.
+  - In a real test livestream, DeShawn sent Dominique a $10 Espresso Martini. It popped up on her screen and she earned $7.
+- **Before the App Store:** Apple normally requires in-app purchase for digital credit. US apps can link out to web checkout instead; decide before launch (details in `docs/PAYMENTS.md`).
+
+## ✅ Virtual events: video calls, voice chats, livestreams, links
+- **Who:** if you run a group (owner or admin), Host an Event → Where? lets you pick **Online** or **Both**. Online events belong to a group.
+- **How people join:**
+  - **Video call**: everyone on camera, like group FaceTime.
+  - **Voice chat**: everyone can talk, no cameras. Whoever is talking lights up.
+  - **Livestream**: you and your group's admins on camera; everyone else watches.
+  - **Your own link**: Zoom, Google Meet, IG Live and so on. Only people going see it.
+- **In every room:** chat, reactions (heart, fire, raise hand), mute and camera buttons, and Leave. Nothing is recorded and chat isn't saved.
+- **Who gets in:** the host, the group's admins, and people who said I'm In. The room opens 15 minutes before the start.
+- **Phones:** Join opens the room in Safari, because Expo Go can't do live audio and video. No sign-in is needed there.
+- **Tested for real:** with a test LiveKit server and two people.
+  - Video call: both cameras, chat and a raised hand worked.
+  - Voice chat: worked.
+  - Livestream: the guest could watch but not go on camera.
+  - The phone link worked without signing in.
+  - 15 new database tests (529 total).
+- **To turn it on:** add the LiveKit secrets (see `docs/LIVE-VIDEO.md`). "Your own link" works now.
+
+## ✅ Camera modes, filters and effects everywhere
+- **One camera for posts:** New Pin → **Camera** has PHOTO, VIDEO, BOOMERANG, SLO-MO, REWIND and LOOP. The last four shoot a quick burst. Boomerang plays it forward and back, Slo-mo does the same at half speed, Rewind plays it backward, and Loop plays it forward. You can switch styles after shooting. The separate Boomerang button is gone. **Upload** still picks photos or a video.
+- **Effects:** Vignette, Golden hour, Light leak, Dreamy and Film, next to the 8 color filters.
+  - Photos (posts and Outs) get both, baked into the picture.
+  - Bursts get both. The filter is baked into every frame.
+  - Videos (posts and Outs) get effects drawn on top while they play. Changing a video's actual colors on the phone needs the App Store build, so videos have effects, not color filters, for now.
+- **Outs:** after you snap, pick a filter and an effect before sending.
+- **Tests:** 9 new database tests (514 total). Clicked through in the browser with a test camera: a Rewind with the Noir filter and Light leak posted and saved, and an Out with B&W and Film.
+
 ## ✅ One spot for photos and video on New Pin; AI Read removed
 - **New Pin:** one "Photos & video" section. **Take photo or video** opens the camera (tap for a photo, record for a video). **Upload photos or video** opens your phone's library for both. **Boomerang** is next to them. A pin has up to 6 photos, or one video up to 30 seconds. Adding any of these switches the pin type to Photos & video.
 - **AI Read removed** from profiles, at Dominique's request. Icebreakers, People like you, Tonight for You and intro odds stay.
@@ -679,6 +741,8 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 | 2026-09-28 | Radius slider back: 1 to 75 miles for everyone | Dominique |
 | 2026-09-28 | Adding people: QR in person (counts as a meetup) and a shared code for people who know each other outside the app (doesn't unlock vouching) | Dominique; keeps vouches tied to real meetups |
 | 2026-09-28 | I'm In is a social app, not only going out: Home leads with posting, pins and group chats | Dominique |
+| 2026-09-29 | Drinks: host earns 70%, I'm In keeps 30%; credit bought by card on the web (Stripe); $10 minimum cash-out | Dominique asked for TikTok-style gifts; defaults are changeable in config |
+| 2026-09-29 | Online events are for groups (owners/admins); rooms only for people going, open 15 min before; phones join through Safari until the App Store build | Dominique asked for virtual events for groups |
 | 2026-09-29 | No AI Read on profiles | Dominique |
 | 2026-09-28 | AI suggestions never skip the intro: a mutual friend still has to introduce you | Dominique |
 | 2026-09-28 | "I'm In" means you're down: it's the answer to an invite (events, friends' plans, intros, dates). Posting your own plan is "Make plans" | Dominique |
@@ -734,6 +798,10 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 | 2026-09-27 | Phone login goes through a server function; accounts are keyed by email | Supabase's own phone login needs a text for every login |
 | 2026-09-27 | Screens live in `src/app/` (not `app/`) | This is what current Expo expects |
 | 2026-09-27 | Testing: web build + automated checks here, plus Dominique on her phone | No iPhone simulator in this environment (it needs a Mac) |
+| 2026-09-29 | The people you know are called **Insiders** (not friends, followers or connections); following posts is **Tap in** | Dominique |
+| 2026-09-29 | Outs last 6, 12 or 24 hours; the sender picks (6 by default) | Dominique |
+| 2026-09-29 | Drinks can be sent anonymously; people see "Someone" | Dominique |
+| 2026-09-29 | Out time and "Hide from" live in Out settings, one tap from the send screen; Out filters rotate 8 at a time every 3 days (24 total) | Dominique |
 
 ## Spec vs. prototype conflicts (the spec wins)
 See `docs/PHASE-0-PLAN.md` section 1B.

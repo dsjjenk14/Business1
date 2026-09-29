@@ -113,7 +113,7 @@ export default function MakeIntro() {
             can message each other right away.
           </AppText>
         </Card>
-        {picker('First person · your circle', fromRequest ? all.filter((o) => o.id === a) : first, a, setA, b)}
+        {picker('First person · your Insiders', fromRequest ? all.filter((o) => o.id === a) : first, a, setA, b)}
         {picker('Second person', fromRequest ? all.filter((o) => o.id === b) : all, b, setB, a)}
         {a && b ? <IntroOddsPanel a={a} b={b} /> : null}
         <TextField

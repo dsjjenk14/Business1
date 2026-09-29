@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
@@ -10,6 +11,7 @@ import { AppText, Button, Chip, type GlyphName, isGlyphName, Screen, TextField, 
 import { PeoplePicker } from '@/components/chat/PeoplePicker';
 import { fetchChatCandidates, type ChatCandidate } from '@/features/chat/api';
 import { createEvent, type EventVisibility } from '@/features/events/api';
+import { ROOM_KINDS, setEventVirtual, type RoomKind } from '@/features/events/room';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { fetchPayoutStatus, money, parsePrice, setTicketPrice, ticketSplit, type PayoutStatus } from '@/features/payments/api';
 import { useAuth } from '@/lib/auth';
@@ -66,6 +68,12 @@ export default function NewEvent() {
   const [groups, setGroups] = useState<{ id: number; name: string; emoji: string }[]>([]);
   const [groupId, setGroupId] = useState<number | null>(params.group ? Number(params.group) : null);
   const [busy, setBusy] = useState(false);
+  // In person, online, or both. Online events are for groups you run.
+  const [format, setFormat] = useState<'in_person' | 'virtual' | 'hybrid'>('in_person');
+  const [roomKind, setRoomKind] = useState<RoomKind>('video');
+  const [joinUrl, setJoinUrl] = useState('');
+  const online = format !== 'in_person';
+  const linkOk = roomKind !== 'link' || /^https:\/\/\S+$/i.test(joinUrl.trim());
 
   const days = useMemo(() => upcomingDays(30), []);
 
@@ -80,7 +88,7 @@ export default function NewEvent() {
   }, [me]);
 
   const startsAt = day && minutes != null ? marketDate(day, minutes) : null;
-  const ready = !(mode === 'surprise' && !guest) && title.trim().length >= 2 && !!startsAt && !busy;
+  const ready = !(mode === 'surprise' && !guest) && title.trim().length >= 2 && !!startsAt && !busy && (!online || (groupId != null && linkOk));
 
   async function submit() {
     if (!startsAt) return;
@@ -91,8 +99,8 @@ export default function NewEvent() {
         glyph,
         startsAt,
         durationHours: duration,
-        venueId: place.venueId,
-        place: place.text,
+        venueId: format === 'virtual' ? null : place.venueId,
+        place: format === 'virtual' ? '' : place.text,
         capacity,
         description,
         groupId,
@@ -101,6 +109,7 @@ export default function NewEvent() {
         visibility: (mode === 'circle' ? 'circle' : 'public') as EventVisibility,
         surpriseFor: mode === 'surprise' ? guest : null,
       });
+      if (online) await setEventVirtual(id, format, roomKind, roomKind === 'link' ? joinUrl.trim() : null);
       const cents = payouts?.charges_enabled ? parsePrice(price) : null;
       if (cents != null) {
         try {
@@ -153,7 +162,87 @@ export default function NewEvent() {
           </View>
         </View>
 
-        <VenuePicker value={place} onChange={setPlace} lat={location?.lat} lng={location?.lng} />
+        <View style={{ gap: t.space[2] }}>
+          <AppText variant="small" weight="medium" tone="muted">
+            Where?
+          </AppText>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+            <Chip label="In person" selected={format === 'in_person'} onPress={() => setFormat('in_person')} />
+            <Chip
+              label="Online"
+              selected={format === 'virtual'}
+              onPress={() => {
+                setFormat('virtual');
+                if (groupId == null && groups[0]) setGroupId(groups[0].id);
+              }}
+            />
+            <Chip
+              label="Both"
+              selected={format === 'hybrid'}
+              onPress={() => {
+                setFormat('hybrid');
+                if (groupId == null && groups[0]) setGroupId(groups[0].id);
+              }}
+            />
+          </View>
+          {online && !groups.length ? (
+            <Pressable accessibilityRole="link" onPress={() => router.push('/groups/new')}>
+              <AppText variant="small" tone="primary" weight="bold">
+                Online events are for groups you run. Start a group →
+              </AppText>
+            </Pressable>
+          ) : null}
+          {online && groups.length ? (
+            <View accessibilityRole="radiogroup" style={{ gap: t.space[2] }}>
+              {ROOM_KINDS.map((k) => {
+                const sel = roomKind === k.key;
+                return (
+                  <Pressable
+                    key={k.key}
+                    accessibilityRole="radio"
+                    accessibilityState={{ checked: sel }}
+                    aria-checked={sel}
+                    onPress={() => setRoomKind(k.key)}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: t.space[3],
+                      padding: t.space[3],
+                      borderRadius: t.radius.md,
+                      borderWidth: t.borderWidth.regular,
+                      borderColor: sel ? t.colors.primary : t.colors.border,
+                      backgroundColor: t.colors.surface,
+                    }}>
+                    <Ionicons name={k.icon} size={22} color={sel ? t.colors.primaryText : t.colors.textMuted} />
+                    <View style={{ flex: 1 }}>
+                      <AppText weight="bold">{k.label}</AppText>
+                      <AppText variant="small" tone="muted">
+                        {k.detail}
+                      </AppText>
+                    </View>
+                  </Pressable>
+                );
+              })}
+              {roomKind === 'link' ? (
+                <TextField
+                  label="Link"
+                  value={joinUrl}
+                  onChangeText={setJoinUrl}
+                  autoCapitalize="none"
+                  keyboardType="url"
+                  placeholder="https://zoom.us/j/…"
+                  hint={joinUrl && !linkOk ? 'Links start with https://' : 'Only people going see it.'}
+                />
+              ) : (
+                <AppText variant="caption" tone="subtle">
+                  The room opens 15 minutes before the start, for you, your group&apos;s admins and everyone going. Nothing is recorded.
+                </AppText>
+              )}
+            </View>
+          ) : null}
+        </View>
+
+        {format !== 'virtual' ? <VenuePicker value={place} onChange={setPlace} lat={location?.lat} lng={location?.lng} /> : null}
 
         <View style={{ gap: t.space[2] }}>
           <AppText variant="label" tone="muted">
@@ -161,7 +250,7 @@ export default function NewEvent() {
           </AppText>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
             <Chip label="Public" selected={mode === 'public'} onPress={() => setMode('public')} />
-            <Chip label="My Circle only" selected={mode === 'circle'} onPress={() => setMode('circle')} />
+            <Chip label="My Insiders only" selected={mode === 'circle'} onPress={() => setMode('circle')} />
             <Chip
               label="Surprise party"
               glyph="party"
@@ -179,7 +268,7 @@ export default function NewEvent() {
             {mode === 'public'
               ? 'Anyone on I’m In can find it.'
               : mode === 'circle'
-                ? 'Only your circle, your group’s members and people who say I’m In can see it.'
+                ? 'Only your Insiders, your group’s members and people who say I’m In can see it.'
                 : 'Everyone can see it except the guest of honor. They won’t see the event, posts about it or any notices until it’s over.'}
           </AppText>
           {mode === 'surprise' ? (
@@ -189,7 +278,7 @@ export default function NewEvent() {
                 <PeoplePicker people={circle} selected={new Set(guest ? [guest] : [])} onToggle={(id) => setGuest((g) => (g === id ? null : id))} />
               ) : (
                 <AppText variant="small" tone="subtle">
-                  {circle ? 'Pick from your circle. Your circle is empty so far.' : 'Loading…'}
+                  {circle ? 'Pick from your Insiders. You don’t have any Insiders yet.' : 'Loading…'}
                 </AppText>
               )}
             </View>
@@ -229,7 +318,7 @@ export default function NewEvent() {
               Host as
             </AppText>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
-              <Chip label="Just me" selected={groupId == null} onPress={() => setGroupId(null)} />
+              {!online ? <Chip label="Just me" selected={groupId == null} onPress={() => setGroupId(null)} /> : null}
               {groups.map((g) => (
                 <Chip key={g.id} label={g.name} glyph={isGlyphName(g.emoji) ? g.emoji : 'spark'} selected={groupId === g.id} onPress={() => setGroupId(g.id)} />
               ))}
@@ -241,7 +330,7 @@ export default function NewEvent() {
 
         <Button label="Post Event" onPress={submit} loading={busy} disabled={!ready} />
         <AppText variant="caption" tone="subtle">
-          Your circle and network see it first; people nearby see it on Tonight. You&apos;re automatically going.
+          Your Insiders and Network see it first; people nearby see it on Tonight. You&apos;re automatically going.
         </AppText>
       </Screen>
     </KeyboardAvoidingView>

@@ -7,7 +7,7 @@ import { joinGroup } from '@/features/groups/api';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 
-/** Your groups, groups your circle is in, and more to discover. Used on Circles and Tonight. */
+/** Your groups, groups your Insiders are in, and more to discover. Used on Circles and Tonight. */
 export function GroupsList({ groups, onChange }: { groups: GroupsOverview; onChange: (g: GroupsOverview) => void }) {
   const t = useTheme();
   const router = useRouter();
@@ -41,7 +41,7 @@ export function GroupsList({ groups, onChange }: { groups: GroupsOverview; onCha
             {[
               `${g.member_count} member${g.member_count === 1 ? '' : 's'}`,
               g.schedule_label,
-              g.circle_members?.length ? `${g.circle_members[0]}${g.circle_members.length > 1 ? ` +${g.circle_members.length - 1}` : ''} from your circle` : null,
+              g.circle_members?.length ? `${g.circle_members[0]}${g.circle_members.length > 1 ? ` +${g.circle_members.length - 1}` : ''} from your Insiders` : null,
             ]
               .filter(Boolean)
               .join(' · ')}
@@ -78,7 +78,7 @@ export function GroupsList({ groups, onChange }: { groups: GroupsOverview; onCha
           </AppText>
         )}
       </Section>
-      {groups.from_circle.length ? <Section title="From your circle">{groups.from_circle.map((g) => row(g, 'join'))}</Section> : null}
+      {groups.from_circle.length ? <Section title="From your Insiders">{groups.from_circle.map((g) => row(g, 'join'))}</Section> : null}
       {groups.discover.length ? <Section title="Discover more">{groups.discover.map((g) => row(g, 'join'))}</Section> : null}
       <Card onPress={() => router.push('/groups/new')} accessibilityLabel="Create your own group">
         <GlyphTitle glyph="plus">Create your own group</GlyphTitle>

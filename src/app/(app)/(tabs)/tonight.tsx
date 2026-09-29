@@ -117,14 +117,14 @@ export default function Tonight() {
     }
   }
 
-  const audienceLabel = (a: string | null | undefined) => (a === 'network' ? 'your network' : a === 'custom' ? 'the people you picked' : 'your circle');
+  const audienceLabel = (a: string | null | undefined) => (a === 'network' ? 'your network' : a === 'custom' ? 'the people you picked' : 'your Insiders');
   const onIn = () =>
     act(async () => imHere(await preciseLocation().catch(() => location)), `Marked you there. Only ${audienceLabel(mine?.here_audience)} can see it.`);
   const onAudience = (a: 'circle' | 'network' | 'custom') =>
     a === 'custom'
       ? editMine()
       : mine
-        ? act(() => setHereAudience(mine.post_id, a), a === 'network' ? 'Your network can see when you’re there' : 'Only your circle can see when you’re there')
+        ? act(() => setHereAudience(mine.post_id, a), a === 'network' ? 'Your network can see when you’re there' : 'Only your Insiders can see when you’re there')
         : undefined;
   const onJoin = (p: FeedPerson, status: 'heading' | null) =>
     act(() => joinGoingOut(p.post_id, status), status ? `${p.display_name.split(' ')[0]} knows you’re in` : 'Cancelled');
@@ -223,7 +223,7 @@ export default function Tonight() {
             ) : (
               <EmptyCard
                 title={weekend ? 'No weekend events nearby yet' : 'No events nearby tonight'}
-                body="Host a dinner, a run, a show night. Your circle and network see it first."
+                body="Host a dinner, a run, a show night. Your Insiders and Network see it first."
                 action={{ label: 'Host an event', onPress: () => router.push('/events/new') }}
               />
             )}

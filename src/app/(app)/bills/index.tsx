@@ -60,7 +60,7 @@ export default function Bills() {
       <BackHeader title="Split the bill" />
       <Screen>
         <Button label="Split a bill" onPress={() => router.push('/bills/new')} />
-        <Button label="Where friends pay you" variant="secondary" size="md" onPress={() => router.push('/bills/pay-me')} />
+        <Button label="Where people pay you" variant="secondary" size="md" onPress={() => router.push('/bills/pay-me')} />
         {!bills ? (
           <LoadingList rows={3} />
         ) : bills.length === 0 ? (

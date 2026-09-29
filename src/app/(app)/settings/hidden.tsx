@@ -38,7 +38,7 @@ export default function HiddenAndMuted() {
       <BackHeader title="Hidden and muted" />
       <Screen>
         <AppText tone="muted">
-          Hide your posts from someone and they won&apos;t see your pins, My Out or plans. Mute someone and you won&apos;t see theirs. Nobody is told. To
+          Hide your posts from someone and they won&apos;t see your pins, your Out or plans. Mute someone and you won&apos;t see theirs. Nobody is told. To
           add someone, open their profile and tap •••.
         </AppText>
         {!list ? (

@@ -15,7 +15,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="pins" options={{ title: 'Pins' }} />
       <Tabs.Screen name="outs" options={{ title: 'Outs' }} />
       <Tabs.Screen name="tonight" options={{ title: 'Tonight' }} />
-      <Tabs.Screen name="circles" options={{ title: 'Circles' }} />
+      <Tabs.Screen name="circles" options={{ title: 'Insiders' }} />
     </Tabs>
   );
 }

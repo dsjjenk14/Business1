@@ -12,7 +12,7 @@ import { useTheme } from '@/theme';
 
 /**
  * Start a group chat (or, with ?add=<chat id>, add people to one).
- * You can add people in your circle and people you've chatted with.
+ * You can add your Insiders and people you've chatted with.
  */
 export default function NewGroupChat() {
   const t = useTheme();
@@ -85,7 +85,7 @@ export default function NewGroupChat() {
           <EmptyState
             glyph="people"
             title="No one to add yet"
-            body="You can add people in your circle and people you’ve chatted with. Connect with someone first (Circles → Add someone)."
+            body="You can add your Insiders and people you’ve chatted with. Connect with someone first (Insiders → Add someone)."
             action={{ label: 'Add someone', onPress: () => router.push('/connect') }}
           />
         ) : (

@@ -206,14 +206,14 @@ export default function Bill() {
 
         {bill.is_mine && !bill.canceled ? (
           <View style={{ gap: t.space[2] }}>
-            <GlyphTitle glyph="coin">Where friends pay you</GlyphTitle>
+            <GlyphTitle glyph="coin">Where people pay you</GlyphTitle>
             <Button label="Add or change Venmo, Cash App, PayPal" variant="secondary" size="md" onPress={() => router.push('/bills/pay-me')} />
             <Button
               label="Cancel this bill"
               variant="ghost"
               size="md"
               onPress={() =>
-                confirmThen('Cancel this bill?', 'Friends won’t be asked to pay it anymore.', () =>
+                confirmThen('Cancel this bill?', 'No one will be asked to pay it anymore.', () =>
                   run('cancel', () => cancelBill(bill.id), 'Bill canceled'),
                 )
               }

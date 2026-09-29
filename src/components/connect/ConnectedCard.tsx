@@ -15,12 +15,12 @@ export function ConnectedCard({ result }: { result: ConnectResult }) {
       <View style={{ alignItems: 'center', gap: t.space[2] }}>
         <Avatar name={result.user.display_name} uri={result.user.avatar_url} size={64} ring="trust" />
         <AppText variant="h3" align="center" accessibilityRole="header">
-          {result.status === 'already' ? `You and ${first} were already connected` : `You're connected with ${first}`}
+          {result.status === 'already' ? `${first} is already one of your Insiders` : `${first} is one of your Insiders now`}
         </AppText>
         <AppText variant="small" tone="muted" align="center">
           {result.kind === 'qr'
             ? `You met in person. If you'd recommend them, you can vouch for them. It's up to you.`
-            : `${first} is in your circle. You can message each other.`}
+            : `${first} is one of your Insiders. You can message each other.`}
         </AppText>
         <View style={{ flexDirection: 'row', gap: t.space[2], alignSelf: 'stretch' }}>
           <Button label="View profile" size="md" variant="secondary" style={{ flex: 1 }} onPress={() => router.push({ pathname: '/people/[id]', params: { id: result.user.id } })} />

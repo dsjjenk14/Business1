@@ -61,7 +61,7 @@ export default function Connect() {
 
   async function shareCode() {
     if (!shared) return;
-    const message = `Connect with me on I'm In: open the app, go to Circles → Add someone → Type a code, and enter ${prettyCode(shared.code)}`;
+    const message = `Connect with me on I'm In: open the app, go to Insiders → Add someone → Type a code, and enter ${prettyCode(shared.code)}`;
     if (Platform.OS === 'web') {
       await navigator.clipboard?.writeText(prettyCode(shared.code)).catch(() => undefined);
       toast('Code copied');
@@ -95,7 +95,7 @@ export default function Connect() {
             <View style={{ gap: t.space[3] }}>
               <GlyphTitle glyph="people">Scan to connect</GlyphTitle>
               <AppText variant="small" tone="muted">
-                One of you shows a code, the other scans it. You&apos;re connected. Vouching is separate: only if you&apos;d recommend them.
+                One of you shows a code, the other scans it. You&apos;re each other&apos;s Insiders. Vouching is separate: only if you&apos;d recommend them.
               </AppText>
               {qr ? (
                 <View style={{ alignItems: 'center', gap: t.space[2] }}>
@@ -123,7 +123,7 @@ export default function Connect() {
             <View style={{ gap: t.space[3] }}>
               <GlyphTitle glyph="key">Share a code</GlyphTitle>
               <AppText variant="small" tone="muted">
-                Get a code and send it to them (text, email, however you like). They type it in, and you&apos;re connected.
+                Get a code and send it to them (text, email, however you like). They type it in, and you&apos;re each other&apos;s Insiders.
               </AppText>
               {shared ? (
                 <View style={{ alignItems: 'center', gap: t.space[1] }}>
@@ -162,7 +162,7 @@ export default function Connect() {
         </Section>
 
         <AppText variant="caption" tone="subtle" align="center">
-          Only add people you know. You can also meet up and check in together (Circles → Check in), or ask a mutual friend for an intro.
+          Only add people you know. You can also meet up and check in together (Insiders → Check in), or ask an Insider you share for an intro.
         </AppText>
       </Screen>
     </View>

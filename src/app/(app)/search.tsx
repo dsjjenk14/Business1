@@ -5,7 +5,7 @@ import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Screen, TextField } from '@/components/ui';
 import { searchMembers, type SearchResult } from '@/features/circles/api';
 
-/** Search members by name. Your circle and network come first. */
+/** Search members by name. Your Insiders and Network come first. */
 export default function Search() {
   const [q, setQ] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);

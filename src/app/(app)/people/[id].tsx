@@ -128,7 +128,7 @@ export default function PersonProfile() {
       <IcebreakersCard userId={card.id} firstName={first} connected={card.degree === 1} />
       {card.degree === 2 ? (
         <AppText variant="caption" tone="subtle" align="center">
-          {first} is one intro away. Ask {card.via[0]?.display_name ?? 'a mutual friend'} to introduce you, and you can message right away.
+          {first} is one intro away. Ask {card.via[0]?.display_name ?? 'an Insider you share'} to introduce you, and you can message right away.
         </AppText>
       ) : null}
     </View>
@@ -147,7 +147,7 @@ export default function PersonProfile() {
             ? `Muted. You won’t see ${first}’s posts. They aren’t told.`
             : `Unmuted ${first}`
           : on
-            ? `${first} won’t see your posts, My Out or plans. They aren’t told.`
+            ? `${first} won’t see your posts, your Out or plans. They aren’t told.`
             : `${first} can see your posts again`,
       );
     } catch (e) {
@@ -178,7 +178,7 @@ export default function PersonProfile() {
               {confirmBlock ? (
                 <>
                   <AppText variant="small" tone="muted" align="center">
-                    Block {first}? You won&apos;t see each other anywhere on I&apos;m In, and you&apos;ll be disconnected. They aren&apos;t told.
+                    Block {first}? You won&apos;t see each other anywhere on I&apos;m In, and you&apos;ll stop being Insiders. They aren&apos;t told.
                   </AppText>
                   <View style={{ flexDirection: 'row', gap: t.space[2] }}>
                     <Button

@@ -11,7 +11,7 @@ const TABS: Record<string, { label: string; icon: IconName; iconActive: IconName
   pins: { label: 'Pins', icon: 'pin-outline', iconActive: 'pin' },
   outs: { label: 'Outs', icon: 'camera-outline', iconActive: 'camera' },
   tonight: { label: 'Tonight', icon: 'moon-outline', iconActive: 'moon' },
-  circles: { label: 'Circles', icon: 'people-circle-outline', iconActive: 'people-circle' },
+  circles: { label: 'Insiders', icon: 'people-circle-outline', iconActive: 'people-circle' },
 };
 
 /** The tab bar: Home, Pins, Outs (in the middle, the main button), Tonight, Circles. */

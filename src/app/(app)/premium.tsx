@@ -65,10 +65,10 @@ export default function Premium() {
   const vouches = lim('vouches_per_month')?.free ?? 5;
   const features: { glyph: GlyphName; title: string; free: string; premium: string }[] = [
     { glyph: 'medal', title: 'Unlimited vouches', free: `${vouches} vouches a month`, premium: 'Vouch for everyone you meet, no monthly limit' },
-    { glyph: 'chat', title: 'Message sooner', free: `${exchanges} back-and-forths before messaging someone in your circle`, premium: 'Message your circle right away (intros still come first for everyone else)' },
+    { glyph: 'chat', title: 'Message sooner', free: `${exchanges} back-and-forths before messaging one of your Insiders`, premium: 'Message your Insiders right away (intros still come first for everyone else)' },
     { glyph: 'spark', title: 'AI without limits', free: `${aiFree} AI uses in total`, premium: 'Unlimited icebreakers, tonight picks and more' },
     { glyph: 'flame', title: 'Priority on Tonight', free: 'Standard placement', premium: 'Your plans show near the top of Tonight' },
-    { glyph: 'clock', title: 'Profile analytics', free: 'Not included', premium: 'Views, who they are (circle / network / others), and activity' },
+    { glyph: 'clock', title: 'Profile analytics', free: 'Not included', premium: 'Views, who they are (Insiders / Network / others), and activity' },
     { glyph: 'star', title: 'Premium badge', free: 'Not included', premium: 'A Premium badge on your profile' },
   ];
 
@@ -159,7 +159,7 @@ export default function Premium() {
 
         {payButton}
         <AppText variant="caption" tone="subtle" align="center">
-          Premium never skips intros: people outside your circle are always one intro away, on every plan. Payments are handled by Stripe;
+          Premium never skips intros: people outside your Insiders are always one intro away, on every plan. Payments are handled by Stripe;
           cancel any time from this screen.
         </AppText>
       </Screen>

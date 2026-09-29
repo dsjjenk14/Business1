@@ -2,8 +2,8 @@ import { readBytes } from '@/lib/files';
 import { supabase } from '@/lib/supabase';
 
 /**
- * Split the bill: ask friends for their share of something you paid for.
- * No money moves through I'm In. Friends pay you with Venmo, Cash App or
+ * Split the bill: ask people for their share of something you paid for.
+ * No money moves through I'm In. People pay you with Venmo, Cash App or
  * PayPal and tap "I paid"; you tap "Got it".
  */
 export type ShareStatus = 'owed' | 'paid' | 'settled';

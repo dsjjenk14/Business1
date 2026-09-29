@@ -48,10 +48,10 @@ export const tonight: Feature<Facts, Out, TonightResult> = {
       dataBlock('me', f.me),
       dataBlock('tonight', f.options),
       'Choose my best plan for tonight from <tonight>, plus up to 2 alternatives, using the exact key values. ' +
-        'Prefer where my friends are going, then where I could meet people one intro away, then what fits my interests. ' +
+        'Prefer where my Insiders are going, then where I could meet people one intro away, then what fits my interests. ' +
         'Skip anything I am already going to unless it is clearly the best. ' +
         'For the pick: a headline under 10 words, and 2 or 3 short reasons (under 16 words each) covering who will be there, ' +
-        'how it grows my network, and any friend there I could vouch for. For each alternative: one reason under 16 words.',
+        'how it grows my network, and any Insider there I could vouch for. For each alternative: one reason under 16 words.',
     ].join('\n\n'),
     schema: {
       type: 'object',

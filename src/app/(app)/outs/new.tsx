@@ -2,23 +2,28 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Switch, TextInput, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, Switch, TextInput, View } from 'react-native';
 
 import { CameraCapture } from '@/components/camera/CameraCapture';
+import { EffectChips, OutFilterStrip } from '@/components/media/LookChips';
+import { OutSettingsSheet } from '@/components/outs/OutSettingsSheet';
 import { VideoPlayer } from '@/components/media/VideoPlayer';
 import { PeoplePicker } from '@/components/chat/PeoplePicker';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Button, Chip, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { fetchChatCandidates, type ChatCandidate } from '@/features/chat/api';
-import { fetchOutEvent, sendOut, type OutAudience, type OutEvent } from '@/features/outs/api';
+import { fetchOutEvent, sendOut, setOutEffect, type OutAudience, type OutEvent, type OutHours } from '@/features/outs/api';
+import { applyFilter } from '@/features/photos/applyFilter';
+import type { EffectKey } from '@/features/photos/effects';
+import { MAX_SIDE, type FilterKey } from '@/features/photos/filters';
 import { refreshNewOuts } from '@/features/outs/useNewOuts';
 import { playSound } from '@/features/sounds/sounds';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme, fontStyle } from '@/theme';
 
-/** Take an Out anywhere: snap, add a caption, send to friends and/or My Out. Gone in 6 hours unless pinned. */
+/** Take an Out anywhere: snap, add a caption, send to Insiders and/or your Out. Gone in 6, 12 or 24 hours (you pick) unless pinned. */
 export default function NewOut() {
   const t = useTheme();
   const router = useRouter();
@@ -27,6 +32,29 @@ export default function NewOut() {
   // What you captured: a photo, or a video of up to 9 seconds.
   const [shot, setShot] = useState<{ kind: 'photo' | 'video'; uri: string; durationS: number | null } | null>(null);
   const photo = shot?.uri ?? null;
+  // A photo gets its filter and effect baked in; a video shows its effect on top.
+  const [look, setLook] = useState<{ filter: FilterKey; effect: EffectKey; uri: string | null }>({ filter: 'none', effect: 'none', uri: null });
+  const [baking, setBaking] = useState(false);
+  const shown = shot?.kind === 'photo' ? (look.uri ?? photo) : photo;
+
+  async function changeLook(filter: FilterKey, effect: EffectKey) {
+    if (!shot) return;
+    if (shot.kind === 'video') return setLook({ filter: 'none', effect, uri: null });
+    setBaking(true);
+    try {
+      const uri = filter === 'none' && effect === 'none' ? null : await applyFilter(shot.uri, filter, MAX_SIDE, effect);
+      setLook({ filter, effect, uri });
+    } catch {
+      toast('Couldn’t apply that.');
+    } finally {
+      setBaking(false);
+    }
+  }
+
+  function retake() {
+    setShot(null);
+    setLook({ filter: 'none', effect: 'none', uri: null });
+  }
   const [caption, setCaption] = useState('');
   const [step, setStep] = useState<'snap' | 'send'>('snap');
   const [people, setPeople] = useState<ChatCandidate[]>([]);
@@ -34,6 +62,10 @@ export default function NewOut() {
   const [toStory, setToStory] = useState(false);
   // Each My Out picks who sees it: 1st degree only (the default) or 1st + 2nd.
   const [audience, setAudience] = useState<OutAudience>('circle');
+  // Out settings (one tap away): how long it lasts, and who it's hidden from.
+  const [hours, setHours] = useState<OutHours>(6);
+  const [hidden, setHidden] = useState<Set<string>>(new Set());
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   // At an I'm In event, its name goes on the Out.
   const [event, setEvent] = useState<OutEvent | null>(null);
@@ -49,13 +81,14 @@ export default function NewOut() {
   const circle = useMemo(() => people.filter((p) => p.in_circle), [people]);
 
   async function send() {
-    if (!session || !photo) return;
+    if (!session || !shown) return;
     setBusy(true);
     try {
-      await sendOut({ userId: session.user.id, uri: photo, kind: shot?.kind ?? 'photo', caption, to: [...to], toStory, audience });
-      track('out_sent', { to: to.size, story: toStory, audience: toStory ? audience : null, kind: shot?.kind ?? 'photo' });
+      const id = await sendOut({ userId: session.user.id, uri: shown, kind: shot?.kind ?? 'photo', caption, to: [...to], toStory, audience, hours, hideFrom: [...hidden] });
+      if (shot?.kind === 'video' && look.effect !== 'none') await setOutEffect(id, look.effect).catch(() => undefined);
+      track('out_sent', { to: to.size, story: toStory, audience: toStory ? audience : null, kind: shot?.kind ?? 'photo', hours, hidden: hidden.size });
       playSound('sent');
-      toast(to.size ? `Out sent to ${to.size} ${to.size === 1 ? 'friend' : 'friends'}` : 'Posted to My Out');
+      toast(to.size ? `Out sent to ${to.size} ${to.size === 1 ? 'person' : 'people'}` : 'Posted to your Out');
       refreshNewOuts();
       router.back();
     } catch (e) {
@@ -70,8 +103,8 @@ export default function NewOut() {
       <View style={{ flex: 1, backgroundColor: '#000000' }}>
         <BackHeader title={event ? `Out at ${event.title}` : 'Out'} />
         <CameraCapture
-          mode="photo"
-          onCaptured={(uris) => uris[0] && setShot({ kind: 'photo', uri: uris[0], durationS: null })}
+          modes={['photo', 'video']}
+          onPhoto={(uri) => setShot({ kind: 'photo', uri, durationS: null })}
           onVideo={(uri, durationS) => setShot({ kind: 'video', uri, durationS })}
         />
       </View>
@@ -85,10 +118,17 @@ export default function NewOut() {
         <View style={{ flex: 1 }}>
           {shot?.kind === 'video' ? (
             <View style={{ flex: 1, justifyContent: 'center' }}>
-              <VideoPlayer uri={photo} rounded={false} autoPlay />
+              <VideoPlayer uri={photo} rounded={false} autoPlay effect={look.effect} />
             </View>
           ) : (
-            <Image source={{ uri: photo }} style={{ flex: 1 }} contentFit="cover" accessibilityLabel="Your photo" />
+            <View style={{ flex: 1 }}>
+              <Image source={{ uri: shown ?? photo }} style={{ flex: 1 }} contentFit="cover" accessibilityLabel="Your photo" />
+              {baking ? (
+                <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
+                  <ActivityIndicator color="#FFFFFF" />
+                </View>
+              ) : null}
+            </View>
           )}
           <View style={{ position: 'absolute', left: 0, right: 0, top: '60%', backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: t.space[4], paddingVertical: t.space[2] }}>
             <TextInput
@@ -102,8 +142,12 @@ export default function NewOut() {
             />
           </View>
         </View>
-        <View style={{ flexDirection: 'row', gap: t.space[2], padding: t.space[4] }}>
-          <Button label="Retake" variant="secondary" style={{ flex: 1 }} onPress={() => setShot(null)} />
+        <View style={{ gap: t.space[3], paddingHorizontal: t.space[4], paddingTop: t.space[3], backgroundColor: t.colors.bg }}>
+          {shot?.kind === 'photo' ? <OutFilterStrip value={look.filter} onChange={(f) => changeLook(f, look.effect)} busy={baking} /> : null}
+          <EffectChips value={look.effect} onChange={(e) => changeLook(look.filter, e)} busy={baking} />
+        </View>
+        <View style={{ flexDirection: 'row', gap: t.space[2], padding: t.space[4], backgroundColor: t.colors.bg }}>
+          <Button label="Retake" variant="secondary" style={{ flex: 1 }} onPress={retake} />
           <Button label="Send to" style={{ flex: 1 }} onPress={() => setStep('send')} icon={<Ionicons name="arrow-forward" size={18} color={t.colors.onPrimary} />} />
         </View>
       </KeyboardAvoidingView>
@@ -120,33 +164,45 @@ export default function NewOut() {
           style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3], padding: t.space[3], borderRadius: t.radius.md, backgroundColor: t.colors.surface }}>
           <Ionicons name="albums-outline" size={24} color={t.colors.primaryText} />
           <View style={{ flex: 1 }}>
-            <AppText weight="bold">My Out</AppText>
+            <AppText weight="bold">Your Out</AppText>
             <AppText variant="small" tone="muted">
-              {audience === 'circle' ? 'Your circle' : 'Your network'} can watch it for 6 hours.
+              {audience === 'circle' ? 'Your Insiders' : 'Your network'} can watch it.
             </AppText>
           </View>
-          <Switch value={toStory} onValueChange={setToStory} accessibilityLabel="My Out: people you choose can watch it for 6 hours" />
+          <Switch value={toStory} onValueChange={setToStory} accessibilityLabel="Your Out: people you choose can watch it" />
         </Pressable>
         {toStory ? (
           <View style={{ gap: t.space[2] }}>
-            <AppText weight="bold">Who sees this My Out?</AppText>
+            <AppText weight="bold">Who sees your Out?</AppText>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
-              <Chip label="My Circle (1st only)" selected={audience === 'circle'} onPress={() => setAudience('circle')} />
-              <Chip label="My Network (1st + 2nd)" selected={audience === 'network'} onPress={() => setAudience('network')} />
+              <Chip label="My Insiders only" selected={audience === 'circle'} onPress={() => setAudience('circle')} />
+              <Chip label="Insiders + Network" selected={audience === 'network'} onPress={() => setAudience('network')} />
             </View>
             <AppText variant="caption" tone="muted">
               {audience === 'circle'
-                ? 'Only people you’re directly connected to. Nobody else.'
-                : 'Your circle, plus the people they know.'}
+                ? 'Only your Insiders. Nobody else.'
+                : 'Your Insiders, plus theirs.'}
             </AppText>
           </View>
         ) : null}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Out settings: lasts ${hours} hours${hidden.size ? `, hidden from ${hidden.size}` : ''}`}
+          onPress={() => setSettingsOpen(true)}
+          style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: t.space[3], paddingVertical: t.space[2], opacity: pressed ? 0.7 : 1 })}>
+          <Ionicons name="options-outline" size={20} color={t.colors.textMuted} />
+          <AppText variant="small" tone="muted" style={{ flex: 1 }}>
+            Lasts {hours} hours{hidden.size ? ` · Hidden from ${hidden.size}` : ''}
+          </AppText>
+          <Ionicons name="chevron-forward" size={18} color={t.colors.textSubtle} />
+        </Pressable>
         <AppText variant="label" tone="subtle">
-          Friends in your circle (they can look for 6 hours)
+          Your Insiders
         </AppText>
         {circle.length ? (
           <PeoplePicker
             people={circle}
+            exclude={[...hidden]}
             selected={to}
             onToggle={(id) =>
               setTo((s) => {
@@ -159,18 +215,41 @@ export default function NewOut() {
           />
         ) : (
           <AppText variant="small" tone="muted">
-            No one in your circle yet. Add friends from the Circles tab, or post to My Out.
+            No Insiders yet. Add Insiders from the Insiders tab, or post to your Out.
           </AppText>
         )}
       </ScrollView>
       <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: t.space[4], backgroundColor: t.colors.bg, borderTopWidth: t.borderWidth.hairline, borderColor: t.colors.border }}>
         <Button
-          label={to.size || toStory ? `Send${to.size ? ` to ${to.size}` : ''}${toStory ? (to.size ? ' + My Out' : ' to My Out') : ''}` : 'Pick who gets it'}
+          label={to.size || toStory ? `Send${to.size ? ` to ${to.size}` : ''}${toStory ? (to.size ? ' + your Out' : ' to your Out') : ''}` : 'Pick who gets it'}
           onPress={send}
           loading={busy}
           disabled={!to.size && !toStory}
         />
       </View>
+      <OutSettingsSheet
+        visible={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        hours={hours}
+        onHours={setHours}
+        people={people}
+        hidden={hidden}
+        onToggleHidden={(id) => {
+          setHidden((s) => {
+            const n = new Set(s);
+            if (n.has(id)) n.delete(id);
+            else n.add(id);
+            return n;
+          });
+          // Someone you hide from can't also be sent it.
+          setTo((s) => {
+            if (!s.has(id)) return s;
+            const n = new Set(s);
+            n.delete(id);
+            return n;
+          });
+        }}
+      />
     </View>
   );
 }

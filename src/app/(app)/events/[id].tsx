@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, Platform, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
+import { VirtualRoomCard } from '@/components/events/VirtualRoomCard';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { useAppConfig } from '@/config/useAppConfig';
 import {
@@ -29,6 +30,7 @@ import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { preciseLocation } from '@/features/circles/api';
 import { shareEvent } from '@/features/home/api';
 import { checkInOpen, eventCheckIn, eventPhase, fetchEvent, joinWaitlist, leaveWaitlist, setEventMode, type EventDetail } from '@/features/events/api';
+import { roomKindLabel } from '@/features/events/room';
 import { fetchTicketHolders, money, openPayment, parsePrice, refundTicket, setTicketPrice, ticketSplit, type TicketHolder } from '@/features/payments/api';
 import { fetchEventRating, rateVenue, type EventRating } from '@/features/ratings/api';
 import { cancelRsvp, rsvp } from '@/features/tonight/api';
@@ -94,7 +96,7 @@ export default function EventScreen() {
 
   const phase = eventPhase(event);
   const spotsLeft = event.capacity != null ? Math.max(0, event.capacity - event.going_count) : null;
-  const canCheckIn = event.i_am_going && checkInOpen(event);
+  const canCheckIn = event.i_am_going && event.format !== 'virtual' && checkInOpen(event);
 
   async function toggleRsvp() {
     if (!me || !event) return;
@@ -157,7 +159,7 @@ export default function EventScreen() {
     setSharing(true);
     try {
       await shareEvent(event.id);
-      toast('Shared with your circle');
+      toast('Shared with your Insiders');
       track('event_shared', { from: 'event' });
     } catch (e) {
       toast(friendlyError(e));
@@ -205,8 +207,13 @@ export default function EventScreen() {
               {event.venue.name}
               {event.venue.neighborhood ? ` · ${event.venue.neighborhood}` : ''}
             </AppText>
-          ) : event.place ? (
+          ) : event.place && event.format !== 'virtual' ? (
             <AppText tone="muted">{event.place}</AppText>
+          ) : null}
+          {event.format !== 'in_person' ? (
+            <AppText tone="primary" weight="bold">
+              {event.format === 'hybrid' ? 'Also online' : 'Online'} · {roomKindLabel(event.room_kind)}
+            </AppText>
           ) : null}
           {event.group ? (
             <AppText
@@ -236,6 +243,8 @@ export default function EventScreen() {
         {event.is_host ? <EventModeControls event={event} onChanged={load} /> : null}
 
         {event.description ? <AppText>{event.description}</AppText> : null}
+
+        <VirtualRoomCard event={event} ended={phase === 'ended'} />
 
         <View style={{ flexDirection: 'row', gap: t.space[2], flexWrap: 'wrap' }}>
           {event.i_am_here ? (
@@ -298,7 +307,7 @@ export default function EventScreen() {
           )
         ) : null}
 
-        {phase !== 'ended' ? <Button label="Share to my circle" variant="secondary" size="md" onPress={share} loading={sharing} /> : null}
+        {phase !== 'ended' ? <Button label="Share with my Insiders" variant="secondary" size="md" onPress={share} loading={sharing} /> : null}
 
         {canCheckIn && event.i_am_here ? (
           <Card accent="trust">
@@ -381,7 +390,7 @@ export default function EventScreen() {
               name={p.id === me ? 'You' : p.display_name}
               avatarUrl={p.avatar_url}
               ring={p.degree === 1 ? 'trust' : p.degree === 2 ? 'ai' : null}
-              detail={p.degree === 1 ? 'Your circle' : p.degree === 2 ? 'Your network' : null}
+              detail={p.degree === 1 ? 'Your Insiders' : p.degree === 2 ? 'Your network' : null}
             />
           ))}
         </Section>
@@ -623,7 +632,7 @@ function EventModeControls({ event, onChanged }: { event: EventDetail; onChanged
     setBusy(true);
     try {
       await setEventMode(event.id, visibility, surpriseFor);
-      toast(surpriseFor ? 'Saved' : event.surprise_for && !surpriseFor ? 'The surprise is off' : visibility === 'circle' ? 'Only your circle can see it now' : 'Anyone can find it now');
+      toast(surpriseFor ? 'Saved' : event.surprise_for && !surpriseFor ? 'The surprise is off' : visibility === 'circle' ? 'Only your Insiders can see it now' : 'Anyone can find it now');
       onChanged();
     } catch (e) {
       toast(friendlyError(e));
@@ -638,7 +647,7 @@ function EventModeControls({ event, onChanged }: { event: EventDetail; onChanged
       </AppText>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
         <Chip label="Public" selected={event.visibility === 'public'} onPress={() => !busy && change('public', event.surprise_for?.id ?? null)} />
-        <Chip label="My Circle only" selected={event.visibility === 'circle'} onPress={() => !busy && change('circle', event.surprise_for?.id ?? null)} />
+        <Chip label="My Insiders only" selected={event.visibility === 'circle'} onPress={() => !busy && change('circle', event.surprise_for?.id ?? null)} />
         {event.surprise_for ? (
           <Chip label="End the surprise" glyph="party" onPress={() => !busy && change(event.visibility, null)} />
         ) : null}
