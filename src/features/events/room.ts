@@ -72,3 +72,21 @@ export function parseRoomHash(hash: string): RoomPass | null {
   if (!url || !token || !(kind === 'voice' || kind === 'video' || kind === 'stream')) return null;
   return { url, token, kind, role: q.get('r') === 'host' ? 'host' : 'guest', title: q.get('n') ?? 'Event' };
 }
+
+/**
+ * Tell the server you're in an event's room (about once a minute while
+ * connected) or that you left, so your Insiders see the purple ring on your
+ * photo. The room pass proves who you are; best effort, never throws.
+ */
+export function roomCheckIn(token: string, leave = false) {
+  const base = process.env.EXPO_PUBLIC_SUPABASE_URL;
+  const key = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+  if (!base || !key) return;
+  fetch(`${base}/functions/v1/event-room`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', apikey: key, Authorization: `Bearer ${key}` },
+    body: JSON.stringify(leave ? { leave: token } : { ping: token }),
+    // Lets the "left" message go out even as the page closes.
+    keepalive: true,
+  }).catch(() => undefined);
+}

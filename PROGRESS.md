@@ -5,6 +5,16 @@
 
 ---
 
+## ✅ Status rings and rotating profile photos
+- **Colored rings** around profile photos show what someone is up to right now:
+  - **Red:** live on video (to people who can watch it).
+  - **Green:** out (checked in "here now"), to the people that plan's "here" audience allows.
+  - **Purple:** in a virtual event's room (Insiders only). The room checks in once a minute; the ring goes away within 2 minutes of leaving.
+  - Profiles show a matching label ("Live now", "Out now", "In a virtual event"), and the Insiders circle has a color key.
+- **Up to 3 profile photos** that change on their own every 25 seconds, everywhere your photo shows. Tap your own photo on your profile (it has a camera badge) to add, replace, remove, or set the main one. Edit profile links there too.
+- **Checked:** signing in once and reopening keeps you signed in (it's saved on the phone). No errors across the main screens.
+- **Tested:** 21 new database tests (592 total). In a browser: added 3 photos, the photo changed after 25 seconds, and the rings showed red, green and purple for Maya, DeShawn and Jordan. A forged room pass was refused.
+
 ## ✅ Out settings and rotating Out filters
 - **Send screen back to how it was**, with one small "Lasts 6 hours" row. Tap it to open **Out settings**:
   - **How long it lasts:** three cards (6, 12, 24 hours), each with a clock that fills up.
@@ -16,7 +26,7 @@
 
 ## ✅ Insiders, Out hours, anonymous drinks, new What's In
 - **Insiders:** the people you know are now your **Insiders** everywhere: the tab, your profile, notices, the AI's wording. The old words "friends", "followers" and "connections" are gone from the app.
-  - Following someone's posts is now **Tap in** (button: "Tap in" / "Tapped in" / "Tap in back"). Your profile shows "Insiders" and "Tapped in" counts.
+  - There's no one-way following. You connect with someone and you're each other's Insiders; that's the only relationship. (A short-lived "Tap in" follow button was removed.)
 - **Out hours:** when you send an Out you pick **6, 12 or 24 hours** (6 is the default). The notice says how long it lasts.
 - **"MO" fixed:** your Out bubble on the Outs tab shows your own photo (or initials) and says "Your Out". "My Out" is now "Your Out" everywhere.
 - **Anonymous drinks:** in the drink menu, turn on "Send anonymously". The person live and everyone watching see "Someone" instead of your name. Only the app's records know who sent it.
@@ -798,10 +808,12 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 | 2026-09-27 | Phone login goes through a server function; accounts are keyed by email | Supabase's own phone login needs a text for every login |
 | 2026-09-27 | Screens live in `src/app/` (not `app/`) | This is what current Expo expects |
 | 2026-09-27 | Testing: web build + automated checks here, plus Dominique on her phone | No iPhone simulator in this environment (it needs a Mac) |
-| 2026-09-29 | The people you know are called **Insiders** (not friends, followers or connections); following posts is **Tap in** | Dominique |
+| 2026-09-29 | The people you know are called **Insiders** (not friends, followers or connections) | Dominique |
+| 2026-09-29 | **No following.** The only relationship is mutual Insiders; the follow ("Tap in") button, counts and notices are gone | Dominique |
 | 2026-09-29 | Outs last 6, 12 or 24 hours; the sender picks (6 by default) | Dominique |
 | 2026-09-29 | Drinks can be sent anonymously; people see "Someone" | Dominique |
 | 2026-09-29 | Out time and "Hide from" live in Out settings, one tap from the send screen; Out filters rotate 8 at a time every 3 days (24 total) | Dominique |
+| 2026-09-29 | Status rings: red = live, green = out, purple = in a virtual event; up to 3 profile photos rotating every 25 seconds | Dominique |
 
 ## Spec vs. prototype conflicts (the spec wins)
 See `docs/PHASE-0-PLAN.md` section 1B.

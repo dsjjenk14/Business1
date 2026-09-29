@@ -34,7 +34,7 @@ export function PersonRow({
         accessibilityLabel={`${name}'s profile`}
         onPress={() => router.push({ pathname: '/people/[id]', params: { id } })}
         style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-        <Avatar name={name} uri={avatarUrl} size={40} ring={ring ?? null} />
+        <Avatar name={name} uri={avatarUrl} size={40} ring={ring === 'ai' ? 'ai' : null} userId={id} />
         <View style={{ flex: 1 }}>
           <AppText variant="small" weight="bold" numberOfLines={1}>
             {name}

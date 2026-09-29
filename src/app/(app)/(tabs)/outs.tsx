@@ -92,6 +92,7 @@ export default function Outs() {
               name="Your Out"
               avatarName={profile?.display_name ?? 'You'}
               avatarUrl={profile?.avatar_url}
+              userId={profile?.id}
               ring={inbox.my_story.length > 0}
               label={inbox.my_story.length ? `Your Out, ${inbox.my_story.length} posted, seen by ${Math.max(0, ...inbox.my_story.map((s) => s.views))}` : 'Add to your Out'}
               onPress={() => (inbox.my_story.length ? view(inbox.my_story.map((s) => s.id)) : router.push('/outs/new'))}
@@ -102,6 +103,7 @@ export default function Outs() {
                 key={s.sender_id}
                 name={s.name}
                 avatarUrl={s.avatar_url}
+                userId={s.sender_id}
                 ring={!s.all_seen}
                 label={`${s.name}'s Out${s.all_seen ? '' : ', new'}`}
                 onPress={() => view(s.out_ids)}
@@ -122,7 +124,7 @@ export default function Outs() {
                   }>
                   <View
                     style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-                    <Avatar name={r.name} uri={r.avatar_url} size={44} />
+                    <Avatar name={r.name} uri={r.avatar_url} size={44} userId={r.sender_id} />
                     <View style={{ flex: 1 }}>
                       <AppText weight="bold">{r.name}</AppText>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -213,11 +215,13 @@ function StoryBubble({
   onPress,
   plus,
   avatarName,
+  userId,
 }: {
   name: string;
   /** Whose photo or initials to show (defaults to the name). */
   avatarName?: string;
   avatarUrl?: string | null;
+  userId?: string | null;
   ring: boolean;
   label: string;
   onPress: () => void;
@@ -227,7 +231,7 @@ function StoryBubble({
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={{ alignItems: 'center', gap: 4, width: 72 }}>
       <View style={{ padding: 2, borderRadius: 34, borderWidth: 2, borderColor: ring ? t.colors.primary : t.colors.border }}>
-        <Avatar name={avatarName ?? name} uri={avatarUrl ?? null} size={56} />
+        <Avatar name={avatarName ?? name} uri={avatarUrl ?? null} size={56} userId={userId} />
         {plus ? (
           <View style={{ position: 'absolute', right: -2, bottom: -2, width: 22, height: 22, borderRadius: 11, backgroundColor: t.colors.primary, alignItems: 'center', justifyContent: 'center' }}>
             <Ionicons name="add" size={16} color={t.colors.onPrimary} />

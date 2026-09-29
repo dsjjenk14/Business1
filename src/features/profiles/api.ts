@@ -46,19 +46,5 @@ export async function fetchProfileCard(userId: string): Promise<ProfileCard | nu
   return (data as ProfileCard | null) ?? null;
 }
 
-export type FollowInfo = { followers: number; following: number; i_follow: boolean; follows_me: boolean };
-
-/** Followers see someone's Everyone pins in their Friends feed. It never unlocks messaging or vouches. */
-export async function fetchFollowInfo(userId: string) {
-  const { data, error } = await supabase.rpc('follow_info', { p_user: userId });
-  if (error) throw error;
-  return data as unknown as FollowInfo;
-}
-
-export async function setFollowing(userId: string, follow: boolean) {
-  const { error } = await supabase.rpc(follow ? 'follow_user' : 'unfollow_user', { p_user: userId });
-  if (error) throw error;
-}
-
 /** A link that opens this profile in the app. */
 export const profileLink = (userId: string) => `imin://people/${userId}`;

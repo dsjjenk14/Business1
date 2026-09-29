@@ -1,4 +1,3 @@
-import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, Switch, View } from 'react-native';
@@ -7,7 +6,6 @@ import { BackHeader } from '@/components/nav/AppHeader';
 import { InterestsPicker } from '@/components/profile/InterestsPicker';
 import { AppText, Avatar, Button, Chip, Screen, TextField, useToast } from '@/components/ui';
 import { useAppConfig } from '@/config/useAppConfig';
-import { uploadAvatar } from '@/features/auth/signUp';
 import { useAuth } from '@/lib/auth';
 import { friendlyError, supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
@@ -29,16 +27,10 @@ export default function EditProfile() {
   const [cityId, setCityId] = useState<number | null>(profile?.city_id ?? null);
   const [showAge, setShowAge] = useState(profile?.show_age ?? true);
   const [interests, setInterests] = useState<string[]>(profile?.interests ?? []);
-  const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (!profile) return <BackHeader title="Edit profile" />;
-
-  async function pickPhoto() {
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], allowsEditing: true, aspect: [1, 1], quality: 0.8 });
-    if (!result.canceled && result.assets[0]) setPhotoUri(result.assets[0].uri);
-  }
 
   async function save() {
     if (!profile) return;
@@ -49,7 +41,6 @@ export default function EditProfile() {
     setBusy(true);
     setError(null);
     try {
-      if (photoUri) await uploadAvatar(profile.id, photoUri);
       const { error: e } = await supabase
         .from('profiles')
         .update({
@@ -78,10 +69,10 @@ export default function EditProfile() {
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <BackHeader title="Edit profile" />
       <Screen contentGap={t.space[5]}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Change profile photo" onPress={pickPhoto} style={{ alignItems: 'center', gap: t.space[2] }}>
-          <Avatar name={displayName || 'You'} uri={photoUri ?? profile.avatar_url} size={96} ring="primary" />
+        <Pressable accessibilityRole="button" accessibilityLabel="Change your profile photos" onPress={() => router.push('/settings/photos')} style={{ alignItems: 'center', gap: t.space[2] }}>
+          <Avatar name={displayName || 'You'} uri={profile.avatar_url} size={96} userId={profile.id} />
           <AppText variant="small" weight="bold" tone="primary">
-            Change photo
+            Change photos (up to 3)
           </AppText>
         </Pressable>
 

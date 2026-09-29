@@ -6,7 +6,7 @@ import { Pressable, ScrollView, TextInput, View } from 'react-native';
 import { DrinkBurst, type DrinkArrival } from '@/components/drinks/DrinkBurst';
 import { DrinkMenu } from '@/components/drinks/DrinkMenu';
 import { AppText, Avatar, Button } from '@/components/ui';
-import type { RoomPass } from '@/features/events/room';
+import { roomCheckIn, type RoomPass } from '@/features/events/room';
 import { useTheme } from '@/theme';
 
 type Chat = { id: string; from: string; text: string };
@@ -100,6 +100,21 @@ export function RoomView({ pass, onLeave, canSendDrinks = false }: { pass: RoomP
     // The room is made once per pass.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [room]);
+
+  // While connected to an event's room, check in once a minute (your Insiders
+  // see you're in a virtual event), and say when you leave.
+  useEffect(() => {
+    if (status !== 'connected' || !pass.event_id) return;
+    roomCheckIn(pass.token);
+    const timer = setInterval(() => roomCheckIn(pass.token), 60_000);
+    const bye = () => roomCheckIn(pass.token, true);
+    window.addEventListener('pagehide', bye);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('pagehide', bye);
+      bye();
+    };
+  }, [status, pass.event_id, pass.token]);
 
   function showDrink(d: DrinkArrival) {
     setDrinks((list) => (list.some((x) => x.id === d.id) ? list : [...list.slice(-5), d]));

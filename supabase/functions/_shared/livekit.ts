@@ -19,6 +19,28 @@ async function signJwt(payload: unknown, secret: string) {
   return `${body}.${b64url(sig)}`;
 }
 
+const unb64url = (s: string) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (s.length % 4)) % 4)), (c) => c.charCodeAt(0));
+
+/**
+ * Check a room pass we signed: returns who it's for and which room, or null
+ * if the signature is wrong or it has expired.
+ */
+export async function verifyLivekitToken(token: string, secret: string): Promise<{ identity: string; room: string } | null> {
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+  try {
+    const k = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['verify']);
+    const ok = await crypto.subtle.verify('HMAC', k, unb64url(parts[2]!), enc.encode(`${parts[0]}.${parts[1]}`));
+    if (!ok) return null;
+    const claims = JSON.parse(new TextDecoder().decode(unb64url(parts[1]!)));
+    if (typeof claims.exp !== 'number' || claims.exp < Date.now() / 1000) return null;
+    if (typeof claims.sub !== 'string' || typeof claims.video?.room !== 'string') return null;
+    return { identity: claims.sub, room: claims.video.room };
+  } catch {
+    return null;
+  }
+}
+
 function grant(key: string, identity: string, name: string, ttlSec: number, video: Record<string, unknown>) {
   const now = Math.floor(Date.now() / 1000);
   return { iss: key, sub: identity, name, nbf: now - 10, exp: now + ttlSec, video };

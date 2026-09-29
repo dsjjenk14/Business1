@@ -136,7 +136,7 @@ export default function PinThread() {
               accessibilityRole="link"
               accessibilityLabel={`${r.author?.display_name ?? 'Member'}'s profile`}
               onPress={() => (r.author_id === me ? router.push('/profile') : router.push({ pathname: '/people/[id]', params: { id: r.author_id } }))}>
-              <Avatar name={r.author?.display_name ?? 'Member'} uri={r.author?.avatar_url} size={34} />
+              <Avatar name={r.author?.display_name ?? 'Member'} uri={r.author?.avatar_url} size={34} userId={r.author_id} />
             </Pressable>
             <View style={{ flex: 1, backgroundColor: t.colors.surface, borderRadius: t.radius.md, padding: t.space[3], gap: 2 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>

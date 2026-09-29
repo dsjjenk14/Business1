@@ -55,7 +55,7 @@ export default function Messages() {
       accessibilityLabel={`${r.title}${r.unread ? ', unread' : ''}${r.last_body ? `: ${r.last_body}` : ''}`}
       onPress={() => open(r)}
       style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: t.space[3], minHeight: 60, opacity: pressed ? 0.7 : 1 })}>
-      {r.kind !== 'direct' ? <GlyphTile name={r.glyph} size={44} /> : <Avatar name={r.title} uri={r.avatar_url} size={44} />}
+      {r.kind !== 'direct' ? <GlyphTile name={r.glyph} size={44} /> : <Avatar name={r.title} uri={r.avatar_url} size={44} userId={r.other_id} />}
       <View style={{ flex: 1 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: t.space[2] }}>
           <AppText weight="bold" numberOfLines={1} style={{ flex: 1 }}>

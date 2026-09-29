@@ -549,6 +549,31 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"event_room_presence": {
+                  Row: {
+                    "event_id": number,"last_seen": string,"user_id": string
+                  }
+                  Insert: {
+                    "event_id": number,"last_seen"?: string,"user_id": string
+                  }
+                  Update: {
+                    "event_id"?: number,"last_seen"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "event_room_presence_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "event_room_presence_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"event_rsvps": {
                   Row: {
                     "created_at": string,"event_id": number,"user_id": string
@@ -1658,13 +1683,13 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "approx_location": unknown,"avatar_emoji": string | null,"avatar_url": string | null,"bio": string,"city_id": number | null,"created_at": string,"display_name": string,"full_name": string,"headline": string,"id": string,"id_verified_at": string | null,"interests": (string)[],"invite_code": string,"invited_by": string | null,"is_founding_member": boolean,"location_precision": Database["public"]['Enums']["location_precision"],"member_number": number,"neighborhood": string | null,"photo_verified_at": string | null,"pronouns": string | null,"role": Database["public"]['Enums']["user_role"],"show_age": boolean,"top_vouch_word": string | null,"updated_at": string,"vouch_count": number
+                    "approx_location": unknown,"avatar_emoji": string | null,"avatar_url": string | null,"bio": string,"city_id": number | null,"created_at": string,"display_name": string,"full_name": string,"headline": string,"id": string,"id_verified_at": string | null,"interests": (string)[],"invite_code": string,"invited_by": string | null,"is_founding_member": boolean,"location_precision": Database["public"]['Enums']["location_precision"],"member_number": number,"neighborhood": string | null,"photo_urls": (string)[],"photo_verified_at": string | null,"pronouns": string | null,"role": Database["public"]['Enums']["user_role"],"show_age": boolean,"top_vouch_word": string | null,"updated_at": string,"vouch_count": number
                   }
                   Insert: {
-                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name": string,"full_name": string,"headline"?: string,"id": string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code": string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"neighborhood"?: string | null,"photo_verified_at"?: string | null,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"top_vouch_word"?: string | null,"updated_at"?: string,"vouch_count"?: number
+                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name": string,"full_name": string,"headline"?: string,"id": string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code": string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"neighborhood"?: string | null,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"top_vouch_word"?: string | null,"updated_at"?: string,"vouch_count"?: number
                   }
                   Update: {
-                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name"?: string,"full_name"?: string,"headline"?: string,"id"?: string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code"?: string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"neighborhood"?: string | null,"photo_verified_at"?: string | null,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"top_vouch_word"?: string | null,"updated_at"?: string,"vouch_count"?: number
+                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name"?: string,"full_name"?: string,"headline"?: string,"id"?: string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code"?: string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"neighborhood"?: string | null,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"top_vouch_word"?: string | null,"updated_at"?: string,"vouch_count"?: number
                   }
                   Relationships: [
                     {
@@ -2260,6 +2285,9 @@ isOneToOne: true
 "event_room_join_check":
 { Args: { "p_event": number,"p_user": string }; Returns: Json
                            },
+"event_room_ping":
+{ Args: { "p_leave"?: boolean,"p_room": string,"p_user": string }; Returns: boolean
+                           },
 "event_ticket_holders":
 { Args: { "p_event": number }; Returns: {
               "amount_cents": number,"bought_at": string,"display_name": string,"status": string,"ticket_id": number,"user_id": string
@@ -2274,12 +2302,6 @@ isOneToOne: true
 { Args: { "p_lat"?: number,"p_lng"?: number }; Returns: {
               "distance_mi": number,"glyph": string,"kind": string,"name": string,"neighborhood": string,"network_visited": number,"perk": string,"placement_id": number,"venue_id": number
             }[]
-                           },
-"follow_info":
-{ Args: { "p_user": string }; Returns: Json
-                           },
-"follow_user":
-{ Args: { "p_user": string }; Returns: undefined
                            },
 "generate_invite_code":
 { Args: Record<PropertyKey, never>; Returns: string
@@ -2464,6 +2486,11 @@ isOneToOne: true
 "people_like_you":
 { Args: { "p_limit"?: number }; Returns: Json
                            },
+"people_status":
+{ Args: { "p_ids": (string)[] }; Returns: {
+              "photos": (string)[],"status": string,"user_id": string
+            }[]
+                           },
 "person_privacy":
 { Args: { "p_user": string }; Returns: Json
                            },
@@ -2631,6 +2658,9 @@ isOneToOne: true
 "set_plan_audience":
 { Args: { "p_audience": string,"p_post": number }; Returns: undefined
                            },
+"set_profile_photos":
+{ Args: { "p_urls": (string)[] }; Returns: (string)[]
+                           },
 "set_ticket_price":
 { Args: { "p_cents": number,"p_event": number }; Returns: undefined
                            },
@@ -2719,9 +2749,6 @@ isOneToOne: true
 { Args: { "p_name": string,"p_props"?: Json }; Returns: undefined
                            },
 "unblock_user":
-{ Args: { "p_user": string }; Returns: undefined
-                           },
-"unfollow_user":
 { Args: { "p_user": string }; Returns: undefined
                            },
 "unpin_out":

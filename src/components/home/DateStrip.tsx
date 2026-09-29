@@ -57,7 +57,7 @@ export function DateStrip({ mode, dates }: { mode: DateModeStatus | null; dates:
   return (
     <Card accent="primary" onPress={() => router.push({ pathname: '/dates/[id]', params: { id: String(d.id) } })} accessibilityLabel="Open date">
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-        <Avatar name={d.other_name} uri={d.other_avatar_url} size={44} ring="primary" />
+        <Avatar name={d.other_name} uri={d.other_avatar_url} size={44} />
         <View style={{ flex: 1 }}>
           <AppText weight="bold">{d === incoming ? `${d.other_name} asked you on a date` : `Date with ${d.other_name}`}</AppText>
           <AppText variant="small" tone="muted">

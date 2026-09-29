@@ -1,16 +1,15 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useRouter } from 'expo-router';
+import { useState } from 'react';
 import { Pressable, Share, View } from 'react-native';
 
 import { PinCard } from '@/components/pins/PinCard';
 import { PhotoGrid } from '@/components/profile/PhotoGrid';
-import { AppText, Avatar, Badge, Button, Card, GlyphTile, isGlyphName, Section, Segmented, useToast } from '@/components/ui';
-import { track } from '@/features/analytics/track';
+import { AppText, Avatar, Badge, Button, Card, GlyphTile, isGlyphName, Section, Segmented } from '@/components/ui';
 import { tierProgress, useAppConfig } from '@/config/useAppConfig';
+import { STATUS_COLORS, STATUS_LABELS, usePersonInfo } from '@/features/people/status';
 import type { FeedPin } from '@/features/pins/api';
-import { fetchFollowInfo, profileLink, setFollowing, type FollowInfo, type ProfileCard } from '@/features/profiles/api';
-import { friendlyError } from '@/lib/supabase';
+import { profileLink, type ProfileCard } from '@/features/profiles/api';
 import { clockTime, shortCity, timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
 
@@ -37,31 +36,9 @@ export function ProfileView({
   const place = card.neighborhood || card.city_name;
   const subtitle = [card.age ? String(card.age) : null, place, card.pronouns].filter(Boolean).join(' · ');
   const verified = card.id_verified || card.photo_verified;
-  const toast = useToast();
-  const [follow, setFollow] = useState<FollowInfo | null>(null);
   const [postsView, setPostsView] = useState<'grid' | 'all'>('grid');
   const hasPhotos = pins.some((p) => p.photo_paths.length > 0);
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchFollowInfo(card.id)
-        .then(setFollow)
-        .catch(() => undefined);
-    }, [card.id]),
-  );
-
-  async function toggleFollow() {
-    if (!follow) return;
-    const next = !follow.i_follow;
-    setFollow({ ...follow, i_follow: next, followers: follow.followers + (next ? 1 : -1) });
-    try {
-      await setFollowing(card.id, next);
-      track(next ? 'followed' : 'unfollowed');
-    } catch (e) {
-      setFollow(follow);
-      toast(friendlyError(e));
-    }
-  }
+  const status = usePersonInfo(card.id)?.status ?? null;
 
   const shareProfile = () =>
     Share.share({ message: `${card.is_me ? 'Find me' : `Check out ${card.display_name}`} on I'm In: ${profileLink(card.id)}` }).catch(() => undefined);
@@ -69,8 +46,30 @@ export function ProfileView({
   return (
     <>
       <View style={{ alignItems: 'center', gap: t.space[3] }}>
-        <View>
-          <Avatar name={card.display_name} uri={card.avatar_url} size={104} ring={card.tonight ? 'trust' : 'primary'} />
+        <Pressable
+          disabled={!card.is_me}
+          accessibilityRole={card.is_me ? 'button' : undefined}
+          accessibilityLabel={card.is_me ? 'Change your profile photos' : undefined}
+          onPress={() => router.push('/settings/photos')}>
+          <Avatar name={card.display_name} uri={card.avatar_url} size={104} userId={card.id} />
+          {card.is_me ? (
+            <View
+              style={{
+                position: 'absolute',
+                left: 2,
+                bottom: 2,
+                width: 30,
+                height: 30,
+                borderRadius: 15,
+                backgroundColor: t.colors.primary,
+                borderWidth: 2,
+                borderColor: t.colors.bg,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <Ionicons name="camera" size={15} color={t.colors.onPrimary} />
+            </View>
+          ) : null}
           {verified ? (
             <View
               accessible
@@ -79,7 +78,15 @@ export function ProfileView({
               <Ionicons name="checkmark-circle" size={28} color={t.colors.trust} />
             </View>
           ) : null}
-        </View>
+        </Pressable>
+        {status ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, borderWidth: 1, borderColor: STATUS_COLORS[status] }}>
+            <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: STATUS_COLORS[status] }} />
+            <AppText variant="caption" weight="bold">
+              {STATUS_LABELS[status]}
+            </AppText>
+          </View>
+        ) : null}
         <View style={{ alignItems: 'center', gap: t.space[1] }}>
           <AppText variant="h1" accessibilityRole="header" align="center">
             {card.display_name}
@@ -126,7 +133,6 @@ export function ProfileView({
         {[
           { n: card.vouch_count, label: 'Vouches', tone: 'trust' as const },
           { n: card.circle_count, label: 'Insiders', tone: 'primary' as const },
-          { n: follow?.followers ?? null, label: 'Tapped in', tone: 'ai' as const },
         ].map((s) => (
           <Card key={s.label} style={{ flex: 1, alignItems: 'center', paddingVertical: t.space[3] }}>
             <AppText variant="number" tone={s.tone}>
@@ -155,19 +161,7 @@ export function ProfileView({
 
       {actions}
 
-      <View style={{ flexDirection: 'row', gap: t.space[2] }}>
-        {!card.is_me && follow ? (
-          <Button
-            label={follow.i_follow ? 'Tapped in' : follow.follows_me ? 'Tap in back' : 'Tap in'}
-            size="md"
-            variant={follow.i_follow ? 'secondary' : 'primary'}
-            style={{ flex: 1 }}
-            onPress={toggleFollow}
-            accessibilityLabel={follow.i_follow ? `Stop tapping in to ${card.display_name}` : `Tap in to ${card.display_name}`}
-          />
-        ) : null}
-        <Button label="Share profile" size="md" variant="secondary" style={{ flex: 1 }} onPress={shareProfile} />
-      </View>
+      <Button label="Share profile" size="md" variant="secondary" onPress={shareProfile} />
 
       {card.interests?.length ? (
         <Section title="Into">
