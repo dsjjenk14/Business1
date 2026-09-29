@@ -5,6 +5,11 @@
 
 ---
 
+## ✅ New Pin no longer goes black
+- **What was wrong:** three hidden helper packages (animation and gestures, pulled in by the photo filters and navigation) were newer than the versions built into Expo Go. Opening New Pin loads the photo filters, and the mismatch crashed the screen to black on iPhone.
+- **Fix:** those packages are now pinned to the exact versions Expo Go ships. A new automatic check fails the build if any package drifts out of line again.
+- **Safety net:** if a screen ever crashes, you'll now see "Something went wrong" with Try again and Go back, instead of a black screen.
+
 ## ✅ Pins fixed: Nearby works without GPS
 - **What was broken:** a new member who hadn't shared their phone's location saw an empty Nearby tab on Pins. A pin they posted never showed up there either, because it had no place on the map.
 - **Fix:** without GPS, Nearby (on Pins, Tonight and What's In) now centers on your city. A pin posted without a location is placed in your city (pins already posted that way were fixed too). When the phone does share its location, that still wins.

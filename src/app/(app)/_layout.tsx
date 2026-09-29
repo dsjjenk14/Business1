@@ -1,9 +1,13 @@
 import { Stack } from 'expo-router';
 
+import { ScreenError } from '@/components/ScreenError';
 import { useAutoArrive } from '@/features/arrival/useAutoArrive';
 import { usePush } from '@/features/notifications/usePush';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/theme';
+
+/** Any screen that crashes shows a friendly message instead of going blank. */
+export const ErrorBoundary = ScreenError;
 
 export default function AppLayout() {
   const t = useTheme();
