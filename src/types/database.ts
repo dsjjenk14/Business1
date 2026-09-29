@@ -156,6 +156,56 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"chat_poll_votes": {
+                  Row: {
+                    "option": number,"poll_id": number,"user_id": string,"voted_at": string
+                  }
+                  Insert: {
+                    "option": number,"poll_id": number,"user_id": string,"voted_at"?: string
+                  }
+                  Update: {
+                    "option"?: number,"poll_id"?: number,"user_id"?: string,"voted_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "chat_poll_votes_poll_id_fkey"
+      columns: ["poll_id"]
+isOneToOne: false
+      referencedRelation: "chat_polls"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "chat_poll_votes_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"chat_polls": {
+                  Row: {
+                    "conversation_id": number,"created_at": string,"created_by": string,"id": number,"options": (string)[],"question": string
+                  }
+                  Insert: {
+                    "conversation_id": number,"created_at"?: string,"created_by": string,"id"?: never,"options": (string)[],"question": string
+                  }
+                  Update: {
+                    "conversation_id"?: number,"created_at"?: string,"created_by"?: string,"id"?: never,"options"?: (string)[],"question"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "chat_polls_conversation_id_fkey"
+      columns: ["conversation_id"]
+isOneToOne: false
+      referencedRelation: "conversations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "chat_polls_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"cities": {
                   Row: {
                     "active": boolean,"center": unknown,"id": number,"metro": string,"name": string,"region": string,"slug": string,"sort": number
@@ -651,13 +701,13 @@ isOneToOne: false
                   ]
                 },"events": {
                   Row: {
-                    "approx_location": unknown,"capacity": number | null,"created_at": string,"description": string,"emoji": string | null,"ends_at": string | null,"format": string,"group_id": number | null,"host_id": string,"id": number,"is_recurring": boolean,"place_text": string | null,"room_kind": string | null,"starts_at": string,"surprise_for": string | null,"ticket_price_cents": number | null,"title": string,"venue_id": number | null,"visibility": string
+                    "approx_location": unknown,"capacity": number | null,"cover_url": string | null,"created_at": string,"description": string,"emoji": string | null,"ends_at": string | null,"format": string,"group_id": number | null,"host_id": string,"id": number,"is_recurring": boolean,"place_text": string | null,"room_kind": string | null,"starts_at": string,"surprise_for": string | null,"ticket_price_cents": number | null,"title": string,"venue_id": number | null,"visibility": string
                   }
                   Insert: {
-                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"format"?: string,"group_id"?: number | null,"host_id": string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"room_kind"?: string | null,"starts_at": string,"surprise_for"?: string | null,"ticket_price_cents"?: number | null,"title": string,"venue_id"?: number | null,"visibility"?: string
+                    "approx_location"?: unknown,"capacity"?: number | null,"cover_url"?: string | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"format"?: string,"group_id"?: number | null,"host_id": string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"room_kind"?: string | null,"starts_at": string,"surprise_for"?: string | null,"ticket_price_cents"?: number | null,"title": string,"venue_id"?: number | null,"visibility"?: string
                   }
                   Update: {
-                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"format"?: string,"group_id"?: number | null,"host_id"?: string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"room_kind"?: string | null,"starts_at"?: string,"surprise_for"?: string | null,"ticket_price_cents"?: number | null,"title"?: string,"venue_id"?: number | null,"visibility"?: string
+                    "approx_location"?: unknown,"capacity"?: number | null,"cover_url"?: string | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"format"?: string,"group_id"?: number | null,"host_id"?: string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"room_kind"?: string | null,"starts_at"?: string,"surprise_for"?: string | null,"ticket_price_cents"?: number | null,"title"?: string,"venue_id"?: number | null,"visibility"?: string
                   }
                   Relationships: [
                     {
@@ -1131,13 +1181,13 @@ isOneToOne: false
                   ]
                 },"messages": {
                   Row: {
-                    "body": string,"char_length": number | null,"conversation_id": number,"created_at": string,"id": number,"reply_seconds": number | null,"sender_id": string
+                    "body": string,"char_length": number | null,"conversation_id": number,"created_at": string,"id": number,"poll_id": number | null,"reply_seconds": number | null,"sender_id": string
                   }
                   Insert: {
-                    "body": string,"char_length"?: never,"conversation_id": number,"created_at"?: string,"id"?: number,"reply_seconds"?: number | null,"sender_id": string
+                    "body": string,"char_length"?: never,"conversation_id": number,"created_at"?: string,"id"?: number,"poll_id"?: number | null,"reply_seconds"?: number | null,"sender_id": string
                   }
                   Update: {
-                    "body"?: string,"char_length"?: never,"conversation_id"?: number,"created_at"?: string,"id"?: number,"reply_seconds"?: number | null,"sender_id"?: string
+                    "body"?: string,"char_length"?: never,"conversation_id"?: number,"created_at"?: string,"id"?: number,"poll_id"?: number | null,"reply_seconds"?: number | null,"sender_id"?: string
                   }
                   Relationships: [
                     {
@@ -1145,6 +1195,12 @@ isOneToOne: false
       columns: ["conversation_id"]
 isOneToOne: false
       referencedRelation: "conversations"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "messages_poll_id_fkey"
+      columns: ["poll_id"]
+isOneToOne: false
+      referencedRelation: "chat_polls"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "messages_sender_id_fkey"
@@ -1858,13 +1914,13 @@ isOneToOne: false
                   ]
                 },"user_settings": {
                   Row: {
-                    "allow_intro_requests": boolean,"app_sounds": boolean,"discoverable": boolean,"notify_date_requests": boolean,"notify_gps_vouch": boolean,"notify_intro_requests": boolean,"notify_messages": boolean,"notify_pin_replies": boolean,"notify_rsvps": boolean,"radius_mi": number,"show_going_out_venue": boolean,"show_in_nearby": boolean,"show_vouch_count": boolean,"theme_id": string,"updated_at": string,"user_id": string
+                    "allow_intro_requests": boolean,"app_sounds": boolean,"discoverable": boolean,"friday_drop": boolean,"notify_date_requests": boolean,"notify_gps_vouch": boolean,"notify_intro_requests": boolean,"notify_messages": boolean,"notify_pin_replies": boolean,"notify_rsvps": boolean,"radius_mi": number,"show_going_out_venue": boolean,"show_in_nearby": boolean,"show_vouch_count": boolean,"theme_id": string,"updated_at": string,"user_id": string
                   }
                   Insert: {
-                    "allow_intro_requests"?: boolean,"app_sounds"?: boolean,"discoverable"?: boolean,"notify_date_requests"?: boolean,"notify_gps_vouch"?: boolean,"notify_intro_requests"?: boolean,"notify_messages"?: boolean,"notify_pin_replies"?: boolean,"notify_rsvps"?: boolean,"radius_mi"?: number,"show_going_out_venue"?: boolean,"show_in_nearby"?: boolean,"show_vouch_count"?: boolean,"theme_id"?: string,"updated_at"?: string,"user_id": string
+                    "allow_intro_requests"?: boolean,"app_sounds"?: boolean,"discoverable"?: boolean,"friday_drop"?: boolean,"notify_date_requests"?: boolean,"notify_gps_vouch"?: boolean,"notify_intro_requests"?: boolean,"notify_messages"?: boolean,"notify_pin_replies"?: boolean,"notify_rsvps"?: boolean,"radius_mi"?: number,"show_going_out_venue"?: boolean,"show_in_nearby"?: boolean,"show_vouch_count"?: boolean,"theme_id"?: string,"updated_at"?: string,"user_id": string
                   }
                   Update: {
-                    "allow_intro_requests"?: boolean,"app_sounds"?: boolean,"discoverable"?: boolean,"notify_date_requests"?: boolean,"notify_gps_vouch"?: boolean,"notify_intro_requests"?: boolean,"notify_messages"?: boolean,"notify_pin_replies"?: boolean,"notify_rsvps"?: boolean,"radius_mi"?: number,"show_going_out_venue"?: boolean,"show_in_nearby"?: boolean,"show_vouch_count"?: boolean,"theme_id"?: string,"updated_at"?: string,"user_id"?: string
+                    "allow_intro_requests"?: boolean,"app_sounds"?: boolean,"discoverable"?: boolean,"friday_drop"?: boolean,"notify_date_requests"?: boolean,"notify_gps_vouch"?: boolean,"notify_intro_requests"?: boolean,"notify_messages"?: boolean,"notify_pin_replies"?: boolean,"notify_rsvps"?: boolean,"radius_mi"?: number,"show_going_out_venue"?: boolean,"show_in_nearby"?: boolean,"show_vouch_count"?: boolean,"theme_id"?: string,"updated_at"?: string,"user_id"?: string
                   }
                   Relationships: [
                     {
@@ -2199,6 +2255,9 @@ isOneToOne: true
               "avatar_url": string,"display_name": string,"id": string,"in_circle": boolean
             }[]
                            },
+"chat_poll":
+{ Args: { "p_poll": number }; Returns: Json
+                           },
 "check_in":
 { Args: { "p_accuracy_m"?: number,"p_event_id"?: number,"p_lat": number,"p_lng": number,"p_venue_id"?: number }; Returns: {
               "already_vouched": boolean,"avatar_emoji": string,"avatar_url": string,"degree": number,"display_name": string,"encounter_id": number,"met_at": string,"place_label": string,"user_id": string,"vouch_count": number
@@ -2224,6 +2283,9 @@ isOneToOne: true
                            },
 "create_bill":
 { Args: { "p_event"?: number,"p_note"?: string,"p_receipt_path"?: string,"p_shares": Json,"p_split": string,"p_tip_cents": number,"p_title": string,"p_total_cents": number }; Returns: number
+                           },
+"create_chat_poll":
+{ Args: { "p_conversation": number,"p_options": (string)[],"p_question": string }; Returns: number
                            },
 "create_connect_code":
 { Args: { "p_kind": string }; Returns: Json
@@ -2361,6 +2423,9 @@ isOneToOne: true
                            },
 "join_waitlist":
 { Args: { "p_event": number }; Returns: number
+                           },
+"launch_metrics":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "leave_group":
 { Args: { "p_group": number }; Returns: undefined
@@ -2631,6 +2696,9 @@ isOneToOne: true
 "set_checkin_interval":
 { Args: { "p_minutes": number }; Returns: undefined
                            },
+"set_event_cover":
+{ Args: { "p_event": number,"p_url": string }; Returns: undefined
+                           },
 "set_event_mode":
 { Args: { "p_event": number,"p_surprise_for"?: string,"p_visibility": string }; Returns: undefined
                            },
@@ -2777,6 +2845,9 @@ isOneToOne: true
                            },
 "visible_vouch_count":
 { Args: { "p_user": string }; Returns: number
+                           },
+"vote_chat_poll":
+{ Args: { "p_option": number,"p_poll": number }; Returns: undefined
                            },
 "wallet_credit":
 { Args: { "p_cents": number,"p_session": string,"p_user": string }; Returns: boolean

@@ -12,6 +12,7 @@ import { track } from '@/features/analytics/track';
 import { fetchRoomPass, RoomError, roomWebLink, type RoomPass } from '@/features/events/room';
 import { goBackOr } from '@/lib/navigation';
 import { useTheme } from '@/theme';
+import { useFeature } from '@/config/useAppConfig';
 
 /**
  * A virtual event's room. In a browser it opens right here. On phones it
@@ -26,6 +27,7 @@ export default function EventRoom() {
   const [error, setError] = useState<RoomError | null>(null);
   const [opened, setOpened] = useState(false);
   const [menu, setMenu] = useState(false);
+  const drinksOn = useFeature('drinks_enabled');
 
   useEffect(() => {
     let cancelled = false;
@@ -70,7 +72,7 @@ export default function EventRoom() {
       </View>
     );
   }
-  if (Platform.OS === 'web') return <RoomView pass={pass} onLeave={leave} canSendDrinks />;
+  if (Platform.OS === 'web') return <RoomView pass={pass} onLeave={leave} canSendDrinks={drinksOn} />;
   return (
     <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
       <BackHeader title={pass.title} />
@@ -81,7 +83,7 @@ export default function EventRoom() {
           body="Allow the camera and microphone when your browser asks. Come back here when you're done."
           action={{ label: 'Open the room again', onPress: () => WebBrowser.openBrowserAsync(roomWebLink(pass)).catch(() => undefined) }}
         />
-        {pass.role === 'guest' && pass.event_id ? (
+        {drinksOn && pass.role === 'guest' && pass.event_id ? (
           <Button
             label={`Send ${pass.host_name?.split(' ')[0] ?? 'the host'} a drink`}
             icon={<Ionicons name="wine" size={18} color={t.colors.onPrimary} />}
@@ -89,7 +91,7 @@ export default function EventRoom() {
           />
         ) : null}
         <Button label="Back to the event" variant="ghost" onPress={leave} />
-        {pass.event_id ? <DrinkMenu visible={menu} onClose={() => setMenu(false)} hostName={pass.host_name ?? 'the host'} to={{ eventId: pass.event_id }} /> : null}
+        {drinksOn && pass.event_id ? <DrinkMenu visible={menu} onClose={() => setMenu(false)} hostName={pass.host_name ?? 'the host'} to={{ eventId: pass.event_id }} /> : null}
       </Screen>
     </View>
   );

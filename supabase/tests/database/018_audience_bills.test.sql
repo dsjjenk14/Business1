@@ -43,7 +43,7 @@ select pg_temp.act_as('a');
 select ok(post_going_out('tonight', null, null, 'Rooftop', '{}', null, 38.9, -77.03) is not null, 'Post a plan');
 select pg_temp.admin();
 insert into ids select 'plan', id from going_out_posts where user_id = pg_temp.uid('a');
-select is((select audience from going_out_posts where id = pg_temp.id('plan')), 'everyone', 'Plans start as they were: network and nearby');
+select is((select audience from going_out_posts where id = pg_temp.id('plan')), 'network', 'New plans start private: Insiders and their Insiders');
 select pg_temp.act_as('c');
 select is((select count(*)::int from tonight_network() where user_id = pg_temp.uid('a')), 1, 'Your 2nd degree sees it');
 select pg_temp.act_as('a');

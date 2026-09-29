@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
@@ -58,7 +59,11 @@ export function EventRow({ event, subtitle, onIn }: { event: HomeEvent; subtitle
         accessibilityLabel={`${event.title}, ${dayTime(event.starts_at)}`}
         onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(event.id) } })}
         style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-        <DateTile iso={event.starts_at} size={44} />
+        {event.cover_url ? (
+          <Image source={{ uri: event.cover_url }} style={{ width: 44, height: 44, borderRadius: t.radius.sm, backgroundColor: t.colors.surfaceAlt }} contentFit="cover" />
+        ) : (
+          <DateTile iso={event.starts_at} size={44} />
+        )}
         <View style={{ flex: 1 }}>
           <AppText weight="bold" numberOfLines={1}>
             {event.title}

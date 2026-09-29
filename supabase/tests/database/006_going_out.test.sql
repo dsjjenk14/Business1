@@ -3,7 +3,7 @@
 -- group chat membership kept in sync).
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(30);
+select plan(31);
 
 -- Test members are on the free plan (no founding Premium) unless a test says otherwise.
 update app_config set value = '0' where key = 'founding_member_limit';
@@ -50,6 +50,13 @@ select pg_temp.act_as('di');
 select post_going_out('tonight', p_place => 'Secret bar', p_lat => 38.60, p_lng => -77.30);
 select pg_temp.act_as('far');
 select post_going_out('tonight', p_place => 'Far away', p_lat => 40.70, p_lng => -74.00);
+
+-- New plans are private by default (Insiders and theirs); strangers nearby
+-- only see a plan whose owner picked "Everyone nearby".
+select pg_temp.act_as('ana');
+select ok(not (select going_out_feed('weekend', 38.60, -77.30, 10)->'people' @> '[{"display_name":"Cy S."}]'), 'A stranger''s plan is private by default');
+select pg_temp.admin();
+update going_out_posts set audience = 'everyone' where user_id in (pg_temp.uid('cy'), pg_temp.uid('di'), pg_temp.uid('far'));
 
 select pg_temp.act_as('ana');
 select ok((select going_out_feed('tonight', 38.60, -77.30, 10)->'people' @> jsonb_build_array(jsonb_build_object('display_name', 'Bo S.', 'degree', 1))),

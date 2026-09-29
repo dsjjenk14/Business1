@@ -53,6 +53,15 @@
         }
       ],
       [
+        "expo-calendar",
+        {
+          "calendarPermission": "I'm In puts events you're going to on your calendar, only when you tap Add to calendar.",
+          "writeOnlyCalendarPermission": "I'm In puts events you're going to on your calendar, only when you tap Add to calendar.",
+          "remindersPermission": false,
+          "writeOnlyAccess": true
+        }
+      ],
+      [
         "expo-location",
         {
           "locationWhenInUsePermission": "I'm In uses your approximate location to show pins and people near you. Your exact location is never shown to anyone.",

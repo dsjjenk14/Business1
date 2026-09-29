@@ -48,8 +48,8 @@ export default function Welcome() {
   function finish() {
     if (session) markWelcomeSeen(session.user.id);
     track('welcome_done', { step });
-    if (then === 'checklist') router.replace('/checklist');
-    else router.back();
+    // Straight on to finding your people (groups and events), then the checklist.
+    router.replace({ pathname: '/get-started', params: then === 'checklist' ? { then: 'checklist' } : {} });
   }
 
   function pickLook(id: ThemeId) {

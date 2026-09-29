@@ -62,7 +62,8 @@ export default function PostGoingOut() {
   const [openToJoin, setOpenToJoinState] = useState(true);
   const [audience, setAudience] = useState<'circle' | 'network' | 'custom'>('circle');
   // Who sees this plan (and where you're going): chosen for each plan.
-  const [planAudience, setPlanAudienceState] = useState<PlanAudience>('everyone');
+  // Private by default: your Insiders and theirs. People can pick Everyone nearby.
+  const [planAudience, setPlanAudienceState] = useState<PlanAudience>('network');
   const [viewers, setViewers] = useState<Set<string>>(new Set());
   const [friends, setFriends] = useState<ChatCandidate[] | null>(null);
   const [day, setDay] = useState<string | null>(null);
@@ -158,7 +159,8 @@ export default function PostGoingOut() {
         lng: location?.lng,
       });
       if (!openToJoin) await setOpenToJoin(postId, false);
-      if (planAudience !== 'everyone') await setPlanAudience(postId, planAudience);
+      // Always saved: new plans start private (Insiders + Network) on the server.
+      await setPlanAudience(postId, planAudience);
       if (when === 'tonight') {
         if (audience === 'custom') await setHereViewers(postId, [...viewers]);
         // A Insiders-only plan keeps "you're there" to your Insiders too.

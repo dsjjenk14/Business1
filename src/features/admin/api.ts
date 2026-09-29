@@ -20,6 +20,26 @@ const unwrap = <T,>({ data, error }: { data: unknown; error: unknown }): T => {
 };
 
 export const fetchOverview = async () => unwrap<Overview>(await supabase.rpc('admin_overview'));
+
+/** The numbers that say whether launch is working. */
+export type LaunchMetrics = {
+  members: number;
+  /** North star: I'm Ins to events that happened in the last 7 days (nights out). */
+  nights_out_7d: number;
+  going_out_now: number;
+  signups_28d: number;
+  /** Of those, said I'm In to something within their first 7 days. */
+  activated_28d: number;
+  activation_pct: number | null;
+  /** People who joined 4 to 5 weeks ago, and how many of them came back this week. */
+  week4_cohort: number;
+  week4_retained: number;
+  week4_pct: number | null;
+  avg_insiders: number | null;
+  events_next_7d: number;
+  open_reports: number;
+};
+export const fetchLaunchMetrics = async () => unwrap<LaunchMetrics>(await supabase.rpc('launch_metrics'));
 export const fetchReports = async () => unwrap<AdminReport[]>(await supabase.rpc('admin_reports'));
 export const actOnReport = async (id: number, action: 'resolve' | 'remove' | 'restore' | 'dismiss', note?: string) =>
   unwrap<null>(await supabase.rpc('admin_act_on_report', { p_report: id, p_action: action, p_note: note ?? undefined }));

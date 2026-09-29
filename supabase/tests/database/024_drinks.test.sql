@@ -1,6 +1,8 @@
 -- Drinks: credit, sending to whoever is live, host earnings, cash-outs.
 begin;
 create extension if not exists pgtap with schema extensions;
+-- Launch mode keeps this off; the tests turn it on.
+update app_config set value = 'true' where key in ('virtual_events_enabled', 'drinks_enabled');
 select plan(25);
 
 create or replace function pg_temp.new_user(p_email text, p_name text) returns uuid language plpgsql as $$

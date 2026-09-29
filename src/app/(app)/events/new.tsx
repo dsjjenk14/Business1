@@ -6,11 +6,12 @@ import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { DateTimeChips, upcomingDays } from '@/components/tonight/DateTimeChips';
 import { VenuePicker, type PlaceChoice } from '@/components/tonight/VenuePicker';
-import { useAppConfig } from '@/config/useAppConfig';
+import { useAppConfig, useFeature } from '@/config/useAppConfig';
 import { AppText, Button, Chip, type GlyphName, isGlyphName, Screen, TextField, useToast } from '@/components/ui';
 import { PeoplePicker } from '@/components/chat/PeoplePicker';
 import { fetchChatCandidates, type ChatCandidate } from '@/features/chat/api';
-import { createEvent, type EventVisibility } from '@/features/events/api';
+import { CoverPicker } from '@/components/events/CoverPicker';
+import { createEvent, setEventCover, uploadEventCover, type EventVisibility } from '@/features/events/api';
 import { ROOM_KINDS, setEventVirtual, type RoomKind } from '@/features/events/room';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { fetchPayoutStatus, money, parsePrice, setTicketPrice, ticketSplit, type PayoutStatus } from '@/features/payments/api';
@@ -61,6 +62,7 @@ export default function NewEvent() {
       .catch(() => undefined);
   }, []);
   const [description, setDescription] = useState('');
+  const [cover, setCover] = useState<string | null>(null);
   // Who can see it: public, circle only, or a surprise party hidden from one person.
   const [mode, setMode] = useState<'public' | 'circle' | 'surprise'>('public');
   const [guest, setGuest] = useState<string | null>(null);
@@ -70,6 +72,7 @@ export default function NewEvent() {
   const [busy, setBusy] = useState(false);
   // In person, online, or both. Online events are for groups you run.
   const [format, setFormat] = useState<'in_person' | 'virtual' | 'hybrid'>('in_person');
+  const virtualOn = useFeature('virtual_events_enabled');
   const [roomKind, setRoomKind] = useState<RoomKind>('video');
   const [joinUrl, setJoinUrl] = useState('');
   const online = format !== 'in_person';
@@ -109,6 +112,13 @@ export default function NewEvent() {
         visibility: (mode === 'circle' ? 'circle' : 'public') as EventVisibility,
         surpriseFor: mode === 'surprise' ? guest : null,
       });
+      if (cover && me) {
+        try {
+          await setEventCover(id, await uploadEventCover(me, cover));
+        } catch {
+          toast('The event is up, but the photo didn’t upload. Add it from the event page.');
+        }
+      }
       if (online) await setEventVirtual(id, format, roomKind, roomKind === 'link' ? joinUrl.trim() : null);
       const cents = payouts?.charges_enabled ? parsePrice(price) : null;
       if (cents != null) {
@@ -132,6 +142,8 @@ export default function NewEvent() {
       <BackHeader title="Host an Event" />
       <Screen contentGap={t.space[5]}>
         <TextField label="What is it?" value={title} onChangeText={setTitle} maxLength={100} placeholder="Community dinner, Saturday run, show night…" />
+
+        <CoverPicker uri={cover} onChange={setCover} />
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
           {EVENT_GLYPHS.map((e) => (
@@ -162,10 +174,12 @@ export default function NewEvent() {
           </View>
         </View>
 
-        <View style={{ gap: t.space[2] }}>
-          <AppText variant="small" weight="medium" tone="muted">
-            Where?
-          </AppText>
+        {/* Launch mode: online events stay hidden until they're turned on. */}
+        {virtualOn ? (
+          <View style={{ gap: t.space[2] }}>
+            <AppText variant="small" weight="medium" tone="muted">
+              Where?
+            </AppText>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
             <Chip label="In person" selected={format === 'in_person'} onPress={() => setFormat('in_person')} />
             <Chip
@@ -240,7 +254,8 @@ export default function NewEvent() {
               )}
             </View>
           ) : null}
-        </View>
+          </View>
+        ) : null}
 
         {format !== 'virtual' ? <VenuePicker value={place} onChange={setPlace} lat={location?.lat} lng={location?.lng} /> : null}
 

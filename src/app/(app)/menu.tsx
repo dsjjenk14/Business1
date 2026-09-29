@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Glyph, Screen, Section, type IconName } from '@/components/ui';
+import { useFeature } from '@/config/useAppConfig';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/theme';
 import { goBackOr } from '@/lib/navigation';
@@ -53,8 +54,11 @@ export default function Menu() {
   const t = useTheme();
   const router = useRouter();
   const { signOut, profile } = useAuth();
+  const drinksOn = useFeature('drinks_enabled');
+  // Launch mode: drinks stay out of the menu until they're turned on.
+  const base = drinksOn ? GROUPS : GROUPS.map((g) => ({ ...g, items: g.items.filter((i) => i.href !== '/settings/wallet') }));
   const groups: typeof GROUPS =
-    profile?.role === 'admin' ? [...GROUPS, { title: 'Team', items: [{ label: 'Admin', icon: 'construct-outline', href: '/admin' }] }] : GROUPS;
+    profile?.role === 'admin' ? [...base, { title: 'Team', items: [{ label: 'Admin', icon: 'construct-outline', href: '/admin' }] }] : base;
 
   return (
     <>

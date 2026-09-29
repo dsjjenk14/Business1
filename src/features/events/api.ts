@@ -5,6 +5,8 @@ export type EventDetail = {
   id: number;
   title: string;
   emoji: string | null;
+  /** Wide photo the host added (null: none). */
+  cover_url: string | null;
   description: string;
   starts_at: string;
   ends_at: string | null;
@@ -47,6 +49,24 @@ export type EventDetail = {
 /** The host deletes their event; everyone going is told it was canceled. */
 export async function deleteEvent(id: number) {
   const { error } = await supabase.rpc('delete_event', { p_event: id });
+  if (error) throw error;
+}
+
+/** Upload a cover photo to your folder and return its link (not shown until set). */
+export async function uploadEventCover(userId: string, uri: string) {
+  const response = await fetch(uri);
+  const blob = await response.arrayBuffer();
+  const contentType = response.headers.get('content-type') ?? 'image/jpeg';
+  const ext = contentType.includes('png') ? 'png' : contentType.includes('webp') ? 'webp' : 'jpg';
+  const path = `${userId}/cover-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await supabase.storage.from('event-covers').upload(path, blob, { contentType });
+  if (error) throw error;
+  return supabase.storage.from('event-covers').getPublicUrl(path).data.publicUrl;
+}
+
+/** Set (or clear, with null) an event's cover. Host only. */
+export async function setEventCover(eventId: number, url: string | null) {
+  const { error } = await supabase.rpc('set_event_cover', { p_event: eventId, p_url: url as string } /* null clears it */);
   if (error) throw error;
 }
 
