@@ -1,5 +1,5 @@
 import { effectLayers, type EffectKey } from './effects';
-import { filterMatrix, MAX_SIDE, type FilterKey } from './filters';
+import { filterSpec, MAX_SIDE, type FilterKey } from './filters';
 
 /** Web: same color matrix and effect as on phones, drawn on a canvas. */
 export async function applyFilter(uri: string, key: FilterKey, maxSide = MAX_SIDE, effect: EffectKey = 'none'): Promise<string> {
@@ -19,7 +19,8 @@ export async function applyFilter(uri: string, key: FilterKey, maxSide = MAX_SID
   ctx.drawImage(img, 0, 0, w, h);
   const pixels = ctx.getImageData(0, 0, w, h);
   const d = pixels.data;
-  const m = filterMatrix(key);
+  const spec = filterSpec(key);
+  const m = spec.matrix;
   for (let i = 0; i < d.length; i += 4) {
     const r = d[i]!, g = d[i + 1]!, b = d[i + 2]!, a = d[i + 3]!;
     for (let row = 0; row < 3; row++) {
@@ -28,8 +29,29 @@ export async function applyFilter(uri: string, key: FilterKey, maxSide = MAX_SID
     }
   }
   ctx.putImageData(pixels, 0, 0);
+  beautify(canvas, ctx, spec.soften, spec.glow);
   drawEffect(ctx, effect, w, h);
   return canvas.toDataURL('image/jpeg', 0.88);
+}
+
+/** Smooth skin (a blurred copy laid over) and add a soft glow (a blurred copy lightening highlights). */
+function beautify(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, soften: number, glow: number) {
+  if (!soften && !glow) return;
+  const big = Math.max(canvas.width, canvas.height);
+  const base = document.createElement('canvas');
+  base.width = canvas.width;
+  base.height = canvas.height;
+  base.getContext('2d')?.drawImage(canvas, 0, 0);
+  const layer = (blur: number, alpha: number, mode: GlobalCompositeOperation) => {
+    ctx.save();
+    ctx.filter = `blur(${blur}px)`;
+    ctx.globalAlpha = alpha;
+    ctx.globalCompositeOperation = mode;
+    ctx.drawImage(base, 0, 0);
+    ctx.restore();
+  };
+  if (soften) layer(big * 0.004, soften * 0.8, 'source-over');
+  if (glow) layer(big * 0.02, glow * 0.6, 'screen');
 }
 
 function drawEffect(ctx: CanvasRenderingContext2D, effect: EffectKey, w: number, h: number) {

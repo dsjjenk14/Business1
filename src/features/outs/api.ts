@@ -50,6 +50,8 @@ export async function sendOut(input: {
   toStory: boolean;
   audience: OutAudience;
   hours: OutHours;
+  /** People who won't see it at all, even on your Out. */
+  hideFrom?: string[];
 }) {
   const video = input.kind === 'video';
   const read = await readBytes(input.uri, video ? 'video/mp4' : 'image/jpeg');
@@ -79,6 +81,7 @@ export async function sendOut(input: {
     p_to_story: input.toStory,
     p_audience: input.audience,
     p_hours: input.hours,
+    p_hide_from: input.hideFrom ?? [],
   });
   if (error) throw error;
   return data as number;

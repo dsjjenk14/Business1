@@ -46,7 +46,7 @@ export const TERMS: LegalDoc = {
     },
     {
       heading: 'Outs',
-      body: 'Outs are photos or short videos (up to 9 seconds) that disappear after 6, 12 or 24 hours (the sender picks). You choose who gets each one: your Insiders, or your Out for your Insiders or your network. Anyone who can see an Out can pin it to keep it, and we tell you when they do. Anyone can also take a screenshot, so only share what you’re comfortable with. If someone takes a screenshot, we tell you.',
+      body: 'Outs are photos or short videos (up to 9 seconds) that disappear after 6, 12 or 24 hours (the sender picks). You choose who gets each one: your Insiders, or your Out for your Insiders or your network. You can also hide an Out from anyone you choose; they aren’t told. Anyone who can see an Out can pin it to keep it, and we tell you when they do. Anyone can also take a screenshot, so only share what you’re comfortable with. If someone takes a screenshot, we tell you.',
     },
     {
       heading: 'Split the bill',

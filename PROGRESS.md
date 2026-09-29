@@ -5,6 +5,15 @@
 
 ---
 
+## ✅ Out settings and rotating Out filters
+- **Send screen back to how it was**, with one small "Lasts 6 hours" row. Tap it to open **Out settings**:
+  - **How long it lasts:** three cards (6, 12, 24 hours), each with a clock that fills up.
+  - **Hide from:** pick anyone who shouldn't see this Out. They don't see it on your Out, can't open or pin it, and aren't sent it even if they were picked. They aren't told.
+- **24 new Out filters, 8 at a time:** a new set of 8 comes every 3 days, then the cycle starts over. The screen says when the next 8 arrive.
+  - Many are made to flatter: they smooth skin and add a soft glow (Glow Up, Velvet, Porcelain, Soft Focus, Dewy, Flawless, Satin, Blush and more), and others set a mood (Last Call, Neon Night, Blue Hour, Midnight, Gold Rush).
+  - Each filter shows a swatch of how it colors skin.
+- **Tested:** 7 new database tests (571 total). In a browser: picked a filter, opened Out settings, chose 24 hours, hid it from Maya and sent it. It saved as a 24-hour Out hidden from 1 person.
+
 ## ✅ Insiders, Out hours, anonymous drinks, new What's In
 - **Insiders:** the people you know are now your **Insiders** everywhere: the tab, your profile, notices, the AI's wording. The old words "friends", "followers" and "connections" are gone from the app.
   - Following someone's posts is now **Tap in** (button: "Tap in" / "Tapped in" / "Tap in back"). Your profile shows "Insiders" and "Tapped in" counts.
@@ -792,6 +801,7 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 | 2026-09-29 | The people you know are called **Insiders** (not friends, followers or connections); following posts is **Tap in** | Dominique |
 | 2026-09-29 | Outs last 6, 12 or 24 hours; the sender picks (6 by default) | Dominique |
 | 2026-09-29 | Drinks can be sent anonymously; people see "Someone" | Dominique |
+| 2026-09-29 | Out time and "Hide from" live in Out settings, one tap from the send screen; Out filters rotate 8 at a time every 3 days (24 total) | Dominique |
 
 ## Spec vs. prototype conflicts (the spec wins)
 See `docs/PHASE-0-PLAN.md` section 1B.

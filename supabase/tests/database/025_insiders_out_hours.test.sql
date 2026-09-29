@@ -1,7 +1,8 @@
--- Outs last 6, 12 or 24 hours (the sender picks), and notices say "Insiders".
+-- Outs last 6, 12 or 24 hours (the sender picks), can be hidden from chosen
+-- people, and notices say "Insiders".
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(10);
+select plan(17);
 
 create or replace function pg_temp.new_user(p_email text, p_name text) returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();
@@ -27,8 +28,10 @@ create or replace function pg_temp.minutes(p text) returns int language sql as $
 update app_config set value = '0' where key = 'founding_member_limit';
 insert into t values ('a', pg_temp.new_user('a25@test.dev', 'Ava TwentyFive')),
                      ('b', pg_temp.new_user('b25@test.dev', 'Ben TwentyFive')),
-                     ('c', pg_temp.new_user('c25@test.dev', 'Cal TwentyFive'));
-insert into connections (user_a, user_b, source) values (least(pg_temp.uid('a'), pg_temp.uid('b')), greatest(pg_temp.uid('a'), pg_temp.uid('b')), 'manual');
+                     ('c', pg_temp.new_user('c25@test.dev', 'Cal TwentyFive')),
+                     ('d', pg_temp.new_user('d25@test.dev', 'Dee TwentyFive'));
+insert into connections (user_a, user_b, source) values (least(pg_temp.uid('a'), pg_temp.uid('b')), greatest(pg_temp.uid('a'), pg_temp.uid('b')), 'manual'),
+                                                        (least(pg_temp.uid('a'), pg_temp.uid('d')), greatest(pg_temp.uid('a'), pg_temp.uid('d')), 'manual');
 
 -- ── Out hours ─────────────────────────────────────────────────────────────
 select pg_temp.act_as('a');
@@ -46,6 +49,25 @@ select results_eq(
   'Outs expire after the hours the sender picked');
 select is((select body from notifications where user_id = pg_temp.uid('b') and kind = 'out' order by id desc limit 1 offset 1),
   'Tap to open it. It disappears in 12 hours unless you pin it.', 'The notice says how long it lasts');
+
+-- ── Hide an Out from people ──────────────────────────────────────────────
+select pg_temp.act_as('a');
+select ok(send_out(pg_temp.uid('a') || '/hidden.jpg', null, array[pg_temp.uid('b'), pg_temp.uid('d')]::uuid[], true, 'circle', 6, array[pg_temp.uid('d')]::uuid[]) is not null,
+  'Post to your Out, hidden from Dee');
+select pg_temp.admin();
+select is((select count(*)::int from out_recipients r join outs o on o.id = r.out_id where o.path like '%/hidden.jpg'), 1, 'Dee isn''t sent it even though she was picked');
+create temp table hid as select id from outs where path like '%/hidden.jpg';
+grant select on hid to authenticated;
+select pg_temp.act_as('b');
+select ok(exists (select 1 from jsonb_array_elements(outs_inbox()->'stories') s, jsonb_array_elements(s->'out_ids') i where i::bigint = (select id from hid)), 'Ben sees it on the story');
+select pg_temp.act_as('d');
+select ok(not exists (select 1 from jsonb_array_elements(outs_inbox()->'stories') s, jsonb_array_elements(s->'out_ids') i where i::bigint = (select id from hid)), 'Dee doesn''t see it');
+select pg_temp.admin();
+select ok((select out_open((select id from outs where path like '%/hidden.jpg'), pg_temp.uid('d'))) ? 'error', 'Dee can''t open it');
+select pg_temp.act_as('d');
+select throws_ok(format('select pin_out(%s)', (select id from hid)), null, null, 'Dee can''t pin it');
+select pg_temp.admin();
+select ok(not (select out_open((select id from outs where path like '%/hidden.jpg'), pg_temp.uid('b'))) ? 'error', 'Ben can open it');
 
 -- ── Insiders wording ──────────────────────────────────────────────────────
 select pg_temp.act_as('c');

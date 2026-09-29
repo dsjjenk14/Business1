@@ -420,13 +420,13 @@ isOneToOne: true
                   ]
                 },"drink_gifts": {
                   Row: {
-                    "cents": number,"created_at": string,"drink_key": string,"event_id": number | null,"from_user": string | null,"host_cents": number,"id": number,"live_id": number | null,"to_user": string
+                    "anonymous": boolean,"cents": number,"created_at": string,"drink_key": string,"event_id": number | null,"from_user": string | null,"host_cents": number,"id": number,"live_id": number | null,"to_user": string
                   }
                   Insert: {
-                    "cents": number,"created_at"?: string,"drink_key": string,"event_id"?: number | null,"from_user"?: string | null,"host_cents": number,"id"?: never,"live_id"?: number | null,"to_user": string
+                    "anonymous"?: boolean,"cents": number,"created_at"?: string,"drink_key": string,"event_id"?: number | null,"from_user"?: string | null,"host_cents": number,"id"?: never,"live_id"?: number | null,"to_user": string
                   }
                   Update: {
-                    "cents"?: number,"created_at"?: string,"drink_key"?: string,"event_id"?: number | null,"from_user"?: string | null,"host_cents"?: number,"id"?: never,"live_id"?: number | null,"to_user"?: string
+                    "anonymous"?: boolean,"cents"?: number,"created_at"?: string,"drink_key"?: string,"event_id"?: number | null,"from_user"?: string | null,"host_cents"?: number,"id"?: never,"live_id"?: number | null,"to_user"?: string
                   }
                   Relationships: [
                     {
@@ -1256,13 +1256,13 @@ isOneToOne: false
                   ]
                 },"outs": {
                   Row: {
-                    "audience": string,"caption": string | null,"created_at": string,"effect": string | null,"event_id": number | null,"expires_at": string,"file_deleted_at": string | null,"id": number,"path": string,"sender_id": string,"to_story": boolean
+                    "audience": string,"caption": string | null,"created_at": string,"effect": string | null,"event_id": number | null,"expires_at": string,"file_deleted_at": string | null,"hidden_from": (string)[],"id": number,"path": string,"sender_id": string,"to_story": boolean
                   }
                   Insert: {
-                    "audience"?: string,"caption"?: string | null,"created_at"?: string,"effect"?: string | null,"event_id"?: number | null,"expires_at"?: string,"file_deleted_at"?: string | null,"id"?: number,"path": string,"sender_id": string,"to_story"?: boolean
+                    "audience"?: string,"caption"?: string | null,"created_at"?: string,"effect"?: string | null,"event_id"?: number | null,"expires_at"?: string,"file_deleted_at"?: string | null,"hidden_from"?: (string)[],"id"?: number,"path": string,"sender_id": string,"to_story"?: boolean
                   }
                   Update: {
-                    "audience"?: string,"caption"?: string | null,"created_at"?: string,"effect"?: string | null,"event_id"?: number | null,"expires_at"?: string,"file_deleted_at"?: string | null,"id"?: number,"path"?: string,"sender_id"?: string,"to_story"?: boolean
+                    "audience"?: string,"caption"?: string | null,"created_at"?: string,"effect"?: string | null,"event_id"?: number | null,"expires_at"?: string,"file_deleted_at"?: string | null,"hidden_from"?: (string)[],"id"?: number,"path"?: string,"sender_id"?: string,"to_story"?: boolean
                   }
                   Relationships: [
                     {
@@ -2587,10 +2587,10 @@ isOneToOne: true
 { Args: { "p_note"?: string,"p_place"?: string,"p_starts_at"?: string,"p_to": string,"p_venue_id"?: number,"p_vibe"?: string,"p_when": Database["public"]['Enums']["date_when"] }; Returns: number
                            },
 "send_drink":
-{ Args: { "p_drink": string,"p_event"?: number,"p_live"?: number }; Returns: Json
+{ Args: { "p_anonymous"?: boolean,"p_drink": string,"p_event"?: number,"p_live"?: number }; Returns: Json
                            },
 "send_out":
-{ Args: { "p_audience"?: string,"p_caption": string,"p_path": string,"p_recipients": (string)[],"p_to_story"?: boolean }; Returns: number
+{ Args: { "p_audience"?: string,"p_caption": string,"p_hide_from"?: (string)[],"p_hours"?: number,"p_path": string,"p_recipients": (string)[],"p_to_story"?: boolean }; Returns: number
                            },
 "set_checkin_interval":
 { Args: { "p_minutes": number }; Returns: undefined
