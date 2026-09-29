@@ -6,7 +6,7 @@
  *
  * It also deletes photos that are finished (the hour is up and nobody pinned it).
  *
- * POST { out_id } → { id, url, kind, caption, sender_name, created_at, expires_at, event_title, pinned, is_mine }
+ * POST { out_id } → { id, url, kind, effect, caption, sender_name, created_at, expires_at, event_title, pinned, is_mine }
  */
 import { adminRest, corsHeaders, getCaller, json } from '../_shared/http.ts';
 
@@ -63,6 +63,7 @@ Deno.serve(async (req) => {
     event_title?: string | null;
     expires_at?: string;
     kind?: 'photo' | 'video';
+    effect?: string | null;
     pinned?: boolean;
     is_mine?: boolean;
     error?: string;
@@ -81,6 +82,7 @@ Deno.serve(async (req) => {
     id: outId,
     url,
     kind: data.kind ?? 'photo',
+    effect: data.effect ?? null,
     caption: data.caption ?? null,
     sender_name: data.sender_name,
     sender_id: data.sender_id,

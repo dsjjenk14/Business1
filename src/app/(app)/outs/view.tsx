@@ -16,6 +16,8 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { MAX_OUT_VIDEO_SECONDS } from "@/components/camera/CameraCapture";
+import { EffectOverlay } from "@/components/media/EffectOverlay";
+import type { EffectKey } from "@/features/photos/effects";
 import { AppText, useToast } from "@/components/ui";
 import {
   openOut,
@@ -148,7 +150,7 @@ export default function ViewOuts() {
       >
         {out ? (
           out.kind === "video" ? (
-            <OutVideo uri={out.url} onEnd={next} />
+            <OutVideo uri={out.url} onEnd={next} effect={out.effect} />
           ) : (
             <Image
               source={{ uri: out.url }}
@@ -317,7 +319,7 @@ export default function ViewOuts() {
 }
 
 /** A video Out: plays once with sound, then moves on. */
-function OutVideo({ uri, onEnd }: { uri: string; onEnd: () => void }) {
+function OutVideo({ uri, onEnd, effect }: { uri: string; onEnd: () => void; effect?: EffectKey | null }) {
   const player = useVideoPlayer(uri, (p) => {
     p.loop = false;
     p.play();
@@ -328,12 +330,15 @@ function OutVideo({ uri, onEnd }: { uri: string; onEnd: () => void }) {
     if (status === "readyToPlay" && !player.playing) player.play();
   });
   return (
-    <VideoView
-      player={player}
-      style={{ flex: 1 }}
-      contentFit="cover"
-      nativeControls={false}
-      accessible={false}
-    />
+    <View style={{ flex: 1 }}>
+      <VideoView
+        player={player}
+        style={{ flex: 1 }}
+        contentFit="cover"
+        nativeControls={false}
+        accessible={false}
+      />
+      <EffectOverlay effect={effect} />
+    </View>
   );
 }

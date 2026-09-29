@@ -2,16 +2,20 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Switch, TextInput, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, Switch, TextInput, View } from 'react-native';
 
 import { CameraCapture } from '@/components/camera/CameraCapture';
+import { EffectChips, FilterChips } from '@/components/media/LookChips';
 import { VideoPlayer } from '@/components/media/VideoPlayer';
 import { PeoplePicker } from '@/components/chat/PeoplePicker';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Button, Chip, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { fetchChatCandidates, type ChatCandidate } from '@/features/chat/api';
-import { fetchOutEvent, sendOut, type OutAudience, type OutEvent } from '@/features/outs/api';
+import { fetchOutEvent, sendOut, setOutEffect, type OutAudience, type OutEvent } from '@/features/outs/api';
+import { applyFilter } from '@/features/photos/applyFilter';
+import type { EffectKey } from '@/features/photos/effects';
+import { MAX_SIDE, type FilterKey } from '@/features/photos/filters';
 import { refreshNewOuts } from '@/features/outs/useNewOuts';
 import { playSound } from '@/features/sounds/sounds';
 import { useAuth } from '@/lib/auth';
@@ -27,6 +31,29 @@ export default function NewOut() {
   // What you captured: a photo, or a video of up to 9 seconds.
   const [shot, setShot] = useState<{ kind: 'photo' | 'video'; uri: string; durationS: number | null } | null>(null);
   const photo = shot?.uri ?? null;
+  // A photo gets its filter and effect baked in; a video shows its effect on top.
+  const [look, setLook] = useState<{ filter: FilterKey; effect: EffectKey; uri: string | null }>({ filter: 'none', effect: 'none', uri: null });
+  const [baking, setBaking] = useState(false);
+  const shown = shot?.kind === 'photo' ? (look.uri ?? photo) : photo;
+
+  async function changeLook(filter: FilterKey, effect: EffectKey) {
+    if (!shot) return;
+    if (shot.kind === 'video') return setLook({ filter: 'none', effect, uri: null });
+    setBaking(true);
+    try {
+      const uri = filter === 'none' && effect === 'none' ? null : await applyFilter(shot.uri, filter, MAX_SIDE, effect);
+      setLook({ filter, effect, uri });
+    } catch {
+      toast('Couldn’t apply that.');
+    } finally {
+      setBaking(false);
+    }
+  }
+
+  function retake() {
+    setShot(null);
+    setLook({ filter: 'none', effect: 'none', uri: null });
+  }
   const [caption, setCaption] = useState('');
   const [step, setStep] = useState<'snap' | 'send'>('snap');
   const [people, setPeople] = useState<ChatCandidate[]>([]);
@@ -49,10 +76,11 @@ export default function NewOut() {
   const circle = useMemo(() => people.filter((p) => p.in_circle), [people]);
 
   async function send() {
-    if (!session || !photo) return;
+    if (!session || !shown) return;
     setBusy(true);
     try {
-      await sendOut({ userId: session.user.id, uri: photo, kind: shot?.kind ?? 'photo', caption, to: [...to], toStory, audience });
+      const id = await sendOut({ userId: session.user.id, uri: shown, kind: shot?.kind ?? 'photo', caption, to: [...to], toStory, audience });
+      if (shot?.kind === 'video' && look.effect !== 'none') await setOutEffect(id, look.effect).catch(() => undefined);
       track('out_sent', { to: to.size, story: toStory, audience: toStory ? audience : null, kind: shot?.kind ?? 'photo' });
       playSound('sent');
       toast(to.size ? `Out sent to ${to.size} ${to.size === 1 ? 'friend' : 'friends'}` : 'Posted to My Out');
@@ -70,8 +98,8 @@ export default function NewOut() {
       <View style={{ flex: 1, backgroundColor: '#000000' }}>
         <BackHeader title={event ? `Out at ${event.title}` : 'Out'} />
         <CameraCapture
-          mode="photo"
-          onCaptured={(uris) => uris[0] && setShot({ kind: 'photo', uri: uris[0], durationS: null })}
+          modes={['photo', 'video']}
+          onPhoto={(uri) => setShot({ kind: 'photo', uri, durationS: null })}
           onVideo={(uri, durationS) => setShot({ kind: 'video', uri, durationS })}
         />
       </View>
@@ -85,10 +113,17 @@ export default function NewOut() {
         <View style={{ flex: 1 }}>
           {shot?.kind === 'video' ? (
             <View style={{ flex: 1, justifyContent: 'center' }}>
-              <VideoPlayer uri={photo} rounded={false} autoPlay />
+              <VideoPlayer uri={photo} rounded={false} autoPlay effect={look.effect} />
             </View>
           ) : (
-            <Image source={{ uri: photo }} style={{ flex: 1 }} contentFit="cover" accessibilityLabel="Your photo" />
+            <View style={{ flex: 1 }}>
+              <Image source={{ uri: shown ?? photo }} style={{ flex: 1 }} contentFit="cover" accessibilityLabel="Your photo" />
+              {baking ? (
+                <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' }}>
+                  <ActivityIndicator color="#FFFFFF" />
+                </View>
+              ) : null}
+            </View>
           )}
           <View style={{ position: 'absolute', left: 0, right: 0, top: '60%', backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: t.space[4], paddingVertical: t.space[2] }}>
             <TextInput
@@ -102,8 +137,12 @@ export default function NewOut() {
             />
           </View>
         </View>
-        <View style={{ flexDirection: 'row', gap: t.space[2], padding: t.space[4] }}>
-          <Button label="Retake" variant="secondary" style={{ flex: 1 }} onPress={() => setShot(null)} />
+        <View style={{ gap: t.space[3], paddingHorizontal: t.space[4], paddingTop: t.space[3], backgroundColor: t.colors.bg }}>
+          {shot?.kind === 'photo' ? <FilterChips value={look.filter} onChange={(f) => changeLook(f, look.effect)} busy={baking} /> : null}
+          <EffectChips value={look.effect} onChange={(e) => changeLook(look.filter, e)} busy={baking} />
+        </View>
+        <View style={{ flexDirection: 'row', gap: t.space[2], padding: t.space[4], backgroundColor: t.colors.bg }}>
+          <Button label="Retake" variant="secondary" style={{ flex: 1 }} onPress={retake} />
           <Button label="Send to" style={{ flex: 1 }} onPress={() => setStep('send')} icon={<Ionicons name="arrow-forward" size={18} color={t.colors.onPrimary} />} />
         </View>
       </KeyboardAvoidingView>

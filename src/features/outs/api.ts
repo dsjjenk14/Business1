@@ -1,3 +1,4 @@
+import type { EffectKey } from '@/features/photos/effects';
 import { readBytes } from '@/lib/files';
 import { supabase } from '@/lib/supabase';
 
@@ -15,6 +16,8 @@ export type OpenedOut = {
   url: string;
   /** Photo, or a short video. */
   kind: 'photo' | 'video';
+  /** A look drawn over a video Out (photos have theirs baked in). */
+  effect?: EffectKey | null;
   caption: string | null;
   sender_name: string;
   sender_id: string;
@@ -73,6 +76,12 @@ export async function sendOut(input: {
   });
   if (error) throw error;
   return data as number;
+}
+
+/** The sender picks a look for their video Out (drawn over it while it plays). */
+export async function setOutEffect(outId: number, effect: EffectKey) {
+  const { error } = await supabase.rpc('set_out_effect', { p_out: outId, p_effect: effect === 'none' ? '' : effect });
+  if (error) throw error;
 }
 
 /** Open an Out: anyone it was meant for, as often as they like for 6 hours; after that, only people who pinned it. */

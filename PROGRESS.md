@@ -5,6 +5,15 @@
 
 ---
 
+## ✅ Camera modes, filters and effects everywhere
+- **One camera for posts:** New Pin → **Camera** has PHOTO, VIDEO, BOOMERANG, SLO-MO, REWIND and LOOP. The last four shoot a quick burst. Boomerang plays it forward and back, Slo-mo does the same at half speed, Rewind plays it backward, and Loop plays it forward. You can switch styles after shooting. The separate Boomerang button is gone. **Upload** still picks photos or a video.
+- **Effects:** Vignette, Golden hour, Light leak, Dreamy and Film, next to the 8 color filters.
+  - Photos (posts and Outs) get both, baked into the picture.
+  - Bursts get both. The filter is baked into every frame.
+  - Videos (posts and Outs) get effects drawn on top while they play. Changing a video's actual colors on the phone needs the App Store build, so videos have effects, not color filters, for now.
+- **Outs:** after you snap, pick a filter and an effect before sending.
+- **Tests:** 9 new database tests (514 total). Clicked through in the browser with a test camera: a Rewind with the Noir filter and Light leak posted and saved, and an Out with B&W and Film.
+
 ## ✅ One spot for photos and video on New Pin; AI Read removed
 - **New Pin:** one "Photos & video" section. **Take photo or video** opens the camera (tap for a photo, record for a video). **Upload photos or video** opens your phone's library for both. **Boomerang** is next to them. A pin has up to 6 photos, or one video up to 30 seconds. Adding any of these switches the pin type to Photos & video.
 - **AI Read removed** from profiles, at Dominique's request. Icebreakers, People like you, Tonight for You and intro odds stay.

@@ -1,8 +1,9 @@
+import { effectLayers, type EffectKey } from './effects';
 import { filterMatrix, MAX_SIDE, type FilterKey } from './filters';
 
-/** Web: same color matrix as on phones, applied pixel by pixel on a canvas. */
-export async function applyFilter(uri: string, key: FilterKey, maxSide = MAX_SIDE): Promise<string> {
-  if (key === 'none') return uri;
+/** Web: same color matrix and effect as on phones, drawn on a canvas. */
+export async function applyFilter(uri: string, key: FilterKey, maxSide = MAX_SIDE, effect: EffectKey = 'none'): Promise<string> {
+  if (key === 'none' && effect === 'none') return uri;
   const img = new Image();
   img.crossOrigin = 'anonymous';
   img.src = uri;
@@ -27,5 +28,28 @@ export async function applyFilter(uri: string, key: FilterKey, maxSide = MAX_SID
     }
   }
   ctx.putImageData(pixels, 0, 0);
+  drawEffect(ctx, effect, w, h);
   return canvas.toDataURL('image/jpeg', 0.88);
+}
+
+function drawEffect(ctx: CanvasRenderingContext2D, effect: EffectKey, w: number, h: number) {
+  const big = Math.max(w, h);
+  for (const layer of effectLayers(effect)) {
+    if (layer.type === 'frame') {
+      const b = layer.width * Math.min(w, h);
+      ctx.fillStyle = layer.color;
+      ctx.fillRect(0, 0, w, b);
+      ctx.fillRect(0, h - b, w, b);
+      ctx.fillRect(0, 0, b, h);
+      ctx.fillRect(w - b, 0, b, h);
+      continue;
+    }
+    const g =
+      layer.type === 'radial'
+        ? ctx.createRadialGradient(layer.cx * w, layer.cy * h, 0, layer.cx * w, layer.cy * h, layer.r * big)
+        : ctx.createLinearGradient(layer.x1 * w, layer.y1 * h, layer.x2 * w, layer.y2 * h);
+    for (const [o, c] of layer.stops) g.addColorStop(o, c);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+  }
 }

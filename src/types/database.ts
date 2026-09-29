@@ -1143,13 +1143,13 @@ isOneToOne: false
                   ]
                 },"outs": {
                   Row: {
-                    "audience": string,"caption": string | null,"created_at": string,"event_id": number | null,"expires_at": string,"file_deleted_at": string | null,"id": number,"path": string,"sender_id": string,"to_story": boolean
+                    "audience": string,"caption": string | null,"created_at": string,"effect": string | null,"event_id": number | null,"expires_at": string,"file_deleted_at": string | null,"id": number,"path": string,"sender_id": string,"to_story": boolean
                   }
                   Insert: {
-                    "audience"?: string,"caption"?: string | null,"created_at"?: string,"event_id"?: number | null,"expires_at"?: string,"file_deleted_at"?: string | null,"id"?: number,"path": string,"sender_id": string,"to_story"?: boolean
+                    "audience"?: string,"caption"?: string | null,"created_at"?: string,"effect"?: string | null,"event_id"?: number | null,"expires_at"?: string,"file_deleted_at"?: string | null,"id"?: number,"path": string,"sender_id": string,"to_story"?: boolean
                   }
                   Update: {
-                    "audience"?: string,"caption"?: string | null,"created_at"?: string,"event_id"?: number | null,"expires_at"?: string,"file_deleted_at"?: string | null,"id"?: number,"path"?: string,"sender_id"?: string,"to_story"?: boolean
+                    "audience"?: string,"caption"?: string | null,"created_at"?: string,"effect"?: string | null,"event_id"?: number | null,"expires_at"?: string,"file_deleted_at"?: string | null,"id"?: number,"path"?: string,"sender_id"?: string,"to_story"?: boolean
                   }
                   Relationships: [
                     {
@@ -1338,13 +1338,13 @@ isOneToOne: false
                   ]
                 },"pin_media": {
                   Row: {
-                    "created_at": string,"duration_s": number | null,"frames": (string)[] | null,"kind": string,"path": string | null,"pin_id": number,"poster_path": string | null
+                    "created_at": string,"duration_s": number | null,"effect": string | null,"frames": (string)[] | null,"kind": string,"motion": string,"path": string | null,"pin_id": number,"poster_path": string | null
                   }
                   Insert: {
-                    "created_at"?: string,"duration_s"?: number | null,"frames"?: (string)[] | null,"kind": string,"path"?: string | null,"pin_id": number,"poster_path"?: string | null
+                    "created_at"?: string,"duration_s"?: number | null,"effect"?: string | null,"frames"?: (string)[] | null,"kind": string,"motion"?: string,"path"?: string | null,"pin_id": number,"poster_path"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"duration_s"?: number | null,"frames"?: (string)[] | null,"kind"?: string,"path"?: string | null,"pin_id"?: number,"poster_path"?: string | null
+                    "created_at"?: string,"duration_s"?: number | null,"effect"?: string | null,"frames"?: (string)[] | null,"kind"?: string,"motion"?: string,"path"?: string | null,"pin_id"?: number,"poster_path"?: string | null
                   }
                   Relationships: [
                     {
@@ -2449,6 +2449,9 @@ isOneToOne: false
                            },
 "set_open_to_join":
 { Args: { "p_open": boolean,"p_post": number }; Returns: undefined
+                           },
+"set_out_effect":
+{ Args: { "p_effect": string,"p_out": number }; Returns: undefined
                            },
 "set_payment_handles":
 { Args: { "p_cashapp": string,"p_paypal": string,"p_venmo": string }; Returns: undefined

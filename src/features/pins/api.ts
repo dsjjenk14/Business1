@@ -2,7 +2,7 @@ import * as Linking from 'expo-linking';
 import { Share } from 'react-native';
 
 import type { GlyphName } from '@/components/ui/Glyph';
-import { attachBoomerang, attachVideo } from '@/features/media/api';
+import { attachBoomerang, attachVideo, type MediaDraft } from '@/features/media/api';
 import { attachMusic, type Song } from '@/features/music/api';
 import { readBytes } from '@/lib/files';
 import { supabase } from '@/lib/supabase';
@@ -156,8 +156,8 @@ export async function createPin(input: {
   photoUris: string[];
   /** A song for a photo post (30-second Apple Music preview). */
   music?: Song | null;
-  /** A video or boomerang instead of photos. */
-  media?: { kind: 'video'; uri: string; durationS: number | null } | { kind: 'boomerang'; frames: string[] } | null;
+  /** A video or burst (boomerang, slo-mo, rewind, loop) instead of photos. */
+  media?: MediaDraft;
 }): Promise<{ pinId: number; failedPhotos: number }> {
   const location = input.lat != null && input.lng != null ? `SRID=4326;POINT(${input.lng} ${input.lat})` : undefined;
   const { data, error } = await supabase
@@ -171,8 +171,8 @@ export async function createPin(input: {
   let failedMedia = 0;
   if (input.media) {
     try {
-      if (input.media.kind === 'video') await attachVideo(input.userId, data.id, input.media.uri, input.media.durationS);
-      else await attachBoomerang(input.userId, data.id, input.media.frames);
+      if (input.media.kind === 'video') await attachVideo(input.userId, data.id, input.media.uri, input.media.durationS, input.media.effect);
+      else await attachBoomerang(input.userId, data.id, input.media.frames, input.media.motion, input.media.effect);
     } catch {
       failedMedia = 1;
     }
