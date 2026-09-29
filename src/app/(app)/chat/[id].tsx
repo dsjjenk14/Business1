@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, Pressable, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { PollCard, PollComposer } from '@/components/chat/Poll';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Avatar, IconButton, Glyph, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
@@ -30,6 +31,7 @@ export default function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
+  const [polling, setPolling] = useState(false);
   const [olderDone, setOlderDone] = useState(false);
   const listRef = useRef<FlatList<ChatMessage>>(null);
   const latestRef = useRef<string | null>(null);
@@ -189,6 +191,7 @@ export default function Chat() {
                     ) : null}
                     <Pressable
                       accessibilityHint={mine ? 'Long press to delete this message' : 'Long press to report this message'}
+                      accessible={item.poll_id ? false : undefined}
                       onLongPress={
                         mine
                           ? () =>
@@ -206,22 +209,32 @@ export default function Chat() {
                                 params: { message: String(item.id), user: item.sender_id, name: sender?.display_name ?? 'this member' },
                               })
                       }
-                      style={{
-                        maxWidth: '78%',
-                        paddingHorizontal: t.space[3],
-                        paddingVertical: t.space[2],
-                        borderRadius: t.radius.lg,
-                        backgroundColor: mine ? t.colors.primary : t.colors.surface,
-                        borderWidth: mine ? 0 : t.borderWidth.hairline,
-                        borderColor: t.colors.border,
-                      }}>
+                      style={
+                        item.poll_id
+                          ? { maxWidth: '85%', gap: t.space[1] }
+                          : {
+                              maxWidth: '78%',
+                              paddingHorizontal: t.space[3],
+                              paddingVertical: t.space[2],
+                              borderRadius: t.radius.lg,
+                              backgroundColor: mine ? t.colors.primary : t.colors.surface,
+                              borderWidth: mine ? 0 : t.borderWidth.hairline,
+                              borderColor: t.colors.border,
+                            }
+                      }>
                       {showName ? (
                         <AppText variant="caption" weight="bold" tone="muted">
                           {sender?.display_name ?? 'Former member'}
                         </AppText>
                       ) : null}
-                      <AppText style={mine ? { color: t.colors.onPrimary } : undefined}>{item.body}</AppText>
-                      <AppText variant="caption" style={{ color: mine ? t.colors.onPrimary : t.colors.textSubtle, opacity: 0.8, alignSelf: 'flex-end' }}>
+                      {item.poll_id ? (
+                        <PollCard pollId={item.poll_id} mine={mine} />
+                      ) : (
+                        <AppText style={mine ? { color: t.colors.onPrimary } : undefined}>{item.body}</AppText>
+                      )}
+                      <AppText
+                        variant="caption"
+                        style={{ color: mine && !item.poll_id ? t.colors.onPrimary : t.colors.textSubtle, opacity: 0.8, alignSelf: 'flex-end' }}>
                         {clockTime(item.created_at)}
                       </AppText>
                     </Pressable>
@@ -254,6 +267,18 @@ export default function Chat() {
               </Pressable>
             </View>
           ) : null}
+          {polling ? (
+            <PollComposer
+              conversationId={conversationId}
+              onClose={() => setPolling(false)}
+              onPosted={() => {
+                setPolling(false);
+                fetchMessages(conversationId, undefined, latestRef.current ?? undefined)
+                  .then(addMessages)
+                  .catch(() => undefined);
+              }}
+            />
+          ) : null}
           <View
             style={{
               flexDirection: 'row',
@@ -266,6 +291,7 @@ export default function Chat() {
               borderTopColor: t.colors.border,
               backgroundColor: t.colors.bg,
             }}>
+            <IconButton icon="stats-chart-outline" label="Start a poll" onPress={() => setPolling((p) => !p)} />
             <TextInput
               accessibilityLabel="Message"
               value={draft}

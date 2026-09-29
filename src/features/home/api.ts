@@ -21,6 +21,8 @@ export type HomeEvent = {
   id: number;
   title: string;
   emoji: string | null;
+  /** The host's cover photo, if any. */
+  cover_url?: string | null;
   starts_at: string;
   place: string | null;
   group_name: string | null;

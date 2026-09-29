@@ -5,6 +5,19 @@
 
 ---
 
+## ✅ The launch batch (from the team review)
+- **Launch mode:** drinks and online events are switched off for launch, the same way live video already was. Their buttons are hidden and the server refuses them. Each has a switch in the `app_config` table (`drinks_enabled`, `virtual_events_enabled`, `live_video_enabled`) to turn it on later.
+- **Private by default:** new plans ("I'm going out") start visible to your Insiders and their Insiders, not everyone nearby. You can still pick Everyone.
+- **Find your people:** right after the welcome tour, a new screen suggests groups near you and events coming up, so you join something in your first minutes.
+- **Add to calendar:** on events you're going to or hosting. On a phone it opens your calendar's own "New Event" screen, already filled in. On the web it downloads a calendar file.
+- **Friday Drop:** every Friday at 4pm (DC time), a notification with the top 3 things happening near you this weekend. It can be turned off in Settings → Notifications.
+- **Launch numbers (admins):** a new Launch tab in Admin with nights out this week, how many are out right now, how many new members say I'm In in their first week, how many are still active in week 4, Insiders per person, and events coming up.
+- **Polls in chats:** a poll button next to the message box. Ask "Where tonight?" with 2 to 4 choices. Tap to vote, tap another to switch, tap yours again to take it back.
+- **Event cover photos:** add a wide photo when you create an event, or later from the event page (hosts). It shows on the event page, What's In and Home.
+- **Smaller videos:** videos are recorded and saved at 720p, so they upload faster on cell data.
+- **Faster database:** 11 missing indexes added.
+- **Tested:** 29 new database tests (638 total). Checked in a browser: the new screen, the launch numbers, uploading a cover photo, the calendar file, and a poll with voting.
+
 ## ✅ Delete anything you post, any time
 - **Pins:** "Delete pin" in the "…" menu on any of your pins (feed, profile, thread), not only on the pin's page.
 - **Replies:** "Delete" under your own replies in a pin thread.
@@ -754,6 +767,7 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 ## Decisions log
 | Date | Decision | Why |
 |---|---|---|
+| 2026-09-29 | Launch with drinks, online events and live video switched off; plans private by default | Team review: launch with the core (going out together) and add the rest when it's steady |
 | 2026-09-28 | Plain names: Friends / Friends of friends (not Circle / Network / degrees) | Tester round: jargon confused new users |
 | 2026-09-28 | Messaging unlocks after 3 back-and-forths (was 5); default radius 25 mi | Tester round |
 | 2026-09-28 | Home = people row + Friends/Everyone + one mixed feed; Messages becomes a tab; badges are dots | Product review (PM, dev, UX, two creators); Dominique approved all changes |

@@ -1,12 +1,14 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Image } from 'expo-image';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Platform, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
+import { CoverPicker } from '@/components/events/CoverPicker';
 import { VirtualRoomCard } from '@/components/events/VirtualRoomCard';
 import { BackHeader } from '@/components/nav/AppHeader';
-import { useAppConfig } from '@/config/useAppConfig';
+import { useAppConfig, useFeature } from '@/config/useAppConfig';
 import {
   AppText,
   Badge,
@@ -30,10 +32,23 @@ import { track } from '@/features/analytics/track';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { preciseLocation } from '@/features/circles/api';
 import { shareEvent } from '@/features/home/api';
-import { checkInOpen, deleteEvent, eventCheckIn, eventPhase, fetchEvent, joinWaitlist, leaveWaitlist, setEventMode, type EventDetail } from '@/features/events/api';
+import {
+  checkInOpen,
+  deleteEvent,
+  eventCheckIn,
+  eventPhase,
+  fetchEvent,
+  joinWaitlist,
+  leaveWaitlist,
+  setEventCover,
+  setEventMode,
+  uploadEventCover,
+  type EventDetail,
+} from '@/features/events/api';
 import { roomKindLabel } from '@/features/events/room';
 import { fetchTicketHolders, money, openPayment, parsePrice, refundTicket, setTicketPrice, ticketSplit, type TicketHolder } from '@/features/payments/api';
 import { fetchEventRating, rateVenue, type EventRating } from '@/features/ratings/api';
+import { addToCalendar } from '@/features/events/calendar';
 import { cancelRsvp, rsvp } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
 import { confirmThen } from '@/lib/confirm';
@@ -47,6 +62,7 @@ export default function EventScreen() {
   const t = useTheme();
   const router = useRouter();
   const toast = useToast();
+  const virtualOn = useFeature('virtual_events_enabled');
   const { session } = useAuth();
   const me = session?.user.id;
   const { id, paid } = useLocalSearchParams<{ id: string; paid?: string }>();
@@ -195,6 +211,17 @@ export default function EventScreen() {
     <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
       <BackHeader title="Event" />
       <Screen contentGap={t.space[5]}>
+        {event.is_host && phase !== 'ended' ? (
+          <HostCover event={event} onChange={load} />
+        ) : event.cover_url ? (
+          <Image
+            source={{ uri: event.cover_url }}
+            style={{ aspectRatio: 16 / 9, borderRadius: t.radius.lg, backgroundColor: t.colors.surfaceAlt }}
+            contentFit="cover"
+            accessibilityLabel={`Cover photo for ${event.title}`}
+          />
+        ) : null}
+
         {/* The event as a ticket: what and where on the main part, the date on the stub. */}
         <Ticket stub={<DateTile iso={event.starts_at} size={58} />}>
           <Stamp tone="primary">{`Admit one · ${dayTime(event.starts_at)}${event.ends_at ? ` – ${clockTime(event.ends_at)}` : ''}`}</Stamp>
@@ -247,7 +274,7 @@ export default function EventScreen() {
 
         {event.description ? <AppText>{event.description}</AppText> : null}
 
-        <VirtualRoomCard event={event} ended={phase === 'ended'} />
+        {virtualOn ? <VirtualRoomCard event={event} ended={phase === 'ended'} /> : null}
 
         <View style={{ flexDirection: 'row', gap: t.space[2], flexWrap: 'wrap' }}>
           {event.i_am_here ? (
@@ -308,6 +335,18 @@ export default function EventScreen() {
               />
             )
           )
+        ) : null}
+
+        {phase === 'upcoming' && (event.i_am_going || event.is_host || event.has_ticket) ? (
+          <Button
+            label="Add to calendar"
+            variant="ghost"
+            size="md"
+            onPress={() => {
+              track('event_add_calendar');
+              addToCalendar(event).catch(() => toast('Couldn’t open your calendar.'));
+            }}
+          />
         ) : null}
 
         {phase !== 'ended' ? <Button label="Share with my Insiders" variant="secondary" size="md" onPress={share} loading={sharing} /> : null}
@@ -427,6 +466,28 @@ export default function EventScreen() {
 
 /** Host view: sell tickets (price, sales), or set up payouts first. */
 /** After an event you went to: rate the place (1–5 stars, optional note). */
+/** The host adds, changes or removes the cover photo. */
+function HostCover({ event, onChange }: { event: EventDetail; onChange: () => void }) {
+  const toast = useToast();
+  const { session } = useAuth();
+  const [busy, setBusy] = useState(false);
+  async function change(uri: string | null) {
+    const me = session?.user.id;
+    if (!me) return;
+    setBusy(true);
+    try {
+      await setEventCover(event.id, uri ? await uploadEventCover(me, uri) : null);
+      toast(uri ? 'Cover photo updated' : 'Cover photo removed');
+      onChange();
+    } catch (e) {
+      toast(friendlyError(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+  return <CoverPicker uri={event.cover_url} onChange={change} busy={busy} />;
+}
+
 function RateVenue({ eventId }: { eventId: number }) {
   const t = useTheme();
   const router = useRouter();

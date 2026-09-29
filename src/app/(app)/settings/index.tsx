@@ -5,7 +5,7 @@ import { Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Screen, Section, type IconName } from '@/components/ui';
-import { useAppConfig } from '@/config/useAppConfig';
+import { useAppConfig, useFeature } from '@/config/useAppConfig';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/theme';
 
@@ -18,6 +18,7 @@ export default function Settings() {
   const { signOut } = useAuth();
   const { settings } = useAppConfig();
   const supportEmail = String(settings.support_email ?? 'support@imin.app');
+  const drinksOn = useFeature('drinks_enabled');
 
   const groups: { title: string; rows: Row[] }[] = [
     {
@@ -28,7 +29,9 @@ export default function Settings() {
         { label: 'Vouches you gave', icon: 'ribbon-outline', href: '/settings/vouches', detail: 'Take back a vouch' },
         { label: 'My tickets', icon: 'ticket-outline', href: '/settings/tickets' },
         { label: 'Payouts', icon: 'cash-outline', href: '/settings/payouts', detail: 'Sell tickets to your events' },
-        { label: 'Drinks & credit', icon: 'wine-outline', href: '/settings/wallet', detail: 'Send drinks when people are live; cash out drinks you get' },
+        ...(drinksOn
+          ? [{ label: 'Drinks & credit', icon: 'wine-outline' as IconName, href: '/settings/wallet' as Href, detail: 'Send drinks when people are live; cash out drinks you get' }]
+          : []),
         { label: 'Verification', icon: 'shield-checkmark-outline', href: '/settings/verification', detail: 'Phone, photo, ID' },
         { label: 'Notifications', icon: 'notifications-outline', href: '/settings/notifications' },
         { label: 'Appearance', icon: 'color-palette-outline', href: '/settings/appearance' },

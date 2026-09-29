@@ -1,4 +1,4 @@
-import { useAppConfig } from '@/config/useAppConfig';
+import { useFeature } from '@/config/useAppConfig';
 import { supabase } from '@/lib/supabase';
 
 export type LiveAudience = 'circle' | 'network' | 'everyone';
@@ -25,8 +25,7 @@ export const LIVE_AUDIENCES: { key: LiveAudience; label: string; detail: string 
 
 /** Live video is off until a video service is connected (app_config.live_video_enabled). */
 export function useLiveEnabled() {
-  const { settings } = useAppConfig();
-  return settings.live_video_enabled === true || settings.live_video_enabled === 'true';
+  return useFeature('live_video_enabled');
 }
 
 export async function startLive(title: string, audience: LiveAudience) {

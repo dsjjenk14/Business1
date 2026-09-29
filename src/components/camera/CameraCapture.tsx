@@ -107,6 +107,8 @@ export function CameraCapture({
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: onVideo ? ['images', 'videos'] : ['images'],
         videoMaxDuration: maxVideoSeconds,
+        // 720p keeps uploads small and fast on cell data.
+        videoExportPreset: ImagePicker.VideoExportPreset.H264_1280x720,
         quality: 0.8,
       });
       const a = result.canceled ? null : result.assets[0];
@@ -160,6 +162,7 @@ export function CameraCapture({
         mirror={facing === 'front'}
         animateShutter={mode === 'photo'}
         mode={mode === 'video' ? 'video' : 'picture'}
+        videoQuality="720p"
         mute={mode === 'video' && !mic?.granted}
         onCameraReady={() => setReady(true)}
       />

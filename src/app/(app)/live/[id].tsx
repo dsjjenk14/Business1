@@ -10,6 +10,7 @@ import { AppText, Badge, Button, EmptyState, LoadingDetail, Screen, TextField, u
 import { endLive, fetchLiveDetail, postLiveComment, type LiveComment, type LiveDetail } from '@/features/live/api';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
+import { useFeature } from '@/config/useAppConfig';
 
 /** Watching (or hosting) a live video: the video, live comments, and End / Report. */
 export default function LiveScreen() {
@@ -23,6 +24,7 @@ export default function LiveScreen() {
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
   const [drinkMenu, setDrinkMenu] = useState(false);
+  const drinksOn = useFeature('drinks_enabled');
   const lastId = useRef(0);
 
   const poll = useCallback(async () => {
@@ -89,7 +91,7 @@ export default function LiveScreen() {
             {live.is_live ? <LiveVideo streamId={live.id} isHost={live.is_host} /> : null}
 
             {live.is_host && live.is_live ? <Button label="End live video" variant="danger" size="md" onPress={end} /> : null}
-            {!live.is_host && live.is_live ? (
+            {drinksOn && !live.is_host && live.is_live ? (
               <>
                 <Button
                   label={`Send ${live.host_name.split(' ')[0]} a drink`}

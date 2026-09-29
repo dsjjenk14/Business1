@@ -94,6 +94,8 @@ export function PinMediaPicker({
         allowsMultipleSelection: true,
         selectionLimit: room,
         videoMaxDuration: MAX_VIDEO_SECONDS,
+        // 720p keeps uploads small and fast on cell data.
+        videoExportPreset: ImagePicker.VideoExportPreset.H264_1280x720,
         quality: 0.8,
       });
       if (!result.canceled) take(result.assets);

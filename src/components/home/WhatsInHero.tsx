@@ -1,4 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
@@ -134,6 +135,9 @@ function EventPoster({ event, onIn }: { event: HomeEvent; onIn: () => void }) {
   return (
     <View style={{ width: 220, borderRadius: t.radius.md, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', padding: t.space[3], gap: t.space[2] }}>
       <Pressable accessibilityRole="link" accessibilityLabel={`${event.title}, ${part({ weekday: 'long', hour: 'numeric', minute: '2-digit' })}, ${who}`} onPress={open} style={{ gap: t.space[2] }}>
+        {event.cover_url ? (
+          <Image source={{ uri: event.cover_url }} style={{ aspectRatio: 16 / 9, borderRadius: t.radius.sm, backgroundColor: FAINT }} contentFit="cover" />
+        ) : null}
         <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
           <AppText style={{ ...fontStyle(t.fonts.displayBold), color: INK, fontSize: 30, lineHeight: 32 }}>{part({ day: 'numeric' })}</AppText>
           <AppText variant="caption" weight="bold" style={{ color: SOFT, textTransform: 'uppercase', letterSpacing: 0.8 }}>

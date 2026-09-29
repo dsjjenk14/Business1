@@ -10,7 +10,7 @@ import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 
-type Key = 'notify_messages' | 'notify_date_requests' | 'notify_rsvps' | 'notify_pin_replies' | 'notify_gps_vouch' | 'notify_intro_requests' | 'app_sounds';
+type Key = 'notify_messages' | 'notify_date_requests' | 'notify_rsvps' | 'notify_pin_replies' | 'notify_gps_vouch' | 'notify_intro_requests' | 'friday_drop' | 'app_sounds';
 
 const OPTIONS: { key: Key; label: string; detail: string }[] = [
   { key: 'notify_messages', label: 'Messages', detail: 'New messages in your chats and groups' },
@@ -19,6 +19,7 @@ const OPTIONS: { key: Key; label: string; detail: string }[] = [
   { key: 'notify_pin_replies', label: 'Pin replies', detail: 'Replies to your pins' },
   { key: 'notify_gps_vouch', label: 'Meetups and vouches', detail: 'When you meet someone in person and when you get vouched for' },
   { key: 'notify_intro_requests', label: 'Intros', detail: 'Intro requests, intros made for you, and vouch requests' },
+  { key: 'friday_drop', label: 'Friday Drop', detail: 'Friday afternoon: the top 3 things happening near you this weekend' },
 ];
 const COLUMNS = [...OPTIONS.map((o) => o.key), 'app_sounds'].join(', ');
 

@@ -1,7 +1,9 @@
 import type { PersonLite } from '@/features/circles/api';
 import { supabase } from '@/lib/supabase';
 
-export type ChatMessage = { id: number; sender_id: string; body: string; created_at: string };
+/** poll_id: this message is a poll (see fetchPoll). */
+export type ChatMessage = { id: number; sender_id: string; body: string; created_at: string; poll_id?: number | null };
+export type ChatPoll = { id: number; question: string; options: string[]; counts: number[]; voters: number; mine: number | null };
 export type ConversationInfo = {
   id: number;
   kind: 'direct' | 'group' | 'chat';
@@ -50,12 +52,31 @@ export async function fetchConversation(id: number) {
 }
 
 export async function fetchMessages(conversationId: number, before?: string, after?: string) {
-  let q = supabase.from('messages').select('id, sender_id, body, created_at').eq('conversation_id', conversationId).order('created_at', { ascending: false }).limit(50);
+  let q = supabase.from('messages').select('id, sender_id, body, created_at, poll_id').eq('conversation_id', conversationId).order('created_at', { ascending: false }).limit(50);
   if (before) q = q.lt('created_at', before);
   if (after) q = q.gt('created_at', after);
   const { data, error } = await q;
   if (error) throw error;
   return (data ?? []).reverse();
+}
+
+/** Start a poll ("Where tonight?") in a chat. It posts as a message. */
+export async function createPoll(conversationId: number, question: string, options: string[]) {
+  const { data, error } = await supabase.rpc('create_chat_poll', { p_conversation: conversationId, p_question: question, p_options: options });
+  if (error) throw error;
+  return data as number;
+}
+
+export async function fetchPoll(pollId: number) {
+  const { data, error } = await supabase.rpc('chat_poll', { p_poll: pollId });
+  if (error) throw error;
+  return data as unknown as ChatPoll | null;
+}
+
+/** Vote, change your vote, or tap your choice again to take it back. */
+export async function votePoll(pollId: number, option: number) {
+  const { error } = await supabase.rpc('vote_chat_poll', { p_poll: pollId, p_option: option });
+  if (error) throw error;
 }
 
 /** Delete a message you sent; it's removed for everyone in the chat. */
@@ -68,7 +89,7 @@ export async function sendMessage(conversationId: number, senderId: string, body
   const { data, error } = await supabase
     .from('messages')
     .insert({ conversation_id: conversationId, sender_id: senderId, body: body.trim() })
-    .select('id, sender_id, body, created_at')
+    .select('id, sender_id, body, created_at, poll_id')
     .single();
   if (error) throw error;
   return data;
@@ -98,7 +119,7 @@ export function subscribeToMessages(conversationId: number, onMessage: (m: ChatM
       .channel(`conversation:${conversationId}:${Date.now()}`)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${conversationId}` }, (payload) => {
         const m = payload.new as ChatMessage;
-        onMessage({ id: m.id, sender_id: m.sender_id, body: m.body, created_at: m.created_at });
+        onMessage({ id: m.id, sender_id: m.sender_id, body: m.body, created_at: m.created_at, poll_id: m.poll_id ?? null });
       })
       .subscribe((status) => {
         if (closed) return;

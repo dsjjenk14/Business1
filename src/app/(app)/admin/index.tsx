@@ -12,6 +12,7 @@ import {
   addVenue,
   endPlacement,
   fetchInquiries,
+  fetchLaunchMetrics,
   fetchOverview,
   fetchPlacements,
   fetchReports,
@@ -27,6 +28,7 @@ import {
   type AdminVenue,
   type AdminVerification,
   type Inquiry,
+  type LaunchMetrics,
   type Overview,
   type Placement,
   type RevenueRow,
@@ -38,13 +40,13 @@ import { friendlyError } from '@/lib/supabase';
 import { timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
 
-type Tab = 'reports' | 'verify' | 'places' | 'more';
+type Tab = 'launch' | 'reports' | 'verify' | 'places' | 'more';
 
 /** Admin: reports, photo verification, venues + Featured placements, partner inquiries, Premium. */
 export default function Admin() {
   const t = useTheme();
   const { profile } = useAuth();
-  const [tab, setTab] = useState<Tab>('reports');
+  const [tab, setTab] = useState<Tab>('launch');
   const [overview, setOverview] = useState<Overview | null>(null);
 
   const isAdmin = profile?.role === 'admin';
@@ -82,6 +84,7 @@ export default function Admin() {
         ) : null}
         <Segmented<Tab>
           options={[
+            { key: 'launch', label: 'Launch' },
             { key: 'reports', label: 'Reports' },
             { key: 'verify', label: 'Verify' },
             { key: 'places', label: 'Places' },
@@ -90,7 +93,7 @@ export default function Admin() {
           value={tab}
           onChange={setTab}
         />
-        {tab === 'reports' ? <Reports onChange={refreshOverview} /> : tab === 'verify' ? <Verify onChange={refreshOverview} /> : tab === 'places' ? <Places /> : <More onChange={refreshOverview} />}
+        {tab === 'launch' ? <Launch /> : tab === 'reports' ? <Reports onChange={refreshOverview} /> : tab === 'verify' ? <Verify onChange={refreshOverview} /> : tab === 'places' ? <Places /> : <More onChange={refreshOverview} />}
       </Screen>
     </View>
   );
@@ -116,6 +119,51 @@ function useRun() {
 }
 
 // ── Reports ─────────────────────────────────────────────────────────────────
+/** The launch numbers: are people going out together, and coming back? */
+function Launch() {
+  const t = useTheme();
+  const [m, setM] = useState<LaunchMetrics | null>(null);
+  const [failed, setFailed] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      fetchLaunchMetrics()
+        .then(setM)
+        .catch(() => setFailed(true));
+    }, []),
+  );
+  if (failed && !m) return <EmptyState glyph="warning" title="Couldn’t load the numbers" />;
+  if (!m) return <LoadingList rows={3} />;
+  const pct = (v: number | null) => (v == null ? '–' : `${v}%`);
+  const stats: { label: string; value: string; detail: string; tone?: 'primary' | 'trust' }[] = [
+    { label: 'Nights out, last 7 days', value: String(m.nights_out_7d), detail: 'I’m Ins to events that happened this week. The number that matters most.', tone: 'primary' },
+    { label: 'Out right now', value: String(m.going_out_now), detail: 'People who arrived somewhere and are still out.' },
+    { label: 'New members say I’m In', value: pct(m.activation_pct), detail: `${m.activated_28d} of ${m.signups_28d} who joined in the last 4 weeks said I’m In to something in their first week.`, tone: 'trust' },
+    { label: 'Still here in week 4', value: pct(m.week4_pct), detail: `${m.week4_retained} of ${m.week4_cohort} people did something in their 4th week.`, tone: 'trust' },
+    { label: 'Insiders per person', value: m.avg_insiders == null ? '–' : String(m.avg_insiders), detail: 'Average. Under 3 means people feel alone here.' },
+    { label: 'Events next 7 days', value: String(m.events_next_7d), detail: 'Something to say I’m In to. Keep this above 10.' },
+    { label: 'Members', value: String(m.members), detail: `${m.open_reports} open report${m.open_reports === 1 ? '' : 's'}.` },
+  ];
+  return (
+    <View style={{ gap: t.space[3] }}>
+      {stats.map((s) => (
+        <Card key={s.label} accent={s.tone}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[4] }}>
+            <AppText variant="h1" style={{ minWidth: 72 }}>
+              {s.value}
+            </AppText>
+            <View style={{ flex: 1, gap: 2 }}>
+              <AppText weight="bold">{s.label}</AppText>
+              <AppText variant="small" tone="muted">
+                {s.detail}
+              </AppText>
+            </View>
+          </View>
+        </Card>
+      ))}
+    </View>
+  );
+}
+
 function Reports({ onChange }: { onChange: () => void }) {
   const t = useTheme();
   const { busy, run } = useRun();

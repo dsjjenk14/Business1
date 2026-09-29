@@ -55,3 +55,13 @@ export function tierProgress(vouchCount: number, tiers: Tier[]) {
   const next = sorted.find((tier) => tier.min_vouches > vouchCount) ?? null;
   return { current, next, remaining: next ? next.min_vouches - vouchCount : 0 };
 }
+
+/**
+ * Launch mode: features that stay off until they're turned on in app_config
+ * (live video, drinks, online events). Off while config is still loading.
+ */
+export type FeatureKey = 'live_video_enabled' | 'drinks_enabled' | 'virtual_events_enabled';
+export function useFeature(key: FeatureKey) {
+  const { settings } = useContext(ConfigContext);
+  return settings[key] === true || settings[key] === 'true';
+}
