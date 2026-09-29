@@ -20,8 +20,6 @@ export type ProfileCard = {
   vouch_count: number | null;
   top_vouch_word: string | null;
   interests: { key: string; label: string }[];
-  /** The saved AI Read, when someone has made one this week. */
-  ai_read: import('@/features/ai/api').ProfileRead | null;
   is_me: boolean;
   degree: 0 | 1 | 2 | null;
   via: { id: string; display_name: string; avatar_emoji: string | null }[];

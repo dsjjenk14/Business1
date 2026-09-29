@@ -10,8 +10,8 @@ top of the file. How they all work:
 
 1. **Facts come from the database, as the member.** The function calls the
    database with the member's own login, so it only ever sees what that member
-   could already see in the app. Circle-only posts never feed matches or the AI
-   Read, and messages are never used.
+   could already see in the app. Circle-only posts never feed matches, and
+   messages are never used.
 2. **Plain math first.** Where a feature has a score (People like you, intro
    odds), the database computes it. It's free, instant and works even with AI
    off. The AI adds the judgment and the words on top.
@@ -29,10 +29,9 @@ top of the file. How they all work:
 | Icebreakers (`icebreakers`) | Someone's profile | Three openers from what you share and what they've posted that you can see. | 1 week | Yes |
 | Tonight for You (`tonight`) | Menu, Tonight tab | What's on tonight near you and where your people are heading. The AI picks one top pick and two alternatives, with reasons. | 2 hours | Yes |
 | Intro odds (`intro_odds`) | Make an Intro | The score and signals are plain math (see `intro_odds` in migration 036). The AI only writes the "why". | 1 week | Yes ("Explain with AI") |
-| AI Read (`profile_read`) | Every profile | Up to 3 badges and a two-sentence read from public activity: vouch words, groups, public events, open plans. Everyone sees the same read. | 1 week | Yes, once, for whoever asks first |
 
-Not built yet: Momentum Score and Trust Monitor (scheduled jobs, not AI calls),
-and chat-based badges (opt-in only).
+Removed at Dominique's request: the AI Read on profiles. Not built yet:
+Momentum Score and Trust Monitor (scheduled jobs, not AI calls).
 
 ## The model
 

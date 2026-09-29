@@ -5,7 +5,6 @@ import { Pressable, Share, View } from 'react-native';
 
 import { PinCard } from '@/components/pins/PinCard';
 import { PhotoGrid } from '@/components/profile/PhotoGrid';
-import { AIRead } from '@/components/ai/ProfileAI';
 import { AppText, Avatar, Badge, Button, Card, GlyphTile, isGlyphName, Section, Segmented, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { tierProgress, useAppConfig } from '@/config/useAppConfig';
@@ -179,8 +178,6 @@ export function ProfileView({
           </View>
         </Section>
       ) : null}
-
-      <AIRead key={card.id} userId={card.id} firstName={card.display_name.split(' ')[0] ?? ''} initial={card.ai_read} />
 
       {card.bio ? (
         <Section title="About">

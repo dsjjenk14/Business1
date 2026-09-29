@@ -11,7 +11,7 @@ const unwrap = <T,>({ data, error }: { data: unknown; error: unknown }): T => {
  * need an AI account.
  */
 export type AIQuota = { limit: number | null; used: number; left: number | null };
-export type AIFeature = 'people_like_you' | 'icebreakers' | 'tonight' | 'intro_odds' | 'profile_read';
+export type AIFeature = 'people_like_you' | 'icebreakers' | 'tonight' | 'intro_odds';
 export type AIErrorCode = 'not_configured' | 'limit' | 'unavailable' | 'other';
 
 export class AIError extends Error {
@@ -116,7 +116,6 @@ export type IntroOdds = { score: number; band: 'high' | 'medium' | 'low'; a: str
 export const fetchIntroOdds = async (a: string, b: string) => unwrap<IntroOdds>(await supabase.rpc('intro_odds', { p_a: a, p_b: b }));
 
 // ── Results ──────────────────────────────────────────────────────────────
-export type ProfileRead = { badges: { label: string; why: string }[]; read: string | null; thin?: boolean; created_at?: string };
 export type Icebreakers = { icebreakers: string[] };
 export type TonightOption = {
   key: string;
