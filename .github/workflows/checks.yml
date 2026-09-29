@@ -19,6 +19,7 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: python3 scripts/check-contrast.py
+      - run: node scripts/check-expo-go.mjs
 
   database:
     name: Database rules (pgTAP)
