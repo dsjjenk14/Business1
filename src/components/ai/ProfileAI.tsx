@@ -52,7 +52,7 @@ export function IcebreakersCard({ userId, firstName, connected }: { userId: stri
         <AIMark label="Icebreakers" />
         {!connected ? (
           <AppText variant="caption" tone="subtle">
-            For once a friend you share introduces you.
+            For once an Insider you share introduces you.
           </AppText>
         ) : null}
         {list.map((s) => (

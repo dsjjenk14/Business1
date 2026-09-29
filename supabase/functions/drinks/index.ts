@@ -3,7 +3,7 @@
  * live, you can watch, you have the credit) and moves the money; this then
  * announces it in the room so everyone sees the drink arrive.
  *
- * POST { drink, live_id? , event_id? } → { gift_id, drink, name, from_name, balance_cents }
+ * POST { drink, live_id? , event_id?, anonymous? } → { gift_id, drink, name, from_name, balance_cents }
  */
 import { corsHeaders, getCaller, json, userRpc } from '../_shared/http.ts';
 import { livekitSendData } from '../_shared/livekit.ts';
@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
   const caller = await getCaller(req);
   if (!caller) return json({ error: 'Sign in first.' }, 401);
 
-  let body: { drink?: string; live_id?: number; event_id?: number };
+  let body: { drink?: string; live_id?: number; event_id?: number; anonymous?: boolean };
   try {
     body = await req.json();
   } catch {
@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
   const r = await userRpc<{ room: string; drink: string; name: string; from_name: string; gift_id: number; balance_cents: number; message?: string }>(
     req,
     'send_drink',
-    { p_drink: String(body.drink ?? ''), p_live: body.live_id ?? null, p_event: body.event_id ?? null },
+    { p_drink: String(body.drink ?? ''), p_live: body.live_id ?? null, p_event: body.event_id ?? null, p_anonymous: body.anonymous === true },
   );
   if (!r.ok || !r.data) {
     const credit = /credit/i.test(r.error ?? '');

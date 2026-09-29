@@ -48,6 +48,8 @@ create table public.drink_gifts (
   host_cents integer not null,
   live_id    bigint references public.live_streams (id) on delete set null,
   event_id   bigint references public.events (id) on delete set null,
+  -- Sent anonymously: the host sees "Someone" (we still know who, for safety).
+  anonymous  boolean not null default false,
   created_at timestamptz not null default now()
 );
 create index drink_gifts_from_idx on public.drink_gifts (from_user, created_at desc);
@@ -75,17 +77,16 @@ begin
     execute format('grant select on public.%I to authenticated', tbl);
   end loop;
 end $$;
+-- Read through my_wallet() only, so anonymous senders stay anonymous.
 alter table public.drink_gifts enable row level security;
-create policy "own gifts" on public.drink_gifts for select to authenticated using (from_user = auth.uid() or to_user = auth.uid());
-revoke insert, update, delete on public.drink_gifts from anon, authenticated;
-grant select on public.drink_gifts to authenticated;
+revoke all on public.drink_gifts from anon, authenticated;
 
 /**
  * Send a drink to whoever is live: the host of a live video you can watch,
  * or the host of a virtual event whose room is open and that you're going to.
  * Returns the room to announce it in.
  */
-create or replace function public.send_drink(p_drink text, p_live bigint default null, p_event bigint default null)
+create or replace function public.send_drink(p_drink text, p_live bigint default null, p_event bigint default null, p_anonymous boolean default false)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
   me uuid := auth.uid();
@@ -97,6 +98,8 @@ declare
   share int;
   gift bigint;
   left_cents int;
+  anon boolean := coalesce(p_anonymous, false);
+  sender text;
 begin
   if me is null then raise exception 'Sign in first.' using errcode = 'insufficient_privilege'; end if;
   select * into d from public.drink_menu where key = p_drink;
@@ -133,15 +136,16 @@ begin
   if left_cents is null then raise exception 'Add drink credit to send this.' using errcode = 'check_violation'; end if;
 
   share := floor(d.cents * public.config_num('drink_host_share_pct') / 100);
-  insert into public.drink_gifts (from_user, to_user, drink_key, cents, host_cents, live_id, event_id)
-  values (me, to_user, d.key, d.cents, share, p_live, p_event) returning id into gift;
+  insert into public.drink_gifts (from_user, to_user, drink_key, cents, host_cents, live_id, event_id, anonymous)
+  values (me, to_user, d.key, d.cents, share, p_live, p_event, anon) returning id into gift;
   insert into public.drink_earnings (user_id, available_cents, lifetime_cents) values (to_user, share, share)
   on conflict (user_id) do update set available_cents = public.drink_earnings.available_cents + share,
                                       lifetime_cents = public.drink_earnings.lifetime_cents + share;
-  perform private.notify(to_user, 'drink', (select display_name from public.profiles where id = me) || ' sent you ' || case when d.name ~* '^[aeiou]' then 'an ' else 'a ' end || d.name,
-    'You earned ' || private.money(share) || '.', me, '/settings/wallet');
+  sender := case when anon then 'Someone' else (select display_name from public.profiles where id = me) end;
+  perform private.notify(to_user, 'drink', sender || ' sent you ' || case when d.name ~* '^[aeiou]' then 'an ' else 'a ' end || d.name,
+    'You earned ' || private.money(share) || '.', case when anon then null else me end, '/settings/wallet');
   return jsonb_build_object('gift_id', gift, 'room', room, 'drink', d.key, 'name', d.name,
-    'from_name', (select display_name from public.profiles where id = me), 'balance_cents', left_cents);
+    'from_name', sender, 'anonymous', anon, 'balance_cents', left_cents);
 end $$;
 
 /** Your drink credit, what you've earned, and recent drinks. */
@@ -160,7 +164,10 @@ language sql stable security definer set search_path = '' as $$
           'id', g.id, 'drink', g.drink_key, 'name', m.name, 'at', g.created_at,
           'sent', g.from_user = auth.uid(),
           'cents', case when g.from_user = auth.uid() then g.cents else g.host_cents end,
-          'other', (select display_name from public.profiles where id = case when g.from_user = auth.uid() then g.to_user else g.from_user end)) as x
+          'anonymous', g.anonymous,
+          -- Anonymous drinks never say who sent them to the person who got them.
+          'other', case when g.from_user <> auth.uid() and g.anonymous then null
+                        else (select display_name from public.profiles where id = case when g.from_user = auth.uid() then g.to_user else g.from_user end) end) as x
         from public.drink_gifts g join public.drink_menu m on m.key = g.drink_key
         where g.from_user = auth.uid() or g.to_user = auth.uid()
         order by g.created_at desc limit 30) s), '[]'::jsonb))
@@ -210,9 +217,9 @@ begin
   end if;
 end $$;
 
-revoke execute on function public.send_drink(text, bigint, bigint) from public, anon;
+revoke execute on function public.send_drink(text, bigint, bigint, boolean) from public, anon;
 revoke execute on function public.my_wallet() from public, anon;
-grant execute on function public.send_drink(text, bigint, bigint) to authenticated;
+grant execute on function public.send_drink(text, bigint, bigint, boolean) to authenticated;
 grant execute on function public.my_wallet() to authenticated;
 revoke execute on function public.wallet_credit(uuid, integer, text) from public, anon, authenticated;
 revoke execute on function public.drink_cashout_start(uuid) from public, anon, authenticated;

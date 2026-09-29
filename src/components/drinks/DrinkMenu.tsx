@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, ScrollView, Switch, View } from 'react-native';
 
 import { AppText, Button, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
@@ -33,6 +33,7 @@ export function DrinkMenu({
   const [menu, setMenu] = useState<DrinkItem[] | null>(null);
   const [balance, setBalance] = useState<number | null>(null);
   const [sending, setSending] = useState<string | null>(null);
+  const [anonymous, setAnonymous] = useState(false);
 
   useEffect(() => {
     if (!visible) return;
@@ -56,11 +57,11 @@ export function DrinkMenu({
     }
     setSending(d.key);
     try {
-      const r = await sendDrink(d.key, to);
+      const r = await sendDrink(d.key, to, anonymous);
       setBalance(r.balance_cents);
-      track('drink_sent', { drink: d.key, cents: d.cents, live: !!to.liveId, event: !!to.eventId });
+      track('drink_sent', { drink: d.key, cents: d.cents, live: !!to.liveId, event: !!to.eventId, anonymous });
       onSent?.(d.key, d.name);
-      toast(`You sent ${hostName.split(' ')[0]} ${aDrink(d.name)}`);
+      toast(`You sent ${hostName.split(' ')[0]} ${aDrink(d.name)}${anonymous ? ' anonymously' : ''}`);
     } catch (e) {
       toast(e instanceof Error ? e.message : 'Couldn’t send that drink.');
     } finally {
@@ -88,6 +89,15 @@ export function DrinkMenu({
               router.push('/settings/wallet');
             }}
           />
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+          <View style={{ flex: 1 }}>
+            <AppText weight="bold">Send anonymously</AppText>
+            <AppText variant="caption" tone="muted">
+              {hostName.split(' ')[0]} and everyone watching see &quot;Someone&quot; instead of your name.
+            </AppText>
+          </View>
+          <Switch value={anonymous} onValueChange={setAnonymous} accessibilityLabel="Send anonymously" trackColor={{ true: t.colors.primary, false: t.colors.surfaceAlt }} />
         </View>
         {!menu ? (
           <ActivityIndicator color={t.colors.primary} />

@@ -70,7 +70,7 @@ export async function createEvent(input: {
   place?: string;
   lat?: number | null;
   lng?: number | null;
-  /** public (anyone), circle (your circle, the group, and people going). */
+  /** public (anyone), circle (your Insiders, the group, and people going). */
   visibility?: EventVisibility;
   /** Surprise party: hidden from this person until it's over. */
   surpriseFor?: string | null;

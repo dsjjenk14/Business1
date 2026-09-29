@@ -96,7 +96,7 @@ export default function PinThread() {
         <BackHeader title="Pin" />
         <View style={{ flex: 1, backgroundColor: t.colors.bg, padding: t.space[5] }}>
           <AppText tone="muted" align="center">
-            This pin isn&apos;t available. It may have been deleted, or it&apos;s only shared with someone&apos;s circle.
+            This pin isn&apos;t available. It may have been deleted, or it&apos;s only shared with someone&apos;s Insiders.
           </AppText>
         </View>
       </>

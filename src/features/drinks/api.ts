@@ -11,7 +11,7 @@ export type Wallet = {
   host_share_pct: number;
   cashout_min_cents: number;
   payouts_ready: boolean;
-  history: { id: number; drink: string; name: string; at: string; sent: boolean; cents: number; other: string | null }[];
+  history: { id: number; drink: string; name: string; at: string; sent: boolean; cents: number; other: string | null; anonymous: boolean }[];
 };
 /** Drink credit packs, in cents (the payments function accepts only these). */
 export const DRINK_PACKS = [500, 1000, 2500, 5000, 10000];
@@ -48,11 +48,12 @@ async function invoke<T>(fn: string, body: object): Promise<T> {
 }
 
 /** Send a drink to whoever is live (a live video, or a virtual event's host). */
-export const sendDrink = (drink: string, to: { liveId?: number; eventId?: number }) =>
+export const sendDrink = (drink: string, to: { liveId?: number; eventId?: number }, anonymous = false) =>
   invoke<{ gift_id: number; drink: string; name: string; from_name: string; balance_cents: number }>('drinks', {
     drink,
     live_id: to.liveId,
     event_id: to.eventId,
+    anonymous,
   });
 
 /** Pay for drink credit with a card (Stripe Checkout, in the browser). */

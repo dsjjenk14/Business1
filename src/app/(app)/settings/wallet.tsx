@@ -135,7 +135,7 @@ export default function WalletScreen() {
                 </View>
                 <View style={{ flex: 1 }}>
                   <AppText variant="small" weight="bold">
-                    {h.sent ? `You sent ${h.other ?? 'someone'} ${aDrink(h.name)}` : `${h.other ?? 'Someone'} sent you ${aDrink(h.name)}`}
+                    {h.sent ? `You sent ${h.other ?? 'someone'} ${aDrink(h.name)}${h.anonymous ? ' (anonymously)' : ''}` : `${h.other ?? 'Someone'} sent you ${aDrink(h.name)}`}
                   </AppText>
                   <AppText variant="caption" tone="subtle">
                     {timeAgo(h.at)}

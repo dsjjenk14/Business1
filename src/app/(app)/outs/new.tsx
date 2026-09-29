@@ -12,7 +12,7 @@ import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Button, Chip, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { fetchChatCandidates, type ChatCandidate } from '@/features/chat/api';
-import { fetchOutEvent, sendOut, setOutEffect, type OutAudience, type OutEvent } from '@/features/outs/api';
+import { fetchOutEvent, OUT_HOURS, sendOut, setOutEffect, type OutAudience, type OutEvent, type OutHours } from '@/features/outs/api';
 import { applyFilter } from '@/features/photos/applyFilter';
 import type { EffectKey } from '@/features/photos/effects';
 import { MAX_SIDE, type FilterKey } from '@/features/photos/filters';
@@ -22,7 +22,7 @@ import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme, fontStyle } from '@/theme';
 
-/** Take an Out anywhere: snap, add a caption, send to friends and/or My Out. Gone in 6 hours unless pinned. */
+/** Take an Out anywhere: snap, add a caption, send to Insiders and/or your Out. Gone in 6, 12 or 24 hours (you pick) unless pinned. */
 export default function NewOut() {
   const t = useTheme();
   const router = useRouter();
@@ -61,6 +61,8 @@ export default function NewOut() {
   const [toStory, setToStory] = useState(false);
   // Each My Out picks who sees it: 1st degree only (the default) or 1st + 2nd.
   const [audience, setAudience] = useState<OutAudience>('circle');
+  // How long it lasts: the sender picks 6, 12 or 24 hours.
+  const [hours, setHours] = useState<OutHours>(6);
   const [busy, setBusy] = useState(false);
   // At an I'm In event, its name goes on the Out.
   const [event, setEvent] = useState<OutEvent | null>(null);
@@ -79,11 +81,11 @@ export default function NewOut() {
     if (!session || !shown) return;
     setBusy(true);
     try {
-      const id = await sendOut({ userId: session.user.id, uri: shown, kind: shot?.kind ?? 'photo', caption, to: [...to], toStory, audience });
+      const id = await sendOut({ userId: session.user.id, uri: shown, kind: shot?.kind ?? 'photo', caption, to: [...to], toStory, audience, hours });
       if (shot?.kind === 'video' && look.effect !== 'none') await setOutEffect(id, look.effect).catch(() => undefined);
-      track('out_sent', { to: to.size, story: toStory, audience: toStory ? audience : null, kind: shot?.kind ?? 'photo' });
+      track('out_sent', { to: to.size, story: toStory, audience: toStory ? audience : null, kind: shot?.kind ?? 'photo', hours });
       playSound('sent');
-      toast(to.size ? `Out sent to ${to.size} ${to.size === 1 ? 'friend' : 'friends'}` : 'Posted to My Out');
+      toast(to.size ? `Out sent to ${to.size} ${to.size === 1 ? 'person' : 'people'}` : 'Posted to My Out');
       refreshNewOuts();
       router.back();
     } catch (e) {
@@ -159,29 +161,40 @@ export default function NewOut() {
           style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3], padding: t.space[3], borderRadius: t.radius.md, backgroundColor: t.colors.surface }}>
           <Ionicons name="albums-outline" size={24} color={t.colors.primaryText} />
           <View style={{ flex: 1 }}>
-            <AppText weight="bold">My Out</AppText>
+            <AppText weight="bold">Your Out</AppText>
             <AppText variant="small" tone="muted">
-              {audience === 'circle' ? 'Your circle' : 'Your network'} can watch it for 6 hours.
+              {audience === 'circle' ? 'Your Insiders' : 'Your network'} can watch it for {hours} hours.
             </AppText>
           </View>
-          <Switch value={toStory} onValueChange={setToStory} accessibilityLabel="My Out: people you choose can watch it for 6 hours" />
+          <Switch value={toStory} onValueChange={setToStory} accessibilityLabel={`Your Out: people you choose can watch it for ${hours} hours`} />
         </Pressable>
         {toStory ? (
           <View style={{ gap: t.space[2] }}>
-            <AppText weight="bold">Who sees this My Out?</AppText>
+            <AppText weight="bold">Who sees your Out?</AppText>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
-              <Chip label="My Circle (1st only)" selected={audience === 'circle'} onPress={() => setAudience('circle')} />
-              <Chip label="My Network (1st + 2nd)" selected={audience === 'network'} onPress={() => setAudience('network')} />
+              <Chip label="My Insiders only" selected={audience === 'circle'} onPress={() => setAudience('circle')} />
+              <Chip label="Insiders + Network" selected={audience === 'network'} onPress={() => setAudience('network')} />
             </View>
             <AppText variant="caption" tone="muted">
               {audience === 'circle'
-                ? 'Only people you’re directly connected to. Nobody else.'
-                : 'Your circle, plus the people they know.'}
+                ? 'Only your Insiders. Nobody else.'
+                : 'Your Insiders, plus theirs.'}
             </AppText>
           </View>
         ) : null}
+        <View style={{ gap: t.space[2] }}>
+          <AppText weight="bold">How long it lasts</AppText>
+          <View style={{ flexDirection: 'row', gap: t.space[2] }}>
+            {OUT_HOURS.map((h) => (
+              <Chip key={h} label={`${h} hours`} selected={hours === h} onPress={() => setHours(h)} />
+            ))}
+          </View>
+          <AppText variant="caption" tone="muted">
+            Gone after {hours} hours, unless someone pins it.
+          </AppText>
+        </View>
         <AppText variant="label" tone="subtle">
-          Friends in your circle (they can look for 6 hours)
+          Your Insiders (they can look for {hours} hours)
         </AppText>
         {circle.length ? (
           <PeoplePicker
@@ -198,13 +211,13 @@ export default function NewOut() {
           />
         ) : (
           <AppText variant="small" tone="muted">
-            No one in your circle yet. Add friends from the Circles tab, or post to My Out.
+            No Insiders yet. Add Insiders from the Insiders tab, or post to your Out.
           </AppText>
         )}
       </ScrollView>
       <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, padding: t.space[4], backgroundColor: t.colors.bg, borderTopWidth: t.borderWidth.hairline, borderColor: t.colors.border }}>
         <Button
-          label={to.size || toStory ? `Send${to.size ? ` to ${to.size}` : ''}${toStory ? (to.size ? ' + My Out' : ' to My Out') : ''}` : 'Pick who gets it'}
+          label={to.size || toStory ? `Send${to.size ? ` to ${to.size}` : ''}${toStory ? (to.size ? ' + your Out' : ' to your Out') : ''}` : 'Pick who gets it'}
           onPress={send}
           loading={busy}
           disabled={!to.size && !toStory}

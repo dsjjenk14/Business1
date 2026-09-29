@@ -9,7 +9,7 @@ import { goBackOr } from '@/lib/navigation';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 
-/** Your Venmo, Cash App and PayPal usernames, shown only to friends who owe you. */
+/** Your Venmo, Cash App and PayPal usernames, shown only to people who owe you. */
 export default function PayMe() {
   const t = useTheme();
   const router = useRouter();
@@ -39,10 +39,10 @@ export default function PayMe() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <BackHeader title="Where friends pay you" />
+      <BackHeader title="Where people pay you" />
       <Screen>
         <AppText tone="muted">
-          When you split a bill, friends who owe you get a button that opens the app with the amount filled in. Only people who owe you see these.
+          When you split a bill, people who owe you get a button that opens the app with the amount filled in. Only people who owe you see these.
         </AppText>
         {!form ? (
           <LoadingList rows={3} />

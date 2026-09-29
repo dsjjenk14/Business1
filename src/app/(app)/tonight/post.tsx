@@ -161,7 +161,7 @@ export default function PostGoingOut() {
       if (planAudience !== 'everyone') await setPlanAudience(postId, planAudience);
       if (when === 'tonight') {
         if (audience === 'custom') await setHereViewers(postId, [...viewers]);
-        // A circle-only plan keeps "you're there" to your circle too.
+        // A Insiders-only plan keeps "you're there" to your Insiders too.
         else await setHereAudience(postId, planAudience === 'circle' ? 'circle' : audience);
       }
       if (place.venueId) enableArrivalWatch();
@@ -291,7 +291,7 @@ export default function PostGoingOut() {
           <View style={{ flex: 1 }}>
             <AppText weight="bold">Let people I know join me</AppText>
             <AppText variant="caption" tone="muted">
-              Your circle and network can tap I&apos;m In so you know they&apos;re coming.
+              Your Insiders and Network can tap I&apos;m In so you know they&apos;re coming.
             </AppText>
           </View>
           <Switch
@@ -306,9 +306,9 @@ export default function PostGoingOut() {
           <AppText weight="bold">Who sees this plan and where you&apos;re going?</AppText>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
             <Chip label="Everyone nearby" selected={planAudience === 'everyone'} onPress={() => setPlanAudienceState('everyone')} />
-            <Chip label="My Network (1st + 2nd)" selected={planAudience === 'network'} onPress={() => setPlanAudienceState('network')} />
+            <Chip label="Insiders + Network" selected={planAudience === 'network'} onPress={() => setPlanAudienceState('network')} />
             <Chip
-              label="My Circle (1st only)"
+              label="My Insiders only"
               selected={planAudience === 'circle'}
               onPress={() => {
                 setPlanAudienceState('circle');
@@ -318,10 +318,10 @@ export default function PostGoingOut() {
           </View>
           <AppText variant="caption" tone="muted">
             {planAudience === 'everyone'
-              ? 'Your circle, your network and people nearby on I’m In.'
+              ? 'Your Insiders, your Network and people nearby on I’m In.'
               : planAudience === 'network'
-                ? 'Only your circle and the people they know.'
-                : 'Only people you’re directly connected to. Nobody else.'}
+                ? 'Only your Insiders and theirs.'
+                : 'Only your Insiders. Nobody else.'}
           </AppText>
         </View>
 
@@ -329,27 +329,27 @@ export default function PostGoingOut() {
           <View style={{ gap: t.space[2] }}>
             <AppText weight="bold">When you get there, who sees it?</AppText>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
-              <Chip label="My Circle (1st only)" selected={audience === 'circle'} onPress={() => setAudience('circle')} />
+              <Chip label="My Insiders only" selected={audience === 'circle'} onPress={() => setAudience('circle')} />
               {planAudience !== 'circle' ? (
-                <Chip label="My Network (1st + 2nd)" selected={audience === 'network'} onPress={() => setAudience('network')} />
+                <Chip label="Insiders + Network" selected={audience === 'network'} onPress={() => setAudience('network')} />
               ) : null}
               <Chip label="Only these people" selected={audience === 'custom'} onPress={chooseCustom} />
             </View>
             <AppText variant="caption" tone="muted">
               {audience === 'circle'
-                ? 'Only your circle sees that you’re there. Nobody else.'
+                ? 'Only your Insiders see that you’re there. Nobody else.'
                 : audience === 'network'
-                  ? 'Your circle and network see that you’re there.'
+                  ? 'Your Insiders and Network see that you’re there.'
                   : viewers.size
                     ? `Only ${viewers.size} ${viewers.size === 1 ? 'person' : 'people'} you picked see that you’re there.`
-                    : 'Pick the people in your circle who can see that you’re there.'}
+                    : 'Pick the your Insiders who can see that you’re there.'}
             </AppText>
             {audience === 'custom' && friends ? (
               friends.length ? (
                 <PeoplePicker people={friends} selected={viewers} onToggle={toggleViewer} />
               ) : (
                 <AppText variant="small" tone="muted">
-                  Your circle is empty so far.
+                  You don’t have any Insiders yet.
                 </AppText>
               )
             ) : null}

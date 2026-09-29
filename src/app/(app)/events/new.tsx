@@ -250,7 +250,7 @@ export default function NewEvent() {
           </AppText>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
             <Chip label="Public" selected={mode === 'public'} onPress={() => setMode('public')} />
-            <Chip label="My Circle only" selected={mode === 'circle'} onPress={() => setMode('circle')} />
+            <Chip label="My Insiders only" selected={mode === 'circle'} onPress={() => setMode('circle')} />
             <Chip
               label="Surprise party"
               glyph="party"
@@ -268,7 +268,7 @@ export default function NewEvent() {
             {mode === 'public'
               ? 'Anyone on I’m In can find it.'
               : mode === 'circle'
-                ? 'Only your circle, your group’s members and people who say I’m In can see it.'
+                ? 'Only your Insiders, your group’s members and people who say I’m In can see it.'
                 : 'Everyone can see it except the guest of honor. They won’t see the event, posts about it or any notices until it’s over.'}
           </AppText>
           {mode === 'surprise' ? (
@@ -278,7 +278,7 @@ export default function NewEvent() {
                 <PeoplePicker people={circle} selected={new Set(guest ? [guest] : [])} onToggle={(id) => setGuest((g) => (g === id ? null : id))} />
               ) : (
                 <AppText variant="small" tone="subtle">
-                  {circle ? 'Pick from your circle. Your circle is empty so far.' : 'Loading…'}
+                  {circle ? 'Pick from your Insiders. You don’t have any Insiders yet.' : 'Loading…'}
                 </AppText>
               )}
             </View>
@@ -330,7 +330,7 @@ export default function NewEvent() {
 
         <Button label="Post Event" onPress={submit} loading={busy} disabled={!ready} />
         <AppText variant="caption" tone="subtle">
-          Your circle and network see it first; people nearby see it on Tonight. You&apos;re automatically going.
+          Your Insiders and Network see it first; people nearby see it on Tonight. You&apos;re automatically going.
         </AppText>
       </Screen>
     </KeyboardAvoidingView>

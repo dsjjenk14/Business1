@@ -14,17 +14,17 @@ const SLIDES: { glyph: GlyphName; title: string; body: string }[] = [
   {
     glyph: 'spark',
     title: 'Welcome to I’m In',
-    body: 'See what’s happening near you, make plans with friends, and meet people others vouch for.',
+    body: 'See what’s happening near you, make plans with your Insiders, and meet people others vouch for.',
   },
   {
     glyph: 'pin',
     title: 'Pins',
-    body: 'Pins are posts: a thought, a question, photos, or plans. People like and reply. Home shows your friends’ pins.',
+    body: 'Pins are posts: a thought, a question, photos, or plans. People like and reply. Home shows your Insiders’ pins.',
   },
   {
     glyph: 'people',
-    title: 'Your circle and vouches',
-    body: 'Your circle is your friends on I’m In. Add them by scanning each other’s code, or sending a code. When you meet up in person, you can vouch for people you’d recommend. It’s always your choice.',
+    title: 'Your Insiders and vouches',
+    body: 'Your Insiders are your people on I’m In. Add them by scanning each other’s code, or sending a code. When you meet up in person, you can vouch for people you’d recommend. It’s always your choice.',
   },
   {
     glyph: 'moon',

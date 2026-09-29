@@ -10,7 +10,7 @@ import { LIVE_AUDIENCES, startLive, useLiveEnabled, type LiveAudience } from '@/
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 
-/** Go live: a title and who can watch. Your circle gets a notification. */
+/** Go live: a title and who can watch. Your Insiders get a notification. */
 export default function GoLive() {
   const t = useTheme();
   const router = useRouter();

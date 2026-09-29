@@ -72,7 +72,7 @@ export default function ScanToConnect() {
               Point at their I&apos;m In code
             </AppText>
             <AppText variant="small" align="center" style={{ color: '#FFFFFF' }}>
-              They can show it from Circles → Add someone → Show my code.
+              They can show it from Insiders → Add someone → Show my code.
             </AppText>
           </View>
         </View>

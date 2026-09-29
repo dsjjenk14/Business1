@@ -8,7 +8,7 @@ export type TonightPick = Database['public']['Functions']['tonight_pick']['Retur
 export async function fetchTonightNetwork(): Promise<TonightPerson[]> {
   const { data, error } = await supabase.rpc('tonight_network');
   if (error) throw error;
-  // Your circle first, then your network.
+  // Your Insiders first, then your network.
   return (data ?? []).sort((a, b) => Number(b.is_me) - Number(a.is_me) || a.degree - b.degree || a.starts_at.localeCompare(b.starts_at));
 }
 

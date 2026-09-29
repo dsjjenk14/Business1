@@ -70,7 +70,7 @@ export function PeopleLikeYou({ limit = 8, compact = false }: { limit?: number; 
         <View style={{ flex: 1, gap: 2 }}>
           {picks?.picks.length ? <AIMark label="AI picks" /> : null}
           <AppText variant="caption" tone="subtle">
-            Into the same things, in the same groups, out on the same nights. A friend you share still has to introduce you.
+            Into the same things, in the same groups, out on the same nights. An Insider you share still has to introduce you.
           </AppText>
         </View>
         {!compact && picks?.picks.length ? (
@@ -92,7 +92,7 @@ export function PeopleLikeYou({ limit = 8, compact = false }: { limit?: number; 
       ) : list.length === 0 ? (
         hasInterests ? (
           <AppText variant="small" tone="muted">
-            No one new yet. Join a group or go out with your circle, and people you&apos;d click with show up here.
+            No one new yet. Join a group or go out with your Insiders, and people you&apos;d click with show up here.
           </AppText>
         ) : null
       ) : (
@@ -130,7 +130,7 @@ export function PeopleLikeYou({ limit = 8, compact = false }: { limit?: number; 
                   )
                 ) : (
                   <AppText variant="caption" tone="subtle">
-                    No mutual friend yet to introduce you
+                    No shared Insider yet to introduce you
                   </AppText>
                 )}
               </>

@@ -59,9 +59,9 @@ export default function NewBill() {
     : !total
       ? 'Enter the total from the receipt.'
       : !picked.length
-        ? 'Tag at least one friend.'
+        ? 'Tag at least one person.'
         : shares.some((s) => s.amount_cents < 1)
-          ? 'Every friend needs an amount.'
+          ? 'Everyone needs an amount.'
           : myShare < 0
             ? `That’s ${money(-myShare)} more than the bill.`
             : null;
@@ -99,7 +99,7 @@ export default function NewBill() {
         eventId,
       });
       track('bill_sent', { people: picked.length, split, receipt: !!receipt, event: !!eventId });
-      toast(`Sent to ${picked.length} ${picked.length === 1 ? 'friend' : 'friends'}`);
+      toast(`Sent to ${picked.length} ${picked.length === 1 ? 'person' : 'people'}`);
       router.replace({ pathname: '/bills/[id]', params: { id: String(id) } });
     } catch (e) {
       toast(friendlyError(e));
@@ -187,7 +187,7 @@ export default function NewBill() {
             <LoadingList rows={3} />
           ) : people.length === 0 ? (
             <AppText variant="small" tone="muted">
-              No one to tag yet. You can split with people in your circle{eventId ? ' or people at this event' : ''}.
+              No one to tag yet. You can split with your Insiders{eventId ? ' or people at this event' : ''}.
             </AppText>
           ) : (
             people.map((p) => {
@@ -205,7 +205,7 @@ export default function NewBill() {
                   <View style={{ flex: 1 }}>
                     <AppText weight="bold">{p.display_name}</AppText>
                     <AppText variant="caption" tone="subtle">
-                      {p.at_event ? 'At this event' : 'Your circle'}
+                      {p.at_event ? 'At this event' : 'Your Insiders'}
                     </AppText>
                   </View>
                   <Ionicons name={on ? 'checkbox' : 'square-outline'} size={24} color={on ? t.colors.primary : t.colors.textSubtle} />
@@ -288,8 +288,8 @@ export default function NewBill() {
         ) : null}
         <Button label={picked.length ? `Send to ${picked.length}` : 'Send'} onPress={send} loading={busy} disabled={!!problem} />
         <AppText variant="caption" tone="subtle">
-          I&apos;m In doesn&apos;t move money. Friends pay you with Venmo, Cash App or PayPal (no fees from us) and tap &quot;I paid&quot;. Add your usernames in Split
-          the bill → Where friends pay you.
+          I&apos;m In doesn&apos;t move money. People pay you with Venmo, Cash App or PayPal (no fees from us) and tap &quot;I paid&quot;. Add your usernames in Split
+          the bill → Where people pay you.
         </AppText>
       </Screen>
     </KeyboardAvoidingView>

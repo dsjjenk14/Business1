@@ -116,7 +116,7 @@ export function ProfileView({
         {!card.is_me && card.degree ? (
           <AppText variant="small" tone="muted" align="center">
             {card.degree === 1
-              ? 'In your circle (1st degree)'
+              ? 'Your Insiders'
               : `2nd degree · you both know ${card.via.map((v) => v.display_name).slice(0, 3).join(', ')}`}
           </AppText>
         ) : null}
@@ -125,8 +125,8 @@ export function ProfileView({
       <View style={{ flexDirection: 'row', gap: t.space[3] }}>
         {[
           { n: card.vouch_count, label: 'Vouches', tone: 'trust' as const },
-          { n: card.circle_count, label: 'Circle', tone: 'primary' as const },
-          { n: follow?.followers ?? null, label: 'Followers', tone: 'ai' as const },
+          { n: card.circle_count, label: 'Insiders', tone: 'primary' as const },
+          { n: follow?.followers ?? null, label: 'Tapped in', tone: 'ai' as const },
         ].map((s) => (
           <Card key={s.label} style={{ flex: 1, alignItems: 'center', paddingVertical: t.space[3] }}>
             <AppText variant="number" tone={s.tone}>
@@ -158,12 +158,12 @@ export function ProfileView({
       <View style={{ flexDirection: 'row', gap: t.space[2] }}>
         {!card.is_me && follow ? (
           <Button
-            label={follow.i_follow ? 'Following' : follow.follows_me ? 'Follow back' : 'Follow'}
+            label={follow.i_follow ? 'Tapped in' : follow.follows_me ? 'Tap in back' : 'Tap in'}
             size="md"
             variant={follow.i_follow ? 'secondary' : 'primary'}
             style={{ flex: 1 }}
             onPress={toggleFollow}
-            accessibilityLabel={follow.i_follow ? `Unfollow ${card.display_name}` : `Follow ${card.display_name}`}
+            accessibilityLabel={follow.i_follow ? `Stop tapping in to ${card.display_name}` : `Tap in to ${card.display_name}`}
           />
         ) : null}
         <Button label="Share profile" size="md" variant="secondary" style={{ flex: 1 }} onPress={shareProfile} />

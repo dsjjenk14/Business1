@@ -148,12 +148,12 @@ export default function TonightMap() {
           })}
         </View>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[4], justifyContent: 'center' }}>
-          <Legend color={t.colors.trust} label="Your circle" />
+          <Legend color={t.colors.trust} label="Your Insiders" />
           <Legend color={t.colors.ai} label="Network / nearby" />
           <Legend color={t.colors.primary} label="Event" square />
         </View>
         <AppText variant="caption" tone="subtle" align="center">
-          Nearby within {radius} mi, plus your circle and network wherever they are{status === 'denied' ? ' (centered on your profile location; location is off)' : ''}.
+          Nearby within {radius} mi, plus your Insiders and network wherever they are{status === 'denied' ? ' (centered on your profile location; location is off)' : ''}.
           Spots are approximate (about a quarter mile), never exact.
         </AppText>
         {feed && dots.length === 0 ? (

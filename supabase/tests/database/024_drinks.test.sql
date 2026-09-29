@@ -1,7 +1,7 @@
 -- Drinks: credit, sending to whoever is live, host earnings, cash-outs.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(22);
+select plan(25);
 
 create or replace function pg_temp.new_user(p_email text, p_name text) returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();
@@ -52,7 +52,8 @@ select pg_temp.act_as('g');
 select is((send_drink('margarita', null, pg_temp.id('ev'))->>'balance_cents')::int, 700, 'Send a $3 Margarita');
 select throws_ok(format($q$select send_drink('moonshine', null, %s)$q$, pg_temp.id('ev')), '23514', null, 'Only drinks on the menu');
 select throws_ok($$select send_drink('mojito')$$, '23514', null, 'It has to go to someone live');
-select is((select count(*)::int from drink_gifts), 1, 'You see drinks you sent');
+select is(jsonb_array_length(my_wallet()->'history'), 1, 'You see drinks you sent');
+select throws_ok('select * from drink_gifts', '42501', null, 'But not the table itself');
 select pg_temp.act_as('h');
 select is((my_wallet()->>'available_cents')::int, 210, 'The host earns 70%');
 select throws_ok(format($q$select send_drink('mojito', null, %s)$q$, pg_temp.id('ev')), '23514', null, 'Not to yourself');
@@ -61,8 +62,12 @@ select is((select title from notifications where user_id = pg_temp.uid('h') and 
 
 select pg_temp.act_as('o');
 select throws_ok(format($q$select send_drink('mojito', null, %s)$q$, pg_temp.id('ev')), '23514', null, 'Only people in the room');
-select is((select count(*)::int from drink_gifts), 0, 'And others don''t see the drinks');
+select is(jsonb_array_length(my_wallet()->'history'), 0, 'And others don''t see the drinks');
 
+select pg_temp.act_as('g');
+select is(send_drink('mojito', null, pg_temp.id('ev'), true)->>'from_name', 'Someone', 'Send one anonymously');
+select pg_temp.act_as('h');
+select is((select count(*)::int from jsonb_array_elements(my_wallet()->'history') x where x->>'name' = 'Mojito' and x->'other' = 'null'::jsonb), 1, 'The host never sees who');
 select pg_temp.admin();
 update app_config set value = '1' where key = 'drinks_per_minute';
 select pg_temp.act_as('g');
@@ -76,7 +81,7 @@ select is(drink_cashout_start(pg_temp.uid('h'))->>'error', 'You can cash out onc
 update app_config set value = '100' where key = 'drink_cashout_min_cents';
 insert into ids select 'c1', (drink_cashout_start(pg_temp.uid('h'))->>'cashout_id')::bigint;
 select drink_cashout_done(pg_temp.id('c1'), null, false);
-select is((select available_cents from drink_earnings where user_id = pg_temp.uid('h')), 210, 'A failed transfer puts the money back');
+select is((select available_cents from drink_earnings where user_id = pg_temp.uid('h')), 350, 'A failed transfer puts the money back');
 insert into ids select 'c2', (drink_cashout_start(pg_temp.uid('h'))->>'cashout_id')::bigint;
 select drink_cashout_done(pg_temp.id('c2'), 'tr_test', true);
 select is((select status from drink_cashouts where id = pg_temp.id('c2')), 'paid', 'A good one is paid');

@@ -159,7 +159,7 @@ export default function EventScreen() {
     setSharing(true);
     try {
       await shareEvent(event.id);
-      toast('Shared with your circle');
+      toast('Shared with your Insiders');
       track('event_shared', { from: 'event' });
     } catch (e) {
       toast(friendlyError(e));
@@ -307,7 +307,7 @@ export default function EventScreen() {
           )
         ) : null}
 
-        {phase !== 'ended' ? <Button label="Share to my circle" variant="secondary" size="md" onPress={share} loading={sharing} /> : null}
+        {phase !== 'ended' ? <Button label="Share with my Insiders" variant="secondary" size="md" onPress={share} loading={sharing} /> : null}
 
         {canCheckIn && event.i_am_here ? (
           <Card accent="trust">
@@ -390,7 +390,7 @@ export default function EventScreen() {
               name={p.id === me ? 'You' : p.display_name}
               avatarUrl={p.avatar_url}
               ring={p.degree === 1 ? 'trust' : p.degree === 2 ? 'ai' : null}
-              detail={p.degree === 1 ? 'Your circle' : p.degree === 2 ? 'Your network' : null}
+              detail={p.degree === 1 ? 'Your Insiders' : p.degree === 2 ? 'Your network' : null}
             />
           ))}
         </Section>
@@ -632,7 +632,7 @@ function EventModeControls({ event, onChanged }: { event: EventDetail; onChanged
     setBusy(true);
     try {
       await setEventMode(event.id, visibility, surpriseFor);
-      toast(surpriseFor ? 'Saved' : event.surprise_for && !surpriseFor ? 'The surprise is off' : visibility === 'circle' ? 'Only your circle can see it now' : 'Anyone can find it now');
+      toast(surpriseFor ? 'Saved' : event.surprise_for && !surpriseFor ? 'The surprise is off' : visibility === 'circle' ? 'Only your Insiders can see it now' : 'Anyone can find it now');
       onChanged();
     } catch (e) {
       toast(friendlyError(e));
@@ -647,7 +647,7 @@ function EventModeControls({ event, onChanged }: { event: EventDetail; onChanged
       </AppText>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
         <Chip label="Public" selected={event.visibility === 'public'} onPress={() => !busy && change('public', event.surprise_for?.id ?? null)} />
-        <Chip label="My Circle only" selected={event.visibility === 'circle'} onPress={() => !busy && change('circle', event.surprise_for?.id ?? null)} />
+        <Chip label="My Insiders only" selected={event.visibility === 'circle'} onPress={() => !busy && change('circle', event.surprise_for?.id ?? null)} />
         {event.surprise_for ? (
           <Chip label="End the surprise" glyph="party" onPress={() => !busy && change(event.visibility, null)} />
         ) : null}

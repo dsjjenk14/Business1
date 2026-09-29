@@ -40,7 +40,7 @@ function timeLeft(expiresAt: string) {
   return min >= 60 ? `Gone in ${Math.round(min / 60)} hr` : `Gone in ${min} min`;
 }
 
-/** Watching Outs: full screen, 8 seconds each, tap to skip. Pin one to keep it past 6 hours. */
+/** Watching Outs: full screen, 8 seconds each, tap to skip. Pin one to keep it after its time is up. */
 export default function ViewOuts() {
   const t = useTheme();
   const router = useRouter();
@@ -113,7 +113,7 @@ export default function ViewOuts() {
       setLoaded({ id: out.id, out: { ...out, pinned: !out.pinned } });
       toast(
         out.pinned
-          ? "Unpinned. It disappears when its 6 hours are up."
+          ? "Unpinned. It disappears when its time is up."
           : out.is_mine
             ? "Pinned. It stays in your Pinned Outs."
             : `Pinned. ${out.sender_name.split(" ")[0]} will know you kept it.`,

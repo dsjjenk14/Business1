@@ -11,7 +11,7 @@ import { useAuth } from '@/lib/auth';
 import { friendlyError, supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 
-/** Create a group: name, category, description, how people join, and founding members from your circle. */
+/** Create a group: name, category, description, how people join, and founding members from your Insiders. */
 export default function NewGroup() {
   const t = useTheme();
   const router = useRouter();

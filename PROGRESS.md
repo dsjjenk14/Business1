@@ -5,6 +5,15 @@
 
 ---
 
+## ✅ Insiders, Out hours, anonymous drinks, new What's In
+- **Insiders:** the people you know are now your **Insiders** everywhere: the tab, your profile, notices, the AI's wording. The old words "friends", "followers" and "connections" are gone from the app.
+  - Following someone's posts is now **Tap in** (button: "Tap in" / "Tapped in" / "Tap in back"). Your profile shows "Insiders" and "Tapped in" counts.
+- **Out hours:** when you send an Out you pick **6, 12 or 24 hours** (6 is the default). The notice says how long it lasts.
+- **"MO" fixed:** your Out bubble on the Outs tab shows your own photo (or initials) and says "Your Out". "My Out" is now "Your Out" everywhere.
+- **Anonymous drinks:** in the drink menu, turn on "Send anonymously". The person live and everyone watching see "Someone" instead of your name. Only the app's records know who sent it.
+- **What's In on Home:** a bold poster at the top: "WHAT'S IN" over a glow, tonight's top 3 hot spots, and trending events as cards you swipe and tap I'm In on.
+- **Tested:** 10 new database tests (564 total), plus clicking through Home, Outs, the hour picker, Insiders and the drink menu in a browser. Zero errors.
+
 ## ✅ Send drinks to people who are live (like TikTok gifts, but cocktails)
 - **The menu:** 8 custom cocktails drawn for I'm In (no emojis): Lemon Drop $1, Mojito $2, Margarita $3, Paloma $5, Espresso Martini $10, Old Fashioned $20, French 75 $50, Champagne Tower $100.
 - **Sending:**
@@ -780,6 +789,9 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 | 2026-09-27 | Phone login goes through a server function; accounts are keyed by email | Supabase's own phone login needs a text for every login |
 | 2026-09-27 | Screens live in `src/app/` (not `app/`) | This is what current Expo expects |
 | 2026-09-27 | Testing: web build + automated checks here, plus Dominique on her phone | No iPhone simulator in this environment (it needs a Mac) |
+| 2026-09-29 | The people you know are called **Insiders** (not friends, followers or connections); following posts is **Tap in** | Dominique |
+| 2026-09-29 | Outs last 6, 12 or 24 hours; the sender picks (6 by default) | Dominique |
+| 2026-09-29 | Drinks can be sent anonymously; people see "Someone" | Dominique |
 
 ## Spec vs. prototype conflicts (the spec wins)
 See `docs/PHASE-0-PLAN.md` section 1B.

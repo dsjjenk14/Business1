@@ -71,7 +71,7 @@ export default function MyProfile() {
                   {profile.invite_code}
                 </AppText>
                 <AppText variant="small" tone="muted">
-                  When someone joins with your code, you&apos;re connected automatically and you both get a vouch.
+                  When someone joins with your code, you become each other&apos;s Insiders and you both get a vouch.
                 </AppText>
                 <Button
                   label="Share invite"

@@ -35,7 +35,11 @@ export async function fetchOutsInbox() {
   return data as unknown as OutsInbox;
 }
 
-/** Upload the photo, then send it to friends and/or post it to My Out. */
+/** How long an Out lasts; the sender picks. */
+export type OutHours = 6 | 12 | 24;
+export const OUT_HOURS: OutHours[] = [6, 12, 24];
+
+/** Upload the photo, then send it to Insiders and/or post it to your Out. */
 export async function sendOut(input: {
   userId: string;
   uri: string;
@@ -45,6 +49,7 @@ export async function sendOut(input: {
   to: string[];
   toStory: boolean;
   audience: OutAudience;
+  hours: OutHours;
 }) {
   const video = input.kind === 'video';
   const read = await readBytes(input.uri, video ? 'video/mp4' : 'image/jpeg');
@@ -73,6 +78,7 @@ export async function sendOut(input: {
     p_recipients: input.to,
     p_to_story: input.toStory,
     p_audience: input.audience,
+    p_hours: input.hours,
   });
   if (error) throw error;
   return data as number;
@@ -84,7 +90,7 @@ export async function setOutEffect(outId: number, effect: EffectKey) {
   if (error) throw error;
 }
 
-/** Open an Out: anyone it was meant for, as often as they like for 6 hours; after that, only people who pinned it. */
+/** Open an Out: anyone it was meant for, as often as they like until it runs out (6, 12 or 24 hours); after that, only people who pinned it. */
 export async function openOut(outId: number): Promise<OpenedOut> {
   const { data, error } = await supabase.functions.invoke('open-out', { body: { out_id: outId } });
   if (error) {
@@ -104,7 +110,7 @@ export async function reportScreenshot(outId: number) {
   await supabase.rpc('out_screenshot', { p_out: outId });
 }
 
-/** Pin an Out to keep it past 6 hours. The person who took it is told. */
+/** Pin an Out to keep it after its time is up. The person who took it is told. */
 export async function pinOut(outId: number) {
   const { error } = await supabase.rpc('pin_out', { p_out: outId });
   if (error) throw error;

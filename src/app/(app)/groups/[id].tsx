@@ -296,7 +296,7 @@ export default function Group() {
 
         {!isMember && circleMembers.length ? (
           <AppText tone="trust" weight="bold">
-            {circleMembers.length} from your circle {circleMembers.length === 1 ? 'is' : 'are'} in this group
+            {circleMembers.length} from your Insiders {circleMembers.length === 1 ? 'is' : 'are'} in this group
           </AppText>
         ) : null}
 

@@ -29,7 +29,7 @@ export default function Onboarding() {
             Real people.{'\n'}Real trust.
           </AppText>
           <AppText variant="body" tone="muted">
-            See where everyone’s going tonight, make plans with friends, and meet people others vouch for.
+            See where everyone’s going tonight, make plans with your Insiders, and meet people others vouch for.
           </AppText>
         </View>
       </View>

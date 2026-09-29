@@ -1,6 +1,6 @@
 /**
  * Opening an Out. The database decides if you may (for an hour: the people it
- * was sent to, or its My Out audience; after that, only people who pinned it)
+ * was sent to, or its Out audience; after that, only people who pinned it)
  * and marks it opened; this returns a link to the photo that works for one
  * minute. Nobody can read Outs straight from Storage.
  *

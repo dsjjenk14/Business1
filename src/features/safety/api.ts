@@ -125,13 +125,13 @@ export async function fetchPersonPrivacy(userId: string) {
   return data as unknown as PersonPrivacy;
 }
 
-/** Mute: you stop seeing their pins, My Out and plans. They aren't told. */
+/** Mute: you stop seeing their pins, Outs and plans. They aren't told. */
 export async function setMuted(userId: string, on: boolean) {
   const { error } = await supabase.rpc('set_muted', { p_user: userId, p_on: on });
   if (error) throw error;
 }
 
-/** Hide my posts from them: they stop seeing your pins, My Out and plans. They aren't told. */
+/** Hide my posts from them: they stop seeing your pins, Outs and plans. They aren't told. */
 export async function setHiddenFrom(userId: string, on: boolean) {
   const { error } = await supabase.rpc('set_hidden_from', { p_user: userId, p_on: on });
   if (error) throw error;

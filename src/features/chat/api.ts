@@ -14,7 +14,7 @@ export type ConversationInfo = {
 };
 export type ChatCandidate = { id: string; display_name: string; avatar_url: string | null; in_circle: boolean };
 
-/** People you can add to a group chat: your circle, and people you've chatted with. */
+/** People you can add to a group chat: your Insiders, and people you've chatted with. */
 export async function fetchChatCandidates() {
   const { data, error } = await supabase.rpc('chat_candidates');
   if (error) throw error;

@@ -18,8 +18,8 @@ export type LiveDetail = {
 };
 
 export const LIVE_AUDIENCES: { key: LiveAudience; label: string; detail: string }[] = [
-  { key: 'circle', label: 'My circle', detail: 'People you’re connected with. They get a notification.' },
-  { key: 'network', label: 'My network', detail: 'Your circle and the people they know.' },
+  { key: 'circle', label: 'My Insiders', detail: 'Your Insiders. They get a notification.' },
+  { key: 'network', label: 'My network', detail: 'Your Insiders and theirs.' },
   { key: 'everyone', label: 'Everyone', detail: 'Anyone on I’m In (except people you’ve blocked).' },
 ];
 
