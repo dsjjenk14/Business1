@@ -205,7 +205,7 @@ export default function DateMode() {
         {header}
         <Screen contentGap={t.space[5]}>
           <View style={{ alignItems: 'center', gap: t.space[2] }}>
-            <Avatar name={status.partner.display_name} uri={status.partner.avatar_url} size={72} ring="primary" />
+            <Avatar name={status.partner.display_name} uri={status.partner.avatar_url} size={72} />
             <AppText variant="h2" align="center">
               {status.i_started ? `Waiting for ${status.partner.display_name.split(' ')[0]}` : `${status.partner.display_name} wants to start Date Mode`}
             </AppText>

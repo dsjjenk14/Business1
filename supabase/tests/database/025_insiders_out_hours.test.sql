@@ -1,8 +1,8 @@
--- Outs last 6, 12 or 24 hours (the sender picks), can be hidden from chosen
--- people, and notices say "Insiders".
+-- Outs last 6, 12 or 24 hours (the sender picks) and can be hidden from chosen
+-- people.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(17);
+select plan(15);
 
 create or replace function pg_temp.new_user(p_email text, p_name text) returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();
@@ -68,13 +68,6 @@ select pg_temp.act_as('d');
 select throws_ok(format('select pin_out(%s)', (select id from hid)), null, null, 'Dee can''t pin it');
 select pg_temp.admin();
 select ok(not (select out_open((select id from outs where path like '%/hidden.jpg'), pg_temp.uid('b'))) ? 'error', 'Ben can open it');
-
--- ── Insiders wording ──────────────────────────────────────────────────────
-select pg_temp.act_as('c');
-select lives_ok(format('select follow_user(%L)', pg_temp.uid('a')), 'Tap in to someone');
-select pg_temp.admin();
-select ok((select title from notifications where user_id = pg_temp.uid('a') and actor_id = pg_temp.uid('c') order by id desc limit 1) like '%tapped in to your posts%',
-  'The notice says tapped in, not followed');
 
 select * from finish();
 rollback;

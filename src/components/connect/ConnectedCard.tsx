@@ -13,7 +13,7 @@ export function ConnectedCard({ result }: { result: ConnectResult }) {
   return (
     <Card accent="trust">
       <View style={{ alignItems: 'center', gap: t.space[2] }}>
-        <Avatar name={result.user.display_name} uri={result.user.avatar_url} size={64} ring="trust" />
+        <Avatar name={result.user.display_name} uri={result.user.avatar_url} size={64} />
         <AppText variant="h3" align="center" accessibilityRole="header">
           {result.status === 'already' ? `${first} is already one of your Insiders` : `${first} is one of your Insiders now`}
         </AppText>

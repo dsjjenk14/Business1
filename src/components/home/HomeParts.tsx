@@ -32,7 +32,7 @@ export function ActivityRow({ item }: { item: HomeActivity }) {
       accessibilityLabel={`${line}. On: ${item.pin_body}`}
       onPress={() => router.push({ pathname: '/pins/[id]', params: { id: String(item.pin_id) } })}
       style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: t.space[3], minHeight: 56, opacity: pressed ? 0.7 : 1 })}>
-      <Avatar name={item.actor_name} uri={item.actor_avatar} size={40} ring={item.kind === 'like' ? 'primary' : 'ai'} />
+      <Avatar name={item.actor_name} uri={item.actor_avatar} size={40} />
       <View style={{ flex: 1 }}>
         <AppText variant="small" numberOfLines={2}>
           <AppText variant="small" weight="bold">

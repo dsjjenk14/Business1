@@ -41,7 +41,7 @@ export function AppHeader() {
         onPress={() => router.push('/profile')}
         hitSlop={6}
         style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
-        <Avatar name={profile?.display_name ?? 'You'} uri={profile?.avatar_url} size={30} ring="primary" userId={profile?.id} />
+        <Avatar name={profile?.display_name ?? 'You'} uri={profile?.avatar_url} size={30} userId={profile?.id} />
       </Pressable>
       <IconButton icon="menu" label="Menu" onPress={() => router.push('/menu')} />
     </View>

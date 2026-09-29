@@ -1,7 +1,7 @@
 -- Follow, the Friends feed, sharing an event, usage counts, and home_feed().
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(18);
+select plan(16);
 
 create or replace function pg_temp.new_user(p_email text, p_name text) returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();
@@ -31,20 +31,18 @@ insert into pins (author_id, category, body, audience) values
   (pg_temp.uid('go'), 'thought', 'go public pin', 'everyone'),
   (pg_temp.uid('go'), 'thought', 'go circle pin', 'circle');
 
--- ── Follow ───────────────────────────────────────────────────────────────
+-- ── No following: only mutual Insiders ───────────────────────────────────
 select pg_temp.act_as('fa');
-select ok(not exists (select 1 from pins_feed('friends') where body = 'go public pin'), 'Before following: not in your Friends feed');
-select lives_ok(format('select follow_user(%L)', pg_temp.uid('go')), 'Follow someone');
-select ok(exists (select 1 from pins_feed('friends') where body = 'go public pin'), 'Their Everyone pins show in Friends');
-select ok(not exists (select 1 from pins_feed('friends') where body = 'go circle pin'), 'Following never shows circle-only pins');
-select is((follow_info(pg_temp.uid('go'))->>'followers')::int, 1, 'Follower count');
-select ok((follow_info(pg_temp.uid('go'))->>'i_follow')::boolean, 'You follow them');
-select ok(not (select (message_status(pg_temp.uid('go'))->>'can_message')::boolean), 'Following doesn''t unlock messaging');
-select throws_ok(format('select follow_user(%L)', pg_temp.uid('fa')), '23514', null, 'You can''t follow yourself');
+select ok(not exists (select 1 from pins_feed('friends') where body = 'go public pin'), 'A stranger''s pins aren''t in your Friends feed');
+select ok(not exists (select 1 from pins_feed('friends') where body = 'go circle pin'), 'Nor their Insiders-only pins');
+select hasnt_function('public', 'follow_user', array['uuid'], 'There''s no way to follow someone');
+select hasnt_function('public', 'follow_info', array['uuid'], 'No follower counts');
+select throws_ok(format('insert into follows (follower_id, followee_id) values (%L, %L)', pg_temp.uid('fa'), pg_temp.uid('go')), '42501', null, 'Can''t add a follow directly');
+select ok(not (select (message_status(pg_temp.uid('go'))->>'can_message')::boolean), 'Strangers can''t message');
 select pg_temp.admin();
-select is((select count(*)::int from notifications where user_id = pg_temp.uid('go') and kind = 'follow'), 1, 'They''re told');
+select is((select count(*)::int from follows), 0, 'Nobody follows anybody');
 insert into blocks (blocker_id, blocked_id) values (pg_temp.uid('go'), pg_temp.uid('fa'));
-select is((select count(*)::int from follows where follower_id = pg_temp.uid('fa') or followee_id = pg_temp.uid('fa')), 0, 'Blocking ends the follow');
+select is((select count(*)::int from follows where follower_id = pg_temp.uid('fa') or followee_id = pg_temp.uid('fa')), 0, 'Blocking still works');
 
 -- ── Share an event ───────────────────────────────────────────────────────
 insert into events (host_id, title, starts_at) values (pg_temp.uid('ha'), 'Rooftop Friday', now() + interval '1 day');

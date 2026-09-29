@@ -56,7 +56,7 @@ export function RingDiagram({ me, first, second }: { me: PersonLite; first: Pers
             return (
               <Pressable key={p.id} accessibilityLabel={`${p.display_name}, one of your Insiders`} onPress={() => open(p.id)}
                 style={{ position: 'absolute', left: x - 22, top: y - 30, alignItems: 'center', width: 44 }}>
-                <Avatar name={p.display_name} uri={p.avatar_url} size={44} ring="trust" userId={p.id} />
+                <Avatar name={p.display_name} uri={p.avatar_url} size={44} userId={p.id} />
                 <AppText variant="caption" numberOfLines={1} style={{ fontSize: 10, lineHeight: 12 }}>
                   {p.display_name.split(' ')[0]}
                 </AppText>
@@ -64,7 +64,7 @@ export function RingDiagram({ me, first, second }: { me: PersonLite; first: Pers
             );
           })}
           <View style={{ position: 'absolute', left: c - 30, top: c - 38, alignItems: 'center', width: 60 }}>
-            <Avatar name={me.display_name} uri={me.avatar_url} size={60} ring="primary" userId={me.id} />
+            <Avatar name={me.display_name} uri={me.avatar_url} size={60} userId={me.id} />
             <AppText variant="caption" weight="bold" style={{ fontSize: 10, lineHeight: 12 }}>
               YOU
             </AppText>

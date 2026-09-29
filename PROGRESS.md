@@ -26,7 +26,7 @@
 
 ## ✅ Insiders, Out hours, anonymous drinks, new What's In
 - **Insiders:** the people you know are now your **Insiders** everywhere: the tab, your profile, notices, the AI's wording. The old words "friends", "followers" and "connections" are gone from the app.
-  - Following someone's posts is now **Tap in** (button: "Tap in" / "Tapped in" / "Tap in back"). Your profile shows "Insiders" and "Tapped in" counts.
+  - There's no one-way following. You connect with someone and you're each other's Insiders; that's the only relationship. (A short-lived "Tap in" follow button was removed.)
 - **Out hours:** when you send an Out you pick **6, 12 or 24 hours** (6 is the default). The notice says how long it lasts.
 - **"MO" fixed:** your Out bubble on the Outs tab shows your own photo (or initials) and says "Your Out". "My Out" is now "Your Out" everywhere.
 - **Anonymous drinks:** in the drink menu, turn on "Send anonymously". The person live and everyone watching see "Someone" instead of your name. Only the app's records know who sent it.
@@ -808,7 +808,8 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 | 2026-09-27 | Phone login goes through a server function; accounts are keyed by email | Supabase's own phone login needs a text for every login |
 | 2026-09-27 | Screens live in `src/app/` (not `app/`) | This is what current Expo expects |
 | 2026-09-27 | Testing: web build + automated checks here, plus Dominique on her phone | No iPhone simulator in this environment (it needs a Mac) |
-| 2026-09-29 | The people you know are called **Insiders** (not friends, followers or connections); following posts is **Tap in** | Dominique |
+| 2026-09-29 | The people you know are called **Insiders** (not friends, followers or connections) | Dominique |
+| 2026-09-29 | **No following.** The only relationship is mutual Insiders; the follow ("Tap in") button, counts and notices are gone | Dominique |
 | 2026-09-29 | Outs last 6, 12 or 24 hours; the sender picks (6 by default) | Dominique |
 | 2026-09-29 | Drinks can be sent anonymously; people see "Someone" | Dominique |
 | 2026-09-29 | Out time and "Hide from" live in Out settings, one tap from the send screen; Out filters rotate 8 at a time every 3 days (24 total) | Dominique |

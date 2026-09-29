@@ -2303,12 +2303,6 @@ isOneToOne: true
               "distance_mi": number,"glyph": string,"kind": string,"name": string,"neighborhood": string,"network_visited": number,"perk": string,"placement_id": number,"venue_id": number
             }[]
                            },
-"follow_info":
-{ Args: { "p_user": string }; Returns: Json
-                           },
-"follow_user":
-{ Args: { "p_user": string }; Returns: undefined
-                           },
 "generate_invite_code":
 { Args: Record<PropertyKey, never>; Returns: string
                            },
@@ -2755,9 +2749,6 @@ isOneToOne: true
 { Args: { "p_name": string,"p_props"?: Json }; Returns: undefined
                            },
 "unblock_user":
-{ Args: { "p_user": string }; Returns: undefined
-                           },
-"unfollow_user":
 { Args: { "p_user": string }; Returns: undefined
                            },
 "unpin_out":

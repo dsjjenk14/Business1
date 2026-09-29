@@ -70,7 +70,7 @@ export default function EditProfile() {
       <BackHeader title="Edit profile" />
       <Screen contentGap={t.space[5]}>
         <Pressable accessibilityRole="button" accessibilityLabel="Change your profile photos" onPress={() => router.push('/settings/photos')} style={{ alignItems: 'center', gap: t.space[2] }}>
-          <Avatar name={displayName || 'You'} uri={profile.avatar_url} size={96} ring="primary" userId={profile.id} />
+          <Avatar name={displayName || 'You'} uri={profile.avatar_url} size={96} userId={profile.id} />
           <AppText variant="small" weight="bold" tone="primary">
             Change photos (up to 3)
           </AppText>
