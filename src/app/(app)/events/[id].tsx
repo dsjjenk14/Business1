@@ -30,12 +30,14 @@ import { track } from '@/features/analytics/track';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { preciseLocation } from '@/features/circles/api';
 import { shareEvent } from '@/features/home/api';
-import { checkInOpen, eventCheckIn, eventPhase, fetchEvent, joinWaitlist, leaveWaitlist, setEventMode, type EventDetail } from '@/features/events/api';
+import { checkInOpen, deleteEvent, eventCheckIn, eventPhase, fetchEvent, joinWaitlist, leaveWaitlist, setEventMode, type EventDetail } from '@/features/events/api';
 import { roomKindLabel } from '@/features/events/room';
 import { fetchTicketHolders, money, openPayment, parsePrice, refundTicket, setTicketPrice, ticketSplit, type TicketHolder } from '@/features/payments/api';
 import { fetchEventRating, rateVenue, type EventRating } from '@/features/ratings/api';
 import { cancelRsvp, rsvp } from '@/features/tonight/api';
 import { useAuth } from '@/lib/auth';
+import { confirmThen } from '@/lib/confirm';
+import { goBackOr } from '@/lib/navigation';
 import { friendlyError } from '@/lib/supabase';
 import { clockTime, dayTime } from '@/lib/time';
 import { useTheme } from '@/theme';
@@ -393,6 +395,31 @@ export default function EventScreen() {
             />
           ))}
         </Section>
+
+        {event.is_host ? (
+          <Button
+            label="Delete event"
+            variant="ghost"
+            size="md"
+            icon={<Ionicons name="trash-outline" size={18} color={t.colors.danger} />}
+            onPress={() =>
+              confirmThen(
+                'Delete this event?',
+                event.going_count > 0 ? 'Everyone going is told it was canceled. This can’t be undone.' : 'This can’t be undone.',
+                async () => {
+                  try {
+                    await deleteEvent(event.id);
+                    toast('Event deleted');
+                    goBackOr(router, '/tonight');
+                  } catch (e) {
+                    toast(friendlyError(e));
+                  }
+                },
+                'Delete',
+              )
+            }
+          />
+        ) : null}
       </Screen>
     </View>
   );

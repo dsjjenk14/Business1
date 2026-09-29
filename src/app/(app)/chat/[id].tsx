@@ -7,9 +7,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Avatar, IconButton, Glyph, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
-import { fetchConversation, fetchMessages, markRead, sendMessage, subscribeToMessages, type ChatMessage, type ConversationInfo } from '@/features/chat/api';
+import { deleteMessage, fetchConversation, fetchMessages, markRead, sendMessage, subscribeToMessages, type ChatMessage, type ConversationInfo } from '@/features/chat/api';
 import { playSound } from '@/features/sounds/sounds';
 import { useAuth } from '@/lib/auth';
+import { confirmThen } from '@/lib/confirm';
 import { friendlyError } from '@/lib/supabase';
 import { clockTime, marketDayKey } from '@/lib/time';
 import { useTheme, fontStyle } from '@/theme';
@@ -187,10 +188,18 @@ export default function Chat() {
                       )
                     ) : null}
                     <Pressable
-                      accessibilityHint={mine ? undefined : 'Long press to report this message'}
+                      accessibilityHint={mine ? 'Long press to delete this message' : 'Long press to report this message'}
                       onLongPress={
                         mine
-                          ? undefined
+                          ? () =>
+                              confirmThen('Delete this message?', 'It’s removed for everyone in the chat.', async () => {
+                                try {
+                                  await deleteMessage(item.id);
+                                  setMessages((list) => list.filter((m) => m.id !== item.id));
+                                } catch (e) {
+                                  toast(friendlyError(e));
+                                }
+                              }, 'Delete')
                           : () =>
                               router.push({
                                 pathname: '/report',

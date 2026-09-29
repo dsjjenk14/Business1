@@ -7,8 +7,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { PinCard } from '@/components/pins/PinCard';
 import { AppText, Avatar, Button, Card, IconButton, LoadingDetail, TextField, useToast } from '@/components/ui';
-import { addReply, deletePin, editPin, fetchFeed, fetchReplies, type FeedPin, type Reply } from '@/features/pins/api';
+import { addReply, deletePin, deleteReply, editPin, fetchFeed, fetchReplies, type FeedPin, type Reply } from '@/features/pins/api';
 import { useAuth } from '@/lib/auth';
+import { confirmThen } from '@/lib/confirm';
 import { friendlyError } from '@/lib/supabase';
 import { timeAgo } from '@/lib/time';
 import { MAX_FONT_SCALE, useTheme, fontStyle } from '@/theme';
@@ -80,14 +81,16 @@ export default function PinThread() {
     }
   }
 
-  async function remove() {
-    try {
-      await deletePin(pinId);
-      toast('Pin deleted');
-      goBackOr(router, '/pins');
-    } catch (e) {
-      toast(friendlyError(e));
-    }
+  function remove() {
+    confirmThen('Delete this pin?', 'It’s removed for everyone, with its photos and replies.', async () => {
+      try {
+        await deletePin(pinId);
+        toast('Pin deleted');
+        goBackOr(router, '/pins');
+      } catch (e) {
+        toast(friendlyError(e));
+      }
+    }, 'Delete');
   }
 
   if (pin === null) {
@@ -148,6 +151,27 @@ export default function PinThread() {
                 </AppText>
               </View>
               <AppText variant="small">{r.body}</AppText>
+              {r.author_id === me ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Delete your reply"
+                  onPress={() =>
+                    confirmThen('Delete your reply?', 'It’s removed for everyone.', async () => {
+                      try {
+                        await deleteReply(r.id);
+                        setReplies((list) => list.filter((x) => x.id !== r.id));
+                      } catch (e) {
+                        toast(friendlyError(e));
+                      }
+                    }, 'Delete')
+                  }
+                  hitSlop={8}
+                  style={{ alignSelf: 'flex-end' }}>
+                  <AppText variant="caption" tone="subtle">
+                    Delete
+                  </AppText>
+                </Pressable>
+              ) : null}
               {r.author_id !== me ? (
                 <Pressable
                   accessibilityRole="button"

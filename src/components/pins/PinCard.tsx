@@ -6,7 +6,7 @@ import { Pressable, View } from 'react-native';
 import { AppText, Avatar, Badge, Button, Card, Glyph, OptionsSheet, useToast, type GlyphName } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
-import { CATEGORY_GLYPH, CATEGORY_LABEL, REACTIONS, reactToPin, setBookmarked, setLiked, sharePin, type FeedPin, type Reaction } from '@/features/pins/api';
+import { CATEGORY_GLYPH, CATEGORY_LABEL, deletePin, REACTIONS, reactToPin, setBookmarked, setLiked, sharePin, type FeedPin, type Reaction } from '@/features/pins/api';
 import { rsvp } from '@/features/tonight/api';
 import { blockUser, setMuted } from '@/features/safety/api';
 import { useAuth } from '@/lib/auth';
@@ -134,10 +134,22 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
       }
     });
   }
+  function remove() {
+    confirmThen('Delete this pin?', 'It’s removed for everyone, with its photos and replies.', async () => {
+      try {
+        await deletePin(pin.id);
+        setGone(true);
+        toast('Pin deleted');
+      } catch (e) {
+        toast(friendlyError(e));
+      }
+    }, 'Delete');
+  }
 
   const menuOptions = [
     { label: pin.bookmarked ? 'Remove bookmark' : 'Bookmark', onPress: toggleBookmark },
     { label: 'Open thread', onPress: openThread },
+    ...(pin.is_mine ? [{ label: 'Delete pin', danger: true, onPress: remove }] : []),
     ...(!pin.is_mine
       ? [
           { label: `View ${firstName}'s profile`, onPress: openAuthor },

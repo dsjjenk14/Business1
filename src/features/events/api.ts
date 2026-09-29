@@ -44,6 +44,12 @@ export type EventDetail = {
   has_recap: boolean;
 };
 
+/** The host deletes their event; everyone going is told it was canceled. */
+export async function deleteEvent(id: number) {
+  const { error } = await supabase.rpc('delete_event', { p_event: id });
+  if (error) throw error;
+}
+
 export async function fetchEvent(id: number) {
   const { data, error } = await supabase.rpc('event_detail', { p_event: id });
   if (error) throw error;

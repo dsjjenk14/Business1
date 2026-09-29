@@ -20,6 +20,7 @@ import { EffectOverlay } from "@/components/media/EffectOverlay";
 import type { EffectKey } from "@/features/photos/effects";
 import { AppText, useToast } from "@/components/ui";
 import {
+  deleteOut,
   openOut,
   pinOut,
   reportScreenshot,
@@ -27,6 +28,7 @@ import {
   type OpenedOut,
 } from "@/features/outs/api";
 import { refreshNewOuts } from "@/features/outs/useNewOuts";
+import { confirmThen } from "@/lib/confirm";
 import { friendlyError } from "@/lib/supabase";
 import { timeAgo } from "@/lib/time";
 import { useTheme } from "@/theme";
@@ -124,6 +126,21 @@ export default function ViewOuts() {
     } finally {
       setPinBusy(false);
     }
+  }
+
+  function removeMine() {
+    if (!out) return;
+    const id = out.id;
+    confirmThen("Delete this Out?", "Nobody can open it again, and it's removed everywhere.", async () => {
+      try {
+        await deleteOut(id);
+        refreshNewOuts();
+        toast("Out deleted");
+        next();
+      } catch (e) {
+        toast(friendlyError(e));
+      }
+    }, "Delete");
   }
 
   // Tell the sender if someone takes a screenshot.
@@ -273,9 +290,22 @@ export default function ViewOuts() {
             gap: 12,
           }}
         >
-          <AppText variant="small" style={{ color: "#FFFFFF" }}>
-            {out.pinned ? "Pinned: it stays" : timeLeft(out.expires_at)}
-          </AppText>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+            {out.is_mine ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Delete this Out"
+                onPress={removeMine}
+                hitSlop={10}
+                style={{ width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.55)" }}
+              >
+                <Ionicons name="trash-outline" size={20} color="#FFFFFF" />
+              </Pressable>
+            ) : null}
+            <AppText variant="small" style={{ color: "#FFFFFF" }}>
+              {out.pinned ? "Pinned: it stays" : timeLeft(out.expires_at)}
+            </AppText>
+          </View>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={
