@@ -5,6 +5,16 @@
 
 ---
 
+## ✅ Delete anything you post, any time
+- **Pins:** "Delete pin" in the "…" menu on any of your pins (feed, profile, thread), not only on the pin's page.
+- **Replies:** "Delete" under your own replies in a pin thread.
+- **Outs:** a trash button on each Out in your Sent list, and in the viewer when it's your own. Nobody can open it again, it leaves every inbox and your Out (pins on it go too), and the file is removed.
+- **Messages:** long-press your own message in any chat to delete it for everyone.
+- **Events:** "Delete event" at the bottom of an event you host. Everyone going is told it was canceled. If anyone paid for a ticket, you refund them first so no payment record is lost.
+- **Already possible:** plans (Tonight), live videos (end), live comments, bills (cancel), group announcements (clear), vouches (unvouch).
+- Every delete asks "Are you sure?" first.
+- **Tested:** 20 new database tests (608 total), and all four deletes clicked through in a browser.
+
 ## ✅ Status rings and rotating profile photos
 - **Colored rings** around profile photos show what someone is up to right now:
   - **Red:** live on video (to people who can watch it).
@@ -814,6 +824,7 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 | 2026-09-29 | Drinks can be sent anonymously; people see "Someone" | Dominique |
 | 2026-09-29 | Out time and "Hide from" live in Out settings, one tap from the send screen; Out filters rotate 8 at a time every 3 days (24 total) | Dominique |
 | 2026-09-29 | Status rings: red = live, green = out, purple = in a virtual event; up to 3 profile photos rotating every 25 seconds | Dominique |
+| 2026-09-29 | You can delete anything you post at any time (pins, replies, Outs, messages, events you host); events with paid tickets need refunds first | Dominique |
 
 ## Spec vs. prototype conflicts (the spec wins)
 See `docs/PHASE-0-PLAN.md` section 1B.

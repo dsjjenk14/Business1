@@ -124,6 +124,17 @@ export async function unpinOut(outId: number) {
   if (error) throw error;
 }
 
+/**
+ * Delete an Out you sent, any time: nobody can open it again, it leaves
+ * every inbox and your Out, and its file is removed.
+ */
+export async function deleteOut(outId: number) {
+  const { data: path, error } = await supabase.rpc('delete_out', { p_out: outId });
+  if (error) throw error;
+  // Best effort; the regular clean-up removes it if this fails.
+  if (path) await supabase.storage.from('outs').remove([path as string]).catch(() => undefined);
+}
+
 /** The I'm In event you're at right now (its name goes on your Outs), or null. */
 export async function fetchOutEvent() {
   const { data, error } = await supabase.rpc('my_out_event');

@@ -2251,8 +2251,17 @@ isOneToOne: true
 "decline_intro_request":
 { Args: { "p_request": number }; Returns: undefined
                            },
+"delete_event":
+{ Args: { "p_event": number }; Returns: undefined
+                           },
 "delete_going_out":
 { Args: { "p_post": number }; Returns: undefined
+                           },
+"delete_message":
+{ Args: { "p_message": number }; Returns: undefined
+                           },
+"delete_out":
+{ Args: { "p_out": number }; Returns: string
                            },
 "drink_cashout_done":
 { Args: { "p_cashout": number,"p_ok": boolean,"p_transfer": string }; Returns: undefined

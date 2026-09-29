@@ -3,22 +3,26 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 
-import { AppText, Avatar, Card, EmptyState, LoadingList, Section } from '@/components/ui';
-import { fetchOutEvent, fetchOutsInbox, type OutEvent, type OutsInbox } from '@/features/outs/api';
+import { AppText, Avatar, Card, EmptyState, IconButton, LoadingList, Section, useToast } from '@/components/ui';
+import { deleteOut, fetchOutEvent, fetchOutsInbox, type OutEvent, type OutsInbox } from '@/features/outs/api';
 import { refreshNewOuts } from '@/features/outs/useNewOuts';
 import { useAuth } from '@/lib/auth';
+import { confirmThen } from '@/lib/confirm';
+import { friendlyError } from '@/lib/supabase';
 import { timeAgo } from '@/lib/time';
 import { useTheme, fontStyle } from '@/theme';
 
 /**
  * Outs: photos that disappear after 6, 12 or 24 hours (the sender picks). Send
  * one to your Insiders or post it to your Out (your Insiders, or your network).
- * Pinning an Out keeps it; the person who took it is told.
+ * Pinning an Out keeps it; the person who took it is told. You can delete an
+ * Out you sent at any time.
  */
 export default function Outs() {
   const t = useTheme();
   const router = useRouter();
   const { profile } = useAuth();
+  const toast = useToast();
   const [inbox, setInbox] = useState<OutsInbox | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   // The I'm In event you're at, if any: its name goes on your Outs.
@@ -164,6 +168,21 @@ export default function Outs() {
                       {s.screenshots ? ` · ${s.screenshots} screenshot${s.screenshots === 1 ? '' : 's'}` : ''} · {timeAgo(s.created_at)}
                     </AppText>
                   </View>
+                  <IconButton
+                    icon="trash-outline"
+                    label={`Delete your Out to ${s.to}`}
+                    onPress={() =>
+                      confirmThen('Delete this Out?', 'Nobody can open it again, and it’s removed everywhere.', async () => {
+                        try {
+                          await deleteOut(s.id);
+                          setInbox((i) => (i ? { ...i, sent: i.sent.filter((x) => x.id !== s.id) } : i));
+                          refreshNewOuts();
+                        } catch (e) {
+                          toast(friendlyError(e));
+                        }
+                      }, 'Delete')
+                    }
+                  />
                 </View>
               ))}
             </Section>

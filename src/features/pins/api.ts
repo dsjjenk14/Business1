@@ -133,6 +133,12 @@ export async function addReply(pinId: number, userId: string, body: string) {
   if (error) throw error;
 }
 
+/** Delete your own reply. */
+export async function deleteReply(replyId: number) {
+  const { error } = await supabase.from('pin_replies').update({ deleted_at: new Date().toISOString() }).eq('id', replyId);
+  if (error) throw error;
+}
+
 export async function editPin(pinId: number, body: string) {
   const { error } = await supabase.from('pins').update({ body: body.trim(), edited_at: new Date().toISOString() }).eq('id', pinId);
   if (error) throw error;

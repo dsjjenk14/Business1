@@ -58,6 +58,12 @@ export async function fetchMessages(conversationId: number, before?: string, aft
   return (data ?? []).reverse();
 }
 
+/** Delete a message you sent; it's removed for everyone in the chat. */
+export async function deleteMessage(messageId: number) {
+  const { error } = await supabase.rpc('delete_message', { p_message: messageId });
+  if (error) throw error;
+}
+
 export async function sendMessage(conversationId: number, senderId: string, body: string) {
   const { data, error } = await supabase
     .from('messages')
