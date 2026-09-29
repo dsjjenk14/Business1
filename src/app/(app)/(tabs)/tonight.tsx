@@ -205,13 +205,6 @@ export default function Tonight() {
               </AppText>
             )}
           </Section>
-          {!mine ? (
-            <Button
-              label={weekend ? 'Make weekend plans' : 'Make plans tonight'}
-              variant="secondary"
-              onPress={() => router.push({ pathname: '/tonight/post', params: { when: weekend ? 'weekend' : 'tonight' } })}
-            />
-          ) : null}
 
           <Section title={weekend ? 'Weekend events' : 'Events tonight'} action={{ label: 'Host an event', onPress: () => router.push('/events/new') }}>
             {feed.events.length ? (

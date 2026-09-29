@@ -7,6 +7,14 @@ import { look } from './look';
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'trust';
 
+/** A hex color at some opacity, e.g. for a tinted button background. */
+function tint(hex: string, alpha: number) {
+  const m = /^#([0-9a-f]{6})$/i.exec(hex);
+  if (!m) return hex;
+  const n = parseInt(m[1]!, 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+}
+
 export type ButtonProps = Omit<PressableProps, 'style' | 'children'> & {
   label: string;
   variant?: Variant;
@@ -23,7 +31,9 @@ export function Button({ label, variant = 'primary', size = 'lg', loading, disab
 
   const palette = {
     primary: { bg: t.colors.primary, fg: t.colors.onPrimary, border: t.colors.primary },
-    trust: { bg: t.colors.trust, fg: t.colors.onTrust, border: t.colors.trust },
+    // Softer than a second solid color: a tint with colored text, so each
+    // screen has one loud button (the primary) and not two fighting.
+    trust: { bg: tint(t.colors.trust, 0.16), fg: t.colors.trust, border: 'transparent' },
     danger: { bg: t.colors.danger, fg: t.colors.onDanger, border: t.colors.danger },
     secondary: ticket
       ? { bg: t.colors.surfaceAlt, fg: t.colors.text, border: t.colors.surfaceAlt }
@@ -39,7 +49,7 @@ export function Button({ label, variant = 'primary', size = 'lg', loading, disab
       disabled={isDisabled}
       style={({ pressed }) => [
         {
-          minHeight: size === 'lg' ? 52 : 44,
+          minHeight: size === 'lg' ? 48 : 40,
           paddingHorizontal: t.space[5],
           borderRadius: t.radius.md,
           backgroundColor: palette.bg,
@@ -60,7 +70,7 @@ export function Button({ label, variant = 'primary', size = 'lg', loading, disab
       ) : (
         <>
           {icon ? <View>{icon}</View> : null}
-          <AppText weight="bold" style={{ color: palette.fg, fontSize: size === 'lg' ? 16 : 15, letterSpacing: -0.2 }}>
+          <AppText weight="bold" style={{ color: palette.fg, fontSize: size === 'lg' ? 16 : 14, letterSpacing: -0.2 }}>
             {label}
           </AppText>
         </>

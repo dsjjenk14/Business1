@@ -30,7 +30,7 @@ export function Chip({
       onPress={onPress}
       hitSlop={{ top: 4, bottom: 4 }}
       style={({ pressed }) => ({
-        minHeight: 36,
+        minHeight: 34,
         paddingHorizontal: t.space[3],
         justifyContent: 'center',
         flexDirection: 'row',

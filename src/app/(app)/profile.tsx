@@ -6,7 +6,7 @@ import { BackHeader } from '@/components/nav/AppHeader';
 import { ProfileView } from '@/components/profile/ProfileView';
 import { AppText, Button, Card, LoadingDetail, Screen, Section } from '@/components/ui';
 import { fetchFeed, type FeedPin } from '@/features/pins/api';
-import { fetchProfileCard, type ProfileCard } from '@/features/profiles/api';
+import { fetchProfileCard, profileLink, type ProfileCard } from '@/features/profiles/api';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
@@ -53,7 +53,13 @@ export default function MyProfile() {
             actions={
               <View style={{ flexDirection: 'row', gap: t.space[2] }}>
                 <Button label="Edit profile" variant="secondary" size="md" style={{ flex: 1 }} onPress={() => router.push('/settings/profile')} />
-                <Button label="+ New Pin" size="md" style={{ flex: 1 }} onPress={() => router.push('/pins/new')} />
+                <Button
+                  label="Share profile"
+                  variant="secondary"
+                  size="md"
+                  style={{ flex: 1 }}
+                  onPress={() => Share.share({ message: `Find me on I'm In: ${profileLink(card.id)}` }).catch(() => undefined)}
+                />
               </View>
             }>
             {phoneVerified === false ? (

@@ -60,10 +60,11 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
               {route.name === 'outs' ? (
                 <View
                   style={{
-                    width: ticket ? 46 : 44,
-                    height: ticket ? 46 : 30,
-                    borderRadius: ticket ? 23 : 15,
-                    marginTop: ticket ? -8 : 0,
+                    width: 44,
+                    height: ticket ? 44 : 30,
+                    borderRadius: ticket ? 22 : 15,
+                    // The shutter rises above the bar; its label lines up with the others.
+                    marginTop: ticket ? -22 : 0,
                     alignItems: 'center',
                     justifyContent: 'center',
                     backgroundColor: ticket || focused ? t.colors.primary : t.colors.surfaceAlt,

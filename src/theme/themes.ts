@@ -307,9 +307,9 @@ const D: Theme = {
  * plain and readable for everything else.
  */
 const guestType: ThemeType = {
-  hero: { fontSize: 36, lineHeight: 40, letterSpacing: -0.9 },
-  h1: { fontSize: 28, lineHeight: 33, letterSpacing: -0.6 },
-  h2: { fontSize: 21, lineHeight: 26, letterSpacing: -0.4 },
+  hero: { fontSize: 34, lineHeight: 39, letterSpacing: -0.8 },
+  h1: { fontSize: 26, lineHeight: 31, letterSpacing: -0.5 },
+  h2: { fontSize: 19, lineHeight: 24, letterSpacing: -0.3 },
   h3: { fontSize: 17, lineHeight: 22, letterSpacing: -0.2 },
   body: { fontSize: 16, lineHeight: 22, letterSpacing: -0.1 },
   small: { fontSize: 14, lineHeight: 19 },
@@ -317,9 +317,11 @@ const guestType: ThemeType = {
   label: { fontSize: 13, lineHeight: 18, letterSpacing: -0.1 },
   number: { fontSize: 30, lineHeight: 34, letterSpacing: -0.6 },
 };
+// Headlines in Bold, not ExtraBold/Black: heavy type everywhere reads as loud
+// rather than polished. The black weight is kept for the one hero line.
 const guestFonts = {
-  display: 'Figtree_800ExtraBold',
-  displayBold: 'Figtree_900Black',
+  display: 'Figtree_700Bold',
+  displayBold: 'Figtree_800ExtraBold',
   body: 'Figtree_400Regular',
   bodyMedium: 'Figtree_600SemiBold',
   bodyBold: 'Figtree_700Bold',
