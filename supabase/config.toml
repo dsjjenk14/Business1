@@ -453,3 +453,6 @@ verify_jwt = false
 
 [functions.ai]
 verify_jwt = false
+
+[functions.event-room]
+verify_jwt = false

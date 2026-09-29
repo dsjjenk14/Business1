@@ -13,6 +13,15 @@ export type EventDetail = {
   host: PersonLite & { vouch_count: number };
   is_host: boolean;
   visibility: 'public' | 'circle';
+  /** In person, online, or both. */
+  format: 'in_person' | 'virtual' | 'hybrid';
+  room_kind: import('./room').RoomKind | null;
+  /** The room is open (15 minutes before the start until just after the end). */
+  room_open: boolean;
+  /** The host or an admin of the event's group. */
+  can_run_room: boolean;
+  /** Only for people going. */
+  join_url: string | null;
   /** Surprise party: who it's for (everyone else can see it). */
   surprise_for: { id: string; display_name: string } | null;
   venue: { id: number; name: string; address: string | null; neighborhood: string | null } | null;

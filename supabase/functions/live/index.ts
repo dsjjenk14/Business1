@@ -10,27 +10,8 @@
  * (docs/LIVE-VIDEO.md).
  */
 import { adminRest, corsHeaders, getCaller, json } from '../_shared/http.ts';
+import { livekitConfig, livekitToken } from '../_shared/livekit.ts';
 
-const b64url = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-const enc = new TextEncoder();
-
-/** A LiveKit access token (a JWT signed with HS256). */
-async function livekitToken(key: string, secret: string, identity: string, name: string, room: string, canPublish: boolean, ttlSec: number) {
-  const now = Math.floor(Date.now() / 1000);
-  const header = { alg: 'HS256', typ: 'JWT' };
-  const payload = {
-    iss: key,
-    sub: identity,
-    name,
-    nbf: now - 10,
-    exp: now + ttlSec,
-    video: { room, roomJoin: true, canPublish, canSubscribe: true, canPublishData: false },
-  };
-  const body = `${b64url(enc.encode(JSON.stringify(header)))}.${b64url(enc.encode(JSON.stringify(payload)))}`;
-  const k = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-  const sig = new Uint8Array(await crypto.subtle.sign('HMAC', k, enc.encode(body)));
-  return `${body}.${b64url(sig)}`;
-}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
@@ -38,10 +19,9 @@ Deno.serve(async (req) => {
   const caller = await getCaller(req);
   if (!caller) return json({ error: 'Sign in first.' }, 401);
 
-  const url = Deno.env.get('LIVEKIT_URL') ?? '';
-  const key = Deno.env.get('LIVEKIT_API_KEY') ?? '';
-  const secret = Deno.env.get('LIVEKIT_API_SECRET') ?? '';
-  if (!url.startsWith('wss://') || !key || !secret) return json({ error: 'Live video isn’t turned on yet.' }, 503);
+  const lk = livekitConfig();
+  if (!lk) return json({ error: 'Live video isn’t turned on yet.' }, 503);
+  const { url, key, secret } = lk;
 
   let streamId: number;
   try {
@@ -59,6 +39,6 @@ Deno.serve(async (req) => {
   if (data.error || !data.room || !data.role) return json({ error: data.error ?? 'Live video not found.' }, 404);
 
   const ttl = Math.max(15, Number(data.max_minutes ?? 120)) * 60;
-  const token = await livekitToken(key, secret, caller.id, data.name ?? 'Member', data.room, data.role === 'host', ttl);
+  const token = await livekitToken({ key, secret, identity: caller.id, name: data.name ?? 'Member', room: data.room, ttlSec: ttl, canPublish: data.role === 'host' });
   return json({ url, token, role: data.role });
 });

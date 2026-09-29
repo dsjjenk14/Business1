@@ -436,6 +436,25 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"event_links": {
+                  Row: {
+                    "event_id": number,"url": string
+                  }
+                  Insert: {
+                    "event_id": number,"url": string
+                  }
+                  Update: {
+                    "event_id"?: number,"url"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "event_links_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: true
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"event_rsvps": {
                   Row: {
                     "created_at": string,"event_id": number,"user_id": string
@@ -513,13 +532,13 @@ isOneToOne: false
                   ]
                 },"events": {
                   Row: {
-                    "approx_location": unknown,"capacity": number | null,"created_at": string,"description": string,"emoji": string | null,"ends_at": string | null,"group_id": number | null,"host_id": string,"id": number,"is_recurring": boolean,"place_text": string | null,"starts_at": string,"surprise_for": string | null,"ticket_price_cents": number | null,"title": string,"venue_id": number | null,"visibility": string
+                    "approx_location": unknown,"capacity": number | null,"created_at": string,"description": string,"emoji": string | null,"ends_at": string | null,"format": string,"group_id": number | null,"host_id": string,"id": number,"is_recurring": boolean,"place_text": string | null,"room_kind": string | null,"starts_at": string,"surprise_for": string | null,"ticket_price_cents": number | null,"title": string,"venue_id": number | null,"visibility": string
                   }
                   Insert: {
-                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"group_id"?: number | null,"host_id": string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"starts_at": string,"surprise_for"?: string | null,"ticket_price_cents"?: number | null,"title": string,"venue_id"?: number | null,"visibility"?: string
+                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"format"?: string,"group_id"?: number | null,"host_id": string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"room_kind"?: string | null,"starts_at": string,"surprise_for"?: string | null,"ticket_price_cents"?: number | null,"title": string,"venue_id"?: number | null,"visibility"?: string
                   }
                   Update: {
-                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"group_id"?: number | null,"host_id"?: string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"starts_at"?: string,"surprise_for"?: string | null,"ticket_price_cents"?: number | null,"title"?: string,"venue_id"?: number | null,"visibility"?: string
+                    "approx_location"?: unknown,"capacity"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"format"?: string,"group_id"?: number | null,"host_id"?: string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"room_kind"?: string | null,"starts_at"?: string,"surprise_for"?: string | null,"ticket_price_cents"?: number | null,"title"?: string,"venue_id"?: number | null,"visibility"?: string
                   }
                   Relationships: [
                     {
@@ -2100,6 +2119,9 @@ isOneToOne: false
 "event_rating":
 { Args: { "p_event": number }; Returns: Json
                            },
+"event_room_join_check":
+{ Args: { "p_event": number,"p_user": string }; Returns: Json
+                           },
 "event_ticket_holders":
 { Args: { "p_event": number }; Returns: {
               "amount_cents": number,"bought_at": string,"display_name": string,"status": string,"ticket_id": number,"user_id": string
@@ -2431,6 +2453,9 @@ isOneToOne: false
                            },
 "set_event_mode":
 { Args: { "p_event": number,"p_surprise_for"?: string,"p_visibility": string }; Returns: undefined
+                           },
+"set_event_virtual":
+{ Args: { "p_event": number,"p_format": string,"p_join_url"?: string,"p_room_kind"?: string }; Returns: undefined
                            },
 "set_group_role":
 { Args: { "p_group": number,"p_role": Database["public"]['Enums']["group_role"],"p_user": string }; Returns: undefined

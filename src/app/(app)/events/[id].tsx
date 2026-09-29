@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, Platform, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
+import { VirtualRoomCard } from '@/components/events/VirtualRoomCard';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { useAppConfig } from '@/config/useAppConfig';
 import {
@@ -29,6 +30,7 @@ import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { preciseLocation } from '@/features/circles/api';
 import { shareEvent } from '@/features/home/api';
 import { checkInOpen, eventCheckIn, eventPhase, fetchEvent, joinWaitlist, leaveWaitlist, setEventMode, type EventDetail } from '@/features/events/api';
+import { roomKindLabel } from '@/features/events/room';
 import { fetchTicketHolders, money, openPayment, parsePrice, refundTicket, setTicketPrice, ticketSplit, type TicketHolder } from '@/features/payments/api';
 import { fetchEventRating, rateVenue, type EventRating } from '@/features/ratings/api';
 import { cancelRsvp, rsvp } from '@/features/tonight/api';
@@ -94,7 +96,7 @@ export default function EventScreen() {
 
   const phase = eventPhase(event);
   const spotsLeft = event.capacity != null ? Math.max(0, event.capacity - event.going_count) : null;
-  const canCheckIn = event.i_am_going && checkInOpen(event);
+  const canCheckIn = event.i_am_going && event.format !== 'virtual' && checkInOpen(event);
 
   async function toggleRsvp() {
     if (!me || !event) return;
@@ -205,8 +207,13 @@ export default function EventScreen() {
               {event.venue.name}
               {event.venue.neighborhood ? ` · ${event.venue.neighborhood}` : ''}
             </AppText>
-          ) : event.place ? (
+          ) : event.place && event.format !== 'virtual' ? (
             <AppText tone="muted">{event.place}</AppText>
+          ) : null}
+          {event.format !== 'in_person' ? (
+            <AppText tone="primary" weight="bold">
+              {event.format === 'hybrid' ? 'Also online' : 'Online'} · {roomKindLabel(event.room_kind)}
+            </AppText>
           ) : null}
           {event.group ? (
             <AppText
@@ -236,6 +243,8 @@ export default function EventScreen() {
         {event.is_host ? <EventModeControls event={event} onChanged={load} /> : null}
 
         {event.description ? <AppText>{event.description}</AppText> : null}
+
+        <VirtualRoomCard event={event} ended={phase === 'ended'} />
 
         <View style={{ flexDirection: 'row', gap: t.space[2], flexWrap: 'wrap' }}>
           {event.i_am_here ? (

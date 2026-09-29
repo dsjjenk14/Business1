@@ -5,6 +5,24 @@
 
 ---
 
+## ✅ Virtual events: video calls, voice chats, livestreams, links
+- **Who:** if you run a group (owner or admin), Host an Event → Where? lets you pick **Online** or **Both**. Online events belong to a group.
+- **How people join:**
+  - **Video call**: everyone on camera, like group FaceTime.
+  - **Voice chat**: everyone can talk, no cameras. Whoever is talking lights up.
+  - **Livestream**: you and your group's admins on camera; everyone else watches.
+  - **Your own link**: Zoom, Google Meet, IG Live and so on. Only people going see it.
+- **In every room:** chat, reactions (heart, fire, raise hand), mute and camera buttons, and Leave. Nothing is recorded and chat isn't saved.
+- **Who gets in:** the host, the group's admins, and people who said I'm In. The room opens 15 minutes before the start.
+- **Phones:** Join opens the room in Safari, because Expo Go can't do live audio and video. No sign-in is needed there.
+- **Tested for real:** with a test LiveKit server and two people.
+  - Video call: both cameras, chat and a raised hand worked.
+  - Voice chat: worked.
+  - Livestream: the guest could watch but not go on camera.
+  - The phone link worked without signing in.
+  - 15 new database tests (529 total).
+- **To turn it on:** add the LiveKit secrets (see `docs/LIVE-VIDEO.md`). "Your own link" works now.
+
 ## ✅ Camera modes, filters and effects everywhere
 - **One camera for posts:** New Pin → **Camera** has PHOTO, VIDEO, BOOMERANG, SLO-MO, REWIND and LOOP. The last four shoot a quick burst. Boomerang plays it forward and back, Slo-mo does the same at half speed, Rewind plays it backward, and Loop plays it forward. You can switch styles after shooting. The separate Boomerang button is gone. **Upload** still picks photos or a video.
 - **Effects:** Vignette, Golden hour, Light leak, Dreamy and Film, next to the 8 color filters.
@@ -688,6 +706,7 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 | 2026-09-28 | Radius slider back: 1 to 75 miles for everyone | Dominique |
 | 2026-09-28 | Adding people: QR in person (counts as a meetup) and a shared code for people who know each other outside the app (doesn't unlock vouching) | Dominique; keeps vouches tied to real meetups |
 | 2026-09-28 | I'm In is a social app, not only going out: Home leads with posting, pins and group chats | Dominique |
+| 2026-09-29 | Online events are for groups (owners/admins); rooms only for people going, open 15 min before; phones join through Safari until the App Store build | Dominique asked for virtual events for groups |
 | 2026-09-29 | No AI Read on profiles | Dominique |
 | 2026-09-28 | AI suggestions never skip the intro: a mutual friend still has to introduce you | Dominique |
 | 2026-09-28 | "I'm In" means you're down: it's the answer to an invite (events, friends' plans, intros, dates). Posting your own plan is "Make plans" | Dominique |
