@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native';
 
 import { AppText, Avatar } from '@/components/ui';
 import type { PersonLite } from '@/features/circles/api';
+import { STATUS_COLORS, STATUS_LABELS } from '@/features/people/status';
 import { useTheme } from '@/theme';
 
 /**
@@ -46,7 +47,7 @@ export function RingDiagram({ me, first, second }: { me: PersonLite; first: Pers
             return (
               <Pressable key={p.id} accessibilityLabel={`${p.display_name}, 2nd degree`} onPress={() => open(p.id)}
                 style={{ position: 'absolute', left: x - 16, top: y - 16, opacity: 0.7 }}>
-                <Avatar name={p.display_name} uri={p.avatar_url} size={32} />
+                <Avatar name={p.display_name} uri={p.avatar_url} size={32} userId={p.id} />
               </Pressable>
             );
           })}
@@ -55,7 +56,7 @@ export function RingDiagram({ me, first, second }: { me: PersonLite; first: Pers
             return (
               <Pressable key={p.id} accessibilityLabel={`${p.display_name}, one of your Insiders`} onPress={() => open(p.id)}
                 style={{ position: 'absolute', left: x - 22, top: y - 30, alignItems: 'center', width: 44 }}>
-                <Avatar name={p.display_name} uri={p.avatar_url} size={44} ring="trust" />
+                <Avatar name={p.display_name} uri={p.avatar_url} size={44} ring="trust" userId={p.id} />
                 <AppText variant="caption" numberOfLines={1} style={{ fontSize: 10, lineHeight: 12 }}>
                   {p.display_name.split(' ')[0]}
                 </AppText>
@@ -63,13 +64,24 @@ export function RingDiagram({ me, first, second }: { me: PersonLite; first: Pers
             );
           })}
           <View style={{ position: 'absolute', left: c - 30, top: c - 38, alignItems: 'center', width: 60 }}>
-            <Avatar name={me.display_name} uri={me.avatar_url} size={60} ring="primary" />
+            <Avatar name={me.display_name} uri={me.avatar_url} size={60} ring="primary" userId={me.id} />
             <AppText variant="caption" weight="bold" style={{ fontSize: 10, lineHeight: 12 }}>
               YOU
             </AppText>
           </View>
         </View>
       ) : null}
+      {/* What the colored rings mean. */}
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: t.space[4], paddingTop: t.space[2] }}>
+        {(['live', 'out', 'virtual'] as const).map((k) => (
+          <View key={k} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <View style={{ width: 12, height: 12, borderRadius: 6, borderWidth: 3, borderColor: STATUS_COLORS[k] }} />
+            <AppText variant="caption" tone="muted">
+              {STATUS_LABELS[k]}
+            </AppText>
+          </View>
+        ))}
+      </View>
     </View>
   );
 }

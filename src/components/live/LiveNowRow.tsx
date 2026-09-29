@@ -47,7 +47,7 @@ export function LiveNowRow() {
           onPress={() => router.push({ pathname: '/live/[id]', params: { id: String(l.stream_id) } })}
           style={{ alignItems: 'center', gap: 4, width: 72 }}>
           <View style={{ padding: 2, borderRadius: 34, borderWidth: 2, borderColor: t.colors.primary }}>
-            <Avatar name={l.host_name} uri={l.avatar_url} size={56} />
+            <Avatar name={l.host_name} uri={l.avatar_url} size={56} userId={l.host_id} />
           </View>
           <AppText variant="caption" numberOfLines={1}>
             {l.host_name.split(' ')[0]}

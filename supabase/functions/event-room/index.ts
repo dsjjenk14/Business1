@@ -9,24 +9,43 @@
  *
  * POST { event_id } → { url, token, kind, role, title, event_id, host_id, host_name }
  *
+ * The room also checks in about once a minute while you're connected, so your
+ * Insiders see you're in a virtual event (a purple ring on your photo):
+ * POST { ping: <room pass> } or { leave: <room pass> }. No sign-in needed:
+ * the pass itself proves who and which room.
+ *
  * Off until LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET are set
  * (docs/LIVE-VIDEO.md).
  */
 import { adminRest, corsHeaders, getCaller, json } from '../_shared/http.ts';
-import { livekitConfig, livekitToken } from '../_shared/livekit.ts';
+import { livekitConfig, livekitToken, verifyLivekitToken } from '../_shared/livekit.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (req.method !== 'POST') return json({ error: 'POST only' }, 405);
-  const caller = await getCaller(req);
-  if (!caller) return json({ error: 'Sign in first.' }, 401);
-
-  let eventId: number;
+  let body: { event_id?: unknown; ping?: unknown; leave?: unknown };
   try {
-    eventId = Number((await req.json())?.event_id);
+    body = (await req.json()) ?? {};
   } catch {
     return json({ error: 'Bad request' }, 400);
   }
+
+  // Room check-in: who's in the room right now.
+  const pass = typeof body.ping === 'string' ? body.ping : typeof body.leave === 'string' ? body.leave : null;
+  if (pass) {
+    const lk = livekitConfig();
+    const who = lk ? await verifyLivekitToken(pass, lk.secret) : null;
+    if (!who || !who.room.startsWith('event-')) return json({ error: 'Bad pass' }, 403);
+    const { ok } = await adminRest('rpc/event_room_ping', {
+      method: 'POST',
+      body: { p_room: who.room, p_user: who.identity, p_leave: typeof body.leave === 'string' },
+    });
+    return json({ ok }, ok ? 200 : 502);
+  }
+
+  const caller = await getCaller(req);
+  if (!caller) return json({ error: 'Sign in first.' }, 401);
+  const eventId = Number(body.event_id);
   if (!Number.isInteger(eventId)) return json({ error: 'Bad request' }, 400);
 
   const { data, ok } = await adminRest<{

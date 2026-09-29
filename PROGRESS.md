@@ -5,6 +5,16 @@
 
 ---
 
+## ✅ Status rings and rotating profile photos
+- **Colored rings** around profile photos show what someone is up to right now:
+  - **Red:** live on video (to people who can watch it).
+  - **Green:** out (checked in "here now"), to the people that plan's "here" audience allows.
+  - **Purple:** in a virtual event's room (Insiders only). The room checks in once a minute; the ring goes away within 2 minutes of leaving.
+  - Profiles show a matching label ("Live now", "Out now", "In a virtual event"), and the Insiders circle has a color key.
+- **Up to 3 profile photos** that change on their own every 25 seconds, everywhere your photo shows. Tap your own photo on your profile (it has a camera badge) to add, replace, remove, or set the main one. Edit profile links there too.
+- **Checked:** signing in once and reopening keeps you signed in (it's saved on the phone). No errors across the main screens.
+- **Tested:** 21 new database tests (592 total). In a browser: added 3 photos, the photo changed after 25 seconds, and the rings showed red, green and purple for Maya, DeShawn and Jordan. A forged room pass was refused.
+
 ## ✅ Out settings and rotating Out filters
 - **Send screen back to how it was**, with one small "Lasts 6 hours" row. Tap it to open **Out settings**:
   - **How long it lasts:** three cards (6, 12, 24 hours), each with a clock that fills up.
@@ -802,6 +812,7 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 | 2026-09-29 | Outs last 6, 12 or 24 hours; the sender picks (6 by default) | Dominique |
 | 2026-09-29 | Drinks can be sent anonymously; people see "Someone" | Dominique |
 | 2026-09-29 | Out time and "Hide from" live in Out settings, one tap from the send screen; Out filters rotate 8 at a time every 3 days (24 total) | Dominique |
+| 2026-09-29 | Status rings: red = live, green = out, purple = in a virtual event; up to 3 profile photos rotating every 25 seconds | Dominique |
 
 ## Spec vs. prototype conflicts (the spec wins)
 See `docs/PHASE-0-PLAN.md` section 1B.

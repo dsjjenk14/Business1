@@ -181,7 +181,7 @@ export default function Chat() {
                   <View style={{ flexDirection: 'row', justifyContent: mine ? 'flex-end' : 'flex-start', alignItems: 'flex-end', gap: t.space[2] }}>
                     {!mine ? (
                       showName ? (
-                        <Avatar name={sender?.display_name ?? 'Member'} uri={sender?.avatar_url ?? null} size={28} />
+                        <Avatar name={sender?.display_name ?? 'Member'} uri={sender?.avatar_url ?? null} size={28} userId={item.sender_id} />
                       ) : (
                         <View style={{ width: 28 }} />
                       )

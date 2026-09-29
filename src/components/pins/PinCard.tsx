@@ -163,7 +163,7 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
             accessibilityLabel={`${pin.author_name}'s profile`}
             onPress={openAuthor}
             style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[2] }}>
-            <Avatar name={pin.author_name} uri={pin.author_avatar} size={40} />
+            <Avatar name={pin.author_name} uri={pin.author_avatar} size={40} userId={pin.author_id} />
             <View style={{ flex: 1 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                 <AppText weight="bold" numberOfLines={1} style={{ flexShrink: 1 }}>

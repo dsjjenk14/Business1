@@ -32,7 +32,7 @@ export function PeoplePicker({
             accessibilityLabel={p.display_name}
             onPress={() => onToggle(p.id)}
             style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: t.space[3], minHeight: 56, opacity: pressed ? 0.7 : 1 })}>
-            <Avatar name={p.display_name} uri={p.avatar_url} size={40} />
+            <Avatar name={p.display_name} uri={p.avatar_url} size={40} userId={p.id} />
             <View style={{ flex: 1 }}>
               <AppText weight="bold">{p.display_name}</AppText>
               <AppText variant="caption" tone="subtle">
