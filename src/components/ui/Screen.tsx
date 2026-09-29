@@ -3,8 +3,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/theme';
 
+import { FadeIn } from './FadeIn';
+
 /**
- * Standard scrolling screen body. Tab screens get their top inset from the
+ * Standard scrolling screen body; it eases in as the screen opens. Tab screens get their top inset from the
  * AppHeader; detail screens from BackHeader. Pass `safeTop` for screens with neither.
  */
 export function Screen({
@@ -30,7 +32,7 @@ export function Screen({
           alignSelf: 'center',
         }}
         {...rest}>
-        {children}
+        <FadeIn style={{ gap: contentGap }}>{children}</FadeIn>
       </ScrollView>
     </View>
   );

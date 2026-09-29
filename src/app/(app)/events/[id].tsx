@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Platform, View } from 'react-native';
@@ -314,8 +315,7 @@ export default function EventScreen() {
             <View style={{ gap: t.space[2] }}>
               <GlyphTitle glyph="arrive" tone="trust">You&apos;re there</GlyphTitle>
               <AppText variant="small" tone="muted">
-                The app marked you at the event. Outs you take now show they&apos;re from here. Anyone you meet here shows up in Check In;
-                vouching is up to you.
+                Outs you take now show they&apos;re from here.
               </AppText>
               <Button label="Take an Out" size="md" onPress={() => router.push('/outs/new')} />
               <Button label="Vouch for someone you met" variant="ghost" size="md" onPress={() => router.push('/circles/vouch')} />
@@ -327,8 +327,8 @@ export default function EventScreen() {
               <GlyphTitle glyph="arrive" tone="trust">On your way?</GlyphTitle>
               <AppText variant="small" tone="muted">
                 {event.venue
-                  ? 'When you get there, the app notices from your GPS and marks you there. Keep the app open on arrival.'
-                  : 'This event has no mapped place, so tap below when you get there.'}
+                  ? 'We’ll mark you there when you arrive.'
+                  : 'Tap below when you get there.'}
               </AppText>
               <Button label="I'm here" variant="secondary" size="md" onPress={checkIn} loading={busy} />
             </View>
@@ -340,7 +340,7 @@ export default function EventScreen() {
             <View style={{ gap: t.space[2] }}>
               <GlyphTitle glyph="party">How was it?</GlyphTitle>
               <AppText variant="small" tone="muted">
-                Drop a recap pin with photos and tag who was there. Then vouch for people you met.
+                Post photos from it, then vouch for people you met.
               </AppText>
               <View style={{ flexDirection: 'row', gap: t.space[2] }}>
                 {event.has_recap ? (
@@ -360,18 +360,17 @@ export default function EventScreen() {
         ) : null}
 
         {phase !== 'upcoming' && (event.i_am_going || event.is_host) ? (
-          <Card>
-            <View style={{ gap: t.space[2] }}>
-              <GlyphTitle glyph="receipt">Split the bill</GlyphTitle>
-              <AppText variant="small" tone="muted">
-                Paid for the group? Snap the receipt, tag who was there, and send each person their share.
-              </AppText>
-              <Button
-                label="Split the bill"
-                size="md"
-                variant="secondary"
-                onPress={() => router.push({ pathname: '/bills/new', params: { event: String(event.id), title: event.title } })}
-              />
+          <Card
+            accessibilityLabel="Split the bill: snap the receipt and send each person their share"
+            onPress={() => router.push({ pathname: '/bills/new', params: { event: String(event.id), title: event.title } })}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+              <View style={{ flex: 1, gap: 2 }}>
+                <GlyphTitle glyph="receipt">Split the bill</GlyphTitle>
+                <AppText variant="small" tone="muted">
+                  Snap the receipt, send each person their share.
+                </AppText>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={t.colors.textSubtle} />
             </View>
           </Card>
         ) : null}

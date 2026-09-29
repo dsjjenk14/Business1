@@ -3,6 +3,7 @@ import { Pressable, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useTheme, fontStyle } from '@/theme';
 
 import { AppText } from './AppText';
+import { FadeIn } from './FadeIn';
 import { look } from './look';
 
 export type SectionProps = {
@@ -15,7 +16,7 @@ export type SectionProps = {
 };
 
 /**
- * A titled block of content. Its shape follows the theme:
+ * A titled block of content that eases in when it appears. Its shape follows the theme:
  *  - plain (Original, A, B): small label above open content
  *  - glass (C): frosted card with a soft label
  *  - ledger (D): hairline card with a header row
@@ -57,15 +58,15 @@ export function Section({ title, action, children, style, bare }: SectionProps) 
 
   if (t.style.section === 'plain' || poster || bare) {
     return (
-      <View style={style}>
+      <FadeIn style={style}>
         {header}
         <View style={{ gap: t.space[3] }}>{children}</View>
-      </View>
+      </FadeIn>
     );
   }
 
   return (
-    <View style={style}>
+    <FadeIn style={style}>
       {header}
       <View
         style={{
@@ -79,6 +80,6 @@ export function Section({ title, action, children, style, bare }: SectionProps) 
         }}>
         {children}
       </View>
-    </View>
+    </FadeIn>
   );
 }

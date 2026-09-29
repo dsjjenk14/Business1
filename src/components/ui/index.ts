@@ -3,6 +3,7 @@ export { Avatar } from './Avatar';
 export { Badge } from './Badge';
 export { Button } from './Button';
 export { Card } from './Card';
+export { FadeIn } from './FadeIn';
 export { IconButton, type IconName } from './IconButton';
 export { AIMark, SponsoredLabel } from './Markers';
 export { Screen } from './Screen';

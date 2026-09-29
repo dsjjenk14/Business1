@@ -32,7 +32,6 @@ export function AppHeader() {
       <View style={{ flex: 1, paddingLeft: t.space[1] }}>
         <Logo />
       </View>
-      <IconButton icon="add-circle-outline" label="Post" onPress={() => router.push('/pins/new')} />
       <IconButton icon="chatbubble-ellipses-outline" label="Messages" badgeCount={unread.messages} onPress={() => router.push('/messages')} />
       <IconButton icon="notifications-outline" label="Notifications" badgeCount={unread.notifications} onPress={() => router.push('/notifications')} />
       <Pressable

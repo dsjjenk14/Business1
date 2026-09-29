@@ -70,7 +70,7 @@ export function PeopleLikeYou({ limit = 8, compact = false }: { limit?: number; 
         <View style={{ flex: 1, gap: 2 }}>
           {picks?.picks.length ? <AIMark label="AI picks" /> : null}
           <AppText variant="caption" tone="subtle">
-            Into the same things, in the same groups, out on the same nights. An Insider you share still has to introduce you.
+            Into the same things as you. A shared Insider introduces you.
           </AppText>
         </View>
         {!compact && picks?.picks.length ? (

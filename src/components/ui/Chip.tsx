@@ -1,5 +1,6 @@
 import { Pressable } from 'react-native';
 
+import { haptic } from '@/lib/haptics';
 import { useTheme, fontStyle } from '@/theme';
 
 import { AppText } from './AppText';
@@ -27,10 +28,13 @@ export function Chip({
       accessibilityRole="button"
       accessibilityState={{ selected: !!selected }}
       accessibilityLabel={accessibilityLabel ?? label}
-      onPress={onPress}
+      onPress={() => {
+        haptic.select();
+        onPress();
+      }}
       hitSlop={{ top: 4, bottom: 4 }}
       style={({ pressed }) => ({
-        minHeight: 36,
+        minHeight: 34,
         paddingHorizontal: t.space[3],
         justifyContent: 'center',
         flexDirection: 'row',

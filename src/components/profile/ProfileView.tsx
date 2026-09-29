@@ -129,19 +129,18 @@ export function ProfileView({
         ) : null}
       </View>
 
-      <View style={{ flexDirection: 'row', gap: t.space[3] }}>
+      {/* Counts as a quiet row, like other social apps, not boxed-in tiles. */}
+      <View style={{ flexDirection: 'row', justifyContent: 'center', gap: t.space[8] }}>
         {[
-          { n: card.vouch_count, label: 'Vouches', tone: 'trust' as const },
-          { n: card.circle_count, label: 'Insiders', tone: 'primary' as const },
+          { n: card.vouch_count, label: 'Vouches' },
+          { n: card.circle_count, label: 'Insiders' },
         ].map((s) => (
-          <Card key={s.label} style={{ flex: 1, alignItems: 'center', paddingVertical: t.space[3] }}>
-            <AppText variant="number" tone={s.tone}>
-              {s.n == null ? '·' : s.n}
-            </AppText>
-            <AppText variant="label" tone="subtle">
+          <View key={s.label} style={{ alignItems: 'center' }} accessible accessibilityLabel={`${s.n ?? 0} ${s.label}`}>
+            <AppText variant="h2">{s.n == null ? '·' : s.n}</AppText>
+            <AppText variant="small" tone="muted">
               {s.label}
             </AppText>
-          </Card>
+          </View>
         ))}
       </View>
 
@@ -161,7 +160,8 @@ export function ProfileView({
 
       {actions}
 
-      <Button label="Share profile" size="md" variant="secondary" onPress={shareProfile} />
+      {/* Your own profile has Share next to Edit profile. */}
+      {!card.is_me ? <Button label="Share profile" size="md" variant="secondary" onPress={shareProfile} /> : null}
 
       {card.interests?.length ? (
         <Section title="Into">

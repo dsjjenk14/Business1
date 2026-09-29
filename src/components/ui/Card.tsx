@@ -19,11 +19,12 @@ export function Card({ children, onPress, accessibilityLabel, accent, style }: C
 
   const base: ViewStyle = look(t).flat
     ? {
-        // Flat: a filled surface, no outline. An accent shows as a bar down the left edge.
+        // Flat: a filled surface, no outline, no colored side bars (they read as
+        // a template). An accent only shows as a faint hairline.
         backgroundColor: t.colors.surface,
         borderRadius: t.radius.lg,
-        borderLeftWidth: accentColor ? 3 : 0,
-        borderColor: accentColor ?? 'transparent',
+        borderWidth: accentColor ? t.borderWidth.hairline : 0,
+        borderColor: accentColor ? `${accentColor}40` : 'transparent',
         padding: t.space[4],
       }
     : {

@@ -1,5 +1,6 @@
 import { createAudioPlayer, type AudioPlayer } from 'expo-audio';
 
+import { haptic } from '@/lib/haptics';
 import { supabase } from '@/lib/supabase';
 
 /**
@@ -28,6 +29,8 @@ export function setSoundsEnabled(on: boolean) {
 export const soundsEnabled = () => enabled;
 
 export function playSound(name: SoundName) {
+  // You feel a send go through even with sounds off.
+  if (name === 'sent') haptic.success();
   if (!enabled) return;
   // Several things can arrive at once (a push and the live update): chime once.
   if (name === 'in') {

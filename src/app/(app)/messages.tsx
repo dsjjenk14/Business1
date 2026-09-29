@@ -67,7 +67,7 @@ export default function Messages() {
             </AppText>
           ) : null}
         </View>
-        <AppText variant="small" tone={r.unread ? 'text' : 'muted'} weight={r.unread ? 'bold' : undefined} numberOfLines={1}>
+        <AppText variant="small" tone={r.unread ? 'text' : 'muted'} weight={r.unread ? 'medium' : undefined} numberOfLines={1}>
           {r.last_body ? `${r.last_sender_id === me ? 'You: ' : ''}${r.last_body}` : 'No messages yet'}
         </AppText>
       </View>
