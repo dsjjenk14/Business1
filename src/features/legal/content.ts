@@ -85,7 +85,7 @@ export const PRIVACY: LegalDoc = {
     },
     {
       heading: 'AI features',
-      body: 'Some features use AI (always marked ✦): People like you, icebreakers, Tonight for You, intro odds and the AI Read on profiles. They use the interests you pick and patterns like when you go out, RSVPs, groups, venues and vouch words, and only what you could already see in the app. Circle-only posts never feed matches or the AI Read, and AI never reads your messages. The AI runs on our servers through Anthropic; you don’t need an AI account, and your information isn’t used to train their models.',
+      body: 'Some features use AI (always marked ✦): People like you, icebreakers, Tonight for You and intro odds. They use the interests you pick and patterns like when you go out, RSVPs, groups, venues and vouch words, and only what you could already see in the app. Circle-only posts never feed matches, and AI never reads your messages. The AI runs on our servers through Anthropic; you don’t need an AI account, and your information isn’t used to train their models.',
     },
     {
       heading: 'Who we share with',

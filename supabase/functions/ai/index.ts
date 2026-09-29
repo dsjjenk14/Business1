@@ -3,8 +3,8 @@
  * ./features with its method explained at the top (and in README.md).
  *
  * POST { feature, subject?, refresh? }
- *   feature: people_like_you | icebreakers | tonight | intro_odds | profile_read
- *   subject: the person's id (icebreakers, profile_read) or "a:b" (intro_odds)
+ *   feature: people_like_you | icebreakers | tonight | intro_odds
+ *   subject: the person's id (icebreakers) or "a:b" (intro_odds)
  *   refresh: true to make a new one instead of returning the saved one
  * → { result, cached, quota: { limit, used, left } }
  *
@@ -17,7 +17,6 @@ import { adminRest, corsHeaders, getCaller, json } from '../_shared/http.ts';
 import { icebreakers } from './features/icebreakers.ts';
 import { introOdds } from './features/intro_odds.ts';
 import { peopleLikeYou } from './features/people_like_you.ts';
-import { profileRead } from './features/profile_read.ts';
 import { tonight } from './features/tonight.ts';
 import type { Ctx, Feature } from './features/types.ts';
 
@@ -26,7 +25,6 @@ const FEATURES: Record<string, Feature> = {
   icebreakers,
   tonight,
   intro_odds: introOdds,
-  profile_read: profileRead,
 };
 
 type Quota = { limit: number | null; used: number; left: number | null };

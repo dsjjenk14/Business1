@@ -5,10 +5,9 @@ import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
 import { PeoplePicker } from '@/components/chat/PeoplePicker';
-import { MediaPicker, type MediaDraft } from '@/components/media/MediaPicker';
 import { MusicPicker } from '@/components/music/MusicPicker';
 import { PhotoFilters, type Filtered } from '@/components/pins/PhotoFilters';
-import { PhotoPicker } from '@/components/pins/PhotoPicker';
+import { PinMediaPicker, type MediaDraft } from '@/components/pins/PinMediaPicker';
 import { AppText, Button, Chip, type GlyphName, Screen, TextField, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { fetchChatCandidates, type ChatCandidate } from '@/features/chat/api';
@@ -27,7 +26,7 @@ const TYPES: { key: PinCategory; label: string; glyph: GlyphName; placeholder: s
   { key: 'event', label: 'Event', glyph: 'calendar', placeholder: "What's happening, when, and where?" },
 ];
 
-/** New Pin: text, type, up to 6 photos, and who can see it. */
+/** New Pin: text, type, photos or a video (camera or upload), and who can see it. */
 export default function NewPin() {
   const t = useTheme();
   const router = useRouter();
@@ -54,6 +53,10 @@ export default function NewPin() {
   const onMedia = useCallback((m: MediaDraft) => {
     setMedia(m);
     if (m) setCategory('photos');
+  }, []);
+  const onPhotos = useCallback((next: string[]) => {
+    setPhotos(next);
+    if (next.length) setCategory('photos');
   }, []);
 
   async function submit() {
@@ -120,11 +123,14 @@ export default function NewPin() {
           hint={`${body.length}/2000`}
         />
 
-        {!media ? (
-          <PhotoPicker photos={photos} onChange={setPhotos} display={Object.fromEntries(Object.entries(filtered).map(([k, v]) => [k, v.uri]))} />
-        ) : null}
+        <PinMediaPicker
+          photos={photos}
+          onPhotos={onPhotos}
+          media={media}
+          onMedia={onMedia}
+          display={Object.fromEntries(Object.entries(filtered).map(([k, v]) => [k, v.uri]))}
+        />
         {photos.length ? <PhotoFilters photos={photos} value={filtered} onChange={setFiltered} /> : null}
-        {!photos.length ? <MediaPicker value={media} onChange={onMedia} /> : null}
         {photos.length || media?.kind === 'boomerang' ? <MusicPicker value={music} onChange={setMusic} /> : null}
 
         <View style={{ gap: t.space[2] }}>
