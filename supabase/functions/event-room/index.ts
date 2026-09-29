@@ -7,7 +7,7 @@
  *   stream : hosts go on camera; everyone else watches and chats
  * Everyone can send chat messages and reactions inside the room.
  *
- * POST { event_id } → { url, token, kind, role, title }
+ * POST { event_id } → { url, token, kind, role, title, event_id, host_id, host_name }
  *
  * Off until LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET are set
  * (docs/LIVE-VIDEO.md).
@@ -29,7 +29,18 @@ Deno.serve(async (req) => {
   }
   if (!Number.isInteger(eventId)) return json({ error: 'Bad request' }, 400);
 
-  const { data, ok } = await adminRest<{ room?: string; kind?: 'voice' | 'video' | 'stream'; role?: 'host' | 'guest'; name?: string; title?: string; minutes?: number; error?: string }>(
+  const { data, ok } = await adminRest<{
+    room?: string;
+    kind?: 'voice' | 'video' | 'stream';
+    role?: 'host' | 'guest';
+    name?: string;
+    title?: string;
+    minutes?: number;
+    event_id?: number;
+    host_id?: string;
+    host_name?: string;
+    error?: string;
+  }>(
     'rpc/event_room_join_check',
     { method: 'POST', body: { p_event: eventId, p_user: caller.id } },
   );
@@ -51,5 +62,5 @@ Deno.serve(async (req) => {
     canPublishSources: data.kind === 'voice' ? ['microphone'] : undefined,
     canPublishData: true,
   });
-  return json({ url: lk.url, token, kind: data.kind, role: data.role, title: data.title ?? 'Event' });
+  return json({ url: lk.url, token, kind: data.kind, role: data.role, title: data.title ?? 'Event', event_id: data.event_id, host_id: data.host_id, host_name: data.host_name });
 });

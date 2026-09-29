@@ -380,6 +380,100 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"drink_cashouts": {
+                  Row: {
+                    "cents": number,"created_at": string,"id": number,"status": string,"stripe_transfer": string | null,"user_id": string
+                  }
+                  Insert: {
+                    "cents": number,"created_at"?: string,"id"?: never,"status"?: string,"stripe_transfer"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "cents"?: number,"created_at"?: string,"id"?: never,"status"?: string,"stripe_transfer"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "drink_cashouts_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"drink_earnings": {
+                  Row: {
+                    "available_cents": number,"lifetime_cents": number,"user_id": string
+                  }
+                  Insert: {
+                    "available_cents"?: number,"lifetime_cents"?: number,"user_id": string
+                  }
+                  Update: {
+                    "available_cents"?: number,"lifetime_cents"?: number,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "drink_earnings_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"drink_gifts": {
+                  Row: {
+                    "cents": number,"created_at": string,"drink_key": string,"event_id": number | null,"from_user": string | null,"host_cents": number,"id": number,"live_id": number | null,"to_user": string
+                  }
+                  Insert: {
+                    "cents": number,"created_at"?: string,"drink_key": string,"event_id"?: number | null,"from_user"?: string | null,"host_cents": number,"id"?: never,"live_id"?: number | null,"to_user": string
+                  }
+                  Update: {
+                    "cents"?: number,"created_at"?: string,"drink_key"?: string,"event_id"?: number | null,"from_user"?: string | null,"host_cents"?: number,"id"?: never,"live_id"?: number | null,"to_user"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "drink_gifts_drink_key_fkey"
+      columns: ["drink_key"]
+isOneToOne: false
+      referencedRelation: "drink_menu"
+      referencedColumns: ["key"]
+    },{
+      foreignKeyName: "drink_gifts_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "drink_gifts_from_user_fkey"
+      columns: ["from_user"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "drink_gifts_live_id_fkey"
+      columns: ["live_id"]
+isOneToOne: false
+      referencedRelation: "live_streams"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "drink_gifts_to_user_fkey"
+      columns: ["to_user"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"drink_menu": {
+                  Row: {
+                    "cents": number,"key": string,"name": string,"sort": number
+                  }
+                  Insert: {
+                    "cents": number,"key": string,"name": string,"sort"?: number
+                  }
+                  Update: {
+                    "cents"?: number,"key"?: string,"name"?: string,"sort"?: number
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"encounters": {
                   Row: {
                     "context": Database["public"]['Enums']["encounter_context"],"created_at": string,"distance_m": number,"event_id": number | null,"id": number,"overlap_end": string,"overlap_start": string,"place_label": string | null,"user_a": string,"user_b": string,"venue_id": number | null
@@ -1950,6 +2044,44 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"wallet_topups": {
+                  Row: {
+                    "cents": number,"created_at": string,"id": number,"stripe_session": string,"user_id": string
+                  }
+                  Insert: {
+                    "cents": number,"created_at"?: string,"id"?: never,"stripe_session": string,"user_id": string
+                  }
+                  Update: {
+                    "cents"?: number,"created_at"?: string,"id"?: never,"stripe_session"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "wallet_topups_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"wallets": {
+                  Row: {
+                    "balance_cents": number,"updated_at": string,"user_id": string
+                  }
+                  Insert: {
+                    "balance_cents"?: number,"updated_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "balance_cents"?: number,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "wallets_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 }
           }
           Views: {
@@ -2096,6 +2228,12 @@ isOneToOne: false
                            },
 "delete_going_out":
 { Args: { "p_post": number }; Returns: undefined
+                           },
+"drink_cashout_done":
+{ Args: { "p_cashout": number,"p_ok": boolean,"p_transfer": string }; Returns: undefined
+                           },
+"drink_cashout_start":
+{ Args: { "p_user": string }; Returns: Json
                            },
 "effective_radius_mi":
 { Args: { "p_limit_key": string,"p_requested": number }; Returns: number
@@ -2295,6 +2433,9 @@ isOneToOne: false
 "my_vouches_left_this_month":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
+"my_wallet":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "network_activity":
 { Args: { "p_limit"?: number }; Returns: {
               "actor_avatar": string,"actor_emoji": string,"actor_id": string,"actor_name": string,"at": string,"detail": string,"kind": string,"subject_id": string,"subject_name": string
@@ -2444,6 +2585,9 @@ isOneToOne: false
                            },
 "send_date_request":
 { Args: { "p_note"?: string,"p_place"?: string,"p_starts_at"?: string,"p_to": string,"p_venue_id"?: number,"p_vibe"?: string,"p_when": Database["public"]['Enums']["date_when"] }; Returns: number
+                           },
+"send_drink":
+{ Args: { "p_drink": string,"p_event"?: number,"p_live"?: number }; Returns: Json
                            },
 "send_out":
 { Args: { "p_audience"?: string,"p_caption": string,"p_path": string,"p_recipients": (string)[],"p_to_story"?: boolean }; Returns: number
@@ -2597,6 +2741,9 @@ isOneToOne: false
                            },
 "visible_vouch_count":
 { Args: { "p_user": string }; Returns: number
+                           },
+"wallet_credit":
+{ Args: { "p_cents": number,"p_session": string,"p_user": string }; Returns: boolean
                            },
 "weekend_ends_at":
 { Args: Record<PropertyKey, never>; Returns: string

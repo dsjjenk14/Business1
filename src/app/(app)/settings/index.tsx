@@ -28,6 +28,7 @@ export default function Settings() {
         { label: 'Vouches you gave', icon: 'ribbon-outline', href: '/settings/vouches', detail: 'Take back a vouch' },
         { label: 'My tickets', icon: 'ticket-outline', href: '/settings/tickets' },
         { label: 'Payouts', icon: 'cash-outline', href: '/settings/payouts', detail: 'Sell tickets to your events' },
+        { label: 'Drinks & credit', icon: 'wine-outline', href: '/settings/wallet', detail: 'Send drinks when people are live; cash out drinks you get' },
         { label: 'Verification', icon: 'shield-checkmark-outline', href: '/settings/verification', detail: 'Phone, photo, ID' },
         { label: 'Notifications', icon: 'notifications-outline', href: '/settings/notifications' },
         { label: 'Appearance', icon: 'color-palette-outline', href: '/settings/appearance' },

@@ -5,6 +5,23 @@
 
 ---
 
+## ✅ Send drinks to people who are live (like TikTok gifts, but cocktails)
+- **The menu:** 8 custom cocktails drawn for I'm In (no emojis): Lemon Drop $1, Mojito $2, Margarita $3, Paloma $5, Espresso Martini $10, Old Fashioned $20, French 75 $50, Champagne Tower $100.
+- **Sending:**
+  - Tap the gold glass while someone is live, either on a live video or in a virtual event's room.
+  - The drink pops up big on screen for everyone: "DeShawn L. sent an Espresso Martini".
+  - The host gets a notification.
+- **Paying:** Drinks & credit (Menu or Settings) → add $5–$100 of credit by card through Stripe.
+- **Hosts earn 70%** of every drink as real money. They cash out to their bank through their Stripe payouts once they have $10.
+  - The 70% and the prices are settings you can change.
+- **Safety:** 30 drinks a minute at most, no drinks to yourself or people who blocked you, only while someone is really live, and every payment is counted once.
+- **Terms:** new "Drinks and drink credit" section. Have a lawyer check it before launch.
+- **Tested:**
+  - 22 new database tests (551 total).
+  - A test Stripe payment added $25 once, even though the notice came in twice.
+  - In a real test livestream, DeShawn sent Dominique a $10 Espresso Martini. It popped up on her screen and she earned $7.
+- **Before the App Store:** Apple normally requires in-app purchase for digital credit. US apps can link out to web checkout instead; decide before launch (details in `docs/PAYMENTS.md`).
+
 ## ✅ Virtual events: video calls, voice chats, livestreams, links
 - **Who:** if you run a group (owner or admin), Host an Event → Where? lets you pick **Online** or **Both**. Online events belong to a group.
 - **How people join:**
@@ -706,6 +723,7 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 | 2026-09-28 | Radius slider back: 1 to 75 miles for everyone | Dominique |
 | 2026-09-28 | Adding people: QR in person (counts as a meetup) and a shared code for people who know each other outside the app (doesn't unlock vouching) | Dominique; keeps vouches tied to real meetups |
 | 2026-09-28 | I'm In is a social app, not only going out: Home leads with posting, pins and group chats | Dominique |
+| 2026-09-29 | Drinks: host earns 70%, I'm In keeps 30%; credit bought by card on the web (Stripe); $10 minimum cash-out | Dominique asked for TikTok-style gifts; defaults are changeable in config |
 | 2026-09-29 | Online events are for groups (owners/admins); rooms only for people going, open 15 min before; phones join through Safari until the App Store build | Dominique asked for virtual events for groups |
 | 2026-09-29 | No AI Read on profiles | Dominique |
 | 2026-09-28 | AI suggestions never skip the intro: a mutual friend still has to introduce you | Dominique |

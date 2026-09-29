@@ -1,6 +1,6 @@
 /**
  * Stripe → I'm In. Stripe calls this when money moves; we record it.
- *  - checkout.session.completed: a ticket was paid (or a Premium customer created).
+ *  - checkout.session.completed: a ticket or drink credit was paid (or a Premium customer created).
  *    If the event filled up while they paid, the ticket is refunded in full.
  *  - invoice.paid: Premium paid or renewed → Premium until the end of the period
  *  - customer.subscription.deleted: Premium cancelled (runs to the end of what was paid)
@@ -37,6 +37,10 @@ Deno.serve(async (req) => {
       case 'checkout.session.completed': {
         const meta = o.metadata ?? {};
         if (o.customer && UUID.test(o.client_reference_id ?? '')) await rpc('stripe_set_customer', { p_user: o.client_reference_id, p_customer: o.customer });
+        if (meta.kind === 'drinks' && o.payment_status === 'paid' && UUID.test(meta.user_id ?? '')) {
+          // Credit exactly what was paid, once per checkout.
+          await rpc('wallet_credit', { p_user: meta.user_id, p_cents: o.amount_total, p_session: o.id });
+        }
         if (meta.kind === 'ticket' && o.payment_status === 'paid' && UUID.test(meta.user_id ?? '')) {
           const result = await rpc('stripe_ticket_paid', {
             p_session: o.id,

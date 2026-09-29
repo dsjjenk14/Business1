@@ -7,12 +7,17 @@
  *   → { url }
  * POST { action: 'payouts_refresh' } → { charges_enabled } (asks Stripe if setup is done)
  * POST { action: 'refund_ticket', ticket_id } → { refunded: true } (host only; full refund)
+ * POST { action: 'drink_credit', cents } → { url } (buy drink credit: a pack from DRINK_PACKS)
+ * POST { action: 'drink_cashout' } → { cents } (send a host's drink earnings to their bank)
  * GET  ?done=… : where Stripe sends people back; redirects into the app.
  *
  * Off until the STRIPE_SECRET_KEY function secret is set (docs/PAYMENTS.md).
  */
 import { adminRest, corsHeaders, getCaller, json } from '../_shared/http.ts';
 import { paymentsOn, stripe } from '../_shared/stripe.ts';
+
+/** Drink credit packs, in cents. */
+export const DRINK_PACKS = [500, 1000, 2500, 5000, 10000];
 
 const SELF = () => `${Deno.env.get('SUPABASE_URL')}/functions/v1/payments`;
 const back = (done: string, extra = '') => `${SELF()}?done=${done}${extra}`;
@@ -46,7 +51,15 @@ Deno.serve(async (req) => {
     const done = url.searchParams.get('done') ?? 'cancel';
     const event = url.searchParams.get('event');
     const target =
-      done === 'ticket' && event ? `imin://events/${event}?paid=1` : done === 'premium' ? 'imin://premium?paid=1' : done === 'payouts' ? 'imin://settings/payouts' : 'imin://';
+      done === 'ticket' && event
+        ? `imin://events/${event}?paid=1`
+        : done === 'premium'
+          ? 'imin://premium?paid=1'
+          : done === 'payouts'
+            ? 'imin://settings/payouts'
+            : done === 'drinks'
+              ? 'imin://settings/wallet?paid=1'
+              : 'imin://';
     return new Response(null, { status: 302, headers: { Location: target } });
   }
   if (req.method !== 'POST') return json({ error: 'POST only' }, 405);
@@ -55,7 +68,7 @@ Deno.serve(async (req) => {
   if (!caller) return json({ error: 'Sign in first.' }, 401);
   if (!paymentsOn()) return json({ error: 'Payments aren’t turned on yet.' }, 503);
 
-  let body: { action?: string; event_id?: number; ticket_id?: number };
+  let body: { action?: string; event_id?: number; ticket_id?: number; cents?: number };
   try {
     body = await req.json();
   } catch {
@@ -177,6 +190,43 @@ Deno.serve(async (req) => {
         );
         await rpc('stripe_ticket_refunded', { p_payment_intent: check.payment_intent });
         return json({ refunded: true });
+      }
+      case 'drink_credit': {
+        const cents = Number(body.cents);
+        if (!DRINK_PACKS.includes(cents)) return json({ error: 'Pick one of the amounts.' }, 400);
+        const session = await stripe<{ url: string }>('/checkout/sessions', {
+          mode: 'payment',
+          client_reference_id: caller.id,
+          customer_email: (await emailOf(caller.id)) ?? undefined,
+          line_items: [{ quantity: 1, price_data: { currency: 'usd', unit_amount: cents, product_data: { name: 'I’m In drink credit' } } }],
+          payment_intent_data: { metadata: { kind: 'drinks', user_id: caller.id, cents: String(cents) } },
+          metadata: { kind: 'drinks', user_id: caller.id, cents: String(cents) },
+          expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
+          success_url: back('drinks'),
+          cancel_url: back('cancel'),
+        });
+        return json({ url: session.url });
+      }
+      case 'drink_cashout': {
+        const start = await rpc<{ error?: string; cashout_id?: number; cents?: number; destination?: string }>('drink_cashout_start', { p_user: caller.id });
+        if (start.error || !start.cashout_id) return json({ error: start.error ?? 'Couldn’t cash out.' }, 409);
+        try {
+          const transfer = await stripe<{ id: string }>(
+            '/transfers',
+            { amount: start.cents, currency: 'usd', destination: start.destination, metadata: { kind: 'drink_cashout', user_id: caller.id, cashout_id: String(start.cashout_id) } },
+            `drink-cashout-${start.cashout_id}`,
+          );
+          await rpc('drink_cashout_done', { p_cashout: start.cashout_id, p_transfer: transfer.id, p_ok: true });
+          return json({ cents: start.cents });
+        } catch (e) {
+          // Put the money back on their balance and say so.
+          await rpc('drink_cashout_done', { p_cashout: start.cashout_id, p_transfer: null, p_ok: false });
+          const msg = e instanceof Error ? e.message : '';
+          return json(
+            { error: /insufficient/i.test(msg) ? 'New drink money takes a couple of days to clear. Try again soon; your balance is safe.' : 'Couldn’t cash out right now. Your balance is safe.' },
+            502,
+          );
+        }
       }
       default:
         return json({ error: 'Unknown action' }, 400);

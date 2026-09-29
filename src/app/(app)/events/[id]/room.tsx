@@ -1,8 +1,10 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import * as WebBrowser from 'expo-web-browser';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Platform, View } from 'react-native';
 
+import { DrinkMenu } from '@/components/drinks/DrinkMenu';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { RoomView } from '@/components/room/RoomView';
 import { Button, EmptyState, LoadingDetail, Screen } from '@/components/ui';
@@ -23,6 +25,7 @@ export default function EventRoom() {
   const [pass, setPass] = useState<RoomPass | null>(null);
   const [error, setError] = useState<RoomError | null>(null);
   const [opened, setOpened] = useState(false);
+  const [menu, setMenu] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -67,7 +70,7 @@ export default function EventRoom() {
       </View>
     );
   }
-  if (Platform.OS === 'web') return <RoomView pass={pass} onLeave={leave} />;
+  if (Platform.OS === 'web') return <RoomView pass={pass} onLeave={leave} canSendDrinks />;
   return (
     <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
       <BackHeader title={pass.title} />
@@ -78,7 +81,15 @@ export default function EventRoom() {
           body="Allow the camera and microphone when your browser asks. Come back here when you're done."
           action={{ label: 'Open the room again', onPress: () => WebBrowser.openBrowserAsync(roomWebLink(pass)).catch(() => undefined) }}
         />
+        {pass.role === 'guest' && pass.event_id ? (
+          <Button
+            label={`Send ${pass.host_name?.split(' ')[0] ?? 'the host'} a drink`}
+            icon={<Ionicons name="wine" size={18} color={t.colors.onPrimary} />}
+            onPress={() => setMenu(true)}
+          />
+        ) : null}
         <Button label="Back to the event" variant="ghost" onPress={leave} />
+        {pass.event_id ? <DrinkMenu visible={menu} onClose={() => setMenu(false)} hostName={pass.host_name ?? 'the host'} to={{ eventId: pass.event_id }} /> : null}
       </Screen>
     </View>
   );

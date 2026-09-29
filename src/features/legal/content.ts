@@ -41,6 +41,10 @@ export const TERMS: LegalDoc = {
       body: 'Hosts can sell tickets to their events. Payments are handled by Stripe. I’m In keeps an 8% fee from each ticket, Stripe’s card fee is taken from the host’s share, and the rest goes to the host. Refunds are up to the host. If an event fills up before your payment goes through, you are refunded in full.',
     },
     {
+      heading: 'Drinks and drink credit',
+      body: 'You can buy drink credit by card (through Stripe) and use it to send drinks to people while they’re live. Drink credit is only for sending drinks on I’m In: it has no cash value, can’t be transferred or withdrawn, and a drink can’t be refunded once it’s sent. The person you send a drink to earns a share of it (70% unless we tell you otherwise) as real money, paid through their Stripe payout account; they’re responsible for any taxes on it. We may reverse drinks and earnings tied to fraud, chargebacks or rule-breaking.',
+    },
+    {
       heading: 'Outs',
       body: 'Outs are photos or short videos (up to 9 seconds) that disappear after 6 hours. You choose who gets each one: friends in your circle, or My Out for your circle or your network. Anyone who can see an Out can pin it to keep it, and we tell you when they do. Anyone can also take a screenshot, so only share what you’re comfortable with. If someone takes a screenshot, we tell you.',
     },

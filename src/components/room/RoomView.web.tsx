@@ -3,6 +3,8 @@ import { Room, RoomEvent, Track, type Participant } from 'livekit-client';
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, TextInput, View } from 'react-native';
 
+import { DrinkBurst, type DrinkArrival } from '@/components/drinks/DrinkBurst';
+import { DrinkMenu } from '@/components/drinks/DrinkMenu';
 import { AppText, Avatar, Button } from '@/components/ui';
 import type { RoomPass } from '@/features/events/room';
 import { useTheme } from '@/theme';
@@ -22,7 +24,7 @@ const REACTIONS: { kind: Reaction['kind']; icon: 'heart' | 'flame' | 'hand-left'
  *   stream: the host's camera big, everyone else watches
  * Everyone can chat and send reactions. Nothing is recorded.
  */
-export function RoomView({ pass, onLeave }: { pass: RoomPass; onLeave: () => void }) {
+export function RoomView({ pass, onLeave, canSendDrinks = false }: { pass: RoomPass; onLeave: () => void; canSendDrinks?: boolean }) {
   const t = useTheme();
   const [room] = useState(() => new Room({ adaptiveStream: true, dynacast: true }));
   const [, setTick] = useState(0);
@@ -32,6 +34,8 @@ export function RoomView({ pass, onLeave }: { pass: RoomPass; onLeave: () => voi
   const [reactions, setReactions] = useState<Reaction[]>([]);
   const [draft, setDraft] = useState('');
   const [showChat, setShowChat] = useState(pass.kind === 'stream');
+  const [drinks, setDrinks] = useState<DrinkArrival[]>([]);
+  const [menu, setMenu] = useState(false);
   const audioBox = useRef<HTMLDivElement | null>(null);
   const canPublish = pass.kind !== 'stream' || pass.role === 'host';
   const rerender = () => setTick((n) => n + 1);
@@ -44,6 +48,8 @@ export function RoomView({ pass, onLeave }: { pass: RoomPass; onLeave: () => voi
         const from = p?.name || 'Someone';
         if (msg.type === 'chat' && typeof msg.text === 'string') setChat((c) => [...c.slice(-99), { id: `${Date.now()}${Math.random()}`, from, text: msg.text.slice(0, 300) }]);
         if (msg.type === 'react' && REACTIONS.some((r) => r.kind === msg.kind)) addReaction({ id: `${Date.now()}${Math.random()}`, from, kind: msg.kind });
+        // Drinks are announced by the server (no participant), after they're paid for.
+        if (msg.type === 'drink' && !p && typeof msg.drink === 'string') showDrink({ id: String(msg.gift ?? Date.now()), drink: msg.drink, name: String(msg.name ?? 'drink'), from: String(msg.from ?? 'Someone') });
       } catch {
         // ignore anything that isn't ours
       }
@@ -94,6 +100,11 @@ export function RoomView({ pass, onLeave }: { pass: RoomPass; onLeave: () => voi
     // The room is made once per pass.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [room]);
+
+  function showDrink(d: DrinkArrival) {
+    setDrinks((list) => (list.some((x) => x.id === d.id) ? list : [...list.slice(-5), d]));
+    setTimeout(() => setDrinks((list) => list.filter((x) => x.id !== d.id)), 3200);
+  }
 
   function addReaction(r: Reaction) {
     setReactions((list) => [...list.slice(-11), r]);
@@ -194,6 +205,7 @@ export function RoomView({ pass, onLeave }: { pass: RoomPass; onLeave: () => voi
           ) : null}
         </ScrollView>
 
+        <DrinkBurst arrivals={drinks} />
         <View pointerEvents="none" style={{ position: 'absolute', right: 12, bottom: 12, gap: 6, alignItems: 'flex-end' }}>
           {reactions.map((r) => (
             <View key={r.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 999, backgroundColor: 'rgba(0,0,0,0.6)' }}>
@@ -241,7 +253,19 @@ export function RoomView({ pass, onLeave }: { pass: RoomPass; onLeave: () => voi
         </View>
       ) : null}
 
+      {canSendDrinks && pass.event_id ? (
+        <DrinkMenu visible={menu} onClose={() => setMenu(false)} hostName={pass.host_name ?? 'the host'} to={{ eventId: pass.event_id }} />
+      ) : null}
       <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: t.space[3], padding: t.space[3] }}>
+        {canSendDrinks && pass.role === 'guest' && pass.event_id ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Send ${pass.host_name ?? 'the host'} a drink`}
+            onPress={() => setMenu(true)}
+            style={{ width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: '#FFD60A' }}>
+            <Ionicons name="wine" size={22} color="#0B0B0C" />
+          </Pressable>
+        ) : null}
         {REACTIONS.map((r) => (
           <RoundButton key={r.kind} icon={r.icon} label={r.label} onPress={() => react(r.kind)} />
         ))}

@@ -2,7 +2,17 @@ import { supabase } from '@/lib/supabase';
 import { WEB_URL } from '@/lib/webUrl';
 
 export type RoomKind = 'voice' | 'video' | 'stream' | 'link';
-export type RoomPass = { url: string; token: string; kind: Exclude<RoomKind, 'link'>; role: 'host' | 'guest'; title: string };
+export type RoomPass = {
+  url: string;
+  token: string;
+  kind: Exclude<RoomKind, 'link'>;
+  role: 'host' | 'guest';
+  title: string;
+  /** For sending drinks to the host (only in the app, where you're signed in). */
+  event_id?: number;
+  host_id?: string;
+  host_name?: string;
+};
 
 export const ROOM_KINDS: { key: RoomKind; label: string; detail: string; icon: 'mic-outline' | 'videocam-outline' | 'radio-outline' | 'link-outline' }[] = [
   { key: 'video', label: 'Video call', detail: 'Everyone on camera, like a group FaceTime.', icon: 'videocam-outline' },

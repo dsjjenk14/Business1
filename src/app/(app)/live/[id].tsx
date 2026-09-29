@@ -1,7 +1,9 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, View } from 'react-native';
 
+import { DrinkMenu } from '@/components/drinks/DrinkMenu';
 import { LiveVideo } from '@/components/live/LiveVideo';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Badge, Button, EmptyState, LoadingDetail, Screen, TextField, useToast } from '@/components/ui';
@@ -20,6 +22,7 @@ export default function LiveScreen() {
   const [comments, setComments] = useState<LiveComment[]>([]);
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
+  const [drinkMenu, setDrinkMenu] = useState(false);
   const lastId = useRef(0);
 
   const poll = useCallback(async () => {
@@ -86,6 +89,16 @@ export default function LiveScreen() {
             {live.is_live ? <LiveVideo streamId={live.id} isHost={live.is_host} /> : null}
 
             {live.is_host && live.is_live ? <Button label="End live video" variant="danger" size="md" onPress={end} /> : null}
+            {!live.is_host && live.is_live ? (
+              <>
+                <Button
+                  label={`Send ${live.host_name.split(' ')[0]} a drink`}
+                  icon={<Ionicons name="wine" size={18} color={t.colors.onPrimary} />}
+                  onPress={() => setDrinkMenu(true)}
+                />
+                <DrinkMenu visible={drinkMenu} onClose={() => setDrinkMenu(false)} hostName={live.host_name} to={{ liveId: live.id }} />
+              </>
+            ) : null}
 
             <View style={{ gap: t.space[2] }} accessibilityLiveRegion="polite">
               {comments.length === 0 ? (
