@@ -1,5 +1,6 @@
 import { ActivityIndicator, Pressable, View, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
 
+import { haptic } from '@/lib/haptics';
 import { useTheme } from '@/theme';
 
 import { AppText } from './AppText';
@@ -24,7 +25,7 @@ export type ButtonProps = Omit<PressableProps, 'style' | 'children'> & {
   style?: StyleProp<ViewStyle>;
 };
 
-export function Button({ label, variant = 'primary', size = 'lg', loading, disabled, icon, style, ...rest }: ButtonProps) {
+export function Button({ label, variant = 'primary', size = 'lg', loading, disabled, icon, style, onPress, ...rest }: ButtonProps) {
   const t = useTheme();
   const isDisabled = disabled || loading;
   const { ticket } = look(t);
@@ -47,6 +48,11 @@ export function Button({ label, variant = 'primary', size = 'lg', loading, disab
       accessibilityLabel={label}
       accessibilityState={{ disabled: !!isDisabled, busy: !!loading }}
       disabled={isDisabled}
+      onPress={(e) => {
+        // A light tap for the main actions you take.
+        if (variant === 'primary' || variant === 'trust') haptic.tap();
+        onPress?.(e);
+      }}
       style={({ pressed }) => [
         {
           minHeight: size === 'lg' ? 48 : 40,

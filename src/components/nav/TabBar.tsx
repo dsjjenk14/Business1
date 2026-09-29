@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native';
 
 import { AppText, type IconName } from '@/components/ui';
 import { useNewOuts } from '@/features/outs/useNewOuts';
+import { haptic } from '@/lib/haptics';
 import { useTheme, fontStyle } from '@/theme';
 
 const TABS: Record<string, { label: string; icon: IconName; iconActive: IconName }> = {
@@ -45,6 +46,7 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
             accessibilityState={{ selected: focused }}
             accessibilityLabel={route.name === 'outs' && outsNew ? `${tab.label}, ${outsNew} new` : tab.label}
             onPress={() => {
+              if (!focused) haptic.select();
               const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
               if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
             }}
