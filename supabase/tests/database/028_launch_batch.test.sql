@@ -2,7 +2,7 @@
 -- admin launch numbers, chat polls, and event cover photos.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(29);
+select plan(33);
 
 create or replace function pg_temp.new_user(p_email text, p_name text) returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();
@@ -57,6 +57,12 @@ with x as (insert into events (host_id, title, starts_at) values (pg_temp.uid('b
 insert into ids select 'ev2', id from x;
 select private.send_friday_drop();
 select is((select count(*)::int from notifications where user_id = pg_temp.uid('c') and kind = 'friday_drop'), 0, 'Turned off: no drop');
+
+-- Friday Drop runs at 2 PM DC time, summer and winter.
+select ok(private.friday_drop_tick('2026-10-02 18:00:00+00') > 0, 'Fri Oct 2, 18:00 UTC = 2 PM in DC: sends');
+select is(private.friday_drop_tick('2026-10-02 19:00:00+00'), 0, 'Fri Oct 2, 19:00 UTC = 3 PM in DC: does not send twice');
+select is(private.friday_drop_tick('2026-12-04 18:00:00+00'), 0, 'Winter, 18:00 UTC = 1 PM in DC: waits');
+select ok(private.friday_drop_tick('2026-12-04 19:00:00+00') > 0, 'Winter, 19:00 UTC = 2 PM in DC: sends');
 
 -- ── Launch numbers (admins only) ──────────────────────────────────────────
 select pg_temp.act_as('a');

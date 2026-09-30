@@ -10,7 +10,7 @@
 - **Private by default:** new plans ("I'm going out") start visible to your Insiders and their Insiders, not everyone nearby. You can still pick Everyone.
 - **Find your people:** right after the welcome tour, a new screen suggests groups near you and events coming up, so you join something in your first minutes.
 - **Add to calendar:** on events you're going to or hosting. On a phone it opens your calendar's own "New Event" screen, already filled in. On the web it downloads a calendar file.
-- **Friday Drop:** every Friday at 4pm (DC time), a notification with the top 3 things happening near you this weekend. It can be turned off in Settings → Notifications.
+- **Friday Drop:** every Friday at 2pm (DC time), a notification with the top 3 things happening near you this weekend. It can be turned off in Settings → Notifications.
 - **Launch numbers (admins):** a new Launch tab in Admin with nights out this week, how many are out right now, how many new members say I'm In in their first week, how many are still active in week 4, Insiders per person, and events coming up.
 - **Polls in chats:** a poll button next to the message box. Ask "Where tonight?" with 2 to 4 choices. Tap to vote, tap another to switch, tap yours again to take it back.
 - **Event cover photos:** add a wide photo when you create an event, or later from the event page (hosts). It shows on the event page, What's In and Home.

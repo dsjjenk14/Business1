@@ -19,7 +19,7 @@ const OPTIONS: { key: Key; label: string; detail: string }[] = [
   { key: 'notify_pin_replies', label: 'Pin replies', detail: 'Replies to your pins' },
   { key: 'notify_gps_vouch', label: 'Meetups and vouches', detail: 'When you meet someone in person and when you get vouched for' },
   { key: 'notify_intro_requests', label: 'Intros', detail: 'Intro requests, intros made for you, and vouch requests' },
-  { key: 'friday_drop', label: 'Friday Drop', detail: 'Friday afternoon: the top 3 things happening near you this weekend' },
+  { key: 'friday_drop', label: 'Friday Drop', detail: 'Fridays at 2 PM: the top 3 things happening near you this weekend' },
 ];
 const COLUMNS = [...OPTIONS.map((o) => o.key), 'app_sounds'].join(', ');
 
