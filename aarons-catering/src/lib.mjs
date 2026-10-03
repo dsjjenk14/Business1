@@ -46,6 +46,7 @@ export function img(slot, { cls = '', eager = false, alt } = {}) {
     eager ? 'fetchpriority="high"' : 'loading="lazy"',
     'decoding="async"',
     cls && `class="${cls}"`,
+    p.focus && `style="object-position: ${p.focus}"`,
   ].filter(Boolean);
   return `<img ${attrs.join(' ')}>`;
 }

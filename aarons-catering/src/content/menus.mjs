@@ -10,7 +10,7 @@ export const menus = [
     courses: [
       { title: 'Passed bites', dishes: ['shrimp-grits', 'mini-quiche', 'fried-green-tomatoes', 'deviled-eggs'] },
       { title: 'Mains', dishes: ['fried-chicken', 'short-ribs', 'lemon-salmon', 'surf-and-turf', 'baked-chicken'] },
-      { title: 'Sides', dishes: ['mac', 'collards', 'yams', 'mashed-potatoes', 'green-beans', 'mixed-vegetables'] },
+      { title: 'Sides', dishes: ['mac', 'collards', 'yams', 'rice-and-peas', 'plantains', 'mashed-potatoes', 'green-beans', 'mixed-vegetables'] },
       { title: 'Bread', dishes: ['cornbread'] },
       { title: 'Dessert', dishes: ['peach-cobbler', 'banana-pudding'] },
     ],
@@ -23,7 +23,7 @@ export const menus = [
     courses: [
       { title: 'Boxed lunches', dishes: ['chicken-sandwich', 'smothered-chicken', 'lemon-salmon', 'black-eyed-pea-bowl'] },
       { title: 'Buffet mains', dishes: ['baked-chicken', 'fried-chicken', 'smothered-chicken', 'lemon-salmon'] },
-      { title: 'Sides', dishes: ['mac', 'mashed-potatoes', 'mixed-vegetables', 'green-beans', 'house-salad'] },
+      { title: 'Sides', dishes: ['mac', 'rice-and-peas', 'mashed-potatoes', 'mixed-vegetables', 'green-beans', 'house-salad'] },
       { title: 'Dessert and drinks', dishes: ['pound-cake', 'sweet-tea', 'lemonade'] },
     ],
   },
@@ -33,7 +33,7 @@ export const menus = [
     intro:
       'Party trays for the backyard, the clubhouse or the living room. A half pan feeds about 10 to 12 people and a full pan about 20 to 25. We drop off hot and set up, or we stay and serve.',
     courses: [
-      { title: 'Trays', dishes: ['lemon-pepper-wings', 'honey-hot-wings', 'fried-fish', 'cajun-shrimp', 'pulled-pork-sliders'] },
+      { title: 'Trays', dishes: ['lemon-pepper-wings', 'honey-hot-wings', 'jalapeno-poppers', 'fried-fish', 'cajun-seafood', 'pulled-pork-sliders'] },
       { title: 'Sides', dishes: ['mac', 'potato-salad', 'baked-beans'] },
       { title: 'Sweets', dishes: ['red-velvet-cupcakes', 'banana-pudding'] },
     ],
@@ -44,8 +44,8 @@ export const menus = [
     intro:
       'Reunions, repasts, church events, graduations and Sunday dinners. Served family-style in full pans, with enough for seconds and a plate to take home.',
     courses: [
-      { title: 'Mains', dishes: ['fried-chicken', 'turkey-wings', 'short-ribs', 'smothered-pork-chops', 'fried-fish'] },
-      { title: 'Sides', dishes: ['mac', 'collards', 'yams', 'mashed-potatoes', 'potato-salad', 'cabbage'] },
+      { title: 'Mains', dishes: ['fried-chicken', 'turkey-wings', 'short-ribs', 'smothered-pork-chops', 'fried-fish', 'cajun-seafood'] },
+      { title: 'Sides', dishes: ['mac', 'collards', 'yams', 'rice-and-peas', 'plantains', 'mashed-potatoes', 'potato-salad', 'cabbage'] },
       { title: 'Bread', dishes: ['cornbread'] },
       { title: 'Dessert', dishes: ['peach-cobbler', 'sweet-potato-pie', 'pound-cake'] },
     ],
@@ -57,6 +57,7 @@ export const menus = [
       'Birthday brunches, bridal showers, church brunch after service, the morning after a wedding. The omelette station comes with a cook who makes each one to order.',
     courses: [
       { title: 'Mains', dishes: ['shrimp-and-grits', 'chicken-and-waffles', 'omelettes', 'mini-quiche'] },
+      { title: 'Sides', dishes: ['hash-browns', 'bacon'] },
       { title: 'Something sweet', dishes: ['pound-cake', 'peach-cobbler'] },
       { title: 'Drinks', dishes: ['lemonade', 'sweet-tea'] },
     ],

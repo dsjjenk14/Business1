@@ -131,7 +131,8 @@
         if (on) found = true;
         tab.setAttribute('aria-selected', String(on));
         tab.setAttribute('tabindex', on ? '0' : '-1');
-        if (on) tab.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        // Bring the tab into view inside the strip only; scrollIntoView would also scroll the page.
+        if (on) tablist.scrollLeft = Math.max(0, tab.offsetLeft - tablist.offsetLeft - 24);
       });
       if (!found) return false;
       panels.forEach(function (p) { p.hidden = p.id !== id; });

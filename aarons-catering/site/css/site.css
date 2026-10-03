@@ -525,7 +525,6 @@ button { font: inherit; color: inherit; }
 }
 .hero-content { position: relative; }
 .logo-hero { height: 148px; margin-bottom: 20px; filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.45)); }
-.hero-media picture { display: contents; }
 .hero-kicker {
   margin-bottom: 14px;
   color: var(--white);
@@ -539,8 +538,22 @@ button { font: inherit; color: inherit; }
 .hero-lede { max-width: 34em; margin-bottom: 32px; color: rgba(247, 245, 242, 0.82); font-size: 1.0625rem; text-wrap: pretty; }
 @media (min-width: 720px) {
   .hero { padding-bottom: 88px; }
-  .logo-hero { height: 200px; }
+  .logo-hero { height: 180px; }
   .hero-lede { font-size: 1.1875rem; }
+}
+/* Computers: the photo takes the right side and fades into black behind the text. */
+@media (min-width: 1080px) {
+  .hero { align-items: center; padding-bottom: 64px; }
+  .hero-media { left: 40%; }
+  .hero-media img { object-position: 50% 60%; }
+  .hero-media::after {
+    background:
+      linear-gradient(90deg, var(--black) 0%, rgba(11, 11, 12, 0.75) 18%, rgba(11, 11, 12, 0.2) 45%, rgba(11, 11, 12, 0) 70%),
+      linear-gradient(180deg, rgba(11, 11, 12, 0.6) 0%, rgba(11, 11, 12, 0) 25%, rgba(11, 11, 12, 0) 75%, var(--black) 100%);
+  }
+  .hero-title { font-size: clamp(3.5rem, 5.2vw, 5.5rem); max-width: 8.6em; }
+  .hero-lede { max-width: 30em; }
+  .logo-hero { height: 140px; }
 }
 
 /* ---------- Page hero (Menus, Holiday, About) ---------- */
@@ -1080,7 +1093,7 @@ button { font: inherit; color: inherit; }
   user-select: none;
 }
 .lightbox-caption { display: flex; gap: 16px; align-items: baseline; justify-content: center; color: var(--muted); font-size: 0.9375rem; text-align: center; }
-.lightbox-count { font-family: var(--display); letter-spacing: 0.06em; }
+.lightbox-count { flex: none; font-family: var(--display); letter-spacing: 0.06em; white-space: nowrap; }
 .lightbox-btn {
   position: absolute;
   display: inline-flex;

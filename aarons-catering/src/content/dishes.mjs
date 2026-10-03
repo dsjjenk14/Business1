@@ -95,10 +95,23 @@ export const dishes = {
     ],
     allergens: ['shellfish', 'dairy'],
   },
-  'cajun-shrimp': {
-    name: 'Cajun butter shrimp',
-    description: 'Shrimp cooked in a skillet of butter, garlic, Cajun spice and lemon, with parsley on top. Bread on the side for the sauce.',
-    ingredients: ['shrimp', 'butter', 'garlic', CAJUN, 'smoked paprika', 'lemon', 'parsley', 'scallions'],
+  'cajun-seafood': {
+    name: 'Cajun crab and shrimp',
+    description:
+      'Crab clusters, shrimp and andouille sausage in a Cajun garlic butter sauce with peppers and onion. Parsley on top, napkins on the side.',
+    ingredients: [
+      'crab clusters',
+      'shrimp',
+      'andouille sausage (pork, salt, garlic, paprika, cayenne, black pepper)',
+      'butter',
+      'garlic',
+      'yellow onion',
+      'red and green bell peppers',
+      CAJUN,
+      'crushed red pepper',
+      'lemon',
+      'parsley',
+    ],
     allergens: ['shellfish', 'dairy'],
   },
   'fried-chicken': {
@@ -376,7 +389,7 @@ export const dishes = {
   },
   'chicken-and-waffles': {
     name: 'Chicken and waffles',
-    description: 'Our fried chicken on a buttermilk waffle, with warm maple syrup and butter.',
+    description: 'Our fried chicken next to buttermilk waffles, with warm syrup, butter and fresh strawberries.',
     ingredients: [
       'chicken thighs and drumsticks',
       'buttermilk',
@@ -389,6 +402,7 @@ export const dishes = {
       'canola oil for frying',
       'buttermilk waffles (all-purpose wheat flour, buttermilk, eggs, butter, sugar, baking powder, baking soda, vanilla extract, salt)',
       'maple syrup',
+      'strawberries',
       'butter',
     ],
     allergens: ['dairy', 'eggs', 'wheat'],
@@ -412,6 +426,18 @@ export const dishes = {
       'black pepper',
     ],
     allergens: ['eggs', 'dairy'],
+  },
+  'hash-browns': {
+    name: 'Crispy hash browns',
+    description: 'Shredded potatoes and onion cooked on the flat top until a crust forms on both sides.',
+    ingredients: ['russet potatoes', 'yellow onion', 'canola oil', 'kosher salt', 'black pepper', 'parsley'],
+    allergens: [],
+  },
+  bacon: {
+    name: 'Bacon or turkey bacon',
+    description: 'Thick-cut and cooked crisp. Pork or turkey, your call, or both.',
+    ingredients: ['bacon (pork, water, salt, sugar, sodium nitrite)', 'turkey bacon (turkey, water, salt, sugar, sodium nitrite)'],
+    allergens: [],
   },
   'mini-quiche': {
     name: 'Handmade mini quiche',
@@ -468,6 +494,20 @@ export const dishes = {
     ],
     allergens: ['dairy', 'eggs', 'wheat', 'fish'],
   },
+  'jalapeno-poppers': {
+    name: 'Bacon-wrapped jalapeño poppers',
+    description: 'Jalapeño halves filled with cream cheese and cheddar, wrapped in bacon and baked until the bacon crisps.',
+    ingredients: [
+      'jalapeño peppers',
+      'cream cheese',
+      'sharp cheddar',
+      'bacon (pork, water, salt, sugar, sodium nitrite)',
+      'garlic powder',
+      'smoked paprika',
+      'scallions',
+    ],
+    allergens: ['dairy'],
+  },
   'deviled-eggs': {
     name: 'Deviled eggs',
     description: 'Yolks whipped with mayonnaise, mustard and sweet relish. Finished with smoked paprika and chives.',
@@ -486,6 +526,29 @@ export const dishes = {
   },
 
   // ---------- Sides ----------
+  'rice-and-peas': {
+    name: 'Rice and peas',
+    description: 'Long-grain rice cooked with red kidney beans, coconut milk, thyme, scallion and allspice. Contains coconut.',
+    ingredients: [
+      'long-grain white rice',
+      'red kidney beans',
+      'coconut milk',
+      'scallions',
+      'garlic',
+      'fresh thyme',
+      'whole allspice',
+      'scotch bonnet pepper (whole, removed before serving)',
+      'kosher salt',
+      'black pepper',
+    ],
+    allergens: [],
+  },
+  plantains: {
+    name: 'Fried sweet plantains',
+    description: 'Ripe plantains sliced on the bias and fried until the edges go dark and sticky. Finished with red pepper and parsley.',
+    ingredients: ['ripe plantains', 'canola oil', 'red bell pepper', 'parsley', 'kosher salt'],
+    allergens: [],
+  },
   'mashed-potatoes': {
     name: 'Mashed potatoes',
     description: 'Yukon Gold potatoes mashed with butter, cream and roasted garlic. Left a little rustic.',
@@ -494,8 +557,8 @@ export const dishes = {
   },
   'mixed-vegetables': {
     name: 'Mixed vegetables',
-    description: 'Broccoli, carrots, squash, zucchini and red peppers, roasted with olive oil and garlic.',
-    ingredients: ['broccoli', 'carrots', 'yellow squash', 'zucchini', 'red bell pepper', 'red onion', 'olive oil', 'garlic', 'kosher salt', 'black pepper'],
+    description: 'Brussels sprouts, yellow squash, red peppers, carrots and onion, roasted until the edges char. Scallions on top.',
+    ingredients: ['Brussels sprouts', 'yellow squash', 'zucchini', 'red bell pepper', 'carrots', 'yellow onion', 'olive oil', 'garlic', 'kosher salt', 'black pepper', 'scallions'],
     allergens: [],
   },
   mac: {
@@ -503,7 +566,7 @@ export const dishes = {
     description:
       'Sharp cheddar, white cheddar, Colby Jack, smoked Gouda and cream cheese, set in a custard of eggs and evaporated milk. Baked in the pan we serve it in, so the corners go crisp.',
     ingredients: [
-      'elbow macaroni (durum wheat semolina)',
+      'macaroni (durum wheat semolina)',
       'sharp cheddar',
       'white cheddar',
       'Colby Jack',
@@ -541,7 +604,7 @@ export const dishes = {
   yams: {
     name: 'Candied yams',
     description:
-      'Sweet potatoes sliced thick and baked in butter, brown sugar, cinnamon, nutmeg and orange zest until the syrup turns glossy.',
+      'Sweet potatoes cut into chunks and baked in butter, brown sugar, cinnamon, nutmeg and orange zest until the syrup turns glossy.',
     ingredients: [
       'sweet potatoes',
       'butter',

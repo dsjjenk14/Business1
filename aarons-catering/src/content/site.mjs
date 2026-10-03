@@ -58,7 +58,7 @@ export const events = [
     id: 'birthdays',
     icon: 'cake',
     title: 'Birthdays',
-    text: 'Birthdays and private parties. Wing trays, fried fish, Cajun shrimp and pans of mac and cheese, set up before the first guest walks in.',
+    text: 'Birthdays and private parties. Wings, jalapeño poppers, Cajun crab and shrimp and pans of mac and cheese, set up before the first guest walks in.',
     href: 'menus.html#birthdays',
   },
   {
@@ -79,9 +79,9 @@ export const events = [
 
 export const signatureDishes = [
   {
-    dish: 'fried-chicken',
-    photo: 'dish-fried-chicken',
-    text: 'Brined overnight in buttermilk and hot sauce, dredged twice, fried in small batches. Brushed with honey butter as it comes out of the oil.',
+    dish: 'chicken-and-waffles',
+    photo: 'dish-chicken-and-waffles',
+    text: 'Chicken brined overnight in buttermilk, fried crisp and set next to buttermilk waffles with warm syrup and fresh strawberries.',
   },
   {
     dish: 'short-ribs',
@@ -94,9 +94,9 @@ export const signatureDishes = [
     text: 'Five cheeses set in an egg custard and baked in the pan we serve it in. Ask for a corner piece.',
   },
   {
-    dish: 'peach-cobbler',
-    photo: 'dish-peach-cobbler',
-    text: 'Peaches cooked down with brown sugar, cinnamon and nutmeg under a buttery biscuit top. Served warm.',
+    dish: 'cajun-seafood',
+    photo: 'dish-cajun-seafood',
+    text: 'Crab clusters, shrimp and andouille in a Cajun garlic butter sauce with peppers and onion. Napkins on the side.',
   },
 ];
 

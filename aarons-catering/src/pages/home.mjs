@@ -1,22 +1,19 @@
 import { page, logo } from '../layout.mjs';
 import { site, events, signatureDishes, testimonials } from '../content/site.mjs';
 import { holiday } from '../content/holiday.mjs';
-import { photos, instagramTiles } from '../content/photos.mjs';
+import { instagramTiles } from '../content/photos.mjs';
 import { dish } from '../content/dishes.mjs';
 import { icon } from '../icons.mjs';
 import { esc, curly, img, eyebrow, parseDate, money } from '../lib.mjs';
 
 function hero() {
   return `<section class="hero" aria-labelledby="hero-title">
-  <div class="hero-media"><picture>
-    <source media="(max-width: 719px)" srcset="images/${photos['hero-mobile'].file}" width="${photos['hero-mobile'].w}" height="${photos['hero-mobile'].h}">
-    ${img('hero', { eager: true })}
-  </picture></div>
+  <div class="hero-media">${img('hero', { eager: true })}</div>
   <div class="container hero-content">
     ${logo('logo logo-hero', true)}
     <p class="hero-kicker">Soul food catering &middot; Fairfax, Virginia</p>
     <h1 id="hero-title" class="hero-title">${esc(site.tagline)}</h1>
-    <p class="hero-lede">Fried chicken, braised short ribs, collards and baked mac and cheese, cooked in Fairfax and brought to weddings, offices and family tables across DC, Maryland and Northern Virginia.</p>
+    <p class="hero-lede">Chicken and waffles, braised short ribs, Cajun crab and shrimp and baked mac and cheese, cooked in Fairfax and brought to weddings, offices and family tables across DC, Maryland and Northern Virginia.</p>
     <a class="btn btn-lg" href="contact.html">Request a Quote</a>
   </div>
 </section>`;
@@ -175,10 +172,7 @@ export default function home() {
     description:
       'Soul food catering in Fairfax, VA from Chef Aaron Jenkins. Weddings, corporate events, birthdays and holidays across DC, Maryland and Northern Virginia.',
     bodyClass: 'has-hero',
-    preload: [
-      { slot: 'hero-mobile', media: '(max-width: 719px)' },
-      { slot: 'hero', media: '(min-width: 720px)' },
-    ],
+    preload: ['hero'],
     content: [hero(), holidayBlock(), eventTypes(), dishes(), chef(), quotes(), instagram(), closing()].join('\n'),
   });
 }

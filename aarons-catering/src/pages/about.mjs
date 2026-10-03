@@ -40,7 +40,7 @@ export default function about() {
       ${fill(`<p class="prose-lead">I learned to cook standing next to [[who taught you: a grandmother, an aunt, a parent]] in [[the kitchen or town where you grew up]]. Nobody measured anything. You watched, you tasted, and you got told when it needed more salt.</p>
       <p>[[One or two sentences on how you got from that kitchen to this one. Restaurant jobs, culinary school, cooking for church or the family reunion, the first event someone paid you to cook.]]</p>
       <p>I started Aaron J's Catering in [[year]] because people kept asking for the food. Now we cook out of Fairfax for weddings, offices, birthdays, reunions and holiday tables across DC, Maryland and Northern Virginia.</p>`)}
-      <p>The menu hasn't drifted far from where it started. Fried chicken. Greens. Mac and cheese that holds its shape when you cut it. Short ribs when it's a special day. Shrimp and grits when it's brunch. Peach cobbler and sweet potato pie, because a meal like that needs an ending.</p>
+      <p>The menu hasn't drifted far from where it started. Fried chicken. Greens. Mac and cheese that holds its shape when you cut it. Short ribs when it's a special day. Shrimp and grits when it's brunch. Rice and peas and fried plantains next to the mac and cheese. Peach cobbler and sweet potato pie, because a meal like that needs an ending.</p>
     </div>
   </div>
 </section>
@@ -60,7 +60,7 @@ export default function about() {
 
 <section class="section" aria-labelledby="philosophy-title">
   <div class="container feature feature-flip">
-    <div class="feature-photo feature-photo-tall">${img('about-hands')}</div>
+    <div class="feature-photo feature-photo-tall">${img('about-yams')}</div>
     <div class="feature-body">
       ${eyebrow('What I believe')}
       <h2 id="philosophy-title" class="h2">No shortcuts on the slow stuff</h2>

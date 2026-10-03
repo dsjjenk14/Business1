@@ -31,7 +31,7 @@ const allergenWords = {
   soy: ['soy', 'soybean', 'tofu', 'edamame'],
   sesame: ['sesame', 'tahini'],
 };
-const ignore = ['butter beans', 'cornstarch', 'peanut-free'];
+const ignore = ['butter beans', 'coconut milk', 'cornstarch', 'peanut-free'];
 
 for (const [id, d] of Object.entries(dishes)) {
   let text = d.ingredients.join(', ').toLowerCase();
