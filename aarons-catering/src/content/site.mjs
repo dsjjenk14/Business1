@@ -7,7 +7,7 @@ export const site = {
   motto: 'Where every day is Sunday', // from the logo
   url: 'https://aaronjscatering.com', // used for canonical links, the sitemap and link previews
 
-  phone: { display: '571-271-1810', href: 'tel:+15712711810', intl: '+1-571-271-1810' },
+  phone: { display: '571-207-5151', href: 'tel:+15712075151', intl: '+1-571-207-5151' },
   email: 'chef@aaronjscatering.com',
   instagram: {
     handle: '@aaronjscatering',
