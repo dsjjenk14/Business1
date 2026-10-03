@@ -16,11 +16,7 @@ const MAYO = 'mayonnaise (canola oil, egg yolks, distilled vinegar, lemon juice,
 const HOT_SAUCE = 'hot sauce (aged cayenne peppers, distilled vinegar, salt, garlic)';
 const CHICKEN_STOCK = 'chicken stock (chicken bones, water, onion, carrot, celery)';
 const CAJUN = 'Cajun seasoning (paprika, garlic, onion, cayenne, oregano, thyme, black pepper, salt)';
-const BBQ_SAUCE =
-  'vinegar barbecue sauce (apple cider vinegar, ketchup, brown sugar, molasses, yellow mustard, crushed red pepper)';
 const PIE_CRUST = 'all-butter crust (all-purpose wheat flour, butter, ice water, sugar, salt)';
-const CORNBREAD =
-  'cornbread (yellow cornmeal, all-purpose flour, buttermilk, eggs, butter, sugar, baking powder, salt)';
 
 export const dishes = {
   // ---------- Mains ----------
@@ -98,7 +94,7 @@ export const dishes = {
     allergens: ['shellfish', 'dairy'],
   },
   'cajun-seafood': {
-    name: 'Cajun crab and shrimp',
+    name: 'Cajun shrimp and crab',
     description:
       'Crab clusters, shrimp and andouille sausage in a Cajun garlic butter sauce with peppers and onion.',
     ingredients: [
@@ -127,9 +123,8 @@ export const dishes = {
     source: 'thanksgiving-2026',
   },
   'fried-chicken': {
-    name: 'Honey butter fried chicken',
-    description:
-      'Bone-in thighs and drumsticks in a buttermilk and hot sauce marinade, fried crisp and brushed with honey butter.',
+    name: 'Southern fried chicken',
+    description: 'Bone-in chicken marinated in buttermilk and hot sauce, seasoned and fried crisp.',
     ingredients: [
       'chicken thighs and drumsticks',
       'buttermilk',
@@ -143,35 +138,11 @@ export const dishes = {
       'onion powder',
       'cayenne pepper',
       'canola oil for frying',
-      'butter',
-      'honey',
-    ],
-    allergens: ['dairy', 'wheat'],
-  },
-  'smothered-chicken': {
-    name: 'Smothered chicken',
-    description:
-      'Chicken thighs browned in a skillet, then simmered in onion and pepper gravy until the meat is tender. Served over white rice.',
-    ingredients: [
-      'bone-in chicken thighs',
-      'yellow onion',
-      'green bell pepper',
-      'garlic',
-      'all-purpose wheat flour',
-      CHICKEN_STOCK,
-      'butter',
-      'canola oil',
-      'poultry seasoning',
-      'smoked paprika',
-      'fresh thyme',
-      'kosher salt',
-      'black pepper',
-      'long-grain white rice',
     ],
     allergens: ['dairy', 'wheat'],
   },
   'fried-fish': {
-    name: 'Southern fried fish',
+    name: 'Fried fish',
     description:
       'Whiting or catfish in a seasoned cornmeal crust, fried golden. Lemon and tartar sauce on the side.',
     ingredients: [
@@ -186,81 +157,6 @@ export const dishes = {
       `tartar sauce (${MAYO}, dill relish, lemon juice, onion, parsley)`,
     ],
     allergens: ['fish', 'eggs', 'wheat', 'mustard'],
-  },
-  'black-eyed-pea-bowl': {
-    name: 'Black-eyed pea bowl',
-    description:
-      'Black-eyed peas stewed with tomato, peppers, thyme and smoked paprika, over white rice with braised cabbage. No meat, no dairy.',
-    ingredients: [
-      'black-eyed peas',
-      'long-grain white rice',
-      'crushed tomatoes',
-      'yellow onion',
-      'green bell pepper',
-      'celery',
-      'garlic',
-      'fresh thyme',
-      'smoked paprika',
-      'vegetable stock (water, onion, carrot, celery)',
-      'green cabbage',
-      'olive oil',
-      'apple cider vinegar',
-      'kosher salt',
-      'black pepper',
-    ],
-    allergens: [],
-  },
-  'lemon-pepper-wings': {
-    name: 'Lemon pepper wings',
-    description: 'Whole wings dusted in seasoned flour, fried crisp and tossed in lemon pepper butter while they are still hot.',
-    ingredients: [
-      'chicken wings',
-      'all-purpose wheat flour',
-      'cornstarch',
-      'canola oil for frying',
-      'butter',
-      'lemon zest',
-      'lemon juice',
-      'cracked black pepper',
-      'garlic powder',
-      'kosher salt',
-    ],
-    allergens: ['dairy', 'wheat'],
-  },
-  'honey-hot-wings': {
-    name: 'Honey hot wings',
-    description: 'Fried wings tossed in hot sauce, honey and butter.',
-    ingredients: [
-      'chicken wings',
-      'all-purpose wheat flour',
-      'cornstarch',
-      'canola oil for frying',
-      HOT_SAUCE,
-      'honey',
-      'butter',
-      'garlic',
-      'cayenne pepper',
-      'kosher salt',
-    ],
-    allergens: ['dairy', 'wheat'],
-  },
-  'pulled-pork-sliders': {
-    name: 'Pulled pork sliders',
-    description:
-      'Smoked pulled pork in vinegar barbecue sauce on soft rolls with coleslaw.',
-    ingredients: [
-      'pork shoulder',
-      'brown sugar',
-      'paprika',
-      'garlic powder',
-      'onion powder',
-      'kosher salt',
-      'black pepper',
-      BBQ_SAUCE,
-      'slider rolls (wheat flour, whole milk, butter, eggs, sugar, yeast, salt)',
-      `coleslaw (green cabbage, carrot, ${MAYO}, apple cider vinegar, sugar, celery seed)`,
-    ],
-    allergens: ['wheat', 'dairy', 'eggs', 'mustard'],
   },
   'smoked-turkey': {
     name: 'Smoked turkey',
@@ -334,6 +230,169 @@ export const dishes = {
     allergens: ['dairy', 'wheat'],
   },
 
+  // ---------- Appetizers (from the Aaron J's menu flyer; ingredients are drafts) ----------
+  'oxtail-biscuits': {
+    name: 'Oxtail stuffed biscuits',
+    description: 'Buttermilk biscuits filled with tender braised oxtail.',
+    ingredients: [
+      'buttermilk biscuits (all-purpose wheat flour, butter, buttermilk, baking powder, salt)',
+      'beef oxtails',
+      'onion',
+      'garlic',
+      'fresh thyme',
+      'allspice',
+      'brown sugar',
+      'tomato paste',
+      'beef stock',
+      'all-purpose flour',
+      'black pepper',
+    ],
+    allergens: ['wheat', 'dairy'],
+  },
+  'shrimp-kebabs': {
+    name: 'Shrimp kebabs',
+    description: 'Seasoned shrimp skewered with peppers and red onion, grilled and finished with lemon.',
+    ingredients: ['shrimp', 'bell peppers', 'red onion', 'olive oil', 'garlic', 'lemon', CAJUN, 'parsley'],
+    allergens: ['shellfish'],
+  },
+  'smoked-wings': {
+    name: 'Smoked wings',
+    description: 'Smoked chicken wings in lemon pepper, buffalo (hot or mild) or garlic Parmesan.',
+    ingredients: [
+      'chicken wings',
+      'dry rub (paprika, garlic powder, onion powder, brown sugar, salt, black pepper)',
+      'hardwood smoke',
+      'lemon pepper sauce (butter, lemon zest, black pepper)',
+      `buffalo sauce (${HOT_SAUCE}, butter)`,
+      'garlic Parmesan sauce (butter, garlic, Parmesan, parsley)',
+    ],
+    allergens: ['dairy'],
+  },
+  'fried-pickles': {
+    name: 'Fried pickles',
+    description: 'Dill pickle chips in a seasoned cornmeal crust, fried crisp, with ranch.',
+    ingredients: [
+      'dill pickle chips',
+      'buttermilk',
+      'all-purpose wheat flour',
+      'yellow cornmeal',
+      CAJUN,
+      'canola oil for frying',
+      `ranch (buttermilk, ${MAYO}, sour cream, garlic, dill, parsley)`,
+    ],
+    allergens: ['dairy', 'wheat', 'eggs'],
+  },
+  'crab-mushrooms': {
+    name: 'Crab stuffed mushrooms',
+    description: 'Mushroom caps filled with lump crab, cream cheese and Parmesan, baked golden.',
+    ingredients: [
+      'cremini mushrooms',
+      'lump crab meat',
+      'cream cheese',
+      'breadcrumbs',
+      'Parmesan',
+      'butter',
+      'garlic',
+      'Old Bay',
+      'parsley',
+      'lemon',
+    ],
+    allergens: ['shellfish', 'dairy', 'wheat'],
+  },
+  'crab-shrimp-eggrolls': {
+    name: 'Crab and shrimp egg rolls',
+    description: 'Crisp egg rolls filled with crab, shrimp and cabbage, with sweet chili sauce.',
+    ingredients: [
+      'egg roll wrappers (wheat flour, water, eggs, salt)',
+      'crab meat',
+      'shrimp',
+      'green cabbage',
+      'carrot',
+      'scallions',
+      'garlic',
+      'ginger',
+      'soy sauce (contains wheat)',
+      'sesame oil',
+      'canola oil for frying',
+      'sweet chili sauce (chili peppers, sugar, vinegar, garlic)',
+    ],
+    allergens: ['shellfish', 'wheat', 'eggs', 'soy', 'sesame'],
+  },
+  'bacon-scallops': {
+    name: 'Bacon wrapped scallops',
+    description: 'Sea scallops wrapped in crisp bacon, glazed and finished with fresh herbs.',
+    ingredients: [
+      'sea scallops',
+      'bacon (pork, water, salt, sugar, sodium nitrite)',
+      'brown sugar',
+      'honey',
+      'garlic',
+      'black pepper',
+      'chives',
+      'parsley',
+    ],
+    allergens: ['shellfish'],
+  },
+
+  // ---------- Salads (from the Aaron J's menu flyer; ingredients are drafts) ----------
+  'garden-salad': {
+    name: 'Garden salad',
+    description: 'Mixed greens, cucumber, grape tomatoes, red onion and carrot with croutons. Ranch or Italian dressing.',
+    ingredients: [
+      'romaine and mixed greens',
+      'cucumber',
+      'grape tomatoes',
+      'red onion',
+      'carrot',
+      'croutons (bread (wheat flour, yeast, salt), olive oil, garlic)',
+      `buttermilk ranch (buttermilk, ${MAYO}, sour cream, garlic, dill, parsley)`,
+      'Italian vinaigrette (olive oil, red wine vinegar, garlic, oregano)',
+    ],
+    allergens: ['wheat', 'dairy', 'eggs'],
+  },
+  'caesar-salad': {
+    name: 'Caesar salad',
+    description: 'Romaine, shaved Parmesan and garlic croutons in Caesar dressing.',
+    ingredients: [
+      'romaine',
+      'Parmesan',
+      'croutons (bread (wheat flour, yeast, salt), olive oil, garlic)',
+      `Caesar dressing (${MAYO}, Parmesan, lemon juice, garlic, Dijon mustard, anchovy, Worcestershire sauce, black pepper)`,
+    ],
+    allergens: ['dairy', 'wheat', 'eggs', 'fish', 'mustard'],
+  },
+  'cobb-salad': {
+    name: 'Cobb salad',
+    description: 'Chopped romaine with grilled chicken, bacon, egg, avocado, tomato and blue cheese, with ranch.',
+    ingredients: [
+      'romaine',
+      'grilled chicken',
+      'bacon (pork, water, salt, sugar, sodium nitrite)',
+      'hard-boiled eggs',
+      'avocado',
+      'grape tomatoes',
+      'blue cheese',
+      'red onion',
+      `buttermilk ranch (buttermilk, ${MAYO}, sour cream, garlic, dill, parsley)`,
+    ],
+    allergens: ['eggs', 'dairy'],
+  },
+
+  'garlic-mashed': {
+    name: 'Garlic mashed potatoes with red wine gravy',
+    description: 'Russet potatoes mashed with butter, cream and roasted garlic, under red wine gravy.',
+    ingredients: [
+      'russet potatoes',
+      'butter',
+      'heavy cream',
+      'roasted garlic',
+      'salt',
+      'white pepper',
+      'red wine gravy (red wine, beef stock, butter, all-purpose flour, shallot, thyme, black pepper)',
+    ],
+    allergens: ['dairy', 'wheat'],
+  },
+
   // ---------- Brunch ----------
   'shrimp-and-grits': {
     name: 'Shrimp and grits',
@@ -397,18 +456,6 @@ export const dishes = {
     ],
     allergens: ['eggs', 'dairy'],
   },
-  'hash-browns': {
-    name: 'Crispy hash browns',
-    description: 'Shredded potatoes and onion cooked on the flat top until a crust forms on both sides.',
-    ingredients: ['russet potatoes', 'yellow onion', 'canola oil', 'kosher salt', 'black pepper', 'parsley'],
-    allergens: [],
-  },
-  bacon: {
-    name: 'Bacon or turkey bacon',
-    description: 'Pork or turkey bacon, cooked crisp.',
-    ingredients: ['bacon (pork, water, salt, sugar, sodium nitrite)', 'turkey bacon (turkey, water, salt, sugar, sodium nitrite)'],
-    allergens: [],
-  },
   'mini-quiche': {
     name: 'Handmade mini quiche',
     description: 'Two-bite quiches in an all-butter crust. Spinach and cheddar, or ham and Swiss.',
@@ -429,7 +476,7 @@ export const dishes = {
     allergens: ['dairy', 'eggs', 'wheat'],
   },
 
-  // ---------- Small bites ----------
+  // ---------- Wedding cocktail hour ----------
   'shrimp-grits': {
     name: 'Shrimp and grits cups',
     description:
@@ -449,83 +496,8 @@ export const dishes = {
     ],
     allergens: ['shellfish', 'dairy'],
   },
-  'fried-green-tomatoes': {
-    name: 'Fried green tomatoes',
-    description: 'Green tomatoes cut thick, dipped in buttermilk and egg, crusted in cornmeal and fried. Topped with comeback sauce.',
-    ingredients: [
-      'green tomatoes',
-      'buttermilk',
-      'eggs',
-      'yellow cornmeal',
-      'all-purpose wheat flour',
-      CAJUN,
-      'canola oil for frying',
-      `comeback sauce (${MAYO}, chili sauce, ketchup, Worcestershire sauce (contains anchovy), hot sauce, garlic, onion, black pepper)`,
-    ],
-    allergens: ['dairy', 'eggs', 'wheat', 'fish'],
-  },
-  'jalapeno-poppers': {
-    name: 'Bacon-wrapped jalapeño poppers',
-    description: 'Jalapeño halves filled with cream cheese and cheddar, wrapped in bacon and baked until the bacon crisps.',
-    ingredients: [
-      'jalapeño peppers',
-      'cream cheese',
-      'sharp cheddar',
-      'bacon (pork, water, salt, sugar, sodium nitrite)',
-      'garlic powder',
-      'smoked paprika',
-      'scallions',
-    ],
-    allergens: ['dairy'],
-  },
-  'deviled-eggs': {
-    name: 'Deviled eggs',
-    description: 'Yolks whipped with mayonnaise, mustard and sweet relish. Finished with smoked paprika and chives.',
-    ingredients: [
-      'eggs',
-      MAYO,
-      'yellow mustard',
-      'sweet pickle relish',
-      'apple cider vinegar',
-      'smoked paprika',
-      'chives',
-      'kosher salt',
-      'black pepper',
-    ],
-    allergens: ['eggs', 'mustard'],
-  },
 
   // ---------- Sides ----------
-  'rice-and-peas': {
-    name: 'Rice and peas',
-    description: 'Long-grain rice cooked with red kidney beans, coconut milk, thyme, scallion and allspice. Contains coconut.',
-    ingredients: [
-      'long-grain white rice',
-      'red kidney beans',
-      'coconut milk',
-      'scallions',
-      'garlic',
-      'fresh thyme',
-      'whole allspice',
-      'scotch bonnet pepper (whole, removed before serving)',
-      'kosher salt',
-      'black pepper',
-    ],
-    allergens: [],
-  },
-  plantains: {
-    name: 'Fried sweet plantains',
-    description: 'Ripe plantains sliced on the bias and fried until the edges go dark and sticky. Finished with red pepper and parsley.',
-    ingredients: ['ripe plantains', 'canola oil', 'red bell pepper', 'parsley', 'kosher salt'],
-    allergens: [],
-  },
-  'mashed-potatoes': {
-    name: 'Mashed potatoes',
-    description: 'Russet potatoes mashed with butter, heavy cream and garlic.',
-    ingredients: ['russet potatoes', 'butter', 'heavy cream', 'garlic', 'salt', 'white pepper'],
-    allergens: ['dairy'],
-    source: 'thanksgiving-2026',
-  },
   'mashed-potatoes-gravy': {
     name: 'Mashed potatoes and gravy',
     description: 'Mashed potatoes with turkey gravy.',
@@ -548,12 +520,6 @@ export const dishes = {
     allergens: ['shellfish', 'eggs'],
     note: 'Prepared separately from the rest of the menu.',
     source: 'thanksgiving-2026',
-  },
-  'mixed-vegetables': {
-    name: 'Mixed vegetables',
-    description: 'Roasted Brussels sprouts, yellow squash, red peppers, carrots and onion.',
-    ingredients: ['Brussels sprouts', 'yellow squash', 'zucchini', 'red bell pepper', 'carrots', 'yellow onion', 'olive oil', 'garlic', 'kosher salt', 'black pepper', 'scallions'],
-    allergens: [],
   },
   mac: {
     name: 'Baked mac and cheese',
@@ -607,24 +573,6 @@ export const dishes = {
     allergens: ['dairy'],
     source: 'thanksgiving-2026',
   },
-  'potato-salad': {
-    name: 'Potato salad',
-    description: 'Russet potatoes, chopped boiled egg, celery, red onion and sweet relish, folded with mayonnaise and mustard. Paprika on top.',
-    ingredients: [
-      'russet potatoes',
-      'eggs',
-      MAYO,
-      'yellow mustard',
-      'sweet pickle relish',
-      'celery',
-      'red onion',
-      'apple cider vinegar',
-      'paprika',
-      'kosher salt',
-      'black pepper',
-    ],
-    allergens: ['eggs', 'mustard'],
-  },
   cabbage: {
     name: 'Cabbage',
     description: 'Green cabbage cooked down with smoked turkey, onion, bell pepper, garlic and butter.',
@@ -632,22 +580,6 @@ export const dishes = {
     allergens: ['dairy'],
     note: 'Vegetarian on request: olive oil and vegetable stock, no turkey.',
     source: 'thanksgiving-2026',
-  },
-  'house-salad': {
-    name: 'House salad',
-    description:
-      'Romaine and mixed greens with cucumber, grape tomatoes, red onion, shredded carrot and cornbread croutons. Buttermilk ranch on the side.',
-    ingredients: [
-      'romaine',
-      'mixed greens',
-      'cucumber',
-      'grape tomatoes',
-      'red onion',
-      'carrot',
-      `cornbread croutons (${CORNBREAD}, butter)`,
-      `buttermilk ranch (buttermilk, ${MAYO}, sour cream, garlic, dill, parsley, chives, lemon juice, salt, black pepper)`,
-    ],
-    allergens: ['dairy', 'eggs', 'wheat'],
   },
   stuffing: {
     name: 'Stuffing',
@@ -692,44 +624,6 @@ export const dishes = {
   },
 
   // ---------- Desserts ----------
-  'peach-cobbler': {
-    name: 'Peach cobbler',
-    description:
-      'Sliced peaches cooked down with brown sugar, cinnamon and nutmeg under a buttery biscuit top. Served warm.',
-    ingredients: [
-      'peaches',
-      'brown sugar',
-      'granulated sugar',
-      'butter',
-      'all-purpose wheat flour',
-      'whole milk',
-      'baking powder',
-      'cinnamon',
-      'nutmeg',
-      'vanilla extract',
-      'lemon juice',
-      'kosher salt',
-    ],
-    allergens: ['dairy', 'wheat'],
-  },
-  'banana-pudding': {
-    name: 'Banana pudding',
-    description:
-      'Vanilla custard layered with bananas and vanilla wafers, topped with whipped cream.',
-    ingredients: [
-      'whole milk',
-      'eggs',
-      'sugar',
-      'cornstarch',
-      'butter',
-      'vanilla extract',
-      'bananas',
-      'vanilla wafers (all-purpose wheat flour, butter, sugar, eggs, vanilla extract, baking powder, salt)',
-      'heavy cream',
-      'kosher salt',
-    ],
-    allergens: ['dairy', 'eggs', 'wheat'],
-  },
   'pound-cake': {
     name: 'Pound cake',
     description: 'A dense butter cake made with heavy cream, vanilla and a little lemon zest.',
@@ -752,19 +646,6 @@ export const dishes = {
     source: 'thanksgiving-2026',
   },
 
-  // ---------- Drinks ----------
-  'sweet-tea': {
-    name: 'Sweet tea',
-    description: 'Black tea brewed strong and sweetened while it is still hot. Lemon on the side.',
-    ingredients: ['water', 'black tea', 'cane sugar', 'lemon'],
-    allergens: [],
-  },
-  lemonade: {
-    name: 'Fresh lemonade',
-    description: 'Squeezed lemons, cane sugar and water.',
-    ingredients: ['fresh lemon juice', 'cane sugar', 'water'],
-    allergens: [],
-  },
 };
 
 export function dish(id) {

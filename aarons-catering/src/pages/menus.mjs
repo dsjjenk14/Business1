@@ -37,7 +37,7 @@ function ingredientsLine(d) {
 // dish differently on one menu. Ingredients and allergens stay the dish's own.
 function entry(e) {
   const d = dish(typeof e === 'string' ? e : e.dish);
-  return { ...d, name: e.name ?? d.name, description: e.description ?? d.description };
+  return { ...d, name: e.name ?? d.name, description: e.description ?? d.description, note: e.note ?? d.note };
 }
 
 export function menuDish(e, headingLevel = 4) {
@@ -56,7 +56,8 @@ function panel(m) {
     .map(
       (c) => `<div class="course">
       <h3 class="course-title">${esc(c.title)}</h3>
-      <ul class="dish-list" role="list">${c.dishes.map((e) => menuDish(e)).join('')}</ul>
+      ${c.note ? `<p class="course-note">${esc(curly(c.note))}</p>` : ''}
+      ${c.dishes ? `<ul class="dish-list" role="list">${c.dishes.map((e) => menuDish(e)).join('')}</ul>` : ''}
     </div>`,
     )
     .join('');
@@ -90,7 +91,7 @@ function jsonLd() {
       '@type': 'MenuSection',
       name: m.heading ?? m.title,
       description: m.intro,
-      hasMenuSection: m.courses.map((c) => ({
+      hasMenuSection: m.courses.filter((c) => c.dishes).map((c) => ({
         '@type': 'MenuSection',
         name: c.title,
         hasMenuItem: c.dishes.map((e) => {
@@ -112,7 +113,7 @@ export default function menusPage() {
   <div class="container page-hero-content">
     ${eyebrow('Catering menus')}
     <h1 id="page-title" class="h1">Soul food catering menus</h1>
-    <p class="lede">We cater all events. Start with any menu below, or tell us what you want and we'll price it for your guest count.</p>
+    <p class="lede">Customized menus for every occasion. Start with any menu below, or tell us what you want and we'll price it for your guest count.</p>
   </div>
 </section>
 

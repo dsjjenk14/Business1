@@ -23,10 +23,10 @@ const fail = (where, msg) => problems.push(`${where}: ${msg}`);
 // Words that mean an allergen is in the ingredient list. Phrases in `ignore`
 // are removed first so they don't trip a false match ("butter beans" has no dairy).
 const allergenWords = {
-  dairy: ['butter', 'buttermilk', 'milk', 'cream', 'cheese', 'cheddar', 'gouda', 'colby', 'ghee', 'yogurt', 'whey'],
+  dairy: ['butter', 'buttermilk', 'milk', 'cream', 'cheese', 'cheddar', 'gouda', 'colby', 'parmesan', 'gruyère', 'ghee', 'yogurt', 'whey'],
   eggs: ['egg', 'eggs', 'mayonnaise', 'egg yolks'],
   wheat: ['wheat', 'flour', 'semolina', 'macaroni', 'pasta', 'noodles', 'bread', 'bun', 'rolls', 'crust', 'wafers', 'croutons', 'breadcrumbs', 'panko'],
-  shellfish: ['shrimp', 'crab', 'lobster', 'crawfish', 'oyster', 'scallop'],
+  shellfish: ['shrimp', 'crab', 'lobster', 'crawfish', 'oyster', 'scallop', 'scallops'],
   fish: ['fish', 'salmon', 'catfish', 'whiting', 'tilapia', 'anchovy', 'worcestershire'],
   'tree nuts': ['pecan', 'pecans', 'walnut', 'almond', 'cashew', 'pistachio', 'hazelnut'],
   peanuts: ['peanut', 'peanuts'],

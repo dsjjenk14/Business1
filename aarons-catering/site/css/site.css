@@ -804,6 +804,7 @@ button { font: inherit; color: inherit; }
 .is-wedding .course-title { color: var(--white); }
 
 .course { margin-bottom: 48px; }
+.course-note { margin: 12px 0 8px; color: var(--muted); font-size: 0.9375rem; font-style: italic; }
 .course-title {
   display: flex;
   align-items: center;
