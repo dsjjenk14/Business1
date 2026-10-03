@@ -136,6 +136,9 @@ export default function holidayPage() {
       <li><span class="fact-label">Pickup and delivery</span><span class="big-date">${handoff.mon} ${handoff.day}</span><span class="fact-sub">${handoff.weekday}, in a 30-minute window</span></li>
       <li><span class="fact-label">Thanksgiving</span><span class="big-date">${day.mon} ${day.day}</span><span class="fact-sub">We take a limited number of orders</span></li>
     </ul>
+    <nav class="jump-links" aria-label="On this page">
+      <a href="#packages">Packages</a><a href="#meats">Meats</a><a href="#sides">Sides</a><a href="#add-ons">Add-ons</a><a href="#order">How to order</a><a href="#allergies">Allergies</a>
+    </nav>
   </div>
 </section>
 

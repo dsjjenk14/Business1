@@ -11,8 +11,7 @@ function hero() {
   return `<section class="hero" aria-labelledby="hero-title">
   <div class="hero-media">${img('hero', { eager: true })}</div>
   <div class="container hero-content">
-    <p class="hero-name">Aaron J's Catering</p>
-    <p class="hero-kicker">Private chef &amp; catering</p>
+    <p class="hero-kicker">Aaron J's Catering</p>
     <h1 id="hero-title" class="hero-title">${esc(site.tagline)}</h1>
     <p class="hero-lede">Weddings, corporate events, birthdays, church and family events, holidays and meal prep across DC, Maryland and Northern Virginia.</p>
     <a class="btn btn-lg" href="#quote">Request a Quote</a>
@@ -26,8 +25,11 @@ function quote() {
     <div class="home-quote-intro">
       ${eyebrow('Request a quote')}
       <h2 id="quote-title" class="h2">Tell us about your event</h2>
-      <p class="lede">We reply within one business day.</p>
-      <p class="cta-alt">Rather talk? Call <a href="${site.phone.href}">${site.phone.display}</a> or email <a href="mailto:${site.email}">${site.email}</a>.</p>
+      <p class="lede">It takes about a minute. We reply within one business day.</p>
+      <div class="quick-contact">
+        <a class="btn btn-ghost" href="${site.phone.href}">${icon('phone')} Call us</a>
+        <a class="btn btn-ghost" href="mailto:${site.email}">${icon('mail')} Email us</a>
+      </div>
     </div>
     ${quoteForm()}
   </div>
@@ -88,9 +90,7 @@ function dishes() {
       <a class="text-link" href="menus.html">All menus ${icon('arrow', 'icon icon-sm')}</a>
     </div>
   </div>
-  <div class="dish-scroller" tabindex="0" aria-label="Favorite dishes, scroll sideways for more">
-    <ul class="dish-row" role="list">${cards}</ul>
-  </div>
+  <ul class="dish-row" role="list">${cards}</ul>
 </section>`;
 }
 

@@ -109,34 +109,24 @@ export default function menusPage() {
     .map((m) => `<a href="#${m.id}" id="tab-${m.id}" data-menu-tab="${m.id}">${esc(m.title)}</a>`)
     .join('');
 
-  const content = `<section class="page-hero" aria-labelledby="page-title">
+  const content = `<section class="page-hero page-hero-short" aria-labelledby="page-title">
   <div class="page-hero-media">${img('page-menus', { eager: true })}</div>
   <div class="container page-hero-content">
     ${eyebrow('Catering menus')}
-    <h1 id="page-title" class="h1">Soul food catering menus</h1>
-    <p class="lede">Customized menus for every occasion. Start with any menu below, or tell us what you want and we'll price it for your guest count.</p>
-  </div>
-</section>
-
-<section class="section section-tight">
-  <div class="container menu-intro">
-    <div class="notice" id="allergies" role="note" aria-labelledby="allergy-title">
-      ${icon('alert', 'icon notice-icon')}
-      <div>
-        <h2 class="notice-title" id="allergy-title">Allergies</h2>
-        <p>This is a working kitchen that handles <strong>shellfish, dairy, eggs, wheat and nuts</strong>. We take real care, but we cannot guarantee any dish is free of an allergen.</p>
-        <p>Every dish below lists its allergens. If anyone at your event has a food allergy, tell us before you order, or call <a href="${site.phone.href}">${site.phone.display}</a>.</p>
-      </div>
-    </div>
-    <p class="muted menu-pricing">Pricing depends on guest count, service style and location. <a href="index.html#quote">Request a quote</a>.</p>
+    <h1 id="page-title" class="h1">Our menus</h1>
+    <p class="lede">Pick a menu below. Pricing depends on guest count, service style and location.</p>
   </div>
 </section>
 
 <div class="menu-tabs-wrap" data-menu-tabs>
-  <nav class="container menu-tabs" aria-label="Menus by event">${tabs}</nav>
+  <div class="container"><nav class="menu-tabs" aria-label="Menus by event">${tabs}</nav></div>
 </div>
 
 <div class="container menus">
+<div class="allergy-note" id="allergies" role="note">
+  ${icon('alert', 'icon')}
+  <p><strong>Allergies.</strong> This is a working kitchen that handles shellfish, dairy, eggs, wheat and nuts. We take real care, but we cannot guarantee any dish is free of an allergen. Every dish lists its allergens; if anyone at your event has a food allergy, tell us before you order or call <a href="${site.phone.href}">${site.phone.display}</a>.</p>
+</div>
 ${menus.map(panel).join('\n')}
 </div>
 
