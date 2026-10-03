@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /thanks.html
+
+Sitemap: https://aaronjscatering.com/sitemap.xml
