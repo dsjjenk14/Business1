@@ -4,112 +4,82 @@ import { holiday } from '../content/holiday.mjs';
 import { dish } from '../content/dishes.mjs';
 import { icon } from '../icons.mjs';
 import { esc, curly, img, eyebrow, parseDate, money } from '../lib.mjs';
+import { allergenLine } from './menus.mjs';
 
-// "10 to 12" -> numbers wrapped so they render in gold
+// "5 to 6" -> numbers wrapped so they render in gold
 function nums(text) {
   return esc(text).replace(/\d+/g, (n) => `<span class="num">${n}</span>`);
 }
 
-function shortDate(iso) {
-  const d = parseDate(iso);
-  return `${d.weekday}, ${d.mon} ${d.day}`;
+const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+
+function sentence(list) {
+  return list.length < 2 ? list.join('') : `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}`;
 }
 
-function windows(list) {
-  return list.map((w) => `${shortDate(w.date)}, ${esc(w.hours)}`).join('<br>');
-}
-
-function dateCards() {
-  return holiday.holidays
-    .map((h) => {
-      const day = parseDate(h.date);
-      const by = parseDate(h.orderBy);
-      return `<li class="date-card">
-      <h3 class="date-name">${esc(curly(h.name))}</h3>
-      <p class="date-day">${day.weekday}, ${day.month} ${day.day}</p>
-      <p class="date-deadline"><span class="label">Order by</span> <span class="big-date">${by.mon} ${by.day}</span> <span class="date-weekday">${by.weekday}</span></p>
-      <dl class="date-windows">
-        <div><dt>${icon('bag', 'icon icon-sm')} Pickup</dt><dd>${windows(h.pickup)}</dd></div>
-        <div><dt>${icon('truck', 'icon icon-sm')} Delivery</dt><dd>${windows(h.delivery)}</dd></div>
-      </dl>
-    </li>`;
-    })
-    .join('');
-}
+const T = holiday.thanksgiving;
+const day = parseDate(T.date);
+const by = parseDate(T.orderBy);
+const handoff = parseDate(T.handoff);
+const cancel = parseDate(T.cancelBy);
 
 function packages() {
   return holiday.packages
     .map(
-      (p) => `<li class="package">
-      <div class="package-top">
-        <p class="package-for">${esc(curly(p.for))}</p>
+      (p) => `<li class="package${p.popular ? ' is-popular' : ''}">
+      ${p.popular ? '<p class="package-for">Most popular</p>' : ''}
+      <div class="package-head">
         <h3 class="package-name">${esc(curly(p.name))}</h3>
-        <p class="package-note">${esc(curly(p.note))}</p>
+        <p class="price">${money(p.price)}</p>
       </div>
-      <p class="package-price"><span class="price">${money(p.price)}</span> <span class="serves">Serves ${nums(p.serves)}</span></p>
-      <ul class="package-list" role="list">${p.includes.map((i) => `<li>${esc(curly(i))}</li>`).join('')}</ul>
-      <a class="btn btn-block" href="contact.html?event=holiday&amp;package=${p.id}">Order this package<span class="visually-hidden">: ${esc(curly(p.name))}</span></a>
+      <p class="package-note">${esc(p.text)}</p>
+      <p class="serves">Feeds ${nums(p.feeds)}</p>
+      <a class="btn btn-block" href="contact.html?event=holiday&amp;package=${p.id}">Order this<span class="visually-hidden">: ${esc(curly(p.name))}</span></a>
     </li>`,
     )
     .join('');
 }
 
-function choices() {
-  const sides = holiday.choices.sides.map((id) => `<li>${esc(curly(dish(id).name))}</li>`).join('');
-  const desserts = holiday.choices.desserts
-    .map((c) => `<li>${esc(curly(dish(c.dish).name))} <span class="muted">(${esc(c.size)})</span></li>`)
-    .join('');
-  const sizes = holiday.panSizes.map((s) => `<li><span>${esc(s.name)}</span> <span>serves ${nums(s.serves)}</span></li>`).join('');
-  return `<div class="choice-grid">
-    <div class="choice">
-      <h3 class="h3">Sides to choose from</h3>
-      <ul class="check-list" role="list">${sides}</ul>
-    </div>
-    <div class="choice">
-      <h3 class="h3">Desserts to choose from</h3>
-      <ul class="check-list" role="list">${desserts}</ul>
-    </div>
-    <div class="choice">
-      <h3 class="h3">Pan sizes</h3>
-      <ul class="size-list" role="list">${sizes}</ul>
-      <p class="muted small">Full ingredients and allergens for every dish are on the <a href="menus.html#holidays">holiday menu</a>.</p>
-    </div>
-  </div>`;
+// One menu item: name (from the printed menu where it differs), ingredients, allergens.
+function item({ dish: id, name, extra, limit }) {
+  const d = dish(id);
+  const tag = extra ? `<span class="item-extra"><span class="price">+${money(extra)}</span>${limit ? ` &middot; ${esc(limit)}` : ''}</span>` : '';
+  const list = d.ingredients.join(', ');
+  return `<li class="menu-dish">
+    <h4 class="menu-dish-name">${esc(curly(name ?? d.name))}${tag}</h4>
+    <p class="ingredients">${esc(list.charAt(0).toUpperCase() + list.slice(1))}.</p>
+    ${allergenLine(d)}
+  </li>`;
 }
 
-function alaCarte() {
-  return holiday.alaCarte
-    .map((group) => {
-      const cols = group.columns;
-      const head = cols
-        ? `<thead><tr><th scope="col"><span class="visually-hidden">Dish</span></th>${cols.map((c) => `<th scope="col">${esc(c)}</th>`).join('')}</tr></thead>`
-        : '';
-      const rows = group.rows
-        .map((r) => {
-          const name = esc(curly(dish(r.dish).name));
-          if (cols) {
-            return `<tr><th scope="row">${name}</th>${r.prices.map((p) => `<td class="price">${money(p)}</td>`).join('')}</tr>`;
-          }
-          return `<tr><th scope="row">${name} <span class="size">${nums(r.size)}</span></th><td class="price">${money(r.price)}</td></tr>`;
-        })
-        .join('');
-      return `<div class="price-group">
-      <h3 class="h3">${esc(group.title)}</h3>
-      <table class="price-table${cols ? ' has-cols' : ''}">${head}<tbody>${rows}</tbody></table>
-    </div>`;
+function addOns() {
+  return holiday.addOns
+    .map((a) => {
+      const d = a.dish ? dish(a.dish) : null;
+      const name = a.name ?? d.name;
+      const detail = d
+        ? `<p class="ingredients">${esc(d.ingredients.join(', ').replace(/^./, (c) => c.toUpperCase()))}.</p>${allergenLine(d)}`
+        : `<p class="ingredients">${esc(a.text)}</p>`;
+      return `<li class="menu-dish addon">
+      <h4 class="menu-dish-name"><span>${esc(curly(name))}</span><span class="price">${money(a.price)}</span></h4>
+      ${detail}
+    </li>`;
     })
+    .join('');
+}
+
+function delivery() {
+  return holiday.delivery
+    .map((d) => `<tr><th scope="row">${esc(d.area)}</th><td class="price">${money(d.price)}</td></tr>`)
     .join('');
 }
 
 function steps() {
   const list = [
-    ['Pick a package', 'Or build your own from the list above. Note your sides and desserts.'],
-    [
-      'Send us your order',
-      `Use the order form or call <a href="${site.phone.href}">${site.phone.display}</a>. Tell us pickup or delivery, and which day.`,
-    ],
-    ['We confirm it', 'We reply within one business day with your total and an invoice. Your order is held once the invoice is paid.'],
-    ['Pick up or get delivery', 'Everything comes fully cooked and chilled, with reheating instructions on every lid.'],
+    ['Pick your package', `Choose your meats, sides and dessert from the menu. ${sentence(holiday.requestByDeadline)} must be requested by ${by.weekday}, ${by.month} ${by.day}.`],
+    ['Send us your order', `Use the order form or call <a href="${site.phone.href}">${site.phone.display}</a>. Orders close ${by.weekday}, ${by.month} ${by.day}, or sooner if we sell out.`],
+    ['Pay to confirm', `Payment in full is due when you order. Your order isn't confirmed until it's paid. Cancel by ${cancel.month} ${cancel.day} for a full refund. After that the food is already bought and prepped, so orders are final.`],
+    ['Pickup or delivery', `Everything goes out ${handoff.weekday}, ${handoff.month} ${handoff.day}, the day before Thanksgiving. You get a 30-minute window when you order.`],
   ];
   return list
     .map(
@@ -125,15 +95,16 @@ function jsonLd() {
   return {
     '@context': 'https://schema.org',
     '@type': 'OfferCatalog',
-    name: `Holiday catering ${holiday.year}`,
+    name: `Thanksgiving ${holiday.year} catering`,
     url: `${site.url}/holiday.html`,
     itemListElement: holiday.packages.map((p) => ({
       '@type': 'Offer',
       name: p.name,
-      description: `${p.note} Serves ${p.serves}. ${p.includes.join('. ')}.`,
+      description: `${p.text} Feeds ${p.feeds}. ${holiday.includedNote}`,
       price: String(p.price),
       priceCurrency: 'USD',
       availability: 'https://schema.org/LimitedAvailability',
+      availabilityEnds: T.orderBy,
       areaServed: 'Northern Virginia, Washington DC and Maryland',
       offeredBy: { '@id': businessId },
     })),
@@ -143,63 +114,82 @@ function jsonLd() {
 export default function holidayPage() {
   const opens = parseDate(holiday.season.opens);
   const y = holiday.year;
-  const { fee, radius } = holiday.delivery;
 
   const content = `<section class="page-hero" aria-labelledby="page-title">
   <div class="page-hero-media">${img('page-holiday', { eager: true })}</div>
   <div class="container page-hero-content">
-    ${eyebrow(`Holiday ordering ${y}`)}
-    <h1 id="page-title" class="h1">Thanksgiving and holiday catering</h1>
-    <p class="lede">Turkey, ham, cornbread dressing, greens, mac and cheese and pies, cooked in Fairfax. Pick it up from our kitchen or have it delivered in Northern Virginia, DC and Maryland.</p>
+    ${eyebrow(`Thanksgiving ${y}`)}
+    <h1 id="page-title" class="h1">Thanksgiving catering</h1>
+    <p class="lede">${day.weekday}, ${day.month} ${day.day}. Smoked, fried or jerk turkey, glazed ham, short ribs and ${WORDS[holiday.sides.length] ?? holiday.sides.length} sides, cooked in Fairfax. Pickup in Fairfax or delivery across the DMV on ${handoff.weekday}, ${handoff.month} ${handoff.day}.</p>
     <p class="status" data-holiday-status
-       data-before="Orders open ${opens.weekday}, ${opens.month} ${opens.day}."
-       data-during="Ordering is open."
-       data-after="Holiday ordering is closed for ${y}.">
-      <span class="status-dot" aria-hidden="true"></span><span class="status-text">Thanksgiving, Christmas and New Year's ${y}</span>
+       data-before="Orders open ${opens.month} ${opens.day}."
+       data-during="Orders close ${by.weekday}, ${by.month} ${by.day}, or sooner if we sell out."
+       data-after="Thanksgiving orders are closed for ${y}.">
+      <span class="status-dot" aria-hidden="true"></span><span class="status-text">Orders close ${by.weekday}, ${by.month} ${by.day}</span>
     </p>
   </div>
 </section>
 
-<section class="section" aria-labelledby="dates-title">
+<section class="section section-tight" aria-label="Key dates">
   <div class="container">
-    <div class="section-head">
-      ${eyebrow('Dates')}
-      <h2 id="dates-title" class="h2">Order deadlines and pickup</h2>
-      <p class="lede">We cook a set number of orders for each holiday. When the kitchen is full, the list closes, even if the deadline hasn't passed. Earlier is better.</p>
-    </div>
-    <ul class="date-grid" role="list">${dateCards()}</ul>
+    <ul class="fact-row" role="list">
+      <li><span class="fact-label">Orders close</span><span class="big-date">${by.mon} ${by.day}</span><span class="fact-sub">${by.weekday}, or sooner if we sell out</span></li>
+      <li><span class="fact-label">Pickup and delivery</span><span class="big-date">${handoff.mon} ${handoff.day}</span><span class="fact-sub">${handoff.weekday}, in a 30-minute window</span></li>
+      <li><span class="fact-label">Thanksgiving</span><span class="big-date">${day.mon} ${day.day}</span><span class="fact-sub">We take a limited number of orders</span></li>
+    </ul>
   </div>
 </section>
 
 <section class="section section-dark" aria-labelledby="packages-title" id="packages">
   <div class="container">
     <div class="section-head">
-      ${eyebrow('Packages')}
-      <h2 id="packages-title" class="h2">Holiday packages</h2>
-      <p class="lede">Each package comes with everything listed, cooked and packed in oven-safe pans.</p>
+      ${eyebrow('Five ways to order')}
+      <h2 id="packages-title" class="h2">Packages</h2>
+      <p class="lede">${esc(holiday.includedNote)} Serving sizes are listed with each package.</p>
     </div>
-    <ul class="package-grid" role="list">${packages()}</ul>
+    <ul class="package-grid package-grid-5" role="list">${packages()}</ul>
   </div>
 </section>
 
-<section class="section" aria-labelledby="choices-title">
-  <div class="container">
-    <div class="section-head">
-      ${eyebrow('Make it yours')}
-      <h2 id="choices-title" class="h2">Pick your sides and desserts</h2>
+<section class="section" aria-labelledby="meats-title" id="meats">
+  <div class="container holiday-menu">
+    <div class="menu-head">
+      ${eyebrow('Pick 2')}
+      <h2 id="meats-title" class="h2">Meats</h2>
+      <p class="lede">${esc(holiday.meats.note)}</p>
     </div>
-    ${choices()}
+    <ul class="dish-list" role="list">${holiday.meats.items.map(item).join('')}</ul>
   </div>
 </section>
 
-<section class="section section-dark" aria-labelledby="alacarte-title">
-  <div class="container">
-    <div class="section-head">
-      ${eyebrow('\u00C0 la carte')}
-      <h2 id="alacarte-title" class="h2">Or build your own</h2>
-      <p class="lede">Add to a package or order item by item.</p>
+<section class="section section-dark" aria-labelledby="sides-title" id="sides">
+  <div class="container holiday-menu">
+    <div class="menu-head">
+      ${eyebrow('Pick 3')}
+      <h2 id="sides-title" class="h2">Sides</h2>
     </div>
-    <div class="price-grid">${alaCarte()}</div>
+    <ul class="dish-list" role="list">${holiday.sides.map(item).join('')}</ul>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="included-title">
+  <div class="container holiday-menu">
+    <div class="menu-head">
+      ${eyebrow('Every package')}
+      <h2 id="included-title" class="h2">Included</h2>
+    </div>
+    <ul class="dish-list" role="list">${holiday.included.map((id) => item({ dish: id })).join('')}</ul>
+  </div>
+</section>
+
+<section class="section section-dark" aria-labelledby="addons-title" id="add-ons">
+  <div class="container holiday-menu">
+    <div class="menu-head">
+      ${eyebrow('Desserts and extras')}
+      <h2 id="addons-title" class="h2">Add-ons</h2>
+      <p class="lede">The Full Spread comes with one dessert. Add more, or add to any package.</p>
+    </div>
+    <ul class="dish-list" role="list">${addOns()}</ul>
   </div>
 </section>
 
@@ -212,30 +202,54 @@ export default function holidayPage() {
     </div>
     <div class="logistics">
       <div class="logistic">
-        ${icon('bag', 'icon logistic-icon')}
-        <h3 class="h3">Pickup</h3>
-        <p>From our kitchen in Fairfax, during the pickup window for your holiday. We send the address and your time with your confirmation. Pans travel best flat, so bring a box or clear the back seat.</p>
-      </div>
-      <div class="logistic">
         ${icon('truck', 'icon logistic-icon')}
         <h3 class="h3">Delivery</h3>
-        <p><span class="price">${money(fee)}</span> ${esc(radius)}. Further into DC or Maryland, we quote it when you order. Someone needs to be there to take it in.</p>
+        <table class="price-table"><tbody>${delivery()}</tbody></table>
+      </div>
+      <div class="logistic">
+        ${icon('bag', 'icon logistic-icon')}
+        <h3 class="h3">Pickup</h3>
+        <p>In Fairfax, Virginia. The address is sent to you once your order is placed.</p>
       </div>
       <div class="logistic">
         ${icon('clock', 'icon logistic-icon')}
         <h3 class="h3">Reheating</h3>
-        <p>Most of the meal reheats covered at 325°F in 30 to 45 minutes. A whole turkey takes about 90. Instructions are taped to every lid.</p>
+        <p>Food comes cold with reheating instructions, so your oven does the last step and everything hits the table hot.</p>
       </div>
-      <p class="muted small">${esc(site.allergenNote)} <a href="menus.html#allergies">Allergy details</a></p>
     </div>
+  </div>
+</section>
+
+<section class="section section-tight" aria-labelledby="allergy-title" id="allergies">
+  <div class="container">
+    <div class="notice" role="note">
+      ${icon('alert', 'icon notice-icon')}
+      <div>
+        <h2 class="notice-title" id="allergy-title">Food allergies</h2>
+        <p><strong>Tell us before you order.</strong> If anyone at your table has a food allergy, let us know when you place the order so we can talk it through with you honestly before you pay.</p>
+        <p>Seafood salad and crab-stuffed shrimp are prepared separately from the rest of the menu.</p>
+        <p>This is a working kitchen that handles <strong>shellfish, dairy, eggs, wheat and nuts</strong>. We take real care, but we cannot guarantee any dish is free of an allergen and we do not make that promise. If an allergy is severe, please make your own call.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-dark section-tight" aria-labelledby="next-title">
+  <div class="container next-holidays">
+    <div>
+      ${eyebrow('After Thanksgiving')}
+      <h2 id="next-title" class="h2">${esc(curly(sentence(holiday.next)))}</h2>
+      <p class="lede">Those menus are coming. If you're planning a holiday party or want to be first on the list, tell us now.</p>
+    </div>
+    <a class="btn btn-ghost" href="contact.html?event=holiday">Get in touch</a>
   </div>
 </section>
 
 <section class="section cta" aria-labelledby="cta-title">
   <div class="container cta-inner">
     <h2 id="cta-title" class="h1">Get on the list</h2>
-    <p class="lede">Send your order and we'll confirm it within one business day.</p>
-    <a class="btn btn-lg" href="contact.html?event=holiday">Start a holiday order</a>
+    <p class="lede">We take a limited number of Thanksgiving orders. Send yours and we'll confirm it within one business day.</p>
+    <a class="btn btn-lg" href="contact.html?event=holiday">Start your order</a>
     <p class="cta-alt">Or call <a href="${site.phone.href}">${site.phone.display}</a></p>
   </div>
 </section>`;
@@ -244,7 +258,7 @@ export default function holidayPage() {
     slug: 'holiday',
     title: 'Thanksgiving Catering in Northern Virginia | Holiday Ordering | Aaron J’s Catering',
     description:
-      'Thanksgiving catering in Northern Virginia, cooked in Fairfax. Turkey, ham, dressing, sides and pies. Prices, order deadlines, pickup and delivery to DC and MD.',
+      'Thanksgiving catering in Northern Virginia from Fairfax. Smoked, fried or jerk turkey, ham, short ribs and sides from $80. Pickup or delivery in DC, MD and NoVA.',
     preload: ['page-holiday'],
     jsonld: [jsonLd()],
     content,

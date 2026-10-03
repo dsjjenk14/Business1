@@ -258,8 +258,12 @@
     var packages = {};
     try { packages = JSON.parse(form.getAttribute('data-packages') || '{}'); } catch (e) { /* ignore */ }
     if (pkg && packages[pkg]) {
+      // Pre-fill the message with the package and a line for each choice.
       var message = $('#f-message', form);
-      if (message && !message.value) message.value = 'I’d like to order ' + packages[pkg] + '.\n\nPickup or delivery: \nSides: \nDesserts: ';
+      var lines = ['I’d like to order ' + packages[pkg].name + '.', ''];
+      (packages[pkg].picks || []).forEach(function (p) { lines.push(p + ': '); });
+      lines.push('Pickup or delivery (and where): ');
+      if (message && !message.value) message.value = lines.join('\n');
     }
 
     var messages = {

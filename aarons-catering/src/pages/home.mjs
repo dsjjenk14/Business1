@@ -20,19 +20,20 @@ function hero() {
 }
 
 function holidayBlock() {
-  const thanksgiving = holiday.holidays[0];
-  const d = parseDate(thanksgiving.orderBy);
+  const t = holiday.thanksgiving;
+  const d = parseDate(t.orderBy);
+  const h = parseDate(t.handoff);
   const from = Math.min(...holiday.packages.map((p) => p.price));
   return `<section class="section section-tight holiday-promo" data-holiday-only hidden aria-labelledby="holiday-promo-title">
   <div class="container holiday-promo-inner">
     <div>
-      ${eyebrow('Holiday ordering is open')}
-      <h2 id="holiday-promo-title" class="h2">Turkey, ham, dressing and every side</h2>
-      <p class="muted">Order the whole meal or just the parts you'd rather not make. Thanksgiving orders close ${d.weekday}, ${d.month} ${d.day}, or sooner if the kitchen fills up.</p>
+      ${eyebrow(`Thanksgiving ${holiday.year}`)}
+      <h2 id="holiday-promo-title" class="h2">Turkey, ham and every side</h2>
+      <p class="muted">Smoked, fried or jerk turkey, glazed ham or short ribs, with mac and cheese, greens, yams and stuffing. Pickup or delivery ${h.weekday}, ${h.month} ${h.day}. Orders close ${d.weekday}, ${d.month} ${d.day}, or sooner if we sell out.</p>
     </div>
     <div class="holiday-promo-cta">
       <p class="from"><span class="from-label">Packages from</span> <span class="price">${money(from)}</span></p>
-      <a class="btn" href="holiday.html">See holiday packages</a>
+      <a class="btn" href="holiday.html">See the Thanksgiving menu</a>
     </div>
   </div>
 </section>`;

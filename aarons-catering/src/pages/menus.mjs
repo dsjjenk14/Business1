@@ -15,13 +15,17 @@ const ALLERGEN_LABELS = {
   peanuts: 'Peanuts',
   soy: 'Soy',
   sesame: 'Sesame',
+  mustard: 'Mustard',
 };
 
+// The allergen line, plus the spicy flag and any note (vegetarian swaps and so on).
 export function allergenLine(d) {
   const text = d.allergens.length
     ? d.allergens.map((a) => ALLERGEN_LABELS[a] ?? a).join(', ')
-    : 'None in the recipe. The kitchen note at the top of this page still applies.';
-  return `<p class="allergens"><span class="label">Allergens</span> ${esc(text)}</p>`;
+    : 'None in the recipe. Our kitchen note on allergies still applies.';
+  const spicy = d.spicy ? ' <span class="spicy">Spicy</span>' : '';
+  const note = d.note ? `<p class="dish-note">${esc(d.note)}</p>` : '';
+  return `<p class="allergens"><span class="label">Allergens</span> ${esc(text)}${spicy}</p>${note}`;
 }
 
 function ingredientsLine(d) {

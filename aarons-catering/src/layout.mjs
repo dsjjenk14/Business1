@@ -51,17 +51,17 @@ export function businessJsonLd() {
 }
 
 function holidayBar() {
-  const messages = holiday.holidays.map((h) => {
-    const d = parseDate(h.orderBy);
-    return `<p data-until="${h.orderBy}">Holiday ordering is open. ${esc(curly(h.name))} orders close ${d.weekday}, ${d.month}&nbsp;${d.day}.</p>`;
-  });
-  messages.push(
-    `<p data-until="${holiday.season.closes}">Holiday orders are closed for the year. Thank you for letting us cook for your table.</p>`,
-  );
+  const t = holiday.thanksgiving;
+  const d = parseDate(t.orderBy);
+  // The last message shows once every deadline has passed.
+  const messages = [
+    `<p data-until="${t.orderBy}">Thanksgiving orders close ${d.weekday}, ${d.mon}&nbsp;${d.day}.</p>`,
+    `<p data-until="${holiday.season.closes}">Planning ${esc(curly(holiday.next.join(' or ')))}? Ask us.</p>`,
+  ];
   return `<div class="holiday-bar" data-holiday-bar data-opens="${holiday.season.opens}" data-closes="${holiday.season.closes}" hidden>
   <div class="container holiday-bar-inner">
     <div class="holiday-bar-text">${messages.join('')}</div>
-    <a href="holiday.html">Holiday menu ${icon('arrow', 'icon icon-sm')}</a>
+    <a href="holiday.html">See the menu ${icon('arrow', 'icon icon-sm')}</a>
   </div>
 </div>`;
 }

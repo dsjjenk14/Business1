@@ -1,5 +1,5 @@
-// Holiday ordering: dates, packages and prices.
-// Update this file once a year (dates are YYYY-MM-DD). Weekday names are worked
+// Holiday ordering: the Aaron J's Thanksgiving 2026 menu, as printed.
+// Update this file each season (dates are YYYY-MM-DD). Weekday names are worked
 // out from the dates at build time, so they can't be wrong.
 
 export const holiday = {
@@ -7,167 +7,107 @@ export const holiday = {
 
   // The holiday banner, nav highlight and home page block are on between these
   // dates (inclusive, Eastern time). Preview any time with ?holiday=on.
-  season: { opens: '2026-11-01', closes: '2027-01-01' },
+  season: { opens: '2026-10-01', closes: '2027-01-01' },
 
-  holidays: [
-    {
-      id: 'thanksgiving',
-      name: 'Thanksgiving',
-      date: '2026-11-26',
-      orderBy: '2026-11-19',
-      pickup: [{ date: '2026-11-25', hours: 'noon to 7 PM' }],
-      delivery: [{ date: '2026-11-25', hours: '2 to 7 PM' }],
-    },
-    {
-      id: 'christmas',
-      name: 'Christmas',
-      date: '2026-12-25',
-      orderBy: '2026-12-18',
-      pickup: [
-        { date: '2026-12-23', hours: 'noon to 7 PM' },
-        { date: '2026-12-24', hours: '9 AM to 1 PM' },
-      ],
-      delivery: [{ date: '2026-12-23', hours: '2 to 7 PM' }],
-    },
-    {
-      id: 'new-years',
-      name: "New Year's",
-      date: '2027-01-01',
-      orderBy: '2026-12-28',
-      pickup: [{ date: '2026-12-31', hours: '10 AM to 3 PM' }],
-      delivery: [{ date: '2026-12-31', hours: '10 AM to 3 PM' }],
-    },
-  ],
+  // The holiday with a menu this season.
+  thanksgiving: {
+    name: 'Thanksgiving',
+    date: '2026-11-26',
+    orderBy: '2026-11-20', // orders close, or sooner if we sell out
+    cancelBy: '2026-11-20', // full refund until then
+    handoff: '2026-11-25', // every pickup and delivery happens this day
+  },
+
+  // No menu yet. Shown as "coming" with a way to get in touch.
+  next: ['Christmas', "New Year's"],
 
   packages: [
     {
-      id: 'full-table',
-      name: 'The Full Table',
-      serves: '10 to 12',
-      price: 425,
-      for: 'Thanksgiving and Christmas',
-      note: 'The whole meal. You set the table.',
-      includes: [
-        'One main: herb-roasted turkey (14 to 16 lb), smoked turkey (14 to 16 lb) or honey-glazed ham (8 to 10 lb)',
-        'Cornbread dressing, half pan',
-        'Turkey gravy, 2 quarts',
-        'Four sides, half pans',
-        'Two dozen yeast rolls',
-        'Two desserts',
-      ],
+      id: 'full-spread',
+      name: 'The Full Spread',
+      price: 240,
+      feeds: '5 to 6',
+      popular: true,
+      text: 'Pick 2 meats, 3 sides and any one dessert, with gravy, bread and cranberry sauce.',
+      picks: ['Meats (pick 2)', 'Sides (pick 3)', 'Dessert (pick 1)', 'Rolls or cornbread'],
     },
     {
-      id: 'small-table',
-      name: 'The Small Table',
-      serves: '4 to 6',
-      price: 235,
-      for: 'Thanksgiving and Christmas',
-      note: 'Same food, smaller pans.',
-      includes: [
-        'One main: honey-glazed half ham (4 to 5 lb) or six smothered turkey wings',
-        'Cornbread dressing, small pan',
-        'Turkey gravy, 1 quart',
-        'Three sides, small pans',
-        'One dozen yeast rolls',
-        'One dessert',
-      ],
+      id: 'meats',
+      name: 'Meats',
+      price: 120,
+      feeds: '5 to 6',
+      text: 'Pick 2.',
+      picks: ['Meats (pick 2)', 'Rolls or cornbread'],
     },
     {
-      id: 'the-sides',
-      name: 'The Sides',
-      serves: '10 to 12',
-      price: 260,
-      for: 'Thanksgiving and Christmas',
-      note: 'You cook the bird. We do the rest.',
-      includes: [
-        'Cornbread dressing, half pan',
-        'Turkey gravy, 2 quarts',
-        'Five sides, half pans',
-        'Two dozen yeast rolls',
-      ],
+      id: 'sides',
+      name: 'Sides',
+      price: 135,
+      feeds: '5 to 6',
+      text: 'Pick 3.',
+      picks: ['Sides (pick 3)', 'Rolls or cornbread'],
     },
     {
-      id: 'good-luck',
-      name: 'The Good Luck Pan',
-      serves: '10 to 12',
-      price: 210,
-      for: "New Year's Day",
-      note: 'Black-eyed peas for luck, greens for money, cornbread for gold.',
-      includes: [
-        "Hoppin' John, half pan",
-        'Collard greens with smoked turkey, half pan',
-        'Skillet cornbread, 12 wedges',
-        'One main: 20 pieces of honey butter fried chicken or 12 smothered pork chops',
-      ],
+      id: 'half-spread',
+      name: 'The Half Spread',
+      price: 118,
+      feeds: '3 to 4',
+      text: 'Pick 1 meat and 2 sides, with bread and cranberry sauce.',
+      picks: ['Meat (pick 1)', 'Sides (pick 2)', 'Rolls or cornbread'],
+    },
+    {
+      id: 'dinner-for-two',
+      name: 'Dinner for Two',
+      price: 80,
+      feeds: '2',
+      text: 'Pick 2 meats and 3 sides, portioned for two.',
+      picks: ['Meats (pick 2)', 'Sides (pick 3)', 'Rolls or cornbread'],
     },
   ],
+  includedNote: 'Every package includes rolls or cornbread and cranberry sauce.',
 
-  // What you can pick inside a package.
-  choices: {
-    sides: ['mac', 'collards', 'yams', 'green-beans', 'potato-salad', 'cabbage', 'cranberry'],
-    desserts: [
-      { dish: 'sweet-potato-pie', size: 'whole pie' },
-      { dish: 'pecan-pie', size: 'whole pie' },
-      { dish: 'peach-cobbler', size: 'half pan' },
-      { dish: 'banana-pudding', size: 'half pan' },
-      { dish: 'pound-cake', size: 'whole cake' },
+  meats: {
+    note: 'Turkeys and hams come as half portions. Short ribs are served by the pan. Whole turkeys are available as add-ons below.',
+    items: [
+      { dish: 'ham', name: 'Half glazed ham' },
+      { dish: 'smoked-turkey', name: 'Half smoked turkey' },
+      { dish: 'jerk-turkey', name: 'Half jerk turkey' },
+      { dish: 'fried-turkey', name: 'Half fried turkey' },
+      { dish: 'short-ribs', extra: 30, limit: 'Limit 1 per package' },
     ],
   },
+  sides: [
+    { dish: 'mac' },
+    { dish: 'collards' },
+    { dish: 'cabbage' },
+    { dish: 'yams' },
+    { dish: 'mashed-potatoes-gravy' },
+    { dish: 'stuffing' },
+    { dish: 'au-gratin' },
+    { dish: 'green-beans' },
+    { dish: 'seafood-salad', extra: 25 },
+  ],
+  included: ['cornbread', 'rolls', 'cranberry'],
 
-  panSizes: [
-    { name: 'Small pan', serves: '4 to 6' },
-    { name: 'Half pan', serves: '10 to 12' },
-    { name: 'Full pan', serves: '20 to 25' },
+  addOns: [
+    { dish: 'crab-stuffed-shrimp', price: 60 },
+    { name: 'Whole smoked, fried or jerk turkey', price: 105, text: 'A full bird instead of a half. See the meats above for ingredients.' },
+    { dish: 'sweet-potato-pie', price: 32 },
+    { dish: 'pound-cake', price: 32 },
+    { dish: 'vanilla-cake', price: 32 },
+    { name: 'Extra side', price: 35, text: 'Any side from the list above.' },
+    { name: 'Extra meat', price: 40, text: 'Any meat from the list above.' },
+    { name: 'Plates, silverware and napkins', price: 10, text: 'Service for 6, or service for 2 with Dinner for Two.' },
+  ],
+  desserts: ['sweet-potato-pie', 'pound-cake', 'vanilla-cake'],
+
+  delivery: [
+    { area: 'Northern Virginia', price: 30 },
+    { area: 'Washington, DC', price: 30 },
+    { area: 'Maryland', price: 35 },
+    { area: 'Dinner for Two, all areas', price: 40 },
   ],
 
-  // A la carte. Prices in dollars.
-  alaCarte: [
-    {
-      title: 'Mains',
-      rows: [
-        { dish: 'roast-turkey', size: '14 to 16 lb', price: 140 },
-        { dish: 'smoked-turkey', size: '14 to 16 lb', price: 150 },
-        { dish: 'ham', size: '8 to 10 lb', price: 125 },
-        { dish: 'turkey-wings', size: 'six wings', price: 60 },
-      ],
-    },
-    {
-      title: 'Sides',
-      columns: ['Half pan', 'Full pan'],
-      rows: [
-        { dish: 'mac', prices: [80, 150] },
-        { dish: 'dressing', prices: [65, 120] },
-        { dish: 'collards', prices: [70, 130] },
-        { dish: 'yams', prices: [65, 120] },
-        { dish: 'green-beans', prices: [60, 110] },
-        { dish: 'potato-salad', prices: [55, 100] },
-        { dish: 'cabbage', prices: [55, 100] },
-        { dish: 'hoppin-john', prices: [55, 100] },
-      ],
-    },
-    {
-      title: 'By the quart and dozen',
-      rows: [
-        { dish: 'gravy', size: 'quart', price: 16 },
-        { dish: 'cranberry', size: 'quart', price: 16 },
-        { dish: 'rolls', size: 'dozen', price: 15 },
-        { dish: 'cornbread', size: '12 wedges', price: 24 },
-      ],
-    },
-    {
-      title: 'Desserts',
-      rows: [
-        { dish: 'sweet-potato-pie', size: 'whole pie', price: 32 },
-        { dish: 'pecan-pie', size: 'whole pie', price: 38 },
-        { dish: 'peach-cobbler', size: 'half pan', price: 70 },
-        { dish: 'banana-pudding', size: 'half pan', price: 65 },
-        { dish: 'pound-cake', size: 'whole cake', price: 45 },
-      ],
-    },
-  ],
-
-  delivery: {
-    fee: 40,
-    radius: 'within 20 miles of Fairfax',
-  },
+  // Must be asked for by the order deadline.
+  requestByDeadline: ['Jerk turkey', 'short ribs', 'crab-stuffed shrimp', 'seafood salad'],
 };

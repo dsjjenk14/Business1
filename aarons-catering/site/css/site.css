@@ -871,6 +871,17 @@ button { font: inherit; color: inherit; }
 }
 .ingredients .label { color: var(--muted); }
 .allergens .label { color: var(--red); }
+.spicy {
+  margin-left: 8px;
+  padding: 1px 7px;
+  border: 1px solid var(--red);
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.dish-note { margin-top: 6px; color: var(--muted); font-size: 0.8125rem; font-style: italic; }
 
 @media (min-width: 900px) {
   .menu-panel { display: grid; grid-template-columns: 4fr 8fr; gap: 0 72px; padding-top: 80px; }
@@ -895,76 +906,42 @@ button { font: inherit; color: inherit; }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); }
 .status[data-state='during'] .status-dot { background: var(--red); box-shadow: 0 0 0 4px rgba(225, 48, 31, 0.2); }
 
-.date-grid { list-style: none; display: grid; gap: 16px; }
-.date-card { padding: 28px 24px; background: var(--ink-1); border: 1px solid var(--line); }
-.date-name { font-family: var(--display); font-size: 2rem; line-height: 1; text-transform: uppercase; }
-.date-day { margin: 6px 0 24px; color: var(--muted); font-size: 0.9375rem; }
-.date-deadline {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 12px;
-  padding: 18px 0;
-  border-block: 1px solid var(--line);
-}
-.date-deadline .label { width: 100%; color: var(--muted); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+.fact-row { list-style: none; display: grid; border-top: 1px solid var(--line); }
+.fact-row li { display: grid; gap: 6px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+.fact-label { color: var(--muted); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
 .big-date { font-family: var(--display); font-size: 3rem; line-height: 1; text-transform: uppercase; }
-.date-weekday { color: var(--muted); font-size: 0.9375rem; }
-.date-windows { display: grid; gap: 16px; margin: 20px 0 0; }
-.date-windows dt { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; color: var(--muted); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
-.date-windows dt .icon { color: var(--orange); }
-.date-windows dd { margin: 0; font-size: 0.9375rem; }
-@media (min-width: 900px) { .date-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
+.fact-sub { color: var(--muted); font-size: 0.9375rem; }
+@media (min-width: 900px) {
+  .fact-row { grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--line); }
+  .fact-row li { padding: 28px 32px; border-bottom: 0; }
+  .fact-row li:first-child { padding-left: 0; }
+  .fact-row li + li { border-left: 1px solid var(--line); }
+}
 
 .package-grid { list-style: none; display: grid; gap: 16px; }
 .package {
   display: flex;
   flex-direction: column;
-  padding: 28px 24px;
+  padding: 24px 20px;
   background: var(--ink-2);
   border: 1px solid var(--line);
 }
 .package-for { margin-bottom: 10px; color: var(--orange); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
 .package-name { font-family: var(--display); font-size: 2rem; line-height: 1; text-transform: uppercase; }
-.package-note { margin-top: 10px; color: var(--muted); font-size: 0.9375rem; }
-.package-price {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 8px 16px;
-  margin: 20px 0;
-  padding: 18px 0;
-  border-block: 1px solid var(--line);
-}
-.package-price .price { font-family: var(--display); font-size: 3rem; line-height: 1; }
-.serves { color: var(--muted); font-size: 0.9375rem; }
-.package-list { list-style: none; display: grid; gap: 10px; align-content: start; margin-bottom: 28px; flex: 1; font-size: 0.9375rem; }
-.package-list li { position: relative; padding-left: 20px; }
-.package-list li::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0.72em;
-  width: 8px; height: 1px;
-  background: var(--orange);
-}
+.package-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; }
+.package-head .price { margin: 0; font-family: var(--display); font-size: 2.25rem; line-height: 1; }
+.package-note { margin: 10px 0 0; color: var(--muted); font-size: 0.9375rem; }
+.package .serves { margin: 8px 0 20px; color: var(--muted); font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
 @media (min-width: 720px) { .package-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; } }
-@media (min-width: 1180px) { .package-grid { grid-template-columns: repeat(4, 1fr); } }
-
-.choice-grid { display: grid; gap: 40px; }
-.choice .h3 { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
-.check-list { list-style: none; display: grid; gap: 10px; }
-.check-list li { position: relative; padding-left: 20px; }
-.check-list li::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0.72em;
-  width: 8px; height: 1px;
-  background: var(--orange);
+.package.is-popular { border-color: var(--orange); }
+.package .btn { margin-top: auto; }
+@media (min-width: 1180px) {
+  .package-grid-5 { grid-template-columns: repeat(5, 1fr); gap: 16px; }
+  .package-grid-5 .package { padding: 24px 20px; }
+  .package-grid-5 .package-name { font-size: 1.625rem; }
+  .package-grid-5 .package-head { flex-direction: column; }
 }
-.size-list { list-style: none; display: grid; gap: 10px; margin-bottom: 20px; }
-.size-list li { display: flex; justify-content: space-between; gap: 16px; }
-.size-list li > span:last-child { color: var(--muted); }
-@media (min-width: 900px) { .choice-grid { grid-template-columns: repeat(3, 1fr); gap: 56px; } }
+
 
 .price-grid { display: grid; gap: 48px; }
 .price-group .h3 { margin-bottom: 8px; }
@@ -981,11 +958,27 @@ button { font: inherit; color: inherit; }
   text-align: right;
 }
 .price-table td { text-align: right; white-space: nowrap; font-family: var(--display); font-size: 1.25rem; letter-spacing: 0.02em; }
-.price-table.has-cols td { width: 4.6em; }
-.price-table.has-cols th[scope='row'] { padding-right: 8px; }
-.price-table .size { display: block; color: var(--muted); font-size: 0.8125rem; }
-.price-table .size .num { color: var(--muted); }
-@media (min-width: 900px) { .price-grid { grid-template-columns: repeat(2, 1fr); gap: 56px 72px; } }
+.logistic .price-table { grid-column: 2; }
+
+/* Holiday menu sections: heading on the left, items on the right (like the Menus page). */
+@media (min-width: 900px) {
+  .holiday-menu { display: grid; grid-template-columns: 4fr 8fr; gap: 0 72px; }
+}
+.item-extra {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.item-extra .price { font-size: 0.8125rem; letter-spacing: 0.04em; }
+.addon .menu-dish-name { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.addon .menu-dish-name .price { font-family: var(--display); font-size: 1.375rem; font-weight: 400; letter-spacing: 0.02em; }
+.next-holidays { display: grid; gap: 24px; align-items: end; }
+.next-holidays .lede { margin-top: 16px; }
+@media (min-width: 900px) { .next-holidays { grid-template-columns: 1fr auto; gap: 64px; } }
 
 .two-col { display: grid; gap: 56px; }
 @media (min-width: 960px) { .two-col { grid-template-columns: 7fr 5fr; gap: 96px; } }

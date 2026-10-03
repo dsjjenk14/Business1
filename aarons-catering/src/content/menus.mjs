@@ -66,16 +66,16 @@ export const menus = [
     id: 'holidays',
     title: 'Holidays',
     intro:
-      "Thanksgiving, Christmas, New Year's and holiday parties. Packages, prices, ordering deadlines and pickup times are on the Holiday Ordering page. Here is everything on the holiday menu, with what goes into it.",
-    link: { href: 'holiday.html', label: 'Holiday packages and prices' },
+      "Our Thanksgiving 2026 menu, with what goes into every dish. Packages, prices, deadlines and delivery are on the Holiday Ordering page. Christmas and New Year's menus are coming.",
+    link: { href: 'holiday.html', label: 'Thanksgiving packages and prices' },
     courses: [
-      { title: 'Mains', dishes: ['roast-turkey', 'smoked-turkey', 'ham', 'turkey-wings'] },
+      { title: 'Meats', dishes: ['ham', 'smoked-turkey', 'jerk-turkey', 'fried-turkey', 'short-ribs'] },
       {
         title: 'Sides',
-        dishes: ['dressing', 'gravy', 'mac', 'collards', 'yams', 'green-beans', 'potato-salad', 'cabbage', 'cranberry', 'hoppin-john'],
+        dishes: ['mac', 'collards', 'cabbage', 'yams', 'mashed-potatoes-gravy', 'stuffing', 'au-gratin', 'green-beans', 'seafood-salad'],
       },
-      { title: 'Bread', dishes: ['rolls', 'cornbread'] },
-      { title: 'Dessert', dishes: ['sweet-potato-pie', 'pecan-pie', 'peach-cobbler', 'banana-pudding', 'pound-cake'] },
+      { title: 'Included', dishes: ['cornbread', 'rolls', 'cranberry'] },
+      { title: 'Add-ons and desserts', dishes: ['crab-stuffed-shrimp', 'sweet-potato-pie', 'pound-cake', 'vanilla-cake'] },
     ],
   },
 ];

@@ -20,20 +20,20 @@ Every change pushed to GitHub then goes live automatically.
 
 Placeholders are deliberately obvious so nothing slips through:
 
-- [ ] **Phone number.** The brief gave 571-271-1810, which is what the site uses everywhere. The flyers say 571-207-5151. Confirm which one is right; it's one line in `src/content/site.mjs`.
 - [ ] **Logo file.** The logo is cut out of the flyer and looks right on the site. The original file (a PNG with a transparent background, or an SVG) would be sharper. Save it over `site/images/logo.png`, then run `node tools/brand-images.mjs` to remake the icons and the link preview.
 - [ ] **Chef photo.** Every photo on the site is now a real Aaron J's photo. The one exception is the photo of Chef Aaron, which is cut from a flyer and small. Send the original, or a new one of Chef Aaron cooking, and it goes in the home page and About page. `PHOTOS.md` lists every photo and where it shows.
-- [ ] **Chef Aaron reads the menus line by line.** The dishes on the flyer menu are all there: baked or grilled chicken, smothered turkey wings, Southern fried chicken, braised short ribs, surf and turf, lemon herbed salmon, fried fish, shrimp, shrimp and grits, chicken and waffles, omelettes, mini quiche, mashed potatoes and mixed vegetables. I wrote the rest, and every ingredient list and allergen line, as a starting draft. The ingredient lists must match the actual recipes, and the allergen lines must match the ingredients. People with allergies will rely on them. Edit `src/content/dishes.mjs`, then run the checks (below), which fail if an ingredient and its allergen line disagree.
+- [ ] **Fried turkey oil.** The Thanksgiving menu lists "frying oil" and no allergens. Turkeys are often fried in peanut oil. If that's the case here, add peanuts to the fried turkey's allergen line in `src/content/dishes.mjs`.
+- [ ] **Crab-stuffed shrimp.** The printed menu says it contains egg, but no ingredient on the list has egg. The site keeps the egg warning (the safe direction). Add the egg ingredient, or drop the warning if there's none.
+- [ ] **Whole hams.** The printed menu says whole hams are available as add-ons, but the add-on list has no whole ham or price. The site leaves that line out until there is one.
+- [ ] **Chef Aaron reads the menus line by line.** Every Thanksgiving dish on the site matches the printed Thanksgiving 2026 menu, ingredient for ingredient (marked `source: 'thanksgiving-2026'` in the code). The dishes on the flyer menu are all there too: baked or grilled chicken, smothered turkey wings, Southern fried chicken, braised short ribs, surf and turf, lemon herbed salmon, fried fish, shrimp, shrimp and grits, chicken and waffles, omelettes, mini quiche, mashed potatoes and mixed vegetables. I wrote the rest, and every ingredient list and allergen line, as a starting draft. The ingredient lists must match the actual recipes, and the allergen lines must match the ingredients. People with allergies will rely on them. Edit `src/content/dishes.mjs`, then run the checks (below), which fail if an ingredient and its allergen line disagree.
 - [ ] **About page fill-ins.** The highlighted boxes on the About page are facts only Chef Aaron knows (who taught Chef Aaron to cook, where, the year the business started). They're in `src/pages/about.mjs` between `[[double brackets]]`.
 - [ ] **Testimonials.** The three on the home page are samples showing length and tone, and each one says "Sample quote" on the page. Replace them with real quotes from real clients (with permission) in `src/content/site.mjs` and delete `sample: true`. Don't launch with the samples.
-- [ ] **Holiday prices and dates.** All packages, prices, deadlines, pickup windows and the delivery fee are my proposals. Confirm or change them in `src/content/holiday.mjs`.
+- [ ] **Christmas and New Year's.** The Holiday page has the real Thanksgiving menu, prices and policies. For Christmas and New Year's it says the menus are coming and asks people to get in touch. Send those menus when they're ready.
 - [ ] **Promises in the copy.** Check that these match how the business actually runs, and change any that don't:
   - Reply to quote requests within one business day.
   - A tasting about six weeks before weddings, and a tasting for events over 100 guests.
   - Greens, beans and cabbage cooked with smoked turkey, not pork.
   - Everything from scratch, including rolls, pie crusts and the banana pudding wafers.
-  - Holiday orders held once the invoice is paid.
-  - Reheating times.
   - Leftovers packed for the client.
 - [ ] **Turn on the quote form.** See below. One test submission and one click.
 - [ ] **Instagram feed.** See below. About five minutes.
@@ -63,9 +63,9 @@ The feed only loads when someone scrolls near it, so it doesn't slow the page do
 
 ## Holiday season
 
-Holiday ordering turns itself on automatically between the dates in `src/content/holiday.mjs` (currently November 1, 2026 to January 1, 2027). In season:
+Holiday ordering turns itself on automatically between the dates in `src/content/holiday.mjs` (currently October 1, 2026 to January 1, 2027, so it's on now). In season:
 
-- A banner across the top of every page names the next deadline, and moves on to the next holiday as each deadline passes.
+- A banner across the top of every page says when Thanksgiving orders close. After the deadline it switches to asking about Christmas and New Year's.
 - A holiday block appears on the home page under the hero.
 - "Holiday" in the menu gets an "Order now" tag.
 
@@ -78,7 +78,7 @@ Preview it any time:
 | `?today=2026-11-20` | Pretend it's that date |
 | `?holiday=auto` | Back to normal |
 
-Once a year, update the dates, prices and the `year` in `src/content/holiday.mjs`. Weekday names are worked out from the dates, so they can't be wrong.
+Each season, update the menu, prices, dates and the `year` in `src/content/holiday.mjs`. Weekday names are worked out from the dates, so they can't be wrong.
 
 ## Changing things
 

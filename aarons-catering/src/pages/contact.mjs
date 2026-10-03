@@ -103,7 +103,7 @@ export default function contact() {
 <section class="section section-flush">
   <div class="container contact-grid">
     <div class="form-wrap">
-      <form class="quote-form" action="${site.form.action}" method="POST" data-quote-form data-endpoint="${site.form.ajax}" data-packages="${esc(JSON.stringify(Object.fromEntries(holiday.packages.map((p) => [p.id, p.name]))))}">
+      <form class="quote-form" action="${site.form.action}" method="POST" data-quote-form data-endpoint="${site.form.ajax}" data-packages="${esc(JSON.stringify(Object.fromEntries(holiday.packages.map((p) => [p.id, { name: p.name, picks: p.picks }]))))}">
         <input type="hidden" name="_subject" value="New quote request from the website">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_captcha" value="false">

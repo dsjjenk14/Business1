@@ -2,7 +2,8 @@
 //
 //   node tools/check.mjs
 //
-// 1. Allergens: every dish's allergen line matches what its ingredients say.
+// 1. Allergens: every allergen in a dish's ingredients is on its allergen line.
+//    (Listing one the ingredients don't show is allowed, but printed as a note.)
 // 2. Links and images: every local link, image and #anchor points at something real.
 // 3. Pages: one <h1>, a title, a description, alt text on every image.
 // 4. Copy: no exclamation points anywhere a visitor can read.
@@ -15,6 +16,7 @@ import { dishes } from '../src/content/dishes.mjs';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const site = join(root, 'site');
 const problems = [];
+const notes = [];
 const fail = (where, msg) => problems.push(`${where}: ${msg}`);
 
 // ---------- 1. Allergens ----------
@@ -23,13 +25,14 @@ const fail = (where, msg) => problems.push(`${where}: ${msg}`);
 const allergenWords = {
   dairy: ['butter', 'buttermilk', 'milk', 'cream', 'cheese', 'cheddar', 'gouda', 'colby', 'ghee', 'yogurt', 'whey'],
   eggs: ['egg', 'eggs', 'mayonnaise', 'egg yolks'],
-  wheat: ['wheat', 'flour', 'semolina', 'bread', 'bun', 'rolls', 'crust', 'wafers', 'croutons', 'breadcrumbs', 'panko'],
+  wheat: ['wheat', 'flour', 'semolina', 'macaroni', 'pasta', 'noodles', 'bread', 'bun', 'rolls', 'crust', 'wafers', 'croutons', 'breadcrumbs', 'panko'],
   shellfish: ['shrimp', 'crab', 'lobster', 'crawfish', 'oyster', 'scallop'],
   fish: ['fish', 'salmon', 'catfish', 'whiting', 'tilapia', 'anchovy', 'worcestershire'],
   'tree nuts': ['pecan', 'pecans', 'walnut', 'almond', 'cashew', 'pistachio', 'hazelnut'],
   peanuts: ['peanut', 'peanuts'],
   soy: ['soy', 'soybean', 'tofu', 'edamame'],
   sesame: ['sesame', 'tahini'],
+  mustard: ['mustard', 'dijon'],
 };
 const ignore = ['butter beans', 'coconut milk', 'cornstarch', 'peanut-free'];
 
@@ -44,7 +47,8 @@ for (const [id, d] of Object.entries(dishes)) {
   for (const a of found) if (!declared.has(a)) fail(`dish "${id}"`, `ingredients contain ${a} but the allergen line doesn't list it`);
   for (const a of declared) {
     if (!allergenWords[a]) fail(`dish "${id}"`, `unknown allergen "${a}"`);
-    else if (!found.has(a)) fail(`dish "${id}"`, `lists ${a} but no ingredient mentions it`);
+    // Over-listing is the safe direction, so it's a note to check, not a failure.
+    else if (!found.has(a)) notes.push(`dish "${id}": lists ${a} but no ingredient mentions it`);
   }
 }
 
@@ -105,6 +109,7 @@ for (const m of js.matchAll(/'([^'\n]*[A-Za-z][^'\n]*)'/g)) {
   if (/[A-Za-z]!\s|[A-Za-z]!$/.test(m[1])) fail('js/site.js', `exclamation point in "${m[1]}"`);
 }
 
+if (notes.length) console.log(`To double-check:\n  ${notes.join('\n  ')}`);
 if (problems.length) {
   console.error(`${problems.length} problem${problems.length === 1 ? '' : 's'}:\n  ${problems.join('\n  ')}`);
   process.exit(1);
