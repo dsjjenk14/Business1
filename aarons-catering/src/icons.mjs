@@ -19,14 +19,6 @@ const paths = {
   bag: '<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',
   alert: '<path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4"/><path d="M12 17h.01"/>',
 
-  // Event types
-  rings: '<circle cx="9" cy="15" r="5.5"/><circle cx="15" cy="15" r="5.5"/><path d="M15 3.5l1.8 2-1.8 2-1.8-2z"/>',
-  briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/><path d="M11 13v2h2v-2"/>',
-  cake:
-    '<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><path d="M2 21h20"/><path d="M7 8v3M12 8v3M17 8v3"/><path d="M7 4h.01M12 4h.01M17 4h.01"/>',
-  pot: '<path d="M4 12h16v5a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3z"/><path d="M2 13h2M20 13h2"/><path d="M5 12c0-1.9 3.1-3.4 7-3.4s7 1.5 7 3.4"/><path d="M12 8.6V7.2"/><path d="M9 5c0-1 1-1 1-2M14 5c0-1 1-1 1-2"/>',
-  box: '<rect x="3" y="9" width="18" height="11" rx="2"/><path d="M3 13h18"/><path d="M7 9V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v3"/><path d="M10 16.5h4"/>',
-  pie: '<path d="M2.5 13.5h19"/><path d="M4 13.5 5.5 19h13l1.5-5.5"/><path d="M5 13.5C5.6 10.4 8.5 8.5 12 8.5s6.4 1.9 7 5"/><path d="m8.5 10 2.5 3.5M12.5 9l2.5 4.5M16 10.5l-2 3"/><path d="M11 5.5c0-1 1-1 1-2M14 5.5c0-1 1-1 1-2"/>',
 };
 
 export function sprite() {

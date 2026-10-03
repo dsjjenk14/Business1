@@ -1,4 +1,4 @@
-import { page, logo } from '../layout.mjs';
+import { page } from '../layout.mjs';
 import { site, events, signatureDishes } from '../content/site.mjs';
 import { holiday } from '../content/holiday.mjs';
 import { instagramTiles } from '../content/photos.mjs';
@@ -11,8 +11,8 @@ function hero() {
   return `<section class="hero" aria-labelledby="hero-title">
   <div class="hero-media">${img('hero', { eager: true })}</div>
   <div class="container hero-content">
-    ${logo('logo logo-hero', true)}
-    <p class="hero-kicker">Soul food catering</p>
+    <p class="hero-name">Aaron J's Catering</p>
+    <p class="hero-kicker">Private chef &amp; catering</p>
     <h1 id="hero-title" class="hero-title">${esc(site.tagline)}</h1>
     <p class="hero-lede">Weddings, corporate events, birthdays, church and family events, holidays and meal prep across DC, Maryland and Northern Virginia.</p>
     <a class="btn btn-lg" href="#quote">Request a Quote</a>
@@ -54,25 +54,15 @@ function holidayBlock() {
 }
 
 function eventTypes() {
-  const tiles = events
-    .map(
-      (e) => `<li>
-      <a class="event-tile" href="${e.href}">
-        ${icon(e.icon, 'icon event-icon')}
-        <span class="event-title">${esc(e.title)}</span>
-        <span class="event-text">${esc(curly(e.text))}</span>
-      </a>
-    </li>`,
-    )
-    .join('');
+  const pills = events.map((e) => `<li><a href="${e.href}">${esc(e.title)}</a></li>`).join('');
   return `<section class="section section-dark" aria-labelledby="events-title">
   <div class="container">
     <div class="section-head">
       ${eyebrow('What we cater')}
       <h2 id="events-title" class="h2">Every occasion</h2>
-      <p class="lede">We cater all events, big or small. If you don't see yours here, ask.</p>
+      <p class="lede">From intimate dinners to grand celebrations, we cater all events.</p>
     </div>
-    <ul class="event-tiles" role="list">${tiles}</ul>
+    <ul class="service-pills" role="list">${pills}</ul>
   </div>
 </section>`;
 }

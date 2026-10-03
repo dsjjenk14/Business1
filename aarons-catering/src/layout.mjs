@@ -180,7 +180,7 @@ ${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" hr
 <link rel="icon" href="images/icon-192.png" sizes="192x192" type="image/png">
 <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
-<link rel="preload" href="fonts/anton-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/playfair-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jakarta-latin.woff2" as="font" type="font/woff2" crossorigin>
 ${preloads}
 <link rel="stylesheet" href="${assets.css}">

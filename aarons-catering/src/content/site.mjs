@@ -37,13 +37,15 @@ export const nav = [
   { href: 'contact.html', label: 'Contact' },
 ];
 
+// "What we cater" on the home page, shown as pills.
 export const events = [
-  { id: 'weddings', icon: 'rings', title: 'Weddings', text: 'Buffet, family-style or plated.', href: 'menus.html#weddings' },
-  { id: 'corporate', icon: 'briefcase', title: 'Corporate events', text: 'Office lunches, meetings and company picnics.', href: 'menus.html#catering' },
-  { id: 'birthdays', icon: 'cake', title: 'Birthdays and parties', text: 'Party trays and buffets.', href: 'menus.html#catering' },
-  { id: 'family', icon: 'pot', title: 'Church and family events', text: 'Reunions, repasts and Sunday dinners.', href: 'menus.html#catering' },
-  { id: 'holidays', icon: 'pie', title: 'Holidays', text: 'Thanksgiving, Christmas and holiday parties.', href: 'holiday.html' },
-  { id: 'mealprep', icon: 'box', title: 'Meal prep', text: 'Personalized meals for the week.', href: 'menus.html#meal-prep' },
+  { title: 'Weddings', href: 'menus.html#weddings' },
+  { title: 'Corporate events', href: 'menus.html#catering' },
+  { title: 'Private parties', href: 'menus.html#catering' },
+  { title: 'Church and family events', href: 'menus.html#catering' },
+  { title: 'Holiday parties', href: 'holiday.html' },
+  { title: 'Meal prep', href: 'menus.html#meal-prep' },
+  { title: 'Custom menus', href: '#quote' },
 ];
 
 export const signatureDishes = [

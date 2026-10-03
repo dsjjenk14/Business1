@@ -4,7 +4,7 @@ import { holiday } from '../content/holiday.mjs';
 import { dish } from '../content/dishes.mjs';
 import { icon } from '../icons.mjs';
 import { esc, curly, img, eyebrow, parseDate, money } from '../lib.mjs';
-import { allergenLine } from './menus.mjs';
+import { allergenLine, ingredientsLine } from './menus.mjs';
 
 // "5 to 6" -> numbers wrapped so they render in gold
 function nums(text) {
@@ -34,7 +34,7 @@ function packages() {
       </div>
       <p class="package-note">${esc(p.text)}</p>
       <p class="serves">Feeds ${nums(p.feeds)}</p>
-      <a class="btn btn-block" href="contact.html?event=holiday&amp;package=${p.id}">Order this<span class="visually-hidden">: ${esc(curly(p.name))}</span></a>
+      <a class="btn btn-block${p.popular ? '' : ' btn-ghost'}" href="contact.html?event=holiday&amp;package=${p.id}">Order this<span class="visually-hidden">: ${esc(curly(p.name))}</span></a>
     </li>`,
     )
     .join('');
@@ -44,11 +44,10 @@ function packages() {
 function item({ dish: id, name, extra, limit }) {
   const d = dish(id);
   const tag = extra ? `<span class="item-extra"><span class="price">+${money(extra)}</span>${limit ? ` &middot; ${esc(limit)}` : ''}</span>` : '';
-  const list = d.ingredients.join(', ');
   return `<li class="menu-dish">
     <h4 class="menu-dish-name">${esc(curly(name ?? d.name))}${tag}</h4>
-    <p class="ingredients">${esc(list.charAt(0).toUpperCase() + list.slice(1))}.</p>
     ${allergenLine(d)}
+    ${ingredientsLine(d)}
   </li>`;
 }
 
@@ -58,8 +57,8 @@ function addOns() {
       const d = a.dish ? dish(a.dish) : null;
       const name = a.name ?? d.name;
       const detail = d
-        ? `<p class="ingredients">${esc(d.ingredients.join(', ').replace(/^./, (c) => c.toUpperCase()))}.</p>${allergenLine(d)}`
-        : `<p class="ingredients">${esc(a.text)}</p>`;
+        ? `${allergenLine(d)}${ingredientsLine(d)}`
+        : `<p class="menu-dish-desc">${esc(a.text)}</p>`;
       return `<li class="menu-dish addon">
       <h4 class="menu-dish-name"><span>${esc(curly(name))}</span><span class="price">${money(a.price)}</span></h4>
       ${detail}

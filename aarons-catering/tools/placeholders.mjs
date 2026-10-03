@@ -30,7 +30,7 @@ const force = process.argv.includes('--force');
 
 const font = (f) => `data:font/woff2;base64,${readFileSync(join(root, 'site', 'fonts', f)).toString('base64')}`;
 const fontCss = `
-@font-face { font-family: Anton; src: url(${font('anton-latin.woff2')}) format('woff2'); }
+@font-face { font-family: Playfair; font-weight: 400 700; src: url(${font('playfair-latin.woff2')}) format('woff2'); }
 @font-face { font-family: Jakarta; font-weight: 400 700; src: url(${font('jakarta-latin.woff2')}) format('woff2'); }
 html, body { margin: 0; }`;
 

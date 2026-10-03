@@ -28,9 +28,10 @@ export function allergenLine(d) {
   return `<p class="allergens"><span class="label">Allergens</span> ${esc(text)}${spicy}</p>${note}`;
 }
 
-function ingredientsLine(d) {
+// Full ingredient list, folded away so the menu reads cleanly. One tap opens it.
+export function ingredientsLine(d) {
   const list = d.ingredients.join(', ');
-  return `<p class="ingredients"><span class="label">Ingredients</span> ${esc(list.charAt(0).toUpperCase() + list.slice(1))}.</p>`;
+  return `<details class="ingredients"><summary>Ingredients</summary><p>${esc(list.charAt(0).toUpperCase() + list.slice(1))}.</p></details>`;
 }
 
 // A menu entry is a dish id, or { dish, name, description } to present the
@@ -46,8 +47,8 @@ export function menuDish(e, headingLevel = 4) {
   return `<li class="menu-dish">
     <${h} class="menu-dish-name">${esc(curly(d.name))}</${h}>
     <p class="menu-dish-desc">${esc(curly(d.description))}</p>
-    ${ingredientsLine(d)}
     ${allergenLine(d)}
+    ${ingredientsLine(d)}
   </li>`;
 }
 
