@@ -20,7 +20,7 @@ Every change pushed to GitHub then goes live automatically.
 
 Placeholders are deliberately obvious so nothing slips through:
 
-- [ ] **Main photo.** The photo at the top of the home page is a stand-in (one of your buffet photos) until the stock photo arrives. Save the stock photo over `site/images/hero.jpg`, then update its description in `src/content/photos.mjs`. Free stock photos from Unsplash or Pexels can be used on a business site without credit.
+- [ ] **Main photo after the holidays.** The photo at the top of the home page is a Thanksgiving spread. After New Year's, swap in a year-round photo: save it over `site/images/hero.jpg` and update its description and size in `src/content/photos.mjs`.
 - [ ] **Logo file.** The logo is cut out of the flyer and looks right on the site. The original file (a PNG with a transparent background, or an SVG) would be sharper. Save it over `site/images/logo.png`, then run `node tools/brand-images.mjs` to remake the icons and the link preview.
 - [ ] **Chef photo.** Every photo on the site is now a real Aaron J's photo. The one exception is the photo of Chef Aaron, which is cut from a flyer and small. Send the original, or a new one of Chef Aaron cooking, and it goes in the home page and About page. `PHOTOS.md` lists every photo and where it shows.
 - [ ] **Fried turkey oil.** The Thanksgiving menu lists "frying oil" and no allergens. Turkeys are often fried in peanut oil. If that's the case here, add peanuts to the fried turkey's allergen line in `src/content/dishes.mjs`.

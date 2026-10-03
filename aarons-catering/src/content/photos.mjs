@@ -13,19 +13,18 @@
 //   'flyer'  cut from the Aaron J's flyers. Real, but low resolution: replace
 //            with the original photo when you have it.
 //   'made'   built from the logo and photos by tools/brand-images.mjs.
+//   'generated'  made with an AI image generator.
 
 export const photos = {
   hero: {
-    // STAND-IN until the stock photo arrives. Save the stock photo over
-    // site/images/hero.jpg and update `alt`, `w`, `h` and `source` here.
     file: 'hero.jpg',
-    w: 2400,
-    h: 1800,
-    alt: 'A catered buffet on a red tablecloth with salmon, chicken, mac and cheese, yams and plantains',
-    shot: 'Main photo at the top of the home page. A stock photo will go here.',
+    w: 1024,
+    h: 1536,
+    alt: 'A Thanksgiving spread: glazed ham with pineapple and cherries, roast turkey, mac and cheese, collard greens, candied yams, stuffing, mashed potatoes, green beans, cranberry sauce, rolls, cornbread and sweet potato pie',
+    shot: 'Main photo at the top of the home page. Made with an AI image generator.',
     where: 'Home page, top',
-    focus: '50% 45%',
-    source: 'photo',
+    focus: '50% 8%', // keeps the top of the ham in view when computers crop the photo
+    source: 'generated',
   },
   share: {
     file: 'share.jpg',

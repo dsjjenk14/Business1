@@ -521,7 +521,7 @@ button { font: inherit; color: inherit; }
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(11, 11, 12, 0.7) 0%, rgba(11, 11, 12, 0.1) 22%, rgba(11, 11, 12, 0.25) 45%, rgba(11, 11, 12, 0.88) 78%, var(--black) 100%);
+    linear-gradient(180deg, rgba(11, 11, 12, 0.7) 0%, rgba(11, 11, 12, 0.12) 20%, rgba(11, 11, 12, 0.45) 42%, rgba(11, 11, 12, 0.82) 58%, rgba(11, 11, 12, 0.92) 80%, var(--black) 100%);
 }
 .hero-content { position: relative; }
 .logo-hero { height: 148px; margin-bottom: 20px; filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.45)); }

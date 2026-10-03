@@ -101,7 +101,7 @@ writeFileSync(
 );
 
 // PHOTOS.md: the shot list, so whoever takes the photos knows what goes where.
-const status = { photo: 'Real photo', flyer: 'From the flyer (low resolution)', made: 'Made by tools/brand-images.mjs' };
+const status = { photo: 'Real photo', flyer: 'From the flyer (low resolution)', made: 'Made by tools/brand-images.mjs', generated: 'AI-generated image' };
 const rows = [
   ...Object.values(photos).map((p) => [p, p.where]),
   ...gallery.map((g) => [g, 'Gallery page']),
