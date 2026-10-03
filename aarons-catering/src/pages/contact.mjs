@@ -6,10 +6,13 @@ import { esc, eyebrow } from '../lib.mjs';
 
 const EVENT_TYPES = [
   ['wedding', 'Wedding'],
-  ['corporate', 'Corporate event'],
-  ['birthday', 'Birthday'],
+  ['corporate', 'Corporate event or company picnic'],
+  ['birthday', 'Birthday or private party'],
   ['family', 'Family gathering'],
-  ['holiday', 'Holiday order'],
+  ['church', 'Church event'],
+  ['brunch', 'Brunch'],
+  ['holiday', 'Holiday order or holiday party'],
+  ['mealprep', 'Meal prep or personal meals'],
   ['other', 'Something else'],
 ];
 

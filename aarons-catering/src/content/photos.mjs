@@ -1,10 +1,16 @@
-// Every photo on the site. Each one is a placeholder JPG in site/images/ until
-// a real photo replaces it. To swap one, save the real photo over the file with
-// the same name. `node build.mjs` also writes PHOTOS.md, a shot list built from
-// this file.
+// Every photo on the site. Most are labeled placeholder JPGs in site/images/
+// until a real photo replaces them. To swap one, save the real photo over the
+// file with the same name. `node build.mjs` also writes PHOTOS.md, a shot list
+// built from this file.
 //
 // w and h are the size to export at. The layout crops to fit, so a slightly
 // different shape still works. Keep the subject near the center.
+//
+// `source` marks images that are already real, so tools/placeholders.mjs never
+// draws over them:
+//   'flyer'  cut from the Aaron J's flyers. Real, but low resolution: replace
+//            with the original photo when you have it.
+//   'made'   built from the logo and photos by tools/brand-images.mjs.
 
 export const photos = {
   hero: {
@@ -30,8 +36,9 @@ export const photos = {
     w: 1200,
     h: 630,
     alt: "Aaron J's Catering",
-    shot: 'The preview that shows when someone shares a link in a text, DM or Facebook post. The logo over a dark food photo works well. Keep it simple, it shows small.',
+    shot: 'The preview that shows when someone shares a link in a text, DM or Facebook post. Made from the logo and the chef photo by tools/brand-images.mjs; run it again after changing either.',
     where: 'Link previews (not visible on the site)',
+    source: 'made',
   },
   'dish-fried-chicken': {
     file: 'dish-fried-chicken.jpg',
@@ -41,12 +48,12 @@ export const photos = {
     shot: 'Fried chicken close up, crust glistening with honey butter. Tall frame.',
     where: 'Home page, signature dishes',
   },
-  'dish-oxtails': {
-    file: 'dish-oxtails.jpg',
+  'dish-short-ribs': {
+    file: 'dish-short-ribs.jpg',
     w: 1200,
     h: 1500,
-    alt: 'Braised oxtails with gravy over white rice',
-    shot: 'Oxtails over rice with gravy and butter beans, in a bowl, from a low angle. Tall frame.',
+    alt: 'Braised short ribs in their gravy',
+    shot: 'Short ribs on the plate or in the pan, gravy glossy, a fork pulling the meat. Tall frame.',
     where: 'Home page, signature dishes',
   },
   'dish-mac': {
@@ -67,11 +74,12 @@ export const photos = {
   },
   'chef-aaron': {
     file: 'chef-aaron.jpg',
-    w: 1200,
-    h: 1500,
-    alt: 'Chef Aaron Jenkins in the kitchen',
-    shot: 'Chef Aaron in chef whites or an apron, in the kitchen, looking at the camera or at the food. Natural, not posed in front of a backdrop. Tall frame.',
+    w: 960,
+    h: 710,
+    alt: 'Chef Aaron Jenkins in chef whites, arms open, behind a buffet of chafing dishes with sunflower centerpieces',
+    shot: 'From the flyer. Send the original photo for a sharper version (at least 1600 px wide).',
     where: 'Home page (chef section) and About page',
+    source: 'flyer',
   },
   'page-menus': {
     file: 'page-menus.jpg',
@@ -119,24 +127,34 @@ export const photos = {
 };
 
 export const gallery = [
-  { file: 'gallery-01.jpg', w: 1600, h: 1200, alt: 'A wedding buffet line under string lights', shot: 'Wedding buffet line, guests moving through, string lights or venue in the background.' },
+  { file: 'gallery-01.jpg', w: 960, h: 710, alt: 'Chef Aaron Jenkins behind a buffet line of chafing dishes with sunflower centerpieces', shot: 'From the flyer. Send the original photo for a sharper version.', source: 'flyer' },
   { file: 'gallery-02.jpg', w: 1200, h: 1500, alt: 'A platter of fried chicken', shot: 'Fried chicken platter, close.' },
-  { file: 'gallery-03.jpg', w: 1600, h: 1200, alt: 'Oxtails and rice in a bowl', shot: 'Oxtails over rice.' },
-  { file: 'gallery-04.jpg', w: 1200, h: 1500, alt: 'Macaroni and cheese fresh from the oven', shot: 'Mac and cheese pan straight from the oven, from above.' },
+  { file: 'gallery-03.jpg', w: 460, h: 410, alt: 'Braised beef with peas, carrots and scallions', shot: 'From the flyer. Send the original photo for a sharper version.', source: 'flyer' },
+  { file: 'gallery-04.jpg', w: 390, h: 390, alt: 'A hotel pan of baked macaroni and cheese', shot: 'From the flyer. Send the original photo for a sharper version.', source: 'flyer' },
   { file: 'gallery-05.jpg', w: 1600, h: 1200, alt: 'Boxed lunches lined up on a conference table', shot: 'Corporate lunch: labeled boxes or a buffet set in an office.' },
   { file: 'gallery-06.jpg', w: 1600, h: 1200, alt: 'Trays of wings at a birthday party', shot: 'Birthday party trays: wings, sliders, people reaching in.' },
-  { file: 'gallery-07.jpg', w: 1600, h: 1200, alt: 'A long family table full of food', shot: 'Family reunion or repast: a long table, full pans, hands passing plates.' },
+  { file: 'gallery-07.jpg', w: 420, h: 420, alt: 'Chafing dishes of mac and cheese, yams, roasted vegetables and more on a red tablecloth', shot: 'From the flyer. Send the original photo for a sharper version.', source: 'flyer' },
   { file: 'gallery-08.jpg', w: 1200, h: 1500, alt: 'Peach cobbler being spooned into a bowl', shot: 'Cobbler being served.' },
   { file: 'gallery-09.jpg', w: 1200, h: 1500, alt: 'Chef Aaron Jenkins plating at an event', shot: 'Chef Aaron at work during an event.' },
-  { file: 'gallery-10.jpg', w: 1600, h: 1200, alt: 'A carved holiday turkey on a board', shot: 'Holiday turkey, carved, on a board with herbs.' },
+  { file: 'gallery-10.jpg', w: 440, h: 384, alt: 'Glazed ham with pineapple rings and cherries', shot: 'From the flyer. Send the original photo for a sharper version.', source: 'flyer' },
   { file: 'gallery-11.jpg', w: 1200, h: 1500, alt: 'Collard greens in a pot', shot: 'Greens in the pot, close.' },
   { file: 'gallery-12.jpg', w: 1600, h: 1200, alt: 'Banana pudding cups on a dessert table', shot: 'Dessert table: banana pudding cups, pound cake, cobbler.' },
 ];
 
-export const instagramTiles = [1, 2, 3, 4, 5, 6].map((n) => ({
-  file: `instagram-${n}.jpg`,
-  w: 1080,
-  h: 1080,
-  alt: 'Instagram post from @aaronjscatering',
-  shot: 'Stand-in for the live Instagram feed. These disappear once the feed is connected (see README).',
+// Stand-ins for the live Instagram feed, cut from the flyers. They disappear
+// once the feed is connected (see README).
+export const instagramTiles = [
+  ['A hotel pan of baked macaroni and cheese', 390],
+  ['Braised beef with peas, carrots and scallions', 410],
+  ['Chafing dishes of soul food on a red tablecloth', 420],
+  ['Glazed ham with pineapple rings and cherries', 384],
+  ['Chef Aaron Jenkins behind a buffet line', 710],
+  ['A chafing dish with a sunflower centerpiece and a chalkboard label', 360],
+].map(([alt, size], i) => ({
+  file: `instagram-${i + 1}.jpg`,
+  w: size,
+  h: size,
+  alt,
+  shot: 'Stand-in for the live Instagram feed, cut from the flyers.',
+  source: 'flyer',
 }));

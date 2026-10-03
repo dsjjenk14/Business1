@@ -1,8 +1,11 @@
-// Draws the labeled placeholder images in site/images/ (photos, logo, icons).
+// Draws the labeled placeholder photos in site/images/.
 // Only needed again if you add a new photo slot to src/content/photos.mjs.
 //
-//   node tools/placeholders.mjs            # creates any image that doesn't exist yet
-//   node tools/placeholders.mjs --force    # redraws all of them (overwrites real photos)
+//   node tools/placeholders.mjs            # creates any photo that doesn't exist yet
+//   node tools/placeholders.mjs --force    # redraws every placeholder
+//
+// Slots with a `source` (real photos from the flyers, or images made by
+// tools/brand-images.mjs) are never drawn over, even with --force.
 //
 // Needs Playwright: `npm i -g playwright && npx playwright install chromium`.
 
@@ -56,32 +59,13 @@ ${p.compact ? '' : `<div class="shot">${p.shot}</div>`}
 </div></body></html>`;
 }
 
-const logoHtml = `<!doctype html><html><head><style>${fontCss}
-body { width:600px; height:360px; display:flex; flex-direction:column; align-items:center; justify-content:center; background:transparent; }
-.name { font-family: Anton; font-size:150px; line-height:.9; color:#F7F5F2; letter-spacing:.01em; }
-.name span { color:#F26A21; }
-.rule { width:220px; height:4px; background:#E1301F; margin:18px 0 16px; }
-.sub { font-family: Jakarta; font-weight:700; font-size:34px; letter-spacing:.42em; color:#F7F5F2; margin-right:-.42em; }
-</style></head><body><div class="name">AARON <span>J’S</span></div><div class="rule"></div><div class="sub">CATERING</div></body></html>`;
 
-const iconHtml = (s) => `<!doctype html><html><head><style>${fontCss}
-body { width:${s}px; height:${s}px; display:flex; align-items:center; justify-content:center; background:#0B0B0C; }
-.m { font-family: Anton; font-size:${s * 0.56}px; line-height:1; color:#F26A21; letter-spacing:.02em; }
-.m span { color:#F7F5F2; }
-</style></head><body><div class="m">A<span>J</span></div></body></html>`;
 
 const jobs = [
-  ...Object.values(photos).map((p, i) => ({ file: p.file, w: p.w, h: p.h, html: photoHtml(p, i), type: 'jpeg' })),
-  ...gallery.map((p, i) => ({ file: p.file, w: p.w, h: p.h, html: photoHtml(p, i + 2), type: 'jpeg' })),
-  ...instagramTiles.map((p, i) => ({ file: p.file, w: p.w, h: p.h, html: photoHtml(p, i + 4), type: 'jpeg' })),
-  { file: 'logo.png', w: 600, h: 360, html: logoHtml, type: 'png', transparent: true },
-  ...[
-    ['favicon-32.png', 32],
-    ['apple-touch-icon.png', 180],
-    ['icon-192.png', 192],
-    ['icon-512.png', 512],
-  ].map(([file, s]) => ({ file, w: s, h: s, html: iconHtml(s), type: 'png' })),
-];
+  ...Object.values(photos).map((p, i) => ({ ...p, html: photoHtml(p, i) })),
+  ...gallery.map((p, i) => ({ ...p, html: photoHtml(p, i + 2) })),
+  ...instagramTiles.map((p, i) => ({ ...p, html: photoHtml(p, i + 4) })),
+].filter((job) => !job.source);
 
 const browser = await playwright.chromium.launch();
 const page = await browser.newPage();
@@ -92,13 +76,8 @@ for (const job of jobs) {
   await page.setViewportSize({ width: job.w, height: job.h });
   await page.setContent(job.html, { waitUntil: 'load' });
   await page.evaluate(() => document.fonts.ready);
-  await page.screenshot({
-    path: target,
-    type: job.type,
-    ...(job.type === 'jpeg' ? { quality: 72 } : {}),
-    omitBackground: !!job.transparent,
-  });
+  await page.screenshot({ path: target, type: 'jpeg', quality: 72 });
   made++;
 }
 await browser.close();
-console.log(`Drew ${made} placeholder image${made === 1 ? '' : 's'} into site/images/`);
+console.log(`Drew ${made} placeholder photo${made === 1 ? '' : 's'} into site/images/`);

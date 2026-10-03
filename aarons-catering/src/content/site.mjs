@@ -4,6 +4,7 @@ export const site = {
   name: "Aaron J's Catering",
   chef: 'Chef Aaron Jenkins',
   tagline: 'From our kitchen to your celebration',
+  motto: 'Where every day is Sunday', // from the logo
   url: 'https://aaronjscatering.com', // used for canonical links, the sitemap and link previews
 
   phone: { display: '571-271-1810', href: 'tel:+15712711810', intl: '+1-571-271-1810' },
@@ -50,28 +51,28 @@ export const events = [
     id: 'corporate',
     icon: 'briefcase',
     title: 'Corporate events',
-    text: 'Boxed lunches, office buffets and client dinners. On time, labeled, with plates and serving utensils.',
+    text: 'Boxed lunches, office buffets, company picnics and client dinners. On time, labeled, with plates and serving utensils.',
     href: 'menus.html#corporate',
   },
   {
     id: 'birthdays',
     icon: 'cake',
     title: 'Birthdays',
-    text: 'Wing trays, catfish, sliders and pans of mac and cheese. Set up before the first guest walks in.',
+    text: 'Birthdays and private parties. Wing trays, fried fish, Cajun shrimp and pans of mac and cheese, set up before the first guest walks in.',
     href: 'menus.html#birthdays',
   },
   {
     id: 'family',
     icon: 'pot',
     title: 'Family gatherings',
-    text: 'Reunions, repasts, graduations, Sunday dinners. Full pans, family-style, enough for seconds.',
+    text: 'Reunions, repasts, church events, Sunday dinners. Full pans, family-style, enough for seconds.',
     href: 'menus.html#family',
   },
   {
     id: 'holidays',
     icon: 'pie',
     title: 'Holidays',
-    text: "Thanksgiving, Christmas and New Year's. The whole meal, or just the sides you don't feel like making.",
+    text: "Thanksgiving, Christmas, New Year's and holiday parties. The whole meal, or just the sides you don't feel like making.",
     href: 'holiday.html',
   },
 ];
@@ -83,9 +84,9 @@ export const signatureDishes = [
     text: 'Brined overnight in buttermilk and hot sauce, dredged twice, fried in small batches. Brushed with honey butter as it comes out of the oil.',
   },
   {
-    dish: 'oxtails',
-    photo: 'dish-oxtails',
-    text: 'Seared hard, then braised four hours with allspice, thyme and butter beans until the meat lets go of the bone.',
+    dish: 'short-ribs',
+    photo: 'dish-short-ribs',
+    text: 'Seared dark, then braised four hours with onion, carrot, garlic and thyme until a fork goes straight through.',
   },
   {
     dish: 'mac',
@@ -105,7 +106,7 @@ export const signatureDishes = [
 export const testimonials = [
   {
     quote:
-      'We had 140 guests and the line for oxtails never stopped. People were still talking about the mac and cheese at brunch the next morning.',
+      'We had 140 guests and the line for short ribs never stopped. People were still talking about the mac and cheese at brunch the next morning.',
     name: 'Client name',
     detail: 'Wedding, city',
     sample: true,

@@ -21,6 +21,86 @@ const CORNBREAD =
 
 export const dishes = {
   // ---------- Mains ----------
+  'short-ribs': {
+    name: 'Braised short ribs',
+    description:
+      'Bone-in short ribs seared dark, then braised four hours with onion, carrot, garlic and thyme until a fork goes straight through. Finished in their own gravy.',
+    ingredients: [
+      'bone-in beef short ribs',
+      'yellow onion',
+      'carrots',
+      'celery',
+      'garlic',
+      'tomato paste',
+      'beef stock (beef bones, water, onion, carrot, celery)',
+      'fresh thyme',
+      'bay leaf',
+      'all-purpose wheat flour',
+      'canola oil',
+      'kosher salt',
+      'black pepper',
+      'scallions',
+    ],
+    allergens: ['wheat'],
+  },
+  'baked-chicken': {
+    name: 'Baked or grilled chicken',
+    description:
+      'Bone-in chicken rubbed with garlic, lemon, rosemary and paprika, then baked or grilled, your choice. Simple, and a good option next to the richer dishes.',
+    ingredients: [
+      'bone-in chicken thighs and breasts',
+      'olive oil',
+      'garlic',
+      'lemon',
+      'fresh rosemary',
+      'fresh thyme',
+      'paprika',
+      'onion powder',
+      'kosher salt',
+      'black pepper',
+    ],
+    allergens: [],
+  },
+  'lemon-salmon': {
+    name: 'Lemon herbed salmon',
+    description: 'Salmon fillets roasted with lemon, garlic, dill and parsley, finished with a little butter.',
+    ingredients: [
+      'Atlantic salmon',
+      'lemon',
+      'garlic',
+      'fresh dill',
+      'parsley',
+      'fresh thyme',
+      'olive oil',
+      'butter',
+      'kosher salt',
+      'black pepper',
+    ],
+    allergens: ['fish', 'dairy'],
+  },
+  'surf-and-turf': {
+    name: 'Surf and turf',
+    description: 'Seared sirloin, sliced, next to shrimp sautéed in garlic butter with lemon and a little Cajun spice.',
+    ingredients: [
+      'beef sirloin',
+      'shrimp',
+      'butter',
+      'garlic',
+      'lemon',
+      'parsley',
+      CAJUN,
+      'olive oil',
+      'kosher salt',
+      'black pepper',
+    ],
+    allergens: ['shellfish', 'dairy'],
+  },
+  'cajun-shrimp': {
+    name: 'Cajun butter shrimp',
+    description: 'Shrimp cooked in a skillet of butter, garlic, Cajun spice and lemon, with parsley on top. Bread on the side for the sauce.',
+    ingredients: ['shrimp', 'butter', 'garlic', CAJUN, 'smoked paprika', 'lemon', 'parsley', 'scallions'],
+    allergens: ['shellfish', 'dairy'],
+  },
   'fried-chicken': {
     name: 'Honey butter fried chicken',
     description:
@@ -42,31 +122,6 @@ export const dishes = {
       'honey',
     ],
     allergens: ['dairy', 'wheat'],
-  },
-  oxtails: {
-    name: 'Braised oxtails',
-    description:
-      'Seared hard, then braised for four hours with allspice, thyme, scallion and butter beans until the meat comes off the bone with a fork. Served over white rice with the gravy spooned on top.',
-    ingredients: [
-      'beef oxtails',
-      'butter beans',
-      'yellow onion',
-      'carrots',
-      'garlic',
-      'scallions',
-      'fresh thyme',
-      'whole allspice',
-      'scotch bonnet pepper (whole, removed before serving)',
-      'tomato paste',
-      'beef stock (beef bones, water, onion, carrot, celery)',
-      'brown sugar',
-      'all-purpose wheat flour',
-      'canola oil',
-      'kosher salt',
-      'black pepper',
-      'long-grain white rice',
-    ],
-    allergens: ['wheat'],
   },
   'smothered-chicken': {
     name: 'Smothered chicken',
@@ -90,21 +145,6 @@ export const dishes = {
     ],
     allergens: ['dairy', 'wheat'],
   },
-  'blackened-salmon': {
-    name: 'Blackened salmon',
-    description:
-      'Salmon fillets crusted in our blackening spice and seared in cast iron. Finished with lemon garlic butter.',
-    ingredients: [
-      'Atlantic salmon',
-      'blackening spice (paprika, cayenne, thyme, oregano, garlic powder, onion powder, black pepper, salt)',
-      'butter',
-      'lemon',
-      'garlic',
-      'parsley',
-      'canola oil',
-    ],
-    allergens: ['fish', 'dairy'],
-  },
   'smothered-pork-chops': {
     name: 'Smothered pork chops',
     description:
@@ -126,30 +166,12 @@ export const dishes = {
     ],
     allergens: ['dairy', 'wheat'],
   },
-  'bbq-ribs': {
-    name: 'Barbecue ribs',
+  'fried-fish': {
+    name: 'Southern fried fish',
     description:
-      'Pork spare ribs with a brown sugar and paprika rub, smoked low over hickory for five hours and finished with our vinegar barbecue sauce.',
+      'Whiting or catfish fillets soaked in mustard and hot sauce, dredged in seasoned cornmeal and fried until the crust crackles. Lemon and house tartar sauce on the side.',
     ingredients: [
-      'pork spare ribs',
-      'brown sugar',
-      'paprika',
-      'garlic powder',
-      'onion powder',
-      'cayenne pepper',
-      'kosher salt',
-      'black pepper',
-      BBQ_SAUCE,
-      'hickory wood smoke',
-    ],
-    allergens: [],
-  },
-  'fried-catfish': {
-    name: 'Cornmeal fried catfish',
-    description:
-      'Catfish fillets soaked in mustard and hot sauce, dredged in seasoned cornmeal and fried until the crust crackles. Lemon and house tartar sauce on the side.',
-    ingredients: [
-      'catfish fillets',
+      'whiting or catfish fillets',
       'yellow mustard',
       HOT_SAUCE,
       'yellow cornmeal',
@@ -295,13 +317,15 @@ export const dishes = {
   ham: {
     name: 'Honey-glazed ham',
     description:
-      'A bone-in spiral ham, scored and glazed with honey, brown sugar, Dijon and clove, then baked until the glaze sets and the edges go dark.',
+      'A bone-in spiral ham glazed with honey, brown sugar, Dijon and pineapple, dressed with pineapple rings and cherries, and baked until the glaze sets and the edges go dark.',
     ingredients: [
       'bone-in spiral ham (pork, water, salt, sugar, sodium nitrite)',
       'honey',
       'brown sugar',
       'Dijon mustard',
       'pineapple juice',
+      'pineapple rings',
+      'maraschino cherries',
       'ground cloves',
       'butter',
     ],
@@ -325,6 +349,88 @@ export const dishes = {
       'black pepper',
     ],
     allergens: ['dairy', 'wheat'],
+  },
+
+  // ---------- Brunch ----------
+  'shrimp-and-grits': {
+    name: 'Shrimp and grits',
+    description:
+      'Stone-ground grits with white cheddar and butter, under shrimp cooked with peppers, onion and Cajun spice in a pan gravy.',
+    ingredients: [
+      'shrimp',
+      'stone-ground white grits',
+      'white cheddar',
+      'butter',
+      'heavy cream',
+      CHICKEN_STOCK,
+      'yellow onion',
+      'green bell pepper',
+      'garlic',
+      'all-purpose wheat flour',
+      CAJUN,
+      'smoked paprika',
+      'scallions',
+      'lemon',
+    ],
+    allergens: ['shellfish', 'dairy', 'wheat'],
+  },
+  'chicken-and-waffles': {
+    name: 'Chicken and waffles',
+    description: 'Our fried chicken on a buttermilk waffle, with warm maple syrup and butter.',
+    ingredients: [
+      'chicken thighs and drumsticks',
+      'buttermilk',
+      HOT_SAUCE,
+      'all-purpose wheat flour',
+      'cornstarch',
+      'kosher salt',
+      'black pepper',
+      'smoked paprika',
+      'canola oil for frying',
+      'buttermilk waffles (all-purpose wheat flour, buttermilk, eggs, butter, sugar, baking powder, baking soda, vanilla extract, salt)',
+      'maple syrup',
+      'butter',
+    ],
+    allergens: ['dairy', 'eggs', 'wheat'],
+  },
+  omelettes: {
+    name: 'Cooked-to-order omelettes',
+    description:
+      'An omelette station: guests choose their fillings and we cook each one in front of them. Cheddar, peppers, onion, spinach, tomato, mushrooms, turkey sausage or ham.',
+    ingredients: [
+      'eggs',
+      'butter',
+      'cheddar',
+      'green and red bell peppers',
+      'yellow onion',
+      'spinach',
+      'tomatoes',
+      'mushrooms',
+      'turkey sausage (turkey, salt, sage, black pepper, red pepper)',
+      'ham (pork, water, salt, sugar, sodium nitrite)',
+      'kosher salt',
+      'black pepper',
+    ],
+    allergens: ['eggs', 'dairy'],
+  },
+  'mini-quiche': {
+    name: 'Handmade mini quiche',
+    description: 'Two-bite quiches in an all-butter crust. Spinach and cheddar, or ham and Swiss.',
+    ingredients: [
+      PIE_CRUST,
+      'eggs',
+      'heavy cream',
+      'whole milk',
+      'spinach',
+      'cheddar',
+      'Swiss cheese',
+      'ham (pork, water, salt, sugar, sodium nitrite)',
+      'yellow onion',
+      'nutmeg',
+      'kosher salt',
+      'black pepper',
+    ],
+    allergens: ['dairy', 'eggs', 'wheat'],
   },
 
   // ---------- Small bites ----------
@@ -380,6 +486,18 @@ export const dishes = {
   },
 
   // ---------- Sides ----------
+  'mashed-potatoes': {
+    name: 'Mashed potatoes',
+    description: 'Yukon Gold potatoes mashed with butter, cream and roasted garlic. Left a little rustic.',
+    ingredients: ['Yukon Gold potatoes', 'butter', 'heavy cream', 'whole milk', 'roasted garlic', 'chives', 'kosher salt', 'black pepper'],
+    allergens: ['dairy'],
+  },
+  'mixed-vegetables': {
+    name: 'Mixed vegetables',
+    description: 'Broccoli, carrots, squash, zucchini and red peppers, roasted with olive oil and garlic.',
+    ingredients: ['broccoli', 'carrots', 'yellow squash', 'zucchini', 'red bell pepper', 'red onion', 'olive oil', 'garlic', 'kosher salt', 'black pepper'],
+    allergens: [],
+  },
   mac: {
     name: 'Five-cheese baked macaroni',
     description:

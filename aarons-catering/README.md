@@ -20,9 +20,10 @@ Every change pushed to GitHub then goes live automatically.
 
 Placeholders are deliberately obvious so nothing slips through:
 
-- [ ] **Logo.** Replace `site/images/logo.png` with the real logo (transparent PNG, the version that reads on black, about 600px wide). Replace the four icons too (see `PHOTOS.md`).
-- [ ] **Photos.** Every photo is a labeled placeholder. `PHOTOS.md` is the shot list: file name, size, where it shows and what to shoot. Save the real photo over the placeholder with the same file name. No code changes needed.
-- [ ] **Chef Aaron reads the menus line by line.** I wrote every dish, ingredient list and allergen line as a starting draft. The ingredient lists must match the actual recipes, and the allergen lines must match the ingredients. People with allergies will rely on them. Edit `src/content/dishes.mjs`, then run the checks (below), which fail if an ingredient and its allergen line disagree.
+- [ ] **Phone number.** The brief gave 571-271-1810, which is what the site uses everywhere. The flyers say 571-207-5151. Confirm which one is right; it's one line in `src/content/site.mjs`.
+- [ ] **Logo file.** The logo is cut out of the flyer and looks right on the site. The original file (a PNG with a transparent background, or an SVG) would be sharper. Save it over `site/images/logo.png`, then run `node tools/brand-images.mjs` to remake the icons and the link preview.
+- [ ] **Photos.** The chef photo, five gallery photos and the six Instagram tiles are real, cut from the flyers, but small. Everything else is a labeled placeholder. `PHOTOS.md` is the shot list: file name, whether it's real yet, size, where it shows and what to shoot. Save the real photo over the file with the same name. No code changes needed.
+- [ ] **Chef Aaron reads the menus line by line.** The dishes on the flyer menu are all there: baked or grilled chicken, smothered turkey wings, Southern fried chicken, braised short ribs, surf and turf, lemon herbed salmon, fried fish, shrimp, shrimp and grits, chicken and waffles, omelettes, mini quiche, mashed potatoes and mixed vegetables. I wrote the rest, and every ingredient list and allergen line, as a starting draft. The ingredient lists must match the actual recipes, and the allergen lines must match the ingredients. People with allergies will rely on them. Edit `src/content/dishes.mjs`, then run the checks (below), which fail if an ingredient and its allergen line disagree.
 - [ ] **About page fill-ins.** The highlighted boxes on the About page are facts only Chef Aaron knows (who taught Chef Aaron to cook, where, the year the business started). They're in `src/pages/about.mjs` between `[[double brackets]]`.
 - [ ] **Testimonials.** The three on the home page are samples showing length and tone, and each one says "Sample quote" on the page. Replace them with real quotes from real clients (with permission) in `src/content/site.mjs` and delete `sample: true`. Don't launch with the samples.
 - [ ] **Holiday prices and dates.** All packages, prices, deadlines, pickup windows and the delivery fee are my proposals. Confirm or change them in `src/content/holiday.mjs`.
@@ -114,4 +115,4 @@ Don't edit the `.html` files in `site/` directly. They're rebuilt from `src/` an
 - **Works without JavaScript.** The form still sends (to `thanks.html`), menus show as one long page, and gallery photos open full size.
 - Icons are adapted from [Lucide](https://lucide.dev) (ISC license).
 
-`tools/placeholders.mjs` redraws the placeholder images if you add a new photo slot. It needs Playwright and isn't needed for normal edits.
+`tools/placeholders.mjs` draws placeholder photos for new photo slots, and `tools/brand-images.mjs` makes the link preview and icons from the logo and the chef photo. Both need Playwright, and neither is needed for normal edits.

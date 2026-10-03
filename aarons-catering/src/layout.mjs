@@ -12,7 +12,7 @@ export function setAssetVersions(v) {
 }
 
 const NAME = curly(site.name);
-const LOGO = { file: 'logo.png', w: 600, h: 360 };
+const LOGO = { file: 'logo.png', w: 556, h: 620 };
 
 export function logo(cls = 'logo', eager = false) {
   return `<img class="${cls}" src="images/${LOGO.file}" alt="${esc(NAME)}" width="${LOGO.w}" height="${LOGO.h}"${eager ? '' : ' loading="lazy"'} decoding="async">`;
@@ -105,7 +105,7 @@ function footer() {
   <div class="container footer-grid">
     <div class="footer-brand">
       <a href="index.html">${logo('logo logo-footer')}</a>
-      <p>Soul food catering from Fairfax, Virginia. Cooking for Washington DC, Maryland and Northern Virginia.</p>
+      <p>${esc(site.motto)}. Soul food catering from Fairfax, Virginia, cooking for Washington DC, Maryland and Northern Virginia.</p>
     </div>
     <div class="footer-contact">
       <h2 class="footer-heading">Talk to us</h2>

@@ -16,7 +16,7 @@ function hero() {
     ${logo('logo logo-hero', true)}
     <p class="hero-kicker">Soul food catering &middot; Fairfax, Virginia</p>
     <h1 id="hero-title" class="hero-title">${esc(site.tagline)}</h1>
-    <p class="hero-lede">Fried chicken, oxtails, collards and baked mac and cheese, cooked in Fairfax and brought to weddings, offices and family tables across DC, Maryland and Northern Virginia.</p>
+    <p class="hero-lede">Fried chicken, braised short ribs, collards and baked mac and cheese, cooked in Fairfax and brought to weddings, offices and family tables across DC, Maryland and Northern Virginia.</p>
     <a class="btn btn-lg" href="contact.html">Request a Quote</a>
   </div>
 </section>`;
@@ -103,7 +103,7 @@ function chef() {
       ${eyebrow('The chef')}
       <h2 id="chef-title" class="h2">Chef Aaron Jenkins</h2>
       <blockquote class="chef-quote">
-        <p>Soul food takes time. Greens need three hours. Oxtails need four. Chicken needs a night in the brine. I don't cut those corners, and I taste every pan before it leaves the kitchen.</p>
+        <p>Soul food takes time. Greens need three hours. Short ribs need four. Chicken needs a night in the brine. I don't cut those corners, and I taste every pan before it leaves the kitchen.</p>
       </blockquote>
       <p class="muted">Everything we serve is cooked from scratch in our kitchen in Fairfax, the day before or the morning of your event.</p>
       <a class="text-link" href="about.html">Read the story ${icon('arrow', 'icon icon-sm')}</a>

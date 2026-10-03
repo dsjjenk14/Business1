@@ -8,9 +8,9 @@ export const menus = [
     intro:
       'Buffet, family-style or plated. Most couples choose two mains, three sides, bread and one or two desserts. We cook a tasting for the two of you about six weeks out, so nothing on the day is a surprise.',
     courses: [
-      { title: 'Passed bites', dishes: ['shrimp-grits', 'fried-green-tomatoes', 'deviled-eggs'] },
-      { title: 'Mains', dishes: ['fried-chicken', 'oxtails', 'blackened-salmon', 'smothered-chicken'] },
-      { title: 'Sides', dishes: ['mac', 'collards', 'yams', 'green-beans'] },
+      { title: 'Passed bites', dishes: ['shrimp-grits', 'mini-quiche', 'fried-green-tomatoes', 'deviled-eggs'] },
+      { title: 'Mains', dishes: ['fried-chicken', 'short-ribs', 'lemon-salmon', 'surf-and-turf', 'baked-chicken'] },
+      { title: 'Sides', dishes: ['mac', 'collards', 'yams', 'mashed-potatoes', 'green-beans', 'mixed-vegetables'] },
       { title: 'Bread', dishes: ['cornbread'] },
       { title: 'Dessert', dishes: ['peach-cobbler', 'banana-pudding'] },
     ],
@@ -19,21 +19,21 @@ export const menus = [
     id: 'corporate',
     title: 'Corporate events',
     intro:
-      'Boxed lunches for meetings, buffets for the whole floor, dinners for clients. Everything arrives labeled with what is in it, with plates, napkins and serving utensils. Boxed lunches come with a side and a slice of pound cake.',
+      'Boxed lunches for meetings, buffets for the whole floor, company picnics and client dinners. Everything arrives labeled with what is in it, with plates, napkins and serving utensils. Boxed lunches come with a side and a slice of pound cake.',
     courses: [
-      { title: 'Boxed lunches', dishes: ['chicken-sandwich', 'smothered-chicken', 'blackened-salmon', 'black-eyed-pea-bowl'] },
-      { title: 'Buffet mains', dishes: ['fried-chicken', 'smothered-chicken', 'blackened-salmon'] },
-      { title: 'Sides', dishes: ['mac', 'green-beans', 'house-salad', 'yams'] },
+      { title: 'Boxed lunches', dishes: ['chicken-sandwich', 'smothered-chicken', 'lemon-salmon', 'black-eyed-pea-bowl'] },
+      { title: 'Buffet mains', dishes: ['baked-chicken', 'fried-chicken', 'smothered-chicken', 'lemon-salmon'] },
+      { title: 'Sides', dishes: ['mac', 'mashed-potatoes', 'mixed-vegetables', 'green-beans', 'house-salad'] },
       { title: 'Dessert and drinks', dishes: ['pound-cake', 'sweet-tea', 'lemonade'] },
     ],
   },
   {
     id: 'birthdays',
-    title: 'Birthdays',
+    title: 'Birthdays and private parties',
     intro:
       'Party trays for the backyard, the clubhouse or the living room. A half pan feeds about 10 to 12 people and a full pan about 20 to 25. We drop off hot and set up, or we stay and serve.',
     courses: [
-      { title: 'Trays', dishes: ['lemon-pepper-wings', 'honey-hot-wings', 'fried-catfish', 'pulled-pork-sliders'] },
+      { title: 'Trays', dishes: ['lemon-pepper-wings', 'honey-hot-wings', 'fried-fish', 'cajun-shrimp', 'pulled-pork-sliders'] },
       { title: 'Sides', dishes: ['mac', 'potato-salad', 'baked-beans'] },
       { title: 'Sweets', dishes: ['red-velvet-cupcakes', 'banana-pudding'] },
     ],
@@ -42,19 +42,30 @@ export const menus = [
     id: 'family',
     title: 'Family gatherings',
     intro:
-      'Reunions, repasts, graduations and Sunday dinners. Served family-style in full pans, with enough for seconds and a plate to take home.',
+      'Reunions, repasts, church events, graduations and Sunday dinners. Served family-style in full pans, with enough for seconds and a plate to take home.',
     courses: [
-      { title: 'Mains', dishes: ['fried-chicken', 'smothered-pork-chops', 'bbq-ribs', 'fried-catfish'] },
-      { title: 'Sides', dishes: ['mac', 'collards', 'yams', 'potato-salad', 'baked-beans', 'cabbage'] },
+      { title: 'Mains', dishes: ['fried-chicken', 'turkey-wings', 'short-ribs', 'smothered-pork-chops', 'fried-fish'] },
+      { title: 'Sides', dishes: ['mac', 'collards', 'yams', 'mashed-potatoes', 'potato-salad', 'cabbage'] },
       { title: 'Bread', dishes: ['cornbread'] },
       { title: 'Dessert', dishes: ['peach-cobbler', 'sweet-potato-pie', 'pound-cake'] },
+    ],
+  },
+  {
+    id: 'brunch',
+    title: 'Brunch',
+    intro:
+      'Birthday brunches, bridal showers, church brunch after service, the morning after a wedding. The omelette station comes with a cook who makes each one to order.',
+    courses: [
+      { title: 'Mains', dishes: ['shrimp-and-grits', 'chicken-and-waffles', 'omelettes', 'mini-quiche'] },
+      { title: 'Something sweet', dishes: ['pound-cake', 'peach-cobbler'] },
+      { title: 'Drinks', dishes: ['lemonade', 'sweet-tea'] },
     ],
   },
   {
     id: 'holidays',
     title: 'Holidays',
     intro:
-      "Thanksgiving, Christmas and New Year's. Packages, prices, ordering deadlines and pickup times are on the Holiday Ordering page. Here is everything on the holiday menu, with what goes into it.",
+      "Thanksgiving, Christmas, New Year's and holiday parties. Packages, prices, ordering deadlines and pickup times are on the Holiday Ordering page. Here is everything on the holiday menu, with what goes into it.",
     link: { href: 'holiday.html', label: 'Holiday packages and prices' },
     courses: [
       { title: 'Mains', dishes: ['roast-turkey', 'smoked-turkey', 'ham', 'turkey-wings'] },
