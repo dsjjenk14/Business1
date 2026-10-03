@@ -18,7 +18,7 @@ export default function galleryPage() {
   <div class="container">
     ${eyebrow('Gallery')}
     <h1 id="page-title" class="h1">Food and events</h1>
-    <p class="lede">Plates from the kitchen and tables from events we've cooked for. Tap a photo to see it larger.</p>
+    <p class="lede">Tap a photo to see it larger.</p>
   </div>
 </section>
 
@@ -47,7 +47,7 @@ export default function galleryPage() {
 
   return page({
     slug: 'gallery',
-    title: 'Gallery | Soul Food Catering Photos | Aaron J’s Catering, Fairfax VA',
+    title: 'Gallery | Soul Food Catering Photos | Aaron J’s Catering',
     description:
       'Photos from Aaron J’s Catering: soul food at weddings, office lunches, birthdays, family gatherings and holiday tables in DC, Maryland and Northern Virginia.',
     content,

@@ -16,12 +16,15 @@
 
 export const photos = {
   hero: {
+    // STAND-IN until the stock photo arrives. Save the stock photo over
+    // site/images/hero.jpg and update `alt`, `w`, `h` and `source` here.
     file: 'hero.jpg',
-    w: 1131,
-    h: 1697,
-    alt: 'Honey-glazed ham with pineapple rings, cherries and a marigold garnish',
-    shot: 'Glazed ham, tall frame. Fills the screen behind the headline on phones; sits on the right half on computers.',
+    w: 2400,
+    h: 1800,
+    alt: 'A catered buffet on a red tablecloth with salmon, chicken, mac and cheese, yams and plantains',
+    shot: 'Main photo at the top of the home page. A stock photo will go here.',
     where: 'Home page, top',
+    focus: '50% 45%',
     source: 'photo',
   },
   share: {
@@ -42,13 +45,13 @@ export const photos = {
     where: 'Home page, signature dishes',
     source: 'photo',
   },
-  'dish-short-ribs': {
-    file: 'dish-short-ribs.jpg',
+  'dish-ham': {
+    file: 'dish-ham.jpg',
     w: 1200,
     h: 1500,
-    alt: 'Braised beef with peas, carrots and scallions',
-    shot: 'The braised beef with peas and carrots.',
-    where: 'Home page, signature dishes',
+    alt: 'Spiral-cut glazed ham with pineapple rings, cherries and a marigold',
+    shot: 'Glazed ham.',
+    where: 'Home page, favorites',
     source: 'photo',
   },
   'dish-mac': {
@@ -131,7 +134,6 @@ export const photos = {
 export const gallery = [
   ['gallery-01.jpg', 1200, 900, 'A catered buffet on a red tablecloth: lemon salmon, chicken, mac and cheese, yams, plantains and roasted vegetables'],
   ['gallery-02.jpg', 900, 1200, 'Glazed ham with pineapple rings and cherries, garnished with parsley, rosemary and a marigold'],
-  ['gallery-03.jpg', 900, 1200, 'Braised beef with peas, carrots and scallions'],
   ['gallery-04.jpg', 1200, 900, 'Baked macaroni and cheese with an edible flower'],
   ['gallery-05.jpg', 908, 1200, 'Chicken and waffles on a plate with strawberries'],
   ['gallery-06.jpg', 900, 1200, 'A brunch buffet set up in a home: chicken and waffles, mini quiches, hash browns and more'],
@@ -161,7 +163,7 @@ export const instagramTiles = [
   'Cajun crab and shrimp',
   'Glazed ham with pineapple and cherries',
   'Chicken and waffles with strawberries',
-  'Braised beef with peas and carrots',
+  'Candied yams',
   'A catered buffet on a red tablecloth',
 ].map((alt, i) => ({
   file: `instagram-${i + 1}.jpg`,

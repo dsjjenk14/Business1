@@ -22,7 +22,7 @@ const ALLERGEN_LABELS = {
 export function allergenLine(d) {
   const text = d.allergens.length
     ? d.allergens.map((a) => ALLERGEN_LABELS[a] ?? a).join(', ')
-    : 'None in the recipe. Our kitchen note on allergies still applies.';
+    : 'None in the recipe. See the allergy note.';
   const spicy = d.spicy ? ' <span class="spicy">Spicy</span>' : '';
   const note = d.note ? `<p class="dish-note">${esc(d.note)}</p>` : '';
   return `<p class="allergens"><span class="label">Allergens</span> ${esc(text)}${spicy}</p>${note}`;
@@ -99,7 +99,7 @@ export default function menusPage() {
   <div class="container page-hero-content">
     ${eyebrow('Catering menus')}
     <h1 id="page-title" class="h1">Soul food catering menus</h1>
-    <p class="lede">Starting points, not rules. Mix across menus, swap a side, add a protein. Tell us what you have in mind and we'll price it for your guest count.</p>
+    <p class="lede">Mix and match across menus. Tell us what you want and we'll price it for your guest count.</p>
   </div>
 </section>
 
@@ -109,11 +109,11 @@ export default function menusPage() {
       ${icon('alert', 'icon notice-icon')}
       <div>
         <h2 class="notice-title" id="allergy-title">Allergies</h2>
-        <p>Our kitchen handles <strong>shellfish, dairy, eggs, wheat and nuts</strong>. Everything is prepared in the same space, so we cannot guarantee that any dish is free of allergens, even when the recipe doesn't include them.</p>
-        <p>Every dish below lists the allergens in its recipe. If someone at your event has a serious allergy, call us at <a href="${site.phone.href}">${site.phone.display}</a> before you order so we can talk it through.</p>
+        <p>This is a working kitchen that handles <strong>shellfish, dairy, eggs, wheat and nuts</strong>. We take real care, but we cannot guarantee any dish is free of an allergen.</p>
+        <p>Every dish below lists its allergens. If anyone at your event has a food allergy, tell us before you order, or call <a href="${site.phone.href}">${site.phone.display}</a>.</p>
       </div>
     </div>
-    <p class="muted menu-pricing">Pricing depends on guest count, service style and location. <a href="contact.html">Request a quote</a> and we'll send a full breakdown.</p>
+    <p class="muted menu-pricing">Pricing depends on guest count, service style and location. <a href="index.html#quote">Request a quote</a>.</p>
   </div>
 </section>
 
@@ -127,17 +127,16 @@ ${menus.map(panel).join('\n')}
 
 <section class="section cta cta-compact" aria-labelledby="cta-title">
   <div class="container cta-inner">
-    <h2 id="cta-title" class="h2">Don't see it on the menu?</h2>
-    <p class="lede">Ask. If your family has a dish that has to be there, we'll cook it your way.</p>
-    <a class="btn btn-lg" href="contact.html">Request a Quote</a>
+    <h2 id="cta-title" class="h2">Don't see it on the menu? Ask.</h2>
+    <a class="btn btn-lg" href="index.html#quote">Request a Quote</a>
   </div>
 </section>`;
 
   return page({
     slug: 'menus',
-    title: 'Catering Menus | Soul Food Catering in Fairfax, VA | Aaron J’s Catering',
+    title: 'Catering Menus | Soul Food Catering in DC, MD and Northern Virginia | Aaron J’s Catering',
     description:
-      'Soul food catering menus for weddings, corporate events, birthdays, family gatherings and holidays, with full ingredients and allergens for every dish. Fairfax, VA.',
+      'Soul food catering menus for weddings, corporate events, birthdays, family gatherings, brunch and holidays, with ingredients and allergens for every dish.',
     preload: ['page-menus'],
     jsonld: [jsonLd()],
     content,

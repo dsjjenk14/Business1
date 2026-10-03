@@ -7,7 +7,7 @@ export const site = {
   motto: 'Where every day is Sunday', // from the logo
   url: 'https://aaronjscatering.com', // used for canonical links, the sitemap and link previews
 
-  phone: { display: '571-207-5151', href: 'tel:+15712075151', intl: '+1-571-207-5151' },
+  phone: { display: '571-271-1810', href: 'tel:+15712711810', intl: '+1-571-271-1810' },
   email: 'chef@aaronjscatering.com',
   instagram: {
     handle: '@aaronjscatering',
@@ -16,9 +16,7 @@ export const site = {
     beholdFeedId: '',
   },
 
-  city: 'Fairfax',
-  region: 'VA',
-  serviceArea: ['Fairfax, VA', 'Washington, DC', 'Northern Virginia', 'Maryland'],
+  serviceArea: ['Washington, DC', 'Northern Virginia', 'Maryland'],
 
   // Quote form. FormSubmit emails each request to the address in the URL.
   // The first request sends an activation email to that inbox. Click it once.
@@ -28,7 +26,7 @@ export const site = {
   },
 
   allergenNote:
-    'Our kitchen handles shellfish, dairy, eggs, wheat and nuts. We cannot guarantee that any dish is free of allergens.',
+    'We handle shellfish, dairy, eggs, wheat and nuts and cannot guarantee that any dish is free of allergens.',
 };
 
 export const nav = [
@@ -40,89 +38,17 @@ export const nav = [
 ];
 
 export const events = [
-  {
-    id: 'weddings',
-    icon: 'rings',
-    title: 'Weddings',
-    text: 'Buffet, family-style or plated. We cook you a tasting first, so nothing on the day is a surprise.',
-    href: 'menus.html#weddings',
-  },
-  {
-    id: 'corporate',
-    icon: 'briefcase',
-    title: 'Corporate events',
-    text: 'Boxed lunches, office buffets, company picnics and client dinners. On time, labeled, with plates and serving utensils.',
-    href: 'menus.html#corporate',
-  },
-  {
-    id: 'birthdays',
-    icon: 'cake',
-    title: 'Birthdays',
-    text: 'Birthdays and private parties. Wings, jalapeño poppers, Cajun crab and shrimp and pans of mac and cheese, set up before the first guest walks in.',
-    href: 'menus.html#birthdays',
-  },
-  {
-    id: 'family',
-    icon: 'pot',
-    title: 'Family gatherings',
-    text: 'Reunions, repasts, church events, Sunday dinners. Full pans, family-style, enough for seconds.',
-    href: 'menus.html#family',
-  },
-  {
-    id: 'holidays',
-    icon: 'pie',
-    title: 'Holidays',
-    text: "Thanksgiving, Christmas, New Year's and holiday parties. The whole meal, or just the sides you don't feel like making.",
-    href: 'holiday.html',
-  },
+  { id: 'weddings', icon: 'rings', title: 'Weddings', text: 'Buffet, family-style or plated.', href: 'menus.html#weddings' },
+  { id: 'corporate', icon: 'briefcase', title: 'Corporate events', text: 'Office lunches, meetings and company picnics.', href: 'menus.html#corporate' },
+  { id: 'birthdays', icon: 'cake', title: 'Birthdays and parties', text: 'Party trays and buffets.', href: 'menus.html#birthdays' },
+  { id: 'family', icon: 'pot', title: 'Church and family events', text: 'Reunions, repasts and Sunday dinners.', href: 'menus.html#family' },
+  { id: 'holidays', icon: 'pie', title: 'Holidays', text: 'Thanksgiving, Christmas and holiday parties.', href: 'holiday.html' },
+  { id: 'mealprep', icon: 'box', title: 'Meal prep', text: 'Personalized meals for the week.', href: 'contact.html?event=mealprep' },
 ];
 
 export const signatureDishes = [
-  {
-    dish: 'chicken-and-waffles',
-    photo: 'dish-chicken-and-waffles',
-    text: 'Chicken brined overnight in buttermilk, fried crisp and set next to buttermilk waffles with warm syrup and fresh strawberries.',
-  },
-  {
-    dish: 'short-ribs',
-    photo: 'dish-short-ribs',
-    text: 'Seared dark, then braised four hours with onion, carrot, garlic and thyme until a fork goes straight through.',
-  },
-  {
-    dish: 'mac',
-    photo: 'dish-mac',
-    text: 'Five cheeses set in an egg custard and baked in the pan we serve it in. Ask for a corner piece.',
-  },
-  {
-    dish: 'cajun-seafood',
-    photo: 'dish-cajun-seafood',
-    text: 'Crab clusters, shrimp and andouille in a Cajun garlic butter sauce with peppers and onion. Napkins on the side.',
-  },
-];
-
-// SAMPLE QUOTES. These show the length and tone that work. Replace every one
-// with a real quote from a real client, with their permission, before launch.
-// While `sample: true` is set, the page shows a "Sample quote" tag under it.
-export const testimonials = [
-  {
-    quote:
-      'We had 140 guests and the line for short ribs never stopped. People were still talking about the mac and cheese at brunch the next morning.',
-    name: 'Client name',
-    detail: 'Wedding, city',
-    sample: true,
-  },
-  {
-    quote:
-      'Lunch for 60 showed up at 11:40 for a noon meeting. Every pan was labeled with what was in it. Nobody went back to their desk hungry.',
-    name: 'Client name',
-    detail: 'Corporate lunch, city',
-    sample: true,
-  },
-  {
-    quote:
-      "My grandmother's 90th. Forty of us, three generations, and nobody had to cook. She said the sweet potato pie was almost as good as hers.",
-    name: 'Client name',
-    detail: 'Family gathering, city',
-    sample: true,
-  },
+  { dish: 'chicken-and-waffles', photo: 'dish-chicken-and-waffles', text: 'Fried chicken and waffles with syrup and fresh strawberries.' },
+  { dish: 'ham', photo: 'dish-ham', text: 'Glazed with brown sugar, honey and pineapple juice, finished with pineapple rings and cherries.' },
+  { dish: 'mac', photo: 'dish-mac', text: 'Sharp cheddar, Colby Jack and cream cheese, baked until golden.' },
+  { dish: 'cajun-seafood', photo: 'dish-cajun-seafood', text: 'Crab, shrimp and sausage in a Cajun garlic butter sauce.' },
 ];

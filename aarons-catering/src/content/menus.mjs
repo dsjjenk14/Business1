@@ -6,7 +6,7 @@ export const menus = [
     id: 'weddings',
     title: 'Weddings',
     intro:
-      'Buffet, family-style or plated. Most couples choose two mains, three sides, bread and one or two desserts. We cook a tasting for the two of you about six weeks out, so nothing on the day is a surprise.',
+      'Buffet, family-style or plated. Most couples choose two mains, three sides, bread and a dessert.',
     courses: [
       { title: 'Passed bites', dishes: ['shrimp-grits', 'mini-quiche', 'fried-green-tomatoes', 'deviled-eggs'] },
       { title: 'Mains', dishes: ['fried-chicken', 'short-ribs', 'lemon-salmon', 'surf-and-turf', 'baked-chicken'] },
@@ -19,7 +19,7 @@ export const menus = [
     id: 'corporate',
     title: 'Corporate events',
     intro:
-      'Boxed lunches for meetings, buffets for the whole floor, company picnics and client dinners. Everything arrives labeled with what is in it, with plates, napkins and serving utensils. Boxed lunches come with a side and a slice of pound cake.',
+      'Boxed lunches, office buffets, company picnics and client dinners.',
     courses: [
       { title: 'Boxed lunches', dishes: ['chicken-sandwich', 'smothered-chicken', 'lemon-salmon', 'black-eyed-pea-bowl'] },
       { title: 'Buffet mains', dishes: ['baked-chicken', 'fried-chicken', 'smothered-chicken', 'lemon-salmon'] },
@@ -31,7 +31,7 @@ export const menus = [
     id: 'birthdays',
     title: 'Birthdays and private parties',
     intro:
-      'Party trays for the backyard, the clubhouse or the living room. A half pan feeds about 10 to 12 people and a full pan about 20 to 25. We drop off hot and set up, or we stay and serve.',
+      'Party trays and buffets for birthdays and private parties.',
     courses: [
       { title: 'Trays', dishes: ['lemon-pepper-wings', 'honey-hot-wings', 'jalapeno-poppers', 'fried-fish', 'cajun-seafood', 'pulled-pork-sliders'] },
       { title: 'Sides', dishes: ['mac', 'potato-salad', 'baked-beans'] },
@@ -42,7 +42,7 @@ export const menus = [
     id: 'family',
     title: 'Family gatherings',
     intro:
-      'Reunions, repasts, church events, graduations and Sunday dinners. Served family-style in full pans, with enough for seconds and a plate to take home.',
+      'Reunions, repasts, church events, graduations and Sunday dinners, served family-style.',
     courses: [
       { title: 'Mains', dishes: ['fried-chicken', 'turkey-wings', 'short-ribs', 'smothered-pork-chops', 'fried-fish', 'cajun-seafood'] },
       { title: 'Sides', dishes: ['mac', 'collards', 'yams', 'rice-and-peas', 'plantains', 'mashed-potatoes', 'potato-salad', 'cabbage'] },
@@ -54,7 +54,7 @@ export const menus = [
     id: 'brunch',
     title: 'Brunch',
     intro:
-      'Birthday brunches, bridal showers, church brunch after service, the morning after a wedding. The omelette station comes with a cook who makes each one to order.',
+      'Birthday brunches, bridal showers and church brunch.',
     courses: [
       { title: 'Mains', dishes: ['shrimp-and-grits', 'chicken-and-waffles', 'omelettes', 'mini-quiche'] },
       { title: 'Sides', dishes: ['hash-browns', 'bacon'] },
@@ -66,7 +66,7 @@ export const menus = [
     id: 'holidays',
     title: 'Holidays',
     intro:
-      "Our Thanksgiving 2026 menu, with what goes into every dish. Packages, prices, deadlines and delivery are on the Holiday Ordering page. Christmas and New Year's menus are coming.",
+      "Our Thanksgiving 2026 menu. Packages, prices and delivery are on the Holiday Ordering page. Christmas and New Year's menus are coming.",
     link: { href: 'holiday.html', label: 'Thanksgiving packages and prices' },
     courses: [
       { title: 'Meats', dishes: ['ham', 'smoked-turkey', 'jerk-turkey', 'fried-turkey', 'short-ribs'] },

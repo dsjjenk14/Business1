@@ -187,13 +187,13 @@ button { font: inherit; color: inherit; }
 .muted { color: var(--muted); }
 .small { font-size: 0.875rem; }
 
-.lede a, .muted a, .notice a, .prose a, .step a, .logistic a, .form-done a, .aside-block a, .cta-alt a {
+.lede a, .muted a, .notice a, .step a, .logistic a, .form-done a, .aside-block a, .cta-alt a {
   color: var(--white);
   text-decoration-color: var(--orange);
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
-.lede a:hover, .muted a:hover, .notice a:hover, .prose a:hover, .step a:hover,
+.lede a:hover, .muted a:hover, .notice a:hover, .step a:hover,
 .logistic a:hover, .form-done a:hover, .aside-block a:hover, .cta-alt a:hover { color: var(--orange); }
 
 /* Gold is for prices and numbers. Nothing else. */
@@ -590,41 +590,37 @@ button { font: inherit; color: inherit; }
 .from .price { font-family: var(--display); font-size: 2.5rem; line-height: 1; }
 @media (min-width: 900px) { .holiday-promo-inner { grid-template-columns: 1fr auto; gap: 64px; } }
 
-/* ---------- Home: event types ---------- */
+/* ---------- Home: quote form ---------- */
 
-.event-grid { list-style: none; border-top: 1px solid var(--line); }
-.event-card {
+.home-quote { padding-top: calc(var(--section) * 0.75); }
+.home-quote-grid { display: grid; gap: 32px; }
+.home-quote-intro .lede { margin-top: 16px; }
+.home-quote .cta-alt { margin-top: 16px; color: var(--muted); font-size: 0.9375rem; }
+@media (min-width: 960px) {
+  .home-quote-grid { grid-template-columns: 5fr 7fr; gap: 96px; }
+  .home-quote-intro { position: sticky; top: calc(var(--header-h) + 32px); align-self: start; }
+}
+
+/* ---------- Home: what we cater ---------- */
+
+.event-tiles { list-style: none; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.event-tile {
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: start;
-  gap: 18px;
-  padding: 24px 0;
-  border-bottom: 1px solid var(--line);
+  gap: 8px;
+  align-content: start;
+  height: 100%;
+  padding: 18px 16px;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
   text-decoration: none;
+  transition: border-color 0.2s;
 }
-.event-icon { width: 36px; height: 36px; color: var(--orange); stroke-width: 1.25; }
-.event-body { display: grid; gap: 6px; }
-.event-title { font-family: var(--display); font-size: 1.625rem; line-height: 1.05; text-transform: uppercase; letter-spacing: 0.01em; }
-.event-text { color: var(--muted); font-size: 0.9375rem; line-height: 1.55; }
-.event-arrow { margin-top: 6px; color: var(--faint); transition: transform 0.25s var(--ease), color 0.25s; }
-.event-card:hover .event-arrow { color: var(--orange); transform: translateX(4px); }
-.event-card:hover .event-title { color: var(--orange); }
-
-@media (min-width: 1000px) {
-  .event-grid { display: grid; grid-template-columns: repeat(5, 1fr); border-top: 0; gap: 0; }
-  .event-grid li + li .event-card { border-left: 1px solid var(--line); }
-  .event-card {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr auto;
-    gap: 28px;
-    height: 100%;
-    padding: 8px 28px 8px;
-    border-bottom: 0;
-  }
-  .event-grid li:first-child .event-card { padding-left: 0; }
-  .event-icon { width: 40px; height: 40px; }
-  .event-title { font-size: 1.5rem; }
-}
+.event-tile:hover { border-color: var(--orange); }
+.event-icon { width: 30px; height: 30px; color: var(--orange); stroke-width: 1.25; }
+.event-title { font-family: var(--display); font-size: 1.25rem; line-height: 1.05; text-transform: uppercase; letter-spacing: 0.01em; }
+.event-text { color: var(--muted); font-size: 0.875rem; line-height: 1.45; }
+@media (min-width: 720px) { .event-tiles { grid-template-columns: repeat(3, 1fr); gap: 16px; } .event-tile { padding: 24px; } }
+@media (min-width: 1080px) { .event-tiles { grid-template-columns: repeat(6, 1fr); } .event-tile { padding: 22px 18px; } }
 
 /* ---------- Home: signature dishes ---------- */
 
@@ -660,61 +656,6 @@ button { font: inherit; color: inherit; }
   }
   .dish-row::after { display: none; }
 }
-
-/* ---------- Home: chef ---------- */
-
-.chef { display: grid; gap: 40px; align-items: center; }
-.chef-photo { aspect-ratio: 4 / 3; overflow: hidden; background: var(--ink-2); }
-.chef-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; }
-.chef-body .h2 { margin-bottom: 28px; }
-.chef-quote {
-  margin: 0 0 24px;
-  padding-left: 20px;
-  border-left: 2px solid var(--red);
-  font-size: 1.25rem;
-  line-height: 1.5;
-  text-wrap: pretty;
-}
-.chef-body .muted { margin-bottom: 20px; }
-@media (min-width: 900px) {
-  .chef { grid-template-columns: 5fr 6fr; gap: 88px; }
-  .chef-quote { font-size: 1.5rem; padding-left: 28px; }
-}
-
-/* ---------- Testimonials ---------- */
-
-.quote-grid { display: grid; gap: 20px; }
-.quote {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  margin: 0;
-  padding: 32px 24px 24px;
-  background: var(--ink-2);
-  border: 1px solid var(--line);
-}
-.quote blockquote { margin: 0 0 28px; flex: 1; }
-.quote blockquote p { font-size: 1.125rem; line-height: 1.55; text-wrap: pretty; }
-.quote blockquote::before {
-  content: '\201C';
-  display: block;
-  height: 36px;
-  color: var(--red);
-  font-family: var(--display);
-  font-size: 4rem;
-  line-height: 1;
-}
-.quote figcaption { display: grid; gap: 2px; padding-top: 18px; border-top: 1px solid var(--line); }
-.quote-name { font-weight: 650; }
-.quote-detail { color: var(--muted); font-size: 0.875rem; }
-.sample-tag {
-  margin: 16px 0 0;
-  padding: 6px 10px;
-  border: 1px dashed var(--line-strong);
-  color: var(--faint);
-  font-size: 0.75rem;
-}
-@media (min-width: 900px) { .quote-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
 
 /* ---------- Instagram ---------- */
 
@@ -943,8 +884,6 @@ button { font: inherit; color: inherit; }
 }
 
 
-.price-grid { display: grid; gap: 48px; }
-.price-group .h3 { margin-bottom: 8px; }
 .price-table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
 .price-table th, .price-table td { padding: 14px 0; border-bottom: 1px solid var(--line); text-align: left; vertical-align: baseline; }
 .price-table th[scope='row'] { font-weight: 500; padding-right: 16px; }
@@ -991,6 +930,7 @@ button { font: inherit; color: inherit; }
 .steps-grid { margin-top: 0; }
 @media (min-width: 900px) {
   .steps-grid { grid-template-columns: repeat(4, 1fr); gap: 32px; }
+  .steps-grid.steps-3 { grid-template-columns: repeat(3, 1fr); }
   .steps-grid .step { grid-template-columns: 1fr; gap: 20px; }
 }
 
@@ -1002,45 +942,14 @@ button { font: inherit; color: inherit; }
 
 /* ---------- About page ---------- */
 
-.prose-split { display: grid; gap: 24px; }
-.aside-photo { margin: 32px 0 8px; }
-.aside-photo img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: 50% 20%; background: var(--ink-2); }
-.aside-photo figcaption { margin-top: 10px; color: var(--faint); font-size: 0.8125rem; }
-.prose { max-width: 38em; font-size: 1.0625rem; }
-.prose p { color: rgba(247, 245, 242, 0.86); }
-.prose-lead { font-size: 1.3125rem; line-height: 1.5; color: var(--white) !important; }
-@media (min-width: 900px) {
-  .prose-split { grid-template-columns: 4fr 7fr; gap: 72px; }
-  .prose { font-size: 1.125rem; }
-  .prose-lead { font-size: 1.5rem; }
-}
-
-/* Fill-ins only the chef can write. Impossible to miss on purpose. */
-.fill {
-  padding: 1px 6px;
-  border: 1px dashed var(--orange);
-  border-radius: var(--radius);
-  background: rgba(242, 106, 33, 0.14);
-  color: var(--white);
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-}
-
 .feature { display: grid; gap: 40px; align-items: center; }
 .feature-photo { aspect-ratio: 4 / 3; overflow: hidden; background: var(--ink-2); }
-.feature-photo-tall { aspect-ratio: 4 / 5; }
 .feature-photo img { width: 100%; height: 100%; object-fit: cover; }
 .feature-body .h2 { margin-bottom: 24px; }
 .feature-body > p { color: var(--muted); max-width: 36em; }
 @media (min-width: 900px) {
   .feature { grid-template-columns: 1fr 1fr; gap: 88px; }
-  .feature-flip .feature-photo { order: 2; }
 }
-
-.beliefs { list-style: none; display: grid; gap: 0; }
-.beliefs li { padding: 20px 0; border-top: 1px solid var(--line); }
-.beliefs .h3 { margin-bottom: 6px; }
-.beliefs p { color: var(--muted); }
 
 /* ---------- Gallery ---------- */
 
@@ -1120,7 +1029,8 @@ button { font: inherit; color: inherit; }
 .optional { margin-left: 6px; color: var(--faint); font-size: 0.8125rem; font-weight: 500; }
 .hint { margin: -4px 0 0; color: var(--faint); font-size: 0.8125rem; }
 .field-row { display: grid; gap: 22px; }
-@media (min-width: 560px) { .field-row { grid-template-columns: 1fr 1fr; } }
+.field-row-tight { grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (min-width: 560px) { .field-row { grid-template-columns: 1fr 1fr; gap: 22px; } }
 
 .quote-form input,
 .quote-form select,

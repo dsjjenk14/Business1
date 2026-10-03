@@ -1,6 +1,6 @@
 # Aaron J's Catering website
 
-Soul food catering, Fairfax VA. Six pages: Home, Menus, Holiday Ordering, About, Gallery, and Contact with the quote form.
+Soul food catering for DC, Maryland and Northern Virginia. Six pages: Home, Menus, Holiday Ordering, About, Gallery, and Contact with the quote form.
 
 It's a plain static site with no framework, no server and no monthly platform to pay for. The finished website is the `site/` folder. Everything in it can be put on any web host as-is.
 
@@ -20,24 +20,18 @@ Every change pushed to GitHub then goes live automatically.
 
 Placeholders are deliberately obvious so nothing slips through:
 
+- [ ] **Main photo.** The photo at the top of the home page is a stand-in (one of your buffet photos) until the stock photo arrives. Save the stock photo over `site/images/hero.jpg`, then update its description in `src/content/photos.mjs`. Free stock photos from Unsplash or Pexels can be used on a business site without credit.
 - [ ] **Logo file.** The logo is cut out of the flyer and looks right on the site. The original file (a PNG with a transparent background, or an SVG) would be sharper. Save it over `site/images/logo.png`, then run `node tools/brand-images.mjs` to remake the icons and the link preview.
 - [ ] **Chef photo.** Every photo on the site is now a real Aaron J's photo. The one exception is the photo of Chef Aaron, which is cut from a flyer and small. Send the original, or a new one of Chef Aaron cooking, and it goes in the home page and About page. `PHOTOS.md` lists every photo and where it shows.
 - [ ] **Fried turkey oil.** The Thanksgiving menu lists "frying oil" and no allergens. Turkeys are often fried in peanut oil. If that's the case here, add peanuts to the fried turkey's allergen line in `src/content/dishes.mjs`.
 - [ ] **Crab-stuffed shrimp.** The printed menu says it contains egg, but no ingredient on the list has egg. The site keeps the egg warning (the safe direction). Add the egg ingredient, or drop the warning if there's none.
 - [ ] **Whole hams.** The printed menu says whole hams are available as add-ons, but the add-on list has no whole ham or price. The site leaves that line out until there is one.
 - [ ] **Chef Aaron reads the menus line by line.** Every Thanksgiving dish on the site matches the printed Thanksgiving 2026 menu, ingredient for ingredient (marked `source: 'thanksgiving-2026'` in the code). The dishes on the flyer menu are all there too: baked or grilled chicken, smothered turkey wings, Southern fried chicken, braised short ribs, surf and turf, lemon herbed salmon, fried fish, shrimp, shrimp and grits, chicken and waffles, omelettes, mini quiche, mashed potatoes and mixed vegetables. I wrote the rest, and every ingredient list and allergen line, as a starting draft. The ingredient lists must match the actual recipes, and the allergen lines must match the ingredients. People with allergies will rely on them. Edit `src/content/dishes.mjs`, then run the checks (below), which fail if an ingredient and its allergen line disagree.
-- [ ] **About page fill-ins.** The highlighted boxes on the About page are facts only Chef Aaron knows (who taught Chef Aaron to cook, where, the year the business started). They're in `src/pages/about.mjs` between `[[double brackets]]`.
-- [ ] **Testimonials.** The three on the home page are samples showing length and tone, and each one says "Sample quote" on the page. Replace them with real quotes from real clients (with permission) in `src/content/site.mjs` and delete `sample: true`. Don't launch with the samples.
 - [ ] **Christmas and New Year's.** The Holiday page has the real Thanksgiving menu, prices and policies. For Christmas and New Year's it says the menus are coming and asks people to get in touch. Send those menus when they're ready.
-- [ ] **Promises in the copy.** Check that these match how the business actually runs, and change any that don't:
-  - Reply to quote requests within one business day.
-  - A tasting about six weeks before weddings, and a tasting for events over 100 guests.
-  - Greens, beans and cabbage cooked with smoked turkey, not pork.
-  - Everything from scratch, including rolls, pie crusts and the banana pudding wafers.
-  - Leftovers packed for the client.
+- [ ] **Reply time.** The site says quote requests get a reply within one business day. Change it in `src/pages/contact.mjs` and `src/pages/home.mjs` if that's not right.
 - [ ] **Turn on the quote form.** See below. One test submission and one click.
 - [ ] **Instagram feed.** See below. About five minutes.
-- [ ] **Google Business Profile.** For searches like "catering Fairfax VA", this matters more than anything on the website. Set one up as a service-area business (Fairfax, Northern Virginia, DC, Maryland), link it to the site, and ask happy clients for Google reviews. Then add the site to [Google Search Console](https://search.google.com/search-console) and submit `https://aaronjscatering.com/sitemap.xml`.
+- [ ] **Google Business Profile.** The site doesn't name a city (by request), so local search depends on this. Set one up as a service-area business (Northern Virginia, DC, Maryland), link it to the site, and ask happy clients for Google reviews. Then add the site to [Google Search Console](https://search.google.com/search-console) and submit `https://aaronjscatering.com/sitemap.xml`.
 
 ## The quote form
 
@@ -93,7 +87,7 @@ You need [Node.js](https://nodejs.org) 18 or newer, and nothing else. There's no
 
 | To change | Edit |
 |---|---|
-| Phone, email, Instagram, service area, event types, signature dishes, testimonials | `src/content/site.mjs` |
+| Phone, email, Instagram, service area, event types, favorite dishes | `src/content/site.mjs` |
 | Dishes: names, descriptions, ingredients, allergens | `src/content/dishes.mjs` |
 | Which dishes appear on which event menu | `src/content/menus.mjs` |
 | Holiday packages, prices, dates, delivery | `src/content/holiday.mjs` |
@@ -110,7 +104,7 @@ Don't edit the `.html` files in `site/` directly. They're rebuilt from `src/` an
 - **Mobile first.** The phone layout is the design. Sticky header with the logo, a call button and Request a Quote. Phone numbers and emails are tap-to-call and tap-to-email everywhere.
 - **Brand.** Dark background (#0B0B0C), off-white text (#F7F5F2), orange (#F26A21) for buttons and links, red (#E1301F) for small accents, and gold (#FBB513) only for prices and numbers. Anton for headlines and prices, Plus Jakarta Sans for everything else. Both are hosted with the site, so no Google Fonts request (SIL Open Font License).
 - **Fast.** No framework. About 5 KB of JavaScript and 9 KB of CSS once compressed, plus 45 KB of fonts. Photos are resized for their spot and stripped of camera data, photos below the first screen load as you scroll, the hero photo is preloaded, and phones get their own portrait hero (`hero-mobile.jpg`).
-- **Local SEO.** Every page has its own title and description aimed at searches like "catering Fairfax VA", "soul food catering DC" and "Thanksgiving catering Northern Virginia". There's structured data for the business (FoodEstablishment with service area), the menus (Menu) and the holiday packages (offers with prices), plus link-preview tags, `sitemap.xml` and `robots.txt`.
+- **Local SEO.** Every page has its own title and description aimed at searches like "soul food catering DC" and "Thanksgiving catering Northern Virginia". There's structured data for the business (FoodEstablishment with service area), the menus (Menu) and the holiday packages (offers with prices), plus link-preview tags, `sitemap.xml` and `robots.txt`.
 - **Accessible.** Semantic HTML, a skip link, labeled form fields with inline errors, keyboard-friendly menu tabs and lightbox, and reduced-motion support.
 - **Works without JavaScript.** The form still sends (to `thanks.html`), menus show as one long page, and gallery photos open full size.
 - Icons are adapted from [Lucide](https://lucide.dev) (ISC license).

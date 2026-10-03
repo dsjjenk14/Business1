@@ -41,7 +41,7 @@ body { width: 1200px; height: 630px; overflow: hidden; background: #0B0B0C; posi
 h1 { margin: 0; font-family: Anton; font-weight: 400; font-size: 54px; line-height: 1; letter-spacing: .01em; text-transform: uppercase; color: #F7F5F2; }
 p { margin: 18px 0 0; font-size: 18px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #F26A21; }
 </style></head><body><div class="photo"></div><div class="left">
-<img src="${logo}" alt=""><h1>${site.tagline}</h1><p>Soul food catering &middot; Fairfax, VA</p></div></body></html>`;
+<img src="${logo}" alt=""><h1>${site.tagline}</h1><p>Soul food catering &middot; DC &middot; MD &middot; VA</p></div></body></html>`;
 
 const iconHtml = (s) => `<!doctype html><html><head><style>
 html, body { margin: 0; }

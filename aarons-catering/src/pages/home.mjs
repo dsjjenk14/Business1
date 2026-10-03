@@ -1,20 +1,35 @@
 import { page, logo } from '../layout.mjs';
-import { site, events, signatureDishes, testimonials } from '../content/site.mjs';
+import { site, events, signatureDishes } from '../content/site.mjs';
 import { holiday } from '../content/holiday.mjs';
 import { instagramTiles } from '../content/photos.mjs';
 import { dish } from '../content/dishes.mjs';
 import { icon } from '../icons.mjs';
 import { esc, curly, img, eyebrow, parseDate, money } from '../lib.mjs';
+import { quoteForm } from './contact.mjs';
 
 function hero() {
   return `<section class="hero" aria-labelledby="hero-title">
   <div class="hero-media">${img('hero', { eager: true })}</div>
   <div class="container hero-content">
     ${logo('logo logo-hero', true)}
-    <p class="hero-kicker">Soul food catering &middot; Fairfax, Virginia</p>
+    <p class="hero-kicker">Soul food catering</p>
     <h1 id="hero-title" class="hero-title">${esc(site.tagline)}</h1>
-    <p class="hero-lede">Chicken and waffles, braised short ribs, Cajun crab and shrimp and baked mac and cheese, cooked in Fairfax and brought to weddings, offices and family tables across DC, Maryland and Northern Virginia.</p>
-    <a class="btn btn-lg" href="contact.html">Request a Quote</a>
+    <p class="hero-lede">Weddings, corporate events, birthdays, church and family events, holidays and meal prep across DC, Maryland and Northern Virginia.</p>
+    <a class="btn btn-lg" href="#quote">Request a Quote</a>
+  </div>
+</section>`;
+}
+
+function quote() {
+  return `<section class="section home-quote" id="quote" aria-labelledby="quote-title">
+  <div class="container home-quote-grid">
+    <div class="home-quote-intro">
+      ${eyebrow('Request a quote')}
+      <h2 id="quote-title" class="h2">Tell us about your event</h2>
+      <p class="lede">We reply within one business day.</p>
+      <p class="cta-alt">Rather talk? Call <a href="${site.phone.href}">${site.phone.display}</a> or email <a href="mailto:${site.email}">${site.email}</a>.</p>
+    </div>
+    ${quoteForm()}
   </div>
 </section>`;
 }
@@ -22,14 +37,13 @@ function hero() {
 function holidayBlock() {
   const t = holiday.thanksgiving;
   const d = parseDate(t.orderBy);
-  const h = parseDate(t.handoff);
   const from = Math.min(...holiday.packages.map((p) => p.price));
   return `<section class="section section-tight holiday-promo" data-holiday-only hidden aria-labelledby="holiday-promo-title">
   <div class="container holiday-promo-inner">
     <div>
       ${eyebrow(`Thanksgiving ${holiday.year}`)}
       <h2 id="holiday-promo-title" class="h2">Turkey, ham and every side</h2>
-      <p class="muted">Smoked, fried or jerk turkey, glazed ham or short ribs, with mac and cheese, greens, yams and stuffing. Pickup or delivery ${h.weekday}, ${h.month} ${h.day}. Orders close ${d.weekday}, ${d.month} ${d.day}, or sooner if we sell out.</p>
+      <p class="muted">Orders close ${d.weekday}, ${d.month} ${d.day}, or sooner if we sell out.</p>
     </div>
     <div class="holiday-promo-cta">
       <p class="from"><span class="from-label">Packages from</span> <span class="price">${money(from)}</span></p>
@@ -40,28 +54,24 @@ function holidayBlock() {
 }
 
 function eventTypes() {
-  const cards = events
+  const tiles = events
     .map(
       (e) => `<li>
-      <a class="event-card" href="${e.href}">
+      <a class="event-tile" href="${e.href}">
         ${icon(e.icon, 'icon event-icon')}
-        <span class="event-body">
-          <span class="event-title">${esc(e.title)}</span>
-          <span class="event-text">${esc(curly(e.text))}</span>
-        </span>
-        ${icon('arrow', 'icon event-arrow')}
+        <span class="event-title">${esc(e.title)}</span>
+        <span class="event-text">${esc(curly(e.text))}</span>
       </a>
     </li>`,
     )
     .join('');
-  return `<section class="section" aria-labelledby="events-title">
+  return `<section class="section section-dark" aria-labelledby="events-title">
   <div class="container">
     <div class="section-head">
       ${eyebrow('What we cater')}
-      <h2 id="events-title" class="h2">Ten guests or three hundred</h2>
-      <p class="lede">Tell us what the day is and we'll build the menu around it.</p>
+      <h2 id="events-title" class="h2">Every occasion</h2>
     </div>
-    <ul class="event-grid" role="list">${cards}</ul>
+    <ul class="event-tiles" role="list">${tiles}</ul>
   </div>
 </section>`;
 }
@@ -77,58 +87,18 @@ function dishes() {
       </li>`;
     })
     .join('');
-  return `<section class="section section-dark" aria-labelledby="dishes-title">
+  return `<section class="section" aria-labelledby="dishes-title">
   <div class="container">
     <div class="section-head section-head-row">
       <div>
-        ${eyebrow('From the kitchen')}
-        <h2 id="dishes-title" class="h2">What people ask for</h2>
+        ${eyebrow('On the menu')}
+        <h2 id="dishes-title" class="h2">Favorites</h2>
       </div>
       <a class="text-link" href="menus.html">All menus ${icon('arrow', 'icon icon-sm')}</a>
     </div>
   </div>
-  <div class="dish-scroller" tabindex="0" aria-label="Signature dishes, scroll sideways for more">
+  <div class="dish-scroller" tabindex="0" aria-label="Favorite dishes, scroll sideways for more">
     <ul class="dish-row" role="list">${cards}</ul>
-  </div>
-</section>`;
-}
-
-function chef() {
-  return `<section class="section" aria-labelledby="chef-title">
-  <div class="container chef">
-    <div class="chef-photo">${img('chef-aaron')}</div>
-    <div class="chef-body">
-      ${eyebrow('The chef')}
-      <h2 id="chef-title" class="h2">Chef Aaron Jenkins</h2>
-      <blockquote class="chef-quote">
-        <p>Soul food takes time. Greens need three hours. Short ribs need four. Chicken needs a night in the brine. I don't cut those corners, and I taste every pan before it leaves the kitchen.</p>
-      </blockquote>
-      <p class="muted">Everything we serve is cooked from scratch in our kitchen in Fairfax, the day before or the morning of your event.</p>
-      <a class="text-link" href="about.html">Read the story ${icon('arrow', 'icon icon-sm')}</a>
-    </div>
-  </div>
-</section>`;
-}
-
-function quotes() {
-  const items = testimonials
-    .map(
-      (t) => `<li>
-      <figure class="quote">
-        <blockquote><p>${esc(curly(t.quote))}</p></blockquote>
-        <figcaption><span class="quote-name">${esc(t.name)}</span><span class="quote-detail">${esc(t.detail)}</span></figcaption>
-        ${t.sample ? '<p class="sample-tag">Sample quote. Replace with a real client before launch.</p>' : ''}
-      </figure>
-    </li>`,
-    )
-    .join('');
-  return `<section class="section section-dark" aria-labelledby="quotes-title">
-  <div class="container">
-    <div class="section-head">
-      ${eyebrow('Kind words')}
-      <h2 id="quotes-title" class="h2">From the people we cooked for</h2>
-    </div>
-    <ul class="quote-grid" role="list">${items}</ul>
   </div>
 </section>`;
 }
@@ -140,13 +110,12 @@ function instagram() {
     : `<ul class="ig-grid" role="list">${instagramTiles
         .map((t) => `<li><a href="${ig.url}" rel="noopener" aria-label="See this post on Instagram">${img(t)}</a></li>`)
         .join('')}</ul>`;
-  return `<section class="section" aria-labelledby="ig-title">
+  return `<section class="section section-dark" aria-labelledby="ig-title">
   <div class="container">
     <div class="section-head section-head-row">
       <div>
         ${eyebrow('Instagram')}
         <h2 id="ig-title" class="h2"><a href="${ig.url}" rel="noopener">${esc(ig.handle)}</a></h2>
-        <p class="lede">What came out of the kitchen this week.</p>
       </div>
       <a class="btn btn-ghost" href="${ig.url}" rel="noopener">${icon('instagram')} Follow</a>
     </div>
@@ -155,25 +124,14 @@ function instagram() {
 </section>`;
 }
 
-function closing() {
-  return `<section class="section cta" aria-labelledby="cta-title">
-  <div class="container cta-inner">
-    <h2 id="cta-title" class="h1">Tell us about your event</h2>
-    <p class="lede">Send the date, the headcount and roughly where. We'll come back with a menu and a price within one business day.</p>
-    <a class="btn btn-lg" href="contact.html">Request a Quote</a>
-    <p class="cta-alt">Or call <a href="${site.phone.href}">${site.phone.display}</a></p>
-  </div>
-</section>`;
-}
-
 export default function home() {
   return page({
     slug: 'index',
-    title: 'Aaron J’s Catering | Soul Food Catering in Fairfax, VA, DC and Maryland',
+    title: 'Aaron J’s Catering | Soul Food Catering in DC, Maryland and Northern Virginia',
     description:
-      'Soul food catering in Fairfax, VA from Chef Aaron Jenkins. Weddings, corporate events, birthdays and holidays across DC, Maryland and Northern Virginia.',
+      'Soul food catering from Chef Aaron Jenkins for weddings, corporate events, birthdays, church and family events and the holidays in DC, Maryland and Northern Virginia.',
     bodyClass: 'has-hero',
     preload: ['hero'],
-    content: [hero(), holidayBlock(), eventTypes(), dishes(), chef(), quotes(), instagram(), closing()].join('\n'),
+    content: [hero(), quote(), holidayBlock(), eventTypes(), dishes(), instagram()].join('\n'),
   });
 }

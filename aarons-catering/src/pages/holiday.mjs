@@ -120,7 +120,7 @@ export default function holidayPage() {
   <div class="container page-hero-content">
     ${eyebrow(`Thanksgiving ${y}`)}
     <h1 id="page-title" class="h1">Thanksgiving catering</h1>
-    <p class="lede">${day.weekday}, ${day.month} ${day.day}. Smoked, fried or jerk turkey, glazed ham, short ribs and ${WORDS[holiday.sides.length] ?? holiday.sides.length} sides, cooked in Fairfax. Pickup in Fairfax or delivery across the DMV on ${handoff.weekday}, ${handoff.month} ${handoff.day}.</p>
+    <p class="lede">${day.weekday}, ${day.month} ${day.day}. Smoked, fried or jerk turkey, glazed ham, short ribs and ${WORDS[holiday.sides.length] ?? holiday.sides.length} sides. Pickup or delivery across the DMV on ${handoff.weekday}, ${handoff.month} ${handoff.day}.</p>
     <p class="status" data-holiday-status
        data-before="Orders open ${opens.month} ${opens.day}."
        data-during="Orders close ${by.weekday}, ${by.month} ${by.day}, or sooner if we sell out."
@@ -258,7 +258,7 @@ export default function holidayPage() {
     slug: 'holiday',
     title: 'Thanksgiving Catering in Northern Virginia | Holiday Ordering | Aaron J’s Catering',
     description:
-      'Thanksgiving catering in Northern Virginia from Fairfax. Smoked, fried or jerk turkey, ham, short ribs and sides from $80. Pickup or delivery in DC, MD and NoVA.',
+      'Thanksgiving catering in Northern Virginia, DC and Maryland. Smoked, fried or jerk turkey, glazed ham, short ribs and sides, from $80. Pickup or delivery.',
     preload: ['page-holiday'],
     jsonld: [jsonLd()],
     content,

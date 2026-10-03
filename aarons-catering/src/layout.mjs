@@ -28,7 +28,7 @@ export function businessJsonLd() {
     name: site.name,
     alternateName: 'Aaron J’s Catering',
     description:
-      'Soul food catering from Fairfax, Virginia for weddings, corporate events, birthdays, family gatherings and the holidays, serving Washington DC, Maryland and Northern Virginia.',
+      'Soul food catering for weddings, corporate events, birthdays, church and family events, holidays and meal prep in Washington DC, Maryland and Northern Virginia.',
     url: `${site.url}/`,
     telephone: site.phone.intl,
     email: site.email,
@@ -38,9 +38,7 @@ export function businessJsonLd() {
     priceRange: '$$',
     acceptsReservations: false,
     hasMenu: `${site.url}/menus.html`,
-    address: { '@type': 'PostalAddress', addressLocality: site.city, addressRegion: site.region, addressCountry: 'US' },
     areaServed: [
-      { '@type': 'City', name: 'Fairfax', containedInPlace: { '@type': 'State', name: 'Virginia' } },
       { '@type': 'City', name: 'Washington', containedInPlace: { '@type': 'AdministrativeArea', name: 'District of Columbia' } },
       { '@type': 'AdministrativeArea', name: 'Northern Virginia' },
       { '@type': 'State', name: 'Maryland' },
@@ -105,7 +103,7 @@ function footer() {
   <div class="container footer-grid">
     <div class="footer-brand">
       <a href="index.html">${logo('logo logo-footer')}</a>
-      <p>${esc(site.motto)}. Soul food catering from Fairfax, Virginia, cooking for Washington DC, Maryland and Northern Virginia.</p>
+      <p>${esc(site.motto)}. Soul food catering for Washington DC, Maryland and Northern Virginia.</p>
     </div>
     <div class="footer-contact">
       <h2 class="footer-heading">Talk to us</h2>
@@ -123,12 +121,12 @@ function footer() {
       </ul>
     </div>
     <div>
-      <h2 class="footer-heading">Where we cook</h2>
+      <h2 class="footer-heading">Service area</h2>
       <ul class="footer-links">${site.serviceArea.map((a) => `<li>${esc(a)}</li>`).join('')}</ul>
     </div>
   </div>
   <div class="container footer-base">
-    <p>&copy; ${year} ${esc(NAME)}. Fairfax, Virginia.</p>
+    <p>&copy; ${year} ${esc(NAME)}.</p>
     <p>${esc(site.allergenNote)} <a href="menus.html#allergies">Allergy details</a></p>
   </div>
 </footer>`;
@@ -167,8 +165,6 @@ ${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" hr
 <meta name="theme-color" content="#0B0B0C">
 <meta name="color-scheme" content="dark">
 <meta name="format-detection" content="telephone=no">
-<meta name="geo.region" content="US-VA">
-<meta name="geo.placename" content="Fairfax">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="${esc(NAME)}">
 <meta property="og:locale" content="en_US">

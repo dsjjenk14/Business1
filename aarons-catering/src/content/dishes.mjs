@@ -27,7 +27,7 @@ export const dishes = {
   'short-ribs': {
     name: 'Braised short ribs',
     description:
-      'Bone-in short ribs seared dark, then braised with red wine, tomato paste, onion, carrot, celery, garlic and thyme until a fork goes straight through.',
+      'Bone-in short ribs braised with red wine, tomato paste, onion, carrot, celery, garlic and thyme.',
     ingredients: [
       'bone-in beef short ribs',
       'onion',
@@ -48,7 +48,7 @@ export const dishes = {
   'baked-chicken': {
     name: 'Baked or grilled chicken',
     description:
-      'Bone-in chicken rubbed with garlic, lemon, rosemary and paprika, then baked or grilled, your choice. Simple, and a good option next to the richer dishes.',
+      'Bone-in chicken seasoned with garlic, lemon, rosemary and paprika, baked or grilled.',
     ingredients: [
       'bone-in chicken thighs and breasts',
       'olive oil',
@@ -100,7 +100,7 @@ export const dishes = {
   'cajun-seafood': {
     name: 'Cajun crab and shrimp',
     description:
-      'Crab clusters, shrimp and andouille sausage in a Cajun garlic butter sauce with peppers and onion. Parsley on top, napkins on the side.',
+      'Crab clusters, shrimp and andouille sausage in a Cajun garlic butter sauce with peppers and onion.',
     ingredients: [
       'crab clusters',
       'shrimp',
@@ -129,7 +129,7 @@ export const dishes = {
   'fried-chicken': {
     name: 'Honey butter fried chicken',
     description:
-      'Bone-in thighs and drumsticks, brined overnight in buttermilk and hot sauce, dredged twice and fried in small batches. Brushed with honey butter as it comes out of the oil.',
+      'Bone-in thighs and drumsticks in a buttermilk and hot sauce marinade, fried crisp and brushed with honey butter.',
     ingredients: [
       'chicken thighs and drumsticks',
       'buttermilk',
@@ -173,7 +173,7 @@ export const dishes = {
   'smothered-pork-chops': {
     name: 'Smothered pork chops',
     description:
-      'Bone-in center-cut chops, seasoned, dredged and pan-fried, then simmered in onion gravy until a knife goes through without trying.',
+      'Bone-in pork chops, pan-fried and simmered in onion gravy.',
     ingredients: [
       'bone-in pork chops',
       'yellow onion',
@@ -194,7 +194,7 @@ export const dishes = {
   'fried-fish': {
     name: 'Southern fried fish',
     description:
-      'Whiting or catfish fillets soaked in mustard and hot sauce, dredged in seasoned cornmeal and fried until the crust crackles. Lemon and house tartar sauce on the side.',
+      'Whiting or catfish in a seasoned cornmeal crust, fried golden. Lemon and tartar sauce on the side.',
     ingredients: [
       'whiting or catfish fillets',
       'yellow mustard',
@@ -270,7 +270,7 @@ export const dishes = {
   },
   'honey-hot-wings': {
     name: 'Honey hot wings',
-    description: 'Fried wings tossed in hot sauce, honey and butter. Sticky, a little sweet, with real heat at the end.',
+    description: 'Fried wings tossed in hot sauce, honey and butter.',
     ingredients: [
       'chicken wings',
       'all-purpose wheat flour',
@@ -288,7 +288,7 @@ export const dishes = {
   'pulled-pork-sliders': {
     name: 'Pulled pork sliders',
     description:
-      'Pork shoulder smoked low overnight and pulled by hand, tossed in vinegar barbecue sauce and piled on soft rolls with coleslaw.',
+      'Smoked pulled pork in vinegar barbecue sauce on soft rolls with coleslaw.',
     ingredients: [
       'pork shoulder',
       'brown sugar',
@@ -312,7 +312,7 @@ export const dishes = {
   },
   'jerk-turkey': {
     name: 'Jerk turkey',
-    description: 'Marinated in scotch bonnet, allspice, thyme, scallion, ginger and lime. It has real heat.',
+    description: 'Marinated in scotch bonnet, allspice, thyme, scallion, ginger and lime.',
     ingredients: [
       'turkey',
       'scotch bonnet peppers',
@@ -333,7 +333,7 @@ export const dishes = {
   },
   'fried-turkey': {
     name: 'Fried turkey',
-    description: 'Seasoned with paprika, cayenne and Cajun spice and fried whole until the skin crackles.',
+    description: 'Seasoned with paprika, cayenne and Cajun spice, then fried.',
     ingredients: ['whole turkey', 'garlic powder', 'onion powder', 'paprika', 'cayenne', 'black pepper', 'salt', 'Cajun seasoning', 'frying oil'],
     allergens: [],
     source: 'thanksgiving-2026',
@@ -357,7 +357,7 @@ export const dishes = {
   },
   'turkey-wings': {
     name: 'Smothered turkey wings',
-    description: 'Turkey wings baked low until tender, then smothered in onion and sage gravy. Good over rice.',
+    description: 'Turkey wings baked until tender and smothered in onion and sage gravy.',
     ingredients: [
       'turkey wings',
       'yellow onion',
@@ -400,7 +400,7 @@ export const dishes = {
   },
   'chicken-and-waffles': {
     name: 'Chicken and waffles',
-    description: 'Our fried chicken next to buttermilk waffles, with warm syrup, butter and fresh strawberries.',
+    description: 'Fried chicken and buttermilk waffles with syrup, butter and fresh strawberries.',
     ingredients: [
       'chicken thighs and drumsticks',
       'buttermilk',
@@ -421,7 +421,7 @@ export const dishes = {
   omelettes: {
     name: 'Cooked-to-order omelettes',
     description:
-      'An omelette station: guests choose their fillings and we cook each one in front of them. Cheddar, peppers, onion, spinach, tomato, mushrooms, turkey sausage or ham.',
+      'Omelettes made to order with cheddar, peppers, onion, spinach, tomato, mushrooms, turkey sausage or ham.',
     ingredients: [
       'eggs',
       'butter',
@@ -446,7 +446,7 @@ export const dishes = {
   },
   bacon: {
     name: 'Bacon or turkey bacon',
-    description: 'Thick-cut and cooked crisp. Pork or turkey, your call, or both.',
+    description: 'Pork or turkey bacon, cooked crisp.',
     ingredients: ['bacon (pork, water, salt, sugar, sodium nitrite)', 'turkey bacon (turkey, water, salt, sugar, sodium nitrite)'],
     allergens: [],
   },
@@ -474,7 +474,7 @@ export const dishes = {
   'shrimp-grits': {
     name: 'Shrimp and grits cups',
     description:
-      'Stone-ground grits with white cheddar and butter, topped with a seared shrimp and a little smoked paprika butter. Two bites.',
+      'Small cups of cheddar grits topped with a seared shrimp.',
     ingredients: [
       'shrimp',
       'stone-ground white grits',
@@ -569,7 +569,7 @@ export const dishes = {
   },
   'mashed-potatoes-gravy': {
     name: 'Mashed potatoes and gravy',
-    description: 'Our mashed potatoes with turkey gravy made from the pan drippings. Mushroom gravy on request.',
+    description: 'Mashed potatoes with turkey gravy.',
     ingredients: ['russet potatoes', 'butter', 'heavy cream', 'garlic', 'salt', 'white pepper', 'turkey gravy (pan drippings, all-purpose flour, stock)'],
     allergens: ['dairy', 'wheat'],
     note: 'Mushroom gravy available on request.',
@@ -592,14 +592,14 @@ export const dishes = {
   },
   'mixed-vegetables': {
     name: 'Mixed vegetables',
-    description: 'Brussels sprouts, yellow squash, red peppers, carrots and onion, roasted until the edges char. Scallions on top.',
+    description: 'Roasted Brussels sprouts, yellow squash, red peppers, carrots and onion.',
     ingredients: ['Brussels sprouts', 'yellow squash', 'zucchini', 'red bell pepper', 'carrots', 'yellow onion', 'olive oil', 'garlic', 'kosher salt', 'black pepper', 'scallions'],
     allergens: [],
   },
   mac: {
     name: 'Baked mac and cheese',
     description:
-      'Sharp cheddar, Colby Jack and cream cheese with evaporated milk and eggs, baked until the top browns and the corners go crisp.',
+      'Sharp cheddar, Colby Jack and cream cheese, baked until golden.',
     ingredients: [
       'elbow macaroni',
       'sharp cheddar',
@@ -617,7 +617,7 @@ export const dishes = {
   },
   collards: {
     name: 'Collard greens',
-    description: 'Cooked down slow with smoked turkey, onion, garlic and a splash of cider vinegar. No pork.',
+    description: 'Collard greens cooked with smoked turkey, onion, garlic and cider vinegar.',
     ingredients: [
       'collard greens',
       'smoked turkey',
@@ -775,7 +775,7 @@ export const dishes = {
   'banana-pudding': {
     name: 'Banana pudding',
     description:
-      'Stovetop vanilla custard layered with sliced bananas and vanilla wafers we bake ourselves. Whipped cream on top.',
+      'Vanilla custard layered with bananas and vanilla wafers, topped with whipped cream.',
     ingredients: [
       'whole milk',
       'eggs',
@@ -806,7 +806,7 @@ export const dishes = {
   },
   'red-velvet-cupcakes': {
     name: 'Red velvet cupcakes',
-    description: 'Buttermilk red velvet with cream cheese frosting piped high.',
+    description: 'Buttermilk red velvet with cream cheese frosting.',
     ingredients: [
       'all-purpose wheat flour',
       'sugar',
