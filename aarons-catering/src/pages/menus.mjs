@@ -33,8 +33,15 @@ function ingredientsLine(d) {
   return `<p class="ingredients"><span class="label">Ingredients</span> ${esc(list.charAt(0).toUpperCase() + list.slice(1))}.</p>`;
 }
 
-export function menuDish(id, headingLevel = 4) {
-  const d = dish(id);
+// A menu entry is a dish id, or { dish, name, description } to present the
+// dish differently on one menu. Ingredients and allergens stay the dish's own.
+function entry(e) {
+  const d = dish(typeof e === 'string' ? e : e.dish);
+  return { ...d, name: e.name ?? d.name, description: e.description ?? d.description };
+}
+
+export function menuDish(e, headingLevel = 4) {
+  const d = entry(e);
   const h = `h${headingLevel}`;
   return `<li class="menu-dish">
     <${h} class="menu-dish-name">${esc(curly(d.name))}</${h}>
@@ -49,17 +56,23 @@ function panel(m) {
     .map(
       (c) => `<div class="course">
       <h3 class="course-title">${esc(c.title)}</h3>
-      <ul class="dish-list" role="list">${c.dishes.map((id) => menuDish(id)).join('')}</ul>
+      <ul class="dish-list" role="list">${c.dishes.map((e) => menuDish(e)).join('')}</ul>
     </div>`,
     )
     .join('');
   const link = m.link
     ? `<a class="btn btn-ghost" href="${m.link.href}">${esc(m.link.label)} ${icon('arrow', 'icon icon-sm')}</a>`
     : '';
-  return `<section class="menu-panel" id="${m.id}" aria-labelledby="title-${m.id}" data-menu-panel>
+  const styles = m.styles
+    ? `<ul class="menu-styles" role="list">${m.styles.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>`
+    : '';
+  const note = m.note ? `<p class="menu-note">${esc(curly(m.note))}</p>` : '';
+  return `<section class="menu-panel${m.id === 'weddings' ? ' is-wedding' : ''}" id="${m.id}" aria-labelledby="title-${m.id}" data-menu-panel>
   <header class="menu-head">
-    <h2 class="h2" id="title-${m.id}">${esc(m.title)}</h2>
+    <h2 class="h2" id="title-${m.id}">${esc(m.heading ?? m.title)}</h2>
     <p class="lede">${esc(curly(m.intro))}</p>
+    ${styles}
+    ${note}
     ${link}
   </header>
   ${courses}
@@ -75,13 +88,13 @@ function jsonLd() {
     inLanguage: 'en-US',
     hasMenuSection: menus.map((m) => ({
       '@type': 'MenuSection',
-      name: m.title,
+      name: m.heading ?? m.title,
       description: m.intro,
       hasMenuSection: m.courses.map((c) => ({
         '@type': 'MenuSection',
         name: c.title,
-        hasMenuItem: c.dishes.map((id) => {
-          const d = dish(id);
+        hasMenuItem: c.dishes.map((e) => {
+          const d = entry(e);
           return { '@type': 'MenuItem', name: d.name, description: d.description };
         }),
       })),
@@ -99,7 +112,7 @@ export default function menusPage() {
   <div class="container page-hero-content">
     ${eyebrow('Catering menus')}
     <h1 id="page-title" class="h1">Soul food catering menus</h1>
-    <p class="lede">Mix and match across menus. Tell us what you want and we'll price it for your guest count.</p>
+    <p class="lede">We cater all events. Start with any menu below, or tell us what you want and we'll price it for your guest count.</p>
   </div>
 </section>
 
@@ -136,7 +149,7 @@ ${menus.map(panel).join('\n')}
     slug: 'menus',
     title: 'Catering Menus | Soul Food Catering in DC, MD and Northern Virginia | Aaron J’s Catering',
     description:
-      'Soul food catering menus for weddings, corporate events, birthdays, family gatherings, brunch and holidays, with ingredients and allergens for every dish.',
+      'Soul food catering menus for all events, plus wedding, meal prep and Thanksgiving menus, with ingredients and allergens for every dish.',
     preload: ['page-menus'],
     jsonld: [jsonLd()],
     content,

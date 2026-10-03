@@ -70,6 +70,7 @@ function eventTypes() {
     <div class="section-head">
       ${eyebrow('What we cater')}
       <h2 id="events-title" class="h2">Every occasion</h2>
+      <p class="lede">We cater all events, big or small. If you don't see yours here, ask.</p>
     </div>
     <ul class="event-tiles" role="list">${tiles}</ul>
   </div>

@@ -39,11 +39,11 @@ export const nav = [
 
 export const events = [
   { id: 'weddings', icon: 'rings', title: 'Weddings', text: 'Buffet, family-style or plated.', href: 'menus.html#weddings' },
-  { id: 'corporate', icon: 'briefcase', title: 'Corporate events', text: 'Office lunches, meetings and company picnics.', href: 'menus.html#corporate' },
-  { id: 'birthdays', icon: 'cake', title: 'Birthdays and parties', text: 'Party trays and buffets.', href: 'menus.html#birthdays' },
-  { id: 'family', icon: 'pot', title: 'Church and family events', text: 'Reunions, repasts and Sunday dinners.', href: 'menus.html#family' },
+  { id: 'corporate', icon: 'briefcase', title: 'Corporate events', text: 'Office lunches, meetings and company picnics.', href: 'menus.html#catering' },
+  { id: 'birthdays', icon: 'cake', title: 'Birthdays and parties', text: 'Party trays and buffets.', href: 'menus.html#catering' },
+  { id: 'family', icon: 'pot', title: 'Church and family events', text: 'Reunions, repasts and Sunday dinners.', href: 'menus.html#catering' },
   { id: 'holidays', icon: 'pie', title: 'Holidays', text: 'Thanksgiving, Christmas and holiday parties.', href: 'holiday.html' },
-  { id: 'mealprep', icon: 'box', title: 'Meal prep', text: 'Personalized meals for the week.', href: 'contact.html?event=mealprep' },
+  { id: 'mealprep', icon: 'box', title: 'Meal prep', text: 'Personalized meals for the week.', href: 'menus.html#meal-prep' },
 ];
 
 export const signatureDishes = [

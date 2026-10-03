@@ -780,6 +780,28 @@ button { font: inherit; color: inherit; }
 .menu-head { margin-bottom: 40px; }
 .menu-head .lede { margin-top: 16px; }
 .menu-head .btn { margin-top: 24px; }
+.menu-styles { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.menu-styles li {
+  padding: 5px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.menu-note {
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-left: 2px solid var(--orange);
+  background: rgba(242, 106, 33, 0.08);
+  color: var(--white);
+  font-size: 0.9375rem;
+}
+/* Weddings: the same food, dressed up. Larger dish names, more air. */
+.is-wedding .menu-dish-name { font-family: var(--display); font-size: 1.5rem; font-weight: 400; letter-spacing: 0.02em; text-transform: uppercase; }
+.is-wedding .menu-dish { padding: 28px 0; }
+.is-wedding .course-title { color: var(--white); }
 
 .course { margin-bottom: 48px; }
 .course-title {
