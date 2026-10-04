@@ -26,6 +26,13 @@ export function confirmation(nameSlot = '', level = 2) {
     <p>Event in the next seven days? Call <a href="${site.phone.href}">${site.phone.display}</a>.</p>`;
 }
 
+// "★★★★★ 4.9 on Google · 37 reviews", once site.reviews is filled in.
+export function reviewsLine() {
+  const r = site.reviews;
+  if (!r) return '';
+  return `<p class="reviews"><a href="${esc(r.url)}" rel="noopener"><span class="stars" aria-hidden="true">★★★★★</span> ${r.rating.toFixed(1)} on Google &middot; ${r.count} reviews</a></p>`;
+}
+
 function field({ id, label, hint, required = true, input }) {
   const hintId = hint ? `${id}-hint` : '';
   return `<div class="field">
@@ -37,10 +44,11 @@ function field({ id, label, hint, required = true, input }) {
 }
 
 // The quote request form. Used on the home page and the Contact page
-// (one per page: the field ids are fixed).
-export function quoteForm() {
+// (one per page: the field ids are fixed). `compact` folds the optional
+// fields behind an "Add details" toggle, for the home page.
+export function quoteForm({ compact = false } = {}) {
   const packages = Object.fromEntries(holiday.packages.map((p) => [p.id, { name: p.name, picks: p.picks }]));
-  const fields = [
+  const main = [
     field({ id: 'f-name', label: 'Your name', input: (d) => `<input id="f-name" name="Name" type="text" autocomplete="name" required${d}>` }),
     `<div class="field-row">
       ${field({
@@ -71,6 +79,8 @@ export function quoteForm() {
         input: (d) => `<input id="f-guests" name="Guests" type="number" inputmode="numeric" min="1" max="5000" step="1" required${d}>`,
       })}
     </div>`,
+  ].join('\n');
+  const extras = [
     `<div class="field-row field-row-tight">
       ${field({
         id: 'f-location',
@@ -95,6 +105,13 @@ export function quoteForm() {
       input: (d) => `<textarea id="f-message" name="Message" rows="4" placeholder="Menu ideas, allergies, timing"${d}></textarea>`,
     }),
   ].join('\n');
+  const fields = compact
+    ? `${main}
+        <details class="form-more">
+          <summary>Add location, budget or notes</summary>
+          <div class="form-more-fields">${extras}</div>
+        </details>`
+    : `${main}\n${extras}`;
 
   return `<div class="form-wrap">
       <form class="quote-form" action="${site.form.action}" method="POST" data-quote-form data-endpoint="${site.form.ajax}" data-packages="${esc(JSON.stringify(packages))}">
@@ -123,6 +140,7 @@ export function quoteForm() {
 export function contactAside() {
   return `<aside class="contact-aside" aria-label="Other ways to reach us">
       <div class="aside-block">
+        ${reviewsLine()}
         <h2 class="h3">Rather talk?</h2>
         <ul class="contact-list contact-list-lg">
           <li><a href="${site.phone.href}">${icon('phone')}<span>${site.phone.display}</span></a></li>

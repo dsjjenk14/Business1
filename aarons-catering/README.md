@@ -21,17 +21,20 @@ Every change pushed to GitHub then goes live automatically.
 Placeholders are deliberately obvious so nothing slips through:
 
 - [ ] **Main photo after the holidays.** The photo at the top of the home page is a Thanksgiving spread. After New Year's, swap in a year-round photo: save it over `site/images/hero.jpg` and update its description and size in `src/content/photos.mjs`.
-- [ ] **Logo file.** The logo is cut out of the flyer and looks right on the site. The original file (a PNG with a transparent background, or an SVG) would be sharper. Save it over `site/images/logo.png`, then run `node tools/brand-images.mjs` to remake the icons and the link preview.
+- [ ] **Logo file.** The logo is cut out of the flyer and looks right on the site. The original file (a PNG with a transparent background, or an SVG) would be sharper. Save it over `site/images/logo.png`, then run `node tools/brand-images.mjs` to remake the gold logo, the icons and the link preview.
 - [ ] **Chef photo.** Every photo on the site is now a real Aaron J's photo. The one exception is the photo of Chef Aaron, which is cut from a flyer and small. Send the original, or a new one of Chef Aaron cooking, and it goes in the home page and About page. `PHOTOS.md` lists every photo and where it shows.
+- [ ] **A short photo session.** The biggest single upgrade. 8 to 10 plated dishes (the four favorites first) shot on a dark table by a window, plus a portrait of Chef Aaron. Phone photos are fine if the light is good. They replace the favorites, the gallery and the page headers, so the real food looks as good as the main photo.
+- [ ] **Chef Aaron's story.** The About page has two sentences. Add a short paragraph in his words: where he learned to cook, why soul food, how long he's been catering. Edit `src/pages/about.mjs`.
+- [ ] **Price guide.** Add a range to `priceGuide` in `src/content/site.mjs` (for example "Most events run $25 to $45 per guest.") and it shows at the top of the Menus page. Empty means it doesn't show.
 - [ ] **Fried turkey oil.** The Thanksgiving menu lists "frying oil" and no allergens. Turkeys are often fried in peanut oil. If that's the case here, add peanuts to the fried turkey's allergen line in `src/content/dishes.mjs`.
 - [ ] **Crab-stuffed shrimp.** The printed menu says it contains egg, but no ingredient on the list has egg. The site keeps the egg warning (the safe direction). Add the egg ingredient, or drop the warning if there's none.
 - [ ] **Whole hams.** The printed menu says whole hams are available as add-ons, but the add-on list has no whole ham or price. The site leaves that line out until there is one.
-- [ ] **Chef Aaron reads the menus line by line.** Every menu except Holidays uses only the foods on Aaron J's own flyers and menus (cabbage and cornbread come from the holiday flyer). The Thanksgiving dishes match the printed Thanksgiving 2026 menu exactly. The ingredient lists for the other dishes are my drafts, and people with allergies will rely on them, so check each one: the appetizers (oxtail stuffed biscuits, shrimp kebabs, smoked wings, fried pickles, crab stuffed mushrooms, crab and shrimp egg rolls, bacon wrapped scallops), the salads, the garlic mashed potatoes with red wine gravy, and the entrées, seafood and brunch dishes. Edit `src/content/dishes.mjs`, then run the checks (below), which fail if an ingredient and its allergen line disagree.
+- [ ] **Chef Aaron reads the menus line by line.** Every menu except Holidays uses only the foods on Aaron J's own flyers and menus (cabbage and cornbread come from the holiday flyer). The Thanksgiving dishes match the printed Thanksgiving 2026 menu exactly. The ingredient lists for the other dishes are my drafts, and people with allergies will rely on them, so check each one: the appetizers (oxtail-stuffed biscuits, shrimp kebabs, smoked wings, fried pickles, crab-stuffed mushrooms, crab and shrimp egg rolls, bacon-wrapped scallops), the salads, the garlic mashed potatoes with red wine gravy, and the entrées, seafood and brunch dishes. Edit `src/content/dishes.mjs`, then run the checks (below), which fail if an ingredient and its allergen line disagree.
 - [ ] **Christmas and New Year's.** The Holiday page has the real Thanksgiving menu, prices and policies. For Christmas and New Year's it says the menus are coming and asks people to get in touch. Send those menus when they're ready.
 - [ ] **Reply time.** The site says quote requests get a reply within one business day. Change it in `src/pages/contact.mjs` and `src/pages/home.mjs` if that's not right.
 - [ ] **Turn on the quote form.** See below. One test submission and one click.
 - [ ] **Instagram feed.** See below. About five minutes.
-- [ ] **Google Business Profile.** The site doesn't name a city (by request), so local search depends on this. Set one up as a service-area business (Northern Virginia, DC, Maryland), link it to the site, and ask happy clients for Google reviews. Then add the site to [Google Search Console](https://search.google.com/search-console) and submit `https://aaronjscatering.com/sitemap.xml`.
+- [ ] **Google Business Profile.** The site doesn't name a city (by request), so local search depends on this. Set one up as a service-area business (Northern Virginia, DC, Maryland), link it to the site, and ask happy clients for Google reviews. Once there are a few, fill in `reviews` in `src/content/site.mjs` (rating, count and the link to the reviews) and a star rating shows next to both quote forms. Then add the site to [Google Search Console](https://search.google.com/search-console) and submit `https://aaronjscatering.com/sitemap.xml`.
 
 ## The quote form
 
@@ -47,7 +50,7 @@ After sending, the visitor sees a confirmation that sets expectations: Chef Aaro
 
 ## Instagram feed
 
-The home page shows six placeholder tiles linking to @aaronjscatering until a live feed is connected:
+The home page shows six placeholder tiles (different photos from the favorites above them) linking to @aaronjscatering until a live feed is connected:
 
 1. Sign up at [behold.so](https://behold.so) (the free plan is enough) and connect the Instagram account.
 2. Create a feed, open **Embed code**, and copy the `feed-id` value.
@@ -87,7 +90,7 @@ You need [Node.js](https://nodejs.org) 18 or newer, and nothing else. There's no
 
 | To change | Edit |
 |---|---|
-| Phone, email, Instagram, service area, event types, favorite dishes | `src/content/site.mjs` |
+| Phone, email, Instagram, service area, price guide, Google reviews, event types, favorite dishes | `src/content/site.mjs` |
 | Dishes: names, descriptions, ingredients, allergens | `src/content/dishes.mjs` |
 | Which dishes appear on which event menu | `src/content/menus.mjs` |
 | Holiday packages, prices, dates, delivery | `src/content/holiday.mjs` |
@@ -102,7 +105,7 @@ Don't edit the `.html` files in `site/` directly. They're rebuilt from `src/` an
 ## How it's built
 
 - **Mobile first.** The phone layout is the design. Sticky header with the logo, a call button and Request a Quote. Phone numbers and emails are tap-to-call and tap-to-email everywhere.
-- **Brand.** Quiet and elegant: near-black background (#0B0B0C), off-white text (#F7F5F2) and one champagne-gold accent (#C9A66B) for labels, rules and buttons. Prices use a lighter gold (#DCC08A); a soft terracotta (#D9826A) marks allergen labels and form errors. Playfair Display for headings, dish names and prices, Plus Jakarta Sans for everything else, both hosted with the site (SIL Open Font License). Buttons and tags are slim pills.
+- **Brand.** Quiet and elegant: near-black background (#0B0B0C), off-white text (#F7F5F2) and one champagne-gold accent (#C9A66B) for labels, rules and buttons. Prices use a lighter gold (#DCC08A); a soft terracotta (#D9826A) marks allergen labels and form errors. Playfair Display for headings, dish names and prices, Plus Jakarta Sans for everything else, both hosted with the site (SIL Open Font License). Buttons and tags are slim pills. Small spaced-out capitals are kept for section labels and buttons only. The site shows a one-color gold version of the logo; the full-color logo stays on the icons, the link preview and everything off the site.
 - **Fast.** No framework. About 5 KB of JavaScript and 10 KB of CSS once compressed, plus about 65 KB of fonts. Photos are resized for their spot and stripped of camera data, photos below the first screen load as you scroll, and the hero photo is preloaded.
 - **Local SEO.** Every page has its own title and description aimed at searches like "soul food catering DC" and "Thanksgiving catering Northern Virginia". There's structured data for the business (FoodEstablishment with service area), the menus (Menu) and the holiday packages (offers with prices), plus link-preview tags, `sitemap.xml` and `robots.txt`.
 - **Accessible.** Semantic HTML, a skip link, labeled form fields with inline errors, keyboard-friendly menu tabs and lightbox, and reduced-motion support.

@@ -1,6 +1,6 @@
 // The menus on the Menus page. Each course lists dishes from dishes.mjs, either
 // by id ('mac') or with a different name and description for that menu:
-//   { dish: 'mac', name: 'Baked Three-Cheese Macaroni', description: '...' }
+//   { dish: 'mac', name: 'Baked three-cheese macaroni', description: '...' }
 // Ingredients and allergens always come from dishes.mjs, so renaming a dish for
 // one menu can't make its allergen line wrong.
 //
@@ -59,42 +59,42 @@ export const menus = [
         title: 'Cocktail hour',
         note: 'Passed or displayed while guests mingle.',
         dishes: [
-          { dish: 'shrimp-grits', name: 'Shrimp and Grits Spoons', description: 'Seared shrimp over white cheddar stone-ground grits, served in tasting spoons.' },
-          { dish: 'chicken-and-waffles', name: 'Chicken and Waffle Bites', description: 'Bite-size fried chicken on a mini waffle with a drizzle of syrup and a sliver of strawberry.' },
-          { dish: 'oxtail-biscuits', name: 'Petite Oxtail Biscuits', description: 'Mini buttermilk biscuits filled with slow-braised oxtail.' },
-          { dish: 'bacon-scallops', name: 'Bacon-Wrapped Scallops', description: 'Sea scallops wrapped in crisp bacon, glazed and finished with fresh herbs.' },
-          { dish: 'crab-mushrooms', name: 'Crab-Stuffed Mushrooms', description: 'Mushroom caps filled with lump crab and Parmesan, baked golden.' },
-          { dish: 'shrimp-kebabs', name: 'Grilled Shrimp Skewers', description: 'Seasoned shrimp with peppers and red onion, finished with lemon.' },
-          { dish: 'mini-quiche', name: 'Handmade Petite Quiche', description: 'Spinach and cheddar, or ham and Swiss, in a buttery crust.' },
+          { dish: 'shrimp-grits', name: 'Shrimp and grits spoons', description: 'Seared shrimp over white cheddar stone-ground grits, served in tasting spoons.' },
+          { dish: 'chicken-and-waffles', name: 'Chicken and waffle bites', description: 'Bite-size fried chicken on a mini waffle with a drizzle of syrup and a sliver of strawberry.' },
+          { dish: 'oxtail-biscuits', name: 'Petite oxtail biscuits', description: 'Mini buttermilk biscuits filled with slow-braised oxtail.' },
+          { dish: 'bacon-scallops', name: 'Bacon-wrapped scallops', description: 'Sea scallops wrapped in crisp bacon, glazed and finished with fresh herbs.' },
+          { dish: 'crab-mushrooms', name: 'Crab-stuffed mushrooms', description: 'Mushroom caps filled with lump crab and Parmesan, baked golden.' },
+          { dish: 'shrimp-kebabs', name: 'Grilled shrimp skewers', description: 'Seasoned shrimp with peppers and red onion, finished with lemon.' },
+          { dish: 'mini-quiche', name: 'Handmade petite quiche', description: 'Spinach and cheddar, or ham and Swiss, in a buttery crust.' },
         ],
       },
       {
         title: 'Salad course',
         dishes: [
           { dish: 'caesar-salad', name: 'Classic Caesar', description: 'Crisp romaine, shaved Parmesan and garlic croutons.' },
-          { dish: 'garden-salad', name: 'Garden Salad', description: 'Mixed greens, cucumber, grape tomato and carrot with your choice of dressing.' },
-          { dish: 'cobb-salad', name: 'Cobb Salad', description: 'Chicken, bacon, egg, avocado, tomato and blue cheese over chopped romaine.' },
+          { dish: 'garden-salad', name: 'Garden salad', description: 'Mixed greens, cucumber, grape tomato and carrot with your choice of dressing.' },
+          { dish: 'cobb-salad', name: 'Cobb salad', description: 'Chicken, bacon, egg, avocado, tomato and blue cheese over chopped romaine.' },
         ],
       },
       {
         title: 'Entrées',
         dishes: [
-          { dish: 'short-ribs', name: 'Red Wine Braised Short Ribs', description: 'Bone-in short ribs braised in red wine with thyme. Beautiful with the garlic mashed potatoes.' },
-          { dish: 'surf-and-turf', name: 'Surf and Turf', description: 'Seared sirloin and garlic butter shrimp, plated together.' },
-          { dish: 'lemon-salmon', name: 'Lemon Herb Salmon', description: 'Roasted salmon with lemon, garlic, dill and a touch of butter.' },
-          { dish: 'fried-chicken', name: 'Buttermilk Fried Chicken', description: 'Southern fried chicken, marinated in buttermilk and fried golden.' },
-          { dish: 'baked-chicken', name: 'Herb Grilled Chicken', description: 'Bone-in chicken with garlic, lemon and rosemary, grilled or roasted.' },
+          { dish: 'short-ribs', name: 'Red wine braised short ribs', description: 'Bone-in short ribs braised in red wine with thyme. Beautiful with the garlic mashed potatoes.' },
+          { dish: 'surf-and-turf', name: 'Surf and turf', description: 'Seared sirloin and garlic butter shrimp, plated together.' },
+          { dish: 'lemon-salmon', name: 'Lemon herb salmon', description: 'Roasted salmon with lemon, garlic, dill and a touch of butter.' },
+          { dish: 'fried-chicken', name: 'Buttermilk fried chicken', description: 'Southern fried chicken, marinated in buttermilk and fried golden.' },
+          { dish: 'baked-chicken', name: 'Herb grilled chicken', description: 'Bone-in chicken with garlic, lemon and rosemary, grilled or roasted.' },
         ],
       },
       {
         title: 'Accompaniments',
         dishes: [
-          { dish: 'garlic-mashed', name: 'Garlic Mashed Potatoes, Red Wine Gravy', description: 'Whipped with butter, cream and roasted garlic.' },
-          { dish: 'mac', name: 'Baked or Smoked Mac and Cheese', description: 'Sharp cheddar, Colby Jack and cream cheese.' },
-          { dish: 'collards', name: 'Braised Collard Greens', description: 'Slow-cooked with smoked turkey. Pork available.' },
-          { dish: 'yams', name: 'Candied Yams', description: 'Glazed with butter, brown sugar, cinnamon and orange.' },
-          { dish: 'green-beans', name: 'Green Beans with Smoked Turkey', description: 'Fresh green beans with smoked turkey, garlic and butter. Pork available.' },
-          { dish: 'cornbread', name: 'Buttermilk Cornbread', description: 'Golden cornbread made with buttermilk.' },
+          { dish: 'garlic-mashed', name: 'Garlic mashed potatoes, red wine gravy', description: 'Whipped with butter, cream and roasted garlic.' },
+          { dish: 'mac', name: 'Baked or smoked mac and cheese', description: 'Sharp cheddar, Colby Jack and cream cheese.' },
+          { dish: 'collards', name: 'Braised collard greens', description: 'Slow-cooked with smoked turkey. Pork available.' },
+          { dish: 'yams', name: 'Candied yams', description: 'Glazed with butter, brown sugar, cinnamon and orange.' },
+          { dish: 'green-beans', name: 'Green beans with smoked turkey', description: 'Fresh green beans with smoked turkey, garlic and butter. Pork available.' },
+          { dish: 'cornbread', name: 'Buttermilk cornbread', description: 'Golden cornbread made with buttermilk.' },
         ],
       },
       {
@@ -105,9 +105,9 @@ export const menus = [
         title: 'Late-night bites',
         note: 'For the second wind on the dance floor.',
         dishes: [
-          { dish: 'smoked-wings', name: 'Smoked Wings', description: 'Lemon pepper, buffalo (hot or mild) or garlic Parmesan.' },
-          { dish: 'crab-shrimp-eggrolls', name: 'Crab and Shrimp Egg Rolls', description: 'Crisp and golden, with sweet chili sauce.' },
-          { dish: 'fried-pickles', name: 'Fried Pickles', description: 'Cornmeal-crusted pickle chips with ranch.' },
+          { dish: 'smoked-wings', name: 'Smoked wings', description: 'Lemon pepper, buffalo (hot or mild) or garlic Parmesan.' },
+          { dish: 'crab-shrimp-eggrolls', name: 'Crab and shrimp egg rolls', description: 'Crisp and golden, with sweet chili sauce.' },
+          { dish: 'fried-pickles', name: 'Fried pickles', description: 'Cornmeal-crusted pickle chips with ranch.' },
         ],
       },
       { title: 'Desserts', note: 'Ask us about our homemade desserts.' },

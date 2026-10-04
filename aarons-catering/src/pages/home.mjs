@@ -5,7 +5,7 @@ import { instagramTiles } from '../content/photos.mjs';
 import { dish } from '../content/dishes.mjs';
 import { icon } from '../icons.mjs';
 import { esc, curly, img, eyebrow, parseDate, money } from '../lib.mjs';
-import { quoteForm } from './contact.mjs';
+import { quoteForm, reviewsLine } from './contact.mjs';
 
 function hero() {
   return `<section class="hero" aria-labelledby="hero-title">
@@ -26,12 +26,13 @@ function quote() {
       ${eyebrow('Request a quote')}
       <h2 id="quote-title" class="h2">Tell us about your event</h2>
       <p class="lede">It takes about a minute. We reply within one business day.</p>
+      ${reviewsLine()}
       <div class="quick-contact">
         <a class="btn btn-ghost" href="${site.phone.href}">${icon('phone')} Call us</a>
         <a class="btn btn-ghost" href="mailto:${site.email}">${icon('mail')} Email us</a>
       </div>
     </div>
-    ${quoteForm()}
+    ${quoteForm({ compact: true })}
   </div>
 </section>`;
 }
@@ -58,7 +59,7 @@ function holidayBlock() {
 function eventTypes() {
   const pills = events.map((e) => `<li><a href="${e.href}">${esc(e.title)}</a></li>`).join('');
   return `<section class="section section-dark" aria-labelledby="events-title">
-  <div class="container">
+  <div class="container occasions">
     <div class="section-head">
       ${eyebrow('What we cater')}
       <h2 id="events-title" class="h2">Every occasion</h2>

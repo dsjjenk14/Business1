@@ -232,7 +232,7 @@ export const dishes = {
 
   // ---------- Appetizers (from the Aaron J's menu flyer; ingredients are drafts) ----------
   'oxtail-biscuits': {
-    name: 'Oxtail stuffed biscuits',
+    name: 'Oxtail-stuffed biscuits',
     description: 'Buttermilk biscuits filled with tender braised oxtail.',
     ingredients: [
       'buttermilk biscuits (all-purpose wheat flour, butter, buttermilk, baking powder, salt)',
@@ -283,7 +283,7 @@ export const dishes = {
     allergens: ['dairy', 'wheat', 'eggs'],
   },
   'crab-mushrooms': {
-    name: 'Crab stuffed mushrooms',
+    name: 'Crab-stuffed mushrooms',
     description: 'Mushroom caps filled with lump crab, cream cheese and Parmesan, baked golden.',
     ingredients: [
       'cremini mushrooms',
@@ -319,7 +319,7 @@ export const dishes = {
     allergens: ['shellfish', 'wheat', 'eggs', 'soy', 'sesame'],
   },
   'bacon-scallops': {
-    name: 'Bacon wrapped scallops',
+    name: 'Bacon-wrapped scallops',
     description: 'Sea scallops wrapped in crisp bacon, glazed and finished with fresh herbs.',
     ingredients: [
       'sea scallops',

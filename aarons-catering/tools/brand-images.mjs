@@ -1,4 +1,5 @@
 // Builds the images made from the logo and the chef photo:
+//   logo-gold.png     the one-color gold logo the website shows (header and footer)
 //   share.jpg         the preview shown when a link is shared (1200 x 630)
 //   favicon-32.png, apple-touch-icon.png, icon-192.png, icon-512.png
 //
@@ -9,7 +10,7 @@
 
 import { createRequire } from 'node:module';
 import { execSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { site } from '../src/content/site.mjs';
@@ -61,6 +62,31 @@ const jobs = [
 
 const browser = await playwright.chromium.launch();
 const page = await browser.newPage();
+
+// Gold logo: dark lines stay near-black and everything lighter turns champagne
+// gold, so the logo sits in the site's colors. Drawn 240px tall, enough for the
+// footer on a sharp phone screen.
+await page.setContent('<!doctype html><html><body></body></html>');
+const gold = await page.evaluate(async (src) => {
+  const img = new Image();
+  img.src = src;
+  await img.decode();
+  const c = document.createElement('canvas');
+  c.height = 240;
+  c.width = Math.round((img.naturalWidth * c.height) / img.naturalHeight);
+  const ctx = c.getContext('2d');
+  ctx.drawImage(img, 0, 0, c.width, c.height);
+  const d = ctx.getImageData(0, 0, c.width, c.height);
+  const dark = [11, 11, 12];
+  const light = [220, 190, 135];
+  for (let i = 0; i < d.data.length; i += 4) {
+    const t = Math.pow((0.2126 * d.data[i] + 0.7152 * d.data[i + 1] + 0.0722 * d.data[i + 2]) / 255, 0.6);
+    for (let k = 0; k < 3; k++) d.data[i + k] = Math.round(dark[k] + (light[k] - dark[k]) * t);
+  }
+  ctx.putImageData(d, 0, 0);
+  return c.toDataURL('image/png');
+}, logo);
+writeFileSync(join(images, 'logo-gold.png'), Buffer.from(gold.split(',')[1], 'base64'));
 for (const job of jobs) {
   await page.setViewportSize({ width: job.w, height: job.h });
   await page.setContent(job.html, { waitUntil: 'load' });
@@ -68,4 +94,4 @@ for (const job of jobs) {
   await page.screenshot({ path: join(images, job.file), type: job.type, ...(job.type === 'jpeg' ? { quality: 84 } : {}) });
 }
 await browser.close();
-console.log(`Made ${jobs.map((j) => j.file).join(', ')}`);
+console.log(`Made logo-gold.png, ${jobs.map((j) => j.file).join(', ')}`);

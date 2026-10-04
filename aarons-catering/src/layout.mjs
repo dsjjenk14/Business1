@@ -12,10 +12,13 @@ export function setAssetVersions(v) {
 }
 
 const NAME = curly(site.name);
+// Full-color logo for search engines; the site itself shows the gold version
+// made by tools/brand-images.mjs, so it sits in the site's colors.
 const LOGO = { file: 'logo.png', w: 556, h: 620 };
+const LOGO_GOLD = { file: 'logo-gold.png', w: 215, h: 240 };
 
 export function logo(cls = 'logo', eager = false) {
-  return `<img class="${cls}" src="images/${LOGO.file}" alt="${esc(NAME)}" width="${LOGO.w}" height="${LOGO.h}"${eager ? '' : ' loading="lazy"'} decoding="async">`;
+  return `<img class="${cls}" src="images/${LOGO_GOLD.file}" alt="${esc(NAME)}" width="${LOGO_GOLD.w}" height="${LOGO_GOLD.h}"${eager ? '' : ' loading="lazy"'} decoding="async">`;
 }
 
 export const businessId = `${site.url}/#business`;
@@ -54,12 +57,12 @@ function holidayBar() {
   // The last message shows once every deadline has passed.
   const messages = [
     `<p data-until="${t.orderBy}">Thanksgiving orders close ${d.mon}&nbsp;${d.day}</p>`,
-    `<p data-until="${holiday.season.closes}">Planning ${esc(curly(holiday.next.join(' or ')))}? Ask us.</p>`,
+    `<p data-until="${holiday.season.closes}" data-link="contact.html?event=holiday" data-label="Ask us">Planning ${esc(curly(holiday.next.join(' or ')))}?</p>`,
   ];
   return `<div class="holiday-bar" data-holiday-bar data-opens="${holiday.season.opens}" data-closes="${holiday.season.closes}" hidden>
   <div class="container holiday-bar-inner">
     <div class="holiday-bar-text">${messages.join('')}</div>
-    <a href="holiday.html">Order ${icon('arrow', 'icon icon-sm')}</a>
+    <a href="holiday.html" data-holiday-bar-link><span>Order</span> ${icon('arrow', 'icon icon-sm')}</a>
   </div>
 </div>`;
 }
@@ -113,14 +116,14 @@ function footer() {
         <li><a href="${site.instagram.url}" rel="noopener">${icon('instagram')}<span>${site.instagram.handle}</span></a></li>
       </ul>
     </div>
-    <div>
+    <div class="footer-pages">
       <h2 class="footer-heading">Pages</h2>
       <ul class="footer-links">
         <li><a href="index.html">Home</a></li>
         ${nav.map((n) => `<li><a href="${n.href}">${esc(n.label === 'Holiday' ? 'Holiday ordering' : n.label)}</a></li>`).join('')}
       </ul>
     </div>
-    <div>
+    <div class="footer-area">
       <h2 class="footer-heading">Service area</h2>
       <ul class="footer-links">${site.serviceArea.map((a) => `<li>${esc(a)}</li>`).join('')}</ul>
     </div>

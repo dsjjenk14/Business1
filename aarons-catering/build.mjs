@@ -133,6 +133,7 @@ Logo and icons:
 | File | What it is |
 |---|---|
 | \`logo.png\` | The logo, cut out of the flyer. It works, but the original logo file (PNG with a transparent background, or SVG) would be sharper. Save it over this file, then run \`node tools/brand-images.mjs\`. |
+| \`logo-gold.png\` | The one-color gold logo shown in the site header and footer. Made from \`logo.png\` by \`node tools/brand-images.mjs\`; run it again after changing the logo. |
 | \`favicon-32.png\`, \`icon-192.png\`, \`icon-512.png\`, \`apple-touch-icon.png\` | Browser tab and home screen icons, made from the logo by \`node tools/brand-images.mjs\`. |
 `,
 );

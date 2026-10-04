@@ -25,7 +25,7 @@ export function allergenLine(d) {
     : 'None in the recipe. See the allergy note.';
   const spicy = d.spicy ? ' <span class="spicy">Spicy</span>' : '';
   const note = d.note ? `<p class="dish-note">${esc(d.note)}</p>` : '';
-  return `<p class="allergens"><span class="label">Allergens</span> ${esc(text)}${spicy}</p>${note}`;
+  return `<p class="allergens"><span class="label">Allergens:</span> ${esc(text)}${spicy}</p>${note}`;
 }
 
 // Full ingredient list, folded away so the menu reads cleanly. One tap opens it.
@@ -52,10 +52,16 @@ export function menuDish(e, headingLevel = 4) {
   </li>`;
 }
 
+// "Entrées" -> "entrees", for course anchors like menus.html#weddings-entrees
+function slug(text) {
+  return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
 function panel(m) {
+  const courseId = (c) => `${m.id}-${slug(c.title)}`;
   const courses = m.courses
     .map(
-      (c) => `<div class="course">
+      (c) => `<div class="course" id="${courseId(c)}">
       <h3 class="course-title">${esc(c.title)}</h3>
       ${c.note ? `<p class="course-note">${esc(curly(c.note))}</p>` : ''}
       ${c.dishes ? `<ul class="dish-list" role="list">${c.dishes.map((e) => menuDish(e)).join('')}</ul>` : ''}
@@ -69,6 +75,11 @@ function panel(m) {
     ? `<ul class="menu-styles" role="list">${m.styles.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>`
     : '';
   const note = m.note ? `<p class="menu-note">${esc(curly(m.note))}</p>` : '';
+  // Long menus get a row of links to each course.
+  const jump =
+    m.courses.length > 3
+      ? `<nav class="jump-links" aria-label="${esc(m.heading ?? m.title)} sections">${m.courses.map((c) => `<a href="#${courseId(c)}">${esc(c.title)}</a>`).join('')}</nav>`
+      : '';
   return `<section class="menu-panel${m.id === 'weddings' ? ' is-wedding' : ''}" id="${m.id}" aria-labelledby="title-${m.id}" data-menu-panel>
   <header class="menu-head">
     <h2 class="h2" id="title-${m.id}">${esc(m.heading ?? m.title)}</h2>
@@ -76,6 +87,7 @@ function panel(m) {
     ${styles}
     ${note}
     ${link}
+    ${jump}
   </header>
   ${courses}
 </section>`;
@@ -114,7 +126,7 @@ export default function menusPage() {
   <div class="container page-hero-content">
     ${eyebrow('Catering menus')}
     <h1 id="page-title" class="h1">Our menus</h1>
-    <p class="lede">Pick a menu below. Pricing depends on guest count, service style and location.</p>
+    <p class="lede">Pick a menu below. ${site.priceGuide ? `${esc(site.priceGuide)} ` : ''}Pricing depends on guest count, service style and location.</p>
   </div>
 </section>
 

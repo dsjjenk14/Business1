@@ -90,6 +90,12 @@
       var ordersOpen = msg && msg !== all[all.length - 1];
       if (msg) {
         msg.classList.add('is-active');
+        // After Thanksgiving closes, the link asks about the next holidays instead of "Order".
+        var barLink = $('[data-holiday-bar-link]', bar);
+        if (barLink && msg.getAttribute('data-link')) {
+          barLink.href = msg.getAttribute('data-link');
+          $('span', barLink).textContent = msg.getAttribute('data-label');
+        }
         bar.hidden = false;
       }
       $$('[data-holiday-only]').forEach(function (el) { el.hidden = false; });
@@ -101,6 +107,8 @@
       var shown = state === 'during' && !ordersOpen && override !== 'on' ? 'after' : state;
       status.setAttribute('data-state', shown);
       $('.status-text', status).textContent = status.getAttribute('data-' + shown);
+      // While orders are open the dates row says it; the hero only speaks up before or after.
+      status.hidden = shown === 'during';
     }
   }
 
@@ -147,18 +155,30 @@
       return true;
     };
 
+    // Returns what the address pointed at: a menu, one course inside a menu, or neither.
     var fromHash = function () {
       var id = location.hash.slice(1);
-      if (id === 'allergies') return;
-      if (!select(id)) select(tabs[0].getAttribute('data-menu-tab'));
+      if (id === 'allergies') return 'allergies';
+      if (select(id)) return 'menu';
+      var target = id && document.getElementById(id);
+      var owner = target && target.closest('[data-menu-panel]');
+      if (owner) {
+        select(owner.id);
+        return 'course';
+      }
+      select(tabs[0].getAttribute('data-menu-tab'));
+      return 'none';
     };
-    fromHash();
-    if (location.hash && location.hash !== '#allergies') {
+    var landed = fromHash();
+    if (landed === 'menu') {
       // Land on the tabs, not on the (now hidden) panel's old position.
       requestAnimationFrame(function () {
         var top = tabsWrap.getBoundingClientRect().top + window.scrollY - header.offsetHeight;
         window.scrollTo({ top: top });
       });
+    } else if (landed === 'course') {
+      // The course was hidden when the browser tried to scroll to it.
+      requestAnimationFrame(function () { document.getElementById(location.hash.slice(1)).scrollIntoView(); });
     }
     window.addEventListener('hashchange', fromHash);
 
@@ -266,6 +286,8 @@
       (packages[pkg].picks || []).forEach(function (p) { lines.push(p + ': '); });
       lines.push('Pickup or delivery (and where): ');
       if (message && !message.value) message.value = lines.join('\n');
+      var more = message && message.closest('details');
+      if (more) more.open = true;
     }
 
     var messages = {

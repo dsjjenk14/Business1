@@ -34,7 +34,7 @@
   --line-strong: rgba(247, 245, 242, 0.24);
   --white: #f7f5f2;
   --muted: #aaa49e;
-  --faint: #7d7771;
+  --faint: #8d8780;
   --accent: #c9a66b;        /* champagne gold: labels, buttons, rules */
   --accent-hover: #dbbd85;
   --red: #d9826a;           /* soft terracotta: allergen labels and errors only */
@@ -215,10 +215,8 @@ button { font: inherit; color: inherit; }
   align-items: center;
   gap: 8px;
   color: var(--white);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 0.9375rem;
+  font-weight: 500;
   text-decoration: none;
   padding-block: 8px;
 }
@@ -438,10 +436,9 @@ button { font: inherit; color: inherit; }
   .nav-links a {
     padding: 8px 0;
     font-family: var(--body);
-    font-size: 0.75rem;
+    font-size: 0.9375rem;
     font-weight: 500;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
+    letter-spacing: 0.01em;
     color: var(--muted);
     transition: color 0.2s;
   }
@@ -602,6 +599,11 @@ button { font: inherit; color: inherit; }
 .home-quote { padding-top: calc(var(--section) * 0.75); }
 .home-quote-grid { display: grid; gap: 32px; }
 .home-quote-intro .lede { margin-top: 16px; }
+.reviews { margin-top: 16px; font-size: 0.9375rem; }
+.reviews a { color: var(--muted); text-decoration: none; }
+.reviews a:hover { color: var(--white); }
+.reviews .stars { margin-right: 6px; color: var(--accent); letter-spacing: 0.12em; }
+.contact-aside .reviews { margin: 0 0 24px; }
 .quick-contact { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 360px; margin-top: 22px; }
 .quick-contact .btn { min-height: 44px; padding-inline: 12px; }
 @media (min-width: 960px) {
@@ -611,18 +613,11 @@ button { font: inherit; color: inherit; }
 
 /* ---------- Home: what we cater ---------- */
 
-.jump-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
-.jump-links a {
-  padding: 8px 14px;
-  border: 1px solid rgba(201, 166, 107, 0.35);
-  border-radius: 999px;
-  color: var(--accent);
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-decoration: none;
+/* Desktop: heading on the left, the occasions on the right, so the section isn't half empty. */
+@media (min-width: 960px) {
+  .occasions { display: grid; grid-template-columns: 5fr 7fr; gap: 96px; align-items: center; }
+  .occasions .section-head { margin-bottom: 0; }
 }
-.jump-links a:hover { border-color: var(--accent); }
 .service-pills { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; }
 .service-pills a {
   display: inline-flex;
@@ -631,11 +626,9 @@ button { font: inherit; color: inherit; }
   padding: 10px 20px;
   border: 1px solid rgba(201, 166, 107, 0.45);
   border-radius: 999px;
-  color: var(--accent);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
+  color: var(--white);
+  font-size: 0.9375rem;
+  font-weight: 500;
   text-decoration: none;
   transition: border-color 0.2s, background-color 0.2s;
 }
@@ -685,13 +678,29 @@ button { font: inherit; color: inherit; }
 .cta-alt { margin-top: 20px; color: var(--muted); }
 .cta-compact { padding-block: calc(var(--section) * 0.75); }
 
+/* ---------- Jump links (Holiday page, long menus) ---------- */
+
+.jump-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.jump-links a {
+  padding: 8px 16px;
+  border: 1px solid rgba(201, 166, 107, 0.35);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+.jump-links a:hover { border-color: var(--accent); }
+
 /* ---------- Footer ---------- */
 
-.site-footer { padding-top: 64px; background: var(--ink-1); border-top: 1px solid var(--line); font-size: 0.9375rem; }
-.footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px 24px; padding-bottom: 48px; }
-.footer-brand, .footer-contact { grid-column: 1 / -1; }
-.footer-brand p { max-width: 30em; margin-top: 20px; color: var(--muted); }
-.logo-footer { height: 112px; }
+.site-footer { padding-top: 48px; background: var(--ink-1); border-top: 1px solid var(--line); font-size: 0.9375rem; }
+.footer-grid { display: grid; grid-template-columns: 1fr; gap: 32px 24px; padding-bottom: 36px; }
+.footer-brand p { max-width: 30em; margin-top: 14px; color: var(--muted); }
+.logo-footer { height: 80px; }
+/* Phones: page links in two columns; the service area is already in the line under the logo. */
+.footer-pages .footer-links { grid-template-columns: 1fr 1fr; column-gap: 24px; }
+.footer-area { display: none; }
 .footer-heading {
   margin-bottom: 14px;
   color: var(--faint);
@@ -713,8 +722,12 @@ button { font: inherit; color: inherit; }
 }
 .footer-base a { color: var(--muted); }
 @media (min-width: 1000px) {
-  .footer-grid { grid-template-columns: 2fr 1.4fr 1fr 1fr; gap: 48px; }
-  .footer-brand, .footer-contact { grid-column: auto; }
+  .site-footer { padding-top: 64px; }
+  .footer-grid { grid-template-columns: 2fr 1.4fr 1fr 1fr; gap: 48px; padding-bottom: 48px; }
+  .footer-brand p { margin-top: 20px; }
+  .logo-footer { height: 112px; }
+  .footer-pages .footer-links { grid-template-columns: 1fr; }
+  .footer-area { display: block; }
 }
 
 /* ---------- Menus page ---------- */
@@ -810,10 +823,8 @@ button { font: inherit; color: inherit; }
   border: 1px solid rgba(201, 166, 107, 0.35);
   color: var(--accent);
   border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: 0.8125rem;
+  font-weight: 500;
 }
 .menu-note {
   margin-top: 20px;
@@ -829,7 +840,8 @@ button { font: inherit; color: inherit; }
 .is-wedding .menu-dish { padding: 28px 0; }
 .is-wedding .course-title { color: var(--white); }
 
-.course { margin-bottom: 48px; }
+.course { margin-bottom: 48px; scroll-margin-top: calc(var(--header-h) + 96px); }
+.menu-head .jump-links { margin-top: 24px; }
 .course-note { margin: 12px 0 8px; color: var(--muted); font-family: var(--display); font-size: 1.0625rem; font-style: italic; }
 .course-title {
   display: flex;
@@ -851,12 +863,9 @@ button { font: inherit; color: inherit; }
 .menu-dish-desc { margin-bottom: 10px; color: var(--muted); text-wrap: pretty; }
 .allergens { color: rgba(247, 245, 242, 0.85); font-size: 0.8125rem; line-height: 1.6; }
 .allergens .label {
-  margin-right: 6px;
+  margin-right: 4px;
   color: var(--red);
-  font-size: 0.6875rem;
   font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
 }
 /* Ingredients fold away: a quiet toggle under each dish. */
 .ingredients { margin-top: 10px; font-size: 0.8125rem; line-height: 1.6; }
@@ -866,10 +875,7 @@ button { font: inherit; color: inherit; }
   gap: 8px;
   min-height: 32px;
   color: var(--accent);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-weight: 500;
   cursor: pointer;
   list-style: none;
 }
@@ -915,7 +921,7 @@ button { font: inherit; color: inherit; }
 
 .fact-row { list-style: none; display: grid; border-top: 1px solid var(--line); }
 .fact-row li { display: grid; gap: 6px; padding: 20px 0; border-bottom: 1px solid var(--line); }
-.fact-label { color: var(--muted); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; }
+.fact-label { color: var(--muted); font-size: 0.875rem; font-weight: 500; }
 .big-date { font-family: var(--display); font-size: 2.75rem; font-weight: 500; line-height: 1; }
 .fact-sub { color: var(--muted); font-size: 0.9375rem; }
 @media (min-width: 900px) {
@@ -939,7 +945,7 @@ button { font: inherit; color: inherit; }
 .package-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; }
 .package-head .price { margin: 0; font-family: var(--display); font-size: 2rem; font-weight: 500; line-height: 1; }
 .package-note { margin: 10px 0 0; color: var(--muted); font-size: 0.9375rem; }
-.package .serves { margin: 8px 0 20px; color: var(--muted); font-size: 0.8125rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+.package .serves { margin: 8px 0 20px; color: var(--muted); font-size: 0.875rem; font-weight: 500; }
 @media (min-width: 720px) { .package-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; } }
 .package.is-popular { border-color: var(--accent); }
 .package .btn { margin-top: auto; }
@@ -1135,6 +1141,22 @@ button { font: inherit; color: inherit; }
 .quote-form .field [aria-invalid='true'] { border-color: var(--red); }
 .field-error { margin: 0; color: #ff8a7d; font-size: 0.875rem; }
 .quote-form .btn { margin-top: 8px; }
+/* Home page: the optional fields fold away behind one quiet toggle. */
+.form-more summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--accent);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+}
+.form-more summary::-webkit-details-marker { display: none; }
+.form-more summary::after { content: '+'; font-size: 1.125rem; transition: transform 0.2s; }
+.form-more[open] summary::after { transform: rotate(45deg); }
+.form-more-fields { display: grid; gap: 22px; margin-top: 14px; }
 .form-fine { margin: 0; color: var(--faint); font-size: 0.8125rem; text-align: center; }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 

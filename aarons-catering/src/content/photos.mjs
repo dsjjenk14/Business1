@@ -77,7 +77,7 @@ export const photos = {
     h: 710,
     alt: 'Chef Aaron Jenkins in chef whites, arms open, behind a buffet of chafing dishes with sunflower centerpieces',
     shot: 'From the flyer. Send the original photo for a sharper version (at least 1600 px wide).',
-    where: 'Home page (chef section) and About page',
+    where: 'About page',
     source: 'flyer',
   },
   'page-menus': {
@@ -93,39 +93,11 @@ export const photos = {
   'page-holiday': {
     file: 'page-holiday.jpg',
     w: 2400,
-    h: 1800,
-    alt: 'A holiday buffet under Christmas wreaths: lemon salmon, chicken, mac and cheese, yams and plantains on a red tablecloth',
+    h: 1120,
+    alt: 'A holiday buffet line on a red tablecloth: lemon salmon, chicken and sides in chafing dishes',
     shot: 'Holiday buffet line.',
     where: 'Holiday page, top banner',
-    focus: '50% 40%',
-    source: 'photo',
-  },
-  'page-about': {
-    file: 'page-about.jpg',
-    w: 1932,
-    h: 1449,
-    alt: 'Chafing dishes of rice and peas and roasted vegetables on a buffet',
-    shot: 'Buffet line at an event.',
-    where: 'About page, top banner',
-    focus: '50% 55%',
-    source: 'photo',
-  },
-  'about-kitchen': {
-    file: 'about-kitchen.jpg',
-    w: 1600,
-    h: 1200,
-    alt: 'Fried plantains and sweet potatoes with red pepper in a chafing dish',
-    shot: 'Plantains and sweet potatoes on the buffet.',
-    where: 'About page, How we cook',
-    source: 'photo',
-  },
-  'about-yams': {
-    file: 'about-yams.jpg',
-    w: 1200,
-    h: 1500,
-    alt: 'Candied yams glossy with brown sugar syrup',
-    shot: 'Candied yams in the pan.',
-    where: 'About page, What I believe',
+    focus: '25% 50%', // cropped to the buffet line; on phones aim at the salmon
     source: 'photo',
   },
 };
@@ -157,13 +129,14 @@ export const gallery = [
 
 // Stand-ins for the live Instagram feed. They disappear once the feed is
 // connected (see README).
+// Different photos from the Favorites above them on the home page.
 export const instagramTiles = [
-  'Baked macaroni and cheese',
-  'Cajun crab and shrimp',
-  'Glazed ham with pineapple and cherries',
-  'Chicken and waffles with strawberries',
-  'Candied yams',
   'A catered buffet on a red tablecloth',
+  'A brunch buffet of chicken and waffles and mini quiches',
+  'Wings and bacon-wrapped jalapeño poppers',
+  'Roasted vegetables next to rice and peas',
+  'Fried plantains and sweet potatoes',
+  'Candied yams',
 ].map((alt, i) => ({
   file: `instagram-${i + 1}.jpg`,
   w: 600,

@@ -120,7 +120,7 @@ export default function holidayPage() {
     ${eyebrow(`Thanksgiving ${y}`)}
     <h1 id="page-title" class="h1">Thanksgiving catering</h1>
     <p class="lede">${day.weekday}, ${day.month} ${day.day}. Smoked, fried or jerk turkey, glazed ham, short ribs and ${WORDS[holiday.sides.length] ?? holiday.sides.length} sides. Pickup or delivery across the DMV on ${handoff.weekday}, ${handoff.month} ${handoff.day}.</p>
-    <p class="status" data-holiday-status
+    <p class="status" data-holiday-status hidden
        data-before="Orders open ${opens.month} ${opens.day}."
        data-during="Orders close ${by.weekday}, ${by.month} ${by.day}, or sooner if we sell out."
        data-after="Thanksgiving orders are closed for ${y}.">

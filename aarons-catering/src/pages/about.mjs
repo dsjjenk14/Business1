@@ -9,9 +9,8 @@ export default function about() {
     ['Enjoy the food', 'We deliver, set up or serve, depending on your event.'],
   ];
 
-  const content = `<section class="page-hero" aria-labelledby="page-title">
-  <div class="page-hero-media">${img('page-about', { eager: true })}</div>
-  <div class="container page-hero-content">
+  const content = `<section class="page-head" aria-labelledby="page-title">
+  <div class="container">
     ${eyebrow('About')}
     <h1 id="page-title" class="h1">Aaron J's Catering</h1>
     <p class="lede">${esc(site.motto)}.</p>
@@ -20,7 +19,7 @@ export default function about() {
 
 <section class="section" aria-labelledby="chef-title">
   <div class="container feature">
-    <div class="feature-photo">${img('chef-aaron')}</div>
+    <div class="feature-photo">${img('chef-aaron', { eager: true })}</div>
     <div class="feature-body">
       ${eyebrow('The chef')}
       <h2 id="chef-title" class="h2">Chef Aaron Jenkins</h2>
@@ -60,7 +59,7 @@ export default function about() {
     title: 'About | Aaron J’s Catering | Soul Food Catering in DC, MD and Northern Virginia',
     description:
       'Aaron J’s Catering is Chef Aaron Jenkins: soul food for weddings, corporate events, birthdays, church and family events, holidays and meal prep in the DMV.',
-    preload: ['page-about'],
+    preload: ['chef-aaron'],
     content,
   });
 }

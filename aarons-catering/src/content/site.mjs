@@ -18,6 +18,14 @@ export const site = {
 
   serviceArea: ['Washington, DC', 'Northern Virginia', 'Maryland'],
 
+  // A price range for the Menus page, so people know roughly what to expect.
+  // Example: 'Most events run $25 to $45 per guest.' Empty = not shown.
+  priceGuide: '',
+
+  // Google reviews, shown next to the quote forms once there are some.
+  // Example: { rating: 4.9, count: 37, url: 'https://g.page/r/...' }. null = not shown.
+  reviews: null,
+
   // Quote form. FormSubmit emails each request to the address in the URL.
   // The first request sends an activation email to that inbox. Click it once.
   form: {
