@@ -1324,6 +1324,8 @@ button { font: inherit; color: inherit; }
 .order-bar strong { margin-left: 6px; color: var(--gold); font-family: var(--display); font-size: 1.375rem; font-weight: 500; }
 @media (min-width: 960px) { .order-bar { display: none; } }
 
+.order-notice { margin-bottom: 24px; padding: 14px 18px; border-left: 1px solid var(--accent); background: rgba(201, 166, 107, 0.08); }
+.order-summary .field-error { margin: 0; }
 .order-closed { display: grid; justify-items: start; gap: 16px; padding: 32px 24px; border: 1px solid var(--line); border-top: 1px solid var(--accent); border-radius: 12px; background: var(--ink-1); }
 
 /* ---------- Motion ---------- */

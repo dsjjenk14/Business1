@@ -13,3 +13,8 @@
   [headers.values]
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Server code: the Thanksgiving card checkout (netlify/functions/checkout.mjs).
+# Set STRIPE_SECRET_KEY under Site configuration > Environment variables.
+[functions]
+  directory = "netlify/functions"

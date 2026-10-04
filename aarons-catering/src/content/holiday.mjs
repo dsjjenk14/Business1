@@ -20,11 +20,10 @@ export const holiday = {
     soldOut: false,
   },
 
-  // How people pay once they've ordered. Paste a payment link here and the
-  // order confirmation shows a "Pay $X" button; {total} becomes the order total.
-  // For example 'https://cash.app/$aaronjscatering/{total}' or
-  // 'https://paypal.me/aaronjscatering/{total}'. Empty = "we'll be in touch to take payment".
-  payLink: '',
+  // Pay by card on the order page, through Stripe Checkout. Needs the Stripe
+  // secret key in Netlify (see README). Until it's there, or if this is false,
+  // orders are emailed and the confirmation says we'll be in touch to take payment.
+  cardPayments: true,
 
   // No menu yet. Shown as "coming" with a way to get in touch.
   next: ['Christmas', "New Year's"],

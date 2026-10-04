@@ -555,6 +555,52 @@
     var orderFailed = $('[data-form-failed]');
     var orderSubmit = $('[data-submit]', order);
     var orderMailto = $('[data-mailto-fallback]');
+    var orderError = $('[data-order-error]', order);
+
+    // The order, kept for the trip to Stripe and back (this tab only).
+    var saved = function (value) {
+      try {
+        if (value === undefined) return JSON.parse(sessionStorage.getItem('aj-order') || 'null');
+        sessionStorage.setItem('aj-order', JSON.stringify(value));
+      } catch (e) { return null; }
+    };
+    var formState = function () {
+      var state = { on: [], values: {} };
+      $$('input, textarea', order).forEach(function (f) {
+        if (f.type === 'checkbox' || f.type === 'radio') { if (f.checked) state.on.push(f.name + '|' + f.value); }
+        else if (f.id) state.values[f.id] = f.value;
+      });
+      return state;
+    };
+    var restoreForm = function (state) {
+      $$('input, textarea', order).forEach(function (f) {
+        if (f.type === 'checkbox' || f.type === 'radio') f.checked = state.on.indexOf(f.name + '|' + f.value) >= 0;
+        else if (f.id && f.id in state.values) f.value = state.values[f.id];
+      });
+    };
+
+    var sendMail = function (pairs, paid) {
+      var data = new FormData();
+      pairs.forEach(function (p) {
+        data.append(p[0], p[0] === '_subject' ? 'Thanksgiving order' + (paid ? ', paid' : '') + ': ' + p[1] : p[1]);
+      });
+      return fetch(order.getAttribute('data-endpoint'), { method: 'POST', headers: { Accept: 'application/json' }, body: data })
+        .then(function (res) { return res.json().catch(function () { return {}; }).then(function (body) { return { ok: res.ok, body: body }; }); })
+        .then(function (r) { if (!(r.ok && (r.body.success === true || r.body.success === 'true'))) throw new Error('Not sent'); });
+    };
+
+    var showDone = function (info, paid) {
+      $('[data-first-name]', orderDone).textContent = info.name ? ', ' + info.name : '';
+      $$('[data-done-total]', orderDone).forEach(function (t) { t.textContent = info.total ? dollars(info.total) : ''; });
+      $$('[data-paid-note]', orderDone).forEach(function (el) { el.hidden = !paid; });
+      $$('[data-unpaid-note]', orderDone).forEach(function (el) { el.hidden = paid; });
+      if (paid && !info.total) $('[data-paid-note]', orderDone).textContent = 'Your payment went through, and Stripe is emailing you a receipt.';
+      $('[data-done-lines]', orderDone).innerHTML = info.lines || '';
+      order.hidden = true;
+      orderDone.hidden = false;
+      orderDone.focus();
+      orderDone.scrollIntoView({ block: 'start' });
+    };
 
     order.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -588,55 +634,115 @@
 
       var val = function (id) { return $('#' + id, order).value.trim(); };
       var name = val('o-name');
-      var data = new FormData();
-      data.append('_subject', 'Thanksgiving order: ' + pkg.value + ', ' + dollars(total) + ', ' + (delivering ? 'delivery' : 'pickup') + ' (' + name + ')');
-      data.append('_template', 'table');
-      data.append('_captcha', 'false');
-      data.append('_honey', $('[name="_honey"]', order).value);
-      data.append('Name', name);
-      data.append('email', val('o-email'));
-      data.append('Phone', val('o-phone'));
-      data.append('Package', pkg.value + ' (' + dollars(Number(pkg.getAttribute('data-price'))) + ')');
-      groups.forEach(function (g) {
-        if (!g.hidden) data.append(g.getAttribute('data-field'), picked(g, g.getAttribute('data-field')).map(function (b) { return b.value; }).join(', '));
-      });
-      data.append('Bread', picked(order, 'Bread')[0].value);
-      data.append('Pickup or delivery', fulfilment() + ', ' + order.getAttribute('data-day'));
-      if (delivering) data.append('Delivery address', val('o-street') + ', ' + val('o-city') + ' ' + val('o-zip') + ' (' + picked(order, 'Delivery area')[0].value + ')');
-      if (val('o-time')) data.append('Preferred time', val('o-time'));
-      if (val('o-notes')) data.append('Allergies and notes', val('o-notes'));
-      data.append('Order', asText());
-      data.append('Total', dollars(total));
+      var address = delivering ? val('o-street') + ', ' + val('o-city') + ' ' + val('o-zip') : '';
 
-      orderSubmit.disabled = true;
-      orderSubmit.textContent = 'Placing your order…';
+      // The email to the chef: every pick, the address and the total, as a table.
+      var mail = [
+        ['_subject', pkg.value + ', ' + dollars(total) + ', ' + (delivering ? 'delivery' : 'pickup') + ' (' + name + ')'],
+        ['_template', 'table'],
+        ['_captcha', 'false'],
+        ['_honey', $('[name="_honey"]', order).value],
+        ['Name', name],
+        ['email', val('o-email')],
+        ['Phone', val('o-phone')],
+        ['Package', pkg.value + ' (' + dollars(Number(pkg.getAttribute('data-price'))) + ')'],
+      ];
+      groups.forEach(function (g) {
+        if (!g.hidden) mail.push([g.getAttribute('data-field'), picked(g, g.getAttribute('data-field')).map(function (b) { return b.value; }).join(', ')]);
+      });
+      mail.push(['Bread', picked(order, 'Bread')[0].value]);
+      mail.push(['Pickup or delivery', fulfilment() + ', ' + order.getAttribute('data-day')]);
+      if (delivering) mail.push(['Delivery address', address + ' (' + picked(order, 'Delivery area')[0].value + ')']);
+      if (val('o-time')) mail.push(['Preferred time', val('o-time')]);
+      if (val('o-notes')) mail.push(['Allergies and notes', val('o-notes')]);
+      mail.push(['Order', asText()]);
+      mail.push(['Total', dollars(total)]);
+      var info = { name: name.split(/\s+/)[0], total: total, lines: $('[data-summary-lines]', order).innerHTML };
+
+      var busy = function (text) {
+        orderSubmit.disabled = !!text;
+        orderSubmit.textContent = text || orderSubmit.getAttribute('data-label');
+      };
+      orderError.hidden = true;
       orderFailed.hidden = true;
 
-      fetch(order.getAttribute('data-endpoint'), { method: 'POST', headers: { Accept: 'application/json' }, body: data })
-        .then(function (res) { return res.json().catch(function () { return {}; }).then(function (body) { return { ok: res.ok, body: body }; }); })
+      // No card payment (not set up yet, or Stripe is having trouble): email the
+      // order and say we'll be in touch to take payment.
+      var emailOnly = function () {
+        busy('Placing your order…');
+        sendMail(mail.concat([['Payment', 'Not paid yet. Take payment from the customer.']]), false)
+          .then(function () { showDone(info, false); })
+          .catch(function () {
+            orderMailto.href = 'mailto:' + orderMailto.getAttribute('href').replace(/^mailto:/, '').split('?')[0] +
+              '?subject=' + encodeURIComponent('Thanksgiving order: ' + mail[0][1]) +
+              '&body=' + encodeURIComponent(asText() + '\nTotal: ' + dollars(total) + '\n\n' + name + '\n' + val('o-email') + '\n' + val('o-phone') +
+                (delivering ? '\n' + address : '') + (val('o-notes') ? '\n\n' + val('o-notes') : ''));
+            orderFailed.hidden = false;
+            busy('');
+          });
+      };
+
+      var checkoutUrl = order.getAttribute('data-checkout');
+      if (!checkoutUrl) return emailOnly();
+
+      // Card payment: the checkout function prices the order again and opens
+      // Stripe. The order is saved here so it can be emailed once it's paid, or
+      // put back if the payment is canceled.
+      busy('Opening secure checkout…');
+      var payload = {
+        order: {
+          package: pkg.getAttribute('data-id'),
+          bread: picked(order, 'Bread')[0].value,
+          fulfilment: fulfilment(),
+          area: delivering ? picked(order, 'Delivery area')[0].value : '',
+          addOns: {},
+        },
+        customer: { name: name, email: val('o-email'), phone: val('o-phone'), address: address, time: val('o-time'), notes: val('o-notes') },
+      };
+      groups.forEach(function (g) {
+        payload.order[g.getAttribute('data-pick')] = g.hidden ? [] : picked(g, g.getAttribute('data-field')).map(function (b) { return b.value; });
+      });
+      $$('input[data-addon]', order).forEach(function (a) {
+        var id = a.getAttribute('data-addon-id');
+        if (a.type === 'checkbox') {
+          if (a.checked) (payload.order.addOns[id] = payload.order.addOns[id] || []).push(a.value);
+        } else if (parseInt(a.value, 10) > 0) {
+          payload.order.addOns[id] = parseInt(a.value, 10);
+        }
+      });
+
+      fetch(checkoutUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(payload) })
+        .then(function (res) { return res.json().catch(function () { return {}; }).then(function (body) { return { status: res.status, body: body }; }); })
         .then(function (r) {
-          if (!(r.ok && (r.body.success === true || r.body.success === 'true'))) throw new Error('Not sent');
-          $('[data-first-name]', orderDone).textContent = ', ' + name.split(/\s+/)[0];
-          $$('[data-done-total]', orderDone).forEach(function (t) { t.textContent = dollars(total); });
-          var pay = $('[data-pay-link]', orderDone);
-          if (pay) pay.href = pay.getAttribute('data-template').replace('{total}', String(total));
-          var copy = $('[data-done-lines]', orderDone);
-          copy.innerHTML = $('[data-summary-lines]', order).innerHTML;
-          order.hidden = true;
-          orderDone.hidden = false;
-          orderDone.focus();
-          orderDone.scrollIntoView({ block: 'start' });
-        })
-        .catch(function () {
-          orderMailto.href = 'mailto:' + orderMailto.getAttribute('href').replace(/^mailto:/, '').split('?')[0] +
-            '?subject=' + encodeURIComponent(data.get('_subject')) +
-            '&body=' + encodeURIComponent(asText() + '\nTotal: ' + dollars(total) + '\n\n' + name + '\n' + val('o-email') + '\n' + val('o-phone') +
-              (delivering ? '\n' + data.get('Delivery address') : '') + (val('o-notes') ? '\n\n' + val('o-notes') : ''));
-          orderFailed.hidden = false;
-          orderSubmit.disabled = false;
-          orderSubmit.textContent = 'Place order';
-        });
+          if (r.status === 200 && r.body.url) {
+            info.total = r.body.total;
+            saved({ mail: mail, info: info, form: formState() });
+            location.href = r.body.url;
+          } else if (r.status === 400 || r.status === 409) {
+            orderError.textContent = r.body.error || 'Check your order and try again.';
+            orderError.hidden = false;
+            busy('');
+          } else {
+            emailOnly();
+          }
+        }, emailOnly);
     });
+
+    // Back from Stripe: paid, or canceled.
+    var back = saved();
+    if (params.has('paid')) {
+      if (back && !back.sent) {
+        sendMail(back.mail.concat([['Payment', 'Paid by card on Stripe (' + params.get('paid') + ')']]), true).catch(function () { /* Stripe has the details too */ });
+        back.sent = true;
+        saved(back);
+      }
+      showDone(back ? back.info : {}, true);
+    } else if (params.has('canceled') && back && back.form) {
+      restoreForm(back.form);
+      groups.forEach(syncGroup);
+      render();
+      $('[data-order-canceled]').hidden = false;
+    }
   }
 
   /* ---------- Gentle fade-in as sections scroll into view ---------- */

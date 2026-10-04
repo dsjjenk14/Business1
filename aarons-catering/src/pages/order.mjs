@@ -1,10 +1,11 @@
 // Thanksgiving ordering: pick a package, the meats, sides and dessert, add-ons,
-// and pickup or delivery, with a running total. site.js does the counting and
-// sends the order to the chef's inbox (FormSubmit, like the quote form).
+// and pickup or delivery, with a running total. site.js does the counting, then
+// sends the order to Stripe to pay by card (netlify/functions/checkout.mjs) and
+// emails it to the chef (FormSubmit, like the quote form).
 import { page } from '../layout.mjs';
 import { site } from '../content/site.mjs';
 import { holiday } from '../content/holiday.mjs';
-import { dish } from '../content/dishes.mjs';
+import { packages, meats, sides, desserts, breads, areas, dinnerDelivery, addOns as addOnList } from '../thanksgiving-order.mjs';
 import { icon } from '../icons.mjs';
 import { esc, curly, eyebrow, parseDate, money } from '../lib.mjs';
 
@@ -14,11 +15,7 @@ const handoff = parseDate(T.handoff);
 const cancel = parseDate(T.cancelBy);
 const handoffText = `${handoff.weekday}, ${handoff.month} ${handoff.day}`;
 
-const meats = holiday.meats.items.map((m) => ({ name: m.name ?? dish(m.dish).name, extra: m.extra ?? 0 }));
-const sides = holiday.sides.map((s) => ({ name: s.name ?? dish(s.dish).name, extra: s.extra ?? 0 }));
-const desserts = holiday.desserts.map((id) => ({ name: dish(id).name, extra: 0 }));
-const areas = holiday.delivery.filter((d) => !d.package);
-const dinnerDelivery = holiday.delivery.find((d) => d.package);
+const cards = holiday.cardPayments;
 
 // "Braised short ribs +$30"
 const plus = (n) => (n ? ` <span class="chip-extra">+${money(n)}</span>` : '');
@@ -28,7 +25,7 @@ function chip({ type = 'checkbox', name, value, label = value, data = '', extra 
 }
 
 function packageChoices() {
-  return holiday.packages
+  return packages
     .map((p) => {
       const counts = Object.entries(p.pick)
         .map(([kind, n]) => ` data-${kind}="${n}"`)
@@ -56,27 +53,24 @@ function pickGroup({ kind, title, field, items, hint }) {
 }
 
 function addOns() {
-  return holiday.addOns
+  return addOnList
     .map((a) => {
-      const name = curly(a.name ?? dish(a.dish).name);
-      if (a.options) {
-        const list = a.options === 'sides' ? sides : a.options === 'meats' ? meats : a.options.map((o) => ({ name: o, extra: 0 }));
-        const prefix = typeof a.options === 'string' ? `${name}: ` : '';
+      if (a.choices) {
         return `<li class="order-addon order-addon-choice">
-          <p class="order-addon-head"><span class="order-addon-name">${esc(name)}</span><span class="price">${money(a.price)} each</span></p>
-          <div class="chips chips-sm">${list
-            .map((o) => chip({ name, value: prefix + o.name, label: o.name, extra: o.extra, data: ` data-addon data-price="${a.price + o.extra}"` }))
+          <p class="order-addon-head"><span class="order-addon-name">${esc(a.name)}</span><span class="price">${money(a.price)} each</span></p>
+          <div class="chips chips-sm">${a.choices
+            .map((c) => chip({ name: a.name, value: c.value, label: c.label, extra: c.extra, data: ` data-addon data-addon-id="${a.id}" data-price="${c.price}"` }))
             .join('')}</div>
         </li>`;
       }
       const id = `o-addon-${a.id}`;
       return `<li class="order-addon">
-        <p class="order-addon-head"><label class="order-addon-name" for="${id}">${esc(name)}</label><span class="price">${money(a.price)}</span></p>
+        <p class="order-addon-head"><label class="order-addon-name" for="${id}">${esc(a.name)}</label><span class="price">${money(a.price)}</span></p>
         ${a.text ? `<p class="order-addon-text">${esc(a.text)}</p>` : ''}
         <div class="stepper">
-          <button type="button" data-step="-1" aria-label="One fewer: ${esc(name)}">&minus;</button>
-          <input id="${id}" type="number" name="${esc(name)}" value="0" min="0" max="20" step="1" inputmode="numeric" data-addon data-price="${a.price}">
-          <button type="button" data-step="1" aria-label="One more: ${esc(name)}">+</button>
+          <button type="button" data-step="-1" aria-label="One fewer: ${esc(a.name)}">&minus;</button>
+          <input id="${id}" type="number" name="${esc(a.name)}" value="0" min="0" max="20" step="1" inputmode="numeric" data-addon data-addon-id="${a.id}" data-price="${a.price}">
+          <button type="button" data-step="1" aria-label="One more: ${esc(a.name)}">+</button>
         </div>
       </li>`;
     })
@@ -92,12 +86,7 @@ function field({ id, label, optional = false, input }) {
 }
 
 function orderForm() {
-  const pay = holiday.payLink
-    ? `<p>Pay now to confirm your order.</p>
-       <p><a class="btn btn-lg" data-pay-link data-template="${esc(holiday.payLink)}" href="${esc(holiday.payLink.replace('{total}', ''))}" rel="noopener">Pay <span data-done-total></span></a></p>`
-    : `<p>We’ll be in touch within one business day to confirm your order and take payment. Your order is confirmed once it’s paid.</p>`;
-
-  return `<form class="order-form quote-form" action="${site.form.action}" method="POST" data-order-form data-endpoint="${site.form.ajax}" data-day="${handoffText}">
+  return `<form class="order-form quote-form" action="${site.form.action}" method="POST" data-order-form data-endpoint="${site.form.ajax}" data-day="${handoffText}"${cards ? ' data-checkout="/api/checkout"' : ''}>
     <input type="hidden" name="_subject" value="Thanksgiving order from the website">
     <input type="hidden" name="_template" value="table">
     <input type="hidden" name="_captcha" value="false">
@@ -119,7 +108,7 @@ function orderForm() {
 
         <fieldset class="order-step" data-required="Bread">
           <legend class="order-legend">Rolls or cornbread</legend>
-          <div class="chips">${['Dinner rolls', 'Cornbread'].map((b) => chip({ type: 'radio', name: 'Bread', value: b })).join('')}</div>
+          <div class="chips">${breads.map((b) => chip({ type: 'radio', name: 'Bread', value: b })).join('')}</div>
           <p class="field-error" data-error hidden></p>
         </fieldset>
 
@@ -185,9 +174,10 @@ function orderForm() {
         <p class="summary-total"><span>Total</span><span class="price" data-total>${money(0)}</span></p>
         <ul class="summary-notes" role="list">
           <li>Pickup or delivery ${handoffText}.</li>
-          <li>Paid in full to confirm. Cancel by ${cancel.month} ${cancel.day} for a full refund.</li>
+          <li>${cards ? 'You pay by card on the next step, on Stripe’s secure checkout.' : 'Paid in full to confirm.'} Cancel by ${cancel.month} ${cancel.day} for a full refund.</li>
         </ul>
-        <button class="btn btn-lg btn-block" type="submit" data-submit>Place order</button>
+        <p class="field-error" data-order-error hidden role="alert"></p>
+        <button class="btn btn-lg btn-block" type="submit" data-submit data-label="${cards ? 'Continue to payment' : 'Place order'}">${cards ? 'Continue to payment' : 'Place order'}</button>
         <p class="form-fine">Questions? Call <a href="${site.phone.href}">${site.phone.display}</a>.</p>
       </aside>
     </div>
@@ -198,10 +188,12 @@ function orderForm() {
     </div>
   </form>
 
+  <p class="order-notice" data-order-canceled hidden role="status">Your payment was canceled, so the order isn’t placed yet. Everything you picked is still here.</p>
+
   <div class="form-done order-done" data-order-done hidden tabindex="-1">
     <h2 class="h2">We have your order</h2>
-    <p class="lede">Thanks<span data-first-name></span>. Your total is <strong data-done-total></strong>.</p>
-    ${pay}
+    <p class="lede">Thanks<span data-first-name></span>. <span data-paid-note hidden>Your payment of <strong data-done-total></strong> went through, and Stripe is emailing you a receipt.</span><span data-unpaid-note>Your total is <strong data-done-total></strong>.</span></p>
+    <p data-unpaid-note>We’ll be in touch within one business day to confirm your order and take payment. Your order is confirmed once it’s paid.</p>
     <ul class="summary-lines" role="list" data-done-lines></ul>
     <p>Pickup or delivery is ${handoffText}. We’ll confirm a 30-minute window with you. Questions? Call <a href="${site.phone.href}">${site.phone.display}</a>.</p>
   </div>

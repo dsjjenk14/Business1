@@ -2,7 +2,7 @@
 
 Soul food catering for DC, Maryland and Northern Virginia. Home, Menus, Holiday Ordering (with a Thanksgiving order page), About, Gallery, and Contact with the quote form.
 
-It's a plain static site with no framework, no server and no monthly platform to pay for. The finished website is the `site/` folder. Everything in it can be put on any web host as-is.
+It's a plain static site with no framework and no monthly platform to pay for, plus one small server function for card payments (Netlify runs it for free). The finished website is the `site/` folder. Everything in it can be put on any web host as-is.
 
 ## See it
 
@@ -33,7 +33,7 @@ Placeholders are deliberately obvious so nothing slips through:
 - [ ] **Christmas and New Year's.** The Holiday page has the real Thanksgiving menu, prices and policies. For Christmas and New Year's it says the menus are coming and asks people to get in touch. Send those menus when they're ready.
 - [ ] **Reply time.** The site says quote requests get a reply within one business day. Change it in `src/pages/contact.mjs` and `src/pages/home.mjs` if that's not right.
 - [ ] **Turn on the quote form.** See below. One test submission and one click. The Thanksgiving order page sends through the same service, so this turns on both.
-- [ ] **How people pay for Thanksgiving.** Orders arrive by email; payment isn't taken on the site yet. Until it is, the order confirmation says you'll be in touch within one business day to take payment. Add a Cash App, PayPal.me or Venmo link to `payLink` in `src/content/holiday.mjs` and the confirmation shows a "Pay $X" button with the order total filled in (see "Thanksgiving orders" below).
+- [ ] **Turn on card payments (Stripe).** See "Card payments" below. About 15 minutes. Until it's on, Thanksgiving orders still arrive by email, marked "Not paid yet", and the customer is told you'll be in touch to take payment.
 - [ ] **Extra side or extra meat with an upcharge.** On the order page, an extra seafood salad add-on costs $35 + $25 and extra short ribs cost $40 + $30, the same upcharges as in the packages. Change it in `src/content/holiday.mjs` if that's not how it should work.
 - [ ] **Instagram feed.** See below. About five minutes.
 - [ ] **Google Business Profile.** The site doesn't name a city (by request), so local search depends on this. Set one up as a service-area business (Northern Virginia, DC, Maryland), link it to the site, and ask happy clients for Google reviews. Once there are a few, fill in `reviews` in `src/content/site.mjs` (rating, count and the link to the reviews) and a star rating shows next to both quote forms. Then add the site to [Google Search Console](https://search.google.com/search-console) and submit `https://aaronjscatering.com/sitemap.xml`.
@@ -84,10 +84,22 @@ Each season, update the menu, prices, dates and the `year` in `src/content/holid
 People order right on the site at `order.html` ("Order this" on each package, "Order now" on the Holiday page, and "Order" in the banner all go there). They pick a package, then their meats, sides and dessert, rolls or cornbread, any add-ons, and pickup or delivery on November 25, and see the total as they go.
 
 - **Where orders go.** Each order is emailed to chef@aaronjscatering.com as a table, with a subject like *Thanksgiving order: The Full Spread, $295, delivery (Maya Thompson)*. It lists every pick, the add-ons, the delivery address, notes and allergies, and the total. Reply to it to reach the customer.
-- **Payment.** Put a payment link in `payLink` in `src/content/holiday.mjs`, using `{total}` where the amount goes: `https://cash.app/$yourcashtag/{total}` or `https://paypal.me/yourname/{total}`. The confirmation then shows a "Pay $295" button. Leave it empty and the confirmation says you'll be in touch to take payment. Either way, the order is confirmed once it's paid.
+- **Payment.** Customers pay by card on Stripe's checkout page (see "Card payments" below). The order email arrives once they've paid, with the subject starting *Thanksgiving order, paid*, and the payment in Stripe carries the same details. If card payments aren't on, the email says "Not paid yet. Take payment from the customer."
 - **Sold out.** Set `soldOut: true` in `src/content/holiday.mjs` and rebuild. The order page then says Thanksgiving is sold out and points people to Christmas and New Year's.
 - **After the deadline** (November 20), the order page closes by itself.
 - Prices, packages, add-ons and delivery fees all come from `src/content/holiday.mjs`, so the order page and the Holiday page always match.
+
+## Card payments
+
+The order page sends customers to Stripe to pay by card (Apple Pay and Google Pay too, if you turn them on in Stripe). Stripe holds the money and pays it out to your bank. A small server function, `netlify/functions/checkout.mjs`, works out the price from `src/content/holiday.mjs` every time, so nobody can change a total in their browser.
+
+1. Make a Stripe account at [stripe.com](https://stripe.com) and fill in the business and bank details.
+2. In Stripe, open **Developers**, then **API keys**, and copy the **Secret key**. Start with the test key (it begins `sk_test_`) so you can try it with Stripe's test card, 4242 4242 4242 4242, any future date and any CVC.
+3. In Netlify, open **Site configuration**, then **Environment variables**, and add `STRIPE_SECRET_KEY` with that key. Redeploy.
+4. Place a test order. When it works, swap in the live key (it begins `sk_live_`) and redeploy.
+5. In Stripe settings, turn on **email receipts for successful payments** (customers get a receipt) and **email notifications for successful payments** (you get one too).
+
+Refunds (for cancellations by the deadline) are one click on the payment in Stripe. Card payments only work on the Netlify site connected to this repo; the drag-and-drop preview and other previews fall back to emailed orders. To turn card payments off, set `cardPayments: false` in `src/content/holiday.mjs`.
 
 ## Changing things
 
@@ -105,12 +117,13 @@ You need [Node.js](https://nodejs.org) 18 or newer, and nothing else. There's no
 | Phone, email, Instagram, service area, price guide, Google reviews, event types, favorite dishes | `src/content/site.mjs` |
 | Dishes: names, descriptions, ingredients, allergens | `src/content/dishes.mjs` |
 | Which dishes appear on which event menu | `src/content/menus.mjs` |
-| Holiday packages, prices, dates, delivery, payment link, sold out | `src/content/holiday.mjs` |
+| Holiday packages, prices, dates, delivery, card payments on or off, sold out | `src/content/holiday.mjs` |
 | Photo descriptions and the shot list | `src/content/photos.mjs` |
 | Page copy | `src/pages/*.mjs` |
 | Header and footer, SEO tags, structured data | `src/layout.mjs` |
 | Look and feel | `site/css/site.css` |
 | Menu, tabs, lightbox, forms, Thanksgiving order total | `site/js/site.js` |
+| Thanksgiving card checkout (server side) | `netlify/functions/checkout.mjs` |
 
 Don't edit the `.html` files in `site/` directly. They're rebuilt from `src/` and your edit would be overwritten.
 
