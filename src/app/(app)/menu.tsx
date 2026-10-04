@@ -39,7 +39,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
   },
   {
     title: 'Play',
-    items: [{ label: 'Celeb Dash', icon: 'game-controller-outline', href: '/celeb-dash' }],
+    items: [{ label: 'The In Crowd', icon: 'game-controller-outline', href: '/in-crowd' }],
   },
   {
     title: 'You',

@@ -5,8 +5,8 @@
 
 ---
 
-## ✅ Celeb Dash: a party game (like Wedding Dash, but influencers)
-- **Where it is:** Menu → **Play → Celeb Dash**, or go straight to `/celeb-dash`. It works signed in or not. Everything is in its own folders (`src/app/celeb-dash`, `src/components/celeb-dash`, `src/features/celeb-dash`), so it can be moved or removed in one go.
+## ✅ The In Crowd: a party game (like Wedding Dash, but influencers)
+- **Where it is:** Menu → **Play → The In Crowd**, or go straight to `/in-crowd`. It works signed in or not. Everything is in its own folders (`src/app/in-crowd`, `src/components/in-crowd`, `src/features/in-crowd`), so it can be moved or removed in one go.
 - **The story:** you're Kiki Vance, an event planner in Clout City. Five clients hire you for their big night, and each one briefs you before the first night at their venue:
   - **Rooftop Glow-Up** (Bella Bloom's lip oil launch), **Vibe Villa Pool Party** (Coco Vibes' creator house), **Neon Pod Premiere** (Marcus "Mic Drop" Reyes' 100th episode), **Glowfest VIP Tent** (DJ Nova), and the **Golden Phone Awards** afterparty (Sky Sterling).
   - **20 nights** in all, 4 per venue. Each night has a goal and an expert score (1 to 3 stars). Reach the goal to unlock the next night.
@@ -22,10 +22,10 @@
 - **Shop:** 8 upgrades bought with coins (faster sneakers, a bigger tote, a resident DJ, a private chef, a bodyguard, a glam squad, power banks, mesh Wi-Fi). Most have 2 to 3 levels.
 - **Guide:** how to play, how clout is counted, who gets along with whom, and profiles for all **48 creators** (all made up) with bios, follower counts and personalities.
 - **Watch Kiki play it:** any night's card has a button where the game plays itself, for people who are stuck. Demo nights don't count.
-- **Art:** everything is drawn for the game (no emojis), including each creator's face, hair, outfit and accessories. Faces react to how the night is going.
+- **Art:** everything is drawn for the game (no emojis). The creators are in a glossy avatar style (like Memoji): soft-shaded skin, eyes with color, shine and lashes, glossy lips, shiny hair in 12 styles, real necklines, jewelry, sunglasses, headphones, caps and crowns. Faces change with how the night is going (happy, heart eyes, bored, annoyed, shocked).
 - **On the phone:** vibration on taps and trouble, which can be turned off from the pause menu. The game pauses when you leave the app, and the Android back button opens the pause menu. Progress saves on the phone.
-- **Balance:** a computer player played every night dozens of times, quickly and slowly, to set the goals (`node scripts/celeb-dash-balance.mjs` reruns it after any change). A sharp player can 3-star everything; a relaxed one usually gets 1 or 2 stars.
-- **Tested:** played in a browser at iPhone size: seating, serving, trouble, live moments, late VIPs, Wi-Fi outages, results, the shop, the guide, locked nights, and saved progress. No errors from the game. Screenshots are in `docs/screenshots/celeb-dash`.
+- **Balance:** a computer player played every night dozens of times, quickly and slowly, to set the goals (`node scripts/in-crowd-balance.mjs` reruns it after any change). A sharp player can 3-star everything; a relaxed one usually gets 1 or 2 stars.
+- **Tested:** played in a browser at iPhone size: seating, serving, trouble, live moments, late VIPs, Wi-Fi outages, results, the shop, the guide, locked nights, and saved progress. No errors from the game. Screenshots are in `docs/screenshots/in-crowd`.
 - **Not done yet:** sound effects (there are no game sounds yet), and leaderboards with other members.
 
 ## ✅ The launch batch (from the team review)
