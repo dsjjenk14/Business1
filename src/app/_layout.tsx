@@ -58,6 +58,8 @@ function RootNavigator() {
         <Stack.Screen name="legal/[doc]" />
         {/* Event rooms opened from a phone: the link carries its own pass. */}
         <Stack.Screen name="room" />
+        {/* Celeb Dash, the party game: playable signed in or not. */}
+        <Stack.Screen name="celeb-dash" />
       </Stack>
     </ToastProvider>
   );

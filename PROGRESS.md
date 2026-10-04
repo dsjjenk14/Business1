@@ -5,6 +5,29 @@
 
 ---
 
+## ✅ Celeb Dash: a party game (like Wedding Dash, but influencers)
+- **Where it is:** Menu → **Play → Celeb Dash**, or go straight to `/celeb-dash`. It works signed in or not. Everything is in its own folders (`src/app/celeb-dash`, `src/components/celeb-dash`, `src/features/celeb-dash`), so it can be moved or removed in one go.
+- **The story:** you're Kiki Vance, an event planner in Clout City. Five clients hire you for their big night, and each one briefs you before the first night at their venue:
+  - **Rooftop Glow-Up** (Bella Bloom's lip oil launch), **Vibe Villa Pool Party** (Coco Vibes' creator house), **Neon Pod Premiere** (Marcus "Mic Drop" Reyes' 100th episode), **Glowfest VIP Tent** (DJ Nova), and the **Golden Phone Awards** afterparty (Sky Sterling).
+  - **20 nights** in all, 4 per venue. Each night has a goal and an expert score (1 to 3 stars). Reach the goal to unlock the next night.
+- **How a night works:**
+  - **Seating (on a timer):** a guest list of creators. Each has a niche (Beauty, Fashion, Music, Comedy, Gaming, Tech, Fitness, Foodie), niches they love and hate, and sometimes a BFF or a rival. Tap a guest, then a seat; hearts show how happy they'd be there. Better seating means happier guests from the start, and you get bonus clout for every second left on the clock.
+  - **The party (on a timer, 1:40 to 3:40):** guests ask for things in speech bubbles: mocktails, phone chargers, glam touch-ups, ring lights, brand-deal contracts, selfies, and food (take the order, the kitchen cooks it, serve it, clear the plate). Tap a counter to grab something, tap the guest to hand it over. You can line up six taps, and numbers show the order.
+  - **Patience:** every guest has five hearts that drain while they wait. At zero they unfollow and walk out, and the feed roasts you.
+  - **Trouble:** paparazzi sneaking in, trolls, drama between rivals, Wi-Fi outages and smoothie spills. Tap to fix each one.
+  - **Live moments:** the host goes live from the stage. Get there before the countdown ends and every guest cheers up. Miss it and they all lose a heart.
+  - **Fashionably late VIPs** show up at the velvet rope mid-party and need a seat.
+  - **Streaks** (the same task in a row, up to ×3), **going viral** (fill the vibe meter for 10 seconds of double clout), and a **live feed** of what guests are posting about your party.
+  - **Results:** a score breakdown, stars, the client's reaction, coins, and Kiki's own follower count going up.
+- **Shop:** 8 upgrades bought with coins (faster sneakers, a bigger tote, a resident DJ, a private chef, a bodyguard, a glam squad, power banks, mesh Wi-Fi). Most have 2 to 3 levels.
+- **Guide:** how to play, how clout is counted, who gets along with whom, and profiles for all **48 creators** (all made up) with bios, follower counts and personalities.
+- **Watch Kiki play it:** any night's card has a button where the game plays itself, for people who are stuck. Demo nights don't count.
+- **Art:** everything is drawn for the game (no emojis), including each creator's face, hair, outfit and accessories. Faces react to how the night is going.
+- **On the phone:** vibration on taps and trouble, which can be turned off from the pause menu. The game pauses when you leave the app, and the Android back button opens the pause menu. Progress saves on the phone.
+- **Balance:** a computer player played every night dozens of times, quickly and slowly, to set the goals (`node scripts/celeb-dash-balance.mjs` reruns it after any change). A sharp player can 3-star everything; a relaxed one usually gets 1 or 2 stars.
+- **Tested:** played in a browser at iPhone size: seating, serving, trouble, live moments, late VIPs, Wi-Fi outages, results, the shop, the guide, locked nights, and saved progress. No errors from the game. Screenshots are in `docs/screenshots/celeb-dash`.
+- **Not done yet:** sound effects (there are no game sounds yet), and leaderboards with other members.
+
 ## ✅ The launch batch (from the team review)
 - **Launch mode:** drinks and online events are switched off for launch, the same way live video already was. Their buttons are hidden and the server refuses them. Each has a switch in the `app_config` table (`drinks_enabled`, `virtual_events_enabled`, `live_video_enabled`) to turn it on later.
 - **Private by default:** new plans ("I'm going out") start visible to your Insiders and their Insiders, not everyone nearby. You can still pick Everyone.
