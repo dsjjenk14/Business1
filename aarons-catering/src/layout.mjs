@@ -62,7 +62,7 @@ function holidayBar() {
   return `<div class="holiday-bar" data-holiday-bar data-opens="${holiday.season.opens}" data-closes="${holiday.season.closes}" hidden>
   <div class="container holiday-bar-inner">
     <div class="holiday-bar-text">${messages.join('')}</div>
-    <a href="holiday.html" data-holiday-bar-link><span>Order</span> ${icon('arrow', 'icon icon-sm')}</a>
+    <a href="order.html" data-holiday-bar-link><span>Order</span> ${icon('arrow', 'icon icon-sm')}</a>
   </div>
 </div>`;
 }

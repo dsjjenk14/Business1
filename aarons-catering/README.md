@@ -1,6 +1,6 @@
 # Aaron J's Catering website
 
-Soul food catering for DC, Maryland and Northern Virginia. Six pages: Home, Menus, Holiday Ordering, About, Gallery, and Contact with the quote form.
+Soul food catering for DC, Maryland and Northern Virginia. Home, Menus, Holiday Ordering (with a Thanksgiving order page), About, Gallery, and Contact with the quote form.
 
 It's a plain static site with no framework, no server and no monthly platform to pay for. The finished website is the `site/` folder. Everything in it can be put on any web host as-is.
 
@@ -29,10 +29,12 @@ Placeholders are deliberately obvious so nothing slips through:
 - [ ] **Fried turkey oil.** The Thanksgiving menu lists "frying oil" and no allergens. Turkeys are often fried in peanut oil. If that's the case here, add peanuts to the fried turkey's allergen line in `src/content/dishes.mjs`.
 - [ ] **Crab-stuffed shrimp.** The printed menu says it contains egg, but no ingredient on the list has egg. The site keeps the egg warning (the safe direction). Add the egg ingredient, or drop the warning if there's none.
 - [ ] **Whole hams.** The printed menu says whole hams are available as add-ons, but the add-on list has no whole ham or price. The site leaves that line out until there is one.
-- [ ] **Chef Aaron reads the menus line by line.** Every menu except Holidays uses only the foods on Aaron J's own flyers and menus (cabbage and cornbread come from the holiday flyer). The Thanksgiving dishes match the printed Thanksgiving 2026 menu exactly. The ingredient lists for the other dishes are my drafts, and people with allergies will rely on them, so check each one: the appetizers (oxtail-stuffed biscuits, shrimp kebabs, smoked wings, fried pickles, crab-stuffed mushrooms, crab and shrimp egg rolls, bacon-wrapped scallops), the salads, the garlic mashed potatoes with red wine gravy, and the entrées, seafood and brunch dishes. Edit `src/content/dishes.mjs`, then run the checks (below), which fail if an ingredient and its allergen line disagree.
+- [ ] **Chef Aaron reads the menus line by line.** Every menu except Holidays uses only the foods on Aaron J's own flyers and menus (cabbage and cornbread come from the holiday flyer). The Thanksgiving dishes match the printed Thanksgiving 2026 menu, except Dinner for Two, which is now 2 meats and 2 sides (by request). The ingredient lists for the other dishes are my drafts, and people with allergies will rely on them, so check each one: the appetizers (oxtail-stuffed biscuits, shrimp kebabs, smoked wings, fried pickles, crab-stuffed mushrooms, crab and shrimp egg rolls, bacon-wrapped scallops), the salads, the garlic mashed potatoes with red wine gravy, and the entrées, seafood and brunch dishes. Edit `src/content/dishes.mjs`, then run the checks (below), which fail if an ingredient and its allergen line disagree.
 - [ ] **Christmas and New Year's.** The Holiday page has the real Thanksgiving menu, prices and policies. For Christmas and New Year's it says the menus are coming and asks people to get in touch. Send those menus when they're ready.
 - [ ] **Reply time.** The site says quote requests get a reply within one business day. Change it in `src/pages/contact.mjs` and `src/pages/home.mjs` if that's not right.
-- [ ] **Turn on the quote form.** See below. One test submission and one click.
+- [ ] **Turn on the quote form.** See below. One test submission and one click. The Thanksgiving order page sends through the same service, so this turns on both.
+- [ ] **How people pay for Thanksgiving.** Orders arrive by email; payment isn't taken on the site yet. Until it is, the order confirmation says you'll be in touch within one business day to take payment. Add a Cash App, PayPal.me or Venmo link to `payLink` in `src/content/holiday.mjs` and the confirmation shows a "Pay $X" button with the order total filled in (see "Thanksgiving orders" below).
+- [ ] **Extra side or extra meat with an upcharge.** On the order page, an extra seafood salad add-on costs $35 + $25 and extra short ribs cost $40 + $30, the same upcharges as in the packages. Change it in `src/content/holiday.mjs` if that's not how it should work.
 - [ ] **Instagram feed.** See below. About five minutes.
 - [ ] **Google Business Profile.** The site doesn't name a city (by request), so local search depends on this. Set one up as a service-area business (Northern Virginia, DC, Maryland), link it to the site, and ask happy clients for Google reviews. Once there are a few, fill in `reviews` in `src/content/site.mjs` (rating, count and the link to the reviews) and a star rating shows next to both quote forms. Then add the site to [Google Search Console](https://search.google.com/search-console) and submit `https://aaronjscatering.com/sitemap.xml`.
 
@@ -77,6 +79,16 @@ Preview it any time:
 
 Each season, update the menu, prices, dates and the `year` in `src/content/holiday.mjs`. Weekday names are worked out from the dates, so they can't be wrong.
 
+## Thanksgiving orders
+
+People order right on the site at `order.html` ("Order this" on each package, "Order now" on the Holiday page, and "Order" in the banner all go there). They pick a package, then their meats, sides and dessert, rolls or cornbread, any add-ons, and pickup or delivery on November 25, and see the total as they go.
+
+- **Where orders go.** Each order is emailed to chef@aaronjscatering.com as a table, with a subject like *Thanksgiving order: The Full Spread, $295, delivery (Maya Thompson)*. It lists every pick, the add-ons, the delivery address, notes and allergies, and the total. Reply to it to reach the customer.
+- **Payment.** Put a payment link in `payLink` in `src/content/holiday.mjs`, using `{total}` where the amount goes: `https://cash.app/$yourcashtag/{total}` or `https://paypal.me/yourname/{total}`. The confirmation then shows a "Pay $295" button. Leave it empty and the confirmation says you'll be in touch to take payment. Either way, the order is confirmed once it's paid.
+- **Sold out.** Set `soldOut: true` in `src/content/holiday.mjs` and rebuild. The order page then says Thanksgiving is sold out and points people to Christmas and New Year's.
+- **After the deadline** (November 20), the order page closes by itself.
+- Prices, packages, add-ons and delivery fees all come from `src/content/holiday.mjs`, so the order page and the Holiday page always match.
+
 ## Changing things
 
 Copy and content live in `src/`. Change it there, then rebuild:
@@ -93,12 +105,12 @@ You need [Node.js](https://nodejs.org) 18 or newer, and nothing else. There's no
 | Phone, email, Instagram, service area, price guide, Google reviews, event types, favorite dishes | `src/content/site.mjs` |
 | Dishes: names, descriptions, ingredients, allergens | `src/content/dishes.mjs` |
 | Which dishes appear on which event menu | `src/content/menus.mjs` |
-| Holiday packages, prices, dates, delivery | `src/content/holiday.mjs` |
+| Holiday packages, prices, dates, delivery, payment link, sold out | `src/content/holiday.mjs` |
 | Photo descriptions and the shot list | `src/content/photos.mjs` |
 | Page copy | `src/pages/*.mjs` |
 | Header and footer, SEO tags, structured data | `src/layout.mjs` |
 | Look and feel | `site/css/site.css` |
-| Menu, tabs, lightbox, form behavior | `site/js/site.js` |
+| Menu, tabs, lightbox, forms, Thanksgiving order total | `site/js/site.js` |
 
 Don't edit the `.html` files in `site/` directly. They're rebuilt from `src/` and your edit would be overwritten.
 

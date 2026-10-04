@@ -50,7 +50,8 @@ function holidayBlock() {
     </div>
     <div class="holiday-promo-cta">
       <p class="from"><span class="from-label">Packages from</span> <span class="price">${money(from)}</span></p>
-      <a class="btn" href="holiday.html">See the Thanksgiving menu</a>
+      <a class="btn" href="order.html">Order Thanksgiving</a>
+      <a class="text-link" href="holiday.html">See the menu ${icon('arrow', 'icon icon-sm')}</a>
     </div>
   </div>
 </section>`;

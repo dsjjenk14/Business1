@@ -34,7 +34,7 @@ function packages() {
       </div>
       <p class="package-note">${esc(p.text)}</p>
       <p class="serves">Feeds ${nums(p.feeds)}</p>
-      <a class="btn btn-block${p.popular ? '' : ' btn-ghost'}" href="contact.html?event=holiday&amp;package=${p.id}">Order this<span class="visually-hidden">: ${esc(curly(p.name))}</span></a>
+      <a class="btn btn-block${p.popular ? '' : ' btn-ghost'}" href="order.html?package=${p.id}">Order this<span class="visually-hidden">: ${esc(curly(p.name))}</span></a>
     </li>`,
     )
     .join('');
@@ -76,7 +76,7 @@ function delivery() {
 function steps() {
   const list = [
     ['Pick your package', `Choose your meats, sides and dessert from the menu. ${sentence(holiday.requestByDeadline)} must be requested by ${by.weekday}, ${by.month} ${by.day}.`],
-    ['Send us your order', `Use the order form or call <a href="${site.phone.href}">${site.phone.display}</a>. Orders close ${by.weekday}, ${by.month} ${by.day}, or sooner if we sell out.`],
+    ['Order online', `<a href="order.html">Order on this site</a> or call <a href="${site.phone.href}">${site.phone.display}</a>. Orders close ${by.weekday}, ${by.month} ${by.day}, or sooner if we sell out.`],
     ['Pay to confirm', `Payment in full is due when you order. Your order isn't confirmed until it's paid. Cancel by ${cancel.month} ${cancel.day} for a full refund. After that the food is already bought and prepped, so orders are final.`],
     ['Pickup or delivery', `Everything goes out ${handoff.weekday}, ${handoff.month} ${handoff.day}, the day before Thanksgiving. You get a 30-minute window when you order.`],
   ];
@@ -126,6 +126,7 @@ export default function holidayPage() {
        data-after="Thanksgiving orders are closed for ${y}.">
       <span class="status-dot" aria-hidden="true"></span><span class="status-text">Orders close ${by.weekday}, ${by.month} ${by.day}</span>
     </p>
+    <a class="btn btn-lg hero-order" href="order.html">Order now</a>
   </div>
 </section>
 
@@ -249,9 +250,9 @@ export default function holidayPage() {
 
 <section class="section cta" aria-labelledby="cta-title">
   <div class="container cta-inner">
-    <h2 id="cta-title" class="h1">Get on the list</h2>
-    <p class="lede">We take a limited number of Thanksgiving orders. Send yours and we'll confirm it within one business day.</p>
-    <a class="btn btn-lg" href="contact.html?event=holiday">Start your order</a>
+    <h2 id="cta-title" class="h1">Order Thanksgiving</h2>
+    <p class="lede">We take a limited number of Thanksgiving orders. Pickup or delivery on ${handoff.weekday}, ${handoff.month} ${handoff.day}.</p>
+    <a class="btn btn-lg" href="order.html">Order now</a>
     <p class="cta-alt">Or call <a href="${site.phone.href}">${site.phone.display}</a></p>
   </div>
 </section>`;

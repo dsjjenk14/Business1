@@ -19,6 +19,7 @@ import holiday from './src/pages/holiday.mjs';
 import about from './src/pages/about.mjs';
 import galleryPage from './src/pages/gallery.mjs';
 import contact from './src/pages/contact.mjs';
+import order from './src/pages/order.mjs';
 import { thanks, notFound } from './src/pages/extra.mjs';
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -51,6 +52,7 @@ const pages = {
   'about.html': about(),
   'gallery.html': galleryPage(),
   'contact.html': contact(),
+  'order.html': order(),
   'thanks.html': thanks(),
   '404.html': notFound(),
 };
@@ -65,6 +67,7 @@ const listed = [
   ['', '1.0'],
   ['menus.html', '0.9'],
   ['holiday.html', '0.9'],
+  ['order.html', '0.8'],
   ['contact.html', '0.8'],
   ['about.html', '0.6'],
   ['gallery.html', '0.5'],

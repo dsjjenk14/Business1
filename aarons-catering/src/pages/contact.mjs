@@ -1,6 +1,5 @@
 import { page } from '../layout.mjs';
 import { site } from '../content/site.mjs';
-import { holiday } from '../content/holiday.mjs';
 import { icon } from '../icons.mjs';
 import { esc, eyebrow } from '../lib.mjs';
 
@@ -11,7 +10,7 @@ const EVENT_TYPES = [
   ['family', 'Family gathering'],
   ['church', 'Church event'],
   ['brunch', 'Brunch'],
-  ['holiday', 'Holiday order or holiday party'],
+  ['holiday', 'Holiday party or holiday meal'],
   ['mealprep', 'Meal prep or personal meals'],
   ['other', 'Something else'],
 ];
@@ -47,7 +46,6 @@ function field({ id, label, hint, required = true, input }) {
 // (one per page: the field ids are fixed). `compact` folds the optional
 // fields behind an "Add details" toggle, for the home page.
 export function quoteForm({ compact = false } = {}) {
-  const packages = Object.fromEntries(holiday.packages.map((p) => [p.id, { name: p.name, picks: p.picks }]));
   const main = [
     field({ id: 'f-name', label: 'Your name', input: (d) => `<input id="f-name" name="Name" type="text" autocomplete="name" required${d}>` }),
     `<div class="field-row">
@@ -60,7 +58,7 @@ export function quoteForm({ compact = false } = {}) {
         id: 'f-phone',
         label: 'Phone',
         input: (d) =>
-          `<input id="f-phone" name="Phone" type="tel" autocomplete="tel" inputmode="tel" pattern="[0-9()+.\\-\\s]{10,}" required${d}>`,
+          `<input id="f-phone" name="Phone" type="tel" autocomplete="tel" inputmode="tel" pattern="[0-9\\(\\)+.\\s\\-]{10,}" required${d}>`,
       })}
     </div>`,
     field({
@@ -114,7 +112,7 @@ export function quoteForm({ compact = false } = {}) {
     : `${main}\n${extras}`;
 
   return `<div class="form-wrap">
-      <form class="quote-form" action="${site.form.action}" method="POST" data-quote-form data-endpoint="${site.form.ajax}" data-packages="${esc(JSON.stringify(packages))}">
+      <form class="quote-form" action="${site.form.action}" method="POST" data-quote-form data-endpoint="${site.form.ajax}">
         <input type="hidden" name="_subject" value="New quote request from the website">
         <input type="hidden" name="_template" value="table">
         <input type="hidden" name="_captcha" value="false">

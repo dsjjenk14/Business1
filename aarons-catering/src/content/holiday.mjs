@@ -16,7 +16,15 @@ export const holiday = {
     orderBy: '2026-11-20', // orders close, or sooner if we sell out
     cancelBy: '2026-11-20', // full refund until then
     handoff: '2026-11-25', // every pickup and delivery happens this day
+    // Sold out early? Set this to true and the order page stops taking orders.
+    soldOut: false,
   },
+
+  // How people pay once they've ordered. Paste a payment link here and the
+  // order confirmation shows a "Pay $X" button; {total} becomes the order total.
+  // For example 'https://cash.app/$aaronjscatering/{total}' or
+  // 'https://paypal.me/aaronjscatering/{total}'. Empty = "we'll be in touch to take payment".
+  payLink: '',
 
   // No menu yet. Shown as "coming" with a way to get in touch.
   next: ['Christmas', "New Year's"],
@@ -29,7 +37,7 @@ export const holiday = {
       feeds: '5 to 6',
       popular: true,
       text: 'Pick 2 meats, 3 sides and any one dessert, with gravy, bread and cranberry sauce.',
-      picks: ['Meats (pick 2)', 'Sides (pick 3)', 'Dessert (pick 1)', 'Rolls or cornbread'],
+      pick: { meats: 2, sides: 3, desserts: 1 },
     },
     {
       id: 'meats',
@@ -37,7 +45,7 @@ export const holiday = {
       price: 120,
       feeds: '5 to 6',
       text: 'Pick 2.',
-      picks: ['Meats (pick 2)', 'Rolls or cornbread'],
+      pick: { meats: 2 },
     },
     {
       id: 'sides',
@@ -45,7 +53,7 @@ export const holiday = {
       price: 135,
       feeds: '5 to 6',
       text: 'Pick 3.',
-      picks: ['Sides (pick 3)', 'Rolls or cornbread'],
+      pick: { sides: 3 },
     },
     {
       id: 'half-spread',
@@ -53,15 +61,15 @@ export const holiday = {
       price: 118,
       feeds: '3 to 4',
       text: 'Pick 1 meat and 2 sides, with bread and cranberry sauce.',
-      picks: ['Meat (pick 1)', 'Sides (pick 2)', 'Rolls or cornbread'],
+      pick: { meats: 1, sides: 2 },
     },
     {
       id: 'dinner-for-two',
       name: 'Dinner for Two',
       price: 80,
       feeds: '2',
-      text: 'Pick 2 meats and 3 sides, portioned for two.',
-      picks: ['Meats (pick 2)', 'Sides (pick 3)', 'Rolls or cornbread'],
+      text: 'Pick 2 meats and 2 sides, portioned for two.',
+      pick: { meats: 2, sides: 2 },
     },
   ],
   includedNote: 'Every package includes rolls or cornbread and cranberry sauce.',
@@ -89,15 +97,23 @@ export const holiday = {
   ],
   included: ['cornbread', 'rolls', 'cranberry'],
 
+  // `options` turns an add-on into a choice on the order page: a list of names,
+  // or 'sides' / 'meats' for any side or meat (their extra charges apply too).
   addOns: [
-    { dish: 'crab-stuffed-shrimp', price: 60 },
-    { name: 'Whole smoked, fried or jerk turkey', price: 105, text: 'A full bird instead of a half. See the meats above for ingredients.' },
-    { dish: 'sweet-potato-pie', price: 32 },
-    { dish: 'pound-cake', price: 32 },
-    { dish: 'vanilla-cake', price: 32 },
-    { name: 'Extra side', price: 35, text: 'Any side from the list above.' },
-    { name: 'Extra meat', price: 40, text: 'Any meat from the list above.' },
-    { name: 'Plates, silverware and napkins', price: 10, text: 'Service for 6, or service for 2 with Dinner for Two.' },
+    { id: 'shrimp', dish: 'crab-stuffed-shrimp', price: 60 },
+    {
+      id: 'whole-turkey',
+      name: 'Whole smoked, fried or jerk turkey',
+      price: 105,
+      text: 'A full bird instead of a half. See the meats above for ingredients.',
+      options: ['Whole smoked turkey', 'Whole fried turkey', 'Whole jerk turkey'],
+    },
+    { id: 'pie', dish: 'sweet-potato-pie', price: 32 },
+    { id: 'pound-cake', dish: 'pound-cake', price: 32 },
+    { id: 'vanilla-cake', dish: 'vanilla-cake', price: 32 },
+    { id: 'extra-side', name: 'Extra side', price: 35, text: 'Any side from the list above.', options: 'sides' },
+    { id: 'extra-meat', name: 'Extra meat', price: 40, text: 'Any meat from the list above.', options: 'meats' },
+    { id: 'plates', name: 'Plates, silverware and napkins', price: 10, text: 'Service for 6, or service for 2 with Dinner for Two.' },
   ],
   desserts: ['sweet-potato-pie', 'pound-cake', 'vanilla-cake'],
 
@@ -105,7 +121,7 @@ export const holiday = {
     { area: 'Northern Virginia', price: 30 },
     { area: 'Washington, DC', price: 30 },
     { area: 'Maryland', price: 35 },
-    { area: 'Dinner for Two, all areas', price: 40 },
+    { area: 'Dinner for Two, all areas', price: 40, package: 'dinner-for-two' },
   ],
 
   // Must be asked for by the order deadline.
