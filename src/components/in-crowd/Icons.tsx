@@ -56,7 +56,18 @@ export type IconName =
   | 'next'
   | 'back'
   | 'vibe'
-  | 'phone';
+  | 'phone'
+  | 'blackout'
+  | 'twist'
+  | 'pass'
+  | 'closet'
+  | 'watch'
+  | 'bag'
+  | 'shades'
+  | 'earrings'
+  | 'necklace'
+  | 'headset'
+  | 'sparkle';
 
 const INK = '#1B1426';
 
@@ -443,6 +454,94 @@ const ART: Record<IconName, ReactNode> = {
       <Rect x={6.5} y={2.5} width={11} height={19} rx={2.4} fill="#111827" stroke={INK} strokeWidth={1} />
       <Rect x={7.8} y={4.8} width={8.4} height={14} rx={1} fill="#4CC9F0" />
       <Polygon points="10.8,9 14.6,11.8 10.8,14.6" fill="#FFFFFF" />
+    </G>
+  ),
+  blackout: (
+    <G>
+      <Path d="M9 3h6l-.8 5.6a3.6 3.6 0 0 1-4.4 0z" fill="#2D3142" stroke={INK} strokeWidth={0.8} />
+      <Path d="M8.6 8.6a5.6 5.6 0 1 0 6.8 0" fill="#3A3A44" stroke={INK} strokeWidth={1} />
+      <Path d="M10 14.6l2-2.6 2 2.6-2 2.4z" fill="#FFD166" opacity={0.35} />
+      <Line x1={4} y1={4} x2={20} y2={21} stroke="#FF2E4D" strokeWidth={2.2} strokeLinecap="round" />
+    </G>
+  ),
+  twist: (
+    <G>
+      <Path d="M5 7.5C5 5 7 3.5 9.6 3.5c3.2 0 4.4 2.4 4.4 4.6 0 3.6-4.6 4-4.6 7.4" stroke="#FF4D8D" strokeWidth={2.6} fill="none" strokeLinecap="round" />
+      <Circle cx={9.4} cy={20} r={1.8} fill="#FF4D8D" />
+      <Path d="M16 9.5c0-2 1.6-3.2 3.4-3.2 2.4 0 3.2 1.8 3.2 3.4 0 2.6-3.3 2.9-3.3 5.3" stroke="#FFD166" strokeWidth={2} fill="none" strokeLinecap="round" />
+      <Circle cx={19.3} cy={19} r={1.4} fill="#FFD166" />
+    </G>
+  ),
+  pass: (
+    <G>
+      <Path d="M8 2.5L12 9l4-6.5" stroke="#FF4D8D" strokeWidth={1.6} fill="none" strokeLinejoin="round" />
+      <Rect x={5} y={8.5} width={14} height={13} rx={2.4} fill="#FFFFFF" stroke={INK} strokeWidth={1} />
+      <Rect x={5} y={8.5} width={14} height={4.2} rx={2} fill="#FF4D8D" />
+      <Rect x={9.6} y={9.8} width={4.8} height={1.4} rx={0.7} fill="#FFFFFF" />
+      <Path d="M12 14.2l1 2 2.2.3-1.6 1.5.4 2.2-2-1-2 1 .4-2.2-1.6-1.5 2.2-.3z" fill="#FFD166" stroke="#B7791F" strokeWidth={0.4} />
+    </G>
+  ),
+  closet: (
+    <G>
+      <Path d="M12 7.2V6a1.8 1.8 0 1 1 1.8 1.8" stroke="#C9BEDD" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+      <Path d="M12 7.6L3 14.4c-.8.6-.4 1.8.6 1.8h16.8c1 0 1.4-1.2.6-1.8z" fill="none" stroke="#FFD166" strokeWidth={1.6} strokeLinejoin="round" />
+      <Path d="M6.5 16.2c.5 3 2.6 4.6 5.5 4.6s5-1.6 5.5-4.6" fill="#FF4D8D" />
+    </G>
+  ),
+  watch: (
+    <G>
+      <Rect x={9} y={1.5} width={6} height={5} rx={1.4} fill="#2D3142" />
+      <Rect x={9} y={17.5} width={6} height={5} rx={1.4} fill="#2D3142" />
+      <Rect x={6.5} y={5.5} width={11} height={13} rx={3.4} fill="#111317" stroke="#9CA3AF" strokeWidth={1} />
+      <Circle cx={12} cy={12} r={3.4} fill="none" stroke="#FF4D8D" strokeWidth={1.2} />
+      <Circle cx={12} cy={12} r={2.1} fill="none" stroke="#7CF29C" strokeWidth={1.1} />
+      <Rect x={17.5} y={9.5} width={1.4} height={3} rx={0.6} fill="#9CA3AF" />
+    </G>
+  ),
+  bag: (
+    <G>
+      <Path d="M8 9V7a4 4 0 0 1 8 0v2" stroke="#FFD166" strokeWidth={1.4} fill="none" />
+      <Path d="M3.5 10.5a1.5 1.5 0 0 1 1.5-1.5h14a1.5 1.5 0 0 1 1.5 1.5L21 20a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 20z" fill="#1E1E22" stroke={INK} strokeWidth={0.8} />
+      <Path d="M5 21.5l6-12.5M11 21.5l6-12.5M17 21.5l3-6.2M7 9l6 12.5M13 9l6 12.5M4 13.8l3.6 7.7" stroke="#3F3F48" strokeWidth={0.6} />
+      <Rect x={10} y={10.2} width={4} height={2.6} rx={0.6} fill="#FFD166" stroke="#B7791F" strokeWidth={0.4} />
+    </G>
+  ),
+  shades: (
+    <G>
+      <Path d="M2.5 9.5h19" stroke={INK} strokeWidth={1.2} />
+      <Path d="M3 9.5c0 3.6 1.6 5.4 4.2 5.4 2.4 0 3.6-1.6 4.1-4.4L11.6 9.5z" fill="#141414" stroke={INK} strokeWidth={0.8} />
+      <Path d="M21 9.5c0 3.6-1.6 5.4-4.2 5.4-2.4 0-3.6-1.6-4.1-4.4l-.3-1z" fill="#141414" stroke={INK} strokeWidth={0.8} />
+      <Path d="M5 12.6l2.6-2.4M16.4 12.6l2.6-2.4" stroke="#FFFFFF" strokeWidth={0.8} opacity={0.6} strokeLinecap="round" />
+    </G>
+  ),
+  earrings: (
+    <G>
+      <Circle cx={8} cy={11} r={4.2} fill="none" stroke="#F5C542" strokeWidth={1.8} />
+      <Circle cx={8} cy={5.6} r={1} fill="#F5C542" />
+      <Circle cx={17} cy={5.6} r={1} fill="#F5C542" />
+      <Path d="M17 6.4v3.4" stroke="#F5C542" strokeWidth={0.9} />
+      <Path d="M17 9.6c1.8 1.8 1.8 4.4 0 5.2-1.8-.8-1.8-3.4 0-5.2z" fill="#FFF4E6" stroke="#C99A2E" strokeWidth={0.6} />
+    </G>
+  ),
+  necklace: (
+    <G>
+      <Path d="M3.5 4c1.4 8.6 15.6 8.6 17 0" stroke="#F5C542" strokeWidth={1.2} fill="none" strokeDasharray="1.6 0.6" />
+      <Path d="M5.5 4c1.6 6 11.4 6 13 0" stroke="#F5C542" strokeWidth={1} fill="none" />
+      <Path d="M12 13.4l2.2 3.2-2.2 3.4-2.2-3.4z" fill="#E63946" stroke="#C99A2E" strokeWidth={0.6} />
+    </G>
+  ),
+  headset: (
+    <G>
+      <Path d="M5 13a7 7 0 0 1 14 0" stroke="#C9BEDD" strokeWidth={1.6} fill="none" />
+      <Rect x={3} y={11.5} width={4.4} height={7} rx={1.8} fill="#1B1B1F" stroke="#C9BEDD" strokeWidth={0.8} />
+      <Path d="M5.4 18.5c.4 2.6 3 3.6 7.2 3.4" stroke="#1B1B1F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+      <Circle cx={13} cy={21.8} r={1.4} fill="#FF4D8D" />
+    </G>
+  ),
+  sparkle: (
+    <G>
+      <Path d="M12 2.5l2.2 6.6 6.6 2.2-6.6 2.2L12 20.1l-2.2-6.6-6.6-2.2 6.6-2.2z" fill="#FFD166" stroke="#B7791F" strokeWidth={0.6} strokeLinejoin="round" />
+      <Path d="M19 16.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z" fill="#FF8FD8" />
     </G>
   ),
 };

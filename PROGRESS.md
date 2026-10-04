@@ -5,9 +5,26 @@
 
 ---
 
+## ✅ The In Crowd: Zara, the Closet, VIP Passes and plot twists
+- **Zara Ellis (@zaraplans) is the main character now.** Light-skinned Black woman with long dark hair, full glam (mascara and winged liner, warm shimmer eyeshadow, highlighter, nude pink-brown lipstick with liner and gloss), gold hoops and layered gold chains. She's the planner in every night, the story and the demos ("Watch Zara play it"). Kiki is still there: pick who you play as in the Closet.
+- **The Closet** (new button on the game's home screen, or tap Zara's card): dress your planner with things bought with game coins. Tap anything to try it on first.
+  - **Phones** in 4 finishes, **smartwatches** with 4 bands, **designer-style bags** (quilted chain bag, monogram, croc top-handle, mini), **cat-eye shades**, **earrings** (hoops, studs, pearl drops), **necklaces** and a planner headset.
+  - What she wears shows on her portrait and on her in every night (phone in hand, watch, bag across the body).
+  - Names are generic ("Pro Phone", "Smartwatch"), not real brands, so there's no trademark trouble with Apple's review.
+- **VIP Passes** (the game's "lives"):
+  - Every night costs a pass to start. **Win (1 star or more) and you get it back**; lose or quit and it's gone.
+  - You hold up to **3**. A new one arrives every **20 minutes**, with a countdown on the home screen.
+  - Out of passes: a screen with the countdown and the packs. Passes can also be bought one at a time with **300 coins**, so nobody is ever stuck behind a payment.
+- **Packs (real in-app purchases through Apple and Google):** 3, 8 or 20 VIP Passes ($0.99, $1.99, $3.99) and 1,500, 5,000 or 15,000 coins ($0.99, $2.99, $6.99). They're in the Shop (new tabs: Upgrades, VIP Passes, Coins).
+  - **Not on yet:** it needs the products created in App Store Connect and Google Play, a free RevenueCat account, and a **new app build**. Step-by-step: `docs/IN-CROWD-PURCHASES.md`. Until then, development builds use test purchases (nothing charged) and the real app says purchases aren't on yet.
+- **Harder every night:** guests get more impatient, ask for things faster, trouble starts sooner and comes more often, and later venues add more of it at once. A computer player now measures this for all 20 nights (how fast guests lose hearts) and checks that each night is harder than the one before. It is: the strain goes from 1.50 on the first night to 3.01 on the last. Goals were reset to match.
+- **Plot twists, mid-night** (a "PLOT TWIST" banner and a buzz): a heat wave (everyone wants a mocktail), dead phones, a surprise A-lister (everyone wants a selfie), a fog machine meltdown (everyone needs a touch-up), a **party crasher**, the **guest list leaked** (paparazzi), a **blackout** (reset the power at the router), **the chef walks out** (kitchen closed for 15 seconds) and a **surprise sponsor** (1.5× clout for 15 seconds). The first two nights teach the basics with none; they start on night 3, and the finale has 6.
+- **Plot twists in the story:** a season-long mystery. Someone called **@thetealeaks** is sabotaging Zara's parties: a fake email got Bella's old planner fired, the guest list leaks, a router cable is cut, the power is flipped mid-set. A rival planner, **Rhea Vale**, crashes parties and seems guilty, then helps. The finale reveals who the leak really was. Each venue has scenes before and after nights, with "PLOT TWIST" moments.
+- **Tested:** in a browser at iPhone size: Zara on the home screen, the Closet (try on, switch planner), a night using a pass and the pass coming back, running out (the countdown screen), a test purchase adding 8 passes, the story twist scene, and mid-night twists (party crasher, blackout, chef walking out, sponsor). No errors. Typecheck and lint pass. Real purchases can only be tested on a phone once the store setup is done. Screenshots are in `docs/screenshots/in-crowd`.
+
 ## ✅ The In Crowd: a party game (like Wedding Dash, but influencers)
 - **Where it is:** Menu → **Play → The In Crowd**, or go straight to `/in-crowd`. It works signed in or not. Everything is in its own folders (`src/app/in-crowd`, `src/components/in-crowd`, `src/features/in-crowd`), so it can be moved or removed in one go.
-- **The story:** you're Kiki Vance, an event planner in Clout City. Five clients hire you for their big night, and each one briefs you before the first night at their venue:
+- **The story:** you're an event planner in Clout City (Zara Ellis, or Kiki Vance). Five clients hire you for their big night, and each one briefs you before the first night at their venue:
   - **Rooftop Glow-Up** (Bella Bloom's lip oil launch), **Vibe Villa Pool Party** (Coco Vibes' creator house), **Neon Pod Premiere** (Marcus "Mic Drop" Reyes' 100th episode), **Glowfest VIP Tent** (DJ Nova), and the **Golden Phone Awards** afterparty (Sky Sterling).
   - **20 nights** in all, 4 per venue. Each night has a goal and an expert score (1 to 3 stars). Reach the goal to unlock the next night.
 - **How a night works:**
@@ -18,10 +35,10 @@
   - **Live moments:** the host goes live from the stage. Get there before the countdown ends and every guest cheers up. Miss it and they all lose a heart.
   - **Fashionably late VIPs** show up at the velvet rope mid-party and need a seat.
   - **Streaks** (the same task in a row, up to ×3), **going viral** (fill the vibe meter for 10 seconds of double clout), and a **live feed** of what guests are posting about your party.
-  - **Results:** a score breakdown, stars, the client's reaction, coins, and Kiki's own follower count going up.
+  - **Results:** a score breakdown, stars, the client's reaction, coins, and the planner's own follower count going up.
 - **Shop:** 8 upgrades bought with coins (faster sneakers, a bigger tote, a resident DJ, a private chef, a bodyguard, a glam squad, power banks, mesh Wi-Fi). Most have 2 to 3 levels.
 - **Guide:** how to play, how clout is counted, who gets along with whom, and profiles for all **48 creators** (all made up) with bios, follower counts and personalities.
-- **Watch Kiki play it:** any night's card has a button where the game plays itself, for people who are stuck. Demo nights don't count.
+- **Watch Zara play it:** any night's card has a button where the game plays itself, for people who are stuck. Demo nights don't count.
 - **Art:** everything is drawn for the game (no emojis). The creators are in a glossy avatar style (like Memoji): soft-shaded skin, eyes with color, shine and lashes, glossy lips, shiny hair in 12 styles, real necklines, jewelry, sunglasses, headphones, caps and crowns. Faces change with how the night is going (happy, heart eyes, bored, annoyed, shocked).
 - **On the phone:** vibration on taps and trouble, which can be turned off from the pause menu. The game pauses when you leave the app, and the Android back button opens the pause menu. Progress saves on the phone.
 - **Balance:** a computer player played every night dozens of times, quickly and slowly, to set the goals (`node scripts/in-crowd-balance.mjs` reruns it after any change). A sharp player can 3-star everything; a relaxed one usually gets 1 or 2 stars.

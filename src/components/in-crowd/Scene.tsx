@@ -4,13 +4,13 @@ import { Pressable, View } from 'react-native';
 import { STATIONS } from '@/features/in-crowd/engine/content';
 import { previewMood, queueOrder } from '@/features/in-crowd/engine/game';
 import { BIN, ENTRANCE, ROUTER, STAGE, TABLE_SLOTS, WORLD } from '@/features/in-crowd/engine/layout';
-import type { GameState, Guest, Seat, Target, Vec } from '@/features/in-crowd/engine/types';
+import type { GameState, Guest, Look, Seat, Target, Vec } from '@/features/in-crowd/engine/types';
 
 import { Avatar, expressionFor } from './Avatar';
 import { GameIcon, type IconName } from './Icons';
 import { Bubble, GText, IconBubble, PatienceMeter, requestIcon, textGlow } from './Parts';
 import { FONT, UI, VENUES } from './palette';
-import { KikiSprite, PlaceSetting, StationSprite, TableSprite, TroubleSprite } from './Sprites';
+import { PlaceSetting, PlannerSprite, StationSprite, TableSprite, TroubleSprite, type Outfit } from './Sprites';
 import { Bins, Entrance, Router, SlotDecor, Stage, VenueBackdrop } from './Venue';
 
 /**
@@ -25,6 +25,8 @@ type Props = {
   onSeat: (seat: number) => void;
   onTap: (target: Target) => void;
   onLate: (guestId: string) => void;
+  /** The planner you play as, dressed from the Closet. */
+  planner: { look: Look; outfit: Outfit };
 };
 
 const OVERLAY = 2000;
@@ -141,16 +143,17 @@ function itemIcon(item: GameState['player']['hands'][number]): IconName {
   return requestIcon(item.kind);
 }
 
-export function Scene({ s, selected, onSeat, onTap, onLate }: Props) {
+export function Scene({ s, selected, onSeat, onTap, onLate, planner }: Props) {
   const venue = VENUES[s.chapter.venue];
   const seating = s.phase === 'seating';
   const p = s.player;
   const blink = Math.floor(s.clock * 4) % 2 === 0;
   const walking = p.path.length > 0;
-  const kikiFrame = walking ? (Math.floor(p.stride / 16) % 2 ? 1 : 2) : 0;
+  const walkFrame = walking ? (Math.floor(p.stride / 16) % 2 ? 1 : 2) : 0;
   const usedSlots = new Set(s.tables.map((t) => t.slot));
   const queue = s.phase === 'party' ? queueOrder(s) : [];
   const wifiDown = s.troubles.some((t) => t.kind === 'wifi' && t.active);
+  const blackout = s.troubles.some((t) => t.kind === 'blackout' && t.active);
   const kitchen = s.stations.find((st) => st.kind === 'kitchen');
 
   return (
@@ -202,6 +205,17 @@ export function Scene({ s, selected, onSeat, onTap, onLate }: Props) {
         </View>
       ) : null}
 
+      {kitchen && s.chefGone > 0 ? (
+        <View pointerEvents="none" style={[at(kitchen.pos.x - 34, kitchen.pos.y - 30, 70, 30, OVERLAY + 6), { alignItems: 'center', justifyContent: 'center', borderRadius: 8, backgroundColor: 'rgba(14,11,20,0.88)', borderWidth: 1.5, borderColor: UI.red }]}>
+          <GText font="black" size={8.5} color={UI.red} align="center">
+            CHEF ON BREAK
+          </GText>
+          <GText font="black" size={10} align="center">
+            {Math.ceil(s.chefGone)}s
+          </GText>
+        </View>
+      ) : null}
+
       {/* Tables, chairs and guests */}
       {s.tables.map((t) => (
         <View key={`table-${t.id}`} pointerEvents="none" style={at(t.pos.x - 84, t.pos.y - 18, 168, 52, t.pos.y)}>
@@ -234,12 +248,16 @@ export function Scene({ s, selected, onSeat, onTap, onLate }: Props) {
         <Entrance venue={s.chapter.venue} />
       </View>
       <Pressable accessibilityRole="button" accessibilityLabel="Router" onPress={() => onTap({ kind: 'router' })} style={at(ROUTER.x - 26, ROUTER.y - 30, 52, 44, 660)}>
-        <Router down={wifiDown} blink={blink} />
+        <Router down={wifiDown || blackout} blink={blink} />
       </Pressable>
-      {wifiDown ? (
-        <View pointerEvents="none" style={[at(ROUTER.x - 15, ROUTER.y - 66, 30, 34, OVERLAY), { transform: [{ scale: blink ? 1.12 : 1 }] }]}>
-          <IconBubble icon="wifi" rim={UI.red} />
+      {wifiDown || blackout ? (
+        <View pointerEvents="none" style={[at(ROUTER.x - 15, ROUTER.y - 66, 30, 34, OVERLAY + 4), { transform: [{ scale: blink ? 1.12 : 1 }] }]}>
+          <IconBubble icon={blackout ? 'blackout' : 'wifi'} rim={UI.red} />
         </View>
+      ) : null}
+      {blackout ? <View pointerEvents="none" style={[at(0, 0, WORLD.w, WORLD.h, OVERLAY - 2), { backgroundColor: '#05030A', opacity: blink ? 0.6 : 0.66 }]} /> : null}
+      {s.sponsor > 0 ? (
+        <View pointerEvents="none" style={[at(0, 0, WORLD.w, WORLD.h, OVERLAY + 49), { borderWidth: 6, borderColor: UI.gold, opacity: blink ? 0.9 : 0.5, borderRadius: 18 }]} />
       ) : null}
       <Pressable accessibilityRole="button" accessibilityLabel="Live stage" onPress={() => onTap({ kind: 'stage' })} style={at(STAGE.x - 60, STAGE.y - 42, 120, 96, 650)}>
         <Stage state={s.live.state} host={s.chapter.client.look} hostId={s.chapter.client.id} pulse={blink} />
@@ -264,8 +282,15 @@ export function Scene({ s, selected, onSeat, onTap, onLate }: Props) {
               { alignItems: 'center', borderRadius: 14, borderWidth: isSel ? 3 : 0, borderColor: UI.gold, backgroundColor: isSel ? 'rgba(255,209,102,0.25)' : 'transparent' },
             ]}>
             <View style={{ transform: [{ scale: blink && !isSel ? 1.08 : 1 }] }}>
-              <IconBubble icon="seat" rim={g.mood < 1.6 ? UI.red : UI.gold} size={26} />
+              <IconBubble icon={g.vip ? 'sparkle' : 'seat'} rim={g.mood < 1.6 ? UI.red : g.vip ? UI.pink : UI.gold} size={26} />
             </View>
+            {g.vip ? (
+              <View style={{ position: 'absolute', bottom: -2, paddingHorizontal: 4, borderRadius: 4, backgroundColor: UI.pink }}>
+                <GText font="black" size={7.5}>
+                  VIP
+                </GText>
+              </View>
+            ) : null}
             <PatienceMeter value={Math.ceil(g.mood * 4) / 4} blink={g.mood < 1.6 && !blink} />
             <Avatar look={g.profile.look} expr={expressionFor(g.mood)} size={36} id={`${g.id}-late`} />
           </Pressable>
@@ -297,10 +322,10 @@ export function Scene({ s, selected, onSeat, onTap, onLate }: Props) {
         );
       })}
 
-      {/* Kiki */}
+      {/* The planner */}
       <View pointerEvents="none" style={at(p.pos.x - 24, p.pos.y - 76, 48, 80, Math.round(p.pos.y))}>
         <View style={{ transform: [{ scaleX: p.facing }] }}>
-          <KikiSprite frame={kikiFrame} busy={!!p.busy} />
+          <PlannerSprite look={planner.look} outfit={planner.outfit} frame={walkFrame} busy={!!p.busy} />
         </View>
       </View>
       {p.hands.length ? (

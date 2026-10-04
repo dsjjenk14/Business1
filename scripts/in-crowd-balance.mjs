@@ -2,8 +2,11 @@
 /**
  * The In Crowd balance check: a bot plays every night many times and prints
  * how it did against each night's Goal and Expert, plus suggested values.
+ * It also checks that every night is harder than the one before: "strain"
+ * is how many hearts guests lose per minute while the casual bot plays, and
+ * it has to climb night after night.
  *
- *   node scripts/in-crowd-balance.mjs            # all nights, 12 runs each
+ *   node scripts/in-crowd-balance.mjs            # all nights, 24 runs each
  *   node scripts/in-crowd-balance.mjs 2-3 40     # one night, 40 runs
  *
  * Two bots play: "sharp" decides every 0.15 s, "casual" every 0.9 s. Both
@@ -47,7 +50,7 @@ const GOAL_SHARE = { '1-1': 0.45, '1-2': 0.5, '1-3': 0.54, '1-4': 0.57 };
 const VENUE_GOAL_SHARE = [0.57, 0.6, 0.64, 0.68, 0.7];
 
 const [only, runsArg] = process.argv.slice(2);
-const runs = Number(runsArg ?? 12);
+const runs = Number(runsArg ?? 24);
 const levels = only ? [LEVELS_BY_ID[only]] : LEVELS;
 if (levels.some((l) => !l)) {
   console.error(`No night called ${only}`);
@@ -59,6 +62,8 @@ function play(level, seed, reaction) {
   const s = createGame(level, { ...NO_UPGRADES, ...EXPECTED_UPGRADES[level.chapter - 1] }, seed);
   s.seatingLeft -= Math.min(level.seatingTime - 5, level.guests * (reaction > 0.5 ? 3.5 : 2));
   let wait = 0;
+  let lost = 0;
+  let guestSeconds = 0;
   const dt = 1 / 30;
   while (s.phase !== 'done') {
     wait -= dt;
@@ -66,15 +71,26 @@ function play(level, seed, reaction) {
       botThink(s);
       wait = reaction;
     }
+    const before = s.phase === 'party' ? new Map(s.guests.map((g) => [g.id, g.mood])) : null;
     step(s, dt);
+    if (!before) continue;
+    for (const g of s.guests) {
+      if (g.seat < 0 || g.state === 'leaving' || g.state === 'gone') continue;
+      const b = before.get(g.id);
+      if (b !== undefined && b > g.mood) lost += b - g.mood;
+      guestSeconds += dt;
+    }
   }
+  s.strain = guestSeconds ? (lost / guestSeconds) * 60 : 0;
   return s;
 }
 
 const avg = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
 const pad = (v, n) => String(v).padStart(n);
 const round50 = (v) => Math.round(v / 50) * 50;
-console.log('night  name                   goal expert |  sharp unf stars | casual unf stars | suggest goal expert');
+console.log('night  name                   goal expert |  sharp unf stars | casual unf stars strain | suggest goal expert');
+let lastStrain = 0;
+let climbs = true;
 for (const level of levels) {
   const sharp = [];
   const casual = [];
@@ -92,7 +108,12 @@ for (const level of levels) {
   const a = row(sharp);
   const b = row(casual);
   const share = GOAL_SHARE[level.id] ?? VENUE_GOAL_SHARE[level.chapter - 1];
+  const strain = avg(casual.map((s) => s.strain));
+  const flag = strain > lastStrain ? '' : '  ← not harder than the night before';
+  if (!only && strain <= lastStrain) climbs = false;
+  lastStrain = strain;
   console.log(
-    `${level.id.padEnd(6)} ${level.name.padEnd(22)} ${pad(level.goal, 5)} ${pad(level.expert, 6)} | ${a.text} | ${b.text} | ${pad(round50(b.score * share), 12)} ${pad(round50(a.score * 0.82), 6)}`,
+    `${level.id.padEnd(6)} ${level.name.padEnd(22)} ${pad(level.goal, 5)} ${pad(level.expert, 6)} | ${a.text} | ${b.text} ${pad(strain.toFixed(2), 6)} | ${pad(round50(b.score * share), 12)} ${pad(round50(a.score * 0.82), 6)}${flag}`,
   );
 }
+if (!only) console.log(climbs ? '\nEvery night is harder than the one before. ✓' : '\nSome nights are not harder than the one before (see ←).');

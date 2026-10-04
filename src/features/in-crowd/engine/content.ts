@@ -1,4 +1,4 @@
-import type { Dish, Look, Niche, Profile, RequestKind, SimpleItem, StationKind, TroubleKind } from './types';
+import type { Dish, Look, Niche, Profile, RequestKind, SimpleItem, StationKind, TroubleKind, TwistKind } from './types';
 
 /**
  * The In Crowd content: niches and their chemistry, the menu, the counters and
@@ -52,6 +52,20 @@ export const TROUBLES: Record<TroubleKind, { label: string; points: number; fix:
   drama: { label: 'Drama', points: 80, fix: 'Mediate', time: 1.5, news: 'Two guests are beefing' },
   wifi: { label: 'Wi-Fi down', points: 60, fix: 'Reboot', time: 1.2, news: 'The Wi-Fi is down. Nobody can post.' },
   spill: { label: 'Spill', points: 40, fix: 'Mop', time: 1.0, news: 'Someone spilled a smoothie' },
+  blackout: { label: 'Blackout', points: 90, fix: 'Reset power', time: 1.4, news: 'The power just went out' },
+};
+
+/** Mid-night plot twists. `short` is the banner during play; `text` is the full story (Guide). */
+export const TWISTS: Record<TwistKind, { title: string; text: string; short: string }> = {
+  heatwave: { title: 'Heat wave', text: 'It just hit 95 degrees. Everyone wants a mocktail. Now.', short: 'Everyone wants a mocktail.' },
+  deadphones: { title: 'Dead phones', text: '@thetealeaks started a livestream that drained every battery in the room.', short: 'Every phone needs a charge.' },
+  selfierush: { title: 'Surprise A-lister', text: 'An A-lister just walked in and posted a selfie with the planner. Now everyone wants one.', short: 'Everyone wants a selfie.' },
+  glamcrisis: { title: 'Fog machine meltdown', text: 'The fog machine broke. Every face in the room needs a touch-up.', short: 'Every face needs a touch-up.' },
+  crasher: { title: 'Party crasher', text: 'Someone walked in uninvited. Seat them fast, and far from their rivals.', short: 'Seat the new guest, fast.' },
+  leak: { title: 'Guest list leaked', text: '@thetealeaks posted the guest list. Paparazzi incoming.', short: 'Paparazzi incoming.' },
+  blackout: { title: 'Blackout', text: 'The power just died. Reset it at the router before everyone melts down.', short: 'Tap the router to reset the power.' },
+  chefquits: { title: 'The chef walked out', text: 'Craft Services is closed for 15 seconds. Orders will wait.', short: 'Kitchen closed for 15 seconds.' },
+  sponsor: { title: 'Surprise sponsor', text: 'A brand just bought the night: 1.5× clout for 15 seconds!', short: '1.5× clout for 15 seconds!' },
 };
 
 /** What each niche tends to ask for (multipliers on the level's request weights). */
@@ -238,11 +252,73 @@ export const ROSTER: Profile[] = [
     look(1, 'bob', 'black', '#FFADAD', '#FFD6A5', 'dots', 'hoops', '#C0C0C0'), { bff: 'pippa', rival: 'rocco' }),
 ];
 
+// Creators carry their stuff: selfie lovers and hustlers have a phone out,
+// divas bring the bag, and some wear a smartwatch.
+const PHONES = ['titanium', 'midnight', 'pink', 'gold'] as const;
+const BAGS = ['quilted', 'monogram', 'mini', 'croc'] as const;
+ROSTER.forEach((g, i) => {
+  if (g.look.gear) return;
+  const phone = g.trait === 'selfie' || g.trait === 'hustler' || i % 5 === 0 ? PHONES[i % PHONES.length] : undefined;
+  const bag = g.trait === 'diva' || i % 7 === 3 ? BAGS[i % BAGS.length] : undefined;
+  const watch = g.niche === 'fitness' || g.niche === 'tech' || i % 6 === 1 ? (['midnight', 'starlight', 'gold', 'pink'] as const)[i % 4] : undefined;
+  g.look.gear = { phone, bag, watch };
+});
+
 export const ROSTER_BY_ID: Record<string, Profile> = Object.fromEntries(ROSTER.map((g) => [g.id, g]));
 
-/** The player. */
+/**
+ * The planners you can play as. Zara is the default; Kiki is in the Closet.
+ * Gear and jewelry here are their starting looks; the Closet changes them.
+ */
+export const ZARA: Profile = p('zara', 'Zara Ellis', '@zaraplans', 'fashion', 12_000, 'none', 'Event planner to the stars. Gold hoops on, guest list memorized, never late.',
+  {
+    skin: '#D6A47C',
+    hair: 'long',
+    hairColor: '#22150F',
+    top: '#EFE2D2',
+    topAccent: '#C9A227',
+    pattern: 'solid',
+    acc: 'none',
+    accColor: '#111111',
+    lips: '#B06E68',
+    eyes: '#4A2A17',
+    makeup: 'glam',
+    earrings: 'hoops',
+    necklace: 'layered',
+    neck: 'v',
+    gear: { phone: 'titanium' },
+  });
+
 export const KIKI: Profile = p('kiki', 'Kiki Vance', '@kikiplans', 'fashion', 12_000, 'none', 'Event planner to the stars. Runs on cold brew and group chats.',
-  look(3, 'ponytail', 'pink', '#1B1B1F', '#FF4D8D', 'solid', 'headphones', '#FF4D8D', { lips: '#E03174' }));
+  look(3, 'ponytail', 'pink', '#1B1B1F', '#FF4D8D', 'solid', 'none', '#FF4D8D', { lips: '#E03174', gear: { headset: true } }));
+
+export type PlannerId = 'zara' | 'kiki';
+export const PLANNERS: Record<PlannerId, Profile> = { zara: ZARA, kiki: KIKI };
+
+/** The rival planner: shows up uninvited in the plot twists. */
+export const RHEA: Profile = p('rhea', 'Rhea Vale', '@rheavale', 'fashion', 2_900_000, 'diva', 'Rival planner. Lost the Bloom account. Has opinions about your seating chart.',
+  {
+    skin: '#F3C9A2',
+    hair: 'bob',
+    hairColor: '#1D1A1C',
+    top: '#9B111E',
+    topAccent: '#111111',
+    pattern: 'solid',
+    acc: 'none',
+    accColor: '#111111',
+    lips: '#9D0208',
+    makeup: 'bold',
+    earrings: 'drops',
+    necklace: 'pendant',
+    neck: 'scoop',
+    gear: { phone: 'midnight', bag: 'croc' },
+  },
+  { dislikes: ['beauty', 'music'], likes: ['fashion'] });
+
+/** Fills in the player's first name in story and feed lines. */
+export function withMe(text: string, me: string): string {
+  return text.replace(/\{me\}/g, me);
+}
 
 /** Chapter hosts. */
 export const CLIENTS: Record<string, Profile> = {

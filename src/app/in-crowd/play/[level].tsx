@@ -3,27 +3,44 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { AppState, BackHandler, Platform, ScrollView, View, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ResultsCard, PauseMenu, StoryDialog, TipCards, TipList } from '@/components/in-crowd/Dialogs';
+import { ResultsCard, PauseMenu, SceneDialog, TipCards, TipList } from '@/components/in-crowd/Dialogs';
 import { GuestCard } from '@/components/in-crowd/GuestCard';
 import { Banner, FeedTicker, PartyHud, SeatingHud } from '@/components/in-crowd/Hud';
 import type { IconName } from '@/components/in-crowd/Icons';
 import { GText, GameButton } from '@/components/in-crowd/Parts';
 import { Scene } from '@/components/in-crowd/Scene';
+import { OUTFITS } from '@/components/in-crowd/Sprites';
+import { PackStore, PassesPill, fmtCountdown, useNow } from '@/components/in-crowd/Store';
 import { UI } from '@/components/in-crowd/palette';
 import { TROUBLES } from '@/features/in-crowd/engine/content';
 import { botThink } from '@/features/in-crowd/engine/bot';
 import { coinsEarned, createGame, followersGained, seatGuest, selectLate, starsFor, startParty, step, tap, unseated } from '@/features/in-crowd/engine/game';
 import { WORLD } from '@/features/in-crowd/engine/layout';
-import { CHAPTERS, LEVELS_BY_ID, nextLevel } from '@/features/in-crowd/engine/levels';
+import { LEVELS_BY_ID, nextLevel } from '@/features/in-crowd/engine/levels';
 import type { GameEvent, GameState, LevelDef, Target } from '@/features/in-crowd/engine/types';
 import { buzz } from '@/features/in-crowd/haptics';
-import { getProgress, isUnlocked, markOutro, markStory, markTips, recordNight, setHaptics, useProgress } from '@/features/in-crowd/progress';
+import {
+  getProgress,
+  isUnlocked,
+  markScene,
+  markTips,
+  passesAt,
+  plannerFirstName,
+  plannerLook,
+  plannerProfile,
+  recordNight,
+  returnPass,
+  setHaptics,
+  takePass,
+  useProgress,
+} from '@/features/in-crowd/progress';
 import { useGameLoop } from '@/features/in-crowd/useGameLoop';
 import { goBackOr } from '@/lib/navigation';
 
 /**
- * One night of The In Crowd: the client's briefing, "new tonight" tips, the
- * seating puzzle, the party itself, then the results.
+ * One night of The In Crowd: the story scene, "new tonight" tips, the
+ * seating puzzle, the party itself, then the results. Opening the doors
+ * uses a VIP Pass; passing the night gives it back.
  */
 export default function PlayScreen() {
   const { level, demo } = useLocalSearchParams<{ level: string; demo?: string }>();
@@ -59,7 +76,36 @@ export default function PlayScreen() {
   return <Night key={`${def.id}-${run}-${demo ?? ''}`} level={def} demo={demo === '1'} onRestart={() => setRun((r) => r + 1)} />;
 }
 
-type Overlay = 'story' | 'tips' | 'none' | 'pause' | 'help' | 'results' | 'outro';
+/** Shown instead of a night when there are no VIP Passes left. */
+function OutOfPasses({ onBack }: { onBack: () => void }) {
+  const insets = useSafeAreaInsets();
+  const { progress } = useProgress();
+  const now = useNow();
+  const { nextIn } = passesAt(progress, now);
+  return (
+    <ScrollView style={{ flex: 1, backgroundColor: UI.bg }} contentContainerStyle={{ padding: 20, paddingTop: insets.top + 24, paddingBottom: insets.bottom + 24, gap: 14, maxWidth: 520, width: '100%', alignSelf: 'center' }}>
+      <View style={{ alignItems: 'center', gap: 6 }}>
+        <PassesPill />
+        <GText font="display" size={40} align="center">
+          Out of VIP Passes
+        </GText>
+        <GText size={14} color={UI.muted} align="center">
+          Every night you don’t pass uses one. A new pass arrives every 20 minutes (up to 3).
+        </GText>
+        <GText font="display" size={34} color={UI.gold}>
+          {fmtCountdown(nextIn)}
+        </GText>
+        <GText size={12} color={UI.muted}>
+          until your next free pass
+        </GText>
+      </View>
+      <PackStore only="passes" />
+      <GameButton label="Back to the map" icon="map" tone="ghost" onPress={onBack} />
+    </ScrollView>
+  );
+}
+
+type Overlay = 'story' | 'tips' | 'none' | 'pause' | 'help' | 'results' | 'outro' | 'nopass';
 type Flash = { text: string; tone: 'live' | 'warn' | 'good' | 'info'; icon?: IconName; until: number };
 type Result = { stars: number; coins: number; followers: number; newBest: boolean };
 
@@ -103,7 +149,9 @@ function standingBanner(s: GameState): Omit<Flash, 'until'> | null {
   if (s.live.state === 'warning') return { text: `${host} goes LIVE in ${Math.ceil(s.live.timer)}. Tap the stage!`, tone: 'live', icon: 'live' };
   if (s.live.state === 'setup') return { text: 'Setting up the stream…', tone: 'live', icon: 'live' };
   if (s.live.state === 'onair') return { text: `${host} is LIVE. Nobody loses patience`, tone: 'live', icon: 'live' };
+  if (s.troubles.some((t) => t.kind === 'blackout' && t.active)) return { text: 'Blackout! Tap the router to reset the power', tone: 'warn', icon: 'blackout' };
   if (s.troubles.some((t) => t.kind === 'wifi' && t.active)) return { text: 'Wi-Fi is down. Tap the router!', tone: 'warn', icon: 'wifi' };
+  if (s.sponsor > 0) return { text: `Sponsor: 1.5× clout for ${Math.ceil(s.sponsor)}s`, tone: 'good', icon: 'coin' };
   if (s.selected) return { text: 'Now tap an empty seat', tone: 'info', icon: 'seat' };
   const late = s.lateQueue[0] ? s.guests.find((g) => g.id === s.lateQueue[0]) : undefined;
   if (late) return { text: `${firstName(late.profile.name)} is at the rope. Tap them, then a seat`, tone: 'info', icon: 'late' };
@@ -115,19 +163,29 @@ function Night({ level, demo, onRestart }: { level: LevelDef; demo: boolean; onR
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { progress } = useProgress();
-  const [s] = useState<GameState>(() => createGame(level, getProgress().upgrades, Math.floor(Math.random() * 1e9)));
+  const [s] = useState<GameState>(() => createGame(level, getProgress().upgrades, Math.floor(Math.random() * 1e9), { me: plannerFirstName(getProgress()) }));
   const [tips] = useState(() => level.tips.filter((t) => !getProgress().seenTips.includes(t)));
   const [overlay, setOverlay] = useState<Overlay>(() => {
     if (demo) return 'none';
-    if (level.index === 1 && !getProgress().seenStory.includes(level.chapter)) return 'story';
+    if (passesAt(getProgress()).passes <= 0) return 'nopass';
+    if (level.before && !getProgress().seenScenes.includes(`${level.id}:before`)) return 'story';
     return tips.length ? 'tips' : 'none';
   });
+  const me = plannerProfile(progress);
+  const meLook = plannerLook(progress);
+  const planner = { look: meLook, outfit: OUTFITS[progress.planner] ?? OUTFITS.zara! };
   const [selected, setSelected] = useState<string | null>(() => unseated(s)[0]?.id ?? null);
   const [area, setArea] = useState({ w: 0, h: 0 });
   const [, setFrame] = useState(0);
   const [result, setResult] = useState<Result | null>(null);
   // Mutable per-night UI state that the frame loop writes, next to the game state itself.
-  const [night] = useState<{ flash: Flash | null; finished: boolean; botWait: number; sinceDraw: number }>(() => ({ flash: null, finished: false, botWait: 2.5, sinceDraw: 0 }));
+  const [night] = useState<{ flash: Flash | null; finished: boolean; botWait: number; sinceDraw: number; leaveAfterScene: boolean }>(() => ({
+    flash: null,
+    finished: false,
+    botWait: 2.5,
+    sinceDraw: 0,
+    leaveAfterScene: false,
+  }));
 
   const say = (text: string, tone: Flash['tone'], icon?: IconName, seconds = 2.2) => {
     patch(night, { flash: { text, tone, icon, until: s.clock + seconds } });
@@ -146,7 +204,7 @@ function Night({ level, demo, onRestart }: { level: LevelDef; demo: boolean; onR
         say('Hands full. Serve or recycle something first', 'warn', 'tote', 1.6);
         break;
       case 'queueFull':
-        say('Kiki has six things queued. Let her catch up', 'warn', 'clock', 1.6);
+        say(`${s.me} has six things queued. Let her catch up`, 'warn', 'clock', 1.6);
         break;
       case 'unfollow': {
         buzz.error();
@@ -156,7 +214,7 @@ function Night({ level, demo, onRestart }: { level: LevelDef; demo: boolean; onR
       }
       case 'trouble':
         buzz.medium();
-        if (e.trouble !== 'wifi') say(`${TROUBLES[e.trouble].label}! Tap to ${TROUBLES[e.trouble].fix.toLowerCase()}`, 'warn', e.trouble === 'spill' ? 'spill' : e.trouble);
+        if (e.trouble !== 'wifi') say(`${TROUBLES[e.trouble].label}! Tap to ${TROUBLES[e.trouble].fix.toLowerCase()}`, 'warn', e.trouble);
         break;
       case 'fixed':
         buzz.light();
@@ -180,6 +238,10 @@ function Night({ level, demo, onRestart }: { level: LevelDef; demo: boolean; onR
       case 'streak':
         if (e.n >= 3) buzz.select();
         break;
+      case 'twist':
+        buzz.heavy();
+        say(`PLOT TWIST: ${e.title}. ${e.short}`, 'live', e.twist === 'sponsor' ? 'coin' : 'twist', 4);
+        break;
       default:
         break;
     }
@@ -196,6 +258,8 @@ function Night({ level, demo, onRestart }: { level: LevelDef; demo: boolean; onR
       setOverlay('results');
       return;
     }
+    // Passing the night gives tonight's VIP Pass back.
+    if (stars > 0) returnPass();
     const r = recordNight(level.id, {
       score: s.score,
       stars,
@@ -214,6 +278,10 @@ function Night({ level, demo, onRestart }: { level: LevelDef; demo: boolean; onR
 
   const running = overlay === 'none' && !result;
   useGameLoop(running, (dt) => {
+    if (s.phase === 'seating' && s.seatingLeft - dt <= 0 && !demo && !takePass()) {
+      setOverlay('nopass');
+      return;
+    }
     if (demo) {
       patch(night, { botWait: night.botWait - dt });
       if (night.botWait <= 0) {
@@ -281,6 +349,11 @@ function Night({ level, demo, onRestart }: { level: LevelDef; demo: boolean; onR
     buzz.select();
   };
   const openDoors = () => {
+    // Opening the doors uses a VIP Pass (given back if you pass the night).
+    if (!demo && !takePass()) {
+      setOverlay('nopass');
+      return;
+    }
     startParty(s);
     setSelected(null);
     buzz.medium();
@@ -295,9 +368,10 @@ function Night({ level, demo, onRestart }: { level: LevelDef; demo: boolean; onR
   const banner =
     night.flash && s.clock < night.flash.until
       ? night.flash
-      : (standingBanner(s) ?? (demo ? { text: 'Demo night: Kiki is on autopilot', tone: 'info' as const, icon: 'phone' as const } : null));
+      : (standingBanner(s) ?? (demo ? { text: `Demo night: ${s.me} is on autopilot`, tone: 'info' as const, icon: 'phone' as const } : null));
   const next = nextLevel(level.id);
-  const lastOfChapter = !next || next.chapter !== level.chapter;
+  // The story scene after a night plays once, the first time you pass it.
+  const showAfter = !demo && !!level.after && !!result && result.stars > 0 && !progress.seenScenes.includes(`${level.id}:after`);
   const leave = () => goBackOr(router, '/in-crowd');
   const goNext = () => {
     if (next) router.replace({ pathname: '/in-crowd/play/[level]', params: { level: next.id } });
@@ -318,7 +392,7 @@ function Night({ level, demo, onRestart }: { level: LevelDef; demo: boolean; onR
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} onLayout={onLayout}>
         {area.w > 0 ? (
           <WorldView width={area.w - 8} height={area.h - 4} y0={0} y1={seating ? 600 : WORLD.h}>
-            <Scene s={s} selected={seating ? selected : s.selected} onSeat={onSeat} onTap={onTap} onLate={onLate} />
+            <Scene s={s} selected={seating ? selected : s.selected} onSeat={onSeat} onTap={onTap} onLate={onLate} planner={planner} />
           </WorldView>
         ) : null}
       </View>
@@ -354,16 +428,22 @@ function Night({ level, demo, onRestart }: { level: LevelDef; demo: boolean; onR
         </View>
       )}
 
-      {overlay === 'story' ? (
-        <StoryDialog
-          chapter={s.chapter}
-          lines={s.chapter.intro}
-          kikiLine="Leave it to me. Doors open in five."
+      {overlay === 'story' && level.before ? (
+        <SceneDialog
+          scene={level.before}
+          me={me}
+          meLook={meLook}
+          title={`${s.chapter.title.toUpperCase()} · NIGHT ${level.id}`}
           onDone={() => {
-            markStory(level.chapter);
+            markScene(`${level.id}:before`);
             setOverlay(tips.length ? 'tips' : 'none');
           }}
         />
+      ) : null}
+      {overlay === 'nopass' ? (
+        <View style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, zIndex: 60 }}>
+          <OutOfPasses onBack={leave} />
+        </View>
       ) : null}
       {overlay === 'tips' ? (
         <TipCards
@@ -383,6 +463,7 @@ function Night({ level, demo, onRestart }: { level: LevelDef; demo: boolean; onR
           onQuit={leave}
           onHaptics={() => setHaptics(!progress.haptics)}
           onTips={() => setOverlay('help')}
+          passUsed={!demo && s.phase !== 'seating'}
         />
       ) : null}
       {overlay === 'help' ? <TipList onClose={() => setOverlay('pause')} /> : null}
@@ -396,30 +477,34 @@ function Night({ level, demo, onRestart }: { level: LevelDef; demo: boolean; onR
           stats={{ served: s.stats.served, unfollows: s.stats.unfollows, troubles: s.stats.troubles, bestStreak: s.streak.best, lives: s.stats.lives, missedLives: s.live.missed }}
           coins={result.coins}
           followers={result.followers}
-          kikiFollowers={progress.followers}
+          plannerFollowers={progress.followers}
           newBest={result.newBest}
           hasNext={!!next}
+          me={plannerFirstName(progress)}
+          passes={{ count: passesAt(progress).passes, nextIn: passesAt(progress).nextIn }}
           onNext={() => {
-            if (lastOfChapter && result.stars > 0 && !getProgress().seenOutro.includes(level.chapter)) setOverlay('outro');
+            if (showAfter) setOverlay('outro');
             else goNext();
           }}
           demo={demo}
           onReplay={demo ? () => router.replace({ pathname: '/in-crowd/play/[level]', params: { level: level.id } }) : onRestart}
           onMap={() => {
-            if (lastOfChapter && result.stars > 0 && !getProgress().seenOutro.includes(level.chapter)) setOverlay('outro');
-            else leave();
+            if (showAfter) {
+              patch(night, { leaveAfterScene: true });
+              setOverlay('outro');
+            } else leave();
           }}
         />
       ) : null}
-      {overlay === 'outro' ? (
-        <StoryDialog
-          chapter={s.chapter}
-          lines={[s.chapter.outro]}
-          kikiLine={next ? `Thank you! Next stop: ${CHAPTERS[next.chapter - 1]?.title ?? 'the next venue'}.` : 'Planner of the Year. I could get used to this.'}
-          finale
+      {overlay === 'outro' && level.after ? (
+        <SceneDialog
+          scene={level.after}
+          me={me}
+          meLook={meLook}
           onDone={() => {
-            markOutro(level.chapter);
-            goNext();
+            markScene(`${level.id}:after`);
+            if (night.leaveAfterScene) leave();
+            else goNext();
           }}
         />
       ) : null}

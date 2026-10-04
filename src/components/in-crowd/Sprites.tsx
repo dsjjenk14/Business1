@@ -1,8 +1,7 @@
 import { memo } from 'react';
 import Svg, { Circle, Defs, Ellipse, G, LinearGradient, Line, Path, Rect, Stop } from 'react-native-svg';
 
-import { KIKI } from '@/features/in-crowd/engine/content';
-import type { Dish, StationKind, TroubleKind } from '@/features/in-crowd/engine/types';
+import type { Dish, Look, StationKind, TroubleKind } from '@/features/in-crowd/engine/types';
 
 import { BustArt, shade, type Expression } from './Avatar';
 import { ICON_ART } from './Icons';
@@ -10,71 +9,112 @@ import type { VenuePalette } from './palette';
 
 const INK = '#1B1426';
 
+/** Each planner's work outfit for the walking sprite. */
+export type Outfit = { blazer: [string, string, string]; lapel: string; inner: string; pants: [string, string]; sole: string; trim: string };
+
+export const OUTFITS: Record<string, Outfit> = {
+  zara: { blazer: ['#FBF3E8', '#E6D5BF', '#C9B293'], lapel: '#EFE2D2', inner: '#2A1E19', pants: ['#3A2E28', '#1F1814'], sole: '#C9A227', trim: '#C9A227' },
+  kiki: { blazer: ['#3A3A46', '#1C1C24', '#0B0B10'], lapel: '#2E2E3A', inner: '#FF4D8D', pants: ['#2A2A3A', '#141420'], sole: '#FF4D8D', trim: '#FF4D8D' },
+};
+
+const PHONE_BODY: Record<string, string> = { titanium: '#9E9A93', midnight: '#23262D', pink: '#F0BFC7', gold: '#E2C48E' };
+const WATCH_BAND: Record<string, string> = { midnight: '#23262D', starlight: '#E9E2D6', gold: '#D9B26B', pink: '#F2B8C6' };
+const BAG_BODY: Record<string, [string, string]> = { quilted: ['#1E1E22', '#3A3A42'], monogram: ['#6B4423', '#D8B07A'], mini: ['#F4A7C0', '#FFD3E1'], croc: ['#F4F0E8', '#D9D2C4'] };
+
 /**
- * Kiki, the player: full body on a 48 × 80 grid. `frame` swings the legs
- * while walking; `busy` raises the phone arm.
+ * The planner you play as, full body on a 48 × 80 grid, wearing her Closet
+ * picks. `frame` swings the legs while walking; `busy` raises the phone.
  */
-export const KikiSprite = memo(function KikiSprite({ frame, busy, expr = 'happy' }: { frame: number; busy: boolean; expr?: Expression }) {
-  const look = KIKI.look;
+export const PlannerSprite = memo(function PlannerSprite({
+  look,
+  outfit,
+  frame,
+  busy,
+  expr = 'happy',
+  scale = 1,
+}: {
+  look: Look;
+  outfit: Outfit;
+  frame: number;
+  busy: boolean;
+  expr?: Expression;
+  scale?: number;
+}) {
   const swing = frame === 0 ? 0 : frame === 1 ? 4 : -4;
   const lf = 18 - swing * 0.6;
   const rf = 30 + swing * 0.6;
   const skinDark = shade(look.skin, 0.15);
+  const gear = look.gear ?? {};
+  const phone = PHONE_BODY[gear.phone ?? 'midnight'] ?? '#23262D';
+  const bag = gear.bag ? BAG_BODY[gear.bag] : null;
+  const o = outfit;
+  // The head reuses the bust art; drop the hand-held gear there (the body holds it here).
+  const headLook: Look = { ...look, gear: { headset: gear.headset } };
   return (
-    <Svg width={48} height={80} viewBox="0 0 48 80">
+    <Svg width={48 * scale} height={80 * scale} viewBox="0 0 48 80">
       <Defs>
-        <LinearGradient id="kiki-blazer" x1="0" y1="0" x2="1" y2="1">
-          <Stop offset="0" stopColor="#3A3A46" />
-          <Stop offset="0.5" stopColor="#1C1C24" />
-          <Stop offset="1" stopColor="#0B0B10" />
+        <LinearGradient id="pl-blazer" x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor={o.blazer[0]} />
+          <Stop offset="0.5" stopColor={o.blazer[1]} />
+          <Stop offset="1" stopColor={o.blazer[2]} />
         </LinearGradient>
-        <LinearGradient id="kiki-pants" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#2A2A3A" />
-          <Stop offset="1" stopColor="#141420" />
+        <LinearGradient id="pl-pants" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor={o.pants[0]} />
+          <Stop offset="1" stopColor={o.pants[1]} />
         </LinearGradient>
-        <LinearGradient id="kiki-shoe" x1="0" y1="0" x2="0" y2="1">
+        <LinearGradient id="pl-shoe" x1="0" y1="0" x2="0" y2="1">
           <Stop offset="0" stopColor="#FFFFFF" />
           <Stop offset="1" stopColor="#D9DDE6" />
         </LinearGradient>
       </Defs>
       <Ellipse cx={24} cy={77} rx={13} ry={3} fill="#000000" opacity={0.28} />
       {/* Legs */}
-      <Path d={`M19.6 56 L${lf} 72`} stroke="url(#kiki-pants)" strokeWidth={5.6} strokeLinecap="round" />
-      <Path d={`M28.4 56 L${rf} 72`} stroke="url(#kiki-pants)" strokeWidth={5.6} strokeLinecap="round" />
-      {/* Sneakers: white uppers, pink soles */}
+      <Path d={`M19.6 56 L${lf} 72`} stroke="url(#pl-pants)" strokeWidth={5.6} strokeLinecap="round" />
+      <Path d={`M28.4 56 L${rf} 72`} stroke="url(#pl-pants)" strokeWidth={5.6} strokeLinecap="round" />
       {[lf, rf].map((x, i) => (
         <G key={i}>
-          <Path d={`M${x - 4.4} 74.6C${x - 4.6} 72.4 ${x - 3} 70.6 ${x - 0.6} 70.6C${x + 1.6} 70.6 ${x + 3.2} 71.6 ${x + 4.6} 72.8C${x + 5.4} 73.4 ${x + 5.2} 74.6 ${x + 4.4} 74.6Z`} fill="url(#kiki-shoe)" stroke={INK} strokeWidth={0.6} />
-          <Path d={`M${x - 4.6} 74.4H${x + 4.8}V75.6C${x + 4.8} 76 ${x + 4.4} 76.4 ${x + 4} 76.4H${x - 4}C${x - 4.4} 76.4 ${x - 4.6} 76 ${x - 4.6} 75.6Z`} fill="#FF4D8D" />
+          <Path d={`M${x - 4.4} 74.6C${x - 4.6} 72.4 ${x - 3} 70.6 ${x - 0.6} 70.6C${x + 1.6} 70.6 ${x + 3.2} 71.6 ${x + 4.6} 72.8C${x + 5.4} 73.4 ${x + 5.2} 74.6 ${x + 4.4} 74.6Z`} fill="url(#pl-shoe)" stroke={INK} strokeWidth={0.6} />
+          <Path d={`M${x - 4.6} 74.4H${x + 4.8}V75.6C${x + 4.8} 76 ${x + 4.4} 76.4 ${x + 4} 76.4H${x - 4}C${x - 4.4} 76.4 ${x - 4.6} 76 ${x - 4.6} 75.6Z`} fill={o.sole} />
           <Path d={`M${x - 1.6} 71.8L${x + 0.4} 72.6M${x - 0.6} 71.2L${x + 1.4} 72`} stroke="#9CA3AF" strokeWidth={0.5} strokeLinecap="round" />
         </G>
       ))}
       {/* Blazer */}
-      <Path d="M12.2 59C11.8 50 13.6 43.6 18 41.2L24 40.6 30 41.2C34.4 43.6 36.2 50 35.8 59 31 60.6 17 60.6 12.2 59Z" fill="url(#kiki-blazer)" stroke={INK} strokeWidth={0.6} />
-      <Path d="M21 41L24 48.6 27 41Z" fill="#FF4D8D" />
-      <Path d="M18 41.2L24 49 21.2 51.6 16.2 44.4Z" fill="#2E2E3A" stroke={INK} strokeWidth={0.4} />
-      <Path d="M30 41.2L24 49 26.8 51.6 31.8 44.4Z" fill="#2E2E3A" stroke={INK} strokeWidth={0.4} />
+      <Path d="M12.2 59C11.8 50 13.6 43.6 18 41.2L24 40.6 30 41.2C34.4 43.6 36.2 50 35.8 59 31 60.6 17 60.6 12.2 59Z" fill="url(#pl-blazer)" stroke={INK} strokeWidth={0.6} />
+      <Path d="M21 41L24 48.6 27 41Z" fill={o.inner} />
+      <Path d="M18 41.2L24 49 21.2 51.6 16.2 44.4Z" fill={o.lapel} stroke={INK} strokeWidth={0.4} />
+      <Path d="M30 41.2L24 49 26.8 51.6 31.8 44.4Z" fill={o.lapel} stroke={INK} strokeWidth={0.4} />
       <Path d="M17.6 42.6L21.6 48" stroke="#FFFFFF" strokeWidth={0.6} opacity={0.25} strokeLinecap="round" />
       <Circle cx={24} cy={53} r={0.8} fill="#F5C542" />
       <Circle cx={24} cy={56.4} r={0.8} fill="#F5C542" />
-      <Path d="M28.4 46.2L31.4 45.6 31 47.4Z" fill="#FF4D8D" />
-      <Path d="M14.6 50C15.6 47 16.6 45.4 18 44.2" stroke="#FFFFFF" strokeWidth={0.8} opacity={0.14} strokeLinecap="round" fill="none" />
-      {/* Lanyard and staff pass */}
-      <Path d="M20.4 41.2L19.6 49M27.6 41.2L20.4 49" stroke="#FF4D8D" strokeWidth={0.6} />
+      <Path d="M28.4 46.2L31.4 45.6 31 47.4Z" fill={o.trim} />
+      {/* Staff pass on a lanyard */}
+      <Path d="M20.4 41.2L19.6 49M27.6 41.2L20.4 49" stroke={o.trim} strokeWidth={0.6} />
       <Rect x={18} y={48.6} width={4.4} height={5.4} rx={0.8} fill="#FFFFFF" stroke={INK} strokeWidth={0.3} />
-      <Rect x={18} y={48.6} width={4.4} height={1.6} rx={0.6} fill="#FF4D8D" />
+      <Rect x={18} y={48.6} width={4.4} height={1.6} rx={0.6} fill={o.trim} />
+      {/* Crossbody bag at the right hip */}
+      {bag ? (
+        <G>
+          <Path d="M16.6 42L34 54" stroke={gear.bag === 'quilted' ? '#E0B84F' : shade(bag[0], 0.25)} strokeWidth={0.9} strokeDasharray={gear.bag === 'quilted' ? '1 0.4' : undefined} />
+          <Rect x={31.4} y={53.2} width={9.6} height={7.4} rx={1.6} fill={bag[0]} stroke={INK} strokeWidth={0.4} />
+          <Path d="M31.4 55.2H41" stroke={bag[1]} strokeWidth={0.6} />
+          <Rect x={35} y={54.6} width={2.4} height={1.6} rx={0.4} fill="#F5C542" />
+        </G>
+      ) : null}
       {/* Arms */}
-      <Path d={busy ? 'M13.4 44C9.4 47 8.4 50 10.4 53' : `M13.4 44C10.4 49 10.4 53 11.4 ${57 + swing * 0.4}`} stroke="url(#kiki-blazer)" strokeWidth={5.2} strokeLinecap="round" fill="none" />
-      <Path d={busy ? 'M34.6 44C39.6 45 41.6 42 42.6 38' : `M34.6 44C37.6 49 37.6 53 36.6 ${57 - swing * 0.4}`} stroke="url(#kiki-blazer)" strokeWidth={5.2} strokeLinecap="round" fill="none" />
+      <Path d={busy ? 'M13.4 44C9.4 47 8.4 50 10.4 53' : `M13.4 44C10.4 49 10.4 53 11.4 ${57 + swing * 0.4}`} stroke="url(#pl-blazer)" strokeWidth={5.2} strokeLinecap="round" fill="none" />
+      <Path d={busy ? 'M34.6 44C39.6 45 41.6 42 42.6 38' : `M34.6 44C37.6 49 37.6 53 36.6 ${57 - swing * 0.4}`} stroke="url(#pl-blazer)" strokeWidth={5.2} strokeLinecap="round" fill="none" />
       {busy ? (
         <G>
           <G transform="rotate(12 42 34)">
-            <Rect x={38} y={27.4} width={9} height={13} rx={1.8} fill="#111827" stroke={INK} strokeWidth={0.5} />
-            <Rect x={39} y={28.6} width={7} height={10.4} rx={1} fill="#4CC9F0" />
-            <Path d="M40 37L44 30" stroke="#FFFFFF" strokeWidth={0.8} opacity={0.4} />
+            <Rect x={38} y={27.4} width={9} height={13} rx={1.8} fill={phone} stroke={INK} strokeWidth={0.5} />
+            <Rect x={38.8} y={28.2} width={3.4} height={3.4} rx={0.8} fill={shade(phone, 0.3)} />
+            <Circle cx={39.7} cy={29.1} r={0.6} fill="#0C0D10" />
+            <Circle cx={41.3} cy={29.1} r={0.6} fill="#0C0D10" />
+            <Circle cx={39.7} cy={30.7} r={0.6} fill="#0C0D10" />
           </G>
           <Circle cx={41.4} cy={39} r={2.4} fill={look.skin} stroke={skinDark} strokeWidth={0.4} />
           <Circle cx={10.6} cy={53.4} r={2.2} fill={look.skin} stroke={skinDark} strokeWidth={0.4} />
+          {gear.watch ? <Rect x={8.8} y={50.4} width={3.6} height={1.6} rx={0.6} fill={WATCH_BAND[gear.watch]} stroke={INK} strokeWidth={0.3} /> : null}
         </G>
       ) : (
         <G>
@@ -84,17 +124,15 @@ export const KikiSprite = memo(function KikiSprite({ frame, busy, expr = 'happy'
             <Path d="M6.8 57.2H11.6M6.8 59H11.6M6.8 60.8H10" stroke="#C9BEDD" strokeWidth={0.5} />
             <Rect x={7.4} y={51.8} width={3.8} height={2.2} rx={0.6} fill="#D1D5DB" stroke={INK} strokeWidth={0.3} />
           </G>
+          {gear.watch ? <Rect x={10} y={54} width={3.6} height={1.6} rx={0.6} fill={WATCH_BAND[gear.watch]} stroke={INK} strokeWidth={0.3} transform="rotate(-20 11.8 54.8)" /> : null}
           <Circle cx={11.6} cy={57.6} r={2.1} fill={look.skin} stroke={skinDark} strokeWidth={0.4} />
           <Circle cx={36.6} cy={57.6} r={2.1} fill={look.skin} stroke={skinDark} strokeWidth={0.4} />
         </G>
       )}
       {/* Head (the same bust art as everyone else, scaled) */}
       <G transform="translate(6.5 0) scale(0.73)">
-        <BustArt look={look} expr={expr} id="kiki-walk" />
+        <BustArt look={headLook} expr={expr} id={`planner-walk-${look.hairColor.slice(1)}`} />
       </G>
-      {/* Headset mic */}
-      <Path d="M14.6 18.6C14 21.8 16.6 23.4 20.6 22.8" stroke="#1B1B1F" strokeWidth={0.9} fill="none" strokeLinecap="round" />
-      <Circle cx={21} cy={22.7} r={1} fill="#FF4D8D" />
     </Svg>
   );
 });
@@ -368,9 +406,10 @@ export const TroubleSprite = memo(function TroubleSprite({ kind, frame }: { kind
         </Svg>
       );
     case 'wifi':
+    case 'blackout':
       return (
         <Svg width={40} height={40} viewBox="0 0 24 24">
-          {ICON_ART.wifi}
+          {ICON_ART[kind]}
         </Svg>
       );
   }

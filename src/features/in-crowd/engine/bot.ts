@@ -114,14 +114,14 @@ function chooseAction(s: GameState): Target | null {
   return null;
 }
 
-/** How many guests want `item` beyond what Kiki already carries. */
+/** How many guests want `item` beyond what the planner already carries. */
 function demandFor(s: GameState, item: string): number {
   const wanting = s.guests.filter((g) => g.state === 'want' && g.request?.kind === item).length;
   const held = s.player.hands.filter((i) => i.kind === item).length;
   return Math.max(0, wanting - held);
 }
 
-/** One decision. Call every frame; it only acts when Kiki is free. */
+/** One decision. Call every frame; it only acts when the planner is free. */
 export function botThink(s: GameState) {
   if (s.phase === 'seating') {
     botSeat(s);

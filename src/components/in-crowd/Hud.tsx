@@ -159,7 +159,7 @@ export function Banner({ text, tone, icon }: { text: string; tone: 'live' | 'war
         elevation: 6,
       }}>
       {icon ? <GameIcon name={icon} size={22} /> : null}
-      <GText font="black" size={13.5} style={{ flexShrink: 1 }}>
+      <GText font="black" size={13.5} lines={2} style={{ flexShrink: 1 }}>
         {text}
       </GText>
     </View>

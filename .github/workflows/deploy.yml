@@ -93,6 +93,9 @@ jobs:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://yscrfhaedexogvegbvzm.supabase.co' }}
       EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY || 'sb_publishable__-ErdDTF4PkiFSicYba6PQ_FgE5Zmgn' }}
+      # The In Crowd's in-app purchases (public RevenueCat keys; empty until set up, see docs/IN-CROWD-PURCHASES.md).
+      EXPO_PUBLIC_REVENUECAT_IOS_KEY: ${{ secrets.REVENUECAT_IOS_KEY }}
+      EXPO_PUBLIC_REVENUECAT_ANDROID_KEY: ${{ secrets.REVENUECAT_ANDROID_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

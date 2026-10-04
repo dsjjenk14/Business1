@@ -1,9 +1,9 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 
-import { KIKI, formatFollowers } from '@/features/in-crowd/engine/content';
+import { CLIENTS, RHEA, ROSTER_BY_ID, formatFollowers, withMe } from '@/features/in-crowd/engine/content';
 import { TIPS } from '@/features/in-crowd/engine/levels';
-import type { Breakdown, Chapter, LevelDef, TipId } from '@/features/in-crowd/engine/types';
+import type { Breakdown, Chapter, LevelDef, Look, Profile, Scene, TipId } from '@/features/in-crowd/engine/types';
 
 import { Avatar } from './Avatar';
 import { GameIcon, type IconName } from './Icons';
@@ -41,6 +41,7 @@ const TIP_ICONS: Record<string, IconName> = {
   wifi: 'wifi',
   spill: 'spill',
   late: 'late',
+  twist: 'twist',
 };
 
 /** "New tonight" cards, one per mechanic, before the night starts. */
@@ -70,33 +71,63 @@ export function TipCards({ tips, onDone }: { tips: TipId[]; onDone: () => void }
   );
 }
 
-/** The client briefs Kiki before the first night at a venue (or thanks her after the last). */
-export function StoryDialog({ chapter, lines, kikiLine, onDone, finale }: { chapter: Chapter; lines: string[]; kikiLine: string; onDone: () => void; finale?: boolean }) {
-  const all = [...lines.map((text) => ({ who: 'client' as const, text })), { who: 'kiki' as const, text: kikiLine }];
+type Speaker = { name: string; handle: string; followers: number; look: Look | null; id: string };
+
+/** Who's talking in a scene: the planner, a client, a guest, Rhea, or the anonymous leak account. */
+function speakerFor(who: string, me: Profile, meLook: Look): Speaker {
+  if (who === 'me') return { name: me.name, handle: me.handle, followers: me.followers, look: meLook, id: 'me' };
+  if (who === 'leaks') return { name: 'The Tea Leaks', handle: '@thetealeaks', followers: 3_300_000, look: null, id: 'leaks' };
+  const p = CLIENTS[who] ?? ROSTER_BY_ID[who] ?? (who === RHEA.id ? RHEA : null);
+  return p ? { name: p.name, handle: p.handle, followers: p.followers, look: p.look, id: p.id } : { name: who, handle: '', followers: 0, look: null, id: who };
+}
+
+/**
+ * A story scene: one line at a time, with the speaker's portrait. Plot
+ * twists get their own flashing header.
+ */
+export function SceneDialog({ scene, me, meLook, title, onDone }: { scene: Scene; me: Profile; meLook: Look; title?: string; onDone: () => void }) {
   const [i, setI] = useState(0);
-  const line = all[i] ?? all[all.length - 1];
+  const lines = scene.lines.map((l) => ({ ...l, text: withMe(l.text, me.name.split(' ')[0] ?? me.name) }));
+  const line = lines[i] ?? lines[lines.length - 1];
   if (!line) return null;
-  const speaker = line.who === 'kiki' ? KIKI : chapter.client;
-  const last = i >= all.length - 1;
+  const speaker = speakerFor(line.who, me, meLook);
+  const last = i >= lines.length - 1;
+  const mine = line.who === 'me';
+  const anon = line.who === 'leaks';
+  const next = () => (last ? onDone() : setI(i + 1));
   return (
     <Modal>
-      <View style={{ width: '100%', maxWidth: 420, gap: 0 }}>
-        <View style={{ alignItems: line.who === 'kiki' ? 'flex-end' : 'flex-start', marginBottom: -18, zIndex: 2, paddingHorizontal: 8 }}>
-          <Avatar look={speaker.look} expr={finale || line.who === 'kiki' ? 'happy' : i === lines.length - 1 ? 'meh' : 'ok'} size={128} id={`story-${speaker.id}`} />
+      <View style={{ width: '100%', maxWidth: 420 }}>
+        {scene.twist ? (
+          <View style={{ alignSelf: 'center', marginBottom: 10, paddingHorizontal: 14, paddingVertical: 6, borderRadius: 12, backgroundColor: UI.pink, transform: [{ rotate: '-2deg' }] }}>
+            <GText font="display" size={28} color="#FFFFFF">
+              PLOT TWIST
+            </GText>
+          </View>
+        ) : null}
+        <View style={{ alignItems: mine ? 'flex-end' : 'flex-start', marginBottom: -18, zIndex: 2, paddingHorizontal: 8 }}>
+          {speaker.look ? (
+            <Avatar look={speaker.look} expr={anon ? 'ok' : scene.twist && !mine ? 'shock' : 'happy'} size={128} id={`scene-${speaker.id}`} />
+          ) : (
+            <View style={{ width: 112, height: 112, borderRadius: 56, backgroundColor: '#111317', borderWidth: 3, borderColor: UI.red, alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
+              <GameIcon name="phone" size={64} />
+            </View>
+          )}
         </View>
-        <Panel style={{ gap: 10, paddingTop: 22, borderColor: line.who === 'kiki' ? UI.pink : UI.gold, borderWidth: 1.5 }}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Continue" onPress={() => (last ? onDone() : setI(i + 1))} style={{ gap: 10 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
-              <GText font="black" size={16}>
+        <Panel style={{ gap: 10, paddingTop: 22, borderColor: anon ? UI.red : mine ? UI.pink : UI.gold, borderWidth: 1.5 }}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Continue" onPress={next} style={{ gap: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
+              <GText font="black" size={16} color={anon ? UI.red : UI.text}>
                 {speaker.name}
               </GText>
               <GText size={11} color={UI.muted}>
-                {speaker.handle} · {formatFollowers(speaker.followers)}
+                {speaker.handle}
+                {speaker.followers ? ` · ${formatFollowers(speaker.followers)}` : ''}
               </GText>
             </View>
-            {i === 0 && !finale ? (
+            {i === 0 && title ? (
               <GText font="bold" size={11} color={UI.gold}>
-                {chapter.title.toUpperCase()} · {chapter.place}
+                {title}
               </GText>
             ) : null}
             <GText size={16} color={UI.text}>
@@ -105,11 +136,11 @@ export function StoryDialog({ chapter, lines, kikiLine, onDone, finale }: { chap
           </Pressable>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
             <View style={{ flexDirection: 'row', gap: 4 }}>
-              {all.map((_, k) => (
+              {lines.map((_, k) => (
                 <View key={k} style={{ width: k === i ? 16 : 6, height: 6, borderRadius: 3, backgroundColor: k === i ? UI.pink : UI.panel3 }} />
               ))}
             </View>
-            <GameButton label={last ? (finale ? 'Thank you!' : "Let's go") : 'Next'} size="sm" icon={last ? 'play' : 'next'} onPress={() => (last ? onDone() : setI(i + 1))} />
+            <GameButton label={last ? 'Let’s go' : 'Next'} size="sm" icon={last ? 'play' : 'next'} onPress={next} />
           </View>
         </Panel>
       </View>
@@ -125,9 +156,12 @@ export function PauseMenu({
   onQuit,
   onHaptics,
   onTips,
+  passUsed,
 }: {
   level: LevelDef;
   haptics: boolean;
+  /** The doors are open, so this night's VIP Pass is already in use. */
+  passUsed?: boolean;
   onResume: () => void;
   onRestart: () => void;
   onQuit: () => void;
@@ -147,6 +181,14 @@ export function PauseMenu({
           {level.blurb}
         </GText>
         <GameButton label="Resume" icon="play" onPress={onResume} size="lg" />
+        {passUsed ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, padding: 8, borderRadius: 12, backgroundColor: 'rgba(255,77,141,0.12)' }}>
+            <GameIcon name="pass" size={22} />
+            <GText size={12} color={UI.muted} style={{ flex: 1 }}>
+              Restarting or leaving now uses up tonight’s VIP Pass.
+            </GText>
+          </View>
+        ) : null}
         <GameButton label="Restart night" icon="retry" tone="dark" onPress={onRestart} />
         <GameButton label="How to play" icon="book" tone="dark" onPress={onTips} />
         <GameButton label={`Vibration: ${haptics ? 'On' : 'Off'}`} icon="phone" tone="dark" onPress={onHaptics} />
@@ -233,10 +275,12 @@ export function ResultsCard({
   stats,
   coins,
   followers,
-  kikiFollowers,
+  plannerFollowers,
   newBest,
   hasNext,
   demo,
+  me,
+  passes,
   onNext,
   onReplay,
   onMap,
@@ -249,10 +293,14 @@ export function ResultsCard({
   stats: { served: number; unfollows: number; troubles: number; bestStreak: number; lives: number; missedLives: number };
   coins: number;
   followers: number;
-  kikiFollowers: number;
+  plannerFollowers: number;
   newBest: boolean;
   hasNext: boolean;
   demo?: boolean;
+  /** The planner's first name. */
+  me: string;
+  /** VIP Passes after this night, and when the next one refills (ms, 0 = full). */
+  passes: { count: number; nextIn: number };
   onNext: () => void;
   onReplay: () => void;
   onMap: () => void;
@@ -335,7 +383,7 @@ export function ResultsCard({
 
           {demo ? (
             <GText size={13} color={UI.muted} align="center">
-              That was Kiki on autopilot. Demo nights don’t earn coins or stars. Your turn!
+              That was {me} on autopilot. Demo nights don’t earn coins or stars. Your turn!
             </GText>
           ) : (
             <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -357,12 +405,27 @@ export function ResultsCard({
                     +{formatFollowers(followers)}
                   </GText>
                   <GText size={10} color={UI.muted}>
-                    Kiki now has {formatFollowers(kikiFollowers)}
+                    {me} now has {formatFollowers(plannerFollowers)}
                   </GText>
                 </View>
               </View>
             </View>
           )}
+
+          {!demo ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, padding: 10, borderRadius: 14, backgroundColor: passed ? 'rgba(124,242,156,0.1)' : 'rgba(255,92,122,0.12)', borderWidth: 1, borderColor: passed ? '#2F8F57' : UI.red }}>
+              <GameIcon name="pass" size={28} />
+              <View style={{ flex: 1 }}>
+                <GText font="black" size={13}>
+                  {passed ? 'Your VIP Pass is back' : 'You used a VIP Pass'}
+                </GText>
+                <GText size={11.5} color={UI.muted}>
+                  {passes.count} left
+                  {passes.nextIn > 0 ? ` · next one in ${Math.ceil(passes.nextIn / 60000)} min` : ''}
+                </GText>
+              </View>
+            </View>
+          ) : null}
 
           {!passed && !demo ? (
             <GText size={12.5} color={UI.muted} align="center">

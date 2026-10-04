@@ -1,7 +1,7 @@
 import { memo, type ReactNode } from 'react';
 import Svg, { Circle, ClipPath, Defs, Ellipse, G, Line, LinearGradient, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 
-import type { Look } from '@/features/in-crowd/engine/types';
+import type { Gear, Look } from '@/features/in-crowd/engine/types';
 
 /**
  * The In Crowd's creators, drawn in a glossy avatar style: soft-shaded
@@ -78,7 +78,10 @@ function resolve(look: Look) {
   const brow = pale ? mix(look.hairColor, '#6B5643', 0.55) : mix(look.hairColor, '#000000', 0.15);
   // Faces vary a little in width so the crowd doesn't look cloned.
   const faceWidth = 0.95 + ((h >> 5) % 5) * 0.025;
-  return { eyes, lashes, lips, glam: !!look.lips, neck, brow, faceWidth };
+  const makeup: 'natural' | 'lite' | 'glam' | 'bold' = look.makeup && look.makeup !== 'natural' ? look.makeup : look.lips ? 'lite' : 'natural';
+  const earrings = look.earrings ?? (look.acc === 'hoops' ? 'hoops' : undefined);
+  const necklace = look.necklace ?? (look.lips && (neck === 'v' || neck === 'scoop') ? 'chain' : undefined);
+  return { eyes, lashes, lips, makeup, neck, brow, faceWidth, earrings, necklace };
 }
 
 // ─── Hair ─────────────────────────────────────────────────────────────────
@@ -286,16 +289,31 @@ function almond(side: 1 | -1, grow = 1) {
   return `M${X(15.9)} ${Y(22.5)}C${X(16.9)} ${Y(20.6)} ${X(18.1)} ${Y(19.9)} ${X(19.3)} ${Y(19.9)}C${X(20.6)} ${Y(19.9)} ${X(21.8)} ${Y(20.7)} ${X(22.6)} ${Y(22.3)}C${X(21.8)} ${Y(23.9)} ${X(20.6)} ${Y(24.6)} ${X(19.3)} ${Y(24.6)}C${X(18)} ${Y(24.6)} ${X(16.8)} ${Y(23.9)} ${X(15.9)} ${Y(22.5)}Z`;
 }
 
-function eye(side: 1 | -1, expr: Expression, id: string, skin: string, lashes: boolean): ReactNode {
+function eye(side: 1 | -1, expr: Expression, id: string, skin: string, lashes: boolean, makeup: 'natural' | 'lite' | 'glam' | 'bold'): ReactNode {
   const cx = mx(19.3, side);
-  const lashPath = `M${mx(16.2, side)} 21.8L${mx(15, side)} 21.1M${mx(16.8, side)} 21L${mx(15.9, side)} 20.1M${mx(17.6, side)} 20.4L${mx(17.1, side)} 19.4`;
-  const lashLine = lashes ? <Path d={lashPath} stroke={INK} strokeWidth={0.55} strokeLinecap="round" /> : null;
+  const mascara = makeup === 'glam' || makeup === 'bold';
+  const lashPath = mascara
+    ? `M${mx(16, side)} 22.1L${mx(14.3, side)} 21.3M${mx(16.5, side)} 21.3L${mx(15.1, side)} 20.1M${mx(17.2, side)} 20.6L${mx(16.4, side)} 19.2M${mx(18.1, side)} 20.1L${mx(17.8, side)} 18.7M${mx(19.1, side)} 19.9L${mx(19.1, side)} 18.6`
+    : `M${mx(16.2, side)} 21.8L${mx(15, side)} 21.1M${mx(16.8, side)} 21L${mx(15.9, side)} 20.1M${mx(17.6, side)} 20.4L${mx(17.1, side)} 19.4`;
+  const wingTip: [number, number] = makeup === 'bold' ? [13.2, 20.4] : [13.9, 21];
+  const wing = mascara ? <Path d={`M${mx(15.9, side)} 22.4L${mx(wingTip[0], side)} ${wingTip[1]}L${mx(16.4, side)} 21.6Z`} fill={INK} /> : null;
+  const lower = mascara ? (
+    <Path d={`M${mx(16.6, side)} 23.4L${mx(15.8, side)} 24.1M${mx(17.4, side)} 24L${mx(16.9, side)} 24.8`} stroke={INK} strokeWidth={0.4} strokeLinecap="round" />
+  ) : null;
+  const lashLine = lashes ? (
+    <G>
+      <Path d={lashPath} stroke={INK} strokeWidth={mascara ? 0.72 : 0.55} strokeLinecap="round" />
+      {wing}
+      {lower}
+    </G>
+  ) : null;
 
   if (expr === 'happy') {
     return (
       <G>
         <Path d={`M${mx(16.2, side)} 23C${mx(17.4, side)} 20.9 ${mx(21.2, side)} 20.9 ${mx(22.4, side)} 23`} stroke={INK} strokeWidth={1.15} strokeLinecap="round" fill="none" />
-        {lashes ? <Path d={`M${mx(16.4, side)} 22.4L${mx(15.2, side)} 21.9M${mx(17, side)} 21.7L${mx(16.2, side)} 20.9`} stroke={INK} strokeWidth={0.5} strokeLinecap="round" /> : null}
+        {lashes ? <Path d={`M${mx(16.4, side)} 22.4L${mx(15.2, side)} 21.9M${mx(17, side)} 21.7L${mx(16.2, side)} 20.9`} stroke={INK} strokeWidth={mascara ? 0.75 : 0.5} strokeLinecap="round" /> : null}
+        {mascara ? <Path d={`M${mx(16.2, side)} 23L${mx(wingTip[0], side)} ${wingTip[1] + 0.6}L${mx(16.6, side)} 22.4Z`} fill={INK} /> : null}
       </G>
     );
   }
@@ -372,7 +390,7 @@ function brows(expr: Expression, color: string): ReactNode {
   );
 }
 
-function mouth(expr: Expression, lip: string): ReactNode {
+function mouth(expr: Expression, lip: string, liner = false): ReactNode {
   const upper = mix(lip, '#000000', 0.12);
   const line = mix(lip, '#000000', 0.35);
   switch (expr) {
@@ -417,7 +435,10 @@ function mouth(expr: Expression, lip: string): ReactNode {
           <Path d="M20.9 29.8C22.1 29.1 23.2 29.3 24 29.7 24.8 29.3 25.9 29.1 27.1 29.8 26 30.3 25 30.5 24 30.5S22 30.3 20.9 29.8Z" fill={upper} />
           <Path d="M21.3 30.1C22.3 31.8 25.7 31.8 26.7 30.1 25.6 30.6 22.4 30.6 21.3 30.1Z" fill={lip} />
           <Path d="M20.9 29.8C20.5 29.5 20.3 29.3 20.2 29M27.1 29.8C27.5 29.5 27.7 29.3 27.8 29" stroke={line} strokeWidth={0.5} strokeLinecap="round" fill="none" />
-          <Ellipse cx={24.6} cy={31} rx={0.9} ry={0.28} fill="#FFFFFF" opacity={0.5} />
+          {liner ? (
+            <Path d="M20.9 29.8C22.1 29.1 23.2 29.3 24 29.7 24.8 29.3 25.9 29.1 27.1 29.8 26.4 31.6 25.2 31.9 24 31.9S21.6 31.6 20.9 29.8Z" stroke={line} strokeWidth={0.35} fill="none" opacity={0.8} />
+          ) : null}
+          <Ellipse cx={24.6} cy={31} rx={liner ? 1.2 : 0.9} ry={liner ? 0.36 : 0.28} fill="#FFFFFF" opacity={liner ? 0.7 : 0.5} />
         </G>
       );
   }
@@ -647,12 +668,148 @@ function headphones(look: Look, id: string): ReactNode {
   );
 }
 
-function earrings(look: Look, id: string): ReactNode {
-  if (look.acc !== 'hoops') return null;
+function earrings(kind: Look['earrings'], id: string): ReactNode {
+  if (!kind) return null;
+  const gold = `url(#${id}-gold)`;
   return (
     <G>
-      <Circle cx={12.6} cy={28} r={2.1} stroke={`url(#${id}-gold)`} strokeWidth={0.95} fill="none" />
-      <Circle cx={35.4} cy={28} r={2.1} stroke={`url(#${id}-gold)`} strokeWidth={0.95} fill="none" />
+      {[12.6, 35.4].map((x) =>
+        kind === 'hoops' ? (
+          <Circle key={x} cx={x} cy={28} r={2.1} stroke={gold} strokeWidth={0.95} fill="none" />
+        ) : kind === 'studs' ? (
+          <G key={x}>
+            <Circle cx={x} cy={26.2} r={0.8} fill={gold} />
+            <Circle cx={x - 0.25} cy={25.95} r={0.25} fill="#FFFFFF" />
+          </G>
+        ) : (
+          <G key={x}>
+            <Circle cx={x} cy={26.1} r={0.55} fill={gold} />
+            <Path d={`M${x} 26.4V28.4`} stroke={gold} strokeWidth={0.4} />
+            <Path d={`M${x} 28.2C${x + 1} 29.2 ${x + 0.9} 30.6 ${x} 30.8 ${x - 0.9} 30.6 ${x - 1} 29.2 ${x} 28.2Z`} fill="#FFF4E6" stroke={gold} strokeWidth={0.35} />
+          </G>
+        ),
+      )}
+    </G>
+  );
+}
+
+function necklace(kind: Look['necklace'], id: string): ReactNode {
+  if (!kind) return null;
+  const gold = `url(#${id}-gold)`;
+  if (kind === 'chain') {
+    return (
+      <G>
+        <Path d="M18.8 41C20.4 45.4 27.6 45.4 29.2 41" stroke={gold} strokeWidth={0.55} fill="none" />
+        <Circle cx={24} cy={44.4} r={0.9} fill={gold} />
+      </G>
+    );
+  }
+  if (kind === 'layered') {
+    return (
+      <G>
+        <Path d="M19.2 40.6C20.8 43.2 27.2 43.2 28.8 40.6" stroke={gold} strokeWidth={0.5} fill="none" />
+        <Path d="M18.4 41.2C19.6 47.2 28.4 47.2 29.6 41.2" stroke={gold} strokeWidth={0.45} fill="none" strokeDasharray="0.9 0.35" />
+        <Circle cx={24} cy={42.6} r={0.55} fill={gold} />
+        <Path d="M24 45.4L24.9 46.6 24 47.8 23.1 46.6Z" fill={gold} />
+      </G>
+    );
+  }
+  return (
+    <G>
+      <Path d="M18.8 41C20.4 45.8 27.6 45.8 29.2 41" stroke={gold} strokeWidth={0.5} fill="none" />
+      <Path d="M24 44.6C25.1 45.8 25.1 47.4 24 47.9 22.9 47.4 22.9 45.8 24 44.6Z" fill="#E63946" stroke={gold} strokeWidth={0.4} />
+      <Circle cx={23.6} cy={46.2} r={0.3} fill="#FFFFFF" opacity={0.8} />
+    </G>
+  );
+}
+
+const PHONE: Record<NonNullable<Gear['phone']>, [string, string]> = {
+  titanium: ['#B4AFA7', '#77726B'],
+  midnight: ['#3A3E47', '#16181D'],
+  pink: ['#F8D3D8', '#E2A2AE'],
+  gold: ['#F0DCB4', '#C9A86A'],
+};
+const WATCH: Record<NonNullable<Gear['watch']>, string> = { midnight: '#23262D', starlight: '#E9E2D6', gold: '#D9B26B', pink: '#F2B8C6' };
+const BAG: Record<NonNullable<Gear['bag']>, { body: string; trim: string; chain: boolean }> = {
+  quilted: { body: '#1E1E22', trim: '#3A3A42', chain: true },
+  monogram: { body: '#6B4423', trim: '#D8B07A', chain: false },
+  mini: { body: '#F4A7C0', trim: '#FFD3E1', chain: false },
+  croc: { body: '#F4F0E8', trim: '#D9D2C4', chain: false },
+};
+
+/** A designer bag on the shoulder: strap over the left shoulder, bag at the bottom corner. */
+function bag(kind: Gear['bag'], id: string): ReactNode {
+  if (!kind) return null;
+  const b = BAG[kind];
+  const gold = `url(#${id}-gold)`;
+  return (
+    <G>
+      <Path d="M15 40.8C12 44 9.6 47.6 8.4 50.4" stroke={b.chain ? gold : mix(b.body, '#000000', 0.25)} strokeWidth={b.chain ? 0.9 : 1.2} strokeDasharray={b.chain ? '1 0.45' : undefined} fill="none" />
+      <Path d="M1.6 50.6C1.6 49.8 2.2 49.2 3 49.2H13C13.8 49.2 14.4 49.8 14.4 50.6L14.8 56H1.2Z" fill={b.body} stroke="#000000" strokeOpacity={0.3} strokeWidth={0.4} />
+      {kind === 'quilted'
+        ? [3.6, 6.6, 9.6, 12.6].map((x) => <Path key={x} d={`M${x - 2} 56L${x + 1.5} 49.4M${x + 1.5} 56L${x - 2} 49.4`} stroke={b.trim} strokeWidth={0.35} />)
+        : null}
+      {kind === 'monogram'
+        ? [3.4, 6.4, 9.4, 12.4].flatMap((x) => [51.2, 53.8].map((y) => <Path key={`${x}-${y}`} d={`M${x} ${y - 0.6}L${x + 0.6} ${y}L${x} ${y + 0.6}L${x - 0.6} ${y}Z`} fill={b.trim} opacity={0.85} />))
+        : null}
+      {kind === 'croc'
+        ? [2.6, 5, 7.4, 9.8, 12.2].flatMap((x, i) => [50.6, 52.8, 55].map((y) => <Rect key={`${x}-${y}`} x={x + (i % 2) * 0.6} y={y} width={1.8} height={1.4} rx={0.6} fill={b.trim} />))
+        : null}
+      {kind === 'mini' ? <Path d="M4.6 49.4C4.6 46.6 11.4 46.6 11.4 49.4" stroke={b.trim} strokeWidth={0.9} fill="none" /> : null}
+      <Path d="M1.4 50.6H14.6" stroke={b.trim} strokeWidth={0.6} opacity={0.8} />
+      <Rect x={6.6} y={50.2} width={3.2} height={2} rx={0.5} fill={gold} />
+      <Path d="M3 51.6L4.6 50.2" stroke="#FFFFFF" strokeWidth={0.5} opacity={0.35} strokeLinecap="round" />
+    </G>
+  );
+}
+
+/** A hand at the chest: holding the phone up, with the watch on the wrist. */
+function handGear(gear: Gear | undefined, skin: string, id: string): ReactNode {
+  if (!gear || (!gear.phone && !gear.watch)) return null;
+  const skinDark = mix(skin, '#000000', 0.15);
+  return (
+    <G>
+      {/* Forearm in a sleeve going off the bottom */}
+      <Path d="M36.6 56L38.6 50.4" stroke={mix(skin, '#000000', 0.08)} strokeWidth={3.4} strokeLinecap="round" />
+      {gear.watch ? (
+        <G>
+          <Path d="M36.8 52.4L40.4 53.6" stroke={WATCH[gear.watch]} strokeWidth={1.6} strokeLinecap="round" />
+          <Rect x={37.2} y={51.4} width={2.8} height={3.2} rx={0.9} fill="#111317" stroke={WATCH[gear.watch]} strokeWidth={0.45} transform="rotate(18 38.6 53)" />
+          <Circle cx={38.6} cy={53} r={0.65} fill="none" stroke="#7CF29C" strokeWidth={0.35} />
+        </G>
+      ) : null}
+      {gear.phone ? (
+        <G transform="rotate(-10 38.4 44.6)">
+          <Rect x={35.4} y={38.6} width={6.2} height={11.6} rx={1.4} fill={`url(#${id}-phone)`} stroke="#000000" strokeOpacity={0.35} strokeWidth={0.35} />
+          <Rect x={36} y={39.2} width={3} height={3} rx={0.8} fill={mix(PHONE[gear.phone][1], '#000000', 0.2)} />
+          <Circle cx={36.8} cy={40} r={0.55} fill="#0C0D10" stroke="#5B5F68" strokeWidth={0.2} />
+          <Circle cx={38.2} cy={40} r={0.55} fill="#0C0D10" stroke="#5B5F68" strokeWidth={0.2} />
+          <Circle cx={36.8} cy={41.4} r={0.55} fill="#0C0D10" stroke="#5B5F68" strokeWidth={0.2} />
+          <Circle cx={38.3} cy={41.5} r={0.25} fill="#FFF4D6" />
+          <Path d="M40.6 39.6V45" stroke="#FFFFFF" strokeWidth={0.4} opacity={0.4} strokeLinecap="round" />
+        </G>
+      ) : null}
+      {/* Fingers wrapped around it */}
+      <Ellipse cx={38.4} cy={49.8} rx={2.6} ry={2.1} fill={skin} stroke={skinDark} strokeWidth={0.35} />
+      {gear.phone ? (
+        <G fill={skin} stroke={skinDark} strokeWidth={0.3}>
+          <Ellipse cx={41.2} cy={46.6} rx={1} ry={0.75} />
+          <Ellipse cx={41.4} cy={48.2} rx={1} ry={0.75} />
+          <Ellipse cx={35.6} cy={47.6} rx={0.9} ry={1.2} />
+        </G>
+      ) : null}
+    </G>
+  );
+}
+
+/** A slim planner headset: earpiece on the left ear, mic at the mouth. */
+function headset(gear: Gear | undefined): ReactNode {
+  if (!gear?.headset) return null;
+  return (
+    <G>
+      <Path d="M12.6 23.4C12.8 27.6 15.8 30.4 20.2 30.3" stroke="#1B1B1F" strokeWidth={0.75} fill="none" strokeLinecap="round" />
+      <Rect x={10.6} y={20.4} width={3} height={4.6} rx={1.4} fill="#1B1B1F" />
+      <Circle cx={20.6} cy={30.2} r={0.75} fill="#FF4D8D" />
     </G>
   );
 }
@@ -670,7 +827,6 @@ export function BustArt({ look, expr, id }: BustProps) {
   const neckBottom = mix(look.skin, '#000000', 0.12);
   const hairFill = `url(#${id}-hair)`;
   const blush = { love: 1, happy: 0.95, ok: 0.65, meh: 0.4, mad: 0.75, shock: 0.5 }[expr];
-  const showNecklace = r.glam && (r.neck === 'v' || r.neck === 'scoop');
   const face = r.faceWidth === 1 ? undefined : `translate(24 0) scale(${r.faceWidth} 1) translate(-24 0)`;
   return (
     <G>
@@ -723,6 +879,10 @@ export function BustArt({ look, expr, id }: BustProps) {
           <Stop offset="0" stopColor="#FF8FA8" />
           <Stop offset="1" stopColor="#E0193F" />
         </RadialGradient>
+        <LinearGradient id={`${id}-phone`} x1="0" y1="0" x2="1" y2="1">
+          <Stop offset="0" stopColor={PHONE[look.gear?.phone ?? 'titanium'][0]} />
+          <Stop offset="1" stopColor={PHONE[look.gear?.phone ?? 'titanium'][1]} />
+        </LinearGradient>
         <ClipPath id={`${id}-torso`}>
           <Path d={TORSO} />
         </ClipPath>
@@ -739,12 +899,9 @@ export function BustArt({ look, expr, id }: BustProps) {
       {/* Neck */}
       <Path d="M19.4 29.5H28.6L29 39.6C26.8 41.4 21.2 41.4 19 39.6Z" fill={`url(#${id}-neck)`} />
       {neckline(look, r.neck, neckBottom)}
-      {showNecklace ? (
-        <G>
-          <Path d="M18.8 41C20.4 45.4 27.6 45.4 29.2 41" stroke={`url(#${id}-gold)`} strokeWidth={0.55} fill="none" />
-          <Circle cx={24} cy={44.4} r={0.9} fill={`url(#${id}-gold)`} />
-        </G>
-      ) : null}
+      {necklace(r.necklace, id)}
+      {bag(look.gear?.bag, id)}
+      {handGear(look.gear, look.skin, id)}
 
       <G transform={face}>
         {/* Ears (long hair covers them) */}
@@ -796,17 +953,33 @@ export function BustArt({ look, expr, id }: BustProps) {
         <Ellipse cx={24.1} cy={26.1} rx={0.8} ry={0.5} fill="#FFFFFF" opacity={0.28} />
 
         {/* Eyes, makeup and brows */}
-        {r.glam && expr !== 'happy' && expr !== 'love' ? (
-          <G opacity={0.4}>
-            <Ellipse cx={19.3} cy={20.6} rx={3.6} ry={1.7} fill={mix(r.lips, '#FFFFFF', 0.25)} />
-            <Ellipse cx={28.7} cy={20.6} rx={3.6} ry={1.7} fill={mix(r.lips, '#FFFFFF', 0.25)} />
+        {r.makeup !== 'natural' && expr !== 'happy' && expr !== 'love' ? (
+          <G opacity={r.makeup === 'lite' ? 0.4 : 0.6}>
+            {[19.3, 28.7].map((x) => (
+              <Ellipse
+                key={x}
+                cx={x}
+                cy={20.6}
+                rx={3.6}
+                ry={1.7}
+                fill={r.makeup === 'glam' ? '#C9976A' : r.makeup === 'bold' ? mix(r.lips, '#000000', 0.35) : mix(r.lips, '#FFFFFF', 0.25)}
+              />
+            ))}
+            {r.makeup === 'glam' ? [19.8, 29.2].map((x) => <Ellipse key={`s${x}`} cx={x} cy={20.2} rx={1.2} ry={0.5} fill="#FFF1D2" opacity={0.9} />) : null}
           </G>
         ) : null}
-        {eye(1, expr, id, look.skin, r.lashes)}
-        {eye(-1, expr, id, look.skin, r.lashes)}
+        {r.makeup === 'glam' || r.makeup === 'bold' ? (
+          <G opacity={0.5}>
+            <Ellipse cx={17.2} cy={24.6} rx={1.8} ry={0.6} fill="#FFF6E8" transform="rotate(-18 17.2 24.6)" />
+            <Ellipse cx={30.8} cy={24.6} rx={1.8} ry={0.6} fill="#FFF6E8" transform="rotate(18 30.8 24.6)" />
+            <Ellipse cx={24} cy={23.4} rx={0.45} ry={1.8} fill="#FFFFFF" />
+          </G>
+        ) : null}
+        {eye(1, expr, id, look.skin, r.lashes, r.makeup)}
+        {eye(-1, expr, id, look.skin, r.lashes, r.makeup)}
         {brows(expr, r.brow)}
 
-        {mouth(expr, r.lips)}
+        {mouth(expr, r.lips, r.makeup === 'glam' || r.makeup === 'bold')}
 
         {/* Hair, then whatever's on their head */}
         {hairFront(look, hairFill)}
@@ -814,7 +987,8 @@ export function BustArt({ look, expr, id }: BustProps) {
         {faceGear(look, id)}
         {headGear(look, id)}
         {headphones(look, id)}
-        {earrings(look, id)}
+        {headset(look.gear)}
+        {earrings(r.earrings, id)}
       </G>
     </G>
   );

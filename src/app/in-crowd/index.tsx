@@ -8,12 +8,13 @@ import { Modal } from '@/components/in-crowd/Dialogs';
 import { GameIcon, type IconName } from '@/components/in-crowd/Icons';
 import { GText, GameButton, IconCircle, Panel, Pill, Stars, fmtNum, textGlow } from '@/components/in-crowd/Parts';
 import { UI } from '@/components/in-crowd/palette';
+import { PassesPill } from '@/components/in-crowd/Store';
 import { VenueBackdrop } from '@/components/in-crowd/Venue';
-import { KIKI, formatFollowers } from '@/features/in-crowd/engine/content';
+import { formatFollowers } from '@/features/in-crowd/engine/content';
 import { CHAPTERS, LEVELS, TIPS } from '@/features/in-crowd/engine/levels';
 import type { LevelDef, TipId } from '@/features/in-crowd/engine/types';
 import { buzz } from '@/features/in-crowd/haptics';
-import { chapterStars, chapterUnlocked, currentLevelId, isUnlocked, totalStars, useProgress } from '@/features/in-crowd/progress';
+import { chapterStars, chapterUnlocked, currentLevelId, isUnlocked, plannerFirstName, plannerLook, plannerProfile, totalStars, useProgress } from '@/features/in-crowd/progress';
 import { goBackOr } from '@/lib/navigation';
 
 const TIP_ICON: Partial<Record<TipId, IconName>> = {
@@ -35,9 +36,12 @@ const TIP_ICON: Partial<Record<TipId, IconName>> = {
   wifi: 'wifi',
   spill: 'spill',
   late: 'late',
+  twists: 'twist',
+  blackout: 'blackout',
+  crasher: 'sparkle',
 };
 
-/** The In Crowd home: Kiki's profile, the five venues and their nights. */
+/** The In Crowd home: your planner, your VIP Passes, the five venues and their nights. */
 export default function InCrowdHome() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -46,6 +50,8 @@ export default function InCrowdHome() {
   const [open, setOpen] = useState<LevelDef | null>(null);
   const cardW = Math.min(width, 560) - 32;
   const current = currentLevelId(progress);
+  const me = plannerProfile(progress);
+  const firstName = plannerFirstName(progress);
   const stars = totalStars(progress);
 
   const play = (id: string) => {
@@ -61,6 +67,7 @@ export default function InCrowdHome() {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <IconCircle icon="back" label="Back to I'm In" onPress={() => goBackOr(router, '/')} />
           <View style={{ flex: 1 }} />
+          <PassesPill onPress={() => router.push({ pathname: '/in-crowd/shop', params: { tab: 'passes' } })} />
           <Pill>
             <GameIcon name="coin" size={18} />
             <GText font="black" size={14} color={UI.gold}>
@@ -93,43 +100,46 @@ export default function InCrowdHome() {
           </GText>
         </View>
 
-        {/* Kiki */}
-        <Panel style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12 }}>
-          <Avatar look={KIKI.look} expr="happy" size={64} id="home-kiki" />
-          <View style={{ flex: 1, gap: 2 }}>
-            <GText font="black" size={17}>
-              {KIKI.name}
-            </GText>
-            <GText size={12} color={UI.muted}>
-              {KIKI.handle} · {KIKI.bio}
-            </GText>
-            <View style={{ flexDirection: 'row', gap: 12, marginTop: 4 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <GameIcon name="follower" size={16} />
-                <GText font="black" size={13} color={UI.cyan}>
-                  {formatFollowers(progress.followers)}
-                </GText>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <GameIcon name="trophy" size={16} />
-                <GText font="black" size={13}>
-                  {progress.totals.nights} {progress.totals.nights === 1 ? 'night' : 'nights'}
-                </GText>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <GameIcon name="flame" size={16} />
-                <GText font="black" size={13}>
-                  ×{progress.totals.bestStreak}
-                </GText>
+        {/* Your planner (tap to dress her) */}
+        <Pressable accessibilityRole="button" accessibilityLabel={`${me.name}. Open the Closet`} onPress={() => router.push('/in-crowd/closet')}>
+          <Panel style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12 }}>
+            <Avatar look={plannerLook(progress)} expr="happy" size={72} id="home-planner" />
+            <View style={{ flex: 1, gap: 2 }}>
+              <GText font="black" size={17}>
+                {me.name}
+              </GText>
+              <GText size={12} color={UI.muted}>
+                {me.handle} · {me.bio}
+              </GText>
+              <View style={{ flexDirection: 'row', gap: 12, marginTop: 4 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <GameIcon name="follower" size={16} />
+                  <GText font="black" size={13} color={UI.cyan}>
+                    {formatFollowers(progress.followers)}
+                  </GText>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <GameIcon name="trophy" size={16} />
+                  <GText font="black" size={13}>
+                    {progress.totals.nights} {progress.totals.nights === 1 ? 'night' : 'nights'}
+                  </GText>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <GameIcon name="flame" size={16} />
+                  <GText font="black" size={13}>
+                    ×{progress.totals.bestStreak}
+                  </GText>
+                </View>
               </View>
             </View>
-          </View>
-        </Panel>
+          </Panel>
+        </Pressable>
 
         {loaded ? (
           <GameButton label={progress.totals.nights ? `Play night ${current}` : 'Start the first night'} icon="play" size="lg" onPress={() => play(current)} />
         ) : null}
         <View style={{ flexDirection: 'row', gap: 10 }}>
+          <GameButton label="Closet" icon="closet" tone="dark" style={{ flex: 1 }} onPress={() => router.push('/in-crowd/closet')} />
           <GameButton label="Shop" icon="shop" tone="gold" style={{ flex: 1 }} onPress={() => router.push('/in-crowd/shop')} />
           <GameButton label="Guide" icon="book" tone="cyan" style={{ flex: 1 }} onPress={() => router.push('/in-crowd/guide')} />
         </View>
@@ -292,13 +302,34 @@ export default function InCrowdHome() {
                 </View>
               </View>
             ) : null}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <GText font="black" size={11} color={UI.red}>
+                HEAT
+              </GText>
+              <View style={{ flex: 1, flexDirection: 'row', gap: 2 }}>
+                {LEVELS.map((l) => (
+                  <View key={l.id} style={{ flex: 1, height: 6, borderRadius: 3, backgroundColor: l.heat <= open.heat ? (l.heat > 15 ? UI.red : l.heat > 8 ? '#FF8A3D' : UI.gold) : UI.panel3 }} />
+                ))}
+              </View>
+              <GText font="black" size={11}>
+                {open.heat}/20
+              </GText>
+            </View>
+            {open.twists.length ? (
+              <GText size={12} color={UI.muted}>
+                <GText font="black" size={12} color={UI.pink}>
+                  {open.twists.length} plot {open.twists.length === 1 ? 'twist' : 'twists'}
+                </GText>{' '}
+                tonight. You won’t know which until they hit.
+              </GText>
+            ) : null}
             {open.troubles ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 <GText font="black" size={11} color={UI.red}>
                   TROUBLE:
                 </GText>
                 {open.troubles.kinds.map((k) => (
-                  <GameIcon key={k} name={k === 'spill' ? 'spill' : k} size={20} />
+                  <GameIcon key={k} name={k} size={20} />
                 ))}
               </View>
             ) : null}
@@ -326,7 +357,7 @@ export default function InCrowdHome() {
             ) : null}
             <GameButton label="Play" icon="play" size="lg" onPress={() => play(open.id)} />
             <GameButton
-              label="Watch Kiki play it"
+              label={`Watch ${firstName} play it`}
               icon="phone"
               tone="ghost"
               size="sm"

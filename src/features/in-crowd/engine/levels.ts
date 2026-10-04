@@ -1,15 +1,20 @@
 import { CLIENTS, ROSTER } from './content';
 import { mulberry32 } from './rng';
-import type { Chapter, LevelDef, TipId } from './types';
+import type { Chapter, Dish, LevelDef, RequestKind, Scene, StationKind, TipId, TroubleKind, TwistKind } from './types';
 
 /**
- * Five venues, four nights each. Every chapter adds a counter or a kind of
- * trouble, and the last night of each one is the host's big moment.
+ * Five venues, four nights each, and every night is harder than the one
+ * before it: guests lose patience a little faster, ask a little more
+ * often, trouble shows up sooner and more of it at once, and the plot
+ * twists stack up. `heat` (1–20) is that ladder.
  *
- * Goal and Expert scores were set with the balance bot
- * (`scripts/in-crowd-balance.mjs`), playing with the upgrades a player
- * usually owns by that venue. Goal is 45–70% of a slow, casual bot (the
- * share grows venue by venue); Expert is 82% of a fast, sharp one.
+ * The story runs through the `before` and `after` scenes: someone posting
+ * as @thetealeaks is sabotaging the planner's parties. `{me}` is the
+ * player's planner (Zara by default).
+ *
+ * Pace tweaks and the Goal/Expert scores were set with the balance bot
+ * (`scripts/in-crowd-balance.mjs`), which also checks that each night is
+ * harder than the last.
  */
 
 export const CHAPTERS: Chapter[] = [
@@ -20,7 +25,7 @@ export const CHAPTERS: Chapter[] = [
     place: 'The Lumen Rooftop, downtown Clout City',
     client: CLIENTS.bella!,
     intro: [
-      'Kiki! Thank goodness. My lip oil launches tonight and my planner just ghosted me.',
+      '{me}! Thank goodness. My lip oil launches tonight and my planner just ghosted me.',
       'Twenty creators, one rooftop, golden hour. Keep them happy and keep them posting.',
       'If anyone unfollows me tonight, I will simply perish. No pressure.',
     ],
@@ -33,11 +38,11 @@ export const CHAPTERS: Chapter[] = [
     place: 'The Vibe Villa, Clout Hills',
     client: CLIENTS.coco!,
     intro: [
-      'Welcome to the Villa! Eight creators live here. Forty more are coming over.',
+      'Welcome to the Villa, {me}! Eight creators live here. Forty more are coming over.',
       'We have a kitchen now, which means everyone wants avocado toast. Constantly.',
       'Also Jax is planning a prank. I do not know what it is. Nobody does.',
     ],
-    outro: 'The pool party hit the front page of every feed. Coco says you are an honorary Villa member.',
+    outro: 'The pool party hit the front page of every feed. You are an honorary Villa member now.',
   },
   {
     id: 3,
@@ -46,11 +51,11 @@ export const CHAPTERS: Chapter[] = [
     place: 'Unfiltered Signal Studios, Neon District',
     client: CLIENTS.marcus!,
     intro: [
-      'Kiki. Episode one hundred. Live audience. Brands are circling.',
+      '{me}. Episode one hundred. Live audience. Brands are circling.',
       'The PR desk has contracts ready. Get them signed and everybody eats.',
       'One thing: the studio Wi-Fi is held together with tape. Keep an eye on the router.',
     ],
-    outro: 'Episode one hundred broke the podcast charts. Marcus called you a legend on air. Twice.',
+    outro: 'Episode one hundred broke the podcast charts. I called you a legend on air. Twice.',
   },
   {
     id: 4,
@@ -59,11 +64,11 @@ export const CHAPTERS: Chapter[] = [
     place: 'Glowfest, Mirage Desert',
     client: CLIENTS.nova!,
     intro: [
-      'Kiki, the VIP tent is yours. Sixty thousand people out there, the loudest ones in here.',
+      '{me}, the VIP tent is yours. Sixty thousand people out there, the loudest ones in here.',
       'It is dusty, it is dark, and somebody will spill a smoothie every four minutes.',
       'Keep the tent alive until my encore. I trust you.',
     ],
-    outro: 'Nova dedicated the encore to "the planner who kept the tent alive." The clip has 40 million views.',
+    outro: 'I dedicated the encore to the planner who kept the tent alive. The clip has 40 million views.',
   },
   {
     id: 5,
@@ -72,11 +77,11 @@ export const CHAPTERS: Chapter[] = [
     place: 'The Grand Clout Ballroom',
     client: CLIENTS.sky!,
     intro: [
-      'Kiki Vance. Everyone says you are the best. Tonight we find out.',
+      '{me}. Everyone says you are the best. Tonight we find out.',
       'This is the Golden Phone Awards afterparty. Every creator who matters is on the list.',
       'Make it perfect, and I will hand you an award myself.',
     ],
-    outro: 'Sky handed you a Golden Phone of your own: Planner of the Year. Clout City is yours.',
+    outro: 'Clout City is yours.',
   },
 ];
 
@@ -104,229 +109,293 @@ function cast(chapter: number, seed: number, count: number): string[] {
   return [...pool, ...rest].slice(0, count);
 }
 
-type Spec = Omit<LevelDef, 'id' | 'chapter' | 'index' | 'cast' | 'idle'> & { pace: number };
+type Spec = {
+  name: string;
+  blurb: string;
+  tables: number;
+  guests: number;
+  late: number;
+  duration: number;
+  seatingTime: number;
+  stations: StationKind[];
+  dishes: Dish[];
+  requests: Partial<Record<RequestKind, number>>;
+  /** Which kinds of trouble can happen; how often comes from the night's heat. */
+  trouble: TroubleKind[];
+  lives: number[];
+  twists: [number, TwistKind][];
+  tips: TipId[];
+  before?: Scene;
+  after?: Scene;
+};
+
+const ALL6: StationKind[] = ['kitchen', 'bar', 'charge', 'glam', 'light', 'pr'];
+const DISH4: Dish[] = ['avotoast', 'sushi', 'cupcake', 'acai'];
+const REQ_FULL = { order: 2.5, drink: 2.5, charger: 2, glam: 2, light: 1.5, contract: 1.5, selfie: 2 };
+
+const me = (text: string) => ({ who: 'me', text });
+const say = (who: string, text: string) => ({ who, text });
+const intro = (c: number): Scene => ({ lines: [...(CHAPTERS[c - 1]?.intro ?? []).map((t) => say(CHAPTERS[c - 1]!.client.id, t)), me('Leave it to me. Doors open in five.')] });
+const outro = (c: number, ...more: { who: string; text: string }[]): Scene => ({
+  lines: [say(CHAPTERS[c - 1]!.client.id, CHAPTERS[c - 1]!.outro), ...more],
+  twist: more.length > 0,
+});
+
+const SPECS: Spec[] = [
+  // ── Venue 1: Rooftop Glow-Up ─────────────────────────────────────────
+  {
+    name: 'Golden Hour',
+    blurb: 'Seat the first guests and keep the mocktails coming.',
+    tables: 2, guests: 7, late: 0, duration: 100, seatingTime: 60,
+    stations: ['bar', 'charge'], dishes: [], requests: { drink: 3, charger: 2 },
+    trouble: [], lives: [], twists: [], tips: ['seating', 'bar', 'charge'],
+    before: intro(1),
+  },
+  {
+    name: 'Lip Oil Launch',
+    blurb: 'The glam station opens. Beauty creators will need it.',
+    tables: 3, guests: 10, late: 0, duration: 115, seatingTime: 55,
+    stations: ['bar', 'charge', 'glam'], dishes: [], requests: { drink: 3, charger: 2, glam: 2.5 },
+    trouble: [], lives: [], twists: [], tips: ['glam', 'streak'],
+  },
+  {
+    name: 'Selfie Sunset',
+    blurb: 'Everyone wants a picture with the planner. And someone leaked the list.',
+    tables: 3, guests: 12, late: 0, duration: 125, seatingTime: 55,
+    stations: ['bar', 'charge', 'glam'], dishes: [], requests: { drink: 3, charger: 2, glam: 2, selfie: 2 },
+    trouble: [], lives: [], twists: [[60, 'heatwave']], tips: ['selfie', 'viral', 'twists'],
+    before: {
+      twist: true,
+      lines: [
+        say('bella', 'Small problem. My old planner says I fired her. By email. Last night.'),
+        me('Did you?'),
+        say('bella', 'No! Someone sent it from my account. And now my whole guest list is online.'),
+        say('leaks', 'Tonight at the Lumen Rooftop: Bella Bloom’s full guest list. You’re welcome. #TheTeaLeaks'),
+      ],
+    },
+  },
+  {
+    name: 'Bella Goes Live',
+    blurb: 'Bella streams the launch. Set up the stage when she calls.',
+    tables: 4, guests: 14, late: 0, duration: 140, seatingTime: 55,
+    stations: ['bar', 'charge', 'glam', 'light'], dishes: [], requests: { drink: 3, charger: 2, glam: 2, light: 2, selfie: 1.5 },
+    trouble: ['paparazzi'], lives: [55, 110], twists: [[80, 'selfierush']], tips: ['light', 'live', 'paparazzi'],
+    after: outro(1, say('leaks', 'Cute launch. Shame about what’s coming. See you at the Villa, {me}.')),
+  },
+  // ── Venue 2: Vibe Villa Pool Party ───────────────────────────────────
+  {
+    name: 'Snack Attack',
+    blurb: 'Craft Services is open. Take orders, serve food, clear plates.',
+    tables: 3, guests: 12, late: 0, duration: 140, seatingTime: 50,
+    stations: ['kitchen', 'bar', 'charge'], dishes: ['avotoast', 'sushi'], requests: { order: 3, drink: 3, charger: 2 },
+    trouble: ['troll'], lives: [], twists: [[70, 'deadphones']], tips: ['kitchen', 'plates', 'troll'],
+    before: intro(2),
+  },
+  {
+    name: 'Content House',
+    blurb: 'The Tea Leaks posted the address. Forty extra people are outside.',
+    tables: 4, guests: 14, late: 0, duration: 150, seatingTime: 50,
+    stations: ['kitchen', 'bar', 'charge', 'light'], dishes: ['avotoast', 'sushi', 'cupcake'], requests: { order: 3, drink: 2.5, charger: 2, light: 1.5, selfie: 1.5 },
+    trouble: ['troll', 'paparazzi'], lives: [], twists: [[50, 'leak'], [110, 'heatwave']], tips: [],
+    before: {
+      lines: [say('coco', 'The Tea Leaks posted our address. There are forty extra people outside.'), me('Then we make the ones inside feel like the only ones who matter.')],
+    },
+  },
+  {
+    name: 'Prank Wars',
+    blurb: 'Rivals at one table means drama. And an uninvited guest is coming.',
+    tables: 4, guests: 15, late: 0, duration: 155, seatingTime: 50,
+    stations: ['kitchen', 'bar', 'charge', 'glam', 'light'], dishes: ['avotoast', 'sushi', 'cupcake'], requests: { order: 3, drink: 2.5, charger: 2, glam: 1.5, light: 1.5, selfie: 1.5 },
+    trouble: ['troll', 'drama', 'paparazzi'], lives: [85], twists: [[40, 'crasher'], [120, 'deadphones']], tips: ['drama', 'crasher'],
+    before: {
+      twist: true,
+      lines: [
+        say('jax', 'So. My prank was going to be fake paparazzi.'),
+        say('coco', 'JAX.'),
+        say('jax', 'But I cancelled it! Those cameras out front are not mine.'),
+        say('rhea', 'Hi, {me}. Rhea Vale. I used to plan Bella’s parties. Coco invited me. Didn’t she?'),
+      ],
+    },
+  },
+  {
+    name: 'Pool Float Finale',
+    blurb: 'Coco goes live twice. The chef has a temper.',
+    tables: 5, guests: 17, late: 0, duration: 165, seatingTime: 50,
+    stations: ['kitchen', 'bar', 'charge', 'glam', 'light'], dishes: DISH4, requests: { order: 3, drink: 2.5, charger: 2, glam: 1.5, light: 1.5, selfie: 1.5 },
+    trouble: ['troll', 'drama', 'paparazzi'], lives: [60, 125], twists: [[45, 'chefquits'], [95, 'sponsor'], [140, 'leak']], tips: [],
+    after: outro(2, say('rhea', 'For the record, I am not The Tea Leaks. But I think I know who is being set up.'), me('Let me guess. Me?')),
+  },
+  // ── Venue 3: Neon Pod Premiere ──────────────────────────────────────
+  {
+    name: 'Brand Deal Night',
+    blurb: 'The PR desk opens. Contracts are worth big clout.',
+    tables: 4, guests: 15, late: 1, duration: 160, seatingTime: 48,
+    stations: ['kitchen', 'bar', 'charge', 'light', 'pr'], dishes: ['avotoast', 'sushi', 'cupcake'], requests: { order: 2.5, drink: 2.5, charger: 2, light: 1.5, contract: 2, selfie: 1.2 },
+    trouble: ['troll', 'paparazzi', 'wifi'], lives: [], twists: [[60, 'sponsor'], [120, 'heatwave']], tips: ['pr', 'wifi'],
+    before: intro(3),
+  },
+  {
+    name: 'Signal Lost',
+    blurb: 'Someone cut the router cable. Then the lights went out.',
+    tables: 4, guests: 14, late: 2, duration: 165, seatingTime: 48,
+    stations: ALL6, dishes: ['avotoast', 'sushi', 'cupcake'], requests: { order: 2.5, drink: 2.5, charger: 2, glam: 1.5, light: 1.5, contract: 1.5, selfie: 1.2 },
+    trouble: ['wifi', 'troll', 'drama'], lives: [95], twists: [[45, 'blackout'], [120, 'deadphones']], tips: ['blackout'],
+    before: {
+      twist: true,
+      lines: [
+        say('marcus', 'Bad news. The router cable was cut. Clean cut. Someone was in here before us.'),
+        me('The Tea Leaks?'),
+        say('marcus', 'Whoever it is wants episode one hundred to flop. On air.'),
+      ],
+    },
+  },
+  {
+    name: 'Fashionably Late',
+    blurb: 'VIPs keep showing up mid-show. One of them is Rhea.',
+    tables: 4, guests: 11, late: 4, duration: 170, seatingTime: 45,
+    stations: ALL6, dishes: DISH4, requests: { order: 2.5, drink: 2.5, charger: 2, glam: 1.5, light: 1.5, contract: 1.5, selfie: 1.2 },
+    trouble: ['wifi', 'troll', 'paparazzi'], lives: [100], twists: [[50, 'crasher'], [110, 'leak'], [150, 'glamcrisis']], tips: ['late'],
+    before: { lines: [say('rhea', 'Marcus wants me on the mic tonight. About the leaks.'), me('Then you will sit where I seat you.')] },
+  },
+  {
+    name: 'Episode 100',
+    blurb: 'Two live segments, a full house, and a very nervous router.',
+    tables: 5, guests: 17, late: 3, duration: 180, seatingTime: 45,
+    stations: ALL6, dishes: DISH4, requests: { order: 2.5, drink: 2.5, charger: 2, glam: 1.5, light: 1.5, contract: 1.5, selfie: 1.2 },
+    trouble: ['wifi', 'troll', 'drama', 'paparazzi'], lives: [60, 130], twists: [[40, 'chefquits'], [95, 'blackout'], [150, 'selfierush']], tips: [],
+    after: outro(3, say('marcus', 'One more thing. We traced the leak account. It posts from the Glowfest VIP tent.'), me('That is my next booking.')),
+  },
+  // ── Venue 4: Glowfest VIP Tent ──────────────────────────────────────
+  {
+    name: 'Sound Check',
+    blurb: 'Smoothies everywhere. Mop spills before someone slips.',
+    tables: 5, guests: 17, late: 1, duration: 175, seatingTime: 45,
+    stations: ALL6, dishes: ['avotoast', 'sushi', 'acai'], requests: { order: 2.5, drink: 3, charger: 2, glam: 1.5, light: 1.5, contract: 1.2, selfie: 1.5 },
+    trouble: ['spill', 'troll', 'paparazzi'], lives: [], twists: [[45, 'heatwave'], [100, 'leak'], [150, 'deadphones']], tips: ['spill'],
+    before: intro(4),
+  },
+  {
+    name: 'Headliner Hype',
+    blurb: 'Someone keeps flipping the power. Nova goes live mid-set.',
+    tables: 5, guests: 18, late: 2, duration: 185, seatingTime: 42,
+    stations: ALL6, dishes: DISH4, requests: { order: 2.5, drink: 3, charger: 2, glam: 1.5, light: 1.5, contract: 1.2, selfie: 1.5 },
+    trouble: ['spill', 'paparazzi', 'drama', 'wifi'], lives: [120], twists: [[50, 'blackout'], [100, 'sponsor'], [160, 'glamcrisis']], tips: [],
+    before: { lines: [say('nova', 'Someone keeps flipping the power during sound check.'), say('rhea', 'I saw a gold VIP wristband by the breaker. Just saying.')] },
+  },
+  {
+    name: 'Dust Storm',
+    blurb: 'Everything that can go wrong, will. Stay calm.',
+    tables: 5, guests: 16, late: 3, duration: 190, seatingTime: 42,
+    stations: ALL6, dishes: DISH4, requests: { order: 2.5, drink: 3, charger: 2.5, glam: 1.5, light: 1.5, contract: 1.2, selfie: 1.5 },
+    trouble: ['spill', 'wifi', 'troll', 'drama', 'paparazzi'], lives: [105], twists: [[40, 'crasher'], [90, 'blackout'], [140, 'heatwave'], [170, 'leak']], tips: [],
+    before: {
+      twist: true,
+      lines: [say('rhea', 'Plot twist: I fixed your generator. You are welcome.'), me('You... helped me?'), say('rhea', 'Someone is using both of us. I want to know who.')],
+    },
+  },
+  {
+    name: "Nova's Encore",
+    blurb: 'Six tables. Two lives. One encore.',
+    tables: 6, guests: 21, late: 3, duration: 195, seatingTime: 42,
+    stations: ALL6, dishes: DISH4, requests: { order: 2.5, drink: 3, charger: 2, glam: 1.5, light: 1.5, contract: 1.2, selfie: 1.5 },
+    trouble: ['spill', 'wifi', 'troll', 'drama', 'paparazzi'], lives: [70, 150], twists: [[45, 'chefquits'], [100, 'selfierush'], [150, 'blackout'], [180, 'deadphones']], tips: [],
+    after: outro(4, say('leaks', 'Golden Phone Awards. Two planners. One trophy. Don’t be late, {me}.')),
+  },
+  // ── Venue 5: Golden Phone Awards ────────────────────────────────────
+  {
+    name: 'Red Carpet Arrivals',
+    blurb: 'The biggest names arrive late, on purpose.',
+    tables: 5, guests: 14, late: 5, duration: 195, seatingTime: 40,
+    stations: ALL6, dishes: DISH4, requests: REQ_FULL,
+    trouble: ['paparazzi', 'troll', 'drama', 'wifi'], lives: [115], twists: [[40, 'leak'], [90, 'crasher'], [140, 'glamcrisis'], [175, 'sponsor']], tips: [],
+    before: intro(5),
+  },
+  {
+    name: 'Best Dressed',
+    blurb: 'You are nominated. So is Rhea. Glam and ring lights, nonstop.',
+    tables: 6, guests: 22, late: 2, duration: 200, seatingTime: 40,
+    stations: ALL6, dishes: DISH4, requests: { order: 2, drink: 2.5, charger: 2, glam: 3, light: 2.5, contract: 1.5, selfie: 2 },
+    trouble: ['paparazzi', 'troll', 'drama', 'spill'], lives: [100], twists: [[35, 'glamcrisis'], [85, 'blackout'], [130, 'leak'], [175, 'heatwave']], tips: [],
+    before: {
+      twist: true,
+      lines: [say('sky', 'Surprise: you are nominated for Planner of the Year.'), me('Nominated? Against who?'), say('sky', 'Rhea Vale. The winner is whoever runs tonight better.')],
+    },
+  },
+  {
+    name: 'Acceptance Speech',
+    blurb: 'Sky goes live twice. The Tea Leaks has a plan.',
+    tables: 6, guests: 21, late: 2, duration: 210, seatingTime: 40,
+    stations: ALL6, dishes: DISH4, requests: REQ_FULL,
+    trouble: ['paparazzi', 'troll', 'drama', 'wifi', 'spill'], lives: [70, 160], twists: [[30, 'deadphones'], [80, 'crasher'], [135, 'blackout'], [185, 'selfierush']], tips: [],
+    before: {
+      lines: [say('leaks', 'During Sky’s speech, everyone’s DMs go public. Unless {me} keeps the room busy.'), say('sky', 'Keep them off their phones, {me}. Whatever it takes.')],
+    },
+  },
+  {
+    name: 'Creator of the Year',
+    blurb: 'Everyone. Everything. The last night.',
+    tables: 6, guests: 20, late: 3, duration: 225, seatingTime: 40,
+    stations: ALL6, dishes: DISH4, requests: REQ_FULL,
+    trouble: ['paparazzi', 'troll', 'drama', 'wifi', 'spill'], lives: [75, 160],
+    twists: [[30, 'leak'], [70, 'chefquits'], [110, 'crasher'], [150, 'blackout'], [190, 'glamcrisis'], [210, 'sponsor']], tips: [],
+    before: { lines: [say('rhea', 'Last night. Whatever happens... good luck, {me}.')] },
+    after: {
+      twist: true,
+      lines: [
+        say('sky', 'I have a confession. The Tea Leaks... was me.'),
+        me('You?!'),
+        say('sky', 'Every leak, every blackout, every crasher was a test. I needed the best planner in Clout City for my world tour.'),
+        say('rhea', 'And the fake email to Bella’s old planner? That one was me. Sorry.'),
+        say('sky', 'Planner of the Year, {me}. The tour is yours.'),
+      ],
+    },
+  },
+];
 
 /**
- * How long guests chill between requests. Bigger parties need longer breaks
- * or nobody could keep up; `pace` above 1 makes a night busier.
+ * Per-night pace adjustments found by the balance bot so the strain on a
+ * player climbs every single night (venue upgrades included).
  */
+const PACE_TWEAK: number[] = [0.98, 0.87, 0.79, 0.68, 0.72, 0.56, 0.63, 0.69, 0.62, 0.57, 0.64, 0.65, 0.79, 1.1, 1.02, 1.03, 1.08, 0.57, 1.29, 0.68];
+
+/** [goal, expert] per night, from the balance bot. */
+const SCORES: [number, number][] = [
+  [2100, 4150], [2350, 4450], [3150, 6000], [4450, 8050], [3900, 7000],
+  [3850, 6800], [4550, 7900], [4850, 8150], [4600, 7750], [4600, 7650],
+  [4950, 8250], [5550, 8900], [4000, 7350], [5400, 9400], [5050, 9300],
+  [5350, 10100], [6100, 9850], [4750, 9450], [5800, 10900], [5900, 11400],
+];
+
+/** How long guests chill between requests: bigger parties need longer breaks. */
 function idleFor(guests: number, pace: number): [number, number] {
   const r = (v: number) => Math.round(v * 10) / 10;
   return [r((0.85 * guests + 2) / pace), r((1.35 * guests + 4) / pace)];
 }
 
-const SPECS: Spec[][] = [
-  // ── Chapter 1: Rooftop Glow-Up ──────────────────────────────────────
-  [
-    {
-      name: 'Golden Hour',
-      blurb: 'Seat the first guests and keep the mocktails coming.',
-      tables: 2, guests: 7, late: 0, duration: 100, seatingTime: 60,
-      stations: ['bar', 'charge'], dishes: [],
-      requests: { drink: 3, charger: 2 },
-      patience: 0.07, pace: 1.0, troubles: null, lives: [],
-      goal: 2050, expert: 4300, tips: ['seating', 'bar', 'charge'],
-    },
-    {
-      name: 'Lip Oil Launch',
-      blurb: 'The glam station opens. Beauty creators will need it.',
-      tables: 3, guests: 10, late: 0, duration: 120, seatingTime: 55,
-      stations: ['bar', 'charge', 'glam'], dishes: [],
-      requests: { drink: 3, charger: 2, glam: 2.5 },
-      patience: 0.078, pace: 1.03, troubles: null, lives: [],
-      goal: 2350, expert: 4700, tips: ['glam', 'streak'],
-    },
-    {
-      name: 'Selfie Sunset',
-      blurb: 'Everyone wants a picture with the planner.',
-      tables: 3, guests: 12, late: 0, duration: 130, seatingTime: 55,
-      stations: ['bar', 'charge', 'glam'], dishes: [],
-      requests: { drink: 3, charger: 2, glam: 2, selfie: 2 },
-      patience: 0.082, pace: 1.06, troubles: null, lives: [],
-      goal: 3250, expert: 6000, tips: ['selfie', 'viral'],
-    },
-    {
-      name: 'Bella Goes Live',
-      blurb: 'Bella streams the launch. Set up the stage when she calls.',
-      tables: 4, guests: 14, late: 0, duration: 150, seatingTime: 60,
-      stations: ['bar', 'charge', 'glam', 'light'], dishes: [],
-      requests: { drink: 3, charger: 2, glam: 2, light: 2, selfie: 1.5 },
-      patience: 0.085, pace: 1.08, troubles: { kinds: ['paparazzi'], first: 40, every: [32, 45], max: 1 }, lives: [55, 115],
-      goal: 4100, expert: 6950, tips: ['light', 'live', 'paparazzi'],
-    },
-  ],
-  // ── Chapter 2: Vibe Villa Pool Party ───────────────────────────────
-  [
-    {
-      name: 'Snack Attack',
-      blurb: 'Craft Services is open. Take orders, serve food, clear plates.',
-      tables: 3, guests: 11, late: 0, duration: 140, seatingTime: 55,
-      stations: ['kitchen', 'bar', 'charge'], dishes: ['avotoast', 'sushi'],
-      requests: { order: 3, drink: 3, charger: 2 },
-      patience: 0.08, pace: 1.0, troubles: null, lives: [],
-      goal: 3800, expert: 6850, tips: ['kitchen', 'plates'],
-    },
-    {
-      name: 'Content House',
-      blurb: 'Trolls follow the Villa everywhere. Block them on sight.',
-      tables: 4, guests: 14, late: 0, duration: 150, seatingTime: 60,
-      stations: ['kitchen', 'bar', 'charge', 'light'], dishes: ['avotoast', 'sushi', 'cupcake'],
-      requests: { order: 3, drink: 2.5, charger: 2, light: 1.5, selfie: 1.5 },
-      patience: 0.085, pace: 1.04, troubles: { kinds: ['troll'], first: 30, every: [26, 38], max: 1 }, lives: [],
-      goal: 3350, expert: 7350, tips: ['troll'],
-    },
-    {
-      name: 'Prank Wars',
-      blurb: 'Rivals at the same table means drama. Seat them apart.',
-      tables: 4, guests: 15, late: 0, duration: 160, seatingTime: 60,
-      stations: ['kitchen', 'bar', 'charge', 'glam', 'light'], dishes: ['avotoast', 'sushi', 'cupcake'],
-      requests: { order: 3, drink: 2.5, charger: 2, glam: 1.5, light: 1.5, selfie: 1.5 },
-      patience: 0.088, pace: 1.07, troubles: { kinds: ['troll', 'drama', 'paparazzi'], first: 25, every: [24, 34], max: 2 }, lives: [80],
-      goal: 4250, expert: 8000, tips: ['drama'],
-    },
-    {
-      name: 'Pool Float Finale',
-      blurb: 'Coco goes live twice. The whole Villa is watching.',
-      tables: 5, guests: 18, late: 0, duration: 170, seatingTime: 65,
-      stations: ['kitchen', 'bar', 'charge', 'glam', 'light'], dishes: ['avotoast', 'sushi', 'cupcake', 'acai'],
-      requests: { order: 3, drink: 2.5, charger: 2, glam: 1.5, light: 1.5, selfie: 1.5 },
-      patience: 0.09, pace: 1.1, troubles: { kinds: ['troll', 'drama', 'paparazzi'], first: 25, every: [22, 32], max: 2 }, lives: [60, 125],
-      goal: 4250, expert: 8000, tips: [],
-    },
-  ],
-  // ── Chapter 3: Neon Pod Premiere ───────────────────────────────────
-  [
-    {
-      name: 'Brand Deal Night',
-      blurb: 'The PR desk opens. Contracts are worth big clout.',
-      tables: 4, guests: 15, late: 0, duration: 160, seatingTime: 60,
-      stations: ['kitchen', 'bar', 'charge', 'light', 'pr'], dishes: ['avotoast', 'sushi', 'cupcake'],
-      requests: { order: 2.5, drink: 2.5, charger: 2, light: 1.5, contract: 2, selfie: 1.2 },
-      patience: 0.088, pace: 1.05, troubles: { kinds: ['troll', 'paparazzi'], first: 30, every: [26, 36], max: 1 }, lives: [],
-      goal: 4250, expert: 8050, tips: ['pr'],
-    },
-    {
-      name: 'Signal Lost',
-      blurb: 'When the Wi-Fi drops, everybody gets cranky. Fast.',
-      tables: 4, guests: 15, late: 0, duration: 160, seatingTime: 60,
-      stations: ['kitchen', 'bar', 'charge', 'glam', 'light', 'pr'], dishes: ['avotoast', 'sushi', 'cupcake'],
-      requests: { order: 2.5, drink: 2.5, charger: 2, glam: 1.5, light: 1.5, contract: 1.5, selfie: 1.2 },
-      patience: 0.09, pace: 1.08, troubles: { kinds: ['wifi', 'troll', 'drama'], first: 25, every: [22, 32], max: 2 }, lives: [90],
-      goal: 4500, expert: 7900, tips: ['wifi'],
-    },
-    {
-      name: 'Fashionably Late',
-      blurb: 'VIPs keep showing up mid-show. Find them a good seat.',
-      tables: 4, guests: 11, late: 5, duration: 170, seatingTime: 55,
-      stations: ['kitchen', 'bar', 'charge', 'glam', 'light', 'pr'], dishes: ['avotoast', 'sushi', 'cupcake', 'acai'],
-      requests: { order: 2.5, drink: 2.5, charger: 2, glam: 1.5, light: 1.5, contract: 1.5, selfie: 1.2 },
-      patience: 0.09, pace: 1.1, troubles: { kinds: ['wifi', 'troll', 'paparazzi'], first: 30, every: [24, 34], max: 2 }, lives: [100],
-      goal: 4750, expert: 8000, tips: ['late'],
-    },
-    {
-      name: 'Episode 100',
-      blurb: 'Two live segments, a full house, and that router.',
-      tables: 5, guests: 17, late: 3, duration: 180, seatingTime: 65,
-      stations: ['kitchen', 'bar', 'charge', 'glam', 'light', 'pr'], dishes: ['avotoast', 'sushi', 'cupcake', 'acai'],
-      requests: { order: 2.5, drink: 2.5, charger: 2, glam: 1.5, light: 1.5, contract: 1.5, selfie: 1.2 },
-      patience: 0.092, pace: 1.08, troubles: { kinds: ['wifi', 'troll', 'drama', 'paparazzi'], first: 22, every: [20, 30], max: 2 }, lives: [60, 130],
-      goal: 4800, expert: 9300, tips: [],
-    },
-  ],
-  // ── Chapter 4: Glowfest VIP Tent ──────────────────────────────────
-  [
-    {
-      name: 'Sound Check',
-      blurb: 'Smoothies everywhere. Mop spills before someone slips.',
-      tables: 5, guests: 17, late: 0, duration: 170, seatingTime: 65,
-      stations: ['kitchen', 'bar', 'charge', 'glam', 'light'], dishes: ['avotoast', 'sushi', 'acai'],
-      requests: { order: 2.5, drink: 3, charger: 2, glam: 1.5, light: 1.5, selfie: 1.5 },
-      patience: 0.09, pace: 1.06, troubles: { kinds: ['spill', 'troll'], first: 25, every: [20, 30], max: 2 }, lives: [],
-      goal: 4250, expert: 8000, tips: ['spill'],
-    },
-    {
-      name: 'Headliner Hype',
-      blurb: 'Nova is about to go on. The tent is packed.',
-      tables: 5, guests: 18, late: 2, duration: 180, seatingTime: 65,
-      stations: ['kitchen', 'bar', 'charge', 'glam', 'light', 'pr'], dishes: ['avotoast', 'sushi', 'cupcake', 'acai'],
-      requests: { order: 2.5, drink: 3, charger: 2, glam: 1.5, light: 1.5, contract: 1.2, selfie: 1.5 },
-      patience: 0.092, pace: 1.12, troubles: { kinds: ['spill', 'paparazzi', 'drama'], first: 22, every: [20, 30], max: 2 }, lives: [75, 140],
-      goal: 6300, expert: 9850, tips: [],
-    },
-    {
-      name: 'Dust Storm',
-      blurb: 'Everything that can go wrong, will. Stay calm.',
-      tables: 5, guests: 17, late: 3, duration: 180, seatingTime: 65,
-      stations: ['kitchen', 'bar', 'charge', 'glam', 'light', 'pr'], dishes: ['avotoast', 'sushi', 'cupcake', 'acai'],
-      requests: { order: 2.5, drink: 3, charger: 2.5, glam: 1.5, light: 1.5, contract: 1.2, selfie: 1.5 },
-      patience: 0.095, pace: 1.14, troubles: { kinds: ['spill', 'wifi', 'troll', 'drama', 'paparazzi'], first: 18, every: [16, 24], max: 3 }, lives: [100],
-      goal: 5300, expert: 9050, tips: [],
-    },
-    {
-      name: "Nova's Encore",
-      blurb: 'Six tables. Two lives. One encore.',
-      tables: 6, guests: 21, late: 3, duration: 190, seatingTime: 70,
-      stations: ['kitchen', 'bar', 'charge', 'glam', 'light', 'pr'], dishes: ['avotoast', 'sushi', 'cupcake', 'acai'],
-      requests: { order: 2.5, drink: 3, charger: 2, glam: 1.5, light: 1.5, contract: 1.2, selfie: 1.5 },
-      patience: 0.095, pace: 1.12, troubles: { kinds: ['spill', 'wifi', 'troll', 'drama', 'paparazzi'], first: 20, every: [18, 26], max: 2 }, lives: [70, 145],
-      goal: 6100, expert: 10300, tips: [],
-    },
-  ],
-  // ── Chapter 5: Golden Phone Awards ────────────────────────────────
-  [
-    {
-      name: 'Red Carpet Arrivals',
-      blurb: 'The biggest names arrive late, on purpose.',
-      tables: 5, guests: 14, late: 6, duration: 180, seatingTime: 60,
-      stations: ['kitchen', 'bar', 'charge', 'glam', 'light', 'pr'], dishes: ['avotoast', 'sushi', 'cupcake', 'acai'],
-      requests: { order: 2.5, drink: 2.5, charger: 2, glam: 2, light: 1.5, contract: 1.5, selfie: 2 },
-      patience: 0.095, pace: 1.12, troubles: { kinds: ['paparazzi', 'troll', 'drama'], first: 22, every: [20, 28], max: 2 }, lives: [110],
-      goal: 5800, expert: 9250, tips: [],
-    },
-    {
-      name: 'Best Dressed',
-      blurb: 'Glam and ring lights, nonstop. Everyone wants to win.',
-      tables: 6, guests: 22, late: 2, duration: 190, seatingTime: 70,
-      stations: ['kitchen', 'bar', 'charge', 'glam', 'light', 'pr'], dishes: ['avotoast', 'sushi', 'cupcake', 'acai'],
-      requests: { order: 2, drink: 2.5, charger: 2, glam: 3, light: 2.5, contract: 1.5, selfie: 2 },
-      patience: 0.095, pace: 1.03, troubles: { kinds: ['paparazzi', 'troll', 'drama', 'spill'], first: 20, every: [18, 26], max: 2 }, lives: [95],
-      goal: 5250, expert: 9100, tips: [],
-    },
-    {
-      name: 'Acceptance Speech',
-      blurb: 'Sky goes live three times. Do not miss one.',
-      tables: 6, guests: 22, late: 2, duration: 200, seatingTime: 70,
-      stations: ['kitchen', 'bar', 'charge', 'glam', 'light', 'pr'], dishes: ['avotoast', 'sushi', 'cupcake', 'acai'],
-      requests: { order: 2.5, drink: 2.5, charger: 2, glam: 2, light: 2, contract: 1.5, selfie: 2 },
-      patience: 0.1, pace: 1.18, troubles: { kinds: ['paparazzi', 'troll', 'drama', 'wifi', 'spill'], first: 20, every: [18, 26], max: 2 }, lives: [50, 105, 160],
-      goal: 7700, expert: 11200, tips: [],
-    },
-    {
-      name: 'Creator of the Year',
-      blurb: 'Everyone. Everything. Make it legendary.',
-      tables: 6, guests: 20, late: 4, duration: 220, seatingTime: 75,
-      stations: ['kitchen', 'bar', 'charge', 'glam', 'light', 'pr'], dishes: ['avotoast', 'sushi', 'cupcake', 'acai'],
-      requests: { order: 2.5, drink: 2.5, charger: 2, glam: 2, light: 2, contract: 1.5, selfie: 2 },
-      patience: 0.102, pace: 1.12, troubles: { kinds: ['paparazzi', 'troll', 'drama', 'wifi', 'spill'], first: 18, every: [16, 24], max: 3 }, lives: [70, 150],
-      goal: 6350, expert: 11950, tips: [],
-    },
-  ],
-];
-
-export const LEVELS: LevelDef[] = SPECS.flatMap((specs, c) =>
-  specs.map(({ pace, ...spec }, i) => {
-    const chapter = c + 1;
-    const index = i + 1;
-    return {
-      ...spec,
-      id: `${chapter}-${index}`,
-      chapter,
-      index,
-      idle: idleFor(spec.guests + spec.late * 0.5, pace),
-      cast: cast(chapter, chapter * 101 + index * 7, spec.guests + spec.late),
-    };
-  }),
-);
+export const LEVELS: LevelDef[] = SPECS.map((spec, i) => {
+  const heat = i + 1;
+  const chapter = Math.floor(i / 4) + 1;
+  const index = (i % 4) + 1;
+  const pace = (1 + 0.013 * i) * (PACE_TWEAK[i] ?? 1);
+  const [goal, expert] = SCORES[i] ?? [0, 0];
+  const { trouble, twists, ...rest } = spec;
+  return {
+    ...rest,
+    id: `${chapter}-${index}`,
+    chapter,
+    index,
+    heat,
+    patience: Math.round((0.068 + 0.0021 * i) * 1000) / 1000,
+    idle: idleFor(spec.guests + spec.late * 0.5, pace),
+    troubles: trouble.length
+      ? { kinds: trouble, first: Math.max(14, 40 - heat), every: [Math.max(12, 34 - heat), Math.max(18, 46 - Math.round(1.2 * heat))], max: heat < 6 ? 1 : heat < 14 ? 2 : 3 }
+      : null,
+    twists: twists.map(([at, kind]) => ({ at, kind })),
+    goal,
+    expert,
+    cast: cast(chapter, chapter * 101 + index * 7, spec.guests + spec.late),
+  };
+});
 
 export const LEVELS_BY_ID: Record<string, LevelDef> = Object.fromEntries(LEVELS.map((l) => [l.id, l]));
 
@@ -370,6 +439,21 @@ export const TIPS: Record<TipId, { title: string; body: string; icon: string }> 
   drama: { title: 'Drama', body: 'Rivals and clashing niches can start beefing. Tap either guest to mediate. Smart seating prevents most of it.', icon: 'drama' },
   wifi: { title: 'Wi-Fi down', body: 'Nobody can post, so everybody gets cranky faster. Tap the router at the bottom left to reboot it.', icon: 'wifi' },
   spill: { title: 'Spills', body: 'A puddle slows you down and grosses out the nearest table. Tap it to mop.', icon: 'spill' },
+  twists: {
+    title: 'Plot twists',
+    body: 'Anything can happen mid-night: a heat wave, every phone dying at once, a surprise A-lister. When the banner says PLOT TWIST, look around and react fast.',
+    icon: 'twist',
+  },
+  blackout: {
+    title: 'Blackout',
+    body: 'The power cuts out and everyone gets cranky fast. Tap the router at the bottom left to reset it.',
+    icon: 'wifi',
+  },
+  crasher: {
+    title: 'Party crashers',
+    body: 'Uninvited VIPs show up at the rope. Seat them quickly (they are worth triple), and keep them away from their rivals. If they walk out, it costs a lot.',
+    icon: 'late',
+  },
   late: {
     title: 'Fashionably late',
     body: 'VIPs arrive at the velvet rope mid-party. Tap them, then tap any empty seat. Do not keep them waiting.',

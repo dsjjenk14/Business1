@@ -1,4 +1,4 @@
-import { DISHES, REQUESTS, ROSTER_BY_ID, STATIONS, TRAITS, TROUBLES, NICHE_WANTS, chemistry, starPower } from './content';
+import { DISHES, REQUESTS, RHEA, ROSTER, ROSTER_BY_ID, STATIONS, TRAITS, TROUBLES, TWISTS, NICHE_WANTS, chemistry, starPower } from './content';
 import { BAD, GOOD, GOOD_FOR, fill } from './feed';
 import {
   BIN_STAND,
@@ -26,6 +26,7 @@ import type {
   Target,
   Trouble,
   TroubleKind,
+  TwistKind,
   Upgrades,
   Vec,
 } from './types';
@@ -46,7 +47,7 @@ const VIRAL_LENGTH = 10;
 
 // ─── Setup ────────────────────────────────────────────────────────────────
 
-export function createGame(level: LevelDef, upgrades: Upgrades, seed = Date.now()): GameState {
+export function createGame(level: LevelDef, upgrades: Upgrades, seed = Date.now(), opts: { me?: string } = {}): GameState {
   const rng = mulberry32(seed);
   const eff = effects(upgrades);
   const { tables, seats } = buildTables(level.tables);
@@ -71,6 +72,7 @@ export function createGame(level: LevelDef, upgrades: Upgrades, seed = Date.now(
       served: 0,
       walkTo: null,
       meal: null,
+      vip: false,
     };
   });
   // Late arrivals are spread through the middle of the night.
@@ -89,7 +91,7 @@ export function createGame(level: LevelDef, upgrades: Upgrades, seed = Date.now(
     clock: 0,
     rng,
     score: 0,
-    breakdown: { seating: 0, service: 0, streaks: 0, troubles: 0, live: 0, viral: 0, late: 0, happy: 0, cleanFeed: 0, penalties: 0 },
+    breakdown: { seating: 0, service: 0, streaks: 0, troubles: 0, live: 0, viral: 0, late: 0, happy: 0, cleanFeed: 0, sponsor: 0, penalties: 0 },
     vibe: 0,
     viral: 0,
     streak: { cat: '', n: 0, best: 0 },
@@ -120,8 +122,12 @@ export function createGame(level: LevelDef, upgrades: Upgrades, seed = Date.now(
     fx: [],
     feed: [],
     events: [],
-    stats: { served: 0, unfollows: 0, troubles: 0, lives: 0, seatedLate: 0, wrong: 0 },
+    stats: { served: 0, unfollows: 0, troubles: 0, lives: 0, seatedLate: 0, wrong: 0, twists: 0 },
     ids: 0,
+    me: opts.me ?? 'Zara',
+    twistNext: 0,
+    chefGone: 0,
+    sponsor: 0,
   };
 }
 
@@ -246,7 +252,7 @@ export function selectLate(s: GameState, guestId: string) {
   s.selected = s.selected === guestId ? null : guestId;
 }
 
-/** Queues a task for Kiki. Returns false when it was ignored. */
+/** Queues a task for the planner. Returns false when it was ignored. */
 export function tap(s: GameState, target: Target): boolean {
   if (s.phase !== 'party') return false;
   if (target.kind === 'seat') {
@@ -293,10 +299,10 @@ function seatLate(s: GameState, guestId: string, seatId: number) {
   s.selected = null;
   s.lateQueue = s.lateQueue.filter((id) => id !== g.id);
   s.stats.seatedLate += 1;
-  const pts = Math.round(50 * (0.6 + 0.12 * g.mood) * starPower(g.profile.followers));
+  const pts = Math.round((g.vip ? 160 : 50) * (0.6 + 0.12 * g.mood) * starPower(g.profile.followers));
   s.score += pts;
   s.breakdown.late += pts;
-  addText(s, seat.pos, `+${pts}`, '#7CF29C');
+  addText(s, seat.pos, g.vip ? `VIP seated +${pts}` : `+${pts}`, '#7CF29C');
 }
 
 // ─── The loop ─────────────────────────────────────────────────────────────
@@ -314,6 +320,8 @@ export function step(s: GameState, dtIn: number) {
   s.time += dt;
   const eff = effects(s.upgrades);
   if (s.viral > 0) s.viral = Math.max(0, s.viral - dt);
+  if (s.sponsor > 0) s.sponsor = Math.max(0, s.sponsor - dt);
+  updateTwists(s);
   updateLate(s);
   updateTroubleSchedule(s);
   updateLive(s, dt);
@@ -348,6 +356,9 @@ function troubleDrain(s: GameState, g: Guest, eff: Effects): number {
         break;
       case 'wifi':
         drain += eff.wifiDrain;
+        break;
+      case 'blackout':
+        drain += 0.7;
         break;
     }
   }
@@ -449,7 +460,7 @@ function storm(s: GameState, g: Guest, where: 'seat' | 'rope') {
   g.walkTo = { ...ENTRANCE };
   if (s.selected === g.id) s.selected = null;
   s.lateQueue = s.lateQueue.filter((id) => id !== g.id);
-  const penalty = where === 'rope' ? 40 : 60;
+  const penalty = g.vip ? 150 : where === 'rope' ? 40 : 60;
   s.score -= penalty;
   s.breakdown.penalties += penalty;
   s.vibe = Math.max(0, s.vibe - 25);
@@ -496,7 +507,7 @@ function standFor(s: GameState, target: Target): Vec | null {
     case 'trouble': {
       const t = s.troubles.find((x) => x.id === target.id && !x.leaving);
       if (!t) return null;
-      if (t.kind === 'wifi') return ROUTER_STAND;
+      if (t.kind === 'wifi' || t.kind === 'blackout') return ROUTER_STAND;
       if (t.kind === 'drama') {
         const g = guestById(s, t.guests[0] ?? null);
         return g && g.seat >= 0 ? (s.seats[g.seat]?.stand ?? null) : null;
@@ -644,12 +655,12 @@ function perform(s: GameState, target: Target) {
       return;
     }
     case 'router': {
-      const t = s.troubles.find((x) => x.kind === 'wifi' && x.active);
+      const t = s.troubles.find((x) => x.kind === 'blackout' && x.active) ?? s.troubles.find((x) => x.kind === 'wifi' && x.active);
       if (!t) {
-        addText(s, ROUTER_STAND, 'Wi-Fi is fine', '#FFFFFF');
+        addText(s, ROUTER_STAND, 'All systems fine', '#FFFFFF');
         return;
       }
-      busy(s, 'Reboot', TROUBLES.wifi.time, target, () => resolveTrouble(s, t, true));
+      busy(s, TROUBLES[t.kind].fix, TROUBLES[t.kind].time, target, () => resolveTrouble(s, t, true));
       return;
     }
   }
@@ -794,17 +805,20 @@ function score(s: GameState, g: Guest | null, cat: string, base: number, moodGai
   s.streak.best = Math.max(s.streak.best, s.streak.n);
   const streakMult = Math.min(3, 1 + 0.25 * (s.streak.n - 1));
   const viralMult = s.viral > 0 ? 2 : 1;
+  const sponsorMult = s.sponsor > 0 ? 1.5 : 1;
   const moodMult = g ? 0.6 + 0.12 * g.mood : 1;
   const star = g ? starPower(g.profile.followers) * (g.profile.trait === 'diva' ? 1.5 : 1) : 1;
   const raw = base * moodMult * star;
   const withStreak = Math.round(raw * streakMult);
-  const pts = Math.round(raw * streakMult * viralMult);
+  const withViral = Math.round(raw * streakMult * viralMult);
+  const pts = Math.round(raw * streakMult * viralMult * sponsorMult);
   s.breakdown[bucket] += Math.round(raw);
   s.breakdown.streaks += withStreak - Math.round(raw);
-  s.breakdown.viral += pts - withStreak;
+  s.breakdown.viral += withViral - withStreak;
+  s.breakdown.sponsor += pts - withViral;
   s.score += pts;
   const at = g ? g.pos : s.player.pos;
-  addText(s, { x: at.x, y: at.y - 30 }, `+${pts}`, viralMult > 1 ? '#FFD166' : '#FFFFFF');
+  addText(s, { x: at.x, y: at.y - 30 }, `+${pts}`, viralMult > 1 || sponsorMult > 1 ? '#FFD166' : '#FFFFFF');
   if (s.streak.n >= 2) {
     addText(s, { x: at.x, y: at.y - 52 }, `Streak ×${streakMult.toFixed(2).replace(/0$/, '').replace(/\.0$/, '')}`, '#FF8FD8');
     s.events.push({ kind: 'streak', n: s.streak.n });
@@ -838,7 +852,7 @@ function serve(s: GameState, g: Guest, kind: RequestKind, base: number, moodGain
   addFx(s, { kind: 'hearts', pos: { x: g.pos.x, y: g.pos.y - 18 }, ttl: 0.9 });
   if (s.rng() < 0.35) {
     const lines = GOOD_FOR[kind] ?? GOOD;
-    post(s, g.profile.handle, fill(pick(s.rng, s.rng() < 0.6 ? lines : GOOD), { dish: 'food' }), 'good');
+    post(s, g.profile.handle, fill(pick(s.rng, s.rng() < 0.6 ? lines : GOOD), { dish: 'food', me: s.me }), 'good');
   }
 }
 
@@ -846,6 +860,10 @@ function serve(s: GameState, g: Guest, kind: RequestKind, base: number, moodGain
 
 function updateKitchen(s: GameState, dt: number) {
   const k = s.kitchen;
+  if (s.chefGone > 0) {
+    s.chefGone = Math.max(0, s.chefGone - dt);
+    return;
+  }
   for (const c of k.cooking) c.left -= dt;
   while (k.cooking.length && (k.cooking[0] as { left: number }).left <= 0 && k.ready.length < 6) {
     const done = k.cooking.shift();
@@ -937,7 +955,7 @@ function busyTables(s: GameState): number[] {
 }
 
 function canSpawn(s: GameState, kind: TroubleKind): boolean {
-  if (kind === 'wifi') return !s.troubles.some((t) => t.kind === 'wifi');
+  if (kind === 'wifi' || kind === 'blackout') return !s.troubles.some((t) => t.kind === kind);
   if (kind === 'drama') return s.tables.some((t) => seatedAt(s, t.id).filter((g) => g.drama === null).length >= 2);
   return busyTables(s).length > 0;
 }
@@ -945,7 +963,7 @@ function canSpawn(s: GameState, kind: TroubleKind): boolean {
 export function spawnTrouble(s: GameState, kind: TroubleKind) {
   const id = nextId(s);
   const base: Trouble = { id, kind, pos: { x: 200, y: 400 }, dest: null, table: -1, guests: [], age: 0, active: true, leaving: false };
-  if (kind === 'wifi') {
+  if (kind === 'wifi' || kind === 'blackout') {
     base.pos = { ...ROUTER };
   } else if (kind === 'drama') {
     // The worst pair in the room starts it.
@@ -1016,6 +1034,9 @@ function updateTroubles(s: GameState, dt: number, eff: Effects) {
     if ((t.kind === 'paparazzi' || t.kind === 'troll') && t.active && t.age >= eff.guard) {
       addText(s, t.pos, 'Bodyguard!', '#9BE7FF');
       resolveTrouble(s, t, false);
+    } else if (t.kind === 'blackout' && t.age >= 30) {
+      addText(s, t.pos, 'Power back', '#9BE7FF');
+      clearTrouble(s, t);
     } else if (t.kind === 'wifi' && t.age >= eff.wifiAuto) {
       addText(s, t.pos, 'Mesh Wi-Fi', '#9BE7FF');
       resolveTrouble(s, t, false);
@@ -1044,7 +1065,7 @@ function resolveTrouble(s: GameState, t: Trouble, byPlayer: boolean) {
     if (g.seat < 0 || g.state === 'leaving' || g.state === 'gone') continue;
     const table = s.seats[g.seat]?.table;
     if (t.guests.includes(g.id)) g.mood = Math.min(5, g.mood + 0.75);
-    else if (t.kind === 'wifi' || table === t.table) g.mood = Math.min(5, g.mood + 0.3);
+    else if (t.kind === 'wifi' || t.kind === 'blackout' || table === t.table) g.mood = Math.min(5, g.mood + 0.3);
   }
   if (t.kind === 'paparazzi') {
     t.leaving = true;
@@ -1054,6 +1075,97 @@ function resolveTrouble(s: GameState, t: Trouble, byPlayer: boolean) {
     clearTrouble(s, t);
   }
   s.events.push({ kind: 'fixed', trouble: t.kind });
+}
+
+// ─── Plot twists ──────────────────────────────────────────────────────────
+
+function updateTwists(s: GameState) {
+  while (s.twistNext < s.level.twists.length && s.time >= (s.level.twists[s.twistNext] as { at: number }).at) {
+    const t = s.level.twists[s.twistNext] as { kind: TwistKind };
+    s.twistNext += 1;
+    applyTwist(s, t.kind);
+  }
+}
+
+/** Everyone who's just chilling suddenly wants the same thing. */
+function rush(s: GameState, kind: RequestKind) {
+  for (const g of s.guests) {
+    if (g.seat < 0 || g.state !== 'idle' || g.drama !== null) continue;
+    g.request = { kind, age: 0 };
+    g.lastRequest = kind;
+    g.state = 'want';
+  }
+}
+
+export function applyTwist(s: GameState, kind: TwistKind) {
+  const has = (st: string) => s.stations.some((x) => x.kind === st);
+  let actual: TwistKind = kind;
+  if (kind === 'glamcrisis' && !has('glam')) actual = 'heatwave';
+  if (kind === 'chefquits' && !has('kitchen')) actual = 'deadphones';
+  switch (actual) {
+    case 'heatwave':
+      rush(s, 'drink');
+      break;
+    case 'deadphones':
+      rush(s, 'charger');
+      break;
+    case 'selfierush':
+      rush(s, 'selfie');
+      break;
+    case 'glamcrisis':
+      rush(s, 'glam');
+      break;
+    case 'crasher':
+      addCrasher(s);
+      break;
+    case 'leak':
+      spawnTrouble(s, 'paparazzi');
+      spawnTrouble(s, 'paparazzi');
+      break;
+    case 'blackout':
+      if (canSpawn(s, 'blackout')) spawnTrouble(s, 'blackout');
+      break;
+    case 'chefquits':
+      s.chefGone = 15;
+      break;
+    case 'sponsor':
+      s.sponsor = 15;
+      break;
+  }
+  s.stats.twists += 1;
+  const info = TWISTS[actual];
+  s.events.push({ kind: 'twist', twist: actual, title: info.title, text: info.text, short: info.short });
+  addText(s, { x: 200, y: 300 }, 'PLOT TWIST', '#FF8FD8', true);
+  post(s, actual === 'sponsor' ? '@cloutcitynews' : '@thetealeaks', info.text, actual === 'sponsor' ? 'news' : 'bad');
+}
+
+/** An uninvited VIP at the rope: Rhea Vale the first time, then a surprise A-lister. */
+function addCrasher(s: GameState) {
+  const present = new Set(s.guests.map((g) => g.id));
+  const profile = !present.has(RHEA.id) ? RHEA : ROSTER.filter((p) => !present.has(p.id)).sort((a, b) => b.followers - a.followers)[0];
+  if (!profile) return;
+  const g: Guest = {
+    id: profile.id,
+    profile,
+    seat: -1,
+    pos: { ...ENTRANCE },
+    mood: 3,
+    state: 'waitingSeat',
+    request: null,
+    lastRequest: null,
+    timer: 0,
+    late: true,
+    drama: null,
+    love: 0,
+    shake: 0,
+    served: 0,
+    walkTo: null,
+    meal: null,
+    vip: true,
+  };
+  s.guests.push(g);
+  s.lateQueue.push(g.id);
+  s.events.push({ kind: 'late', guest: g.id });
 }
 
 // ─── Ending ───────────────────────────────────────────────────────────────

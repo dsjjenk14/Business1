@@ -29,7 +29,15 @@ export type RequestKind = SimpleItem | 'selfie' | 'order' | 'food' | 'plate';
 
 export type Request = { kind: RequestKind; dish?: Dish; age: number };
 
-export type TroubleKind = 'paparazzi' | 'troll' | 'drama' | 'wifi' | 'spill';
+export type TroubleKind = 'paparazzi' | 'troll' | 'drama' | 'wifi' | 'spill' | 'blackout';
+
+/** Surprises that hit mid-night. */
+export type TwistKind = 'heatwave' | 'deadphones' | 'selfierush' | 'glamcrisis' | 'crasher' | 'leak' | 'blackout' | 'chefquits' | 'sponsor';
+
+/** A line in a story scene. `who` is a profile id ('me' is the player's planner, 'leaks' the anonymous account). */
+export type StoryLine = { who: string; text: string };
+
+export type Scene = { lines: StoryLine[]; twist?: boolean };
 
 /** Personality: changes how fast they lose patience and what they ask for. */
 export type Trait = 'chill' | 'diva' | 'hungry' | 'selfie' | 'hustler' | 'none';
@@ -57,6 +65,25 @@ export type Look = {
   lashes?: boolean;
   /** Neckline; follows the outfit pattern when left out. */
   neck?: 'crew' | 'v' | 'collar' | 'hood' | 'scoop';
+  /** natural (default), glam (mascara, liner, shimmer, highlighter) or bold (dramatic wing). */
+  makeup?: 'natural' | 'glam' | 'bold';
+  /** Gold jewelry. */
+  earrings?: 'hoops' | 'studs' | 'drops';
+  necklace?: 'chain' | 'layered' | 'pendant';
+  /** Things they carry or wear: drawn on portraits and on the planner. */
+  gear?: Gear;
+};
+
+export type PhoneFinish = 'titanium' | 'midnight' | 'pink' | 'gold';
+export type WatchBand = 'midnight' | 'starlight' | 'gold' | 'pink';
+export type BagKind = 'quilted' | 'monogram' | 'mini' | 'croc';
+
+export type Gear = {
+  phone?: PhoneFinish;
+  watch?: WatchBand;
+  bag?: BagKind;
+  /** A slim earpiece with a mic: the planner's headset. */
+  headset?: boolean;
 };
 
 /** A creator in the roster. */
@@ -100,6 +127,8 @@ export type Guest = {
   love: number;
   /** Seconds left of the head shake when you bring the wrong thing. */
   shake: number;
+  /** A party crasher from a plot twist: worth more seated, costs more if they walk. */
+  vip: boolean;
   served: number;
   walkTo: Vec | null;
   /** What's on their plate while they eat. */
@@ -177,6 +206,7 @@ export type GameEvent =
   | { kind: 'streak'; n: number }
   | { kind: 'late'; guest: string }
   | { kind: 'queueFull' }
+  | { kind: 'twist'; twist: TwistKind; title: string; text: string; short: string }
   | { kind: 'end' };
 
 export type Breakdown = {
@@ -189,6 +219,7 @@ export type Breakdown = {
   late: number;
   happy: number;
   cleanFeed: number;
+  sponsor: number;
   penalties: number;
 };
 
@@ -214,7 +245,10 @@ export type TipId =
   | 'drama'
   | 'wifi'
   | 'spill'
-  | 'late';
+  | 'late'
+  | 'twists'
+  | 'blackout'
+  | 'crasher';
 
 export type LevelDef = {
   id: string;
@@ -243,6 +277,13 @@ export type LevelDef = {
   tips: TipId[];
   /** Who's invited (roster ids). */
   cast: string[];
+  /** Mid-night surprises, by party-clock second. */
+  twists: { at: number; kind: TwistKind }[];
+  /** Story scenes before and after this night (plot twists live here). */
+  before?: Scene;
+  after?: Scene;
+  /** 1 = first night; climbs every night. Shown on the level card. */
+  heat: number;
 };
 
 export type Chapter = {
@@ -289,6 +330,13 @@ export type GameState = {
   fx: Fx[];
   feed: FeedPost[];
   events: GameEvent[];
-  stats: { served: number; unfollows: number; troubles: number; lives: number; seatedLate: number; wrong: number };
+  stats: { served: number; unfollows: number; troubles: number; lives: number; seatedLate: number; wrong: number; twists: number };
   ids: number;
+  /** The player's planner, by first name, for feed posts. */
+  me: string;
+  twistNext: number;
+  /** Seconds left: kitchen closed (chef walked out). */
+  chefGone: number;
+  /** Seconds left: a sponsor pays 1.5× clout. */
+  sponsor: number;
 };

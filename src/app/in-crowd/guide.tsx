@@ -8,9 +8,9 @@ import { GuestCard } from '@/components/in-crowd/GuestCard';
 import { GameIcon, type IconName } from '@/components/in-crowd/Icons';
 import { GText, IconCircle, NicheChip, Panel, Pill } from '@/components/in-crowd/Parts';
 import { UI } from '@/components/in-crowd/palette';
-import { NICHES, NICHE_ORDER, REQUESTS, ROSTER, STATIONS, TRAITS, TROUBLES, formatFollowers } from '@/features/in-crowd/engine/content';
+import { NICHES, NICHE_ORDER, REQUESTS, ROSTER, STATIONS, TRAITS, TROUBLES, TWISTS, formatFollowers } from '@/features/in-crowd/engine/content';
 import { CHAPTERS, TIPS } from '@/features/in-crowd/engine/levels';
-import type { Niche, RequestKind, TipId } from '@/features/in-crowd/engine/types';
+import type { Niche, RequestKind, TipId, TwistKind } from '@/features/in-crowd/engine/types';
 import { goBackOr } from '@/lib/navigation';
 
 type Tab = 'basics' | 'guests' | 'venues';
@@ -34,6 +34,7 @@ const TIP_ICON: Record<string, IconName> = {
   wifi: 'wifi',
   spill: 'spill',
   late: 'late',
+  twist: 'twist',
 };
 
 const REQUEST_ICON: Record<RequestKind, IconName> = {
@@ -120,6 +121,30 @@ export default function InCrowdGuide() {
             </Panel>
             <Panel style={{ gap: 8 }}>
               <GText font="black" size={16}>
+                VIP Passes
+              </GText>
+              <GText size={13} color={UI.muted}>
+                Opening the doors on a night uses a VIP Pass. Pass the night (one star or more) and you get it back; fall short and it’s gone. You can hold 3 for free, and a new one arrives every 20 minutes. Out of passes? Wait, trade 300 coins for one, or get a pack in the Shop.
+              </GText>
+            </Panel>
+            <Panel style={{ gap: 8 }}>
+              <GText font="black" size={16}>
+                Plot twists
+              </GText>
+              <GText size={13} color={UI.muted}>
+                Every night is harder than the last, and from night 1-3 on, surprises hit mid-party. Here’s what can happen:
+              </GText>
+              {(Object.keys(TWISTS) as TwistKind[]).map((k) => (
+                <GText key={k} size={13} color={UI.muted}>
+                  <GText font="black" size={13}>
+                    {TWISTS[k].title}:{' '}
+                  </GText>
+                  {TWISTS[k].text}
+                </GText>
+              ))}
+            </Panel>
+            <Panel style={{ gap: 8 }}>
+              <GText font="black" size={16}>
                 The counters
               </GText>
               {(Object.keys(STATIONS) as (keyof typeof STATIONS)[]).map((k) => (
@@ -137,7 +162,7 @@ export default function InCrowdGuide() {
               </GText>
               {(Object.keys(TROUBLES) as (keyof typeof TROUBLES)[]).map((k) => (
                 <View key={k} style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-                  <GameIcon name={k === 'spill' ? 'spill' : k} size={26} />
+                  <GameIcon name={k} size={26} />
                   <GText size={13} color={UI.muted} style={{ flex: 1 }}>
                     <GText font="black" size={13}>
                       {TROUBLES[k].label}:{' '}
