@@ -55,8 +55,8 @@ export function Button({ label, variant = 'primary', size = 'lg', loading, disab
       }}
       style={({ pressed }) => [
         {
-          minHeight: size === 'lg' ? 44 : 36,
-          paddingHorizontal: size === 'lg' ? t.space[5] : t.space[4],
+          minHeight: size === 'lg' ? 48 : 40,
+          paddingHorizontal: t.space[5],
           borderRadius: t.radius.md,
           backgroundColor: palette.bg,
           borderWidth: variant === 'ghost' || ticket ? 0 : t.borderWidth.regular,
@@ -76,7 +76,7 @@ export function Button({ label, variant = 'primary', size = 'lg', loading, disab
       ) : (
         <>
           {icon ? <View>{icon}</View> : null}
-          <AppText weight="bold" style={{ color: palette.fg, fontSize: size === 'lg' ? 15 : 14, letterSpacing: -0.2 }}>
+          <AppText weight="bold" style={{ color: palette.fg, fontSize: size === 'lg' ? 16 : 14, letterSpacing: -0.2 }}>
             {label}
           </AppText>
         </>

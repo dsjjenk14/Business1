@@ -42,7 +42,7 @@ export function Badge({ label, tone = 'primary', glyph, verified }: BadgeProps) 
   }
 
   if (look(t).ticket) {
-    // A small soft tag: gray fill, colored text (no outline), like Instagram's labels.
+    // A small outlined tag.
     return (
       <View
         style={{
@@ -50,8 +50,9 @@ export function Badge({ label, tone = 'primary', glyph, verified }: BadgeProps) 
           flexDirection: 'row',
           alignItems: 'center',
           gap: 4,
-          backgroundColor: t.colors.surfaceAlt,
-          borderRadius: t.radius.sm,
+          borderWidth: t.borderWidth.regular,
+          borderColor: color,
+          borderRadius: t.radius.pill,
           paddingHorizontal: 8,
           paddingVertical: 2,
         }}>

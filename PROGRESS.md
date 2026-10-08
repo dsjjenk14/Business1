@@ -5,14 +5,6 @@
 
 ---
 
-## ✅ Instagram-style look (same layout)
-- **Dark:** pure black background with Instagram's grays and thin dividers. **Light:** pure white with soft grays.
-- **Buttons and chips:** flatter, with smaller rounded corners. The chosen filter chip is inverted (white on dark, black on light), like Instagram's.
-- **Tags:** soft gray tags instead of outlined pills.
-- **Tab bar:** icons only (bigger), like Instagram; the names are still read out by screen readers. Outs stays the red camera button in the middle.
-- **Outs:** a colorful Instagram-style ring around people with Outs you haven't seen; a thin gray ring once you've seen them.
-- Nothing moved: every screen keeps its layout. Your colors (red on dark, green on light) and your font stay.
-
 ## ✅ The launch batch (from the team review)
 - **Launch mode:** drinks and online events are switched off for launch, the same way live video already was. Their buttons are hidden and the server refuses them. Each has a switch in the `app_config` table (`drinks_enabled`, `virtual_events_enabled`, `live_video_enabled`) to turn it on later.
 - **Private by default:** new plans ("I'm going out") start visible to your Insiders and their Insiders, not everyone nearby. You can still pick Everyone.

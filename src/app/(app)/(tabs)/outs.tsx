@@ -3,7 +3,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 
-import { AppText, Avatar, Card, EmptyState, IconButton, LoadingList, Section, StoryRing, useToast } from '@/components/ui';
+import { AppText, Avatar, Card, EmptyState, IconButton, LoadingList, Section, useToast } from '@/components/ui';
 import { deleteOut, fetchOutEvent, fetchOutsInbox, type OutEvent, type OutsInbox } from '@/features/outs/api';
 import { refreshNewOuts } from '@/features/outs/useNewOuts';
 import { useAuth } from '@/lib/auth';
@@ -249,14 +249,14 @@ function StoryBubble({
   const t = useTheme();
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress} style={{ alignItems: 'center', gap: 4, width: 72 }}>
-      <StoryRing size={56} unseen={ring}>
+      <View style={{ padding: 2, borderRadius: 34, borderWidth: 2, borderColor: ring ? t.colors.primary : t.colors.border }}>
         <Avatar name={avatarName ?? name} uri={avatarUrl ?? null} size={56} userId={userId} />
         {plus ? (
-          <View style={{ position: 'absolute', right: 2, bottom: 2, width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: t.colors.bg, backgroundColor: t.colors.primary, alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{ position: 'absolute', right: -2, bottom: -2, width: 22, height: 22, borderRadius: 11, backgroundColor: t.colors.primary, alignItems: 'center', justifyContent: 'center' }}>
             <Ionicons name="add" size={16} color={t.colors.onPrimary} />
           </View>
         ) : null}
-      </StoryRing>
+      </View>
       <AppText variant="caption" numberOfLines={1}>
         {plus !== undefined ? name : name.split(' ')[0]}
       </AppText>
