@@ -5,6 +5,13 @@
 
 ---
 
+## ✅ Locked In (our take on a Top 8)
+- On every profile: up to 6 Insiders you go out with most, filled in automatically from meeting up in person and going to the same events (last 4 months). Nobody has to rank their friends.
+- **Private by design:** names and photos only, never places or times. Only your Insiders see it. Blocked people never appear.
+- **Settings, Privacy, Show Locked In:** turn it off to hide yours and leave you out of other people's.
+- **Tested:** 12 new database tests (654 total), and checked in a browser.
+- Also fixed a database test that failed only when it ran between 3 and 4am DC time.
+
 ## ✅ The launch batch (from the team review)
 - **Launch mode:** drinks and online events are switched off for launch, the same way live video already was. Their buttons are hidden and the server refuses them. Each has a switch in the `app_config` table (`drinks_enabled`, `virtual_events_enabled`, `live_video_enabled`) to turn it on later.
 - **Private by default:** new plans ("I'm going out") start visible to your Insiders and their Insiders, not everyone nearby. You can still pick Everyone.
@@ -767,6 +774,7 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 ## Decisions log
 | Date | Decision | Why |
 |---|---|---|
+| 2026-10-08 | Locked In replaces a Top 8: automatic, unranked, names only, Insiders-only | No ranking drama, and never reveals where people go |
 | 2026-09-29 | Launch with drinks, online events and live video switched off; plans private by default | Team review: launch with the core (going out together) and add the rest when it's steady |
 | 2026-09-28 | Plain names: Friends / Friends of friends (not Circle / Network / degrees) | Tester round: jargon confused new users |
 | 2026-09-28 | Messaging unlocks after 3 back-and-forths (was 5); default radius 25 mi | Tester round |

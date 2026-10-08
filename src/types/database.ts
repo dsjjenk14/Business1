@@ -1914,13 +1914,13 @@ isOneToOne: false
                   ]
                 },"user_settings": {
                   Row: {
-                    "allow_intro_requests": boolean,"app_sounds": boolean,"discoverable": boolean,"friday_drop": boolean,"notify_date_requests": boolean,"notify_gps_vouch": boolean,"notify_intro_requests": boolean,"notify_messages": boolean,"notify_pin_replies": boolean,"notify_rsvps": boolean,"radius_mi": number,"show_going_out_venue": boolean,"show_in_nearby": boolean,"show_vouch_count": boolean,"theme_id": string,"updated_at": string,"user_id": string
+                    "allow_intro_requests": boolean,"app_sounds": boolean,"discoverable": boolean,"friday_drop": boolean,"notify_date_requests": boolean,"notify_gps_vouch": boolean,"notify_intro_requests": boolean,"notify_messages": boolean,"notify_pin_replies": boolean,"notify_rsvps": boolean,"radius_mi": number,"show_going_out_venue": boolean,"show_in_nearby": boolean,"show_locked_in": boolean,"show_vouch_count": boolean,"theme_id": string,"updated_at": string,"user_id": string
                   }
                   Insert: {
-                    "allow_intro_requests"?: boolean,"app_sounds"?: boolean,"discoverable"?: boolean,"friday_drop"?: boolean,"notify_date_requests"?: boolean,"notify_gps_vouch"?: boolean,"notify_intro_requests"?: boolean,"notify_messages"?: boolean,"notify_pin_replies"?: boolean,"notify_rsvps"?: boolean,"radius_mi"?: number,"show_going_out_venue"?: boolean,"show_in_nearby"?: boolean,"show_vouch_count"?: boolean,"theme_id"?: string,"updated_at"?: string,"user_id": string
+                    "allow_intro_requests"?: boolean,"app_sounds"?: boolean,"discoverable"?: boolean,"friday_drop"?: boolean,"notify_date_requests"?: boolean,"notify_gps_vouch"?: boolean,"notify_intro_requests"?: boolean,"notify_messages"?: boolean,"notify_pin_replies"?: boolean,"notify_rsvps"?: boolean,"radius_mi"?: number,"show_going_out_venue"?: boolean,"show_in_nearby"?: boolean,"show_locked_in"?: boolean,"show_vouch_count"?: boolean,"theme_id"?: string,"updated_at"?: string,"user_id": string
                   }
                   Update: {
-                    "allow_intro_requests"?: boolean,"app_sounds"?: boolean,"discoverable"?: boolean,"friday_drop"?: boolean,"notify_date_requests"?: boolean,"notify_gps_vouch"?: boolean,"notify_intro_requests"?: boolean,"notify_messages"?: boolean,"notify_pin_replies"?: boolean,"notify_rsvps"?: boolean,"radius_mi"?: number,"show_going_out_venue"?: boolean,"show_in_nearby"?: boolean,"show_vouch_count"?: boolean,"theme_id"?: string,"updated_at"?: string,"user_id"?: string
+                    "allow_intro_requests"?: boolean,"app_sounds"?: boolean,"discoverable"?: boolean,"friday_drop"?: boolean,"notify_date_requests"?: boolean,"notify_gps_vouch"?: boolean,"notify_intro_requests"?: boolean,"notify_messages"?: boolean,"notify_pin_replies"?: boolean,"notify_rsvps"?: boolean,"radius_mi"?: number,"show_going_out_venue"?: boolean,"show_in_nearby"?: boolean,"show_locked_in"?: boolean,"show_vouch_count"?: boolean,"theme_id"?: string,"updated_at"?: string,"user_id"?: string
                   }
                   Relationships: [
                     {
@@ -2446,6 +2446,9 @@ isOneToOne: true
 { Args: Record<PropertyKey, never>; Returns: {
               "audience": string,"avatar_url": string,"host_id": string,"host_name": string,"started_at": string,"stream_id": number,"title": string
             }[]
+                           },
+"locked_in":
+{ Args: { "p_user": string }; Returns: Json
                            },
 "make_intro":
 { Args: { "p_a": string,"p_b": string,"p_message": string,"p_request"?: number }; Returns: number

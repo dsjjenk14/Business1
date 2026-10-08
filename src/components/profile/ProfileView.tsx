@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, Share, View } from 'react-native';
 
 import { PinCard } from '@/components/pins/PinCard';
@@ -9,7 +9,7 @@ import { AppText, Avatar, Badge, Button, Card, GlyphTile, isGlyphName, Section, 
 import { tierProgress, useAppConfig } from '@/config/useAppConfig';
 import { STATUS_COLORS, STATUS_LABELS, usePersonInfo } from '@/features/people/status';
 import type { FeedPin } from '@/features/pins/api';
-import { profileLink, type ProfileCard } from '@/features/profiles/api';
+import { fetchLockedIn, profileLink, type LockedInPerson, type ProfileCard } from '@/features/profiles/api';
 import { clockTime, shortCity, timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
 
@@ -163,6 +163,8 @@ export function ProfileView({
       {/* Your own profile has Share next to Edit profile. */}
       {!card.is_me ? <Button label="Share profile" size="md" variant="secondary" onPress={shareProfile} /> : null}
 
+      <LockedIn userId={card.id} isMe={card.is_me} firstName={card.display_name.split(' ')[0] ?? ''} />
+
       {card.interests?.length ? (
         <Section title="Into">
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
@@ -255,5 +257,58 @@ export function ProfileView({
 
       {children}
     </>
+  );
+}
+
+/**
+ * Locked In (our take on a Top 8): the people this person goes out with most,
+ * filled in automatically, so nobody ranks their friends. Names and photos
+ * only, never where or when. Only their Insiders see it.
+ */
+function LockedIn({ userId, isMe, firstName }: { userId: string; isMe: boolean; firstName: string }) {
+  const t = useTheme();
+  const router = useRouter();
+  const [people, setPeople] = useState<LockedInPerson[] | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    fetchLockedIn(userId)
+      .then((p) => alive && setPeople(p))
+      .catch(() => alive && setPeople([]));
+    return () => {
+      alive = false;
+    };
+  }, [userId]);
+
+  if (!people || (!people.length && !isMe)) return null;
+  return (
+    <Section title="Locked In">
+      {people.length ? (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[3] }}>
+          {people.map((p) => (
+            <Pressable
+              key={p.id}
+              accessibilityRole="link"
+              accessibilityLabel={`${p.display_name}'s profile`}
+              onPress={() => router.push({ pathname: '/people/[id]', params: { id: p.id } })}
+              style={{ width: 64, alignItems: 'center', gap: 4 }}>
+              <Avatar name={p.display_name} uri={p.avatar_url} size={56} userId={p.id} />
+              <AppText variant="caption" numberOfLines={1}>
+                {p.display_name.split(' ')[0]}
+              </AppText>
+            </Pressable>
+          ))}
+        </View>
+      ) : (
+        <AppText variant="small" tone="muted">
+          The Insiders you go out with most show up here on their own.
+        </AppText>
+      )}
+      <AppText variant="caption" tone="subtle">
+        {isMe
+          ? 'Filled in from the nights you go out with your Insiders. Only your Insiders see this, and never where you went. You can hide it in Settings, Privacy.'
+          : `The Insiders ${firstName} goes out with most.`}
+      </AppText>
+    </Section>
   );
 }
