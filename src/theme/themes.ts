@@ -337,21 +337,21 @@ const guestStyle: Theme['style'] = {
   controls: 'ticket',
 };
 
-/** L: Original Light. The Guest List look in the original light colors. */
+/** L: Original Light. Instagram-style light: pure white, soft grays, the original green. */
 const L: Theme = {
   id: 'L',
   name: 'Original Light',
   tagline: 'Light, with the original green',
   mode: 'light',
   colors: {
-    bg: '#FAFAF7',
+    bg: '#FFFFFF',
     surface: '#FFFFFF',
-    surfaceAlt: '#F1F2EE',
-    border: '#E3E5DF',
-    borderStrong: '#C5C9C0',
-    text: '#111512',
-    textMuted: '#4F5750',
-    textSubtle: '#646C65',
+    surfaceAlt: '#EFEFEF',
+    border: '#DBDBDB',
+    borderStrong: '#C7C7C7',
+    text: '#000000',
+    textMuted: '#5E5E5E',
+    textSubtle: '#6B6B6B',
     primary: '#0F7A4A',
     primaryText: '#0F7A4A',
     onPrimary: '#FFFFFF',
@@ -368,13 +368,13 @@ const L: Theme = {
     sponsored: '#8A5A00',
     onSponsored: '#FFFFFF',
     tabBar: '#FFFFFF',
-    tabActive: '#0F7A4A',
-    tabInactive: '#646C65',
-    overlay: 'rgba(17, 21, 18, 0.45)',
+    tabActive: '#000000',
+    tabInactive: '#6B6B6B',
+    overlay: 'rgba(0, 0, 0, 0.45)',
   },
   fonts: guestFonts,
   type: guestType,
-  radius: { sm: 6, md: 12, lg: 16, xl: 22, pill: 999 },
+  radius: { sm: 4, md: 8, lg: 12, xl: 16, pill: 999 },
   space: SPACE,
   borderWidth: { hairline: 1, regular: 1, strong: 1.5 },
   shadow: {
@@ -386,9 +386,9 @@ const L: Theme = {
 };
 
 /**
- * N: Original. The default. The prototype's own colors (near-black, red, gold,
- * green) in the Guest List look: poster headlines, ticket-stamp small print,
- * flat surfaces, square-cut controls and a ticket-stub notch.
+ * N: Original. The default. Instagram-style dark (pure black, its grays and
+ * hairlines) with the app's red, gold and green: flat surfaces, poster
+ * headlines and square-cut controls.
  */
 const N: Theme = {
   id: 'N',
@@ -396,19 +396,19 @@ const N: Theme = {
   tagline: 'Near-black, red and gold',
   mode: 'dark',
   colors: {
-    bg: '#0C0C0C',
-    surface: '#161616',
-    surfaceAlt: '#1E1E1E',
-    border: 'rgba(255, 255, 255, 0.08)',
-    borderStrong: '#333333',
+    bg: '#000000',
+    surface: '#121212',
+    surfaceAlt: '#262626',
+    border: '#262626',
+    borderStrong: '#363636',
     text: '#F5F5F5',
-    textMuted: 'rgba(245, 245, 245, 0.62)',
-    textSubtle: 'rgba(245, 245, 245, 0.5)',
+    textMuted: '#A8A8A8',
+    textSubtle: '#8E8E8E',
     primary: '#D62828',
     primaryText: '#FF5C5C',
     onPrimary: '#FFFFFF',
     secondary: '#D4AF37',
-    onSecondary: '#0C0C0C',
+    onSecondary: '#000000',
     trust: '#4ADE80',
     onTrust: '#052E16',
     ai: '#64A0FF',
@@ -419,14 +419,14 @@ const N: Theme = {
     onDanger: '#1A0000',
     sponsored: '#D4AF37',
     onSponsored: '#0C0C0C',
-    tabBar: '#0C0C0C',
+    tabBar: '#000000',
     tabActive: '#F5F5F5',
-    tabInactive: 'rgba(245, 245, 245, 0.5)',
+    tabInactive: '#8E8E8E',
     overlay: 'rgba(0, 0, 0, 0.75)',
   },
   fonts: guestFonts,
   type: guestType,
-  radius: { sm: 6, md: 12, lg: 16, xl: 22, pill: 999 },
+  radius: { sm: 4, md: 8, lg: 12, xl: 16, pill: 999 },
   space: SPACE,
   borderWidth: { hairline: 1, regular: 1, strong: 1.5 },
   shadow: {

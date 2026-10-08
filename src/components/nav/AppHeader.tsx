@@ -24,8 +24,6 @@ export function AppHeader() {
         paddingBottom: t.space[2],
         paddingHorizontal: t.space[3],
         backgroundColor: t.colors.bg,
-        borderBottomWidth: t.borderWidth.hairline,
-        borderColor: t.colors.border,
         flexDirection: 'row',
         alignItems: 'center',
       }}>

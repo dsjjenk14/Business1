@@ -23,6 +23,8 @@ export function Chip({
 }) {
   const t = useTheme();
   const { ticket } = look(t);
+  // Instagram-style: the chosen chip is inverted (white on dark, black on light).
+  const onColor = ticket ? t.colors.bg : t.colors.onPrimary;
   return (
     <Pressable
       accessibilityRole="button"
@@ -40,16 +42,16 @@ export function Chip({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 6,
-        borderRadius: t.radius.pill,
+        borderRadius: ticket ? t.radius.md : t.radius.pill,
         borderWidth: ticket ? 0 : t.borderWidth.regular,
         borderColor: selected ? t.colors.primary : t.colors.border,
-        backgroundColor: selected ? t.colors.primary : ticket ? t.colors.surfaceAlt : t.colors.surface,
+        backgroundColor: selected ? (ticket ? t.colors.text : t.colors.primary) : ticket ? t.colors.surfaceAlt : t.colors.surface,
         opacity: pressed ? 0.8 : 1,
       })}>
-      {glyph ? <Glyph name={glyph} size={label ? 15 : 20} color={selected ? t.colors.onPrimary : t.colors.textMuted} strokeWidth={2} /> : null}
+      {glyph ? <Glyph name={glyph} size={label ? 15 : 20} color={selected ? onColor : t.colors.textMuted} strokeWidth={2} /> : null}
       {label ? (
         ticket ? (
-          <AppText style={{ color: selected ? t.colors.onPrimary : t.colors.text, ...fontStyle(t.fonts.bodyMedium), fontSize: 14, lineHeight: 18, letterSpacing: -0.1 }}>
+          <AppText style={{ color: selected ? onColor : t.colors.text, ...fontStyle(t.fonts.bodyMedium), fontSize: 14, lineHeight: 18, letterSpacing: -0.1 }}>
             {label}
           </AppText>
         ) : (

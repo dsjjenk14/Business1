@@ -5,7 +5,7 @@ import { Pressable, View } from 'react-native';
 import { AppText, type IconName } from '@/components/ui';
 import { useNewOuts } from '@/features/outs/useNewOuts';
 import { haptic } from '@/lib/haptics';
-import { useTheme, fontStyle } from '@/theme';
+import { useTheme } from '@/theme';
 
 const TABS: Record<string, { label: string; icon: IconName; iconActive: IconName }> = {
   index: { label: 'Home', icon: 'home-outline', iconActive: 'home' },
@@ -29,7 +29,7 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
         borderTopWidth: t.borderWidth.hairline,
         borderColor: t.colors.border,
         paddingTop: t.space[2],
-        paddingBottom: Math.max(insets.bottom, t.space[2]),
+        paddingBottom: Math.max(insets.bottom, t.space[3]),
         paddingHorizontal: t.space[2],
       }}>
       {state.routes.map((route, index) => {
@@ -65,8 +65,8 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
                     width: 44,
                     height: ticket ? 44 : 30,
                     borderRadius: ticket ? 22 : 15,
-                    // The shutter rises above the bar; its label lines up with the others.
-                    marginTop: ticket ? -22 : 0,
+                    // The shutter sits a little above the bar.
+                    marginTop: ticket ? -12 : 0,
                     alignItems: 'center',
                     justifyContent: 'center',
                     backgroundColor: ticket || focused ? t.colors.primary : t.colors.surfaceAlt,
@@ -83,11 +83,10 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
                   ) : null}
                 </View>
               ) : (
-                <Ionicons name={focused ? tab.iconActive : tab.icon} size={22} color={color} />
+                <Ionicons name={focused ? tab.iconActive : tab.icon} size={26} color={color} />
               )}
-              {ticket ? (
-                <AppText style={{ color, ...fontStyle(t.fonts.bodyMedium), fontSize: 10.5, lineHeight: 13 }}>{tab.label}</AppText>
-              ) : (
+              {/* Instagram-style: icons only in the Guest List look; the names are still read out. */}
+              {ticket ? null : (
                 <AppText variant="caption" weight="bold" style={{ color }}>
                   {tab.label}
                 </AppText>
