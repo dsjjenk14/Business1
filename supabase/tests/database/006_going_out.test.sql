@@ -3,6 +3,9 @@
 -- group chat membership kept in sync).
 begin;
 create extension if not exists pgtap with schema extensions;
+-- These tests predate the safety suite (030): no arrival delay, no 2-vouch rule.
+update app_config set value = '0' where key = 'safety_min_vouches';
+alter table user_settings alter column here_delay_minutes set default 0;
 select plan(31);
 
 -- Test members are on the free plan (no founding Premium) unless a test says otherwise.

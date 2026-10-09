@@ -13,6 +13,14 @@
 - **Pins no longer show how far away they were posted** ("~11 mi away"), in the app or in the data it receives. Pins still only come from within your radius.
 - **Less location, more safety:** vouches no longer say where people met ("Met in person · 2d"), the Tonight list no longer shows how many miles away someone is, and the profile badge no longer repeats your city.
 - **"I'm In" instead of a heart on posts:** a check you tap to say you're in on a pin (tap again to take it back). Home says "Maya is in on your pin." The heart is gone from the reaction picker too.
+- **Safety suite** (Settings, Privacy and safety):
+  - **Ghost mode:** one switch hides that you're out, and where, from everyone (Insiders too): Tonight, rings, "out tonight", What's In counts and going-out pins. A banner on Tonight turns it off.
+  - **Map:** other people are never placed on the Tonight map; only you and events.
+  - **Venue hidden by default** for new members; the automatic "Going out tonight" pin only names the place if you chose to show it (it used to name it anyway).
+  - **Arrival delay:** people see you've arrived only after 15 minutes by default (or right away, 30 min, 1 hour).
+  - **2 vouches to see people out** who aren't your Insiders. Your Insiders always see you.
+  - **Message limit (optional):** only people with 2 vouches can start a chat with you.
+  - 24 new database tests (679 total).
 - **Vouch counts always show.** The "hide my vouch count" switch is gone, for everyone.
 - Also fixed a database test that failed only when it ran between 3 and 4am DC time.
 
