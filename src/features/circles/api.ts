@@ -99,6 +99,14 @@ export async function giveVouch(voucherId: string, voucheeId: string, wordId: nu
   if (error) throw error;
 }
 
+/**
+ * Vouch for someone saved in your phone's contacts. `phones` are the numbers on
+ * the one contact you picked; they're checked against the person's verified
+ * number and never stored. Resolves to false if none of them match.
+ */
+export const vouchFromContacts = async (vouchee: string, wordId: number, phones: string[]) =>
+  (await unwrap<string>(await supabase.rpc('vouch_from_contacts', { p_vouchee: vouchee, p_word: wordId, p_phones: phones }))) === 'vouched';
+
 export const requestVouch = async (target: string) => unwrap<number>(await supabase.rpc('request_vouch', { p_target: target }));
 export const makeIntro = async (a: string, b: string, message: string, requestId?: number) =>
   unwrap<number>(await supabase.rpc('make_intro', { p_a: a, p_b: b, p_message: message, p_request: requestId }));

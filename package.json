@@ -23,6 +23,7 @@
     "expo-camera": "~57.0.5",
     "expo-clipboard": "~57.0.2",
     "expo-constants": "~57.0.19",
+    "expo-contacts": "~57.0.6",
     "expo-device": "~57.0.2",
     "expo-font": "~57.0.4",
     "expo-haptics": "~57.0.3",

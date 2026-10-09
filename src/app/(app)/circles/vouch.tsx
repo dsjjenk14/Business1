@@ -4,7 +4,9 @@ import { Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Avatar, Button, Card, Chip, GlyphTitle, Screen, useToast } from '@/components/ui';
-import { checkIn, fetchCircle, fetchMeetups, fetchVouchWords, giveVouch, vouchesLeftLabel, type Meetup } from '@/features/circles/api';
+import { checkIn, fetchCircle, fetchMeetups, fetchVouchWords, giveVouch, vouchesLeftLabel, vouchFromContacts, type Meetup } from '@/features/circles/api';
+import { canPickContacts, pickContactPhones } from '@/features/circles/contacts';
+import { fetchProfileCard } from '@/features/profiles/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { timeAgo } from '@/lib/time';
@@ -14,6 +16,7 @@ import { useTheme } from '@/theme';
  * Check In (records that you met), then, only if you want, vouch.
  * 1. When you're with someone, you both tap Check In. GPS confirms you're together.
  * 2. Pick them, pick one word, vouch. (2 vouches per month; within 14 days of meeting.)
+ * Or, from someone's profile: if their verified number is in your contacts, vouch without a meetup.
  */
 export default function Vouch() {
   const t = useTheme();
@@ -31,9 +34,19 @@ export default function Vouch() {
   const [checking, setChecking] = useState(false);
   const [checkInMsg, setCheckInMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [person, setPerson] = useState<{ id: string; name: string } | null>(null);
+  const [contactWordId, setContactWordId] = useState<number | null>(null);
+  const [contactBusy, setContactBusy] = useState(false);
+  const [contactMsg, setContactMsg] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    const [m, w, c] = await Promise.all([fetchMeetups(), fetchVouchWords(), fetchCircle()]);
+    const [m, w, c, card] = await Promise.all([
+      fetchMeetups(),
+      fetchVouchWords(),
+      fetchCircle(),
+      params.user ? fetchProfileCard(params.user) : Promise.resolve(null),
+    ]);
+    setPerson(card ? { id: card.id, name: card.display_name } : null);
     setMeetups(m);
     setWords(w);
     setLeft(c.vouches_left);
@@ -84,6 +97,31 @@ export default function Vouch() {
     }
   }
 
+  async function vouchFromMyContacts() {
+    if (!person || !contactWordId) return;
+    setContactMsg(null);
+    setContactBusy(true);
+    try {
+      const phones = await pickContactPhones();
+      if (!phones) return;
+      if (!phones.length) {
+        setContactMsg("That contact doesn't have a phone number saved.");
+        return;
+      }
+      if (await vouchFromContacts(person.id, contactWordId, phones)) {
+        toast(`You vouched for ${person.name}`);
+        setContactWordId(null);
+        await refresh();
+      } else {
+        setContactMsg(`That contact's number doesn't match ${person.name.split(' ')[0]}'s verified number.`);
+      }
+    } catch (e) {
+      setContactMsg(friendlyError(e));
+    } finally {
+      setContactBusy(false);
+    }
+  }
+
   // One row per person: their most recent meetup. If you already vouched for them
   // from any meetup in the last 14 days, they show under "Already vouched".
   const byPerson = new Map<string, Meetup>();
@@ -91,6 +129,8 @@ export default function Vouch() {
   const vouchedRecently = new Set((meetups ?? []).filter((m) => m.already_vouched).map((m) => m.user_id));
   const vouchable = [...byPerson.values()].filter((m) => !vouchedRecently.has(m.user_id));
   const done = [...byPerson.values()].filter((m) => vouchedRecently.has(m.user_id));
+  // From someone's profile with no meetup to vouch from: offer contacts instead.
+  const offerContacts = !!person && person.id !== me && meetups !== null && !vouchable.some((m) => m.user_id === person.id) && !vouchedRecently.has(person.id);
 
   return (
     <>
@@ -127,7 +167,7 @@ export default function Vouch() {
           <Card>
             <AppText variant="small" tone="muted">
               {params.user
-                ? "You haven't checked in with this person yet. Next time you're together, both tap Check In."
+                ? "You haven't checked in with this person yet. Next time you're together, both tap Check In, or vouch from your contacts below."
                 : 'No meetups to vouch from yet. Check in the next time you go out with someone.'}
             </AppText>
           </Card>
@@ -184,6 +224,46 @@ export default function Vouch() {
               {left === 0 ? (
                 <AppText variant="caption" tone="danger">
                   You&apos;ve used your 5 vouches for this month. You get more on the 1st, or go unlimited with Premium.
+                </AppText>
+              ) : null}
+            </View>
+          </Card>
+        ) : null}
+
+        {offerContacts && person ? (
+          <Card>
+            <View style={{ gap: t.space[3] }}>
+              <GlyphTitle glyph="people" variant="h3">
+                {`${person.name.split(' ')[0]} in your contacts?`}
+              </GlyphTitle>
+              <AppText variant="small" tone="muted">
+                If their number is saved in your phone, you can vouch without checking in. Pick them from your contacts and we check that number against
+                the one they verified. Only that number is checked, and your contacts are never uploaded or saved.
+              </AppText>
+              {canPickContacts ? (
+                <>
+                  <AppText weight="bold">One word for {person.name.split(' ')[0]}</AppText>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+                    {words.map((w) => (
+                      <Chip key={w.id} label={w.word} selected={contactWordId === w.id} onPress={() => setContactWordId(w.id)} />
+                    ))}
+                  </View>
+                  <Button
+                    label="Pick from my contacts"
+                    variant="trust"
+                    onPress={vouchFromMyContacts}
+                    loading={contactBusy}
+                    disabled={!contactWordId || left === 0}
+                  />
+                </>
+              ) : (
+                <AppText variant="small" weight="bold">
+                  Open I&apos;m In on your phone to vouch from your contacts.
+                </AppText>
+              )}
+              {contactMsg ? (
+                <AppText variant="small" tone="danger" accessibilityLiveRegion="polite">
+                  {contactMsg}
                 </AppText>
               ) : null}
             </View>

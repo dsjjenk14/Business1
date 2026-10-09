@@ -2852,6 +2852,9 @@ isOneToOne: true
 "vote_chat_poll":
 { Args: { "p_option": number,"p_poll": number }; Returns: undefined
                            },
+"vouch_from_contacts":
+{ Args: { "p_phones": (string)[],"p_vouchee": string,"p_word": number }; Returns: string
+                           },
 "wallet_credit":
 { Args: { "p_cents": number,"p_session": string,"p_user": string }; Returns: boolean
                            },
@@ -2863,7 +2866,7 @@ isOneToOne: true
                            }
           }
           Enums: {
-            "connection_source": "invite"|"intro"|"event"|"group"|"date"|"manual"|"qr"|"code","date_session_status": "waiting"|"active"|"ended"|"cancelled","date_status": "pending"|"accepted"|"countered"|"passed"|"cancelled","date_when": "tonight"|"this_weekend"|"next_week"|"specific","encounter_context": "venue"|"event"|"group"|"date"|"nearby","going_out_join_status": "heading"|"here","going_out_when": "tonight"|"weekend"|"scheduled","group_role": "owner"|"admin"|"member","intro_status": "pending"|"accepted"|"declined","join_type": "request"|"open","location_precision": "approximate"|"precise","pin_audience": "everyone"|"network"|"circle","pin_category": "thought"|"question"|"photos"|"event"|"going_out"|"recap","report_reason": "misrepresentation"|"harassment"|"unsafe"|"privacy"|"spam"|"inappropriate"|"other","report_status": "open"|"reviewing"|"resolved"|"dismissed","request_status": "pending"|"accepted"|"declined"|"cancelled","safety_level": "unsafe"|"leaving"|"emergency","user_role": "user"|"admin","vouch_status": "active"|"flagged"|"revoked","vouch_type": "gps"|"invite"
+            "connection_source": "invite"|"intro"|"event"|"group"|"date"|"manual"|"qr"|"code","date_session_status": "waiting"|"active"|"ended"|"cancelled","date_status": "pending"|"accepted"|"countered"|"passed"|"cancelled","date_when": "tonight"|"this_weekend"|"next_week"|"specific","encounter_context": "venue"|"event"|"group"|"date"|"nearby","going_out_join_status": "heading"|"here","going_out_when": "tonight"|"weekend"|"scheduled","group_role": "owner"|"admin"|"member","intro_status": "pending"|"accepted"|"declined","join_type": "request"|"open","location_precision": "approximate"|"precise","pin_audience": "everyone"|"network"|"circle","pin_category": "thought"|"question"|"photos"|"event"|"going_out"|"recap","report_reason": "misrepresentation"|"harassment"|"unsafe"|"privacy"|"spam"|"inappropriate"|"other","report_status": "open"|"reviewing"|"resolved"|"dismissed","request_status": "pending"|"accepted"|"declined"|"cancelled","safety_level": "unsafe"|"leaving"|"emergency","user_role": "user"|"admin","vouch_status": "active"|"flagged"|"revoked","vouch_type": "gps"|"invite"|"contact"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -2983,7 +2986,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "connection_source": ["invite", "intro", "event", "group", "date", "manual", "qr", "code"],"date_session_status": ["waiting", "active", "ended", "cancelled"],"date_status": ["pending", "accepted", "countered", "passed", "cancelled"],"date_when": ["tonight", "this_weekend", "next_week", "specific"],"encounter_context": ["venue", "event", "group", "date", "nearby"],"going_out_join_status": ["heading", "here"],"going_out_when": ["tonight", "weekend", "scheduled"],"group_role": ["owner", "admin", "member"],"intro_status": ["pending", "accepted", "declined"],"join_type": ["request", "open"],"location_precision": ["approximate", "precise"],"pin_audience": ["everyone", "network", "circle"],"pin_category": ["thought", "question", "photos", "event", "going_out", "recap"],"report_reason": ["misrepresentation", "harassment", "unsafe", "privacy", "spam", "inappropriate", "other"],"report_status": ["open", "reviewing", "resolved", "dismissed"],"request_status": ["pending", "accepted", "declined", "cancelled"],"safety_level": ["unsafe", "leaving", "emergency"],"user_role": ["user", "admin"],"vouch_status": ["active", "flagged", "revoked"],"vouch_type": ["gps", "invite"]
+            "connection_source": ["invite", "intro", "event", "group", "date", "manual", "qr", "code"],"date_session_status": ["waiting", "active", "ended", "cancelled"],"date_status": ["pending", "accepted", "countered", "passed", "cancelled"],"date_when": ["tonight", "this_weekend", "next_week", "specific"],"encounter_context": ["venue", "event", "group", "date", "nearby"],"going_out_join_status": ["heading", "here"],"going_out_when": ["tonight", "weekend", "scheduled"],"group_role": ["owner", "admin", "member"],"intro_status": ["pending", "accepted", "declined"],"join_type": ["request", "open"],"location_precision": ["approximate", "precise"],"pin_audience": ["everyone", "network", "circle"],"pin_category": ["thought", "question", "photos", "event", "going_out", "recap"],"report_reason": ["misrepresentation", "harassment", "unsafe", "privacy", "spam", "inappropriate", "other"],"report_status": ["open", "reviewing", "resolved", "dismissed"],"request_status": ["pending", "accepted", "declined", "cancelled"],"safety_level": ["unsafe", "leaving", "emergency"],"user_role": ["user", "admin"],"vouch_status": ["active", "flagged", "revoked"],"vouch_type": ["gps", "invite", "contact"]
           }
         }
 } as const

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 
 import { ActivityRow, EventRow, GroupSuggestion } from '@/components/home/HomeParts';
+import { InviteVerifyCard } from '@/components/home/InviteVerifyCard';
 import { WhatsInHero } from '@/components/home/WhatsInHero';
 import { LiveNowRow } from '@/components/live/LiveNowRow';
 import { PinCard } from '@/components/pins/PinCard';
@@ -132,6 +133,7 @@ export default function Home() {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={t.colors.primary} />}>
       <LiveNowRow />
 
+      <InviteVerifyCard />
       <WhatsInHero events={trending} spots={hotSpots} onIn={onIn} />
 
       {/* 1. Your Insiders' pins */}

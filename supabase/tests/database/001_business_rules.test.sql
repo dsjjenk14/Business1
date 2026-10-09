@@ -59,15 +59,17 @@ insert into t values ('ben', pg_temp.new_user('ben@test.dev', jsonb_build_object
   'full_name', 'Ben Cho', 'birthdate', '1992-02-02',
   'invite_code', lower((select invite_code from profiles where id = (select id from t where k='ana'))))));
 
-select ok(private.are_connected((select id from t where k='ana'), (select id from t where k='ben')), 'Invite code auto-connects both people');
-select is((select count(*)::int from vouches where type='invite' and vouchee_id = (select id from t where k='ben')), 1, 'Invitee gets an invite vouch');
-select is((select count(*)::int from vouches where type='invite' and vouchee_id = (select id from t where k='ana')), 1, 'Inviter gets an invite vouch');
+select ok(not private.are_connected((select id from t where k='ana'), (select id from t where k='ben')), 'An invite code alone doesn''t connect anyone');
+select is((select count(*)::int from vouches where vouchee_id in ((select id from t where k='ben'), (select id from t where k='ana'))), 0,
+  'Nobody gets a vouch for an invite code (vouches only come from meeting in person)');
+update profile_private set phone_verified_at = now() where id = (select id from t where k='ben');
+select ok(private.are_connected((select id from t where k='ana'), (select id from t where k='ben')), 'Once the new member verifies their phone, they and their inviter are Insiders');
+select ok(exists (select 1 from notifications where user_id = (select id from t where k='ana') and kind = 'insider_added'), 'The inviter is told');
 
 insert into t values ('cam', pg_temp.new_user('cam@test.dev', jsonb_build_object(
   'full_name', 'Cam Diaz', 'birthdate', '1993-03-03',
   'invite_code', (select invite_code from profiles where id = (select id from t where k='ana')))));
-select is((select count(*)::int from vouches where type='invite' and vouchee_id = (select id from t where k='ana')), 1,
-  'Inviter''s invite vouches are capped (config: invite_vouch_cap)');
+update profile_private set phone_verified_at = now() where id = (select id from t where k='cam');
 
 -- ── Vouch rules ──────────────────────────────────────────────────────────
 select pg_temp.act_as((select id from t where k='ana'));
@@ -116,8 +118,8 @@ select throws_ok(
     (select id from t where k='ana'), (select id from t where k='ben'), (select id from enc where place_label='Rock Creek')),
   '23514', 'You''ve used your 2 vouches for this month. You get more on the 1st, or go unlimited with Premium.', 'A 3rd vouch in the same month is blocked');
 select pg_temp.act_as_admin();
-select is((select vouch_count from profiles where id = (select id from t where k='cam')), 3,
-  'vouch_count stays in sync (invite vouch + 2 GPS vouches)');
+select is((select vouch_count from profiles where id = (select id from t where k='cam')), 2,
+  'vouch_count stays in sync (2 GPS vouches)');
 
 -- ── Privacy ──────────────────────────────────────────────────────────────
 select pg_temp.act_as((select id from t where k='ben'));
