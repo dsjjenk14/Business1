@@ -13,14 +13,16 @@ export function InviteVerifyCard() {
   const router = useRouter();
   const { profile } = useAuth();
   const [inviter, setInviter] = useState<string | null>(null);
+  const me = profile?.id;
+  const invitedBy = profile?.invited_by;
 
   useFocusEffect(
     useCallback(() => {
-      if (!profile?.id || !profile.invited_by) return;
+      if (!me || !invitedBy) return;
       let alive = true;
       Promise.all([
-        supabase.from('profile_private').select('phone_verified_at').eq('id', profile.id).maybeSingle(),
-        supabase.from('profiles').select('display_name').eq('id', profile.invited_by).maybeSingle(),
+        supabase.from('profile_private').select('phone_verified_at').eq('id', me).maybeSingle(),
+        supabase.from('profiles').select('display_name').eq('id', invitedBy).maybeSingle(),
       ]).then(([priv, inv]) => {
         if (!alive) return;
         setInviter(priv.data?.phone_verified_at ? null : (inv.data?.display_name ?? 'the person who invited you'));
@@ -28,7 +30,7 @@ export function InviteVerifyCard() {
       return () => {
         alive = false;
       };
-    }, [profile?.id, profile?.invited_by]),
+    }, [me, invitedBy]),
   );
 
   if (!inviter) return null;
