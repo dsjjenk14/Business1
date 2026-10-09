@@ -13,7 +13,7 @@ export type SignUpInput = {
 
 /**
  * Creates the account. The database signup trigger builds the profile, applies
- * the invite code (auto-connect + vouches) and marks Founding Members.
+ * the invite code (remembered; you and your inviter become Insiders once you verify your phone) and marks Founding Members.
  */
 export async function signUp(input: SignUpInput) {
   const { data, error } = await supabase.auth.signUp({

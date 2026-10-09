@@ -74,7 +74,10 @@ export default function VerifyPhone() {
         {done ? (
           <>
             <AppText variant="h2">Phone verified ✓</AppText>
-            <AppText tone="muted">Thanks. A verified number makes your account more trusted.</AppText>
+            <AppText tone="muted">
+              Thanks. A verified number makes your account more trusted. If you joined with someone&apos;s invite code, you&apos;re now each other&apos;s
+              Insiders.
+            </AppText>
             <Button label="Done" onPress={() => goBackOr(router, '/profile')} />
           </>
         ) : (

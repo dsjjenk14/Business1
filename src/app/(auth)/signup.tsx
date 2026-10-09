@@ -275,7 +275,7 @@ export default function SignUp() {
             autoCapitalize="characters"
             autoCorrect={false}
             error={errors.invite}
-            success={inviter ? `${inviter} invited you ✓  You'll be each other's Insiders and both get a vouch.` : null}
+            success={inviter ? `${inviter} invited you ✓  Verify your phone after you join and you'll be each other's Insiders.` : null}
             hint="If someone gave you a code, it connects you to them automatically and gives you both a vouch."
           />
         ) : (
