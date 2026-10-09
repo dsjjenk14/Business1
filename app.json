@@ -45,6 +45,12 @@
       ],
       "expo-image",
       [
+        "expo-contacts",
+        {
+          "contactsPermission": "I'm In opens your contacts only when you choose someone to vouch for. It checks that one person's number and never uploads your contacts."
+        }
+      ],
+      [
         "expo-image-picker",
         {
           "photosPermission": "I'm In uses your photos so you can add a profile picture and photos to your pins.",

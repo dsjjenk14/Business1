@@ -34,7 +34,7 @@ export type ProfileCard = {
     avatar_emoji: string | null;
     avatar_url: string | null;
     word: string | null;
-    type: 'gps' | 'invite';
+    type: 'gps' | 'invite' | 'contact';
     place: string | null;
     created_at: string;
   }[];

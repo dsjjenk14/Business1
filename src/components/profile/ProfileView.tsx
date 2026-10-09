@@ -199,7 +199,9 @@ export function ProfileView({
                   {v.display_name}
                 </AppText>
                 <AppText variant="caption" tone="subtle">
-                  {v.type === 'invite' ? 'Invited them in' : `Met in person · ${timeAgo(v.created_at)}`}
+                  {v.type === 'invite'
+                    ? 'Invited them in'
+                    : `${v.type === 'contact' ? 'In their contacts' : 'Met in person'} · ${timeAgo(v.created_at)}`}
                 </AppText>
               </View>
               {v.word ? <Badge label={v.word} tone="trust" /> : null}

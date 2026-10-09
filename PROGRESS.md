@@ -5,6 +5,14 @@
 
 ---
 
+## ✅ Vouch from your contacts
+- If someone's number is saved in your phone, you can vouch for them without checking in together. On their profile, tap Vouch, pick a word, then **Pick from my contacts**.
+- Only the one contact you pick is checked, against the number they verified. Your contacts are never uploaded or saved.
+- **Rules:** you both need verified phone numbers, one vouch per person, and it counts toward your vouches for the month. Ten wrong picks a day, then it stops, so nobody can use it to guess numbers.
+- Their profile says **"In their contacts"** instead of "Met in person".
+- Works in the phone app only. On the web it says to open the app on your phone.
+- **Tested:** 14 new database tests (693 total pass), and checked in a browser.
+
 ## ✅ Invite codes: phone first, no automatic vouch
 - Joining with someone's code **no longer gives anyone a vouch**. Vouches only come from meeting in person.
 - The code links you with the person who invited you (you become Insiders) **only after you verify your phone**. They get a notification when it happens.
@@ -793,6 +801,7 @@ Tested in a real browser (Chromium) at iPhone SE (375 pt) and iPhone 15 (393 pt)
 ## Decisions log
 | Date | Decision | Why |
 |---|---|---|
+| 2026-10-09 | Contacts can vouch, using the phone's contact picker (one contact, never uploaded) | A saved number is real-life proof; picking one contact keeps everyone else's numbers private |
 | 2026-10-09 | Invite codes give no vouch; they connect you only after phone verification | A vouch means you met in person; a verified phone stops throwaway accounts |
 | 2026-10-08 | Locked In replaces a Top 8: automatic, unranked, names only, Insiders-only | No ranking drama, and never reveals where people go |
 | 2026-09-29 | Launch with drinks, online events and live video switched off; plans private by default | Team review: launch with the core (going out together) and add the rest when it's steady |
