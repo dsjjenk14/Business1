@@ -10,7 +10,7 @@ import { tierProgress, useAppConfig } from '@/config/useAppConfig';
 import { STATUS_COLORS, STATUS_LABELS, usePersonInfo } from '@/features/people/status';
 import type { FeedPin } from '@/features/pins/api';
 import { fetchLockedIn, profileLink, type LockedInPerson, type ProfileCard } from '@/features/profiles/api';
-import { clockTime, shortCity, timeAgo } from '@/lib/time';
+import { clockTime, timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
 
 /** The profile layout, shared by your own profile and everyone else's. */
@@ -105,7 +105,7 @@ export function ProfileView({
         {/* Two badges at most: what people vouch them for (or their level), and one status. */}
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: t.space[2] }}>
           {card.top_vouch_word ? (
-            <Badge label={`${card.top_vouch_word}${card.city_name ? ` · ${shortCity(card.city_name)}` : ''}`} glyph="medal" tone="trust" />
+            <Badge label={card.top_vouch_word} glyph="medal" tone="trust" />
           ) : current ? (
             <Badge label={current.name} glyph={isGlyphName(current.emoji) ? current.emoji : 'medal'} tone="trust" />
           ) : null}
@@ -199,7 +199,7 @@ export function ProfileView({
                   {v.display_name}
                 </AppText>
                 <AppText variant="caption" tone="subtle">
-                  {v.type === 'invite' ? 'Invited them in' : [v.place ? `GPS confirmed · ${v.place}` : 'GPS confirmed', timeAgo(v.created_at)].join(' · ')}
+                  {v.type === 'invite' ? 'Invited them in' : `Met in person · ${timeAgo(v.created_at)}`}
                 </AppText>
               </View>
               {v.word ? <Badge label={v.word} tone="trust" /> : null}

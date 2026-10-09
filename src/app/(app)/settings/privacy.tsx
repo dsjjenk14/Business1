@@ -7,12 +7,11 @@ import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 
-type Key = 'show_in_nearby' | 'show_going_out_venue' | 'show_vouch_count' | 'show_locked_in' | 'allow_intro_requests' | 'discoverable';
+type Key = 'show_in_nearby' | 'show_going_out_venue' | 'show_locked_in' | 'allow_intro_requests' | 'discoverable';
 
 const OPTIONS: { key: Key; label: string; detail: string }[] = [
   { key: 'show_in_nearby', label: 'Show me when I go out', detail: 'Appear on Home and Tonight when you tap I\'m In tonight' },
   { key: 'show_going_out_venue', label: 'Show where I’m going', detail: 'Show the venue when you go out (otherwise just “going out”)' },
-  { key: 'show_vouch_count', label: 'Show my vouch count', detail: 'Others see how many vouches you have' },
   { key: 'show_locked_in', label: 'Show Locked In', detail: 'Your Insiders see who you go out with most (names only, never places). Off also leaves you out of other people’s Locked In' },
   { key: 'allow_intro_requests', label: 'Allow intro requests', detail: 'Let people one intro away ask an Insider you share to introduce you' },
   { key: 'discoverable', label: 'Show me in search', detail: 'People outside your Insiders can find you by name' },
@@ -30,7 +29,7 @@ export default function Privacy() {
     if (!userId) return;
     supabase
       .from('user_settings')
-      .select('show_in_nearby, show_going_out_venue, show_vouch_count, show_locked_in, allow_intro_requests, discoverable')
+      .select('show_in_nearby, show_going_out_venue, show_locked_in, allow_intro_requests, discoverable')
       .eq('user_id', userId)
       .single()
       .then(({ data }) => data && setValues(data));

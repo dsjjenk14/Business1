@@ -1,7 +1,7 @@
 -- Phase 2 rules: location snapping, pin feeds, radius caps, profile privacy, Go Live.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(14);
+select plan(15);
 
 -- Test members are on the free plan (no founding Premium) unless a test says otherwise.
 update app_config set value = '0' where key = 'founding_member_limit';
@@ -71,9 +71,9 @@ select ok(exists (select 1 from pins_feed('network') where body = 'circle only p
 
 -- ── Profile privacy ──────────────────────────────────────────────────────
 select pg_temp.act_as((select id from t where k = 'bo'));
-update user_settings set show_vouch_count = false where user_id = (select id from t where k = 'bo');
+select throws_ok($$ update user_settings set show_vouch_count = false where user_id = auth.uid() $$, '23514', null, 'Vouch counts can''t be hidden');
 select pg_temp.act_as((select id from t where k = 'cy'));
-select is(profile_card((select id from t where k = 'bo'))->'vouch_count', 'null'::jsonb, 'A hidden vouch count stays hidden from others');
+select isnt(profile_card((select id from t where k = 'bo'))->'vouch_count', 'null'::jsonb, 'Everyone sees a vouch count');
 select pg_temp.act_as((select id from t where k = 'bo'));
 select isnt(profile_card((select id from t where k = 'bo'))->'vouch_count', 'null'::jsonb, 'You always see your own vouch count');
 

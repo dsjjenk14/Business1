@@ -11,6 +11,8 @@
 - **Settings, Privacy, Show Locked In:** turn it off to hide yours and leave you out of other people's.
 - **Tested:** 12 new database tests (654 total), and checked in a browser.
 - **Pins no longer show how far away they were posted** ("~11 mi away"), in the app or in the data it receives. Pins still only come from within your radius.
+- **Less location, more safety:** vouches no longer say where people met ("Met in person · 2d"), the Tonight list no longer shows how many miles away someone is, and the profile badge no longer repeats your city.
+- **Vouch counts always show.** The "hide my vouch count" switch is gone, for everyone.
 - Also fixed a database test that failed only when it ran between 3 and 4am DC time.
 
 ## ✅ The launch batch (from the team review)
