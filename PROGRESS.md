@@ -10,6 +10,7 @@
 - **Private by design:** names and photos only, never places or times. Only your Insiders see it. Blocked people never appear.
 - **Settings, Privacy, Show Locked In:** turn it off to hide yours and leave you out of other people's.
 - **Tested:** 12 new database tests (654 total), and checked in a browser.
+- **Pins no longer show how far away they were posted** ("~11 mi away"), in the app or in the data it receives. Pins still only come from within your radius.
 - Also fixed a database test that failed only when it ran between 3 and 4am DC time.
 
 ## ✅ The launch batch (from the team review)

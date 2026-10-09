@@ -23,7 +23,7 @@ import { PinPhotos } from './PinPhotos';
 export type PinCardProps = {
   pin: FeedPin;
   /** What to show under the author: distance (Nearby) or city (They're In). */
-  locationMode?: 'distance' | 'city' | 'none';
+  locationMode?: 'city' | 'none';
   onChange?: (pin: FeedPin) => void;
   /** Tap target: open the thread. Disabled on the thread screen itself. */
   linkToThread?: boolean;
@@ -38,12 +38,6 @@ const CATEGORY_TONE = {
   recap: 'sponsored',
 } as const;
 
-export function formatDistance(mi: number | null): string | null {
-  if (mi == null) return null;
-  if (mi < 0.3) return 'nearby';
-  return `~${mi < 10 ? mi.toFixed(1) : Math.round(mi)} mi away`;
-}
-
 export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = true }: PinCardProps) {
   const t = useTheme();
   const router = useRouter();
@@ -52,8 +46,8 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
   const me = session?.user.id;
   const [busy, setBusy] = useState(false);
 
-  const where =
-    locationMode === 'distance' ? (pin.is_mine ? 'your pin' : formatDistance(pin.distance_mi)) : locationMode === 'city' ? pin.city_name : null;
+  // Never how far away a pin was posted: that can help someone work out where a person is.
+  const where = locationMode === 'city' ? pin.city_name : null;
   const meta = [pin.author_vouches != null ? `${pin.author_vouches} ✓` : null, timeAgo(pin.created_at), where, pin.place_label && locationMode !== 'city' ? pin.place_label : null]
     .filter(Boolean)
     .join(' · ');

@@ -59,8 +59,8 @@ select ok(exists (select 1 from pins_feed('nearby', p_radius_mi => 10) where bod
 select ok(exists (select 1 from pins_feed('nearby', p_radius_mi => 50) where body = 'far pin'), 'Free plan: 50 mi reaches the far pin (75 mi for everyone)');
 select ok(exists (select 1 from pins_feed('community') where body = 'far pin'), 'They''re In shows pins at any distance');
 select ok(not exists (select 1 from pins_feed('community') where body = 'circle only pin'), 'Strangers never see circle-only pins');
-select ok((select distance_mi from pins_feed('nearby', p_radius_mi => 10) where body = 'tysons pin') between 5 and 8,
-  'Distance is shown in miles, rounded');
+select ok(not exists (select 1 from pins_feed('nearby', p_radius_mi => 10) where distance_mi is not null),
+  'Pins never say how far away they were posted');
 select pg_temp.admin();
 insert into entitlements (user_id, premium_until) values ((select id from t where k = 'cy'), now() + interval '30 days');
 select pg_temp.act_as((select id from t where k = 'cy'));

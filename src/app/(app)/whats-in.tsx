@@ -145,7 +145,7 @@ export default function WhatsIn() {
         {pins.length ? (
           <Section title="Trending pins">
             {pins.map((p) => (
-              <PinCard key={p.id} pin={p} locationMode="distance" onChange={(next) => setPins((all) => all.map((x) => (x.id === next.id ? next : x)))} />
+              <PinCard key={p.id} pin={p} locationMode="none" onChange={(next) => setPins((all) => all.map((x) => (x.id === next.id ? next : x)))} />
             ))}
           </Section>
         ) : null}
