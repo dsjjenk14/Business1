@@ -76,7 +76,7 @@ export default function ProfileAnalytics() {
             </Section>
             <Section title="Activity · 30 days">
               <View style={{ flexDirection: 'row', gap: t.space[3] }}>
-                {stat(a.pin_likes_30d, 'Likes on pins')}
+                {stat(a.pin_likes_30d, 'I’m Ins on pins')}
                 {stat(a.pin_replies_30d, 'Replies')}
               </View>
               <View style={{ flexDirection: 'row', gap: t.space[3] }}>

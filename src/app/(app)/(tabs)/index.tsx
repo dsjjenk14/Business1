@@ -199,8 +199,8 @@ export default function Home() {
         </Section>
       ) : null}
 
-      {/* 2. Likes and replies people sent you */}
-      <Section title="Likes and replies">
+      {/* 2. I'm Ins and replies people sent you */}
+      <Section title="I’m Ins and replies">
         {feed.activity.length === 0 ? (
           <AppText variant="small" tone="muted">
             When people like or reply to your pins, you&apos;ll see it here.

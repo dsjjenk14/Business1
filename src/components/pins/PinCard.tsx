@@ -229,7 +229,7 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
                   accessibilityLabel={`${r.label}${mine ? ', your reaction' : ''}`}
                   onPress={() => react(mine ? null : r.key)}
                   style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: mine ? t.colors.surface : 'transparent' }}>
-                  <Glyph name={r.key} size={24} color={r.key === 'heart' ? t.colors.primary : t.colors.sponsored} />
+                  <Glyph name={r.key} size={24} color={t.colors.sponsored} />
                 </Pressable>
               );
             })}
@@ -237,11 +237,12 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
         ) : null}
 
         <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: -t.space[2] }}>
+          {/* "I'm In" on a post (the app's own take on a like): a check, not a heart. */}
           <Action
-            icon={pin.liked ? 'heart' : 'heart-outline'}
+            icon={pin.liked ? 'checkmark-circle' : 'checkmark-circle-outline'}
             color={pin.liked ? t.colors.primary : t.colors.textMuted}
             label={String(pin.like_count)}
-            a11y={pin.liked ? `Unlike. ${pin.like_count} likes` : `Like. ${pin.like_count} likes`}
+            a11y={pin.liked ? `You're in. Tap to take it back. ${pin.like_count} in` : `I'm In. ${pin.like_count} in`}
             onPress={toggleLike}
             onLongPress={() => setPicking(true)}
           />

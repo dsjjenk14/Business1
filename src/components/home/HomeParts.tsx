@@ -13,7 +13,7 @@ import { useTheme } from '@/theme';
 
 const first = (name: string) => name.split(' ')[0] ?? name;
 
-/** "Maya replied: …" or "Alex, Brianna and 7 others liked your pin". Tap to open the pin. */
+/** "Maya replied: …" or "Alex, Brianna and 7 others are in on your pin". Tap to open the pin. */
 export function ActivityRow({ item }: { item: HomeActivity }) {
   const t = useTheme();
   const router = useRouter();
@@ -25,7 +25,7 @@ export function ActivityRow({ item }: { item: HomeActivity }) {
         : item.count === 2 && item.second_name
           ? `${first(item.actor_name)} and ${first(item.second_name)}`
           : `${first(item.actor_name)}${item.second_name ? `, ${first(item.second_name)}` : ''} and ${item.count - (item.second_name ? 2 : 1)} others`;
-  const line = item.kind === 'reply' ? `${who} replied: ${item.text ?? ''}` : `${who} liked your pin`;
+  const line = item.kind === 'reply' ? `${who} replied: ${item.text ?? ''}` : `${who} ${item.count === 1 ? 'is' : 'are'} in on your pin`;
   const ago = timeAgo(item.at);
   return (
     <Pressable

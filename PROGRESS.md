@@ -12,6 +12,7 @@
 - **Tested:** 12 new database tests (654 total), and checked in a browser.
 - **Pins no longer show how far away they were posted** ("~11 mi away"), in the app or in the data it receives. Pins still only come from within your radius.
 - **Less location, more safety:** vouches no longer say where people met ("Met in person · 2d"), the Tonight list no longer shows how many miles away someone is, and the profile badge no longer repeats your city.
+- **"I'm In" instead of a heart on posts:** a check you tap to say you're in on a pin (tap again to take it back). Home says "Maya is in on your pin." The heart is gone from the reaction picker too.
 - **Vouch counts always show.** The "hide my vouch count" switch is gone, for everyone.
 - Also fixed a database test that failed only when it ran between 3 and 4am DC time.
 
