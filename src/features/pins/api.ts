@@ -82,8 +82,8 @@ export async function setLiked(pinId: number, userId: string, liked: boolean) {
 }
 
 export type Reaction = 'heart' | 'flame' | 'smile' | 'spark' | 'star';
+/** Reactions you can pick (the main "I'm In" check covers what a heart would). */
 export const REACTIONS: { key: Reaction; label: string }[] = [
-  { key: 'heart', label: 'Love' },
   { key: 'flame', label: 'Fire' },
   { key: 'smile', label: 'Ha' },
   { key: 'spark', label: 'Wow' },

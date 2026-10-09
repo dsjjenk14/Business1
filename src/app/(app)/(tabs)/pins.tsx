@@ -182,7 +182,7 @@ export default function Pins() {
         keyExtractor={(p) => String(p.id)}
         renderItem={({ item, index }) => (
           <>
-            <PinCard pin={item} locationMode={tab === 'nearby' ? 'distance' : 'city'} onChange={updatePin} />
+            <PinCard pin={item} locationMode={tab === 'nearby' ? 'none' : 'city'} onChange={updatePin} />
             {index === 2 && placement ? (
               <View style={{ marginTop: t.space[3] }}>
                 <PlacementCard place={placement} />

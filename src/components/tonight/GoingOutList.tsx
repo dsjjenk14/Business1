@@ -41,7 +41,7 @@ export function GoingOutPersonRow({
     person.neighborhood,
     person.here_since ? null : weekend ? dayTime(person.starts_at) : clockTime(person.starts_at),
     person.vibes.slice(0, 2).map(vibeLabel).join(', ') || null,
-    person.distance_mi != null ? `${person.distance_mi} mi` : null,
+    // Never how far away someone is (safety).
   ]
     .filter(Boolean)
     .join(' · ');

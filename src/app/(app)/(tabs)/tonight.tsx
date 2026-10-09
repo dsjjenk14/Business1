@@ -21,6 +21,7 @@ import {
   type FeedPerson,
   type GoingOutFeed,
 } from '@/features/tonight/api';
+import { SAFETY_MIN_VOUCHES, useGhostMode } from '@/features/safety/ghost';
 import { useAuth } from '@/lib/auth';
 import { DEFAULT_RADIUS_MI, SEARCH_RADIUS_MI } from '@/lib/radius';
 import { friendlyError } from '@/lib/supabase';
@@ -34,9 +35,12 @@ export default function Tonight() {
   const t = useTheme();
   const router = useRouter();
   const toast = useToast();
-  const { session } = useAuth();
+  const { session, profile } = useAuth();
   const me = session?.user.id;
   const { location } = useApproxLocation();
+  const { ghost, setGhost } = useGhostMode();
+  // Under 2 vouches you only see your Insiders going out (safety).
+  const fewVouches = (profile?.vouch_count ?? 0) < SAFETY_MIN_VOUCHES;
   const lat = location?.lat;
   const lng = location?.lng;
 
@@ -194,7 +198,25 @@ export default function Tonight() {
               </View>
             </Card>
           ) : null}
+          {ghost ? (
+            <Card accent="primary">
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+                <View style={{ flex: 1, gap: 2 }}>
+                  <AppText weight="bold">Ghost mode is on</AppText>
+                  <AppText variant="small" tone="muted">
+                    Nobody sees that you’re out or where, Insiders included.
+                  </AppText>
+                </View>
+                <Button label="Turn off" size="md" variant="secondary" onPress={() => setGhost(false).then((ok) => toast(ok ? 'Ghost mode is off' : "Couldn't save. Try again."))} />
+              </View>
+            </Card>
+          ) : null}
           <Section title={weekend ? 'Going out this weekend' : 'Going out tonight'}>
+            {fewVouches ? (
+              <AppText variant="caption" tone="subtle">
+                You see your Insiders here. To also see other people going out, get {SAFETY_MIN_VOUCHES} vouches from people you meet in person.
+              </AppText>
+            ) : null}
             {people.length ? (
               people.map((p) => <GoingOutPersonRow key={p.post_id} person={p} weekend={weekend} onJoin={onJoin} />)
             ) : (

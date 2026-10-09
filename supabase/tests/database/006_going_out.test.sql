@@ -3,6 +3,9 @@
 -- group chat membership kept in sync).
 begin;
 create extension if not exists pgtap with schema extensions;
+-- These tests predate the safety suite (030): no arrival delay, no 2-vouch rule.
+update app_config set value = '0' where key = 'safety_min_vouches';
+alter table user_settings alter column here_delay_minutes set default 0;
 select plan(31);
 
 -- Test members are on the free plan (no founding Premium) unless a test says otherwise.
@@ -74,7 +77,8 @@ select is((select count(*)::int from going_out_posts where user_id = pg_temp.uid
 
 -- ── Events ───────────────────────────────────────────────────────────────
 select pg_temp.act_as('bo');
-select create_event('Small dinner', now() + interval '30 minutes', (select id from venues where name = 'Test Hall'), p_capacity => 2);
+-- Tonight ends at 4am DC time, so these start halfway between now and then (at most 30 min / 1 hour out).
+select create_event('Small dinner', now() + least(interval '30 minutes', (public.tonight_ends_at() - now()) / 2), (select id from venues where name = 'Test Hall'), p_capacity => 2);
 select is((select count(*)::int from event_rsvps where event_id = (select id from events where title = 'Small dinner')), 1, 'The host is going automatically');
 select pg_temp.act_as('ana');
 select lives_ok($$ insert into event_rsvps (event_id, user_id) values ((select id from events where title = 'Small dinner'), pg_temp.uid('ana')) $$, 'RSVP');
@@ -83,7 +87,7 @@ select throws_ok($$ insert into event_rsvps (event_id, user_id) values ((select 
   '23514', 'This event is full.', 'RSVPs stop at capacity');
 select ok((select going_out_feed('tonight', 38.60, -77.30, 10)->'events' @> '[{"title":"Small dinner"}]'), 'Tonight lists nearby events');
 select pg_temp.act_as('far');
-select create_event('Park hang', now() + interval '1 hour', p_place => 'Meridian Hill Park', p_lat => 38.60, p_lng => -77.30);
+select create_event('Park hang', now() + least(interval '1 hour', (public.tonight_ends_at() - now()) / 2), p_place => 'Meridian Hill Park', p_lat => 38.60, p_lng => -77.30);
 select pg_temp.act_as('cy');
 select ok((select going_out_feed('tonight', 38.60, -77.30, 10)->'events' @> '[{"title":"Park hang","venue_name":"Meridian Hill Park"}]'),
   'Events at a typed place show nearby too');

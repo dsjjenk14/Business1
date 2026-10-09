@@ -46,5 +46,17 @@ export async function fetchProfileCard(userId: string): Promise<ProfileCard | nu
   return (data as ProfileCard | null) ?? null;
 }
 
+export type LockedInPerson = { id: string; display_name: string; avatar_url: string | null };
+
+/**
+ * Locked In: the people someone goes out with most (up to 6), filled in
+ * automatically. Names and photos only, never places. Only their Insiders see it.
+ */
+export async function fetchLockedIn(userId: string): Promise<LockedInPerson[]> {
+  const { data, error } = await supabase.rpc('locked_in', { p_user: userId });
+  if (error) throw error;
+  return (data as LockedInPerson[] | null) ?? [];
+}
+
 /** A link that opens this profile in the app. */
 export const profileLink = (userId: string) => `imin://people/${userId}`;

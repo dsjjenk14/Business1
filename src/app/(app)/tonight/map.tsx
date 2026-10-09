@@ -15,7 +15,7 @@ type Dot = { key: string; lat: number; lng: number; kind: 'me' | 'person' | 'eve
 const MILES_PER_DEG_LAT = 69;
 
 /**
- * "Nearby Tonight" map: who's out and where events are, relative to you.
+ * "Nearby Tonight" map: you and the events around you. Other people are never placed on it.
  * Points are the same ~quarter-mile approximations the server shares; no
  * exact locations and no map tiles (so no third-party map service).
  */
@@ -44,8 +44,9 @@ export default function TonightMap() {
   );
 
   const dots: Dot[] = [
+    // Only your own spot: other people are never placed on the map (safety).
     ...(feed?.people ?? [])
-      .filter((p) => p.lat != null && p.lng != null)
+      .filter((p) => p.is_me && p.lat != null && p.lng != null)
       .map((p) => ({
         key: `p${p.post_id}`,
         lat: p.lat as number,
@@ -107,7 +108,7 @@ export default function TonightMap() {
       <BackHeader title={when === 'weekend' ? 'Nearby This Weekend' : 'Nearby Tonight'} />
       <Screen contentGap={t.space[4]}>
         <View
-          accessibilityLabel={`Map within ${radius} miles. ${dots.length} people and events.`}
+          accessibilityLabel={`Map within ${radius} miles. ${dots.length} places.`}
           style={{ width: size, height: size, alignSelf: 'center', borderRadius: t.radius.lg, overflow: 'hidden', backgroundColor: t.colors.surface, borderWidth: t.borderWidth.hairline, borderColor: t.colors.border }}>
           <Svg width={size} height={size}>
             {[0.5, 1].map((f) => (
