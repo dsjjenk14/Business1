@@ -49,8 +49,28 @@ Offer readOffer(const Json& j) {
   o.priceCents = j.at("price_cents").get<Cents>();
   o.needEffects = readStats(j, "needs");
   o.emotionEffects = readStats(j, "emotions");
+  o.calories = j.value("calories", 0.0);
+  o.caloriesBurned = j.value("calories_burned", 0.0);
+  o.service = j.value("service", "");
+  o.conditionRecovery = readStats(j, "condition_recovery");
   return o;
 }
+
+Activity readActivity(const Json& a) {
+  Activity act;
+  act.id = a.at("id").get<std::string>();
+  act.label = a.at("label").get<std::string>();
+  act.cooldownMinutes = a.value("cooldown_minutes", 30);
+  act.needEffects = readStats(a, "needs");
+  act.emotionEffects = readStats(a, "emotions");
+  act.homeEffects = readStats(a, "home_effects");
+  act.caloriesBurned = a.value("calories_burned", 0.0);
+  act.caloriesEaten = a.value("calories", 0.0);
+  return act;
+}
+
+// Services a care provider can run when one of its offers is bought.
+const std::set<std::string> kCareServices = {"checkup", "treatment", "dental_care"};
 
 template <class Map>
 Status insertUnique(Map& map, const std::string& kind, const std::string& id, typename Map::mapped_type value) {
@@ -196,11 +216,7 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
             for (const auto& o : j.at("offers")) l.offers.push_back(readOffer(o));
           }
           if (j.contains("activities")) {
-            for (const auto& a : j.at("activities")) {
-              l.activities.push_back(Activity{a.at("id").get<std::string>(), a.at("label").get<std::string>(),
-                                              a.value("cooldown_minutes", 30), readStats(a, "needs"),
-                                              readStats(a, "emotions")});
-            }
+            for (const auto& a : j.at("activities")) l.activities.push_back(readActivity(a));
           }
           l.outdoorRadius = j.value("outdoor_radius_m", l.outdoorRadius);
           l.revenueAccount = j.value("revenue_account", "");
@@ -324,6 +340,73 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           o.emotions = readStats(j, "emotions");
           if (auto st = insertUnique(origins_, "origin", o.id, o); !st) return st;
         }
+      } else if (section == "life") {
+        if (haveLife_) return fail("content_duplicate", source + ": 'life' defined twice");
+        haveLife_ = true;
+        auto& L = life_;
+        const Json& off = body.at("offline");
+        L.selfCareRealDays = off.value("self_care_real_days", L.selfCareRealDays);
+        L.depressedNeedTargets = readStats(off, "depressed_need_targets");
+        L.depressedEmotionTargets = readStats(off, "depressed_emotion_targets");
+        L.depressionCondition = off.value("depression_condition", L.depressionCondition);
+        L.depressionRecoveryPerGoodHour = off.value("recovery_per_good_hour", L.depressionRecoveryPerGoodHour);
+        const Json& bath = body.at("bathroom");
+        L.accidentHygieneLoss = bath.value("accident_hygiene_loss", L.accidentHygieneLoss);
+        L.accidentEmbarrassment = bath.value("accident_embarrassment", L.accidentEmbarrassment);
+        const Json& home = body.at("home");
+        L.homeDirtPerHour = home.value("dirt_per_hour", L.homeDirtPerHour);
+        L.homeDustPerHour = home.value("dust_per_hour", L.homeDustPerHour);
+        L.homeTrashPerHour = home.value("trash_per_hour", L.homeTrashPerHour);
+        L.fullTrashDirtMultiplier = home.value("full_trash_dirt_multiplier", L.fullTrashDirtMultiplier);
+        L.dirtyHomeThreshold = home.value("dirty_below", L.dirtyHomeThreshold);
+        L.dirtyHomeNeedsPerHour = readStats(home, "dirty_home_needs_per_hour");
+        L.offlineHomeCleanliness = home.value("offline_cleanliness", L.offlineHomeCleanliness);
+        L.depressedHomeCleanliness = home.value("depressed_cleanliness", L.depressedHomeCleanliness);
+        const Json& w = body.at("weight");
+        L.caloriesPerHungerPoint = w.value("calories_per_hunger_point", L.caloriesPerHungerPoint);
+        L.baseBurnPerDay = w.value("base_burn_per_day", L.baseBurnPerDay);
+        L.kcalPerKg = w.value("kcal_per_kg", L.kcalPerKg);
+        L.defaultBmi = w.value("default_bmi", L.defaultBmi);
+        L.depressedWeightLossPerDay = w.value("depressed_loss_per_day", L.depressedWeightLossPerDay);
+        L.highBmi = w.value("high_bmi", L.highBmi);
+        L.lowBmi = w.value("low_bmi", L.lowBmi);
+        L.unhealthyBmiHealthDecay = w.value("unhealthy_bmi_health_decay", L.unhealthyBmiHealthDecay);
+        const Json& age = body.at("aging");
+        L.gameDaysPerYear = age.value("game_days_per_year", L.gameDaysPerYear);
+        L.adultAge = age.value("adult_age", L.adultAge);
+        for (const auto& st : age.at("life_stages")) {
+          L.lifeStages.push_back(LifeStageDef{st.at("id").get<std::string>(), st.at("min_age").get<int>(),
+                                              st.value("health_decay_multiplier", 1.0)});
+        }
+        const Json& g = body.at("grooming");
+        L.groomingAttractionMin = g.value("attraction_min", L.groomingAttractionMin);
+        L.groomingAttractionMax = g.value("attraction_max", L.groomingAttractionMax);
+      } else if (section == "conditions") {
+        for (const auto& j : body) {
+          ConditionDef d;
+          d.id = j.at("id").get<std::string>();
+          d.name = j.at("name").get<std::string>();
+          d.kind = j.at("kind").get<std::string>();
+          d.minHours = j.at("hours").at(0).get<double>();
+          d.maxHours = j.at("hours").at(1).get<double>();
+          d.needsPerHour = readStats(j, "needs_per_hour");
+          d.emotionsPerHour = readStats(j, "emotions_per_hour");
+          d.performancePenalty = j.value("performance_penalty", 0.0);
+          d.symptomatic = j.value("symptomatic", true);
+          d.curable = j.value("curable", true);
+          if (j.contains("catch")) {
+            const Json& c = j.at("catch");
+            d.hourlyChance = c.value("hourly_chance", 0.0);
+            d.riskNeed = c.value("risk_need", "");
+            d.riskBelow = c.value("risk_below", 0.0);
+            d.dirtyHomeRisk = c.value("dirty_home", false);
+            d.riskMultiplier = c.value("risk_multiplier", d.riskMultiplier);
+            d.contagionPerHour = c.value("contagion_per_hour", 0.0);
+            d.sexualTransmission = c.value("sexual_transmission", 0.0);
+          }
+          d.treatedBy = readStrings(j, "treated_by");
+          if (auto st = insertUnique(conditions_, "condition", d.id, d); !st) return st;
+        }
       } else if (section == "instruments") {
         for (const auto& j : body) {
           InstrumentDef i{j.at("id").get<std::string>(), j.at("label").get<std::string>(), j.value("midi_program", 0),
@@ -361,10 +444,16 @@ Status ContentDatabase::validate() const {
       if (o.priceCents < 0) return fail("content_invalid", "location " + id + ": negative price on " + o.id);
       if (auto s = checkKeys(o.needEffects, needs, "location " + id + " offer " + o.id); !s) return s;
       if (auto s = checkKeys(o.emotionEffects, emotions, "location " + id + " offer " + o.id); !s) return s;
+      if (!o.service.empty() && !kCareServices.count(o.service))
+        return fail("content_invalid", "location " + id + " offer " + o.id + ": unknown service " + o.service);
+      for (const auto& [cond, v] : o.conditionRecovery) {
+        if (!condition(cond)) return fail("content_invalid", "location " + id + " offer " + o.id + ": unknown condition " + cond);
+      }
     }
     for (const auto& a : l.activities) {
       if (auto s = checkKeys(a.needEffects, needs, "location " + id + " activity " + a.id); !s) return s;
       if (auto s = checkKeys(a.emotionEffects, emotions, "location " + id + " activity " + a.id); !s) return s;
+      if (auto s = checkKeys(a.homeEffects, {"cleanliness", "trash"}, "location " + id + " activity " + a.id); !s) return s;
     }
     if (!l.constructionProject.empty() && !constructionProject(l.constructionProject))
       return fail("content_invalid", "location " + id + ": unknown construction_project " + l.constructionProject);
@@ -423,6 +512,30 @@ Status ContentDatabase::validate() const {
   if (haveCreator_) {
     if (origins_.empty()) return fail("content_invalid", "character_creator needs at least one origin");
     if (creator_.minAge < 18) return fail("content_invalid", "character_creator: minimum age is 18");
+  }
+  if (haveLife_) {
+    if (life_.selfCareRealDays <= 0) return fail("content_invalid", "life.offline.self_care_real_days must be > 0");
+    if (auto s = checkKeys(life_.depressedNeedTargets, needs, "life.offline.depressed_need_targets"); !s) return s;
+    if (auto s = checkKeys(life_.depressedEmotionTargets, emotions, "life.offline.depressed_emotion_targets"); !s) return s;
+    if (auto s = checkKeys(life_.dirtyHomeNeedsPerHour, needs, "life.home.dirty_home_needs_per_hour"); !s) return s;
+    if (!condition(life_.depressionCondition)) return fail("content_invalid", "life: unknown depression_condition");
+    if (life_.gameDaysPerYear <= 0 || life_.kcalPerKg <= 0) return fail("content_invalid", "life: bad aging or weight tuning");
+    if (life_.lifeStages.empty() || life_.lifeStages.front().minAge != 0)
+      return fail("content_invalid", "life.aging.life_stages must start at age 0");
+    for (std::size_t i = 1; i < life_.lifeStages.size(); ++i) {
+      if (life_.lifeStages[i].minAge <= life_.lifeStages[i - 1].minAge)
+        return fail("content_invalid", "life.aging.life_stages must be in increasing age order");
+    }
+  }
+  for (const auto& [id, d] : conditions_) {
+    const std::string where = "condition " + id;
+    if (auto s = checkKeys(d.needsPerHour, needs, where); !s) return s;
+    if (auto s = checkKeys(d.emotionsPerHour, emotions, where); !s) return s;
+    if (!d.riskNeed.empty() && !needs.count(d.riskNeed)) return fail("content_invalid", where + ": unknown risk_need");
+    if (d.minHours < 0 || d.maxHours < d.minHours) return fail("content_invalid", where + ": hours must be [min, max]");
+    for (double p : {d.hourlyChance, d.contagionPerHour, d.sexualTransmission}) {
+      if (p < 0 || p > 1) return fail("content_invalid", where + ": chances are 0-1");
+    }
   }
   for (const auto& [id, i] : instruments_) {
     if (i.midiProgram < 0 || i.midiProgram > 127) return fail("content_invalid", "instrument " + id + ": midi_program 0..127");
@@ -487,6 +600,10 @@ const CharacterDef* ContentDatabase::character(const std::string& id) const {
 const OriginDef* ContentDatabase::origin(const std::string& id) const {
   auto it = origins_.find(id);
   return it == origins_.end() ? nullptr : &it->second;
+}
+const ConditionDef* ContentDatabase::condition(const std::string& id) const {
+  auto it = conditions_.find(id);
+  return it == conditions_.end() ? nullptr : &it->second;
 }
 const InstrumentDef* ContentDatabase::instrument(const std::string& id) const {
   auto it = instruments_.find(id);

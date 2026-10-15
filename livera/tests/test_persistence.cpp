@@ -22,7 +22,7 @@ TEST_CASE("persistence: a fresh store migrates to the current schema") {
   auto path = tempPath("schema.db");
   auto store = SqliteStore::open(path.string());
   REQUIRE(store);
-  CHECK(store.value()->schemaVersion() == 2);
+  CHECK(store.value()->schemaVersion() == 3);
   CHECK(!store.value()->hasWorld());
 }
 
@@ -65,6 +65,16 @@ TEST_CASE("persistence: the world survives a save/load round trip") {
   CHECK(s.notifications.size() == saved.notifications.size());
   CHECK(s.construction.at("founders_way").workerHoursDone == saved.construction.at("founders_way").workerHoursDone);
   CHECK(s.city.stats == saved.city.stats);
+  // Everyday life: bodies, conditions, home upkeep, the random stream.
+  const CharacterState& d = s.characters.at("dominique");
+  const CharacterState& sd = saved.characters.at("dominique");
+  CHECK(d.weightKg == sd.weightKg);
+  CHECK(d.bornAt == sd.bornAt);
+  CHECK(d.lastOnlineAt == sd.lastOnlineAt);
+  CHECK(d.conditions.size() == sd.conditions.size());
+  CHECK(s.properties.at("lexington_1204").cleanliness == saved.properties.at("lexington_1204").cleanliness);
+  CHECK(s.properties.at("lexington_1204").trash == saved.properties.at("lexington_1204").trash);
+  CHECK(s.rng == saved.rng);
 
   // The loaded world keeps running and keeps saving incrementally.
   World w(realContent(), std::move(loaded).value());

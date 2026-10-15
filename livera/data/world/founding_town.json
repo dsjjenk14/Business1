@@ -27,13 +27,38 @@
           "label": "Cook something simple",
           "cooldown_minutes": 90,
           "needs": {"hunger": 35},
-          "emotions": {"happiness": 2}
+          "emotions": {"happiness": 2},
+          "home_effects": {"trash": 15}
         },
         {
           "id": "watch_tv",
           "label": "Watch TV",
           "cooldown_minutes": 60,
           "needs": {"recreation": 20, "comfort": 5}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
         }
       ]
     },
@@ -53,8 +78,38 @@
           "needs": {"hygiene": 45, "comfort": 5}
         },
         {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
-        {"id": "cook", "label": "Cook something simple", "cooldown_minutes": 90, "needs": {"hunger": 35}},
-        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}}
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
       ]
     },
     {
@@ -73,8 +128,38 @@
           "needs": {"hygiene": 45, "comfort": 5}
         },
         {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
-        {"id": "cook", "label": "Cook something simple", "cooldown_minutes": 90, "needs": {"hunger": 35}},
-        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}}
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
       ]
     },
     {
@@ -93,8 +178,38 @@
           "needs": {"hygiene": 45, "comfort": 5}
         },
         {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
-        {"id": "cook", "label": "Cook something simple", "cooldown_minutes": 90, "needs": {"hunger": 35}},
-        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}}
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
       ]
     },
     {
@@ -113,8 +228,38 @@
           "needs": {"hygiene": 45, "comfort": 5}
         },
         {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
-        {"id": "cook", "label": "Cook something simple", "cooldown_minutes": 90, "needs": {"hunger": 35}},
-        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}}
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
       ]
     },
     {
@@ -133,8 +278,38 @@
           "needs": {"hygiene": 45, "comfort": 5}
         },
         {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
-        {"id": "cook", "label": "Cook something simple", "cooldown_minutes": 90, "needs": {"hunger": 35}},
-        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}}
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
       ]
     },
     {
@@ -163,13 +338,38 @@
           "label": "Cook something simple",
           "cooldown_minutes": 90,
           "needs": {"hunger": 35},
-          "emotions": {"happiness": 2}
+          "emotions": {"happiness": 2},
+          "home_effects": {"trash": 15}
         },
         {
           "id": "watch_tv",
           "label": "Watch TV",
           "cooldown_minutes": 60,
           "needs": {"recreation": 20, "comfort": 5}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
         }
       ]
     },
@@ -199,13 +399,38 @@
           "label": "Cook something simple",
           "cooldown_minutes": 90,
           "needs": {"hunger": 35},
-          "emotions": {"happiness": 2}
+          "emotions": {"happiness": 2},
+          "home_effects": {"trash": 15}
         },
         {
           "id": "watch_tv",
           "label": "Watch TV",
           "cooldown_minutes": 60,
           "needs": {"recreation": 20, "comfort": 5}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
         }
       ]
     },
@@ -224,17 +449,26 @@
           "label": "Therapy session (50 min)",
           "price_cents": 9500,
           "needs": {"comfort": 10},
-          "emotions": {"stress": -15, "happiness": 4, "loneliness": -5}
+          "emotions": {"stress": -15, "happiness": 4, "loneliness": -5},
+          "condition_recovery": {"depression": 25}
         },
         {
           "id": "yoga_class",
           "label": "Drop-in yoga class",
           "price_cents": 2500,
           "needs": {"health": 3, "recreation": 10, "energy": -5},
-          "emotions": {"stress": -6}
+          "emotions": {"stress": -6},
+          "calories_burned": 200
         },
-        {"id": "herbal_tea", "label": "Herbal tea", "price_cents": 450, "needs": {"comfort": 5}}
-      ]
+        {
+          "id": "herbal_tea",
+          "label": "Herbal tea",
+          "price_cents": 450,
+          "needs": {"comfort": 5, "bladder": -10},
+          "calories": 5
+        }
+      ],
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
     {
       "id": "low_end_studios",
@@ -254,7 +488,8 @@
           "needs": {"recreation": 15},
           "emotions": {"excitement": 6}
         }
-      ]
+      ],
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
     {
       "id": "ellis_atelier",
@@ -278,7 +513,8 @@
           "price_cents": 48000,
           "emotions": {"confidence": 8, "happiness": 3}
         }
-      ]
+      ],
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
     {
       "id": "whitaker_capital",
@@ -287,7 +523,8 @@
       "district": "Civic Row",
       "description": "The consortium's Livéra office: glass, walnut, and a model of the city as it will look in ten years.",
       "door": [590, 330],
-      "access": "staff"
+      "access": "staff",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
     {
       "id": "common_ground",
@@ -310,7 +547,8 @@
           "label": "Eat at the community dinner",
           "cooldown_minutes": 240,
           "needs": {"hunger": 30, "social": 10}
-        }
+        },
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}
       ]
     },
     {
@@ -320,7 +558,8 @@
       "district": "Downtown",
       "description": "Julian Park's startup, building AI that plans cities, with Livéra as its first customer. Standing desks, a whiteboard wall, cold brew on tap.",
       "door": [540, 345],
-      "access": "staff"
+      "access": "staff",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
     {
       "id": "livera_ledger",
@@ -329,7 +568,8 @@
       "district": "Civic Row",
       "description": "The town's newspaper: four desks, a police scanner, and Leila Rahal's corkboard of red string.",
       "door": [610, 285],
-      "access": "staff"
+      "access": "staff",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
     {
       "id": "baptiste_events",
@@ -338,7 +578,8 @@
       "district": "Downtown",
       "description": "Aaliyah Baptiste's event agency: swatches, seating charts, and the guest list for every opening in town.",
       "door": [505, 455],
-      "access": "staff"
+      "access": "staff",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
     {
       "id": "lumen_creative",
@@ -347,7 +588,8 @@
       "district": "Downtown",
       "description": "The agency branding Livéra itself. Sienna Brooks runs the creative floor.",
       "door": [575, 375],
-      "access": "staff"
+      "access": "staff",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
     {
       "id": "lexington_1801",
@@ -375,13 +617,38 @@
           "label": "Cook something simple",
           "cooldown_minutes": 90,
           "needs": {"hunger": 35},
-          "emotions": {"happiness": 2}
+          "emotions": {"happiness": 2},
+          "home_effects": {"trash": 15}
         },
         {
           "id": "watch_tv",
           "label": "Watch TV",
           "cooldown_minutes": 60,
           "needs": {"recreation": 20, "comfort": 5}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
         }
       ]
     },
@@ -411,13 +678,38 @@
           "label": "Cook something simple",
           "cooldown_minutes": 90,
           "needs": {"hunger": 35},
-          "emotions": {"happiness": 2}
+          "emotions": {"happiness": 2},
+          "home_effects": {"trash": 15}
         },
         {
           "id": "watch_tv",
           "label": "Watch TV",
           "cooldown_minutes": 60,
           "needs": {"recreation": 20, "comfort": 5}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
         }
       ]
     },
@@ -447,13 +739,38 @@
           "label": "Cook something simple",
           "cooldown_minutes": 90,
           "needs": {"hunger": 35},
-          "emotions": {"happiness": 2}
+          "emotions": {"happiness": 2},
+          "home_effects": {"trash": 15}
         },
         {
           "id": "watch_tv",
           "label": "Watch TV",
           "cooldown_minutes": 60,
           "needs": {"recreation": 20, "comfort": 5}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
         }
       ]
     },
@@ -473,8 +790,38 @@
           "needs": {"hygiene": 45, "comfort": 5}
         },
         {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
-        {"id": "cook", "label": "Cook something simple", "cooldown_minutes": 90, "needs": {"hunger": 35}},
-        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}}
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
       ]
     },
     {
@@ -498,13 +845,43 @@
           "cooldown_minutes": 120,
           "needs": {"energy": 25, "comfort": 5}
         },
-        {"id": "cook", "label": "Cook something", "cooldown_minutes": 90, "needs": {"hunger": 35}},
+        {
+          "id": "cook",
+          "label": "Cook something",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
         {
           "id": "record_demo",
           "label": "Mess around on the keys",
           "cooldown_minutes": 60,
           "needs": {"recreation": 20},
           "emotions": {"happiness": 3}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
         }
       ]
     },
@@ -529,13 +906,43 @@
           "cooldown_minutes": 120,
           "needs": {"energy": 25, "comfort": 5}
         },
-        {"id": "cook", "label": "Cook something", "cooldown_minutes": 90, "needs": {"hunger": 35}},
+        {
+          "id": "cook",
+          "label": "Cook something",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
         {
           "id": "record_demo",
           "label": "Mess around on the keys",
           "cooldown_minutes": 60,
           "needs": {"recreation": 20},
           "emotions": {"happiness": 3}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
         }
       ]
     },
@@ -560,13 +967,43 @@
           "cooldown_minutes": 120,
           "needs": {"energy": 25, "comfort": 5}
         },
-        {"id": "cook", "label": "Cook something", "cooldown_minutes": 90, "needs": {"hunger": 35}},
+        {
+          "id": "cook",
+          "label": "Cook something",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
         {
           "id": "record_demo",
           "label": "Mess around on the keys",
           "cooldown_minutes": 60,
           "needs": {"recreation": 20},
           "emotions": {"happiness": 3}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
         }
       ]
     },
@@ -596,7 +1033,8 @@
           "label": "Cook dinner",
           "cooldown_minutes": 90,
           "needs": {"hunger": 40},
-          "emotions": {"happiness": 3}
+          "emotions": {"happiness": 3},
+          "home_effects": {"trash": 15}
         },
         {
           "id": "read",
@@ -604,6 +1042,30 @@
           "cooldown_minutes": 60,
           "needs": {"recreation": 15, "comfort": 8},
           "emotions": {"stress": -4}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
         }
       ]
     },
@@ -633,7 +1095,8 @@
           "label": "Cook dinner",
           "cooldown_minutes": 90,
           "needs": {"hunger": 40},
-          "emotions": {"happiness": 3}
+          "emotions": {"happiness": 3},
+          "home_effects": {"trash": 15}
         },
         {
           "id": "read",
@@ -641,6 +1104,30 @@
           "cooldown_minutes": 60,
           "needs": {"recreation": 15, "comfort": 8},
           "emotions": {"stress": -4}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
         }
       ]
     },
@@ -654,23 +1141,38 @@
       "hours": [6, 20],
       "revenue_account": "org:heritage_coffee",
       "offers": [
-        {"id": "drip", "label": "Drip coffee", "price_cents": 300, "needs": {"energy": 10}},
+        {
+          "id": "drip",
+          "label": "Drip coffee",
+          "price_cents": 300,
+          "needs": {"energy": 10, "bladder": -10},
+          "calories": 60
+        },
         {
           "id": "latte",
           "label": "Oat milk latte",
           "price_cents": 575,
-          "needs": {"energy": 15},
-          "emotions": {"happiness": 3}
+          "needs": {"energy": 15, "bladder": -10},
+          "emotions": {"happiness": 3},
+          "calories": 190
         },
-        {"id": "croissant", "label": "Almond croissant", "price_cents": 450, "needs": {"hunger": 15}},
+        {
+          "id": "croissant",
+          "label": "Almond croissant",
+          "price_cents": 450,
+          "needs": {"hunger": 15},
+          "calories": 450
+        },
         {
           "id": "breakfast_sandwich",
           "label": "Breakfast sandwich",
           "price_cents": 895,
-          "needs": {"hunger": 30}
+          "needs": {"hunger": 30},
+          "calories": 550
         }
       ],
-      "stage": true
+      "stage": true,
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
     {
       "id": "greenleaf_market",
@@ -682,15 +1184,23 @@
       "hours": [7, 22],
       "revenue_account": "org:greenleaf_market",
       "offers": [
-        {"id": "ready_meal", "label": "Ready-made meal", "price_cents": 1250, "needs": {"hunger": 40}},
+        {
+          "id": "ready_meal",
+          "label": "Ready-made meal",
+          "price_cents": 1250,
+          "needs": {"hunger": 40},
+          "calories": 650
+        },
         {
           "id": "fresh_juice",
           "label": "Cold-pressed juice",
           "price_cents": 700,
-          "needs": {"hunger": 10, "health": 2}
+          "needs": {"hunger": 10, "health": 2, "bladder": -10},
+          "calories": 120
         },
         {"id": "flowers", "label": "Bouquet of flowers", "price_cents": 2200, "emotions": {"happiness": 4}}
-      ]
+      ],
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
     {
       "id": "meridian_talent",
@@ -699,7 +1209,8 @@
       "district": "Downtown",
       "description": "A recruiting firm's new Livéra office, hiring for every employer that's moving to town.",
       "door": [510, 380],
-      "access": "staff"
+      "access": "staff",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
     {
       "id": "forge_site_office",
@@ -708,7 +1219,8 @@
       "district": "South Works",
       "description": "Two stacked trailers, a plan table, and a whiteboard of every build in town.",
       "door": [480, 610],
-      "access": "staff"
+      "access": "staff",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
     {
       "id": "riverdale_clinic",
@@ -722,12 +1234,28 @@
       "offers": [
         {
           "id": "checkup",
-          "label": "Check-up",
+          "label": "Checkup with a doctor",
           "price_cents": 4500,
           "needs": {"health": 20},
-          "emotions": {"stress": -3}
+          "emotions": {"stress": -3},
+          "service": "checkup"
+        },
+        {
+          "id": "treatment",
+          "label": "Treatment for what the doctor found",
+          "price_cents": 12000,
+          "needs": {"health": 10},
+          "service": "treatment"
+        },
+        {
+          "id": "dental_care",
+          "label": "Dental cleaning and fillings",
+          "price_cents": 9000,
+          "needs": {"comfort": -5},
+          "service": "dental_care"
         }
-      ]
+      ],
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
     {
       "id": "greater_hope",
@@ -746,7 +1274,8 @@
           "cooldown_minutes": 180,
           "needs": {"social": 20},
           "emotions": {"happiness": 6, "stress": -6, "loneliness": -6}
-        }
+        },
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}
       ],
       "stage": true
     },
@@ -764,7 +1293,8 @@
           "id": "jog",
           "label": "Go for a jog",
           "cooldown_minutes": 120,
-          "needs": {"recreation": 20, "health": 3, "energy": -10, "hygiene": -15}
+          "needs": {"recreation": 20, "health": 3, "energy": -10, "hygiene": -15},
+          "calories_burned": 300
         },
         {
           "id": "people_watch",
@@ -859,13 +1389,21 @@
       "offers": [
         {
           "id": "day_pass",
-          "label": "Day pass",
+          "label": "Day pass and a workout",
           "price_cents": 1500,
           "needs": {"recreation": 15, "health": 4, "energy": -10},
-          "emotions": {"confidence": 3}
+          "emotions": {"confidence": 3},
+          "calories_burned": 400
         },
-        {"id": "smoothie", "label": "Protein smoothie", "price_cents": 900, "needs": {"hunger": 20}}
-      ]
+        {
+          "id": "smoothie",
+          "label": "Protein smoothie",
+          "price_cents": 900,
+          "needs": {"hunger": 20, "bladder": -10},
+          "calories": 320
+        }
+      ],
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
     {
       "id": "eclat",
@@ -889,11 +1427,13 @@
           "id": "cocktail",
           "label": "Signature cocktail",
           "price_cents": 1800,
-          "needs": {"recreation": 8},
-          "emotions": {"happiness": 3}
+          "needs": {"recreation": 8, "bladder": -10},
+          "emotions": {"happiness": 3},
+          "calories": 220
         }
       ],
-      "stage": true
+      "stage": true,
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     }
   ]
 }

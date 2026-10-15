@@ -13,7 +13,10 @@
       {"id": "social", "decay_per_hour": 3.0, "initial": 60},
       {"id": "recreation", "decay_per_hour": 3.0, "initial": 60},
       {"id": "comfort", "decay_per_hour": 2.0, "initial": 75},
-      {"id": "health", "decay_per_hour": 0.2, "initial": 90}
+      {"id": "health", "decay_per_hour": 0.2, "initial": 90},
+      {"id": "bladder", "decay_per_hour": 10.0, "initial": 80},
+      {"id": "dental", "decay_per_hour": 2.0, "initial": 80},
+      {"id": "grooming", "decay_per_hour": 1.0, "initial": 75}
     ],
     "emotions": [
       "happiness",

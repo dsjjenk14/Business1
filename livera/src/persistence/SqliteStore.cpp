@@ -60,6 +60,10 @@ const std::vector<const char*> kMigrations = {
     CREATE TABLE songs (id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, body TEXT NOT NULL);
     CREATE INDEX songs_owner ON songs(owner_id);
     )sql",
+    // v3: everyday life (home upkeep per property; the world's random stream lives in meta).
+    R"sql(
+    ALTER TABLE properties ADD COLUMN upkeep TEXT NOT NULL DEFAULT '{}';
+    )sql",
 };
 
 class Stmt {
@@ -191,7 +195,8 @@ Status SqliteStore::saveWorld(const WorldState& s) {
         {"clock_carry", std::to_string(s.clockCarry)},
         {"next_id", std::to_string(s.nextId)},
         {"next_tx", std::to_string(s.ledger.nextTxNumber())},
-        {"city_stage", std::to_string(s.city.stage)}};
+        {"city_stage", std::to_string(s.city.stage)},
+        {"rng", std::to_string(s.rng)}};
     for (const auto& [k, v] : rows) {
       if (!up.bind(1, std::string(k)).bind(2, v).run()) return rollback("save meta");
     }
@@ -255,9 +260,10 @@ Status SqliteStore::saveWorld(const WorldState& s) {
     }
   }
   {
-    Stmt ins(db_, "INSERT OR REPLACE INTO properties(id, owner_account, tenant_id) VALUES (?,?,?)");
+    Stmt ins(db_, "INSERT OR REPLACE INTO properties(id, owner_account, tenant_id, upkeep) VALUES (?,?,?,?)");
     for (const auto& [id, p] : s.properties) {
-      if (!ins.bind(1, id).bind(2, p.ownerAccount).bind(3, p.tenant).run()) return rollback("save property");
+      const std::string upkeep = Json{{"cleanliness", p.cleanliness}, {"trash", p.trash}}.dump();
+      if (!ins.bind(1, id).bind(2, p.ownerAccount).bind(3, p.tenant).bind(4, upkeep).run()) return rollback("save property");
     }
   }
   {
@@ -311,6 +317,7 @@ Result<WorldState> SqliteStore::loadWorld() {
     s.clockCarry = std::stod(meta.at("clock_carry"));
     s.nextId = std::stoull(meta.at("next_id"));
     s.city.stage = std::stoi(meta.at("city_stage"));
+    if (meta.count("rng")) s.rng = std::stoull(meta.at("rng"));
     const std::uint64_t nextTx = std::stoull(meta.at("next_tx"));
     {
       Stmt q(db_, "SELECT state FROM characters");
@@ -354,8 +361,14 @@ Result<WorldState> SqliteStore::loadWorld() {
             Notification{q.text(0), q.text(1), q.int64(2), q.text(3), q.text(4), q.int64(5) != 0});
     }
     {
-      Stmt q(db_, "SELECT id, owner_account, tenant_id FROM properties");
-      while (q.step() == SQLITE_ROW) s.properties[q.text(0)] = PropertyState{q.text(0), q.text(1), q.text(2)};
+      Stmt q(db_, "SELECT id, owner_account, tenant_id, upkeep FROM properties");
+      while (q.step() == SQLITE_ROW) {
+        PropertyState p{q.text(0), q.text(1), q.text(2)};
+        const Json upkeep = Json::parse(q.text(3));
+        p.cleanliness = upkeep.value("cleanliness", p.cleanliness);
+        p.trash = upkeep.value("trash", p.trash);
+        s.properties[p.id] = p;
+      }
     }
     {
       Stmt q(db_, "SELECT id, status, worker_hours_done, completed_at FROM construction");

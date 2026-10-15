@@ -19,6 +19,17 @@ Json toJson(const CharacterState& c) {
               {"performance", c.career.performance},
               {"lifetime_earnings_cents", c.career.lifetimeEarningsCents}};
   j["career"] = career;
+  Json conditions = Json::array();
+  for (const auto& k : c.conditions)
+    conditions.push_back(Json{{"id", k.id}, {"since", k.since}, {"until", k.until}, {"diagnosed", k.diagnosed}, {"recovery", k.recovery}});
+  j["body"] = Json{{"born_at", c.bornAt},
+                   {"last_birthday_age", c.lastBirthdayAge},
+                   {"height_cm", c.heightCm},
+                   {"weight_kg", c.weightKg},
+                   {"calories_in", c.caloriesIn},
+                   {"calories_out", c.caloriesOut}};
+  j["conditions"] = conditions;
+  j["last_online_at"] = c.lastOnlineAt;
   // Online state, move targets and in-progress shifts are session state: a saved
   // character always loads offline, standing still, off shift (shifts are settled on logout).
   return j;
@@ -40,6 +51,22 @@ CharacterState characterStateFromJson(const Json& j) {
   c.career.hoursAtLevel = career.at("hours_at_level").get<double>();
   c.career.performance = career.at("performance").get<double>();
   c.career.lifetimeEarningsCents = career.at("lifetime_earnings_cents").get<Cents>();
+  // Saves from before the life update have no body yet; World fills it in from the definition.
+  if (j.contains("body")) {
+    const Json& b = j.at("body");
+    c.bornAt = b.value("born_at", GameMinutes{0});
+    c.lastBirthdayAge = b.value("last_birthday_age", 0);
+    c.heightCm = b.value("height_cm", 170.0);
+    c.weightKg = b.value("weight_kg", 0.0);
+    c.caloriesIn = b.value("calories_in", 0.0);
+    c.caloriesOut = b.value("calories_out", 0.0);
+  }
+  for (const auto& k : j.value("conditions", Json::array())) {
+    c.conditions.push_back(ConditionState{k.at("id").get<std::string>(), k.at("since").get<GameMinutes>(),
+                                          k.at("until").get<GameMinutes>(), k.value("diagnosed", false),
+                                          k.value("recovery", 0.0)});
+  }
+  c.lastOnlineAt = j.value("last_online_at", GameMinutes{-1});
   return c;
 }
 

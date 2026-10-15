@@ -34,6 +34,15 @@ struct CareerState {
   int shiftSamples = 0;
 };
 
+// An illness, infection, addiction or depression a character has right now.
+struct ConditionState {
+  std::string id;
+  GameMinutes since = 0;
+  GameMinutes until = -1;  // -1 = until treated
+  bool diagnosed = false;  // a doctor (or a test) has named it
+  double recovery = 0;     // 0..100 toward recovery, for conditions cured by care over time
+};
+
 struct CharacterState {
   CharacterId id;
   Vec2 position;
@@ -46,6 +55,15 @@ struct CharacterState {
   GameMinutes lastSimulatedAt = 0;
   Cents rentArrearsCents = 0;
   StatMap skills;  // keys from simulation.skills; 0..100, grow with practice
+  // Body and life.
+  GameMinutes bornAt = 0;     // age is derived from this and life.aging.game_days_per_year
+  int lastBirthdayAge = 0;
+  double heightCm = 170;
+  double weightKg = 0;        // 0 = not set yet (filled in from height and a healthy BMI)
+  double caloriesIn = 0;      // eaten since the last hourly body update
+  double caloriesOut = 0;     // burned since the last hourly body update
+  std::vector<ConditionState> conditions;
+  GameMinutes lastOnlineAt = -1;  // -1 = never played: an unplayed character just lives their routine
   // Session state (not saved):
   std::map<std::string, GameMinutes> activityReadyAt;  // "location/activity" -> minute
   GameMinutes performReadyAt = 0;
@@ -99,6 +117,8 @@ struct PropertyState {
   std::string id;
   LedgerAccountId ownerAccount;
   CharacterId tenant;  // empty = vacant
+  double cleanliness = 80;  // 0..100: housework keeps it up
+  double trash = 0;         // 0..100: full trash makes a home get dirty faster
 };
 
 enum class ConstructionStatus { Planned, Active, Complete };
@@ -149,6 +169,7 @@ struct WorldState {
   GameMinutes now = 0;
   double clockCarry = 0;  // fractional game minutes not yet applied
   std::uint64_t nextId = 1;
+  std::uint64_t rng = 0x9E3779B97F4A7C15ull;  // the world's random stream: saved, so outcomes replay the same
   std::map<CharacterId, CharacterState> characters;
   std::map<RelationshipKey, RelationshipState> relationships;
   std::vector<Memory> memories;
@@ -229,6 +250,14 @@ class World {
   // Opening some apps has effects (messages/notifications are marked read).
   Result<Json> openPhoneApp(const CharacterId& actor, const std::string& app);
 
+  // --- Body and life (Life.cpp) --------------------------------------------------------
+  int ageOf(const CharacterId& id) const;
+  std::string lifeStageOf(const CharacterId& id) const;
+  bool hasCondition(const CharacterId& id, const std::string& condition) const;
+  double bmiOf(const CharacterState& c) const;
+  // Dev servers only (the server gates it behind --dev): give a character a condition, for testing care and contagion.
+  Status devAddCondition(const CharacterId& id, const std::string& condition);
+
   // --- Queries (WorldViews.cpp) ---------------------------------------------------
   Result<Json> look(const CharacterId& actor) const;
   Json mapView() const;
@@ -259,6 +288,28 @@ class World {
   void updateCityStage();
   void chargeRent();
   void catchUpDormant(CharacterState& c, GameMinutes elapsed);
+  // Life.cpp
+  double roll();  // uniform [0, 1) from the world's saved random stream
+  void initBody(CharacterState& c, const CharacterDef& def);
+  void stepBodyMinute(CharacterState& c);
+  void stepHourly();
+  void stepHomes();
+  void stepIllness(CharacterState& c);
+  void stepOfflineLife(CharacterState& c);
+  void checkBirthday(CharacterState& c);
+  void updateWeight(CharacterState& c);
+  bool offlineTooLong(const CharacterState& c) const;
+  void addCondition(CharacterState& c, const std::string& condition, bool diagnosed);
+  void removeCondition(CharacterState& c, const std::string& condition, const std::string& why);
+  ConditionState* findCondition(CharacterState& c, const std::string& condition);
+  double performancePenalty(const CharacterState& c) const;
+  PropertyState* homeOf(const CharacterId& id);
+  const PropertyState* homeOf(const CharacterId& id) const;
+  // Applies food energy from something eaten (an offer or activity).
+  void eat(CharacterState& c, const StatMap& needEffects, double calories);
+  Result<Json> runCareService(CharacterState& c, const std::string& service, const LocationDef& where);
+  void applyConditionRecovery(CharacterState& c, const StatMap& progress);
+  Json phoneHealth(const CharacterState& c) const;
   void applyNeeds(CharacterState& c, const StatMap& deltas);
   void applyEmotions(CharacterState& c, const StatMap& deltas);
   void adjustRelationship(const CharacterId& from, const CharacterId& to, const std::string& dim, double delta);

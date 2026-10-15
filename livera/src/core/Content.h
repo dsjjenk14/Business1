@@ -53,6 +53,10 @@ struct Offer {
   Cents priceCents = 0;
   StatMap needEffects;
   StatMap emotionEffects;
+  double calories = 0;          // food energy; 0 = derived from the hunger it restores
+  double caloriesBurned = 0;    // a class or a workout
+  std::string service;          // a care service run on purchase (checkup, treatment, dental_care...)
+  StatMap conditionRecovery;    // progress toward curing a condition, e.g. therapy for depression
 };
 
 // Something you can do at a place without paying: shower at home, jog in the park.
@@ -62,6 +66,78 @@ struct Activity {
   int cooldownMinutes = 30;  // game minutes before the same character can repeat it
   StatMap needEffects;
   StatMap emotionEffects;
+  StatMap homeEffects;       // changes to your home's upkeep (cleanliness, trash); only in your own home
+  double caloriesBurned = 0;
+  double caloriesEaten = 0;  // 0 = derived from the hunger it restores
+};
+
+// A life stage by age (baby, child, teen, young adult, adult, elder).
+struct LifeStageDef {
+  std::string id;
+  int minAge = 0;
+  double healthDecayMultiplier = 1.0;
+};
+
+// Everyday-life tuning (data/config/life.json). See docs/SIMULATION.md.
+struct LifeConfig {
+  // Offline: a played character looks after themselves for this long (in real days, at
+  // the configured clock rate), then becomes depressed and keeps up only the basics.
+  double selfCareRealDays = 21;
+  StatMap depressedNeedTargets;
+  StatMap depressedEmotionTargets;
+  std::string depressionCondition = "depression";
+  double depressionRecoveryPerGoodHour = 1;  // online hours with needs averaging 60+ help
+  // Bathroom: when bladder hits 0.
+  double accidentHygieneLoss = 40;
+  double accidentEmbarrassment = 40;
+  // Home upkeep, per game hour.
+  double homeDirtPerHour = 1.0;     // a resident at home makes mess
+  double homeDustPerHour = 0.2;     // an empty home slowly gathers dust
+  double homeTrashPerHour = 0.5;    // a resident at home makes trash
+  double fullTrashDirtMultiplier = 3;
+  double dirtyHomeThreshold = 30;
+  StatMap dirtyHomeNeedsPerHour;    // applied to people inside a dirty home
+  double offlineHomeCleanliness = 80;   // what self-care keeps a home at
+  double depressedHomeCleanliness = 10;
+  // Body weight.
+  double caloriesPerHungerPoint = 14;
+  double baseBurnPerDay = 2000;
+  double kcalPerKg = 7700;
+  double defaultBmi = 23;
+  double depressedWeightLossPerDay = 0.1;
+  double highBmi = 30;
+  double lowBmi = 18.5;
+  double unhealthyBmiHealthDecay = 0.5;  // extra health loss per hour outside the healthy range
+  // Aging.
+  double gameDaysPerYear = 1800;
+  int adultAge = 18;
+  std::vector<LifeStageDef> lifeStages;
+  // Grooming makes first impressions: physical attraction gains scale between these.
+  double groomingAttractionMin = 0.6;
+  double groomingAttractionMax = 1.4;
+};
+
+// A condition a character can have: an illness, an infection, depression, an addiction.
+struct ConditionDef {
+  std::string id;
+  std::string name;
+  std::string kind;           // illness, dental, mental, sti, addiction
+  double minHours = 24;       // how long it lasts untreated; 0 = until treated
+  double maxHours = 72;
+  StatMap needsPerHour;
+  StatMap emotionsPerHour;
+  double performancePenalty = 0;  // fraction taken off work performance while ill
+  bool symptomatic = true;    // you can tell you have it; otherwise only a test finds it
+  bool curable = true;        // false = a treatment manages it but it never goes away
+  // How you catch it.
+  double hourlyChance = 0;
+  std::string riskNeed;       // e.g. "hygiene": chance multiplied while that need is low
+  double riskBelow = 0;
+  bool dirtyHomeRisk = false;
+  double riskMultiplier = 3;
+  double contagionPerHour = 0;  // per infected person sharing a space
+  double sexualTransmission = 0;
+  std::vector<std::string> treatedBy;  // care services (or items) that cure or manage it
 };
 
 struct OpeningHours {
@@ -283,6 +359,9 @@ class ContentDatabase {
   const std::map<std::string, InstrumentDef>& instruments() const { return instruments_; }
   const OriginDef* origin(const std::string& id) const;
   const InstrumentDef* instrument(const std::string& id) const;
+  const LifeConfig& life() const { return life_; }
+  const std::map<std::string, ConditionDef>& conditions() const { return conditions_; }
+  const ConditionDef* condition(const std::string& id) const;
 
   const LocationDef* location(const std::string& id) const;
   const PropertyDef* property(const std::string& id) const;
@@ -310,6 +389,9 @@ class ContentDatabase {
   CreatorOptions creator_;
   std::map<std::string, OriginDef> origins_;
   std::map<std::string, InstrumentDef> instruments_;
+  bool haveLife_ = false;
+  LifeConfig life_;
+  std::map<std::string, ConditionDef> conditions_;
 };
 
 }  // namespace livera

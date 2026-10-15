@@ -1,0 +1,68 @@
+{
+  "$comment": "Conditions characters can have. Chances are per game hour. treated_by names care services or items.",
+  "conditions": [
+    {
+      "id": "common_cold",
+      "name": "a cold",
+      "kind": "illness",
+      "hours": [48, 120],
+      "needs_per_hour": {"energy": -1, "comfort": -1},
+      "performance_penalty": 0.15,
+      "catch": {
+        "hourly_chance": 0.0005,
+        "risk_need": "health",
+        "risk_below": 50,
+        "risk_multiplier": 3,
+        "contagion_per_hour": 0.02
+      },
+      "treated_by": ["treatment", "cold_medicine"]
+    },
+    {
+      "id": "flu",
+      "name": "the flu",
+      "kind": "illness",
+      "hours": [96, 168],
+      "needs_per_hour": {"energy": -2, "health": -0.5, "comfort": -1.5, "hunger": -1},
+      "performance_penalty": 0.35,
+      "catch": {
+        "hourly_chance": 0.0001,
+        "risk_need": "hygiene",
+        "risk_below": 30,
+        "risk_multiplier": 4,
+        "contagion_per_hour": 0.03
+      },
+      "treated_by": ["treatment"]
+    },
+    {
+      "id": "food_poisoning",
+      "name": "food poisoning",
+      "kind": "illness",
+      "hours": [12, 36],
+      "needs_per_hour": {"comfort": -3, "energy": -1.5, "health": -0.5, "bladder": -5},
+      "performance_penalty": 0.4,
+      "catch": {"hourly_chance": 5e-05, "dirty_home": true, "risk_multiplier": 40},
+      "treated_by": ["treatment"]
+    },
+    {
+      "id": "toothache",
+      "name": "a toothache",
+      "kind": "dental",
+      "hours": [0, 0],
+      "needs_per_hour": {"comfort": -2},
+      "emotions_per_hour": {"stress": 1},
+      "performance_penalty": 0.1,
+      "catch": {"hourly_chance": 0.0001, "risk_need": "dental", "risk_below": 15, "risk_multiplier": 300},
+      "treated_by": ["dental_care"]
+    },
+    {
+      "id": "depression",
+      "name": "depression",
+      "kind": "mental",
+      "hours": [0, 0],
+      "needs_per_hour": {"social": -1, "recreation": -1, "energy": -1},
+      "emotions_per_hour": {"sadness": 2, "happiness": -2, "loneliness": 1},
+      "performance_penalty": 0.3,
+      "treated_by": ["therapy_session", "antidepressants"]
+    }
+  ]
+}

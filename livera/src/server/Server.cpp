@@ -308,6 +308,11 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
     world_.advanceMinutes(minutes);
     return Json{{"now", formatDateTime(world_.now())}};
   }
+  if (op == "dev_condition") {
+    if (!config_.devCommands) return fail("forbidden", "dev commands are disabled on this server");
+    if (Status st = world_.devAddCondition(str(req, "character"), str(req, "condition")); !st) return st.error();
+    return Json{{"ok", true}};
+  }
   if (op == "create_character") {
     if (store_->characterOf(s.username)) return fail("already_has_character", "this account already has a character");
     if (!req.contains("character")) return fail("bad_request", "send your character sheet as \"character\"");

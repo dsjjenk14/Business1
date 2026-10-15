@@ -120,6 +120,10 @@ World::World(std::shared_ptr<const ContentDatabase> content, WorldState state)
     for (const auto& n : db.sim().needs) c.needs.try_emplace(n.id, n.initial);
     for (const auto& e : db.sim().emotions) c.emotions.try_emplace(e, 0);
     for (const auto& k : db.sim().skills) c.skills.try_emplace(k, 0);
+    // Saves from before bodies existed: give everyone one from their definition.
+    if (c.weightKg <= 0) {
+      if (const CharacterDef* def = definition(id)) initBody(c, *def);
+    }
   }
 }
 
@@ -148,6 +152,7 @@ void World::addCharacterState(const CharacterDef& def, const OriginDef* origin) 
   c.career.careerId = def.careerId;
   c.career.level = def.careerLevel;
   c.lastSimulatedAt = state_.now;
+  initBody(c, def);
   state_.characters[id] = c;
 
   if (!state_.ledger.account(bankAccountOf(id)))
@@ -196,6 +201,7 @@ void World::advanceMinutes(GameMinutes minutes) {
   for (GameMinutes i = 0; i < minutes; ++i) {
     stepMinute();
     ++state_.now;
+    if (state_.now % 60 == 0) stepHourly();
     if (state_.now % kMinutesPerMonth == 0) chargeRent();
   }
 }
@@ -233,6 +239,7 @@ void World::simulateCharacterMinute(CharacterState& c) {
   if (avg < 40 && c.emotions.count("stress")) {
     c.emotions["stress"] = clampd(c.emotions["stress"] + (40 - avg) / 40 * 6 / 60.0, kStatMin, kStatMax);
   }
+  stepBodyMinute(c);
   c.lastSimulatedAt = state_.now + 1;
 }
 
@@ -241,14 +248,32 @@ void World::simulateCharacterMinute(CharacterState& c) {
 void World::catchUpDormant(CharacterState& c, GameMinutes elapsed) {
   if (elapsed <= 0) return;
   const SimulationConfig& sim = content_->sim();
+  const LifeConfig& life = content_->life();
   const double hours = static_cast<double>(elapsed) / 60.0;
   const double k = 1.0 - std::exp(-hours / 8.0);
-  for (auto& [n, v] : c.needs) v = clampd(v + (sim.offlineNeedTarget - v) * k, kStatMin, kStatMax);
+  // Away too long, a played character stops looking after themself: only the basics get done.
+  const bool depressed = offlineTooLong(c) || findCondition(c, life.depressionCondition);
+  if (offlineTooLong(c)) stepOfflineLife(c);
+  for (auto& [n, v] : c.needs) {
+    double target = sim.offlineNeedTarget;
+    if (depressed) {
+      auto it = life.depressedNeedTargets.find(n);
+      if (it != life.depressedNeedTargets.end()) target = it->second;
+    }
+    v = clampd(v + (target - v) * k, kStatMin, kStatMax);
+  }
   for (auto& [e, v] : c.emotions) {
     const auto it = sim.emotionBaselines.find(e);
-    const double base = it == sim.emotionBaselines.end() ? 0 : it->second;
-    v = v + (base - v) * k;
+    double target = it == sim.emotionBaselines.end() ? 0 : it->second;
+    if (depressed) {
+      auto d = life.depressedEmotionTargets.find(e);
+      if (d != life.depressedEmotionTargets.end()) target = d->second;
+    }
+    v = v + (target - v) * k;
   }
+  // Weight holds steady on a routine; a depressed character barely eats.
+  if (depressed) c.weightKg = std::max(30.0, c.weightKg - life.depressedWeightLossPerDay * hours / 24.0);
+  c.caloriesIn = c.caloriesOut = 0;
   c.lastSimulatedAt = state_.now;
 }
 
@@ -332,6 +357,7 @@ Status World::connect(const CharacterId& id) {
   if (c->online) return okStatus();
   catchUpDormant(*c, state_.now - c->lastSimulatedAt);
   c->online = true;
+  c->lastOnlineAt = state_.now;
   emit(presentWith(*c), "presence", Json{{"character", id}, {"status", "arrived"}});
   return okStatus();
 }
@@ -344,6 +370,7 @@ void World::disconnect(const CharacterId& id) {
   emit(presentWith(*c), "presence", Json{{"character", id}, {"status", "left"}});
   c->online = false;
   c->lastSimulatedAt = state_.now;
+  c->lastOnlineAt = state_.now;
 }
 
 // ---------------------------------------------------------------------------------
@@ -449,11 +476,15 @@ Result<Json> World::interact(const CharacterId& actor, const std::string& intera
   const bool grudge = holdsGrudge(targetId, actor);
 
   for (const auto& [dim, delta] : def->actorToTarget) adjustRelationship(actor, targetId, dim, delta);
+  const LifeConfig& life = content_->life();
+  const double grooming = a.needs.count("grooming") ? a.needs.at("grooming") : 50;
+  const double groomed = life.groomingAttractionMin + (life.groomingAttractionMax - life.groomingAttractionMin) * grooming / 100.0;
   for (const auto& [dim, delta] : def->targetToActor) {
     double d = delta;
     if (d > 0) {
       d *= receptivity;
       if (grudge) d *= 0.5;
+      if (dim == "physical_attraction") d *= groomed;  // first impressions: did you look after yourself?
     }
     adjustRelationship(targetId, actor, dim, d);
   }
@@ -517,17 +548,33 @@ Result<Json> World::buy(const CharacterId& actor, const std::string& offerId, co
   if (paymentMethod == "card") from = bankAccountOf(actor);
   else if (paymentMethod == "cash") from = cashAccountOf(actor);
   else return fail("invalid_payment", "pay by card or cash");
+  // Don't charge for treatment there is nothing to give.
+  if (offer->service == "treatment") {
+    const bool any = std::any_of(c.conditions.begin(), c.conditions.end(), [&](const ConditionState& k) {
+      const ConditionDef* d = content_->condition(k.id);
+      return d && k.diagnosed && std::find(d->treatedBy.begin(), d->treatedBy.end(), "treatment") != d->treatedBy.end();
+    });
+    if (!any) return fail("nothing_to_treat", "nothing diagnosed that treatment helps; get a checkup first");
+  }
 
   auto tx = state_.ledger.transfer(from, loc->revenueAccount, offer->priceCents, "purchase",
                                    offer->label + " at " + loc->name, state_.now);
   if (!tx) return tx.error();
   applyNeeds(c, offer->needEffects);
   applyEmotions(c, offer->emotionEffects);
-  return Json{{"tx", tx.value()},
-              {"item", offer->label},
-              {"price_cents", offer->priceCents},
-              {"paid_with", paymentMethod},
-              {"balance_cents", state_.ledger.balance(from)}};
+  eat(c, offer->needEffects, offer->calories);
+  c.caloriesOut += offer->caloriesBurned;
+  Json out{{"tx", tx.value()},
+           {"item", offer->label},
+           {"price_cents", offer->priceCents},
+           {"paid_with", paymentMethod},
+           {"balance_cents", state_.ledger.balance(from)}};
+  if (!offer->service.empty()) {
+    auto care = runCareService(c, offer->service, *loc);
+    if (care) out["care"] = care.value();
+  }
+  applyConditionRecovery(c, offer->conditionRecovery);
+  return out;
 }
 
 Result<Json> World::useActivity(const CharacterId& actor, const std::string& activityId) {
@@ -546,12 +593,30 @@ Result<Json> World::useActivity(const CharacterId& actor, const std::string& act
   const std::string key = loc->id + "/" + act->id;
   auto ready = c.activityReadyAt.find(key);
   if (ready != c.activityReadyAt.end() && state_.now < ready->second) return fail("too_soon", "you just did that");
+  // Housework only counts in your own home.
+  PropertyState* home = nullptr;
+  if (!act->homeEffects.empty()) {
+    PropertyState* mine = homeOf(actor);
+    const PropertyDef* def = mine ? content_->property(mine->id) : nullptr;
+    if (!def || def->location != loc->id) return fail("not_your_home", "you can only do that in your own home");
+    home = mine;
+  }
   c.activityReadyAt[key] = state_.now + act->cooldownMinutes;
   applyNeeds(c, act->needEffects);
   applyEmotions(c, act->emotionEffects);
+  eat(c, act->needEffects, act->caloriesEaten);
+  c.caloriesOut += act->caloriesBurned;
   Json needs = Json::object();
   for (const auto& [k, v] : act->needEffects) needs[k] = std::round(c.needs[k]);
-  return Json{{"activity", act->id}, {"label", act->label}, {"needs", needs}};
+  Json out{{"activity", act->id}, {"label", act->label}, {"needs", needs}};
+  if (home) {
+    for (const auto& [k, d] : act->homeEffects) {
+      double& v = k == "cleanliness" ? home->cleanliness : home->trash;
+      v = clampd(v + d, kStatMin, kStatMax);
+    }
+    out["home"] = Json{{"cleanliness", std::round(home->cleanliness)}, {"trash", std::round(home->trash)}};
+  }
+  return out;
 }
 
 const LocationDef* World::currentPlace(const CharacterState& c) const {
@@ -616,7 +681,8 @@ Result<Json> World::endShift(const CharacterId& actor) {
     out["tx"] = tx.value();
     notify(actor, "bank", "Paycheck deposited: " + formatMoney(pay) + ".");
   }
-  const double shiftScore = cs.shiftSamples > 0 ? cs.shiftWellbeingSum / cs.shiftSamples : averageNeed(*c);
+  const double shiftScore = (cs.shiftSamples > 0 ? cs.shiftWellbeingSum / cs.shiftSamples : averageNeed(*c)) *
+                            (1.0 - performancePenalty(*c));
   cs.performance = clampd(cs.performance * 0.7 + shiftScore * 0.3, 0, 100);
   cs.hoursAtLevel += paidHours;
   out["performance"] = std::round(cs.performance);
@@ -730,6 +796,7 @@ Result<Json> World::openPhoneApp(const CharacterId& actor, const std::string& ap
   if (app == "notifications") return phoneNotifications(c);
   if (app == "city") return phoneCity();
   if (app == "studio") return songsView(c);
+  if (app == "health") return phoneHealth(c);
   return fail("unknown_app", "no such phone app");
 }
 
