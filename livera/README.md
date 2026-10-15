@@ -14,7 +14,7 @@ play the current build through a text client. See [What works today](#what-works
 ```bash
 cd livera
 cmake -S . -B build -G Ninja && cmake --build build
-./build/livera_tests            # 72 tests
+./build/livera_tests            # 136 tests
 scripts/demo_slice.sh           # three players live a morning (one makes their own character), then a restart
 ```
 
@@ -37,6 +37,9 @@ Play it yourself (two terminals, or more for more players):
 > song save
 > perform last
 > song export last my_song.mid  # open it in any music app
+> phone health                  # your body, your conditions, your home
+> do brush_teeth
+> ask date dax                  # Dax's player answers: answer ask-123 yes
 ```
 
 Type `help` in the client for every command. `--dev` enables `skip MINUTES` (time skip)
@@ -63,13 +66,25 @@ The founding vertical slice (docs/ROADMAP.md, M0), all server-authoritative and 
 | Spend money | ✅ shops with opening hours, card or cash, can't overspend |
 | See the world change | ✅ construction crews build on schedules; places open; city stats grow |
 | Save, disconnect, reconnect, state preserved | ✅ SQLite, survives a full server restart |
+| Look after yourself | ✅ bathroom, teeth, grooming, weight, aging, illness; doctors, dentist, therapy |
+| Keep a home | ✅ cleaning, trash; a filthy home makes you sick |
+| Stay away too long | ✅ three real weeks of self-care, then your character gets depressed |
+| Own things | ✅ clothes, accessories, a laptop, headphones, medicine; new shops and a salon |
+| Get around | ✅ the bus, with fares (and fare inspectors) |
+| Go to school | ✅ university, law school, medical school, nursing school, police academy |
+| Change careers | ✅ apply in person; doctor, nurse, lawyer, police officer, professor and more |
+| Break the law | ✅ shoplifting, pickpocketing, fare evasion, drugs; fines, jail, a record, police |
+| Date, marry, start a family | ✅ every step needs a yes; adults only; pregnancy, birth, children |
+| Become famous | ✅ fame and celebrity tiers |
 
 The founding cast: 11 playable characters with reference art (`art/reference/characters/`),
 homes, careers, secrets and history with each other. See docs/GAME_DESIGN.md.
 
 Not built yet: the 3D client, voice chat,
-autonomous NPCs (construction crews are abstract), gossip/secrets propagation, social
-media, business ownership, buying property, the event engine, generations.
+autonomous NPCs (construction crews, shop staff and dealers are abstract), gossip/secrets
+propagation (so cheating is never found out), social media, business ownership, buying
+property, the event engine, children's care and childhood gameplay, and player reporting
+and blocking (needed before any public server; see docs/DECISIONS.md D-025).
 
 **Security note:** the development protocol is plaintext TCP and binds to 127.0.0.1 by
 default. Passwords are hashed at rest (PBKDF2) but are not encrypted in transit. Do not

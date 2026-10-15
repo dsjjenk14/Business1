@@ -54,9 +54,35 @@ Event (server push): `{"event": "message", "data": {"from": "dax", "body": "..."
 | `song_save` | playing | `song` {title, bpm, tracks}, `song_id` (to update a draft) |
 | `song_release` / `song` | playing | `song` (id) |
 | `perform` | playing, on a stage | `song` (id) |
+| `use` / `wear` | playing | `item` |
+| `take_off` | playing | `slot` (`outfit`/`accessory`) |
+| `give` | playing | `to`, `item` |
+| `ride` | playing, at a stop | `to` (stop id), `pay` (default true) |
+| `enroll` | playing, at a campus | `program` (empty = drop out) |
+| `study` | playing | `action` (`start`/`end`) |
+| `apply` | playing, at the workplace | `career` |
+| `steal` | playing, in a shop | `offer` |
+| `pickpocket` | playing | `target` |
+| `arrest` | playing, police on duty | `target` |
+| `request` | playing | `kind` (date, kiss, propose, marry, intimacy), `target`, `protection` |
+| `respond` | playing | `request` (id), `accept` |
+| `end_relationship` | playing | `target` |
+| `name_baby` | playing, a parent | `child`, `name` |
 | `dev_advance` | logged in + `--dev` | `minutes` (1–86400) |
+| `dev_condition` | logged in + `--dev` | `character`, `condition` |
 
-Events: `welcome`, `arrived`, `presence` (someone arrived/entered/left near you),
+Phone apps: bank, messages, contacts, calendar, map, career, property, notifications,
+city, studio, health, items, transit, school, jobs, record, romance, fame.
+
+Players acting on other players: interactions, tips, gifts and pickpocketing need you to be
+with them; pickpocketing has a per-victim cooldown and a cash cap; arrests need an officer
+on duty and a warrant. Anything between two people beyond that is an ask (`request`) the
+other player answers (`respond`); asks expire, and adults-only and family rules are checked
+when asked and again when answered.
+
+Events: `welcome`, `arrived`, `presence` (someone arrived/entered/left near you), `request`
+(an ask for you), `answer` (your ask was answered), `incident` (an arrest, an overdose or an
+accident near you), `gift`,
 `interaction` (someone did something to you), `message`, `notification`, `speech`
 (someone you can hear said something), `performance` (someone performed where you are;
 carries the full song so the client can play it), `kicked`.

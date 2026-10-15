@@ -67,6 +67,14 @@ void printEvent(const Client& c, const Json& ev) {
   } else if (type == "performance") {
     std::printf("  ♪ %s performs \"%s\" (quality %.0f)\n", d.value("name", "").c_str(),
                 d["song"].value("title", "").c_str(), d.value("quality", 0.0));
+  } else if (type == "request") {
+    std::printf("  ♥ %s  → answer %s yes|no\n", d.value("text", "").c_str(), d.value("id", "").c_str());
+  } else if (type == "answer") {
+    std::printf("  ♥ [%s: %s]\n", d.value("kind", "").c_str(), d.value("accepted", false) ? "yes" : "no");
+  } else if (type == "incident") {
+    std::printf("  [%s: %s]\n", d.value("character", "").c_str(), d.value("kind", "").c_str());
+  } else if (type == "gift") {
+    std::printf("  [%s gave you %s]\n", d.value("from", "").c_str(), d.value("label", "").c_str());
   }
   else std::printf("  [%s] %s\n", type.c_str(), d.dump().c_str());
 }
@@ -391,7 +399,8 @@ const char* kHelp = R"(Commands:
   buy OFFER [card|cash]     buy something where you are
   do ACTIVITY               do something here for free (shower, nap, jog...)
   work start | work end     start / finish a shift at your workplace
-  phone APP                 bank, messages, contacts, calendar, map, career, property, notifications, city
+  phone APP                 bank, messages, contacts, calendar, map, career, property, notifications, city,
+                            health, items, transit, school, jobs, record, romance, fame
   msg ID TEXT...            send a text message
   say TEXT | shout TEXT     talk out loud to whoever is near you
   whisper ID TEXT           say something only one person beside you hears
@@ -416,6 +425,28 @@ Music:
   song play ID              listen to a released song
   song export ID|last FILE.mid   write a MIDI file you can play in any music app
   perform ID|last           perform live on a stage (open mic, church, park, club)
+Things you own and getting around:
+  use ITEM                  use something you have (headphones, a laptop, medicine, a test)
+  wear ITEM | takeoff SLOT  put on clothes or an accessory / take off your outfit or accessory
+  give ID ITEM              give something to someone you're with
+  ride STOP [nopay]         take the bus from the stop you're at (phone transit lists stops)
+
+School and work:
+  enroll PROGRAM | drop     enroll at a campus (phone school lists programs) / drop out
+  study start | study end   a study session (tuition by the hour, a grade from how you're doing)
+  apply CAREER              apply in person at a workplace (phone jobs lists them)
+
+On the wrong side of the law:
+  steal OFFER               take something from a shop without paying
+  pickpocket ID             lift cash from someone right next to you
+  arrest ID                 police on duty: arrest someone with a warrant
+
+Romance and family (adults only; every step needs the other person's yes):
+  ask date|kiss|propose|marry|intimacy ID [protected]
+  answer REQUEST yes|no     answer an ask
+  breakup ID                end it (divorce, if you're married)
+  namebaby CHILD NAME       name your newborn (within a week)
+
   skip MINUTES              advance world time (only on servers started with --dev)
   logout | quit
   raw JSON                  send a raw protocol request)";
@@ -537,6 +568,44 @@ bool runCommand(Client& c, const std::string& input) {
   } else if (cmd == "msg") {
     const std::string to = arg();
     req = {{"op", "message"}, {"to", to}, {"text", rest()}};
+  } else if (cmd == "use") {
+    req = {{"op", "use"}, {"item", arg()}};
+  } else if (cmd == "wear") {
+    req = {{"op", "wear"}, {"item", arg()}};
+  } else if (cmd == "takeoff") {
+    req = {{"op", "take_off"}, {"slot", arg()}};
+  } else if (cmd == "give") {
+    const std::string to = arg();
+    req = {{"op", "give"}, {"to", to}, {"item", arg()}};
+  } else if (cmd == "ride") {
+    const std::string stop = arg();
+    req = {{"op", "ride"}, {"to", stop}, {"pay", arg() != "nopay"}};
+  } else if (cmd == "enroll") {
+    req = {{"op", "enroll"}, {"program", arg()}};
+  } else if (cmd == "drop") {
+    req = {{"op", "enroll"}, {"program", ""}};
+  } else if (cmd == "study") {
+    req = {{"op", "study"}, {"action", arg()}};
+  } else if (cmd == "apply") {
+    req = {{"op", "apply"}, {"career", arg()}};
+  } else if (cmd == "steal") {
+    req = {{"op", "steal"}, {"offer", arg()}};
+  } else if (cmd == "pickpocket") {
+    req = {{"op", "pickpocket"}, {"target", arg()}};
+  } else if (cmd == "arrest") {
+    req = {{"op", "arrest"}, {"target", arg()}};
+  } else if (cmd == "ask") {
+    const std::string kind = arg();
+    const std::string target = arg();
+    req = {{"op", "request"}, {"kind", kind}, {"target", target}, {"protection", arg() == "protected"}};
+  } else if (cmd == "answer") {
+    const std::string id = arg();
+    req = {{"op", "respond"}, {"request", id}, {"accept", arg() == "yes"}};
+  } else if (cmd == "breakup") {
+    req = {{"op", "end_relationship"}, {"target", arg()}};
+  } else if (cmd == "namebaby") {
+    const std::string child = arg();
+    req = {{"op", "name_baby"}, {"child", child}, {"name", rest()}};
   } else if (cmd == "skip") {
     req = {{"op", "dev_advance"}, {"minutes", std::stoll(arg())}};
   } else if (cmd == "logout") {

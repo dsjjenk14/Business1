@@ -75,6 +75,39 @@ Requested by the product owner ahead of the spec's phase order (character creati
 creator and 3D preview (M1/M2), song editing UI (the client's job), royalties or music
 careers, moderation tools for chat (needed before any public server).
 
+## M0.7 — Everyday life, at the product owner's request ✅
+
+- **Body:** bathroom (accidents if you hold it; breaks on shift), brushing teeth (or a
+  toothache), grooming (it shapes first impressions), weight from calories in and out,
+  aging with birthdays and life stages.
+- **Home:** cleanliness and trash; housework and taking out the trash; a filthy home is
+  unpleasant and can make you sick.
+- **Illness and care:** colds, flu, food poisoning, toothache, depression, addictions and
+  fictional STIs; Livéra General Hospital (ER, maternity, rehab), the clinic, the pharmacy
+  (prescriptions need a diagnosis); doctors and nurses on duty earn from the care they give.
+- **The offline rule** (D-023): three real weeks of self-care, then depression.
+- **Things:** an inventory; clothes and accessories you wear, a laptop and headphones you
+  use, medicine, tests; Thread & Co., Circuit Electronics, Riverdale Pharmacy, Lustre
+  Jewelers, Fade & Glow Salon; giving gifts.
+- **Getting around:** Livéra Transit Line 1, with fares and fare inspectors.
+- **School and work:** Livéra University (bachelor's, law school, medical school, nursing)
+  and the police academy; degrees gate careers; eleven new careers including doctor, nurse,
+  lawyer (Hale & Partners), police, professor, bartender.
+- **Crime:** shoplifting, pickpocketing, fare evasion, drugs; detection, fines, jail,
+  records, warrants, patrols and police players. Alcohol at The Copper Tap; fictional
+  street drugs with highs, crashes, addiction and overdoses.
+- **Romance and family:** dating, kissing, engagement, marriage, breakups and divorce;
+  consensual, adults-only intimacy that fades to black (D-025); pregnancy, miscarriage,
+  abortion care, birth, babies who grow up and become playable at 18.
+- **Fame:** from performances, releases, weddings and headlines; celebrity tiers.
+- 136 tests, sanitizer-clean.
+
+**Not in M0.7:** children's care and childhood gameplay (babies live their routine), any
+autonomous NPC behavior (staff, dealers and inspectors are abstract), cheating being found
+out (needs the gossip system), moving in together beyond visiting rights, buying a home,
+reporting and blocking players (required before a public server), voice, and anything
+visual (M1).
+
 ## M1 — Unreal client shell (spec Phases 1 + 3) ⬜ — next
 
 Needs: an Unreal Engine 5 install (Windows or Linux build machine) and a decision on the

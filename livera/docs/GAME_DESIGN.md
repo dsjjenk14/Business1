@@ -33,12 +33,24 @@ Over years: develop parcels, raise a family, leave a legacy.
 
 | System | Design intent | Status |
 |---|---|---|
-| Needs & emotions | Hunger, energy, hygiene, social, recreation, comfort, health; 9 emotions | Built |
+| Needs & emotions | Hunger, energy, hygiene, social, recreation, comfort, health, bladder, dental, grooming; 9 emotions | Built |
+| Body | Bathroom, teeth, grooming, weight from calories, aging and life stages | Built |
+| Home upkeep | Cleanliness, trash, housework; filth makes you sick | Built |
+| Illness & care | Illnesses, contagion, checkups, treatment, ER, dentist, therapy, rehab; doctors and nurses on duty | Built |
+| The offline rule | Three real weeks of self-care, then depression (D-023) | Built |
+| Things | Inventory, clothes and accessories you wear, electronics and medicine you use, gifts | Built |
+| Public transport | A bus line with fares and inspectors | Built |
+| School | University, law/medical/nursing school, police academy; degrees gate careers | Built |
+| Crime & police | Shoplifting, pickpocketing, fare evasion, drugs; fines, jail, records, warrants, police players | Built |
+| Substances | Alcohol; fictional street drugs; highs, crashes, addiction, overdose | Built |
+| Dating & marriage | Asks that need a yes; dating, engagement, weddings, breakups, divorce | Built |
+| Intimacy & family | Adults-only, consensual, fade to black (D-025); fictional STIs; pregnancy, miscarriage, abortion care, birth, children | Built (children's care is abstract) |
+| Fame | Performances, releases, weddings and headlines; celebrity tiers | Built |
 | Personality & values | 8 traits, 9 values; shape how interactions land and who clicks | Built |
 | Relationships | Directional, 11 dimensions | Built |
 | Memory | Owned per character; biases future reactions | Built (grudges); deeper influence Phase 4 |
 | Information, secrets, gossip | Facts vs beliefs; rumours with source, accuracy, reach; mutation as they spread | Designed (DATA_MODEL.md) |
-| Careers | Data-defined ladders; performance from wellbeing; promotions | Built (Recruiting, Construction Management; Law defined, no firm yet) |
+| Careers | Data-defined ladders; performance from wellbeing; promotions; apply in person; degree and record requirements | Built (24 careers incl. medicine, nursing, law, police, teaching) |
 | Economy | Cash, bank, income, expenses, rent; later debt, credit, investments, taxes | Partly built |
 | Real estate | Rent → buy → mortgage → co-own → renovate → develop parcels | Renting built |
 | Businesses | Own, staff (incl. other players), payroll, inventory, reputation, competitors | Phase 8 |

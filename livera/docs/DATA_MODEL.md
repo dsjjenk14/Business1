@@ -31,6 +31,23 @@ unknown stat names and dangling references fail the load with the file and id na
 | `character_creator` | `age [min,max], height_cm [min,max], pronouns, gender, appearance{field: choice}, traits, interests, education, relationship_status, goals, personality_budget, values_budget, max_background_length` | A choice is a list (pick one) or `{options, min, max, allow_custom}`. Exactly one. |
 | `origins` | `id, label, description, bank_cents, cash_cents, career_level_bonus, housing_tier, emotions{}` | "Why did you move to Livéra?" |
 | `instruments` | `id, label, midi_program, drums` | The phone studio's instruments. |
+| `life` | `offline{self_care_real_days, depressed_need_targets, depressed_emotion_targets, depression_condition, recovery_per_good_hour}, bathroom{}, home{}, weight{}, aging{game_days_per_year, adult_age, life_stages[]}, grooming{}` | data/config/life.json. Exactly one. |
+| `conditions` | `id, name, kind (illness, dental, mental, addiction, sti), hours [min,max] (0 = until treated), needs_per_hour{}, emotions_per_hour{}, performance_penalty, symptomatic, curable, catch{hourly_chance, risk_need, risk_below, dirty_home, risk_multiplier, contagion_per_hour, sexual_transmission}, treated_by[]` | data/health/conditions.json. Chances are per game hour. |
+| `substances` | `id, name, legal, needs{}, emotions{}, effect_minutes, crash_needs{}, crash_emotions{}, dependency_per_use, dependency_decay_per_day, addiction, overdose_uses, overdose_window_minutes, possession_crime` | data/health/substances.json; illegal ones are fictional. |
+| `items` | `id, label, category, slot (outfit/accessory), usable, consumable, cooldown_minutes, needs{}, emotions{}, shortens{condition: hours}, condition_recovery{}, unlocks[], style, substance, illegal, test, contraception` | data/items/items.json. |
+| `transit` | `operator_account, boarding_radius_m, lines[] {id, name, fare_cents, speed_mps, hours, inspection_chance, evasion_fine_cents, stops[] {id, name, at}}` | data/transit/transit.json. |
+| `education` | `degrees[] {id, name}, programs[] {id, name, degree, requires_degree, requires_clean_record, hours_required, tuition_per_hour_cents, min_grade, campuses[], online, need_cost_per_hour, tuition_account}, creator_education{answer: [degrees]}` | data/education/education.json. |
+| `crime` | `jail, hospital, fines_account, patrol_arrest_per_hour, police_nearby_m, pickpocket_*, addiction_threshold, overdose_bill_cents, crimes[] {id, label, fine_cents, jail_minutes, detection, per_witness, per_staff, per_police, notoriety}` | data/society/crimes.json. |
+| `romance` | `request_minutes, conception_chance, protection_effectiveness, fertility_by_age[[age, x]], pregnancy_game_days, symptoms_after_days, test_detects_after_days, miscarriage_chance, miscarriage_window_days, abortion_limit_days, pregnancy_needs_per_hour{}, morning_sickness_needs_per_hour{}, baby_names{girl[], boy[]}, naming_window_days, divorce_fee_cents, divorce_fee_account, sti_protection` | data/society/romance.json. |
+| `fame` | `tiers[] {id, label, min}, decay_per_day, per_quality_audience, per_release, per_wedding, celebrity_at, receptivity_bonus` | data/society/fame.json. |
+
+New fields on existing sections: offers gain `calories`, `calories_burned`, `service`
+(checkup, treatment, dental_care, emergency, rehab, sti_test, prenatal, abortion),
+`condition_recovery`, `item`, `quantity`, `requires_diagnosis`, `substance`, `illegal`;
+activities gain `home_effects{cleanliness, trash}`, `calories`, `calories_burned`;
+locations gain `weddings`; careers gain `requires_degree`, `requires_clean_record`,
+`care_fee_share`, `works_outdoors`; characters gain `degrees[]`, `reproduction`
+(carrier/sire/empty), `fame`; the creator gains an optional `reproduction` question.
 
 Money is always integer cents (`*_cents`). Coordinates are meters.
 
@@ -77,6 +94,10 @@ A complete example: `scripts/demo/sol_rivera.json`.
 | `CityState` | stats, stage |
 | `createdCharacters` | `CharacterDef` per player-made character, in the content format. Founding characters stay in content. |
 | `Song` | id, owner, title, bpm, tracks[] {instrument, notes[] {step, pitch, length, velocity}}, created/updated, released, plays. Steps are sixteenth notes (16 per bar, 256 max); up to 4 tracks of 512 notes. |
+| `CharacterState`, everyday life | body (born at, height, weight, calories in/out), conditions [{id, since, until, diagnosed, recovery}], last online at, inventory, outfit, accessory, criminal record, education {program, hours, grades, degrees}, dependency per substance, high, wanted for, jailed until, fame, pregnancy {partner, conceived, due, known, prenatal visits, risk}, parents |
+| `RelationshipState` | gains `status` (dating, engaged, married, ex, divorced) and when it started; the same on both sides |
+| `PropertyState` | gains cleanliness and trash |
+| `WorldState` | gains `rng` (the saved random stream) and pending asks (session only) |
 
 ### Designed, not built yet
 
@@ -88,8 +109,8 @@ These shape the current types but have no code yet. They will extend state, not 
 - **Rumors:** `Rumor {id, source, subject, claim, accuracy, confidence, reach, carriers, reputation_impact, parent_rumor}`. Mutation = a new Rumor whose `parent_rumor` points at the one it came from.
 - **Reputation:** per character per domain (professional, social, public), seeded from profile.
 - **Ownership:** `PropertyState` gains owners with shares, mortgage, condition; businesses get `BusinessState {owner, employees, payroll, inventory, reputation}`.
-- **Lineage:** `CharacterState` gains parents and life stage; inheritance moves ledger
-  balances and property ownership through the same `Ledger::transfer` path.
+- **Inheritance:** parents and life stages exist now; inheritance will move ledger balances
+  and property ownership through the same `Ledger::transfer` path.
 
 ## Save format (SQLite)
 
@@ -112,6 +133,8 @@ Schema version is `PRAGMA user_version`; migrations are an append-only list in
 | `city_stats` | key, value |
 | `created_characters` | id, def JSON (content format) — v2 |
 | `songs` | id, owner, body JSON — v2 |
+| `properties.upkeep` | cleanliness and trash JSON — v3 |
+| `meta.rng` | the random stream's state — v3 (meta is key/value, no migration needed) |
 
 Session state is not saved: who is online, move targets, activity cooldowns. Open shifts
 are settled on logout and shutdown, so none survive a save.

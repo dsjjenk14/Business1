@@ -124,3 +124,61 @@ deep talk...) so the simulation stays predictable and can't be gamed by typing.
 - **Skill** grows with practice: +3 per performance (+0.5 per listener, up to +2), +2 per
   release, each scaled by `max(0.1, 1 − skill/120)` so mastery takes time.
 - **Tips**: $1–$1,000 from your bank to someone you're with; the tipped person warms to you.
+
+## Body and home
+
+Needs now include **bladder** (use a bathroom or have an accident; people on shift take
+breaks), **dental** (brush or risk a toothache) and **grooming** (physical-attraction gains
+from your interactions scale from 0.6x to 1.4x with it, plus the style of what you wear).
+Weight follows calories: food adds energy (a stated `calories`, or 14 kcal per point of
+hunger restored), a base 2,000 kcal a day is burned plus workouts and housework, and 7,700
+kcal is a kilogram. A BMI outside 18.5–30 wears on health. Homes have **cleanliness** (a
+resident at home makes mess at 1 point an hour; full trash triples it) and **trash**
+(cooking adds 15); below 30 a home is unpleasant to be in and food poisoning gets likely.
+
+## Illness and care
+
+Conditions are data (data/health/conditions.json): caught hourly from a base chance
+multiplied by risks (a low need, a dirty home), plus contagion per infected person sharing
+a space; symptoms apply per hour; most run their course; some last until treated. A
+condition you can't feel stays hidden until a test or a checkup finds it. Being ill takes
+a share off work and study performance. Care is bought: checkups diagnose, treatment
+cures what's diagnosed (or manages what can't be cured), the ER does both, dentists fix
+teeth, therapy and antidepressants help depression, rehab treats addiction.
+
+## Away from the game
+
+An offline character's needs converge on a self-care baseline (Tier 3). A character whose
+player has been away for `self_care_real_days` (21) is depressed instead: needs converge on
+`depressed_need_targets`, mood on `depressed_emotion_targets`, weight drifts down and the
+home goes untended. Coming back, depression is a condition like any other.
+
+## Aging
+
+Age = (now − born at) / `game_days_per_year`. Birthdays are notifications and memories.
+Life stages: baby 0, toddler 1, child 4, teen 13, young adult 18, adult 30, elder 60
+(health declines 1.5x), senior 75 (2.5x). Children born in the world become playable at 18.
+
+## Substances
+
+A dose applies its effects and starts a high; when it wears off there's a crash.
+Dependency rises per use and decays per day; past 50 it's an addiction with withdrawal
+symptoms (paused while high), which fades again below 25. Too many uses inside the window
+is an overdose: health drops, you're taken to the ER and billed.
+
+## Crime
+
+See DECISIONS.md D-028. Jail time is game time (240 minutes = 4 real minutes).
+
+## Romance and family
+
+See DECISIONS.md D-025 and D-027. Conception: `conception_chance` x fertility by age (1.0
+to 35, then 0.6, 0.25, 0.02 from 45) x 0.02 if protected. Miscarriage risk is spread
+over the first 84 days (12% before risk factors); drugs and alcohol during pregnancy
+(x1.5 each), illness and poor health raise it, prenatal visits lower it.
+
+## Fame
+
+Fame (0–100) grows with performances (quality x audience x 0.002), releases, weddings and
+headlines (including arrests), and fades 0.2 a day. Tiers: Resident, Local name (15),
+Rising star (35), Celebrity (60), Icon (85).

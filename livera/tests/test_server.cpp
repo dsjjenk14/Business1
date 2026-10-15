@@ -358,3 +358,44 @@ TEST_CASE("server: make your own character, talk out loud, and play music for th
     CHECK(sol.ok({{"op", "phone"}, {"app", "bank"}})["bank_cents"] == 800000 + 500);
   }
 }
+
+TEST_CASE("server: everyday life over the network: phone apps, things, school, the bus, and asking someone out") {
+  RunningServer server(tempPath("life_net.db").string());
+  TestClient dom(server.port()), dax(server.port());
+  for (auto [client, user, who] : {std::tuple{&dom, "dom", "dominique"}, std::tuple{&dax, "dax", "dax"}}) {
+    client->ok({{"op", "register"}, {"username", user}, {"password", "password123"}});
+    client->ok({{"op", "login"}, {"username", user}, {"password", "password123"}});
+    client->ok({{"op", "play"}, {"character", who}});
+  }
+  dom.ok({{"op", "dev_advance"}, {"minutes", 180}});  // 10:00: the shops are open
+  for (const char* app : {"health", "items", "transit", "school", "jobs", "record", "romance", "fame"})
+    CHECK(dom.ok({{"op", "phone"}, {"app", app}}).is_object());
+  CHECK(dom.ok({{"op", "phone"}, {"app", "school"}})["degrees"][0] == "Bachelor's degree");
+
+  dom.ok({{"op", "exit"}});
+  dom.walkTo("circuit_electronics");
+  dom.ok({{"op", "enter"}, {"location", "circuit_electronics"}});
+  CHECK(dom.ok({{"op", "buy"}, {"offer", "headphones"}})["owned"] == 1);
+  CHECK(dom.ok({{"op", "use"}, {"item", "headphones"}})["item"] == "headphones");
+  CHECK(dom.refusal({{"op", "wear"}, {"item", "headphones"}}) == "not_wearable");
+  CHECK(dom.refusal({{"op", "enroll"}, {"program", "law_school"}}) == "wrong_place");
+  CHECK(dom.refusal({{"op", "ride"}, {"to", "stop_riverside"}}) == "inside_building");
+  CHECK(dom.refusal({{"op", "apply"}, {"career", "teaching"}}) == "wrong_place");
+
+  // Dax asks her out at the café; she answers from her own connection.
+  dom.ok({{"op", "exit"}});
+  dom.walkTo("heritage_coffee");
+  dom.ok({{"op", "enter"}, {"location", "heritage_coffee"}});
+  dax.ok({{"op", "exit"}});
+  dax.walkTo("heritage_coffee");
+  dax.ok({{"op", "enter"}, {"location", "heritage_coffee"}});
+  const std::string ask = dax.ok({{"op", "request"}, {"kind", "date"}, {"target", "dominique"}})["request"];
+  dom.pump(0.2);
+  CHECK(dom.sawEvent("request"));
+  CHECK(dom.ok({{"op", "respond"}, {"request", ask}, {"accept", true}})["accepted"] == "date");
+  dax.pump(0.2);
+  CHECK(dax.sawEvent("answer"));
+  CHECK(dax.ok({{"op", "phone"}, {"app", "romance"}})["relationships"][0]["status"] == "dating");
+  CHECK(dax.refusal({{"op", "arrest"}, {"target", "dominique"}}) == "not_police");
+  CHECK(dax.refusal({{"op", "name_baby"}, {"child", "dominique"}, {"name", "X"}}) == "unknown_character");
+}

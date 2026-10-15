@@ -144,3 +144,68 @@ product owner.
 ## D-022 — Staff can always enter their own workplace
 **Why:** Opening hours are for customers. Andre must be able to open his own studio at
 9 a.m. even though the public can't come in until noon.
+
+## D-023 — The offline rule: three real weeks of self-care, then depression
+**Decision (product owner):** A character whose player stops logging in keeps looking after
+themself for 21 real days. After that they are depressed and only keep up the very basics:
+needs, mood, weight and their home all slide toward low targets
+(`life.offline` in data/config/life.json). Depression is a condition: it lifts with good
+days in the world, therapy and antidepressants.
+**How:** "Real days" are measured on the world clock at its configured rate (1 game minute
+per real second), so time the server is down doesn't count. Characters nobody has ever
+played are exempt: they just live their routine.
+
+## D-024 — Aging and pregnancy run on their own clocks
+**Decision:** One year of age per 1,800 game days (one birthday per real month at the
+current clock). Pregnancy lasts 252 game days (nine months on the in-game calendar, about
+four real days).
+**Why:** The world clock runs 60x real time. Aging on calendar years would age everyone
+65 years per real year; nine real months of pregnancy would never be seen. Both are data
+(`life.aging`, `romance.pregnancy_game_days`) and can be retuned together.
+
+## D-025 — Mature content: adults only, consent at every step, fade to black
+**Decision:** Romance and intimacy are only between adults and never within a family; this
+is enforced in code (`World::checkRomanceAllowed`), not data. Every step between two people
+(a date, a kiss, a proposal, a wedding, intimacy) is an ask the other player must accept,
+and asks expire. Intimacy is private (only inside a home) and fades to black: the game
+tracks its consequences (feelings, private memories, infections, pregnancy), not the act.
+Sexually transmitted infections and illegal drugs have fictional names. An abortion is
+private to the patient: no one else is notified and nothing is public.
+**Why:** These are product-owner requests for a life sim aimed at adults. The rules above
+keep them about consequences and choices, keep players from being drawn into anything they
+didn't agree to, and keep minors out entirely. A public server will also need reporting,
+blocking and moderation (MULTIPLAYER.md), and a store rating decision.
+
+## D-026 — One saved random stream
+**Decision:** Every chance roll (illness, conception, detection, miscarriage...) comes from
+a splitmix64 stream whose state is saved with the world.
+**Why:** Outcomes are reproducible from a save, and tests force outcomes by setting chances
+to 0 or 1 in patched content instead of mocking randomness.
+
+## D-027 — Reproduction is its own character field
+**Decision:** `reproduction` is `carrier`, `sire` or empty, separate from gender and
+pronouns. The character creator asks it as an optional question; the founding cast's is set
+in their data (and can be edited).
+**Why:** Pregnancy needs to know who can become pregnant; gender identity and pronouns
+don't say that, and shouldn't be used to guess it.
+
+## D-028 — Crime is a chance you can see coming
+**Decision:** Being caught = a base chance + one per witness + one per staff member on
+shift + one per police officer on duty nearby (data/society/crimes.json). Caught means a
+fine, jail time (a state that blocks movement and actions until served, in the police
+station's cells), a record entry and contraband seized with a possession charge. Can't pay
+the fine: serve longer. Reported crimes make you wanted; patrols and police players arrest.
+**Why:** Players can read the room: stealing in an empty shop is safer than in front of
+staff or an officer. Jail is time, not a lost character.
+
+## D-029 — Apply in person; enroll at the door; police patrol on the clock
+**Decision:** Job applications and enrollment happen at the workplace or campus (inside or
+at the door, since some are staff-only). Leaving a building ends a shift, except for
+careers that work outdoors (police), who stay on duty while patrolling.
+**Why:** It keeps the town's places meaningful, and the academy is behind a staff-only door.
+
+## D-030 — Clinicians earn from care given on their shift
+**Decision:** Care is bought as offers (checkups, treatment, STI tests, prenatal visits,
+the ER, rehab, abortion care). A doctor or nurse on shift where it's bought earns a share
+from their employer, and the patient recovers a little more.
+**Why:** The clinic works with nobody playing a doctor, and playing one matters.
