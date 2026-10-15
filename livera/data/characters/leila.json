@@ -32,6 +32,7 @@
       "traits": ["curious", "skeptical", "fearless"],
       "interests": ["reading", "film", "travel", "photography", "nightlife"],
       "career": {"id": "journalism", "level": 2},
+      "degrees": ["bachelors"],
       "finances": {"cash_cents": 20000, "bank_cents": 1120000},
       "home": {"property": "founders_row_7", "tenure": "rent"},
       "spawn_location": "founders_row_7",

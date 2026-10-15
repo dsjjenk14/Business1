@@ -398,6 +398,17 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
   if (op == "take_off") return world_.takeOff(me, str(req, "slot"));
   if (op == "give") return world_.giveItem(me, str(req, "to"), str(req, "item"));
   if (op == "ride") return world_.ride(me, str(req, "to"), req.value("pay", true));
+  if (op == "enroll") return world_.enroll(me, str(req, "program"));
+  if (op == "study") {
+    const std::string action = str(req, "action");
+    if (action == "start") {
+      if (Status st = world_.startStudy(me); !st) return st.error();
+      return Json{{"studying", true}};
+    }
+    if (action == "end") return world_.endStudy(me);
+    return fail("bad_request", "action must be start or end");
+  }
+  if (op == "apply") return world_.applyForJob(me, str(req, "career"));
   if (op == "message") {
     auto id = world_.sendMessage(me, str(req, "to"), str(req, "text"));
     if (!id) return id.error();

@@ -32,6 +32,7 @@
       "traits": ["restless", "inventive", "charming"],
       "interests": ["tech", "gaming", "travel", "fitness", "networking"],
       "career": {"id": "startup", "level": 1},
+      "degrees": [],
       "finances": {"cash_cents": 12000, "bank_cents": 1900000},
       "home": {"property": "riverside_lofts_5", "tenure": "rent"},
       "spawn_location": "riverside_lofts_5",

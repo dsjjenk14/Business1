@@ -1312,10 +1312,11 @@
       "name": "Livéra Police Station",
       "type": "civic",
       "district": "Civic Row",
-      "description": "Landmark only for now: civic services arrive in a later milestone (see docs/ROADMAP.md).",
+      "description": "Livéra Police Department: a front desk, three holding cells, and the academy classroom in back.",
       "door": [650, 300],
-      "enterable": false,
-      "outdoor_radius_m": 15
+      "enterable": true,
+      "access": "staff",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
     {
       "id": "fire_station",
@@ -1619,6 +1620,78 @@
           "emotions": {"stress": -5}
         }
       ]
+    },
+    {
+      "id": "livera_university",
+      "name": "Livéra University",
+      "type": "university",
+      "district": "Riverside",
+      "description": "A new campus on the river: one finished lecture hall, a library that smells of fresh paint, and a law clinic upstairs.",
+      "door": [740, 400],
+      "hours": [7, 22],
+      "revenue_account": "org:livera_university",
+      "activities": [
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {
+          "id": "library",
+          "label": "Read in the library",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 8, "comfort": 3},
+          "emotions": {"stress": -2}
+        }
+      ],
+      "offers": [
+        {
+          "id": "campus_coffee",
+          "label": "Campus coffee",
+          "price_cents": 250,
+          "needs": {"energy": 10, "bladder": -10},
+          "calories": 50
+        }
+      ]
+    },
+    {
+      "id": "livera_general",
+      "name": "Livéra General Hospital",
+      "type": "hospital",
+      "district": "Riverside",
+      "description": "Emergency room open around the clock, a maternity ward, and a parking lot still mostly gravel.",
+      "door": [680, 400],
+      "revenue_account": "org:livera_general",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}],
+      "offers": [
+        {
+          "id": "checkup",
+          "label": "Checkup with a doctor",
+          "price_cents": 6500,
+          "needs": {"health": 15},
+          "service": "checkup"
+        },
+        {
+          "id": "treatment",
+          "label": "Treatment for what the doctor found",
+          "price_cents": 15000,
+          "needs": {"health": 10},
+          "service": "treatment"
+        },
+        {
+          "id": "emergency_care",
+          "label": "Emergency room visit",
+          "price_cents": 45000,
+          "needs": {"health": 30},
+          "service": "emergency"
+        }
+      ]
+    },
+    {
+      "id": "hale_partners",
+      "name": "Hale & Partners",
+      "type": "law_firm",
+      "district": "Downtown",
+      "access": "staff",
+      "description": "Livéra's first law firm: glass conference room, a library of statute books nobody reads, and a partner who bills in six-minute increments.",
+      "door": [660, 440],
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     }
   ]
 }

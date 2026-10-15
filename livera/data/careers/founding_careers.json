@@ -64,7 +64,7 @@
     {
       "id": "law",
       "name": "Law",
-      "workplaces": [],
+      "workplaces": ["hale_partners"],
       "employer_account": "org:hale_law",
       "need_cost_per_hour": {"energy": -5, "comfort": -2},
       "levels": [
@@ -72,7 +72,10 @@
         {"title": "Senior Associate", "hourly_cents": 8800, "hours_to_promote": 500, "min_performance": 70},
         {"title": "Counsel", "hourly_cents": 11500, "hours_to_promote": 700, "min_performance": 75},
         {"title": "Partner", "hourly_cents": 19000}
-      ]
+      ],
+      "requires_degree": "jd",
+      "max_shift_hours": 12,
+      "min_paid_minutes": 30
     },
     {
       "id": "ai_engineering",

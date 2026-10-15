@@ -37,6 +37,11 @@ Json toJson(const CharacterState& c) {
   for (const auto& e : c.record)
     record.push_back(Json{{"crime", e.crime}, {"at", e.at}, {"fine_cents", e.fineCents}, {"jail_minutes", e.jailMinutes}});
   j["record"] = record;
+  j["education"] = Json{{"program", c.education.program},
+                        {"hours", c.education.hours},
+                        {"grade_sum", c.education.gradeSum},
+                        {"sessions", c.education.sessions},
+                        {"degrees", c.education.degrees}};
   // Online state, move targets and in-progress shifts are session state: a saved
   // character always loads offline, standing still, off shift (shifts are settled on logout).
   return j;
@@ -80,6 +85,14 @@ CharacterState characterStateFromJson(const Json& j) {
   for (const auto& e : j.value("record", Json::array()))
     c.record.push_back(CrimeRecordEntry{e.at("crime").get<std::string>(), e.at("at").get<GameMinutes>(),
                                         e.value("fine_cents", Cents{0}), e.value("jail_minutes", GameMinutes{0})});
+  if (j.contains("education")) {
+    const Json& e = j.at("education");
+    c.education.program = e.value("program", "");
+    c.education.hours = e.value("hours", 0.0);
+    c.education.gradeSum = e.value("grade_sum", 0.0);
+    c.education.sessions = e.value("sessions", 0);
+    c.education.degrees = e.value("degrees", std::vector<std::string>{});
+  }
   return c;
 }
 
@@ -181,6 +194,7 @@ Json toJson(const CharacterDef& c) {
               {"finances", {{"cash_cents", c.startingCashCents}, {"bank_cents", c.startingBankCents}}},
               {"home", {{"property", c.homeProperty}}},
               {"spawn_location", c.spawnLocation},
+              {"degrees", c.degrees},
               {"relationships", relationships},
               {"profile", c.profile}};
 }

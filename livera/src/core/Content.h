@@ -243,6 +243,37 @@ struct CareerDef {
   double maxShiftHours = 10;
   double minPaidMinutes = 30;
   bool entryLevel = false;  // new characters can start in this career
+  std::string requiresDegree;     // hiring requires this degree (data/education)
+  bool requiresCleanRecord = false;
+  double careFeeShare = 0;        // > 0: a clinician; earns this share of care bought while they're on duty
+};
+
+struct DegreeDef {
+  std::string id;
+  std::string name;
+};
+
+// A course of study at a campus: hours of study sessions, tuition by the hour, a grade bar.
+struct ProgramDef {
+  std::string id;
+  std::string name;
+  std::string degree;            // granted on graduation
+  std::string requiresDegree;    // e.g. law school needs a bachelor's
+  bool requiresCleanRecord = false;
+  double hoursRequired = 400;
+  Cents tuitionPerHourCents = 0;
+  double minGrade = 55;          // average session grade (0-100) needed to graduate
+  double maxSessionHours = 8;
+  std::vector<LocationId> campuses;
+  bool online = false;           // can also be studied at home with a laptop
+  StatMap needCostPerHour;
+  LedgerAccountId tuitionAccount;
+};
+
+struct EducationConfig {
+  std::vector<DegreeDef> degrees;
+  std::map<std::string, ProgramDef> programs;
+  std::map<std::string, std::vector<std::string>> creatorEducation;  // creator answer -> degrees held
 };
 
 struct InteractionDef {
@@ -297,6 +328,7 @@ struct CharacterDef {
   Cents startingBankCents = 0;
   std::string homeProperty;
   LocationId spawnLocation;
+  std::vector<std::string> degrees;
   std::vector<StartingRelationship> relationships;
   std::vector<SeedMemory> memories;
   Json profile;  // narrative: appearance, background, goals, secrets, schedule, social media...
@@ -407,6 +439,9 @@ class ContentDatabase {
   const std::map<std::string, ItemDef>& items() const { return items_; }
   const ItemDef* item(const std::string& id) const;
   const TransitConfig& transit() const { return transit_; }
+  const EducationConfig& education() const { return education_; }
+  const ProgramDef* program(const std::string& id) const;
+  const DegreeDef* degree(const std::string& id) const;
   // The line and stop for a stop id, or {nullptr, nullptr}.
   std::pair<const TransitLine*, const TransitStop*> transitStop(const std::string& id) const;
   const std::map<std::string, ConditionDef>& conditions() const { return conditions_; }
@@ -443,6 +478,7 @@ class ContentDatabase {
   std::map<std::string, ConditionDef> conditions_;
   std::map<std::string, ItemDef> items_;
   TransitConfig transit_;
+  EducationConfig education_;
 };
 
 }  // namespace livera

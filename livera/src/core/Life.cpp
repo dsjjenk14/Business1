@@ -352,6 +352,13 @@ Result<Json> World::runCareService(CharacterState& c, const std::string& service
     c.needs["health"] = clampd(c.needs["health"] + 5, kStatMin, kStatMax);
     return out;
   }
+  if (service == "emergency") {
+    // The ER diagnoses and treats in one visit.
+    for (auto& k : c.conditions) k.diagnosed = true;
+    auto treated = runCareService(c, "treatment", where);
+    if (treated) out["treated"] = treated.value().at("treated");
+    return out;
+  }
   if (service == "treatment") {
     Json treated = Json::array();
     std::vector<std::string> cured;

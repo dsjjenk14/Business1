@@ -51,6 +51,19 @@ struct CrimeRecordEntry {
   GameMinutes jailMinutes = 0;
 };
 
+struct EducationState {
+  std::string program;          // enrolled program, empty = not enrolled
+  double hours = 0;             // study hours credited toward it
+  double gradeSum = 0;          // per-session grades, averaged for graduation
+  int sessions = 0;
+  std::vector<std::string> degrees;
+  // Session state (not saved): a study session in progress.
+  std::optional<GameMinutes> sessionStartedAt;
+  LocationId sessionPlace;
+  double sessionWellbeingSum = 0;
+  int sessionSamples = 0;
+};
+
 struct CharacterState {
   CharacterId id;
   Vec2 position;
@@ -76,6 +89,7 @@ struct CharacterState {
   std::string outfit;     // worn item ids
   std::string accessory;
   std::vector<CrimeRecordEntry> record;  // criminal record
+  EducationState education;
   // Session state (not saved):
   std::map<std::string, GameMinutes> activityReadyAt;  // "location/activity" -> minute
   GameMinutes performReadyAt = 0;
@@ -277,6 +291,14 @@ class World {
   // Board at the stop you're standing at and ride to another stop. pay = false is fare evasion.
   Result<Json> ride(const CharacterId& actor, const std::string& toStop, bool pay);
   bool owns(const CharacterId& id, const std::string& item) const;
+
+  // --- School and work (Education.cpp) ---------------------------------------------------
+  Result<Json> enroll(const CharacterId& actor, const std::string& program);
+  Status startStudy(const CharacterId& actor);
+  Result<Json> endStudy(const CharacterId& actor);
+  // Apply in person at the workplace; hired at the first level if you meet the requirements.
+  Result<Json> applyForJob(const CharacterId& actor, const std::string& career);
+  bool hasDegree(const CharacterId& id, const std::string& degree) const;
   bool unlocked(const CharacterId& id, const std::string& capability) const;  // by an item you own
 
   // Dev servers only (the server gates it behind --dev): give a character a condition, for testing care and contagion.
@@ -335,6 +357,9 @@ class World {
   void applyConditionRecovery(CharacterState& c, const StatMap& progress);
   Json phoneHealth(const CharacterState& c) const;
   Json phoneItems(const CharacterState& c) const;
+  Json phoneSchool(const CharacterState& c) const;
+  Json phoneJobs(const CharacterState& c) const;
+  void payCliniciansOnDuty(const CharacterId& patient, const LocationDef& where, Cents price, Json& out);
   // Crime.cpp
   void recordCrime(CharacterState& c, const std::string& crime, Cents fineCents, GameMinutes jailMinutes = 0);
   Json phoneTransit() const;

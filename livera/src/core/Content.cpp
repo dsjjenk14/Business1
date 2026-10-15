@@ -73,7 +73,7 @@ Activity readActivity(const Json& a) {
 }
 
 // Services a care provider can run when one of its offers is bought.
-const std::set<std::string> kCareServices = {"checkup", "treatment", "dental_care"};
+const std::set<std::string> kCareServices = {"checkup", "treatment", "dental_care", "emergency"};
 
 template <class Map>
 Status insertUnique(Map& map, const std::string& kind, const std::string& id, typename Map::mapped_type value) {
@@ -143,6 +143,7 @@ Result<CharacterDef> ContentDatabase::parseCharacter(const Json& j) {
     c.startingBankCents = j.at("finances").at("bank_cents").get<Cents>();
     c.homeProperty = j.at("home").at("property").get<std::string>();
     c.spawnLocation = j.at("spawn_location").get<std::string>();
+    c.degrees = readStrings(j, "degrees");
     if (j.contains("relationships")) {
       for (const auto& r : j.at("relationships")) {
         c.relationships.push_back(
@@ -256,6 +257,9 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           c.maxShiftHours = j.value("max_shift_hours", c.maxShiftHours);
           c.minPaidMinutes = j.value("min_paid_minutes", c.minPaidMinutes);
           c.entryLevel = j.value("entry_level", false);
+          c.requiresDegree = j.value("requires_degree", "");
+          c.requiresCleanRecord = j.value("requires_clean_record", false);
+          c.careFeeShare = j.value("care_fee_share", 0.0);
           if (auto s = insertUnique(careers_, "career", c.id, c); !s) return s;
         }
       } else if (section == "interactions") {
@@ -428,6 +432,29 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           i.style = j.value("style", 0.0);
           if (auto st = insertUnique(items_, "item", i.id, i); !st) return st;
         }
+      } else if (section == "education") {
+        for (const auto& d : body.at("degrees"))
+          education_.degrees.push_back(DegreeDef{d.at("id").get<std::string>(), d.at("name").get<std::string>()});
+        for (const auto& j : body.at("programs")) {
+          ProgramDef p;
+          p.id = j.at("id").get<std::string>();
+          p.name = j.at("name").get<std::string>();
+          p.degree = j.at("degree").get<std::string>();
+          p.requiresDegree = j.value("requires_degree", "");
+          p.requiresCleanRecord = j.value("requires_clean_record", false);
+          p.hoursRequired = j.at("hours_required").get<double>();
+          p.tuitionPerHourCents = j.at("tuition_per_hour_cents").get<Cents>();
+          p.minGrade = j.value("min_grade", p.minGrade);
+          p.maxSessionHours = j.value("max_session_hours", p.maxSessionHours);
+          p.campuses = readStrings(j, "campuses");
+          p.online = j.value("online", false);
+          p.needCostPerHour = readStats(j, "need_cost_per_hour");
+          p.tuitionAccount = j.at("tuition_account").get<std::string>();
+          if (auto st = insertUnique(education_.programs, "program", p.id, p); !st) return st;
+        }
+        const Json creatorEducation = body.value("creator_education", Json::object());  // a local: the loop must not outlive it
+        for (const auto& [answer, degrees] : creatorEducation.items())
+          education_.creatorEducation[answer] = degrees.get<std::vector<std::string>>();
       } else if (section == "transit") {
         transit_.operatorAccount = body.at("operator_account").get<std::string>();
         transit_.boardingRadiusMeters = body.value("boarding_radius_m", transit_.boardingRadiusMeters);
@@ -512,6 +539,26 @@ Status ContentDatabase::validate() const {
       if (!location(w)) return fail("content_invalid", "career " + id + ": unknown workplace " + w);
     }
     if (auto s = checkKeys(c.needCostPerHour, needs, "career " + id); !s) return s;
+    if (!c.requiresDegree.empty() && !degree(c.requiresDegree))
+      return fail("content_invalid", "career " + id + ": unknown requires_degree " + c.requiresDegree);
+    if (c.careFeeShare < 0 || c.careFeeShare > 1) return fail("content_invalid", "career " + id + ": care_fee_share 0-1");
+  }
+  for (const auto& [id, p] : education_.programs) {
+    const std::string where = "program " + id;
+    if (!degree(p.degree)) return fail("content_invalid", where + ": unknown degree " + p.degree);
+    if (!p.requiresDegree.empty() && !degree(p.requiresDegree)) return fail("content_invalid", where + ": unknown requires_degree");
+    if (p.hoursRequired <= 0 || p.tuitionPerHourCents < 0) return fail("content_invalid", where + ": bad hours or tuition");
+    if (p.campuses.empty()) return fail("content_invalid", where + ": needs a campus");
+    for (const auto& c : p.campuses) {
+      if (!location(c)) return fail("content_invalid", where + ": unknown campus " + c);
+    }
+    if (!orgs.count(p.tuitionAccount)) return fail("content_invalid", where + ": unknown tuition_account");
+    if (auto s = checkKeys(p.needCostPerHour, needs, where); !s) return s;
+  }
+  for (const auto& [answer, degrees] : education_.creatorEducation) {
+    for (const auto& d : degrees) {
+      if (!degree(d)) return fail("content_invalid", "education.creator_education: unknown degree " + d);
+    }
   }
   for (const auto& [id, d] : interactions_) {
     const std::string where = "interaction " + id;
@@ -629,6 +676,9 @@ Status ContentDatabase::validateCharacter(const CharacterDef& c,
     return fail("content_invalid", where + ": career level out of range");
   if (!property(c.homeProperty)) return fail("content_invalid", where + ": unknown home property " + c.homeProperty);
   if (!location(c.spawnLocation)) return fail("content_invalid", where + ": unknown spawn_location");
+  for (const auto& d : c.degrees) {
+    if (!education_.degrees.empty() && !degree(d)) return fail("content_invalid", where + ": unknown degree " + d);
+  }
   if (c.startingBankCents < 0 || c.startingCashCents < 0) return fail("content_invalid", where + ": negative money");
   for (const auto& r : c.relationships) {
     if (!characterExists(r.to)) return fail("content_invalid", where + ": relationship to unknown character " + r.to);
@@ -666,6 +716,16 @@ const CharacterDef* ContentDatabase::character(const std::string& id) const {
 const OriginDef* ContentDatabase::origin(const std::string& id) const {
   auto it = origins_.find(id);
   return it == origins_.end() ? nullptr : &it->second;
+}
+const ProgramDef* ContentDatabase::program(const std::string& id) const {
+  auto it = education_.programs.find(id);
+  return it == education_.programs.end() ? nullptr : &it->second;
+}
+const DegreeDef* ContentDatabase::degree(const std::string& id) const {
+  for (const auto& d : education_.degrees) {
+    if (d.id == id) return &d;
+  }
+  return nullptr;
 }
 const ItemDef* ContentDatabase::item(const std::string& id) const {
   auto it = items_.find(id);

@@ -32,6 +32,7 @@
       "traits": ["empathetic", "insightful", "quietly_stubborn"],
       "interests": ["reading", "fitness", "cooking", "interior_design", "volunteering", "jazz"],
       "career": {"id": "therapy", "level": 3},
+      "degrees": ["bachelors", "masters"],
       "finances": {"cash_cents": 22000, "bank_cents": 2150000},
       "home": {"property": "founders_row_3", "tenure": "rent"},
       "spawn_location": "founders_row_3",

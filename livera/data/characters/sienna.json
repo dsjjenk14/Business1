@@ -32,6 +32,7 @@
       "traits": ["observant", "independent", "quietly_competitive"],
       "interests": ["fashion", "art", "photography", "film", "music", "nightlife"],
       "career": {"id": "creative_direction", "level": 2},
+      "degrees": ["bachelors"],
       "finances": {"cash_cents": 18000, "bank_cents": 1750000},
       "home": {"property": "riverside_lofts_3", "tenure": "rent"},
       "spawn_location": "riverside_lofts_3",

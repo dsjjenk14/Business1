@@ -124,6 +124,9 @@ World::World(std::shared_ptr<const ContentDatabase> content, WorldState state)
     if (c.weightKg <= 0) {
       if (const CharacterDef* def = definition(id)) initBody(c, *def);
     }
+    if (c.education.degrees.empty()) {
+      if (const CharacterDef* def = definition(id)) c.education.degrees = def->degrees;
+    }
   }
 }
 
@@ -151,6 +154,7 @@ void World::addCharacterState(const CharacterDef& def, const OriginDef* origin) 
   }
   c.career.careerId = def.careerId;
   c.career.level = def.careerLevel;
+  c.education.degrees = def.degrees;
   c.lastSimulatedAt = state_.now;
   initBody(c, def);
   state_.characters[id] = c;
@@ -228,6 +232,14 @@ void World::simulateCharacterMinute(CharacterState& c) {
     }
     c.career.shiftWellbeingSum += averageNeed(c);
     c.career.shiftSamples += 1;
+  }
+  if (c.education.sessionStartedAt) {
+    if (const ProgramDef* program = content_->program(c.education.program)) {
+      for (const auto& [need, perHour] : program->needCostPerHour)
+        c.needs[need] = clampd(c.needs[need] + perHour / 60.0, kStatMin, kStatMax);
+    }
+    c.education.sessionWellbeingSum += averageNeed(c);
+    c.education.sessionSamples += 1;
   }
   for (auto& [e, v] : c.emotions) {
     const auto it = sim.emotionBaselines.find(e);
@@ -367,6 +379,7 @@ void World::disconnect(const CharacterId& id) {
   CharacterState* c = mutableCharacter(id);
   if (!c || !c->online) return;
   if (c->career.shiftStartedAt) (void)endShift(id);
+  if (c->education.sessionStartedAt) (void)endStudy(id);
   c->moveTarget.reset();
   emit(presentWith(*c), "presence", Json{{"character", id}, {"status", "left"}});
   c->online = false;
@@ -418,6 +431,10 @@ Result<Json> World::exitBuilding(const CharacterId& actor) {
   if (c.career.shiftStartedAt) {
     auto shift = endShift(actor);
     if (shift) out["shift"] = shift.value();
+  }
+  if (c.education.sessionStartedAt) {
+    auto study = endStudy(actor);
+    if (study) out["study"] = study.value();
   }
   emit(presentWith(c), "presence", Json{{"character", actor}, {"status", "left"}, {"location", c.inside}});
   out["left"] = c.inside;
@@ -578,6 +595,7 @@ Result<Json> World::buy(const CharacterId& actor, const std::string& offerId, co
   if (!offer->service.empty()) {
     auto care = runCareService(c, offer->service, *loc);
     if (care) out["care"] = care.value();
+    payCliniciansOnDuty(actor, *loc, offer->priceCents, out);
   }
   if (!offer->item.empty()) {
     c.inventory[offer->item] += offer->quantity;
@@ -809,6 +827,8 @@ Result<Json> World::openPhoneApp(const CharacterId& actor, const std::string& ap
   if (app == "health") return phoneHealth(c);
   if (app == "items") return phoneItems(c);
   if (app == "transit") return phoneTransit();
+  if (app == "school") return phoneSchool(c);
+  if (app == "jobs") return phoneJobs(c);
   return fail("unknown_app", "no such phone app");
 }
 
@@ -917,10 +937,16 @@ std::string World::locationStatus(const LocationDef& loc) const {
 Status World::canAccess(const CharacterId& actor, const LocationDef& loc) const {
   const std::string status = locationStatus(loc);
   if (status == "under_construction") return fail("under_construction", loc.name + " is still being built");
-  // People can always get into their own workplace, whatever the opening hours.
+  // People can always get into their own workplace, whatever the opening hours, and
+  // students into their campus.
   if (const CharacterState* c = character(actor)) {
     if (const CareerDef* career = content_->career(c->career.careerId)) {
       if (std::find(career->workplaces.begin(), career->workplaces.end(), loc.id) != career->workplaces.end())
+        return okStatus();
+    }
+    if (const ProgramDef* program = content_->program(c->education.program)) {
+      if (std::find(program->campuses.begin(), program->campuses.end(), loc.id) != program->campuses.end() &&
+          (loc.access != AccessRule::Public || status == "open"))
         return okStatus();
     }
   }

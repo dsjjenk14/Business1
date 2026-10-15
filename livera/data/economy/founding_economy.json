@@ -28,7 +28,10 @@
     {"id": "org:riverdale_pharmacy", "name": "Riverdale Pharmacy", "opening_balance_cents": 3000000},
     {"id": "org:lustre_jewelers", "name": "Lustre Jewelers", "opening_balance_cents": 8000000},
     {"id": "org:fade_glow", "name": "Fade & Glow Salon", "opening_balance_cents": 1500000},
-    {"id": "org:livera_transit", "name": "Livéra Transit", "opening_balance_cents": 20000000}
+    {"id": "org:livera_transit", "name": "Livéra Transit", "opening_balance_cents": 20000000},
+    {"id": "org:livera_university", "name": "Livéra University", "opening_balance_cents": 50000000},
+    {"id": "org:livera_general", "name": "Livéra General Hospital", "opening_balance_cents": 80000000},
+    {"id": "org:livera_pd", "name": "Livéra Police Department", "opening_balance_cents": 30000000}
   ],
   "properties": [
     {

@@ -278,6 +278,10 @@ Result<CharacterId> World::createCharacter(const Json& spec) {
                      {"background", background},
                      {"tagline", origin->label}};
 
+  // What you studied before Livéra counts: a law degree means you can practise law here.
+  if (auto it = db.education().creatorEducation.find(education.value()); it != db.education().creatorEducation.end())
+    def.degrees = it->second;
+
   if (Status st = db.validateCharacter(def, [this](const std::string& other) { return definition(other) != nullptr; }); !st)
     return st.error();
 
