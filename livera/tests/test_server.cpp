@@ -251,6 +251,16 @@ TEST_CASE("server: the founding vertical slice works over the network and surviv
   }
 }
 
+TEST_CASE("server: a dev time skip needs a login, not a character in the world") {
+  RunningServer server(tempPath("devskip.db").string());
+  TestClient c(server.port());
+  CHECK(c.refusal({{"op", "dev_advance"}, {"minutes", 60}}) == "not_logged_in");
+  c.ok({{"op", "register"}, {"username", "pat"}, {"password", "password123"}});
+  c.ok({{"op", "login"}, {"username", "pat"}, {"password", "password123"}});
+  const Json r = c.ok({{"op", "dev_advance"}, {"minutes", 24 * 60}});
+  CHECK(r["now"].get<std::string>().rfind("Tuesday", 0) == 0);
+}
+
 TEST_CASE("server: rate limiting and dev-command authorization") {
   RunningServer server(tempPath("limits.db").string(), /*dev=*/false);
   TestClient c(server.port());

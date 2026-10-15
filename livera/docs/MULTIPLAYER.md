@@ -18,7 +18,7 @@
 | Login | `login` op; a second login for the same account kicks the first connection | Same, plus token refresh |
 | Registration | Open on dev servers (`--closed-registration` turns it off) | Invite / platform-gated |
 | Character ownership | One account plays one character; one character belongs to one account. Enforced by a UNIQUE constraint, so two players can't claim the same character even in a race. | Multiple character slots; generational handoff (children) |
-| Authorization | Session must be logged in, then playing, before in-world ops. Dev ops (`dev_advance`) require `--dev`. Residents-only and staff-only places are checked by `World::canAccess`. | Roles (admin, moderator), business permissions (employees), property permissions (guests, co-owners) |
+| Authorization | Session must be logged in, then playing, before in-world ops. Dev ops (`dev_advance`) require `--dev` and a login, but no character. Residents-only and staff-only places are checked by `World::canAccess`. | Roles (admin, moderator), business permissions (employees), property permissions (guests, co-owners) |
 
 ## Development protocol (`livera-dev/1`)
 
@@ -54,7 +54,7 @@ Event (server push): `{"event": "message", "data": {"from": "dax", "body": "..."
 | `song_save` | playing | `song` {title, bpm, tracks}, `song_id` (to update a draft) |
 | `song_release` / `song` | playing | `song` (id) |
 | `perform` | playing, on a stage | `song` (id) |
-| `dev_advance` | playing + `--dev` | `minutes` (1–86400) |
+| `dev_advance` | logged in + `--dev` | `minutes` (1–86400) |
 
 Events: `welcome`, `arrived`, `presence` (someone arrived/entered/left near you),
 `interaction` (someone did something to you), `message`, `notification`, `speech`

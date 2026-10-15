@@ -299,6 +299,15 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
     return Json{{"characters", list}, {"can_create", !mine.has_value()}};
   }
   if (op == "creator_options") return world_.creatorOptions();
+  // Time skips are world-wide, so they don't need a character: skipping a night with everyone
+  // logged off lets the whole cast live their routine offline, as it would on a live server.
+  if (op == "dev_advance") {
+    if (!config_.devCommands) return fail("forbidden", "dev commands are disabled on this server");
+    const auto minutes = req.at("minutes").get<GameMinutes>();
+    if (minutes < 1 || minutes > kMaxDevAdvance) return fail("bad_request", "minutes must be 1..86400");
+    world_.advanceMinutes(minutes);
+    return Json{{"now", formatDateTime(world_.now())}};
+  }
   if (op == "create_character") {
     if (store_->characterOf(s.username)) return fail("already_has_character", "this account already has a character");
     if (!req.contains("character")) return fail("bad_request", "send your character sheet as \"character\"");
@@ -383,13 +392,6 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
     auto id = world_.sendMessage(me, str(req, "to"), str(req, "text"));
     if (!id) return id.error();
     return Json{{"id", id.value()}};
-  }
-  if (op == "dev_advance") {
-    if (!config_.devCommands) return fail("forbidden", "dev commands are disabled on this server");
-    const auto minutes = req.at("minutes").get<GameMinutes>();
-    if (minutes < 1 || minutes > kMaxDevAdvance) return fail("bad_request", "minutes must be 1..86400");
-    world_.advanceMinutes(minutes);
-    return Json{{"now", formatDateTime(world_.now())}};
   }
   return fail("unknown_op", "unknown op '" + op + "'");
 }
