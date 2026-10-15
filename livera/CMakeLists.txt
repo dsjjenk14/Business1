@@ -48,9 +48,11 @@ endfunction()
 
 # --- Core: pure simulation, no IO beyond reading content files ----------------
 add_library(livera_core
+  src/core/CharacterCreator.cpp
   src/core/Clock.cpp
   src/core/Content.cpp
   src/core/Ledger.cpp
+  src/core/Music.cpp
   src/core/Serialization.cpp
   src/core/World.cpp
   src/core/WorldViews.cpp)
@@ -79,7 +81,7 @@ livera_target_options(livera_server)
 
 add_executable(livera_cli src/client/cli_main.cpp)
 target_link_libraries(livera_cli PRIVATE livera_core)
-target_sources(livera_cli PRIVATE src/net/Socket.cpp)
+target_sources(livera_cli PRIVATE src/net/Socket.cpp src/client/CreatorWizard.cpp src/client/MusicText.cpp)
 livera_target_options(livera_cli)
 
 # --- Tests ------------------------------------------------------------------------
@@ -91,7 +93,10 @@ add_executable(livera_tests
   tests/test_ledger.cpp
   tests/test_world.cpp
   tests/test_persistence.cpp
-  tests/test_server.cpp)
+  tests/test_server.cpp
+  tests/test_creator.cpp
+  tests/test_social_music.cpp
+  src/client/MusicText.cpp)
 target_link_libraries(livera_tests PRIVATE livera_server_lib)
 target_compile_definitions(livera_tests PRIVATE LIVERA_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
 livera_target_options(livera_tests)

@@ -24,7 +24,9 @@
 
 Newline-delimited JSON over TCP. Lines over 16 KB disconnect the client.
 
-Request: `{"id": 7, "op": "buy", "offer": "latte", "method": "card"}`
+Request: `{"id": 7, "op": "buy", "offer": "latte", "method": "card"}`. **`id` is reserved**
+for matching replies to requests; no op may use it as an argument (songs are named by
+`song` / `song_id`).
 Reply: `{"re": 7, "ok": true, "data": {...}}` or `{"re": 7, "ok": false, "error": {"code": "insufficient_funds", "message": "not enough money"}}`
 Event (server push): `{"event": "message", "data": {"from": "jaxon", "body": "..."}}`
 
@@ -33,8 +35,10 @@ Event (server push): `{"event": "message", "data": {"from": "jaxon", "body": "..
 | `hello`, `ping` | – | – |
 | `register` | – | `username` (3–24 of a-z, 0-9, _), `password` (8–128) |
 | `login` | – | `username`, `password` |
-| `characters` | login | – |
-| `play` | login | `character` |
+| `characters` | login | – (founding characters, plus your own created one; `can_create`) |
+| `creator_options` | login | – (every choice the character creator offers) |
+| `create_character` | login, no character yet | `character`: the character sheet (see DATA_MODEL.md) |
+| `play` | login | `character` (optional: defaults to your own) |
 | `logout` | login | – (leaves the world, keeps the connection) |
 | `look`, `map` | playing | – |
 | `move` | playing | `x`,`y` or `location` |
@@ -45,10 +49,17 @@ Event (server push): `{"event": "message", "data": {"from": "jaxon", "body": "..
 | `work` | playing | `action` (`start`/`end`) |
 | `phone` | playing | `app` |
 | `message` | playing | `to`, `text` |
+| `say` | playing | `text`, `volume` (`say`/`shout`/`whisper`), `to` (whisper) |
+| `tip` | playing | `to`, `cents` (100–100000) |
+| `song_save` | playing | `song` {title, bpm, tracks}, `song_id` (to update a draft) |
+| `song_release` / `song` | playing | `song` (id) |
+| `perform` | playing, on a stage | `song` (id) |
 | `dev_advance` | playing + `--dev` | `minutes` (1–86400) |
 
 Events: `welcome`, `arrived`, `presence` (someone arrived/entered/left near you),
-`interaction` (someone did something to you), `message`, `notification`, `kicked`.
+`interaction` (someone did something to you), `message`, `notification`, `speech`
+(someone you can hear said something), `performance` (someone performed where you are;
+carries the full song so the client can play it), `kicked`.
 
 The Unreal client will use UE replication and RPCs instead (ARCHITECTURE.md, "Engine
 integration"); each RPC maps to the same `World` command, so this table stays the list of
@@ -58,6 +69,10 @@ what a client can ask for.
 
 - Intent-only commands; every rule checked server-side (see the refusal tests).
 - Movement: the server moves characters at walking speed; targets are clamped to the town.
+- Chat (`say`, `message`) has its own bucket: one line a second, bursts of five.
+- Speech has control characters flattened, so nobody can forge lines in another player's log.
+- Character creation accepts only options from data; names, custom pronouns and gender
+  are restricted to letters and a few punctuation marks.
 - Per-connection token bucket (20 requests/s, burst 40). After 50 rate-limited requests the
   connection is dropped.
 - Line length limit (16 KB) and outbox limit (1 MB) so a client can't exhaust memory.
@@ -65,6 +80,9 @@ what a client can ask for.
 - Ledger invariant (balances sum to zero) checked before every save; a broken ledger is
   never persisted.
 - Private state stays private: views expose only what the character may know.
+
+**Not yet:** chat moderation (reporting, muting, blocking, filters, a retained log for
+safety review). Required before any public server.
 
 **Not yet:** transport encryption. The dev protocol is plaintext and binds to 127.0.0.1
 by default. Before any server leaves a developer machine: TLS (or UE's encrypted
@@ -85,3 +103,14 @@ Single-threaded server loop. Two players buying the last item, or claiming the s
 character, are processed one after the other; there are no races to reason about.
 Password hashing (~0.1 s) runs on the loop. Acceptable at 2–8 players; it moves to a
 worker before player counts grow.
+
+## Talking: text now, voice in M1
+
+Proximity text chat is built (`say`/`shout`/`whisper`). Who hears a line is decided by the
+server from positions it owns: same building, or outdoors within 20 m (say), 60 m (shout)
+or 2 m (whisper, one listener). Speech is delivered live and not stored.
+
+Voice needs audio capture and streaming, which belongs to the engine client (M1): Unreal's
+voice chat through Epic Online Services (or Vivox), with the **same hearing rules**. The
+server will publish, per player, which voice channels they may hear, so a client can't
+eavesdrop on a conversation across town by joining its channel.

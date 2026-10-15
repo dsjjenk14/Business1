@@ -43,6 +43,9 @@ Over years: develop parcels, raise a family, leave a legacy.
 | Real estate | Rent → buy → mortgage → co-own → renovate → develop parcels | Renting built |
 | Businesses | Own, staff (incl. other players), payroll, inventory, reputation, competitors | Phase 8 |
 | Social media | Posts, followers, virality, sponsorships; feeds reputation and gossip | Phase 10 |
+| Character creator | Make your own resident: look, personality, values, background, origin, career | Built (server + text wizard); 3D preview with the client |
+| Talking | Proximity chat (say/shout/whisper); voice later with the same hearing rules | Text built; voice M1 |
+| Music | Compose on your phone, release to the town chart, perform on stages, get tipped, build skill | Built; in-world playback with the client |
 | Phone | Primary UI for messages, contacts, bank, calendar, map, property, career, notifications, city | Built as server data; UI comes with the client |
 | City growth | Construction projects, stages, city stats; secondary effects | Projects & stages built; effects Phase 11 |
 | Civic | Mayor, council, planning, elections, zoning | Late; landmarks only today |
@@ -51,20 +54,23 @@ Over years: develop parcels, raise a family, leave a legacy.
 
 ## Why did you move to Livéra?
 
-Character creation (Phase 7) asks this. Origins and their starting effects (to be tuned in data):
+The character creator asks this. Origins and their starting effects (`data/creator/character_creator.json`):
 
-| Origin | Starting effect |
-|---|---|
-| New job | Starts employed, modest savings |
-| University | Student housing, low income, education track |
-| Family | Starts with a family relationship in town |
-| Business opportunity | Higher savings, business licence path unlocked |
-| Relationship | Starts with a partner or ex in town |
-| Fresh start | Low savings, a secret, bonus to new relationships |
-| Real estate investment | High savings, fewer social ties |
-| Career advancement | Higher career level, high expectations (stress) |
-| Financial opportunity | Debt or capital, risk-tolerant |
-| Adventure | No job, high recreation, more starting cash |
+| Origin | Built today | Planned additions |
+|---|---|---|
+| New job | $8,000 savings | – |
+| Career advancement | Starts one career level up, more stress | – |
+| University | $2,500, excited | Student housing, education track |
+| Family | $5,000, less lonely | A family member in town |
+| Business opportunity | $35,000 to build with | Business licence path |
+| Relationship | $4,500, happier | A partner (or ex) in town |
+| Fresh start | $1,500, more cash on hand | A secret; bonus to new relationships |
+| Real estate investment | $60,000 and a luxury apartment | Property purchase from day one |
+| Financial opportunity | $18,000, confident | Debt or leverage options |
+| Adventure | $6,000 and $500 cash, excited | – |
+
+Everyone currently starts with a job they pick from the entry-level careers (Café,
+Recruiting, Construction Management).
 
 The founding characters already carry `profile.why_livera`.
 

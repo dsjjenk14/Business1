@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
@@ -39,6 +40,11 @@ struct SimulationConfig {
   double offlineNeedTarget = 70;        // offline characters are assumed to look after themselves (Tier 3)
   int memoryImportanceThreshold = 25;   // interactions below this are not remembered individually
   int maxMessageLength = 500;
+  std::vector<std::string> skills;      // e.g. music; grow through practice
+  double hearingRangeMeters = 20;       // `say` outdoors
+  double shoutRangeMeters = 60;         // `shout` outdoors
+  double whisperRangeMeters = 2;        // `whisper` outdoors
+  int maxSpeechLength = 300;
 };
 
 struct Offer {
@@ -85,6 +91,7 @@ struct LocationDef {
   double outdoorRadius = 30;       // for non-enterable places: how close counts as "here"
   LedgerAccountId revenueAccount;  // who is paid for offers
   std::string constructionProject; // if set, closed until that project completes
+  bool stage = false;              // music can be performed here (open mic, church, park, club)
 };
 
 struct PropertyDef {
@@ -96,6 +103,7 @@ struct PropertyDef {
   Cents marketValueCents = 0;
   int bedrooms = 0;
   std::vector<std::string> amenities;
+  std::string tier;  // starter, luxury: which new arrivals can be housed here
 };
 
 struct CareerLevel {
@@ -114,6 +122,7 @@ struct CareerDef {
   StatMap needCostPerHour;      // applied while on shift (negative = drain)
   double maxShiftHours = 10;
   double minPaidMinutes = 30;
+  bool entryLevel = false;  // new characters can start in this career
 };
 
 struct InteractionDef {
@@ -188,6 +197,51 @@ struct ConstructionProjectDef {
   StatMap cityEffects;        // added to city stats on completion
 };
 
+// "Why did you move to Livéra?" Sets a created character's starting conditions.
+struct OriginDef {
+  std::string id;
+  std::string label;
+  std::string description;
+  Cents bankCents = 0;
+  Cents cashCents = 0;
+  int careerLevelBonus = 0;
+  std::string housingTier = "starter";
+  StatMap emotions;  // starting emotion offsets
+};
+
+// A choice in the character creator: pick one (max 1) or several (max N) of `options`.
+struct CreatorChoice {
+  std::vector<std::string> options;
+  int min = 1;
+  int max = 1;
+  bool allowCustom = false;  // free text allowed (pronouns, gender identity)
+};
+
+struct CreatorOptions {
+  int minAge = 18;
+  int maxAge = 80;
+  int minHeightCm = 145;
+  int maxHeightCm = 210;
+  CreatorChoice pronouns;
+  CreatorChoice gender;
+  std::map<std::string, CreatorChoice> appearance;  // skin_tone, hair_style, tattoos...
+  CreatorChoice traits;
+  CreatorChoice interests;
+  CreatorChoice education;
+  CreatorChoice relationshipStatus;
+  CreatorChoice goals;
+  double personalityBudget = 400;  // sum of all personality traits may not exceed this
+  double valuesBudget = 450;
+  int maxBackgroundLength = 400;
+};
+
+struct InstrumentDef {
+  std::string id;
+  std::string label;
+  int midiProgram = 0;  // General MIDI program number (0-127)
+  bool drums = false;   // percussion: pitches are drum sounds, played on MIDI channel 10
+};
+
 struct CityStageDef {
   int stage = 1;
   std::string name;
@@ -207,6 +261,11 @@ class ContentDatabase {
   static Result<std::shared_ptr<const ContentDatabase>> loadFromDirectory(const std::filesystem::path& dir);
   // Same, from an in-memory bundle of documents (used by tests).
   static Result<std::shared_ptr<const ContentDatabase>> loadFromDocuments(const std::vector<std::pair<std::string, Json>>& docs);
+  // Parses one character in the content format. Also used for player-created characters,
+  // which are stored in the save in the same format.
+  static Result<CharacterDef> parseCharacter(const Json& j);
+  // Checks a character against this content (stat names, career, home, relationships).
+  Status validateCharacter(const CharacterDef& c, const std::function<bool(const std::string&)>& characterExists) const;
 
   const SimulationConfig& sim() const { return sim_; }
   const std::map<LocationId, LocationDef>& locations() const { return locations_; }
@@ -218,6 +277,11 @@ class ContentDatabase {
   const std::vector<CityStageDef>& cityStages() const { return stages_; }
   const StatMap& cityInitial() const { return cityInitial_; }
   const std::vector<OrgAccountDef>& orgAccounts() const { return orgAccounts_; }
+  const CreatorOptions& creator() const { return creator_; }
+  const std::map<std::string, OriginDef>& origins() const { return origins_; }
+  const std::map<std::string, InstrumentDef>& instruments() const { return instruments_; }
+  const OriginDef* origin(const std::string& id) const;
+  const InstrumentDef* instrument(const std::string& id) const;
 
   const LocationDef* location(const std::string& id) const;
   const PropertyDef* property(const std::string& id) const;
@@ -241,6 +305,10 @@ class ContentDatabase {
   std::vector<CityStageDef> stages_;
   StatMap cityInitial_;
   std::vector<OrgAccountDef> orgAccounts_;
+  bool haveCreator_ = false;
+  CreatorOptions creator_;
+  std::map<std::string, OriginDef> origins_;
+  std::map<std::string, InstrumentDef> instruments_;
 };
 
 }  // namespace livera

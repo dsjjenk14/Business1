@@ -9,9 +9,11 @@ exit
 walk heritage_coffee
 enter heritage_coffee
 buy latte card
-# Jaxon is still walking over from Maple Court.
-wait 28
+# Jaxon and Sol are still walking over from Maple Court; Sol plays the open mic.
+wait 30
 look
+say Welcome to Livéra, Sol! That was beautiful.
+tip sol-rivera 5
 talk jaxon deep_talk
 msg jaxon Good seeing you. Let's get lunch when the gym opens.
 exit

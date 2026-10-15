@@ -29,6 +29,19 @@ AccessRule readAccess(const std::string& s) {
   throw std::invalid_argument("unknown access rule '" + s + "'");
 }
 
+CreatorChoice readChoice(const Json& j) {
+  CreatorChoice c;
+  if (j.is_array()) {
+    c.options = j.get<std::vector<std::string>>();
+    return c;
+  }
+  c.options = j.at("options").get<std::vector<std::string>>();
+  c.min = j.value("min", 1);
+  c.max = j.value("max", 1);
+  c.allowCustom = j.value("allow_custom", false);
+  return c;
+}
+
 Offer readOffer(const Json& j) {
   Offer o;
   o.id = j.at("id").get<std::string>();
@@ -86,6 +99,53 @@ Result<std::shared_ptr<const ContentDatabase>> ContentDatabase::loadFromDocument
   return std::shared_ptr<const ContentDatabase>(std::move(db));
 }
 
+Result<CharacterDef> ContentDatabase::parseCharacter(const Json& j) {
+  try {
+    CharacterDef c;
+    c.id = j.at("id").get<std::string>();
+    c.firstName = j.at("first_name").get<std::string>();
+    c.lastName = j.at("last_name").get<std::string>();
+    c.pronouns = j.at("pronouns").get<std::string>();
+    c.gender = j.value("gender", "");
+    c.age = j.at("age").get<int>();
+    c.playable = j.value("playable", false);
+    c.personality = readStats(j, "personality");
+    c.values = readStats(j, "values");
+    c.traits = readStrings(j, "traits");
+    c.interests = readStrings(j, "interests");
+    c.careerId = j.at("career").at("id").get<std::string>();
+    c.careerLevel = j.at("career").value("level", 0);
+    c.startingCashCents = j.at("finances").at("cash_cents").get<Cents>();
+    c.startingBankCents = j.at("finances").at("bank_cents").get<Cents>();
+    c.homeProperty = j.at("home").at("property").get<std::string>();
+    c.spawnLocation = j.at("spawn_location").get<std::string>();
+    if (j.contains("relationships")) {
+      for (const auto& r : j.at("relationships")) {
+        c.relationships.push_back(
+            StartingRelationship{r.at("to").get<std::string>(), readStats(r, "dimensions"), r.value("history", "")});
+      }
+    }
+    if (j.contains("memories")) {
+      for (const auto& m : j.at("memories")) {
+        SeedMemory sm;
+        sm.type = m.at("type").get<std::string>();
+        sm.participants = readStrings(m, "participants");
+        sm.about = m.value("about", "");
+        sm.emotionalImpact = m.value("emotional_impact", 0);
+        sm.importance = m.value("importance", 0);
+        sm.isPublic = m.value("public", false);
+        sm.info = m.value("info", "");
+        sm.daysAgo = m.value("days_ago", 0);
+        c.memories.push_back(std::move(sm));
+      }
+    }
+    c.profile = j.value("profile", Json::object());
+    return c;
+  } catch (const std::exception& e) {
+    return fail("content_invalid", std::string("character: ") + e.what());
+  }
+}
+
 Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
   try {
     if (!doc.is_object()) return fail("content_invalid", source + ": top level must be an object");
@@ -114,6 +174,11 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
         s.offlineNeedTarget = body.value("offline_need_target", s.offlineNeedTarget);
         s.memoryImportanceThreshold = body.value("memory_importance_threshold", s.memoryImportanceThreshold);
         s.maxMessageLength = body.value("max_message_length", s.maxMessageLength);
+        s.skills = readStrings(body, "skills");
+        s.hearingRangeMeters = body.value("hearing_range_m", s.hearingRangeMeters);
+        s.shoutRangeMeters = body.value("shout_range_m", s.shoutRangeMeters);
+        s.whisperRangeMeters = body.value("whisper_range_m", s.whisperRangeMeters);
+        s.maxSpeechLength = body.value("max_speech_length", s.maxSpeechLength);
       } else if (section == "locations") {
         for (const auto& j : body) {
           LocationDef l;
@@ -139,6 +204,7 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           l.outdoorRadius = j.value("outdoor_radius_m", l.outdoorRadius);
           l.revenueAccount = j.value("revenue_account", "");
           l.constructionProject = j.value("construction_project", "");
+          l.stage = j.value("stage", false);
           if (auto s = insertUnique(locations_, "location", l.id, l); !s) return s;
         }
       } else if (section == "properties") {
@@ -152,6 +218,7 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           p.marketValueCents = j.value("market_value_cents", Cents{0});
           p.bedrooms = j.value("bedrooms", 0);
           p.amenities = readStrings(j, "amenities");
+          p.tier = j.value("tier", "");
           if (auto s = insertUnique(properties_, "property", p.id, p); !s) return s;
         }
       } else if (section == "careers") {
@@ -168,6 +235,7 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           c.needCostPerHour = readStats(j, "need_cost_per_hour");
           c.maxShiftHours = j.value("max_shift_hours", c.maxShiftHours);
           c.minPaidMinutes = j.value("min_paid_minutes", c.minPaidMinutes);
+          c.entryLevel = j.value("entry_level", false);
           if (auto s = insertUnique(careers_, "career", c.id, c); !s) return s;
         }
       } else if (section == "interactions") {
@@ -190,45 +258,9 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
         }
       } else if (section == "characters") {
         for (const auto& j : body) {
-          CharacterDef c;
-          c.id = j.at("id").get<std::string>();
-          c.firstName = j.at("first_name").get<std::string>();
-          c.lastName = j.at("last_name").get<std::string>();
-          c.pronouns = j.at("pronouns").get<std::string>();
-          c.gender = j.value("gender", "");
-          c.age = j.at("age").get<int>();
-          c.playable = j.value("playable", false);
-          c.personality = readStats(j, "personality");
-          c.values = readStats(j, "values");
-          c.traits = readStrings(j, "traits");
-          c.interests = readStrings(j, "interests");
-          c.careerId = j.at("career").at("id").get<std::string>();
-          c.careerLevel = j.at("career").value("level", 0);
-          c.startingCashCents = j.at("finances").at("cash_cents").get<Cents>();
-          c.startingBankCents = j.at("finances").at("bank_cents").get<Cents>();
-          c.homeProperty = j.at("home").at("property").get<std::string>();
-          c.spawnLocation = j.at("spawn_location").get<std::string>();
-          if (j.contains("relationships")) {
-            for (const auto& r : j.at("relationships")) {
-              c.relationships.push_back(
-                  StartingRelationship{r.at("to").get<std::string>(), readStats(r, "dimensions"), r.value("history", "")});
-            }
-          }
-          if (j.contains("memories")) {
-            for (const auto& m : j.at("memories")) {
-              SeedMemory sm;
-              sm.type = m.at("type").get<std::string>();
-              sm.participants = readStrings(m, "participants");
-              sm.about = m.value("about", "");
-              sm.emotionalImpact = m.value("emotional_impact", 0);
-              sm.importance = m.value("importance", 0);
-              sm.isPublic = m.value("public", false);
-              sm.info = m.value("info", "");
-              sm.daysAgo = m.value("days_ago", 0);
-              c.memories.push_back(std::move(sm));
-            }
-          }
-          c.profile = j.value("profile", Json::object());
+          auto parsed = parseCharacter(j);
+          if (!parsed) return fail("content_invalid", source + ": " + parsed.error().message);
+          CharacterDef c = std::move(parsed).value();
           if (auto s = insertUnique(characters_, "character", c.id, c); !s) return s;
         }
       } else if (section == "construction_projects") {
@@ -258,6 +290,44 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
         for (const auto& j : body) {
           orgAccounts_.push_back(OrgAccountDef{j.at("id").get<std::string>(), j.at("name").get<std::string>(),
                                                j.value("opening_balance_cents", Cents{0})});
+        }
+      } else if (section == "character_creator") {
+        if (haveCreator_) return fail("content_duplicate", source + ": 'character_creator' defined twice");
+        haveCreator_ = true;
+        auto& c = creator_;
+        c.minAge = body.at("age").at(0).get<int>();
+        c.maxAge = body.at("age").at(1).get<int>();
+        c.minHeightCm = body.at("height_cm").at(0).get<int>();
+        c.maxHeightCm = body.at("height_cm").at(1).get<int>();
+        c.pronouns = readChoice(body.at("pronouns"));
+        c.gender = readChoice(body.at("gender"));
+        for (const auto& [field, choice] : body.at("appearance").items()) c.appearance[field] = readChoice(choice);
+        c.traits = readChoice(body.at("traits"));
+        c.interests = readChoice(body.at("interests"));
+        c.education = readChoice(body.at("education"));
+        c.relationshipStatus = readChoice(body.at("relationship_status"));
+        c.goals = readChoice(body.at("goals"));
+        c.personalityBudget = body.value("personality_budget", c.personalityBudget);
+        c.valuesBudget = body.value("values_budget", c.valuesBudget);
+        c.maxBackgroundLength = body.value("max_background_length", c.maxBackgroundLength);
+      } else if (section == "origins") {
+        for (const auto& j : body) {
+          OriginDef o;
+          o.id = j.at("id").get<std::string>();
+          o.label = j.at("label").get<std::string>();
+          o.description = j.value("description", "");
+          o.bankCents = j.at("bank_cents").get<Cents>();
+          o.cashCents = j.at("cash_cents").get<Cents>();
+          o.careerLevelBonus = j.value("career_level_bonus", 0);
+          o.housingTier = j.value("housing_tier", o.housingTier);
+          o.emotions = readStats(j, "emotions");
+          if (auto st = insertUnique(origins_, "origin", o.id, o); !st) return st;
+        }
+      } else if (section == "instruments") {
+        for (const auto& j : body) {
+          InstrumentDef i{j.at("id").get<std::string>(), j.at("label").get<std::string>(), j.value("midi_program", 0),
+                          j.value("drums", false)};
+          if (auto st = insertUnique(instruments_, "instrument", i.id, i); !st) return st;
         }
       } else {
         return fail("content_invalid", source + ": unknown section '" + section + "'");
@@ -322,26 +392,8 @@ Status ContentDatabase::validate() const {
       return fail("content_invalid", where + ": unknown receptivity_trait");
   }
   for (const auto& [id, c] : characters_) {
-    const std::string where = "character " + id;
-    if (auto s = checkKeys(c.personality, traits, where + " personality"); !s) return s;
-    if (auto s = checkKeys(c.values, values, where + " values"); !s) return s;
-    const CareerDef* career = this->career(c.careerId);
-    if (!career) return fail("content_invalid", where + ": unknown career " + c.careerId);
-    if (c.careerLevel < 0 || c.careerLevel >= static_cast<int>(career->levels.size()))
-      return fail("content_invalid", where + ": career level out of range");
-    if (!property(c.homeProperty)) return fail("content_invalid", where + ": unknown home property " + c.homeProperty);
-    if (!location(c.spawnLocation)) return fail("content_invalid", where + ": unknown spawn_location");
-    if (c.startingBankCents < 0 || c.startingCashCents < 0) return fail("content_invalid", where + ": negative money");
-    for (const auto& r : c.relationships) {
-      if (!character(r.to)) return fail("content_invalid", where + ": relationship to unknown character " + r.to);
-      if (r.to == id) return fail("content_invalid", where + ": relationship with self");
-      if (auto s = checkKeys(r.dimensions, dims, where + " relationship " + r.to); !s) return s;
-    }
-    for (const auto& m : c.memories) {
-      for (const auto& p : m.participants) {
-        if (!character(p)) return fail("content_invalid", where + ": memory participant unknown: " + p);
-      }
-    }
+    if (auto st = validateCharacter(c, [this](const std::string& other) { return character(other) != nullptr; }); !st)
+      return st;
   }
   std::set<std::string> projectIds;
   for (const auto& p : construction_) {
@@ -362,6 +414,46 @@ Status ContentDatabase::validate() const {
   for (std::size_t i = 1; i < stages_.size(); ++i) {
     if (stages_[i].minPopulation <= stages_[i - 1].minPopulation)
       return fail("content_invalid", "city_stages must be in increasing population order");
+  }
+  for (const auto& [id, o] : origins_) {
+    if (o.bankCents < 0 || o.cashCents < 0) return fail("content_invalid", "origin " + id + ": negative money");
+    if (auto s = checkKeys(o.emotions, emotions, "origin " + id); !s) return s;
+  }
+  if (haveCreator_) {
+    if (origins_.empty()) return fail("content_invalid", "character_creator needs at least one origin");
+    if (creator_.minAge < 18) return fail("content_invalid", "character_creator: minimum age is 18");
+  }
+  for (const auto& [id, i] : instruments_) {
+    if (i.midiProgram < 0 || i.midiProgram > 127) return fail("content_invalid", "instrument " + id + ": midi_program 0..127");
+  }
+  return okStatus();
+}
+
+Status ContentDatabase::validateCharacter(const CharacterDef& c,
+                                          const std::function<bool(const std::string&)>& characterExists) const {
+  const std::set<std::string> traits(sim_.personalityTraits.begin(), sim_.personalityTraits.end());
+  const std::set<std::string> values(sim_.values.begin(), sim_.values.end());
+  const std::set<std::string> dims(sim_.relationshipDimensions.begin(), sim_.relationshipDimensions.end());
+  const std::string& id = c.id;
+  const std::string where = "character " + id;
+  if (auto s = checkKeys(c.personality, traits, where + " personality"); !s) return s;
+  if (auto s = checkKeys(c.values, values, where + " values"); !s) return s;
+  const CareerDef* career = this->career(c.careerId);
+  if (!career) return fail("content_invalid", where + ": unknown career " + c.careerId);
+  if (c.careerLevel < 0 || c.careerLevel >= static_cast<int>(career->levels.size()))
+    return fail("content_invalid", where + ": career level out of range");
+  if (!property(c.homeProperty)) return fail("content_invalid", where + ": unknown home property " + c.homeProperty);
+  if (!location(c.spawnLocation)) return fail("content_invalid", where + ": unknown spawn_location");
+  if (c.startingBankCents < 0 || c.startingCashCents < 0) return fail("content_invalid", where + ": negative money");
+  for (const auto& r : c.relationships) {
+    if (!characterExists(r.to)) return fail("content_invalid", where + ": relationship to unknown character " + r.to);
+    if (r.to == c.id) return fail("content_invalid", where + ": relationship with self");
+    if (auto s = checkKeys(r.dimensions, dims, where + " relationship " + r.to); !s) return s;
+  }
+  for (const auto& m : c.memories) {
+    for (const auto& p : m.participants) {
+      if (!characterExists(p)) return fail("content_invalid", where + ": memory participant unknown: " + p);
+    }
   }
   return okStatus();
 }
@@ -385,6 +477,14 @@ const InteractionDef* ContentDatabase::interaction(const std::string& id) const 
 const CharacterDef* ContentDatabase::character(const std::string& id) const {
   auto it = characters_.find(id);
   return it == characters_.end() ? nullptr : &it->second;
+}
+const OriginDef* ContentDatabase::origin(const std::string& id) const {
+  auto it = origins_.find(id);
+  return it == origins_.end() ? nullptr : &it->second;
+}
+const InstrumentDef* ContentDatabase::instrument(const std::string& id) const {
+  auto it = instruments_.find(id);
+  return it == instruments_.end() ? nullptr : &it->second;
 }
 const ConstructionProjectDef* ContentDatabase::constructionProject(const std::string& id) const {
   for (const auto& p : construction_) {

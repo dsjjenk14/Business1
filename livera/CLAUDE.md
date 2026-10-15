@@ -16,11 +16,12 @@ Read before any major task:
 cmake -S . -B build -G Ninja          # needs a C++20 compiler, SQLite3 and OpenSSL dev headers
 cmake --build build
 ./build/livera_tests                  # all tests; `./build/livera_tests ledger` filters by name
-scripts/demo_slice.sh                 # two players, a full day, server restart, reconnect
+scripts/demo_slice.sh                 # three players (one self-made), a morning, server restart, reconnect
 ./build/livera_server --data data --db /tmp/w.db --dev    # then: ./build/livera_cli
 ```
 
 Sanitizer build: `cmake -S . -B build-asan -DLIVERA_SANITIZE=ON -DCMAKE_BUILD_TYPE=Debug`.
+After editing JSON in `data/`, run `scripts/format_data.py` to keep the files consistently formatted.
 Run the tests (and the sanitizer tests for anything touching memory or the server) before
 calling work done. Warnings are errors.
 
@@ -42,7 +43,8 @@ calling work done. Warnings are errors.
    placeholders in data and docs (e.g. civic landmarks).
 7. **Every system has tests.** New command → unit tests in `tests/test_world.cpp` for the
    happy path and each refusal; protocol-visible changes → `tests/test_server.cpp`.
-8. **Save format changes need a migration** appended to `kMigrations` in
+8. **`id` is reserved in the protocol** for request/reply matching. Never use it as an op argument.
+9. **Save format changes need a migration** appended to `kMigrations` in
    `src/persistence/SqliteStore.cpp`. Never edit a shipped migration.
 
 ## Code style

@@ -289,9 +289,11 @@ TEST_CASE("career: short shifts are unpaid; leaving ends the shift") {
 TEST_CASE("career: promotion follows hours and performance") {
   auto db = patchedContent([](Json& doc, const std::string& file) {
     if (file == "founding_careers.json") {
-      auto& level = doc["careers"][0]["levels"][1];
-      level["hours_to_promote"] = 2;
-      level["min_performance"] = 0;
+      for (auto& career : doc["careers"]) {
+        if (career["id"] != "recruiting") continue;
+        career["levels"][1]["hours_to_promote"] = 2;
+        career["levels"][1]["min_performance"] = 0;
+      }
     }
   });
   World w = onlineWorld(db);

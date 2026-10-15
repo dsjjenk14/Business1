@@ -14,8 +14,8 @@ play the current build through a text client. See [What works today](#what-works
 ```bash
 cd livera
 cmake -S . -B build -G Ninja && cmake --build build
-./build/livera_tests            # 49 tests
-scripts/demo_slice.sh           # watch two players live a day, then a server restart
+./build/livera_tests            # 66 tests
+scripts/demo_slice.sh           # three players live a morning (one makes their own character), then a restart
 ```
 
 Play it yourself (two terminals, or more for more players):
@@ -23,14 +23,20 @@ Play it yourself (two terminals, or more for more players):
 ```bash
 ./build/livera_server --data data --db my_world.db --dev
 ./build/livera_cli
-> register dom my-password
-> login dom my-password
-> play dominique
+> register me my-password
+> login me my-password
+> create                      # guided character creator (or: play dominique)
+> play
 > exit
 > walk heritage_coffee
 > enter heritage_coffee
+> say Hi everyone!
 > buy latte
-> phone bank
+> song new 96 My First Song
+> song track piano C4:0:4 E4:4:4 G4:8:8
+> song save
+> perform last
+> song export last my_song.mid  # open it in any music app
 ```
 
 Type `help` in the client for every command. `--dev` enables `skip MINUTES` (time skip)
@@ -46,18 +52,19 @@ The founding vertical slice (docs/ROADMAP.md, M0), all server-authoritative and 
 | Step | Status |
 |---|---|
 | Launch, enter the founding town | ✅ server + text client (no 3D) |
-| Create or select a character | ⚠️ select only (Dominique, Jaxon); creation is Phase 7 |
+| Create or select a character | ✅ full character creator (appearance, personality, origin, career...) or pick Dominique/Jaxon |
 | Walk around | ✅ server-moved at walking speed, no teleporting; no rendering |
 | Enter an apartment | ✅ residents only |
 | Use the phone | ✅ bank, messages, contacts, calendar, map, career, property, notifications, city (data, no UI) |
-| Meet and talk to another player | ✅ presence events, 5 social interactions, text messages |
+| Meet and talk to another player | ✅ proximity chat (say, shout, whisper), 5 social interactions, phone texts |
+| Make music | ✅ compose on your phone, release to the town chart, perform live on stages, get tipped, export MIDI |
 | Build a relationship | ✅ directional, 11 dimensions, memories, grudges |
 | Go to work, earn money | ✅ shifts, hourly pay, performance, promotions |
 | Spend money | ✅ shops with opening hours, card or cash, can't overspend |
 | See the world change | ✅ construction crews build on schedules; places open; city stats grow |
 | Save, disconnect, reconnect, state preserved | ✅ SQLite, survives a full server restart |
 
-Not built yet: the 3D client, character creation, the other 14 founding characters,
+Not built yet: the 3D client, voice chat, the other 14 founding characters,
 autonomous NPCs (construction crews are abstract), gossip/secrets propagation, social
 media, business ownership, buying property, the event engine, generations.
 

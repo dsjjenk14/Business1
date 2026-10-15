@@ -53,6 +53,7 @@ class Server {
     std::string username;
     CharacterId character;
     RateLimiter limiter{20, 40};
+    RateLimiter chatLimiter{1, 5};  // speech and texts: a line a second, bursts of five
     int violations = 0;
     bool closing = false;
   };

@@ -94,3 +94,38 @@ harness avoids a dependency. Swap for Catch2 or GoogleTest anytime; tests are pl
 ## D-015 — 1 real second = 1 game minute (data-tunable)
 **Why:** A game day of 24 real minutes keeps daily routines playable in a session.
 `simulation.minutes_per_real_second` changes it without code.
+
+## D-016 — Character creation ahead of the spec's phase order
+**Context:** The spec put character creation in Phase 7; the product owner asked for it now,
+along with in-game talking and music.
+**Decision:** Build all three server-side now (M0.5), the same way as everything else:
+data-driven options, server validation, tests. The visual creator comes with the client.
+
+## D-017 — Created characters are saved in the content format
+**Decision:** A player-made character becomes a `CharacterDef` stored in `WorldState`
+(and the `created_characters` table) in exactly the JSON format of `data/characters/`.
+`World::definition()` looks in content first, then created characters.
+**Why:** One code path for every character, whoever made them. A created character can
+later be promoted into content (e.g. a beloved player character becoming canon) by copying
+one file. Creation is checked with the same `validateCharacter` as content.
+
+## D-018 — Songs are notes, not audio
+**Decision:** A song is note data (instrument, step, pitch, length, velocity), validated
+and capped (4 tracks, 16 bars, 512 notes per track).
+**Why:** Small enough to send to everyone in the room and to save forever; impossible to
+use for uploading arbitrary audio (abuse, copyright, moderation); any client can render it
+with its own instruments; exports cleanly to MIDI. Recorded vocals or audio would need
+a moderation pipeline first.
+
+## D-019 — Proximity text chat now, voice with the engine
+**Decision:** The server decides who can hear each line from authoritative positions.
+Voice arrives with the Unreal client (EOS Voice or Vivox) using the same hearing rules.
+Free chat changes needs (social) but not relationship numbers.
+**Why:** Hearing must be server-authoritative or anyone could listen in across town.
+Relationship changes stay tied to explicit interactions so they can't be farmed by typing.
+
+## D-020 — `id` is reserved in the protocol
+**Decision:** `id` only ever means the request id. Arguments that name things use their
+own key (`song`, `song_id`, `character`...).
+**Why:** A test caught the request id overwriting a song id. Reserving the key removes
+that class of bug for every future op.

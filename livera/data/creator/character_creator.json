@@ -1,0 +1,307 @@
+{
+  "$comment": "Character creator. Pick-one choices are lists; pick-many choices give min/max. allow_custom lets players type their own (pronouns, gender identity). Personality/values: each 0-100, total within budget. Origins answer 'Why did you move to Livéra?' and set starting money, career level and housing tier (properties carry a tier).",
+  "character_creator": {
+    "age": [18, 80],
+    "height_cm": [145, 210],
+    "pronouns": {"options": ["she/her", "he/him", "they/them", "she/they", "he/they"], "allow_custom": true},
+    "gender": {"options": ["woman", "man", "non-binary"], "allow_custom": true},
+    "appearance": {
+      "skin_tone": {
+        "options": [
+          "porcelain",
+          "fair",
+          "light",
+          "light olive",
+          "medium",
+          "olive",
+          "tan",
+          "golden brown",
+          "medium brown",
+          "brown",
+          "deep brown",
+          "ebony"
+        ]
+      },
+      "undertone": {"options": ["cool", "neutral", "warm"]},
+      "face_shape": {"options": ["oval", "round", "square", "heart", "diamond", "long"]},
+      "eyes": {"options": ["almond", "round", "hooded", "monolid", "upturned", "downturned"]},
+      "eye_color": {"options": ["dark brown", "brown", "hazel", "amber", "green", "gray", "blue"]},
+      "nose": {"options": ["button", "straight", "wide", "aquiline", "snub", "roman"]},
+      "lips": {"options": ["thin", "medium", "full", "heart-shaped", "wide"]},
+      "body_type": {"options": ["slim", "lean", "athletic", "average", "curvy", "muscular", "broad", "plus-size"]},
+      "hair_style": {
+        "options": [
+          "bald",
+          "buzz cut",
+          "taper with waves",
+          "short twists",
+          "TWA",
+          "locs",
+          "box braids",
+          "knotless braids",
+          "cornrows",
+          "silk press",
+          "bob",
+          "pixie",
+          "curly afro",
+          "high puff",
+          "long straight",
+          "long waves",
+          "beach waves",
+          "man bun",
+          "ponytail",
+          "bantu knots"
+        ]
+      },
+      "hair_color": {
+        "options": [
+          "black",
+          "off-black",
+          "dark brown",
+          "chestnut",
+          "auburn",
+          "copper",
+          "honey blonde",
+          "platinum",
+          "gray",
+          "silver",
+          "burgundy",
+          "pastel pink",
+          "electric blue"
+        ]
+      },
+      "facial_hair": {"options": ["none", "stubble", "goatee", "mustache", "short beard", "full beard"]},
+      "makeup": {"options": ["none", "natural", "soft glam", "full glam", "bold lip", "graphic liner", "editorial"]},
+      "outfit": {
+        "options": [
+          "tailored business",
+          "smart casual",
+          "streetwear",
+          "athleisure",
+          "boho",
+          "minimalist neutrals",
+          "workwear",
+          "glam evening",
+          "preppy",
+          "y2k",
+          "vintage",
+          "avant-garde"
+        ]
+      },
+      "tattoos": {
+        "options": [
+          "forearm script",
+          "sleeve",
+          "shoulder piece",
+          "fine-line florals",
+          "wrist",
+          "neck",
+          "back piece",
+          "hand"
+        ],
+        "min": 0,
+        "max": 4
+      },
+      "piercings": {
+        "options": ["ears", "helix", "nose stud", "nose ring", "septum", "eyebrow", "lip", "tongue"],
+        "min": 0,
+        "max": 4
+      },
+      "accessories": {
+        "options": [
+          "gold hoops",
+          "diamond studs",
+          "chain necklace",
+          "watch",
+          "glasses",
+          "sunglasses",
+          "headwrap",
+          "baseball cap",
+          "bucket hat",
+          "rings",
+          "tote bag",
+          "crossbody bag"
+        ],
+        "min": 0,
+        "max": 4
+      }
+    },
+    "traits": {
+      "options": [
+        "driven",
+        "charming",
+        "witty",
+        "creative",
+        "caring",
+        "loyal",
+        "bold",
+        "calm",
+        "competitive",
+        "romantic",
+        "stylish",
+        "hands_on",
+        "mysterious",
+        "outgoing",
+        "thoughtful",
+        "rebellious"
+      ],
+      "min": 1,
+      "max": 3
+    },
+    "interests": {
+      "options": [
+        "fashion",
+        "music",
+        "rnb_music",
+        "hip_hop",
+        "gospel",
+        "jazz",
+        "dance",
+        "fitness",
+        "basketball",
+        "cooking",
+        "brunch",
+        "art",
+        "photography",
+        "film",
+        "gaming",
+        "tech",
+        "real_estate",
+        "networking",
+        "travel",
+        "reading",
+        "nightlife",
+        "faith",
+        "interior_design",
+        "architecture",
+        "fishing",
+        "volunteering"
+      ],
+      "min": 2,
+      "max": 6
+    },
+    "education": [
+      "high school",
+      "trade school",
+      "some college",
+      "associate degree",
+      "bachelor's degree",
+      "master's degree",
+      "law degree",
+      "medical degree",
+      "doctorate"
+    ],
+    "relationship_status": ["single", "dating", "it's complicated", "recently divorced", "widowed"],
+    "goals": {
+      "options": [
+        "get promoted",
+        "buy a home",
+        "start a business",
+        "find love",
+        "make friends",
+        "get famous",
+        "release an album",
+        "get rich",
+        "start a family",
+        "give back to the community",
+        "build something that lasts"
+      ],
+      "min": 1,
+      "max": 3
+    },
+    "personality_budget": 400,
+    "values_budget": 450,
+    "max_background_length": 400
+  },
+  "origins": [
+    {
+      "id": "new_job",
+      "label": "Came for a new job",
+      "description": "Hired before you arrived. Steady pay from day one.",
+      "bank_cents": 800000,
+      "cash_cents": 15000,
+      "housing_tier": "starter"
+    },
+    {
+      "id": "career_advancement",
+      "label": "Came to move up",
+      "description": "Start one level higher, with higher expectations.",
+      "bank_cents": 1100000,
+      "cash_cents": 15000,
+      "career_level_bonus": 1,
+      "housing_tier": "starter",
+      "emotions": {"stress": 10, "confidence": 5}
+    },
+    {
+      "id": "university",
+      "label": "Came for school",
+      "description": "Tight budget, open schedule, everyone's new too.",
+      "bank_cents": 250000,
+      "cash_cents": 8000,
+      "housing_tier": "starter",
+      "emotions": {"excitement": 10}
+    },
+    {
+      "id": "family",
+      "label": "Came for family",
+      "description": "Moved to be close to people you love. Modest savings.",
+      "bank_cents": 500000,
+      "cash_cents": 10000,
+      "housing_tier": "starter",
+      "emotions": {"loneliness": -10}
+    },
+    {
+      "id": "business_opportunity",
+      "label": "Came to start something",
+      "description": "Capital to build with. The town needs everything.",
+      "bank_cents": 3500000,
+      "cash_cents": 20000,
+      "housing_tier": "starter",
+      "emotions": {"excitement": 10}
+    },
+    {
+      "id": "relationship",
+      "label": "Came for love",
+      "description": "Followed your heart here. We'll see how that goes.",
+      "bank_cents": 450000,
+      "cash_cents": 10000,
+      "housing_tier": "starter",
+      "emotions": {"happiness": 10}
+    },
+    {
+      "id": "fresh_start",
+      "label": "Came for a fresh start",
+      "description": "Left a lot behind. Not much money, a lot of resolve.",
+      "bank_cents": 150000,
+      "cash_cents": 30000,
+      "housing_tier": "starter",
+      "emotions": {"stress": 10}
+    },
+    {
+      "id": "real_estate_investment",
+      "label": "Came to invest",
+      "description": "Bought in early. Luxury apartment, deep pockets.",
+      "bank_cents": 6000000,
+      "cash_cents": 25000,
+      "housing_tier": "luxury"
+    },
+    {
+      "id": "financial_opportunity",
+      "label": "Came to get rich",
+      "description": "Livéra is a bet. You're all in.",
+      "bank_cents": 1800000,
+      "cash_cents": 20000,
+      "housing_tier": "starter",
+      "emotions": {"confidence": 10}
+    },
+    {
+      "id": "adventure",
+      "label": "Came for the adventure",
+      "description": "No plan, some cash, every door open.",
+      "bank_cents": 600000,
+      "cash_cents": 50000,
+      "housing_tier": "starter",
+      "emotions": {"excitement": 15}
+    }
+  ]
+}

@@ -1,3 +1,5 @@
+#include <fstream>
+
 #include "TestSupport.h"
 #include "core/Clock.h"
 #include "persistence/PasswordHash.h"
@@ -20,7 +22,7 @@ TEST_CASE("persistence: a fresh store migrates to the current schema") {
   auto path = tempPath("schema.db");
   auto store = SqliteStore::open(path.string());
   REQUIRE(store);
-  CHECK(store.value()->schemaVersion() == 1);
+  CHECK(store.value()->schemaVersion() == 2);
   CHECK(!store.value()->hasWorld());
 }
 
@@ -107,4 +109,47 @@ TEST_CASE("persistence: accounts and one-character-per-account claims") {
   CHECK(*store.claimedBy("dominique") == "dom");
   CHECK(!store.characterOf("jax"));
   CHECK(verifyPassword("password1", *store.credential("dom")));
+}
+
+TEST_CASE("persistence: created characters, skills and songs survive a round trip") {
+  auto path = tempPath("created.db");
+  std::string songId;
+  WorldState saved;
+  {
+    World w = World::createNew(realContent());
+    std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+    REQUIRE(w.createCharacter(Json::parse(in)));
+    REQUIRE(w.connect("sol-rivera"));
+    walkTo(w, "sol-rivera", "founders_park");
+    auto song = w.saveSong("sol-rivera", Json::parse(R"({"title": "Park Bench", "bpm": 80,
+        "tracks": [{"instrument": "guitar", "notes": [[0,52,4],[4,55,4],[8,59,8]]}]})"), "");
+    REQUIRE(song);
+    songId = song.value()["id"];
+    REQUIRE(w.perform("sol-rivera", songId));
+    REQUIRE(w.releaseSong("sol-rivera", songId));
+    w.disconnect("sol-rivera");
+    auto store = SqliteStore::open(path.string());
+    REQUIRE(store);
+    REQUIRE(store.value()->saveWorld(w.state()));
+    saved = w.state();
+  }
+  auto store = SqliteStore::open(path.string());
+  REQUIRE(store);
+  auto loaded = store.value()->loadWorld();
+  REQUIRE(loaded);
+  World w(realContent(), std::move(loaded).value());
+  const CharacterDef* def = w.definition("sol-rivera");
+  REQUIRE(def);
+  CHECK(def->profile == saved.createdCharacters.at("sol-rivera").profile);
+  CHECK(def->personality == saved.createdCharacters.at("sol-rivera").personality);
+  CHECK(w.character("sol-rivera")->skills.at("music") == saved.characters.at("sol-rivera").skills.at("music"));
+  CHECK(w.character("sol-rivera")->skills.at("music") > 0);
+  const Song& song = w.state().songs.at(songId);
+  CHECK(song.title == "Park Bench");
+  CHECK(song.released);
+  CHECK(song.tracks.at(0).notes.size() == 3);
+  CHECK(song.tracks.at(0).notes.at(2).length == 8);
+  CHECK(w.state().properties.at(def->homeProperty).tenant == "sol-rivera");
+  CHECK(w.state().ledger.sumOfBalances() == 0);
+  REQUIRE(w.connect("sol-rivera"));  // and they can play again
 }

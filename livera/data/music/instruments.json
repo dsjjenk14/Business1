@@ -1,0 +1,20 @@
+{
+  "$comment": "Instruments for the in-game studio. midi_program is the General MIDI program used when a song is played back or exported. Drum tracks use General MIDI percussion sounds (35 kick, 38 snare, 39 clap, 42 closed hat, 46 open hat, 49 crash...).",
+  "instruments": [
+    {"id": "piano", "label": "Grand piano", "midi_program": 0},
+    {"id": "electric_piano", "label": "Electric piano", "midi_program": 4},
+    {"id": "organ", "label": "Church organ", "midi_program": 19},
+    {"id": "guitar", "label": "Nylon guitar", "midi_program": 24},
+    {"id": "electric_guitar", "label": "Clean electric guitar", "midi_program": 27},
+    {"id": "bass", "label": "Fingered bass", "midi_program": 33},
+    {"id": "synth_bass", "label": "Synth bass", "midi_program": 38},
+    {"id": "strings", "label": "String ensemble", "midi_program": 48},
+    {"id": "choir", "label": "Choir", "midi_program": 52},
+    {"id": "trumpet", "label": "Trumpet", "midi_program": 56},
+    {"id": "saxophone", "label": "Alto sax", "midi_program": 65},
+    {"id": "flute", "label": "Flute", "midi_program": 73},
+    {"id": "synth_lead", "label": "Synth lead", "midi_program": 81},
+    {"id": "synth_pad", "label": "Warm pad", "midi_program": 89},
+    {"id": "drums", "label": "Drum kit", "midi_program": 0, "drums": true}
+  ]
+}

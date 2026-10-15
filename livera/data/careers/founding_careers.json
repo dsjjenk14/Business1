@@ -2,39 +2,76 @@
   "$comment": "Career tracks. Promotion needs hours at the current level AND performance at or above min_performance. Performance follows how well-kept the character was during shifts. A career with no workplaces cannot be worked yet (Law: no firm in town until the city grows).",
   "careers": [
     {
-      "id": "recruiting", "name": "Recruiting", "workplaces": ["meridian_talent"], "employer_account": "org:meridian_talent",
-      "need_cost_per_hour": { "energy": -3, "social": 1, "recreation": -2 },
-      "max_shift_hours": 10, "min_paid_minutes": 30,
+      "id": "cafe",
+      "name": "Café",
+      "workplaces": ["heritage_coffee"],
+      "employer_account": "org:heritage_coffee",
+      "entry_level": true,
+      "need_cost_per_hour": {"energy": -3, "social": 2, "hygiene": -1},
+      "max_shift_hours": 9,
+      "min_paid_minutes": 30,
       "levels": [
-        { "title": "Recruiter",              "hourly_cents": 3400,  "hours_to_promote": 40,  "min_performance": 55 },
-        { "title": "Senior Recruiter",       "hourly_cents": 4600,  "hours_to_promote": 120, "min_performance": 60 },
-        { "title": "Recruiting Manager",     "hourly_cents": 6000,  "hours_to_promote": 250, "min_performance": 65 },
-        { "title": "Director of Talent",     "hourly_cents": 8200,  "hours_to_promote": 400, "min_performance": 70 },
-        { "title": "VP of People",           "hourly_cents": 11000, "hours_to_promote": 600, "min_performance": 75 },
-        { "title": "Chief People Officer",   "hourly_cents": 15500 }
+        {"title": "Barista", "hourly_cents": 2100, "hours_to_promote": 40, "min_performance": 55},
+        {"title": "Shift Lead", "hourly_cents": 2600, "hours_to_promote": 120, "min_performance": 60},
+        {"title": "Café Manager", "hourly_cents": 3400}
       ]
     },
     {
-      "id": "construction_management", "name": "Construction Management", "workplaces": ["forge_site_office"],
+      "id": "recruiting",
+      "name": "Recruiting",
+      "workplaces": ["meridian_talent"],
+      "employer_account": "org:meridian_talent",
+      "need_cost_per_hour": {"energy": -3, "social": 1, "recreation": -2},
+      "max_shift_hours": 10,
+      "min_paid_minutes": 30,
+      "levels": [
+        {"title": "Recruiter", "hourly_cents": 3400, "hours_to_promote": 40, "min_performance": 55},
+        {"title": "Senior Recruiter", "hourly_cents": 4600, "hours_to_promote": 120, "min_performance": 60},
+        {"title": "Recruiting Manager", "hourly_cents": 6000, "hours_to_promote": 250, "min_performance": 65},
+        {"title": "Director of Talent", "hourly_cents": 8200, "hours_to_promote": 400, "min_performance": 70},
+        {"title": "VP of People", "hourly_cents": 11000, "hours_to_promote": 600, "min_performance": 75},
+        {"title": "Chief People Officer", "hourly_cents": 15500}
+      ],
+      "entry_level": true
+    },
+    {
+      "id": "construction_management",
+      "name": "Construction Management",
+      "workplaces": ["forge_site_office"],
       "employer_account": "org:forge_builders",
-      "need_cost_per_hour": { "energy": -4, "hygiene": -2 },
-      "max_shift_hours": 12, "min_paid_minutes": 30,
+      "need_cost_per_hour": {"energy": -4, "hygiene": -2},
+      "max_shift_hours": 12,
+      "min_paid_minutes": 30,
       "levels": [
-        { "title": "Site Coordinator",            "hourly_cents": 2900,  "hours_to_promote": 60,  "min_performance": 55 },
-        { "title": "Assistant Project Manager",   "hourly_cents": 4100,  "hours_to_promote": 160, "min_performance": 60 },
-        { "title": "Project Manager",             "hourly_cents": 5600,  "hours_to_promote": 320, "min_performance": 65 },
-        { "title": "Senior Project Manager",      "hourly_cents": 7400,  "hours_to_promote": 500, "min_performance": 70 },
-        { "title": "Director of Construction",    "hourly_cents": 10500 }
-      ]
+        {"title": "Site Coordinator", "hourly_cents": 2900, "hours_to_promote": 60, "min_performance": 55},
+        {
+          "title": "Assistant Project Manager",
+          "hourly_cents": 4100,
+          "hours_to_promote": 160,
+          "min_performance": 60
+        },
+        {"title": "Project Manager", "hourly_cents": 5600, "hours_to_promote": 320, "min_performance": 65},
+        {
+          "title": "Senior Project Manager",
+          "hourly_cents": 7400,
+          "hours_to_promote": 500,
+          "min_performance": 70
+        },
+        {"title": "Director of Construction", "hourly_cents": 10500}
+      ],
+      "entry_level": true
     },
     {
-      "id": "law", "name": "Law", "workplaces": [], "employer_account": "org:hale_law",
-      "need_cost_per_hour": { "energy": -5, "comfort": -2 },
+      "id": "law",
+      "name": "Law",
+      "workplaces": [],
+      "employer_account": "org:hale_law",
+      "need_cost_per_hour": {"energy": -5, "comfort": -2},
       "levels": [
-        { "title": "Associate",        "hourly_cents": 6500,  "hours_to_promote": 300, "min_performance": 65 },
-        { "title": "Senior Associate", "hourly_cents": 8800,  "hours_to_promote": 500, "min_performance": 70 },
-        { "title": "Counsel",          "hourly_cents": 11500, "hours_to_promote": 700, "min_performance": 75 },
-        { "title": "Partner",          "hourly_cents": 19000 }
+        {"title": "Associate", "hourly_cents": 6500, "hours_to_promote": 300, "min_performance": 65},
+        {"title": "Senior Associate", "hourly_cents": 8800, "hours_to_promote": 500, "min_performance": 70},
+        {"title": "Counsel", "hourly_cents": 11500, "hours_to_promote": 700, "min_performance": 75},
+        {"title": "Partner", "hourly_cents": 19000}
       ]
     }
   ]

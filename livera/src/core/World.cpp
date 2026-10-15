@@ -57,7 +57,7 @@ World World::createNew(std::shared_ptr<const ContentDatabase> content) {
   WorldState s;
   s.now = db.sim().startMinute;
 
-  // Ledger: the outside economy, organisations, then every character's accounts.
+  // Ledger: the outside economy and organisations. Characters are added by the constructor.
   (void)s.ledger.openAccount(LedgerAccount{kEconomyAccount, "system", "system", 0, true});
   for (const auto& org : db.orgAccounts()) {
     (void)s.ledger.openAccount(LedgerAccount{org.id, org.id, "business", 0, false});
@@ -67,33 +67,6 @@ World World::createNew(std::shared_ptr<const ContentDatabase> content) {
 
   for (const auto& [pid, p] : db.properties()) s.properties[pid] = PropertyState{pid, p.ownerAccount, ""};
 
-  for (const auto& [id, def] : db.characters()) {
-    CharacterState c;
-    c.id = id;
-    const LocationDef* spawn = db.location(def.spawnLocation);
-    c.position = spawn->door;
-    if (spawn->enterable) c.inside = spawn->id;
-    for (const auto& n : db.sim().needs) c.needs[n.id] = n.initial;
-    for (const auto& e : db.sim().emotions) {
-      auto it = db.sim().emotionBaselines.find(e);
-      c.emotions[e] = it == db.sim().emotionBaselines.end() ? 0 : it->second;
-    }
-    c.career.careerId = def.careerId;
-    c.career.level = def.careerLevel;
-    c.lastSimulatedAt = s.now;
-    s.characters[id] = c;
-
-    (void)s.ledger.openAccount(LedgerAccount{bankAccountOf(id), id, "bank", 0, false});
-    (void)s.ledger.openAccount(LedgerAccount{cashAccountOf(id), id, "cash", 0, false});
-    if (def.startingBankCents > 0)
-      (void)s.ledger.transfer(kEconomyAccount, bankAccountOf(id), def.startingBankCents, "opening_balance",
-                              "Savings brought to Livéra", s.now);
-    if (def.startingCashCents > 0)
-      (void)s.ledger.transfer(kEconomyAccount, cashAccountOf(id), def.startingCashCents, "opening_balance",
-                              "Cash on hand", s.now);
-    s.properties[def.homeProperty].tenant = id;
-  }
-
   for (const auto& p : db.constructionProjects()) {
     ConstructionState cs;
     cs.id = p.id;
@@ -102,6 +75,7 @@ World World::createNew(std::shared_ptr<const ContentDatabase> content) {
   }
   s.city.stats = db.cityInitial();
 
+  // The constructor adds every content character (accounts, savings, home).
   World w(std::move(content), std::move(s));
   const ContentDatabase& c = w.content();
 
@@ -109,7 +83,7 @@ World World::createNew(std::shared_ptr<const ContentDatabase> content) {
   for (const auto& [id, def] : c.characters()) {
     for (const auto& r : def.relationships) {
       RelationshipState& rs = w.relationshipRef(id, r.to);
-      rs.dimensions["compatibility"] = w.compatibility(def, *c.character(r.to));
+      rs.dimensions["compatibility"] = w.compatibility(def, *w.definition(r.to));
       for (const auto& [dim, v] : r.dimensions) rs.dimensions[dim] = clampd(v, kRelMin, kRelMax);
       rs.firstMetAt = 0;  // they knew each other before Livéra; the epoch is the earliest representable time
     }
@@ -135,29 +109,56 @@ World World::createNew(std::shared_ptr<const ContentDatabase> content) {
 
 World::World(std::shared_ptr<const ContentDatabase> content, WorldState state)
     : content_(std::move(content)), state_(std::move(state)) {
-  // Characters added to content after a world was saved join the existing world.
+  // Founding characters missing from the state (a new world, or content added after the
+  // world was saved) move in now.
   const ContentDatabase& db = *content_;
   for (const auto& [id, def] : db.characters()) {
-    if (state_.characters.count(id)) continue;
-    CharacterState c;
-    c.id = id;
-    c.position = db.location(def.spawnLocation)->door;
-    for (const auto& n : db.sim().needs) c.needs[n.id] = n.initial;
-    for (const auto& e : db.sim().emotions) c.emotions[e] = 0;
-    c.career.careerId = def.careerId;
-    c.career.level = def.careerLevel;
-    c.lastSimulatedAt = state_.now;
-    state_.characters[id] = c;
-    if (!state_.ledger.account(bankAccountOf(id)))
-      (void)state_.ledger.openAccount(LedgerAccount{bankAccountOf(id), id, "bank", 0, false});
-    if (!state_.ledger.account(cashAccountOf(id)))
-      (void)state_.ledger.openAccount(LedgerAccount{cashAccountOf(id), id, "cash", 0, false});
+    if (!state_.characters.count(id)) addCharacterState(def, nullptr);
   }
-  // Need definitions added later start at their initial value.
+  // Stats added to content later start at their defaults.
   for (auto& [id, c] : state_.characters) {
     for (const auto& n : db.sim().needs) c.needs.try_emplace(n.id, n.initial);
     for (const auto& e : db.sim().emotions) c.emotions.try_emplace(e, 0);
+    for (const auto& k : db.sim().skills) c.skills.try_emplace(k, 0);
   }
+}
+
+// Gives a character a body in the world: state, bank and cash accounts with their
+// starting money, and their home if it is free.
+void World::addCharacterState(const CharacterDef& def, const OriginDef* origin) {
+  const ContentDatabase& db = *content_;
+  const CharacterId& id = def.id;
+  CharacterState c;
+  c.id = id;
+  const LocationDef* spawn = db.location(def.spawnLocation);
+  c.position = spawn->door;
+  if (spawn->enterable) c.inside = spawn->id;
+  for (const auto& n : db.sim().needs) c.needs[n.id] = n.initial;
+  for (const auto& e : db.sim().emotions) {
+    auto it = db.sim().emotionBaselines.find(e);
+    c.emotions[e] = it == db.sim().emotionBaselines.end() ? 0 : it->second;
+  }
+  if (origin) {
+    for (const auto& [e, d] : origin->emotions) c.emotions[e] = clampd(c.emotions[e] + d, kStatMin, kStatMax);
+  }
+  for (const auto& k : db.sim().skills) c.skills[k] = 0;
+  c.career.careerId = def.careerId;
+  c.career.level = def.careerLevel;
+  c.lastSimulatedAt = state_.now;
+  state_.characters[id] = c;
+
+  if (!state_.ledger.account(bankAccountOf(id)))
+    (void)state_.ledger.openAccount(LedgerAccount{bankAccountOf(id), id, "bank", 0, false});
+  if (!state_.ledger.account(cashAccountOf(id)))
+    (void)state_.ledger.openAccount(LedgerAccount{cashAccountOf(id), id, "cash", 0, false});
+  if (def.startingBankCents > 0)
+    (void)state_.ledger.transfer(kEconomyAccount, bankAccountOf(id), def.startingBankCents, "opening_balance",
+                                 "Savings brought to Livéra", state_.now);
+  if (def.startingCashCents > 0)
+    (void)state_.ledger.transfer(kEconomyAccount, cashAccountOf(id), def.startingCashCents, "opening_balance",
+                                 "Cash on hand", state_.now);
+  auto home = state_.properties.find(def.homeProperty);
+  if (home != state_.properties.end() && home->second.tenant.empty()) home->second.tenant = id;
 }
 
 // ---------------------------------------------------------------------------------
@@ -399,16 +400,14 @@ Result<Json> World::interact(const CharacterId& actor, const std::string& intera
   if (targetId == actor) return fail("invalid_target", "you cannot do that with yourself");
   CharacterState* t = mutableCharacter(targetId);
   if (!t || !t->online) return fail("target_unavailable", "they are not here");
-  const bool together = a.inside.empty() ? (t->inside.empty() && distance(a.position, t->position) <= def->rangeMeters)
-                                         : a.inside == t->inside;
-  if (!together) return fail("too_far", "you need to be with them");
+  if (!together(a, *t, def->rangeMeters)) return fail("too_far", "you need to be with them");
 
   RelationshipState& forward = relationshipRef(actor, targetId);
   if (forward.lastInteractionAt >= 0 && state_.now - forward.lastInteractionAt < kInteractionCooldown)
     return fail("too_soon", "give it a moment");
 
-  const CharacterDef* actorDefPtr = content_->character(actor);
-  const CharacterDef* targetDefPtr = content_->character(targetId);
+  const CharacterDef* actorDefPtr = definition(actor);
+  const CharacterDef* targetDefPtr = definition(targetId);
   if (!actorDefPtr || !targetDefPtr) return fail("unknown_character", "no such character");
   const CharacterDef& actorDef = *actorDefPtr;
   const CharacterDef& targetDef = *targetDefPtr;
@@ -431,7 +430,7 @@ Result<Json> World::interact(const CharacterId& actor, const std::string& intera
       m.importance = static_cast<int>(kFirstMeetingImportance);
       m.emotionalImpact = 10;
       m.about = other;
-      m.info = "Met " + content_->character(other)->fullName();
+      m.info = "Met " + definition(other)->fullName();
       addMemory(std::move(m));
     }
   }
@@ -654,6 +653,64 @@ Result<std::string> World::sendMessage(const CharacterId& from, const CharacterI
   return m.id;
 }
 
+Result<Json> World::say(const CharacterId& actor, const std::string& text, const std::string& volume,
+                        const CharacterId& whisperTo) {
+  auto r = activeCharacter(actor);
+  if (!r) return r.error();
+  CharacterState& c = *r.value();
+  const SimulationConfig& sim = content_->sim();
+  // Control characters could forge lines in a client's chat log; flatten them to spaces.
+  std::string clean = text;
+  for (char& ch : clean) {
+    if (static_cast<unsigned char>(ch) < 0x20 || ch == 0x7f) ch = ' ';
+  }
+  clean = trim(clean);
+  if (clean.empty()) return fail("invalid_speech", "say something");
+  if (static_cast<int>(clean.size()) > sim.maxSpeechLength) return fail("invalid_speech", "that's too long to say");
+
+  std::vector<CharacterId> hearers;
+  if (volume == "whisper") {
+    const CharacterState* t = character(whisperTo);
+    if (!t || !t->online || whisperTo == actor) return fail("target_unavailable", "they are not here");
+    if (!together(c, *t, sim.whisperRangeMeters)) return fail("too_far", "get closer to whisper");
+    hearers.push_back(whisperTo);
+  } else if (volume == "say" || volume == "shout") {
+    hearers = presentWith(c, volume == "shout" ? sim.shoutRangeMeters : sim.hearingRangeMeters);
+  } else {
+    return fail("invalid_speech", "volume must be say, shout or whisper");
+  }
+
+  const CharacterDef* def = definition(actor);
+  Json line{{"from", actor}, {"name", def ? def->fullName() : actor}, {"text", clean}, {"volume", volume}};
+  if (volume == "whisper") line["to"] = whisperTo;
+  emit(hearers, "speech", line);
+  // Talking with people (not to an empty room) is social contact for everyone involved.
+  if (!hearers.empty()) {
+    applyNeeds(c, {{"social", 1}});
+    for (const auto& h : hearers) applyNeeds(*mutableCharacter(h), {{"social", 1}});
+  }
+  return Json{{"heard_by", hearers.size()}, {"volume", volume}};
+}
+
+Result<Json> World::tip(const CharacterId& actor, const CharacterId& target, Cents amount) {
+  constexpr Cents kMinTip = 100;
+  constexpr Cents kMaxTip = 100000;
+  auto r = activeCharacter(actor);
+  if (!r) return r.error();
+  if (target == actor) return fail("invalid_target", "you can't tip yourself");
+  CharacterState* t = mutableCharacter(target);
+  if (!t || !t->online) return fail("target_unavailable", "they are not here");
+  if (!together(*r.value(), *t, 5)) return fail("too_far", "you need to be with them");
+  if (amount < kMinTip || amount > kMaxTip) return fail("invalid_amount", "tips are $1 to $1,000");
+  const CharacterDef* from = definition(actor);
+  auto tx = state_.ledger.transfer(bankAccountOf(actor), bankAccountOf(target), amount, "tip",
+                                   "Tip from " + (from ? from->fullName() : actor), state_.now);
+  if (!tx) return tx.error();
+  adjustRelationship(target, actor, "friendship", std::min(3.0, static_cast<double>(amount) / 1000.0));
+  notify(target, "bank", (from ? from->firstName : actor) + " tipped you " + formatMoney(amount) + ".");
+  return Json{{"tx", tx.value()}, {"amount_cents", amount}, {"balance_cents", state_.ledger.balance(bankAccountOf(actor))}};
+}
+
 Result<Json> World::openPhoneApp(const CharacterId& actor, const std::string& app) {
   auto r = activeCharacter(actor);
   if (!r) return r.error();
@@ -667,6 +724,7 @@ Result<Json> World::openPhoneApp(const CharacterId& actor, const std::string& ap
   if (app == "property") return phoneProperty(c);
   if (app == "notifications") return phoneNotifications(c);
   if (app == "city") return phoneCity();
+  if (app == "studio") return songsView(c);
   return fail("unknown_app", "no such phone app");
 }
 
@@ -796,16 +854,23 @@ Status World::canAccess(const CharacterId& actor, const LocationDef& loc) const 
   return fail("no_access", "you can't go in");
 }
 
-std::vector<CharacterId> World::presentWith(const CharacterState& c) const {
-  constexpr double kOutdoorAwareness = 40;
+bool World::together(const CharacterState& a, const CharacterState& b, double outdoorRange) const {
+  if (!a.inside.empty() || !b.inside.empty()) return a.inside == b.inside;
+  return distance(a.position, b.position) <= outdoorRange;
+}
+
+std::vector<CharacterId> World::presentWith(const CharacterState& c, double outdoorRange) const {
   std::vector<CharacterId> out;
   for (const auto& [id, o] : state_.characters) {
-    if (id == c.id || !o.online) continue;
-    const bool together = c.inside.empty() ? (o.inside.empty() && distance(c.position, o.position) <= kOutdoorAwareness)
-                                           : o.inside == c.inside;
-    if (together) out.push_back(id);
+    if (id != c.id && o.online && together(c, o, outdoorRange)) out.push_back(id);
   }
   return out;
+}
+
+const CharacterDef* World::definition(const CharacterId& id) const {
+  if (const CharacterDef* d = content_->character(id)) return d;
+  auto it = state_.createdCharacters.find(id);
+  return it == state_.createdCharacters.end() ? nullptr : &it->second;
 }
 
 std::string World::nextId(const char* prefix) { return std::string(prefix) + "-" + std::to_string(state_.nextId++); }

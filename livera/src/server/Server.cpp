@@ -222,6 +222,13 @@ void Server::handleLine(Session& s, const std::string& line) {
     send(s, Json{{"ok", false}, {"error", {{"code", "bad_request"}, {"message", "expected {\"op\": ...}"}}}});
     return;
   }
+  const std::string opName = req["op"].get<std::string>();
+  if ((opName == "say" || opName == "message") && !s.chatLimiter.allow(monotonicSeconds())) {
+    send(s, Json{{"re", req.value("id", Json())},
+                 {"ok", false},
+                 {"error", {{"code", "chat_rate_limited"}, {"message", "you're talking too fast"}}}});
+    return;
+  }
   Json reply{{"re", req.value("id", Json())}};
   Result<Json> result = fail("internal", "unhandled");
   try {
@@ -281,12 +288,34 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
       const auto owner = store_->claimedBy(c["id"].get<std::string>());
       c["available"] = !owner || *owner == s.username;
     }
-    return Json{{"characters", list}};
+    // Your own created character, if you have one. Other players' creations aren't listed.
+    const auto mine = store_->characterOf(s.username);
+    if (mine && !world_.content().character(*mine)) {
+      if (const CharacterDef* def = world_.definition(*mine)) {
+        list.push_back(Json{{"id", def->id}, {"name", def->fullName()}, {"age", def->age}, {"pronouns", def->pronouns},
+                            {"tagline", def->profile.value("tagline", "")}, {"created", true}, {"available", true}});
+      }
+    }
+    return Json{{"characters", list}, {"can_create", !mine.has_value()}};
+  }
+  if (op == "creator_options") return world_.creatorOptions();
+  if (op == "create_character") {
+    if (store_->characterOf(s.username)) return fail("already_has_character", "this account already has a character");
+    if (!req.contains("character")) return fail("bad_request", "send your character sheet as \"character\"");
+    auto id = world_.createCharacter(req["character"]);
+    if (!id) return id.error();
+    if (Status st = store_->claimCharacter(s.username, id.value()); !st) return st.error();
+    // Save now so the account's claim never points at a character the save doesn't have.
+    (void)save();
+    logLine(s.username + " created " + id.value());
+    const CharacterDef* def = world_.definition(id.value());
+    return Json{{"id", id.value()}, {"name", def->fullName()}, {"home", world_.content().location(def->spawnLocation)->name}};
   }
   if (op == "play") {
     if (!s.character.empty()) return fail("already_playing", "already in the world");
-    const std::string id = str(req, "character");
-    const CharacterDef* def = world_.content().character(id);
+    std::string id = str(req, "character");
+    if (id.empty()) id = store_->characterOf(s.username).value_or("");
+    const CharacterDef* def = world_.definition(id);
     if (!def || !def->playable) return fail("unknown_character", "that character can't be played");
     if (playersInWorld() >= config_.maxPlayers) return fail("server_full", "the server is full");
     if (Status st = store_->claimCharacter(s.username, id); !st) return st.error();
@@ -330,6 +359,16 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
   if (op == "interact") return world_.interact(me, str(req, "interaction"), str(req, "target"));
   if (op == "buy") return world_.buy(me, str(req, "offer"), req.value("method", std::string("card")));
   if (op == "activity") return world_.useActivity(me, str(req, "activity"));
+  if (op == "say") return world_.say(me, str(req, "text"), req.value("volume", std::string("say")), str(req, "to"));
+  if (op == "tip") return world_.tip(me, str(req, "to"), req.at("cents").get<Cents>());
+  // "id" is reserved for request/reply matching, so songs are named by "song" / "song_id".
+  if (op == "song_save") {
+    if (!req.contains("song") || !req["song"].is_object()) return fail("bad_request", "send the song as \"song\"");
+    return world_.saveSong(me, req["song"], str(req, "song_id"));
+  }
+  if (op == "song_release") return world_.releaseSong(me, str(req, "song"));
+  if (op == "song") return world_.openSong(me, str(req, "song"));
+  if (op == "perform") return world_.perform(me, str(req, "song"));
   if (op == "work") {
     const std::string action = str(req, "action");
     if (action == "start") {

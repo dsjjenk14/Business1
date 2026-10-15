@@ -1,28 +1,106 @@
 {
   "$comment": "Organisations that own money in the founding economy, and the properties people live in. Amounts are cents.",
   "org_accounts": [
-    { "id": "org:heritage_coffee",   "name": "Heritage Coffee Co.",            "opening_balance_cents": 4000000 },
-    { "id": "org:greenleaf_market",  "name": "Greenleaf Market",               "opening_balance_cents": 9000000 },
-    { "id": "org:meridian_talent",   "name": "Meridian Talent Partners",       "opening_balance_cents": 250000000 },
-    { "id": "org:forge_builders",    "name": "Forge Builders",                 "opening_balance_cents": 900000000 },
-    { "id": "org:lexington_props",   "name": "Lexington Residential",          "opening_balance_cents": 50000000 },
-    { "id": "org:maple_court",       "name": "Maple Court Holdings",           "opening_balance_cents": 20000000 },
-    { "id": "org:riverdale_health",  "name": "Riverdale Health",               "opening_balance_cents": 30000000 },
-    { "id": "org:greater_hope",      "name": "Greater Hope Missionary Baptist", "opening_balance_cents": 1500000 },
-    { "id": "org:body_balance",      "name": "Body & Balance",                 "opening_balance_cents": 6000000 },
-    { "id": "org:eclat_hospitality", "name": "ÉCLAT Hospitality",              "opening_balance_cents": 12000000 },
-    { "id": "org:hale_law",          "name": "Hale & Okafor LLP",              "opening_balance_cents": 80000000 }
+    {"id": "org:heritage_coffee", "name": "Heritage Coffee Co.", "opening_balance_cents": 4000000},
+    {"id": "org:greenleaf_market", "name": "Greenleaf Market", "opening_balance_cents": 9000000},
+    {"id": "org:meridian_talent", "name": "Meridian Talent Partners", "opening_balance_cents": 250000000},
+    {"id": "org:forge_builders", "name": "Forge Builders", "opening_balance_cents": 900000000},
+    {"id": "org:lexington_props", "name": "Lexington Residential", "opening_balance_cents": 50000000},
+    {"id": "org:maple_court", "name": "Maple Court Holdings", "opening_balance_cents": 20000000},
+    {"id": "org:riverdale_health", "name": "Riverdale Health", "opening_balance_cents": 30000000},
+    {"id": "org:greater_hope", "name": "Greater Hope Missionary Baptist", "opening_balance_cents": 1500000},
+    {"id": "org:body_balance", "name": "Body & Balance", "opening_balance_cents": 6000000},
+    {"id": "org:eclat_hospitality", "name": "ÉCLAT Hospitality", "opening_balance_cents": 12000000},
+    {"id": "org:hale_law", "name": "Hale & Okafor LLP", "opening_balance_cents": 80000000}
   ],
   "properties": [
     {
-      "id": "lexington_1204", "location": "lexington_1204", "type": "apartment", "owner_account": "org:lexington_props",
-      "rent_monthly_cents": 245000, "market_value_cents": 48500000, "bedrooms": 1,
-      "amenities": ["doorman", "rooftop_pool", "in_unit_laundry", "gym_access"]
+      "id": "lexington_1204",
+      "location": "lexington_1204",
+      "type": "apartment",
+      "owner_account": "org:lexington_props",
+      "rent_monthly_cents": 245000,
+      "market_value_cents": 48500000,
+      "bedrooms": 1,
+      "amenities": ["doorman", "rooftop_pool", "in_unit_laundry", "gym_access"],
+      "tier": "luxury"
     },
     {
-      "id": "maple_court_3b", "location": "maple_court_3b", "type": "apartment", "owner_account": "org:maple_court",
-      "rent_monthly_cents": 135000, "market_value_cents": 21000000, "bedrooms": 1,
-      "amenities": ["shared_laundry", "parking"]
+      "id": "maple_court_3b",
+      "location": "maple_court_3b",
+      "type": "apartment",
+      "owner_account": "org:maple_court",
+      "rent_monthly_cents": 135000,
+      "market_value_cents": 21000000,
+      "bedrooms": 1,
+      "amenities": ["shared_laundry", "parking"],
+      "tier": "starter"
+    },
+    {
+      "id": "maple_court_2a",
+      "location": "maple_court_2a",
+      "type": "apartment",
+      "owner_account": "org:maple_court",
+      "rent_monthly_cents": 125000,
+      "market_value_cents": 20000000,
+      "bedrooms": 1,
+      "amenities": ["shared_laundry", "parking"],
+      "tier": "starter"
+    },
+    {
+      "id": "maple_court_2b",
+      "location": "maple_court_2b",
+      "type": "apartment",
+      "owner_account": "org:maple_court",
+      "rent_monthly_cents": 125000,
+      "market_value_cents": 20000000,
+      "bedrooms": 1,
+      "amenities": ["shared_laundry", "parking"],
+      "tier": "starter"
+    },
+    {
+      "id": "maple_court_4a",
+      "location": "maple_court_4a",
+      "type": "apartment",
+      "owner_account": "org:maple_court",
+      "rent_monthly_cents": 125000,
+      "market_value_cents": 20000000,
+      "bedrooms": 1,
+      "amenities": ["shared_laundry", "parking"],
+      "tier": "starter"
+    },
+    {
+      "id": "maple_court_4c",
+      "location": "maple_court_4c",
+      "type": "apartment",
+      "owner_account": "org:maple_court",
+      "rent_monthly_cents": 125000,
+      "market_value_cents": 20000000,
+      "bedrooms": 1,
+      "amenities": ["shared_laundry", "parking"],
+      "tier": "starter"
+    },
+    {
+      "id": "lexington_0807",
+      "location": "lexington_0807",
+      "type": "apartment",
+      "owner_account": "org:lexington_props",
+      "rent_monthly_cents": 235000,
+      "market_value_cents": 46000000,
+      "bedrooms": 1,
+      "amenities": ["doorman", "rooftop_pool", "in_unit_laundry", "gym_access"],
+      "tier": "luxury"
+    },
+    {
+      "id": "lexington_1502",
+      "location": "lexington_1502",
+      "type": "apartment",
+      "owner_account": "org:lexington_props",
+      "rent_monthly_cents": 235000,
+      "market_value_cents": 46000000,
+      "bedrooms": 1,
+      "amenities": ["doorman", "rooftop_pool", "in_unit_laundry", "gym_access"],
+      "tier": "luxury"
     }
   ]
 }

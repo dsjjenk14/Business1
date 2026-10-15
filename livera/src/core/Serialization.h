@@ -15,6 +15,12 @@ RelationshipState relationshipStateFromJson(const Json& j);
 Json toJson(const Memory& m);
 Memory memoryFromJson(const Json& j);
 
+Json toJson(const Song& s);
+Song songFromJson(const Json& j);
+
+// Player-created characters are saved in the same format as content character files.
+Json toJson(const CharacterDef& c);
+
 const char* toString(ConstructionStatus s);
 ConstructionStatus constructionStatusFromString(const std::string& s);
 

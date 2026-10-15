@@ -11,7 +11,8 @@ Json toJson(const CharacterState& c) {
          {"needs", c.needs},
          {"emotions", c.emotions},
          {"last_simulated_at", c.lastSimulatedAt},
-         {"rent_arrears_cents", c.rentArrearsCents}};
+         {"rent_arrears_cents", c.rentArrearsCents},
+         {"skills", c.skills}};
   Json career{{"career_id", c.career.careerId},
               {"level", c.career.level},
               {"hours_at_level", c.career.hoursAtLevel},
@@ -32,6 +33,7 @@ CharacterState characterStateFromJson(const Json& j) {
   c.emotions = j.at("emotions").get<StatMap>();
   c.lastSimulatedAt = j.at("last_simulated_at").get<GameMinutes>();
   c.rentArrearsCents = j.value("rent_arrears_cents", Cents{0});
+  c.skills = j.value("skills", StatMap{});
   const Json& career = j.at("career");
   c.career.careerId = career.at("career_id").get<std::string>();
   c.career.level = career.at("level").get<int>();
@@ -85,6 +87,61 @@ Memory memoryFromJson(const Json& j) {
   m.info = j.value("info", "");
   m.isPublic = j.value("public", false);
   return m;
+}
+
+Json toJson(const Song& s) {
+  Json tracks = Json::array();
+  for (const auto& t : s.tracks) {
+    Json notes = Json::array();
+    for (const auto& n : t.notes) notes.push_back({n.step, n.pitch, n.length, n.velocity});
+    tracks.push_back(Json{{"instrument", t.instrument}, {"notes", notes}});
+  }
+  return Json{{"id", s.id},       {"owner", s.owner},         {"title", s.title},       {"bpm", s.bpm},
+              {"tracks", tracks}, {"created_at", s.createdAt}, {"updated_at", s.updatedAt}, {"released", s.released},
+              {"plays", s.plays}};
+}
+
+Song songFromJson(const Json& j) {
+  Song s;
+  s.id = j.at("id").get<std::string>();
+  s.owner = j.at("owner").get<std::string>();
+  s.title = j.at("title").get<std::string>();
+  s.bpm = j.at("bpm").get<int>();
+  for (const auto& t : j.at("tracks")) {
+    SongTrack track;
+    track.instrument = t.at("instrument").get<std::string>();
+    for (const auto& n : t.at("notes"))
+      track.notes.push_back(Note{n.at(0).get<int>(), n.at(1).get<int>(), n.at(2).get<int>(), n.at(3).get<int>()});
+    s.tracks.push_back(std::move(track));
+  }
+  s.createdAt = j.at("created_at").get<GameMinutes>();
+  s.updatedAt = j.at("updated_at").get<GameMinutes>();
+  s.released = j.at("released").get<bool>();
+  s.plays = j.at("plays").get<int>();
+  return s;
+}
+
+Json toJson(const CharacterDef& c) {
+  Json relationships = Json::array();
+  for (const auto& r : c.relationships)
+    relationships.push_back(Json{{"to", r.to}, {"dimensions", r.dimensions}, {"history", r.history}});
+  return Json{{"id", c.id},
+              {"first_name", c.firstName},
+              {"last_name", c.lastName},
+              {"pronouns", c.pronouns},
+              {"gender", c.gender},
+              {"age", c.age},
+              {"playable", c.playable},
+              {"personality", c.personality},
+              {"values", c.values},
+              {"traits", c.traits},
+              {"interests", c.interests},
+              {"career", {{"id", c.careerId}, {"level", c.careerLevel}}},
+              {"finances", {{"cash_cents", c.startingCashCents}, {"bank_cents", c.startingBankCents}}},
+              {"home", {{"property", c.homeProperty}}},
+              {"spawn_location", c.spawnLocation},
+              {"relationships", relationships},
+              {"profile", c.profile}};
 }
 
 const char* toString(ConstructionStatus s) {

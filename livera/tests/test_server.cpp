@@ -2,6 +2,7 @@
 // This is the founding vertical slice from docs/ROADMAP.md, driven over the wire.
 
 #include <atomic>
+#include <fstream>
 #include <chrono>
 #include <thread>
 
@@ -272,4 +273,74 @@ TEST_CASE("server: rate limiting and dev-command authorization") {
   }
   CHECK(refused > 0);
   CHECK(answered <= 45);
+}
+
+TEST_CASE("server: make your own character, talk out loud, and play music for the room") {
+  const std::string db = tempPath("create.db").string();
+  std::string songId;
+  {
+    RunningServer server(db);
+    TestClient sol(server.port());
+    TestClient dom(server.port());
+    sol.ok({{"op", "register"}, {"username", "sol"}, {"password", "sol-pass-123"}});
+    sol.ok({{"op", "login"}, {"username", "sol"}, {"password", "sol-pass-123"}});
+    CHECK(sol.ok({{"op", "characters"}})["can_create"] == true);
+    CHECK(sol.ok({{"op", "creator_options"}})["origins"].size() == 10);
+
+    std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+    Json sheet = Json::parse(in);
+    Json bad = sheet;
+    bad["age"] = 12;
+    CHECK(sol.refusal({{"op", "create_character"}, {"character", bad}}) == "invalid_character");
+    Json made = sol.ok({{"op", "create_character"}, {"character", sheet}});
+    CHECK(made["id"] == "sol-rivera");
+    CHECK(sol.refusal({{"op", "create_character"}, {"character", sheet}}) == "already_has_character");
+    Json mine = sol.ok({{"op", "characters"}});
+    CHECK(mine["can_create"] == false);
+    CHECK(mine["characters"].back()["id"] == "sol-rivera");
+    sol.ok({{"op", "play"}});  // no id needed: plays your own character
+
+    dom.ok({{"op", "register"}, {"username", "dom"}, {"password", "dom-pass-123"}});
+    dom.ok({{"op", "login"}, {"username", "dom"}, {"password", "dom-pass-123"}});
+    CHECK(dom.refusal({{"op", "play"}, {"character", "sol-rivera"}}) == "character_taken");
+    dom.ok({{"op", "play"}, {"character", "dominique"}});
+
+    for (TestClient* c : {&sol, &dom}) {
+      c->ok({{"op", "exit"}});
+      c->walkTo("heritage_coffee");
+      c->ok({{"op", "enter"}, {"location", "heritage_coffee"}});
+    }
+    // Talk.
+    CHECK(dom.ok({{"op", "say"}, {"text", "Is that a keytar?"}})["heard_by"] == 1);
+    sol.pump(0.3);
+    CHECK(sol.sawEvent("speech"));
+    // Make a song, play it for the room, get tipped.
+    Json song = Json::parse(R"({"title": "Founders Groove", "bpm": 96, "tracks": [
+        {"instrument": "drums", "notes": [[0,36,1],[4,38,1],[8,36,1],[12,38,1]]},
+        {"instrument": "electric_piano", "notes": [[0,60,8],[0,64,8],[8,62,8]]}]})");
+    songId = sol.ok({{"op", "song_save"}, {"song", song}})["id"];
+    Json perf = sol.ok({{"op", "perform"}, {"song", songId}});
+    CHECK(perf["audience"] == 1);
+    dom.pump(0.3);
+    CHECK(dom.sawEvent("performance"));
+    dom.ok({{"op", "tip"}, {"to", "sol-rivera"}, {"cents", 500}});
+    sol.ok({{"op", "song_release"}, {"song", songId}});
+    // Chat has its own flood limit.
+    int limited = 0;
+    for (int i = 0; i < 12; ++i) limited += dom.refusal({{"op", "say"}, {"text", "la"}}) == "chat_rate_limited" ? 1 : 0;
+    CHECK(limited > 0);
+  }
+  {
+    RunningServer server(db);
+    TestClient sol(server.port());
+    Json login = sol.ok({{"op", "login"}, {"username", "sol"}, {"password", "sol-pass-123"}});
+    CHECK(login["character"] == "sol-rivera");
+    Json back = sol.ok({{"op", "play"}});
+    CHECK(back["you"]["name"] == "Sol Rivera");
+    Json studio = sol.ok({{"op", "phone"}, {"app", "studio"}});
+    REQUIRE(studio["yours"].size() == 1);
+    CHECK(studio["yours"][0]["released"] == true);
+    CHECK(studio["music_skill"].get<double>() > 0);
+    CHECK(sol.ok({{"op", "phone"}, {"app", "bank"}})["bank_cents"] == 800000 + 500);
+  }
 }

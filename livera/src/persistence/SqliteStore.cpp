@@ -54,6 +54,12 @@ const std::vector<const char*> kMigrations = {
     );
     CREATE TABLE city_stats (key TEXT PRIMARY KEY, value REAL NOT NULL);
     )sql",
+    // v2: character creator and music.
+    R"sql(
+    CREATE TABLE created_characters (id TEXT PRIMARY KEY, def TEXT NOT NULL);
+    CREATE TABLE songs (id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, body TEXT NOT NULL);
+    CREATE INDEX songs_owner ON songs(owner_id);
+    )sql",
 };
 
 class Stmt {
@@ -270,6 +276,19 @@ Status SqliteStore::saveWorld(const WorldState& s) {
       if (!ins.bind(1, k).bind(2, v).run()) return rollback("save city");
     }
   }
+  {
+    // A created character's definition never changes after creation.
+    Stmt ins(db_, "INSERT OR IGNORE INTO created_characters(id, def) VALUES (?, ?)");
+    for (const auto& [id, def] : s.createdCharacters) {
+      if (!ins.bind(1, id).bind(2, toJson(def).dump()).run()) return rollback("save created character");
+    }
+  }
+  {
+    Stmt ins(db_, "INSERT OR REPLACE INTO songs(id, owner_id, body) VALUES (?, ?, ?)");
+    for (const auto& [id, song] : s.songs) {
+      if (!ins.bind(1, id).bind(2, song.owner).bind(3, toJson(song).dump()).run()) return rollback("save song");
+    }
+  }
   if (Status c = exec("COMMIT"); !c) {
     (void)exec("ROLLBACK");
     return c;
@@ -347,6 +366,21 @@ Result<WorldState> SqliteStore::loadWorld() {
     {
       Stmt q(db_, "SELECT key, value FROM city_stats");
       while (q.step() == SQLITE_ROW) s.city.stats[q.text(0)] = q.real(1);
+    }
+    {
+      Stmt q(db_, "SELECT id, def FROM created_characters");
+      while (q.step() == SQLITE_ROW) {
+        auto def = ContentDatabase::parseCharacter(Json::parse(q.text(1)));
+        if (!def) return fail("storage_corrupt", "created character " + q.text(0) + ": " + def.error().message);
+        s.createdCharacters[q.text(0)] = std::move(def).value();
+      }
+    }
+    {
+      Stmt q(db_, "SELECT body FROM songs");
+      while (q.step() == SQLITE_ROW) {
+        Song song = songFromJson(Json::parse(q.text(0)));
+        s.songs[song.id] = std::move(song);
+      }
     }
   } catch (const std::exception& e) {
     return fail("storage_corrupt", std::string("saved world could not be read: ") + e.what());

@@ -38,7 +38,8 @@ Every player-caused change goes through a `World` command method:
 
 ```
 moveTo · enter · exitBuilding · interact · buy · useActivity · startShift · endShift ·
-sendMessage · openPhoneApp · connect · disconnect
+sendMessage · say · tip · createCharacter · saveSong · releaseSong · openSong · perform ·
+openPhoneApp · connect · disconnect
 ```
 
 Each validates against current state (is the character in the world? at the door? allowed
@@ -108,6 +109,8 @@ The target today is one world shard with 2–8 players. Known paths when that's 
 | `src/core/Ledger.*` | Accounts, transfers, history. |
 | `src/core/World.h/.cpp` | State structs and every rule. |
 | `src/core/WorldViews.cpp` | What each character is allowed to see (`look`, phone apps). |
+| `src/core/CharacterCreator.cpp` | Character creator: validates a sheet against data, founds the resident. |
+| `src/core/Music.cpp` | Songs, releases, the town chart, live performance. |
 | `src/core/Serialization.*` | JSON encoding of state records for the save format. |
 | `src/persistence/SqliteStore.*` | Schema, migrations, save/load, accounts, claims. |
 | `src/persistence/PasswordHash.*` | PBKDF2-HMAC-SHA256. |
@@ -115,3 +118,5 @@ The target today is one world shard with 2–8 players. Known paths when that's 
 | `src/server/Server.*` | Loop, sessions, dispatch, autosave, event routing. |
 | `src/server/RateLimiter.*` | Per-connection token bucket. |
 | `src/client/cli_main.cpp` | Headless dev client and script runner. |
+| `src/client/CreatorWizard.*` | Guided character creation on the terminal. |
+| `src/client/MusicText.*` | Note text notation and MIDI export (client-side only). |

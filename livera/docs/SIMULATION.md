@@ -101,3 +101,26 @@ autonomous choices (who to approach, who to avoid), feed gossip, and fade by imp
 - **Not yet:** secondary effects (a university raising rents, cafés following students).
   The planned model: city stats feed demand curves in data, and demand spawns
   construction projects and moves property values.
+
+## Talking
+
+`say`, `shout` and `whisper` reach whoever the server says can hear: the same building, or
+outdoors within `hearing_range_m` / `shout_range_m` / `whisper_range_m` (one listener).
+Every line that someone hears gives the speaker and each listener +1 social. Free chat
+doesn't change relationship numbers: those move through interactions (chat, compliment,
+deep talk...) so the simulation stays predictable and can't be gamed by typing.
+
+## Music
+
+- **Songs** are note data: up to 4 tracks (instruments from data), 16 bars of sixteenth
+  notes. Drafts are private and editable; releasing makes a song public and final, notifies
+  people who know you, and puts it on the town chart (ranked by plays).
+- **Performing** needs a stage (`stage: true` places) that's open. The set lasts the song's
+  length (at least 2 game minutes) before you can perform again.
+- **Quality** = 35 + 0.55 × music skill + up to 15 for a fuller arrangement (tracks and notes).
+- **Audience** (everyone with you; 30 m outdoors): recreation + quality/10, happiness +
+  quality/25, excitement + quality/20, familiarity +1 and respect + quality/50 toward the
+  performer. A set of quality ≥ 70 becomes a memory (once a day per performer).
+- **Skill** grows with practice: +3 per performance (+0.5 per listener, up to +2), +2 per
+  release, each scaled by `max(0.1, 1 − skill/120)` so mastery takes time.
+- **Tips**: $1–$1,000 from your bank to someone you're with; the tipped person warms to you.

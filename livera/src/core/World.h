@@ -45,7 +45,10 @@ struct CharacterState {
   bool online = false;
   GameMinutes lastSimulatedAt = 0;
   Cents rentArrearsCents = 0;
-  std::map<std::string, GameMinutes> activityReadyAt;  // "location/activity" -> minute; session state
+  StatMap skills;  // keys from simulation.skills; 0..100, grow with practice
+  // Session state (not saved):
+  std::map<std::string, GameMinutes> activityReadyAt;  // "location/activity" -> minute
+  GameMinutes performReadyAt = 0;
 
   SimTier tier() const { return online ? SimTier::Active : SimTier::Dormant; }
 };
@@ -107,6 +110,36 @@ struct ConstructionState {
   GameMinutes completedAt = -1;
 };
 
+// Music. Time is in sixteenth-note steps: 4 steps per beat, 16 per bar, 256 max (16 bars).
+struct Note {
+  int step = 0;
+  int pitch = 60;  // MIDI note number; for drums, a General MIDI drum sound
+  int length = 1;  // in steps
+  int velocity = 100;
+};
+
+struct SongTrack {
+  std::string instrument;
+  std::vector<Note> notes;
+};
+
+struct Song {
+  std::string id;
+  CharacterId owner;
+  std::string title;
+  int bpm = 100;
+  std::vector<SongTrack> tracks;
+  GameMinutes createdAt = 0;
+  GameMinutes updatedAt = 0;
+  bool released = false;  // released songs are public and can no longer be edited
+  int plays = 0;          // listens by others plus audience members at performances
+};
+
+inline constexpr int kSongMaxSteps = 256;
+inline constexpr int kSongMaxTracks = 4;
+inline constexpr int kSongMaxNotesPerTrack = 512;
+inline constexpr int kMaxSongsPerCharacter = 50;
+
 struct CityState {
   StatMap stats;  // population, housing_units, jobs, businesses...
   int stage = 1;
@@ -125,6 +158,9 @@ struct WorldState {
   std::map<std::string, PropertyState> properties;
   std::map<std::string, ConstructionState> construction;
   CityState city;
+  // Characters made in the character creator. Founding characters live in content.
+  std::map<CharacterId, CharacterDef> createdCharacters;
+  std::map<std::string, Song> songs;
 };
 
 // Something a connected client should hear about. The server routes it; the world
@@ -173,6 +209,23 @@ class World {
   Status startShift(const CharacterId& actor);
   Result<Json> endShift(const CharacterId& actor);
   Result<std::string> sendMessage(const CharacterId& from, const CharacterId& to, const std::string& body);
+  // Proximity chat. volume: "say" (people near you), "shout" (further), "whisper" (one person).
+  Result<Json> say(const CharacterId& actor, const std::string& text, const std::string& volume,
+                   const CharacterId& whisperTo = "");
+  Result<Json> tip(const CharacterId& actor, const CharacterId& target, Cents amount);
+
+  // --- Character creator (CharacterCreator.cpp) -------------------------------------
+  // Validates a creator submission against content and founds a new resident. Returns its id.
+  Result<CharacterId> createCharacter(const Json& spec);
+  Json creatorOptions() const;
+
+  // --- Music (Music.cpp) -------------------------------------------------------------
+  // Creates a song (empty songId) or updates an unreleased song you own.
+  Result<Json> saveSong(const CharacterId& actor, const Json& spec, const std::string& songId);
+  Result<Json> releaseSong(const CharacterId& actor, const std::string& songId);
+  // Full note data, for playback or export. Listening to someone else's song counts a play.
+  Result<Json> openSong(const CharacterId& actor, const std::string& songId);
+  Result<Json> perform(const CharacterId& actor, const std::string& songId);
   // Opening some apps has effects (messages/notifications are marked read).
   Result<Json> openPhoneApp(const CharacterId& actor, const std::string& app);
 
@@ -182,6 +235,8 @@ class World {
   Json playableCharacters() const;
 
   const CharacterState* character(const CharacterId& id) const;
+  // Definition of any character: founding (content) or created (state).
+  const CharacterDef* definition(const CharacterId& id) const;
   const RelationshipState* relationship(const CharacterId& from, const CharacterId& to) const;
   double relationshipValue(const CharacterId& from, const CharacterId& to, const std::string& dim) const;
   std::vector<const Memory*> memoriesOf(const CharacterId& owner) const;
@@ -214,7 +269,11 @@ class World {
   void notify(const CharacterId& recipient, const std::string& kind, const std::string& text);
   void notifyAll(const std::string& kind, const std::string& text);
   void emit(std::vector<CharacterId> recipients, std::string type, Json data);
-  std::vector<CharacterId> presentWith(const CharacterState& c) const;  // online characters sharing a space
+  // Online characters sharing a space: same building, or outdoors within `outdoorRange`.
+  std::vector<CharacterId> presentWith(const CharacterState& c, double outdoorRange = 40) const;
+  bool together(const CharacterState& a, const CharacterState& b, double outdoorRange) const;
+  void addCharacterState(const CharacterDef& def, const OriginDef* origin);
+  Json songsView(const CharacterState& c) const;
   Json phoneBank(const CharacterState& c) const;
   Json phoneMessages(const CharacterState& c);
   Json phoneContacts(const CharacterState& c) const;

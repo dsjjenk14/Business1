@@ -16,7 +16,7 @@ Covers spec Phase 0, plus the server-side halves of Phases 2–5 that the slice 
   account, rate limiting, size limits, event routing, autosave, graceful shutdown.
 - SQLite persistence with migrations and a ledger-balance guard.
 - Headless client with a script mode; `scripts/demo_slice.sh`.
-- 49 tests, including a two-player network test across a server restart; ASan/UBSan clean.
+- 49 tests, including a two-player network test across a server restart; ASan/UBSan clean. (66 after M0.5.)
 
 **Vertical slice (spec §33) status**
 
@@ -24,12 +24,12 @@ Covers spec Phase 0, plus the server-side halves of Phases 2–5 that the slice 
 |---|---|---|
 | 1 | Launch LIVÉRA | ⚠️ server + text client; no game client |
 | 2 | Enter the founding town | ⚠️ logical town (places, distances, construction); not rendered |
-| 3 | Create or select a character | ⚠️ select (Dominique, Jaxon); no creator |
+| 3 | Create or select a character | ✅ creator added in M0.5 (no 3D preview) |
 | 4 | Walk around | ⚠️ server-authoritative movement; no 3D, camera or animation |
 | 5 | Enter an apartment | ✅ |
 | 6 | Use the phone | ⚠️ 9 apps as server views; no phone UI |
 | 7 | Meet another player | ✅ |
-| 8 | Talk to them | ✅ interactions + text messages (no voice or free in-world chat yet) |
+| 8 | Talk to them | ✅ interactions, phone texts, and (M0.5) proximity chat; no voice yet |
 | 9 | Build a relationship | ✅ |
 | 10–13 | Go to work, earn, spend, return home | ✅ |
 | 14 | See the world continue changing | ✅ construction, openings, city stats |
@@ -37,10 +37,38 @@ Covers spec Phase 0, plus the server-side halves of Phases 2–5 that the slice 
 
 Every ⚠️ is the same gap: **there is no 3D client yet.** That is M1.
 
+## M0.5 — Make your own character, talk, make music ✅
+
+Requested by the product owner ahead of the spec's phase order (character creation was Phase 7).
+
+- **Character creator** (`data/creator/character_creator.json`): name, age, pronouns and
+  gender (custom allowed), 16 appearance fields (skin, face, hair, makeup, tattoos,
+  piercings, outfit, accessories...), height, personality and values on a point budget,
+  traits, interests, education, relationship status, goals, background, origin
+  ("Why did you move to Livéra?") and starting career. Origins set money, career level and
+  housing tier; new arrivals move into a vacant home. One created character per account.
+- **Proximity chat:** `say` (20 m outdoors / same building), `shout` (60 m), `whisper`
+  (one person beside you). Chat has its own flood limit. Talking to people is social contact.
+- **Music:** a phone studio with 15 instruments (data), songs up to 16 bars and 4 tracks,
+  private drafts, releasing to the town chart, live performance on stages (Heritage Coffee
+  open mic, Greater Hope, Founders Park, ÉCLAT), a music skill that grows with practice and
+  raises performance quality, audiences who enjoy it and remember great sets, and tips.
+  The dev client composes with a text notation and exports MIDI.
+- **Also:** an entry-level Café career (Barista → Shift Lead → Café Manager), save format v2,
+  66 tests.
+
+**Not in M0.5:** voice chat (needs the engine's voice service, M1), a visual character
+creator and 3D preview (M1/M2), song editing UI (the client's job), royalties or music
+careers, moderation tools for chat (needed before any public server).
+
 ## M1 — Unreal client shell (spec Phases 1 + 3) ⬜ — next
 
 Needs: an Unreal Engine 5 install (Windows or Linux build machine) and a decision on the
 UE version. **This can't be built in the cloud container this milestone was made in.**
+
+M1 now also covers: the character creator as a UI with a live 3D preview (the server API
+is done), proximity **voice** chat using the engine's voice service with the same hearing
+ranges as text, and in-world playback of songs (instruments from the song's note data).
 
 - UE5 C++ project; `LiveraSim` module wrapping `livera_core`; dedicated server target.
 - GameMode owns the `World`; server RPCs call `World` commands; replicated character
@@ -75,7 +103,7 @@ selling property, mortgages, roommates, transaction history UI.
 | Milestone | Spec phase | Scope |
 |---|---|---|
 | M5 | 6 City | New neighbourhoods, roads, services, crews as Tier-2 agents, secondary effects |
-| M6 | 7 Player characters | Character creator, origins ("Why Livéra?") |
+| M6 | 7 Player characters | ~~Character creator, origins~~ (done in M0.5); character slots, appearance editing, haircuts and wardrobe changes |
 | M7 | 8 Businesses | Ownership, hiring (including players), payroll, inventory |
 | M8 | 9 AI citizens | Goals, schedules, jobs, relationships, autonomy (Tier 2) |
 | M9 | 10 Social media | Posts, followers, virality, sponsorships |

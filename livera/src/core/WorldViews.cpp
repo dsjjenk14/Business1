@@ -41,7 +41,7 @@ Result<Json> World::look(const CharacterId& actor) const {
   const CharacterState* c = character(actor);
   if (!c || !c->online) return fail("not_in_world", "character is not in the world");
   const ContentDatabase& db = *content_;
-  const CharacterDef& def = *db.character(actor);
+  const CharacterDef& def = *definition(actor);
 
   Json you{{"id", actor},
            {"name", def.fullName()},
@@ -58,7 +58,7 @@ Result<Json> World::look(const CharacterId& actor) const {
     const bool visible = c->inside.empty() ? (o.inside.empty() && distance(c->position, o.position) <= kSightRange)
                                            : o.inside == c->inside;
     if (!visible) continue;
-    const CharacterDef* od = db.character(id);
+    const CharacterDef* od = definition(id);
     const RelationshipState* rel = relationship(actor, id);
     Json p{{"id", id}, {"name", od ? od->fullName() : id}, {"known", rel && rel->firstMetAt >= 0}};
     if (c->inside.empty()) p["distance_m"] = std::round(distance(c->position, o.position));
@@ -179,7 +179,7 @@ Json World::phoneContacts(const CharacterState& c) const {
   Json contacts = Json::array();
   for (const auto& [key, rel] : state_.relationships) {
     if (key.first != c.id || rel.firstMetAt < 0) continue;
-    const CharacterDef* od = content_->character(key.second);
+    const CharacterDef* od = definition(key.second);
     const CharacterState* os = character(key.second);
     contacts.push_back(Json{{"id", key.second},
                             {"name", od ? od->fullName() : key.second},
@@ -191,7 +191,7 @@ Json World::phoneContacts(const CharacterState& c) const {
 }
 
 Json World::phoneCalendar(const CharacterState& c) const {
-  const CharacterDef* def = content_->character(c.id);
+  const CharacterDef* def = definition(c.id);
   const GameMinutes nextMonth = (state_.now / kMinutesPerMonth + 1) * kMinutesPerMonth;
   Json events = Json::array();
   for (const auto& [pid, p] : state_.properties) {
