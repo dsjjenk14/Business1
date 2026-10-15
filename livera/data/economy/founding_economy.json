@@ -22,7 +22,13 @@
     {"id": "org:baptiste_events", "name": "Baptiste & Co. Events", "opening_balance_cents": 9000000},
     {"id": "org:lumen_creative", "name": "Lumen Creative", "opening_balance_cents": 12000000},
     {"id": "org:riverside_lofts", "name": "Riverside Lofts", "opening_balance_cents": 15000000},
-    {"id": "org:founders_row", "name": "Founders Row Partners", "opening_balance_cents": 10000000}
+    {"id": "org:founders_row", "name": "Founders Row Partners", "opening_balance_cents": 10000000},
+    {"id": "org:thread_co", "name": "Thread & Co.", "opening_balance_cents": 3000000},
+    {"id": "org:circuit_electronics", "name": "Circuit Electronics", "opening_balance_cents": 5000000},
+    {"id": "org:riverdale_pharmacy", "name": "Riverdale Pharmacy", "opening_balance_cents": 3000000},
+    {"id": "org:lustre_jewelers", "name": "Lustre Jewelers", "opening_balance_cents": 8000000},
+    {"id": "org:fade_glow", "name": "Fade & Glow Salon", "opening_balance_cents": 1500000},
+    {"id": "org:livera_transit", "name": "Livéra Transit", "opening_balance_cents": 20000000}
   ],
   "properties": [
     {

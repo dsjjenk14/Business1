@@ -175,14 +175,15 @@ void World::addCharacterState(const CharacterDef& def, const OriginDef* origin) 
 void World::advanceRealTime(double seconds) {
   if (seconds <= 0) return;
   const ContentDatabase& db = *content_;
-  const double step = db.sim().walkSpeedMetersPerSecond * seconds;
   for (auto& [id, c] : state_.characters) {
     if (!c.online || !c.moveTarget || !c.inside.empty()) continue;
+    const double step = (c.moveSpeedMps > 0 ? c.moveSpeedMps : db.sim().walkSpeedMetersPerSecond) * seconds;
     const Vec2 target = *c.moveTarget;
     const double d = distance(c.position, target);
     if (d <= step) {
       c.position = target;
       c.moveTarget.reset();
+      c.moveSpeedMps = 0;
       emit({id}, "arrived", Json{{"position", {c.position.x, c.position.y}}});
     } else {
       c.position.x += (target.x - c.position.x) / d * step;
@@ -382,6 +383,7 @@ Status World::moveTo(const CharacterId& actor, Vec2 target) {
   CharacterState& c = *r.value();
   if (!std::isfinite(target.x) || !std::isfinite(target.y)) return fail("invalid_target", "target is not a number");
   if (!c.inside.empty()) return fail("inside_building", "leave the building first");
+  if (c.moveSpeedMps > 0) return fail("riding", "you're on the bus; get off at your stop");
   const SimulationConfig& sim = content_->sim();
   target.x = clampd(target.x, sim.worldMin.x, sim.worldMax.x);
   target.y = clampd(target.y, sim.worldMin.y, sim.worldMax.y);
@@ -477,7 +479,7 @@ Result<Json> World::interact(const CharacterId& actor, const std::string& intera
 
   for (const auto& [dim, delta] : def->actorToTarget) adjustRelationship(actor, targetId, dim, delta);
   const LifeConfig& life = content_->life();
-  const double grooming = a.needs.count("grooming") ? a.needs.at("grooming") : 50;
+  const double grooming = std::min(100.0, (a.needs.count("grooming") ? a.needs.at("grooming") : 50) + styleOf(a));
   const double groomed = life.groomingAttractionMin + (life.groomingAttractionMax - life.groomingAttractionMin) * grooming / 100.0;
   for (const auto& [dim, delta] : def->targetToActor) {
     double d = delta;
@@ -548,6 +550,10 @@ Result<Json> World::buy(const CharacterId& actor, const std::string& offerId, co
   if (paymentMethod == "card") from = bankAccountOf(actor);
   else if (paymentMethod == "cash") from = cashAccountOf(actor);
   else return fail("invalid_payment", "pay by card or cash");
+  if (!offer->requiresDiagnosis.empty()) {
+    const ConditionState* k = findCondition(c, offer->requiresDiagnosis);
+    if (!k || !k->diagnosed) return fail("needs_prescription", "a doctor has to diagnose you before you can buy that");
+  }
   // Don't charge for treatment there is nothing to give.
   if (offer->service == "treatment") {
     const bool any = std::any_of(c.conditions.begin(), c.conditions.end(), [&](const ConditionState& k) {
@@ -572,6 +578,10 @@ Result<Json> World::buy(const CharacterId& actor, const std::string& offerId, co
   if (!offer->service.empty()) {
     auto care = runCareService(c, offer->service, *loc);
     if (care) out["care"] = care.value();
+  }
+  if (!offer->item.empty()) {
+    c.inventory[offer->item] += offer->quantity;
+    out["owned"] = c.inventory[offer->item];
   }
   applyConditionRecovery(c, offer->conditionRecovery);
   return out;
@@ -797,6 +807,8 @@ Result<Json> World::openPhoneApp(const CharacterId& actor, const std::string& ap
   if (app == "city") return phoneCity();
   if (app == "studio") return songsView(c);
   if (app == "health") return phoneHealth(c);
+  if (app == "items") return phoneItems(c);
+  if (app == "transit") return phoneTransit();
   return fail("unknown_app", "no such phone app");
 }
 

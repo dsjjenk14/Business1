@@ -57,6 +57,50 @@ struct Offer {
   double caloriesBurned = 0;    // a class or a workout
   std::string service;          // a care service run on purchase (checkup, treatment, dental_care...)
   StatMap conditionRecovery;    // progress toward curing a condition, e.g. therapy for depression
+  std::string item;             // buying it puts this item (from data/items) in your inventory
+  int quantity = 1;
+  std::string requiresDiagnosis;  // prescription: only sold to people diagnosed with this condition
+};
+
+// Things people own: clothes, accessories, electronics, medicine (data/items/items.json).
+struct ItemDef {
+  std::string id;
+  std::string label;
+  std::string category;      // clothing, accessory, electronics, jewelry, medicine, health, contraception
+  std::string slot;          // "outfit" or "accessory" if it can be worn
+  bool consumable = false;   // used up when used
+  bool usable = false;       // can be used directly (headphones, a laptop, medicine)
+  int cooldownMinutes = 60;
+  StatMap needEffects;       // when used (or put on)
+  StatMap emotionEffects;
+  StatMap shortens;          // condition id -> hours taken off how long it lasts
+  StatMap conditionRecovery; // condition id -> recovery progress per use
+  std::vector<std::string> unlocks;  // what owning it lets you do: study_online, health_tracking...
+  double style = 0;          // while worn, counts toward how put-together you look
+};
+
+struct TransitStop {
+  std::string id;
+  std::string name;
+  Vec2 at;
+};
+
+struct TransitLine {
+  std::string id;
+  std::string name;
+  std::vector<TransitStop> stops;
+  Cents fareCents = 275;
+  double speedMps = 24;      // real-time speed, like walking: a bus is four times faster on foot
+  int firstHour = 5;
+  int lastHour = 1;          // service runs [firstHour, lastHour), wrapping past midnight
+  double inspectionChance = 0.15;
+  Cents evasionFineCents = 10000;
+};
+
+struct TransitConfig {
+  LedgerAccountId operatorAccount;
+  double boardingRadiusMeters = 15;
+  std::vector<TransitLine> lines;
 };
 
 // Something you can do at a place without paying: shower at home, jog in the park.
@@ -360,6 +404,11 @@ class ContentDatabase {
   const OriginDef* origin(const std::string& id) const;
   const InstrumentDef* instrument(const std::string& id) const;
   const LifeConfig& life() const { return life_; }
+  const std::map<std::string, ItemDef>& items() const { return items_; }
+  const ItemDef* item(const std::string& id) const;
+  const TransitConfig& transit() const { return transit_; }
+  // The line and stop for a stop id, or {nullptr, nullptr}.
+  std::pair<const TransitLine*, const TransitStop*> transitStop(const std::string& id) const;
   const std::map<std::string, ConditionDef>& conditions() const { return conditions_; }
   const ConditionDef* condition(const std::string& id) const;
 
@@ -392,6 +441,8 @@ class ContentDatabase {
   bool haveLife_ = false;
   LifeConfig life_;
   std::map<std::string, ConditionDef> conditions_;
+  std::map<std::string, ItemDef> items_;
+  TransitConfig transit_;
 };
 
 }  // namespace livera

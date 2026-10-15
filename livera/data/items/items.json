@@ -1,0 +1,133 @@
+{
+  "$comment": "Everything a character can own. Shops sell these through offers with an \"item\" field. style counts toward how put-together you look (first impressions).",
+  "items": [
+    {
+      "id": "everyday_outfit",
+      "label": "Everyday outfit",
+      "category": "clothing",
+      "slot": "outfit",
+      "style": 5,
+      "emotions": {"confidence": 2}
+    },
+    {
+      "id": "streetwear_set",
+      "label": "Streetwear set",
+      "category": "clothing",
+      "slot": "outfit",
+      "style": 12,
+      "emotions": {"confidence": 4}
+    },
+    {
+      "id": "workwear_suit",
+      "label": "Tailored workwear suit",
+      "category": "clothing",
+      "slot": "outfit",
+      "style": 18,
+      "emotions": {"confidence": 6}
+    },
+    {
+      "id": "evening_outfit",
+      "label": "Evening outfit",
+      "category": "clothing",
+      "slot": "outfit",
+      "style": 22,
+      "emotions": {"confidence": 6, "excitement": 3}
+    },
+    {"id": "gym_clothes", "label": "Gym clothes", "category": "clothing", "slot": "outfit", "style": 3},
+    {
+      "id": "tailored_blazer",
+      "label": "Ellis Atelier tailored blazer",
+      "category": "clothing",
+      "slot": "outfit",
+      "style": 25,
+      "emotions": {"confidence": 8}
+    },
+    {
+      "id": "silk_scarf",
+      "label": "Ellis Atelier silk scarf",
+      "category": "clothing",
+      "slot": "accessory",
+      "style": 10,
+      "emotions": {"confidence": 4}
+    },
+    {
+      "id": "sunglasses",
+      "label": "Sunglasses",
+      "category": "accessory",
+      "slot": "accessory",
+      "style": 8,
+      "emotions": {"confidence": 3}
+    },
+    {
+      "id": "designer_bag",
+      "label": "Designer bag",
+      "category": "accessory",
+      "slot": "accessory",
+      "style": 15,
+      "emotions": {"confidence": 5}
+    },
+    {
+      "id": "gold_watch",
+      "label": "Gold watch",
+      "category": "jewelry",
+      "slot": "accessory",
+      "style": 18,
+      "emotions": {"confidence": 6}
+    },
+    {
+      "id": "smartwatch",
+      "label": "Smartwatch",
+      "category": "electronics",
+      "slot": "accessory",
+      "style": 4,
+      "unlocks": ["health_tracking"]
+    },
+    {
+      "id": "headphones",
+      "label": "Wireless headphones",
+      "category": "electronics",
+      "usable": true,
+      "cooldown_minutes": 30,
+      "needs": {"recreation": 12},
+      "emotions": {"stress": -3},
+      "unlocks": ["music_on_the_go"]
+    },
+    {
+      "id": "laptop",
+      "label": "Laptop",
+      "category": "electronics",
+      "usable": true,
+      "cooldown_minutes": 45,
+      "needs": {"recreation": 10, "social": 3},
+      "unlocks": ["study_online"]
+    },
+    {
+      "id": "cold_medicine",
+      "label": "Cold & flu relief",
+      "category": "medicine",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 240,
+      "needs": {"comfort": 15},
+      "shortens": {"common_cold": 24, "flu": 24}
+    },
+    {
+      "id": "painkillers",
+      "label": "Painkillers",
+      "category": "medicine",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 240,
+      "needs": {"comfort": 20}
+    },
+    {
+      "id": "antidepressants",
+      "label": "Antidepressants (30-day supply)",
+      "category": "medicine",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 1440,
+      "condition_recovery": {"depression": 8}
+    }
+  ]
+}

@@ -393,6 +393,11 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
     return fail("bad_request", "action must be start or end");
   }
   if (op == "phone") return world_.openPhoneApp(me, str(req, "app"));
+  if (op == "use") return world_.useItem(me, str(req, "item"));
+  if (op == "wear") return world_.wear(me, str(req, "item"));
+  if (op == "take_off") return world_.takeOff(me, str(req, "slot"));
+  if (op == "give") return world_.giveItem(me, str(req, "to"), str(req, "item"));
+  if (op == "ride") return world_.ride(me, str(req, "to"), req.value("pay", true));
   if (op == "message") {
     auto id = world_.sendMessage(me, str(req, "to"), str(req, "text"));
     if (!id) return id.error();

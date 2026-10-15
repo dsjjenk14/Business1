@@ -43,6 +43,14 @@ struct ConditionState {
   double recovery = 0;     // 0..100 toward recovery, for conditions cured by care over time
 };
 
+// A conviction: what the police caught you doing (data/society/crimes.json).
+struct CrimeRecordEntry {
+  std::string crime;
+  GameMinutes at = 0;
+  Cents fineCents = 0;
+  GameMinutes jailMinutes = 0;
+};
+
 struct CharacterState {
   CharacterId id;
   Vec2 position;
@@ -64,9 +72,15 @@ struct CharacterState {
   double caloriesOut = 0;     // burned since the last hourly body update
   std::vector<ConditionState> conditions;
   GameMinutes lastOnlineAt = -1;  // -1 = never played: an unplayed character just lives their routine
+  std::map<std::string, int> inventory;  // item id -> how many
+  std::string outfit;     // worn item ids
+  std::string accessory;
+  std::vector<CrimeRecordEntry> record;  // criminal record
   // Session state (not saved):
   std::map<std::string, GameMinutes> activityReadyAt;  // "location/activity" -> minute
   GameMinutes performReadyAt = 0;
+  std::map<std::string, GameMinutes> itemReadyAt;
+  double moveSpeedMps = 0;  // > 0 while riding: overrides walking speed until arrival
 
   SimTier tier() const { return online ? SimTier::Active : SimTier::Dormant; }
 };
@@ -255,6 +269,16 @@ class World {
   std::string lifeStageOf(const CharacterId& id) const;
   bool hasCondition(const CharacterId& id, const std::string& condition) const;
   double bmiOf(const CharacterState& c) const;
+  // --- Things and getting around (Items.cpp) ------------------------------------------
+  Result<Json> useItem(const CharacterId& actor, const std::string& item);
+  Result<Json> wear(const CharacterId& actor, const std::string& item);
+  Result<Json> takeOff(const CharacterId& actor, const std::string& slot);
+  Result<Json> giveItem(const CharacterId& actor, const CharacterId& target, const std::string& item);
+  // Board at the stop you're standing at and ride to another stop. pay = false is fare evasion.
+  Result<Json> ride(const CharacterId& actor, const std::string& toStop, bool pay);
+  bool owns(const CharacterId& id, const std::string& item) const;
+  bool unlocked(const CharacterId& id, const std::string& capability) const;  // by an item you own
+
   // Dev servers only (the server gates it behind --dev): give a character a condition, for testing care and contagion.
   Status devAddCondition(const CharacterId& id, const std::string& condition);
 
@@ -310,6 +334,11 @@ class World {
   Result<Json> runCareService(CharacterState& c, const std::string& service, const LocationDef& where);
   void applyConditionRecovery(CharacterState& c, const StatMap& progress);
   Json phoneHealth(const CharacterState& c) const;
+  Json phoneItems(const CharacterState& c) const;
+  // Crime.cpp
+  void recordCrime(CharacterState& c, const std::string& crime, Cents fineCents, GameMinutes jailMinutes = 0);
+  Json phoneTransit() const;
+  double styleOf(const CharacterState& c) const;  // worn items' style, 0..100
   void applyNeeds(CharacterState& c, const StatMap& deltas);
   void applyEmotions(CharacterState& c, const StatMap& deltas);
   void adjustRelationship(const CharacterId& from, const CharacterId& to, const std::string& dim, double delta);

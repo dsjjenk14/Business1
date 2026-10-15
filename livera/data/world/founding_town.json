@@ -505,13 +505,15 @@
           "id": "silk_scarf",
           "label": "Silk scarf (Ellis)",
           "price_cents": 9500,
-          "emotions": {"confidence": 4, "happiness": 2}
+          "emotions": {"confidence": 4, "happiness": 2},
+          "item": "silk_scarf"
         },
         {
           "id": "tailored_blazer",
           "label": "Tailored blazer (Ellis)",
           "price_cents": 48000,
-          "emotions": {"confidence": 8, "happiness": 3}
+          "emotions": {"confidence": 8, "happiness": 3},
+          "item": "tailored_blazer"
         }
       ],
       "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
@@ -1434,6 +1436,189 @@
       ],
       "stage": true,
       "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "thread_co",
+      "name": "Thread & Co.",
+      "type": "clothing_store",
+      "district": "Founders Way",
+      "description": "Racks of everyday clothes, a mirror wall, and a sale bin by the door.",
+      "door": [600, 550],
+      "hours": [9, 21],
+      "revenue_account": "org:thread_co",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}],
+      "offers": [
+        {
+          "id": "everyday_outfit",
+          "label": "Everyday outfit",
+          "price_cents": 4500,
+          "item": "everyday_outfit",
+          "emotions": {"happiness": 2}
+        },
+        {
+          "id": "streetwear_set",
+          "label": "Streetwear set",
+          "price_cents": 12000,
+          "item": "streetwear_set",
+          "emotions": {"happiness": 3}
+        },
+        {
+          "id": "workwear_suit",
+          "label": "Tailored workwear suit",
+          "price_cents": 32000,
+          "item": "workwear_suit",
+          "emotions": {"happiness": 3}
+        },
+        {
+          "id": "evening_outfit",
+          "label": "Evening outfit",
+          "price_cents": 18000,
+          "item": "evening_outfit",
+          "emotions": {"happiness": 4}
+        },
+        {"id": "gym_clothes", "label": "Gym clothes", "price_cents": 6000, "item": "gym_clothes"},
+        {
+          "id": "sunglasses",
+          "label": "Sunglasses",
+          "price_cents": 8500,
+          "item": "sunglasses",
+          "emotions": {"happiness": 2}
+        }
+      ]
+    },
+    {
+      "id": "circuit_electronics",
+      "name": "Circuit Electronics",
+      "type": "electronics_store",
+      "district": "Founders Way",
+      "description": "Demo laptops chained to white tables, a wall of headphones, and a guy who really wants to talk about specs.",
+      "door": [640, 550],
+      "hours": [10, 20],
+      "revenue_account": "org:circuit_electronics",
+      "offers": [
+        {
+          "id": "laptop",
+          "label": "Laptop",
+          "price_cents": 129900,
+          "item": "laptop",
+          "emotions": {"happiness": 5}
+        },
+        {
+          "id": "headphones",
+          "label": "Wireless headphones",
+          "price_cents": 19900,
+          "item": "headphones",
+          "emotions": {"happiness": 3}
+        },
+        {
+          "id": "smartwatch",
+          "label": "Smartwatch",
+          "price_cents": 29900,
+          "item": "smartwatch",
+          "emotions": {"happiness": 3}
+        }
+      ]
+    },
+    {
+      "id": "riverdale_pharmacy",
+      "name": "Riverdale Pharmacy",
+      "type": "pharmacy",
+      "district": "Founders Way",
+      "description": "Fluorescent aisles, a prescription counter in the back, and a pharmacist who remembers everyone's name.",
+      "door": [680, 550],
+      "hours": [8, 22],
+      "revenue_account": "org:riverdale_pharmacy",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}],
+      "offers": [
+        {
+          "id": "cold_medicine",
+          "label": "Cold & flu relief",
+          "price_cents": 1200,
+          "item": "cold_medicine",
+          "quantity": 3
+        },
+        {
+          "id": "painkillers",
+          "label": "Painkillers",
+          "price_cents": 900,
+          "item": "painkillers",
+          "quantity": 6
+        },
+        {
+          "id": "antidepressants",
+          "label": "Antidepressants (prescription)",
+          "price_cents": 3500,
+          "item": "antidepressants",
+          "quantity": 30,
+          "requires_diagnosis": "depression"
+        }
+      ]
+    },
+    {
+      "id": "lustre_jewelers",
+      "name": "Lustre Jewelers",
+      "type": "jeweler",
+      "district": "Downtown",
+      "description": "Glass cases, soft lighting, and a velvet tray brought out only when they think you're serious.",
+      "door": [650, 470],
+      "hours": [10, 19],
+      "revenue_account": "org:lustre_jewelers",
+      "offers": [
+        {
+          "id": "gold_watch",
+          "label": "Gold watch",
+          "price_cents": 150000,
+          "item": "gold_watch",
+          "emotions": {"happiness": 5}
+        },
+        {
+          "id": "designer_bag",
+          "label": "Designer bag",
+          "price_cents": 85000,
+          "item": "designer_bag",
+          "emotions": {"happiness": 5}
+        }
+      ]
+    },
+    {
+      "id": "fade_glow",
+      "name": "Fade & Glow Salon",
+      "type": "salon",
+      "district": "Founders Way",
+      "description": "Three barber chairs, two stylists, a nail station, and a playlist nobody is allowed to change.",
+      "door": [360, 550],
+      "hours": [9, 19],
+      "revenue_account": "org:fade_glow",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}],
+      "offers": [
+        {
+          "id": "haircut",
+          "label": "Haircut and style",
+          "price_cents": 4500,
+          "needs": {"grooming": 60},
+          "emotions": {"confidence": 6}
+        },
+        {
+          "id": "shave",
+          "label": "Hot towel shave or beard trim",
+          "price_cents": 2500,
+          "needs": {"grooming": 30, "comfort": 5}
+        },
+        {
+          "id": "manicure",
+          "label": "Manicure",
+          "price_cents": 3500,
+          "needs": {"grooming": 20, "comfort": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "facial",
+          "label": "Facial",
+          "price_cents": 6000,
+          "needs": {"grooming": 25, "comfort": 10},
+          "emotions": {"stress": -5}
+        }
+      ]
     }
   ]
 }

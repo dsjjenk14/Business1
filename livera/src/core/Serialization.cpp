@@ -30,6 +30,13 @@ Json toJson(const CharacterState& c) {
                    {"calories_out", c.caloriesOut}};
   j["conditions"] = conditions;
   j["last_online_at"] = c.lastOnlineAt;
+  j["inventory"] = c.inventory;
+  j["outfit"] = c.outfit;
+  j["accessory"] = c.accessory;
+  Json record = Json::array();
+  for (const auto& e : c.record)
+    record.push_back(Json{{"crime", e.crime}, {"at", e.at}, {"fine_cents", e.fineCents}, {"jail_minutes", e.jailMinutes}});
+  j["record"] = record;
   // Online state, move targets and in-progress shifts are session state: a saved
   // character always loads offline, standing still, off shift (shifts are settled on logout).
   return j;
@@ -67,6 +74,12 @@ CharacterState characterStateFromJson(const Json& j) {
                                           k.value("recovery", 0.0)});
   }
   c.lastOnlineAt = j.value("last_online_at", GameMinutes{-1});
+  c.inventory = j.value("inventory", std::map<std::string, int>{});
+  c.outfit = j.value("outfit", "");
+  c.accessory = j.value("accessory", "");
+  for (const auto& e : j.value("record", Json::array()))
+    c.record.push_back(CrimeRecordEntry{e.at("crime").get<std::string>(), e.at("at").get<GameMinutes>(),
+                                        e.value("fine_cents", Cents{0}), e.value("jail_minutes", GameMinutes{0})});
   return c;
 }
 

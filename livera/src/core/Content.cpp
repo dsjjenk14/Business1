@@ -53,6 +53,9 @@ Offer readOffer(const Json& j) {
   o.caloriesBurned = j.value("calories_burned", 0.0);
   o.service = j.value("service", "");
   o.conditionRecovery = readStats(j, "condition_recovery");
+  o.item = j.value("item", "");
+  o.quantity = j.value("quantity", 1);
+  o.requiresDiagnosis = j.value("requires_diagnosis", "");
   return o;
 }
 
@@ -407,6 +410,41 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           d.treatedBy = readStrings(j, "treated_by");
           if (auto st = insertUnique(conditions_, "condition", d.id, d); !st) return st;
         }
+      } else if (section == "items") {
+        for (const auto& j : body) {
+          ItemDef i;
+          i.id = j.at("id").get<std::string>();
+          i.label = j.at("label").get<std::string>();
+          i.category = j.at("category").get<std::string>();
+          i.slot = j.value("slot", "");
+          i.consumable = j.value("consumable", false);
+          i.usable = j.value("usable", false);
+          i.cooldownMinutes = j.value("cooldown_minutes", 60);
+          i.needEffects = readStats(j, "needs");
+          i.emotionEffects = readStats(j, "emotions");
+          i.shortens = readStats(j, "shortens");
+          i.conditionRecovery = readStats(j, "condition_recovery");
+          i.unlocks = readStrings(j, "unlocks");
+          i.style = j.value("style", 0.0);
+          if (auto st = insertUnique(items_, "item", i.id, i); !st) return st;
+        }
+      } else if (section == "transit") {
+        transit_.operatorAccount = body.at("operator_account").get<std::string>();
+        transit_.boardingRadiusMeters = body.value("boarding_radius_m", transit_.boardingRadiusMeters);
+        for (const auto& j : body.at("lines")) {
+          TransitLine line;
+          line.id = j.at("id").get<std::string>();
+          line.name = j.at("name").get<std::string>();
+          line.fareCents = j.at("fare_cents").get<Cents>();
+          line.speedMps = j.value("speed_mps", line.speedMps);
+          line.firstHour = j.at("hours").at(0).get<int>();
+          line.lastHour = j.at("hours").at(1).get<int>();
+          line.inspectionChance = j.value("inspection_chance", line.inspectionChance);
+          line.evasionFineCents = j.value("evasion_fine_cents", line.evasionFineCents);
+          for (const auto& st : j.at("stops"))
+            line.stops.push_back(TransitStop{st.at("id").get<std::string>(), st.at("name").get<std::string>(), readVec2(st.at("at"))});
+          transit_.lines.push_back(std::move(line));
+        }
       } else if (section == "instruments") {
         for (const auto& j : body) {
           InstrumentDef i{j.at("id").get<std::string>(), j.at("label").get<std::string>(), j.value("midi_program", 0),
@@ -449,6 +487,11 @@ Status ContentDatabase::validate() const {
       for (const auto& [cond, v] : o.conditionRecovery) {
         if (!condition(cond)) return fail("content_invalid", "location " + id + " offer " + o.id + ": unknown condition " + cond);
       }
+      if (!o.item.empty() && !item(o.item))
+        return fail("content_invalid", "location " + id + " offer " + o.id + ": unknown item " + o.item);
+      if (o.quantity < 1) return fail("content_invalid", "location " + id + " offer " + o.id + ": quantity must be 1+");
+      if (!o.requiresDiagnosis.empty() && !condition(o.requiresDiagnosis))
+        return fail("content_invalid", "location " + id + " offer " + o.id + ": unknown requires_diagnosis");
     }
     for (const auto& a : l.activities) {
       if (auto s = checkKeys(a.needEffects, needs, "location " + id + " activity " + a.id); !s) return s;
@@ -537,6 +580,29 @@ Status ContentDatabase::validate() const {
       if (p < 0 || p > 1) return fail("content_invalid", where + ": chances are 0-1");
     }
   }
+  for (const auto& [id, it] : items_) {
+    const std::string where = "item " + id;
+    if (auto s = checkKeys(it.needEffects, needs, where); !s) return s;
+    if (auto s = checkKeys(it.emotionEffects, emotions, where); !s) return s;
+    if (!it.slot.empty() && it.slot != "outfit" && it.slot != "accessory")
+      return fail("content_invalid", where + ": slot must be outfit or accessory");
+    for (const auto& m : {it.shortens, it.conditionRecovery}) {
+      for (const auto& [cond, v] : m) {
+        if (!condition(cond)) return fail("content_invalid", where + ": unknown condition " + cond);
+      }
+    }
+  }
+  if (!transit_.lines.empty()) {
+    if (!orgs.count(transit_.operatorAccount)) return fail("content_invalid", "transit: unknown operator_account");
+    std::set<std::string> stopIds;
+    for (const auto& line : transit_.lines) {
+      if (line.stops.size() < 2) return fail("content_invalid", "transit line " + line.id + ": needs two stops");
+      if (line.speedMps <= 0 || line.fareCents < 0) return fail("content_invalid", "transit line " + line.id + ": bad speed or fare");
+      for (const auto& st : line.stops) {
+        if (!stopIds.insert(st.id).second) return fail("content_duplicate", "duplicate transit stop " + st.id);
+      }
+    }
+  }
   for (const auto& [id, i] : instruments_) {
     if (i.midiProgram < 0 || i.midiProgram > 127) return fail("content_invalid", "instrument " + id + ": midi_program 0..127");
   }
@@ -600,6 +666,18 @@ const CharacterDef* ContentDatabase::character(const std::string& id) const {
 const OriginDef* ContentDatabase::origin(const std::string& id) const {
   auto it = origins_.find(id);
   return it == origins_.end() ? nullptr : &it->second;
+}
+const ItemDef* ContentDatabase::item(const std::string& id) const {
+  auto it = items_.find(id);
+  return it == items_.end() ? nullptr : &it->second;
+}
+std::pair<const TransitLine*, const TransitStop*> ContentDatabase::transitStop(const std::string& id) const {
+  for (const auto& line : transit_.lines) {
+    for (const auto& st : line.stops) {
+      if (st.id == id) return {&line, &st};
+    }
+  }
+  return {nullptr, nullptr};
 }
 const ConditionDef* ContentDatabase::condition(const std::string& id) const {
   auto it = conditions_.find(id);
