@@ -2,6 +2,7 @@
 
 #include "TestSupport.h"
 #include "core/Clock.h"
+#include "core/Serialization.h"
 #include "persistence/PasswordHash.h"
 #include "persistence/SqliteStore.h"
 
@@ -162,4 +163,18 @@ TEST_CASE("persistence: created characters, skills and songs survive a round tri
   CHECK(w.state().properties.at(def->homeProperty).tenant == "sol-rivera");
   CHECK(w.state().ledger.sumOfBalances() == 0);
   REQUIRE(w.connect("sol-rivera"));  // and they can play again
+}
+
+TEST_CASE("persistence: a save from before everyday life loads with bodies, degrees and fame filled in") {
+  World w = World::createNew(realContent());
+  Json old = toJson(w.state().characters.at("andre"));
+  for (const char* key : {"body", "conditions", "fame", "education", "inventory", "record"}) old.erase(key);
+  WorldState s = w.state();
+  s.characters["andre"] = characterStateFromJson(old);
+  World loaded(realContent(), s);
+  const CharacterState& a = *loaded.character("andre");
+  CHECK(a.weightKg > 40);
+  CHECK(a.fame == 30);
+  CHECK(loaded.ageOf("andre") == 29);
+  CHECK(loaded.hasDegree("dominique", "bachelors"));
 }

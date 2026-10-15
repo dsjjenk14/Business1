@@ -127,6 +127,10 @@ World::World(std::shared_ptr<const ContentDatabase> content, WorldState state)
     if (c.education.degrees.empty()) {
       if (const CharacterDef* def = definition(id)) c.education.degrees = def->degrees;
     }
+    if (c.fame < 0) {
+      const CharacterDef* def = definition(id);
+      c.fame = def ? def->fame : 0;
+    }
   }
 }
 

@@ -102,7 +102,7 @@ CharacterState characterStateFromJson(const Json& j) {
   c.highUntil = j.value("high_until", GameMinutes{-1});
   c.wantedFor = j.value("wanted_for", "");
   c.jailedUntil = j.value("jailed_until", GameMinutes{-1});
-  c.fame = j.value("fame", 0.0);
+  c.fame = j.value("fame", -1.0);  // -1: a save from before fame; World starts it from the definition
   c.parents = j.value("parents", std::vector<std::string>{});
   if (j.contains("pregnancy")) {
     const Json& p = j.at("pregnancy");
