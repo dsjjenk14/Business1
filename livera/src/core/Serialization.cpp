@@ -37,6 +37,11 @@ Json toJson(const CharacterState& c) {
   for (const auto& e : c.record)
     record.push_back(Json{{"crime", e.crime}, {"at", e.at}, {"fine_cents", e.fineCents}, {"jail_minutes", e.jailMinutes}});
   j["record"] = record;
+  j["dependency"] = c.dependency;
+  j["high_on"] = c.highOn;
+  j["high_until"] = c.highUntil;
+  j["wanted_for"] = c.wantedFor;
+  j["jailed_until"] = c.jailedUntil;
   j["education"] = Json{{"program", c.education.program},
                         {"hours", c.education.hours},
                         {"grade_sum", c.education.gradeSum},
@@ -85,6 +90,11 @@ CharacterState characterStateFromJson(const Json& j) {
   for (const auto& e : j.value("record", Json::array()))
     c.record.push_back(CrimeRecordEntry{e.at("crime").get<std::string>(), e.at("at").get<GameMinutes>(),
                                         e.value("fine_cents", Cents{0}), e.value("jail_minutes", GameMinutes{0})});
+  c.dependency = j.value("dependency", StatMap{});
+  c.highOn = j.value("high_on", "");
+  c.highUntil = j.value("high_until", GameMinutes{-1});
+  c.wantedFor = j.value("wanted_for", "");
+  c.jailedUntil = j.value("jailed_until", GameMinutes{-1});
   if (j.contains("education")) {
     const Json& e = j.at("education");
     c.education.program = e.value("program", "");

@@ -63,6 +63,46 @@
       "emotions_per_hour": {"sadness": 2, "happiness": -2, "loneliness": 1},
       "performance_penalty": 0.3,
       "treated_by": ["therapy_session", "antidepressants"]
+    },
+    {
+      "id": "alcohol_dependence",
+      "name": "alcohol dependence",
+      "kind": "addiction",
+      "hours": [0, 0],
+      "needs_per_hour": {"comfort": -1},
+      "emotions_per_hour": {"stress": 1},
+      "performance_penalty": 0.15,
+      "treated_by": ["rehab"]
+    },
+    {
+      "id": "glint_addiction",
+      "name": "a Glint addiction",
+      "kind": "addiction",
+      "hours": [0, 0],
+      "needs_per_hour": {"energy": -1.5},
+      "emotions_per_hour": {"stress": 2, "sadness": 1},
+      "performance_penalty": 0.3,
+      "treated_by": ["rehab"]
+    },
+    {
+      "id": "haze_dependence",
+      "name": "Haze dependence",
+      "kind": "addiction",
+      "hours": [0, 0],
+      "needs_per_hour": {"recreation": -1},
+      "emotions_per_hour": {"stress": 1},
+      "performance_penalty": 0.1,
+      "treated_by": ["rehab"]
+    },
+    {
+      "id": "velvet_addiction",
+      "name": "a Velvet addiction",
+      "kind": "addiction",
+      "hours": [0, 0],
+      "needs_per_hour": {"comfort": -2, "health": -0.3},
+      "emotions_per_hour": {"stress": 2, "sadness": 2},
+      "performance_penalty": 0.4,
+      "treated_by": ["rehab"]
     }
   ]
 }

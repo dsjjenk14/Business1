@@ -1,0 +1,69 @@
+{
+  "$comment": "Crimes and what getting caught costs. Detection chances add up: a base, per witness, per staff member on shift there, per police officer on duty nearby. Jail time is in game minutes (60 = one real minute).",
+  "crime": {
+    "jail": "police_station",
+    "hospital": "livera_general",
+    "fines_account": "org:livera_pd",
+    "patrol_arrest_per_hour": 0.03,
+    "police_nearby_m": 40,
+    "pickpocket_max_cents": 20000,
+    "pickpocket_cooldown_minutes": 1440,
+    "pickpocket_notice_chance": 0.35,
+    "addiction_threshold": 50,
+    "overdose_bill_cents": 45000,
+    "crimes": [
+      {
+        "id": "shoplifting",
+        "label": "Shoplifting",
+        "fine_cents": 25000,
+        "jail_minutes": 240,
+        "detection": 0.15,
+        "per_witness": 0.05,
+        "per_staff": 0.25,
+        "per_police": 0.5,
+        "notoriety": 2
+      },
+      {
+        "id": "pickpocketing",
+        "label": "Pickpocketing",
+        "fine_cents": 40000,
+        "jail_minutes": 720,
+        "detection": 0.1,
+        "per_witness": 0.08,
+        "per_staff": 0.1,
+        "per_police": 0.6,
+        "notoriety": 3
+      },
+      {
+        "id": "fare_evasion",
+        "label": "Fare evasion",
+        "fine_cents": 10000,
+        "jail_minutes": 0,
+        "detection": 0,
+        "notoriety": 0.5
+      },
+      {
+        "id": "drug_purchase",
+        "label": "Buying illegal drugs",
+        "fine_cents": 50000,
+        "jail_minutes": 1440,
+        "detection": 0.02,
+        "per_witness": 0,
+        "per_staff": 0,
+        "per_police": 0.6,
+        "notoriety": 3
+      },
+      {
+        "id": "drug_possession",
+        "label": "Drug possession",
+        "fine_cents": 30000,
+        "jail_minutes": 720,
+        "detection": 0,
+        "per_witness": 0,
+        "per_staff": 0.05,
+        "per_police": 0.4,
+        "notoriety": 2
+      }
+    ]
+  }
+}

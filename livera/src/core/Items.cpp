@@ -55,8 +55,19 @@ Result<Json> World::useItem(const CharacterId& actor, const std::string& item) {
   if (ready != c.itemReadyAt.end() && state_.now < ready->second) return fail("too_soon", "you just used that");
   c.itemReadyAt[item] = state_.now + def->cooldownMinutes;
 
+  // Using where the police can see it is possession.
+  if (def->illegal) {
+    const SubstanceDef* sub = content_->substance(def->substance);
+    const CrimeDef* crime = sub ? content_->crimeDef(sub->possessionCrime) : nullptr;
+    if (crime && roll() < detectionChance(c, *crime)) {
+      Json out = arrestCharacter(c, crime->id, "police");
+      out["caught"] = true;
+      return out;
+    }
+  }
   applyNeeds(c, def->needEffects);
   applyEmotions(c, def->emotionEffects);
+  Json effect = def->substance.empty() ? Json() : takeSubstance(c, def->substance);
   // Medicine that shortens an illness.
   std::vector<std::string> over;
   for (auto& k : c.conditions) {
@@ -71,7 +82,9 @@ Result<Json> World::useItem(const CharacterId& actor, const std::string& item) {
   if (def->consumable && --c.inventory[item] <= 0) c.inventory.erase(item);
   Json needs = Json::object();
   for (const auto& [k, v] : def->needEffects) needs[k] = std::round(c.needs[k]);
-  return Json{{"item", item}, {"label", def->label}, {"needs", needs}, {"left", c.inventory.count(item) ? c.inventory[item] : 0}};
+  Json out{{"item", item}, {"label", def->label}, {"needs", needs}, {"left", c.inventory.count(item) ? c.inventory[item] : 0}};
+  if (!effect.is_null()) out["effect"] = effect;
+  return out;
 }
 
 Result<Json> World::wear(const CharacterId& actor, const std::string& item) {
@@ -129,6 +142,7 @@ Result<Json> World::ride(const CharacterId& actor, const std::string& toStop, bo
   if (!r) return r.error();
   CharacterState& c = *r.value();
   const TransitConfig& transit = content_->transit();
+  if (Status st = freeToAct(c); !st) return st.error();
   auto [line, dest] = content_->transitStop(toStop);
   if (!line) return fail("unknown_stop", "no such stop");
   if (!c.inside.empty()) return fail("inside_building", "leave the building first");

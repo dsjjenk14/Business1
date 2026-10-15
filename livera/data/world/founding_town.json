@@ -1432,7 +1432,8 @@
           "price_cents": 1800,
           "needs": {"recreation": 8, "bladder": -10},
           "emotions": {"happiness": 3},
-          "calories": 220
+          "calories": 220,
+          "substance": "alcohol"
         }
       ],
       "stage": true,
@@ -1680,6 +1681,14 @@
           "price_cents": 45000,
           "needs": {"health": 30},
           "service": "emergency"
+        },
+        {
+          "id": "rehab",
+          "label": "Addiction treatment program",
+          "price_cents": 250000,
+          "needs": {"health": 10},
+          "emotions": {"stress": -10},
+          "service": "rehab"
         }
       ]
     },
@@ -1692,6 +1701,62 @@
       "description": "Livéra's first law firm: glass conference room, a library of statute books nobody reads, and a partner who bills in six-minute increments.",
       "door": [660, 440],
       "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "copper_tap",
+      "name": "The Copper Tap",
+      "type": "bar",
+      "district": "Founders Way",
+      "description": "A long copper bar, a dartboard nobody hits, and a corner stage for whoever's brave enough.",
+      "door": [420, 540],
+      "hours": [16, 2],
+      "stage": true,
+      "revenue_account": "org:copper_tap",
+      "activities": [
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {
+          "id": "darts",
+          "label": "Throw darts",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 12, "social": 5}
+        }
+      ],
+      "offers": [
+        {"id": "beer", "label": "Draft beer", "price_cents": 700, "substance": "alcohol", "calories": 150},
+        {"id": "wine", "label": "Glass of wine", "price_cents": 1100, "substance": "alcohol", "calories": 125},
+        {
+          "id": "cocktail",
+          "label": "House cocktail",
+          "price_cents": 1400,
+          "substance": "alcohol",
+          "calories": 220
+        },
+        {
+          "id": "bar_snacks",
+          "label": "Bar snacks",
+          "price_cents": 900,
+          "needs": {"hunger": 20},
+          "calories": 500
+        },
+        {"id": "soda", "label": "Soda", "price_cents": 300, "needs": {"bladder": -10}, "calories": 150}
+      ]
+    },
+    {
+      "id": "the_underpass",
+      "name": "The Underpass",
+      "type": "street_corner",
+      "district": "Forge yard",
+      "description": "Under the half-built overpass by the Forge yard. After dark, someone is always there selling something.",
+      "door": [520, 625],
+      "enterable": false,
+      "outdoor_radius_m": 15,
+      "hours": [20, 4],
+      "revenue_account": "org:street_trade",
+      "offers": [
+        {"id": "glint", "label": "Glint", "price_cents": 4000, "item": "glint", "illegal": true},
+        {"id": "haze", "label": "Haze", "price_cents": 2500, "item": "haze", "illegal": true},
+        {"id": "velvet", "label": "Velvet", "price_cents": 6000, "item": "velvet", "illegal": true}
+      ]
     }
   ]
 }

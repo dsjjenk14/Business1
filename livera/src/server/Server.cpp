@@ -409,6 +409,9 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
     return fail("bad_request", "action must be start or end");
   }
   if (op == "apply") return world_.applyForJob(me, str(req, "career"));
+  if (op == "steal") return world_.steal(me, str(req, "offer"));
+  if (op == "pickpocket") return world_.pickpocket(me, str(req, "target"));
+  if (op == "arrest") return world_.arrest(me, str(req, "target"));
   if (op == "message") {
     auto id = world_.sendMessage(me, str(req, "to"), str(req, "text"));
     if (!id) return id.error();

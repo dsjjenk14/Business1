@@ -56,6 +56,8 @@ Offer readOffer(const Json& j) {
   o.item = j.value("item", "");
   o.quantity = j.value("quantity", 1);
   o.requiresDiagnosis = j.value("requires_diagnosis", "");
+  o.substance = j.value("substance", "");
+  o.illegal = j.value("illegal", false);
   return o;
 }
 
@@ -73,7 +75,7 @@ Activity readActivity(const Json& a) {
 }
 
 // Services a care provider can run when one of its offers is bought.
-const std::set<std::string> kCareServices = {"checkup", "treatment", "dental_care", "emergency"};
+const std::set<std::string> kCareServices = {"checkup", "treatment", "dental_care", "emergency", "rehab"};
 
 template <class Map>
 Status insertUnique(Map& map, const std::string& kind, const std::string& id, typename Map::mapped_type value) {
@@ -260,6 +262,7 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           c.requiresDegree = j.value("requires_degree", "");
           c.requiresCleanRecord = j.value("requires_clean_record", false);
           c.careFeeShare = j.value("care_fee_share", 0.0);
+          c.worksOutdoors = j.value("works_outdoors", false);
           if (auto s = insertUnique(careers_, "career", c.id, c); !s) return s;
         }
       } else if (section == "interactions") {
@@ -430,6 +433,8 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           i.conditionRecovery = readStats(j, "condition_recovery");
           i.unlocks = readStrings(j, "unlocks");
           i.style = j.value("style", 0.0);
+          i.substance = j.value("substance", "");
+          i.illegal = j.value("illegal", false);
           if (auto st = insertUnique(items_, "item", i.id, i); !st) return st;
         }
       } else if (section == "education") {
@@ -455,6 +460,50 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
         const Json creatorEducation = body.value("creator_education", Json::object());  // a local: the loop must not outlive it
         for (const auto& [answer, degrees] : creatorEducation.items())
           education_.creatorEducation[answer] = degrees.get<std::vector<std::string>>();
+      } else if (section == "crime") {
+        auto& C = crime_;
+        C.jail = body.at("jail").get<std::string>();
+        C.patrolArrestPerHour = body.value("patrol_arrest_per_hour", C.patrolArrestPerHour);
+        C.policeNearbyMeters = body.value("police_nearby_m", C.policeNearbyMeters);
+        C.pickpocketMaxCents = body.value("pickpocket_max_cents", C.pickpocketMaxCents);
+        C.pickpocketCooldownMinutes = body.value("pickpocket_cooldown_minutes", C.pickpocketCooldownMinutes);
+        C.pickpocketNoticeChance = body.value("pickpocket_notice_chance", C.pickpocketNoticeChance);
+        C.addictionThreshold = body.value("addiction_threshold", C.addictionThreshold);
+        C.finesAccount = body.at("fines_account").get<std::string>();
+        C.overdoseBillCents = body.value("overdose_bill_cents", C.overdoseBillCents);
+        C.hospital = body.at("hospital").get<std::string>();
+        for (const auto& j : body.at("crimes")) {
+          CrimeDef d;
+          d.id = j.at("id").get<std::string>();
+          d.label = j.at("label").get<std::string>();
+          d.fineCents = j.at("fine_cents").get<Cents>();
+          d.jailMinutes = j.value("jail_minutes", 0);
+          d.detection = j.value("detection", d.detection);
+          d.perWitness = j.value("per_witness", d.perWitness);
+          d.perStaff = j.value("per_staff", d.perStaff);
+          d.perPolice = j.value("per_police", d.perPolice);
+          d.notoriety = j.value("notoriety", 0.0);
+          if (auto st = insertUnique(C.crimes, "crime", d.id, d); !st) return st;
+        }
+      } else if (section == "substances") {
+        for (const auto& j : body) {
+          SubstanceDef d;
+          d.id = j.at("id").get<std::string>();
+          d.name = j.at("name").get<std::string>();
+          d.legal = j.value("legal", false);
+          d.needs = readStats(j, "needs");
+          d.emotions = readStats(j, "emotions");
+          d.effectMinutes = j.value("effect_minutes", d.effectMinutes);
+          d.crashNeeds = readStats(j, "crash_needs");
+          d.crashEmotions = readStats(j, "crash_emotions");
+          d.dependencyPerUse = j.value("dependency_per_use", 0.0);
+          d.dependencyDecayPerDay = j.value("dependency_decay_per_day", d.dependencyDecayPerDay);
+          d.addiction = j.value("addiction", "");
+          d.overdoseUses = j.value("overdose_uses", 0);
+          d.overdoseWindowMinutes = j.value("overdose_window_minutes", d.overdoseWindowMinutes);
+          d.possessionCrime = j.value("possession_crime", "");
+          if (auto st = insertUnique(substances_, "substance", d.id, d); !st) return st;
+        }
       } else if (section == "transit") {
         transit_.operatorAccount = body.at("operator_account").get<std::string>();
         transit_.boardingRadiusMeters = body.value("boarding_radius_m", transit_.boardingRadiusMeters);
@@ -519,6 +568,8 @@ Status ContentDatabase::validate() const {
       if (o.quantity < 1) return fail("content_invalid", "location " + id + " offer " + o.id + ": quantity must be 1+");
       if (!o.requiresDiagnosis.empty() && !condition(o.requiresDiagnosis))
         return fail("content_invalid", "location " + id + " offer " + o.id + ": unknown requires_diagnosis");
+      if (!o.substance.empty() && !substance(o.substance))
+        return fail("content_invalid", "location " + id + " offer " + o.id + ": unknown substance " + o.substance);
     }
     for (const auto& a : l.activities) {
       if (auto s = checkKeys(a.needEffects, needs, "location " + id + " activity " + a.id); !s) return s;
@@ -639,6 +690,23 @@ Status ContentDatabase::validate() const {
       }
     }
   }
+  for (const auto& [id, it] : items_) {
+    if (!it.substance.empty() && !substance(it.substance)) return fail("content_invalid", "item " + id + ": unknown substance");
+  }
+  for (const auto& [id, d] : substances_) {
+    const std::string where = "substance " + id;
+    if (auto s = checkKeys(d.needs, needs, where); !s) return s;
+    if (auto s = checkKeys(d.crashNeeds, needs, where); !s) return s;
+    if (auto s = checkKeys(d.emotions, emotions, where); !s) return s;
+    if (auto s = checkKeys(d.crashEmotions, emotions, where); !s) return s;
+    if (!d.addiction.empty() && !condition(d.addiction)) return fail("content_invalid", where + ": unknown addiction condition");
+    if (!d.possessionCrime.empty() && !crimeDef(d.possessionCrime)) return fail("content_invalid", where + ": unknown possession_crime");
+  }
+  if (!crime_.crimes.empty()) {
+    if (!location(crime_.jail)) return fail("content_invalid", "crime: unknown jail");
+    if (!location(crime_.hospital)) return fail("content_invalid", "crime: unknown hospital");
+    if (!orgs.count(crime_.finesAccount)) return fail("content_invalid", "crime: unknown fines_account");
+  }
   if (!transit_.lines.empty()) {
     if (!orgs.count(transit_.operatorAccount)) return fail("content_invalid", "transit: unknown operator_account");
     std::set<std::string> stopIds;
@@ -716,6 +784,14 @@ const CharacterDef* ContentDatabase::character(const std::string& id) const {
 const OriginDef* ContentDatabase::origin(const std::string& id) const {
   auto it = origins_.find(id);
   return it == origins_.end() ? nullptr : &it->second;
+}
+const CrimeDef* ContentDatabase::crimeDef(const std::string& id) const {
+  auto it = crime_.crimes.find(id);
+  return it == crime_.crimes.end() ? nullptr : &it->second;
+}
+const SubstanceDef* ContentDatabase::substance(const std::string& id) const {
+  auto it = substances_.find(id);
+  return it == substances_.end() ? nullptr : &it->second;
 }
 const ProgramDef* ContentDatabase::program(const std::string& id) const {
   auto it = education_.programs.find(id);

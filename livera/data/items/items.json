@@ -128,6 +128,36 @@
       "consumable": true,
       "cooldown_minutes": 1440,
       "condition_recovery": {"depression": 8}
+    },
+    {
+      "id": "glint",
+      "label": "Glint (one dose)",
+      "category": "drug",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 30,
+      "substance": "glint",
+      "illegal": true
+    },
+    {
+      "id": "haze",
+      "label": "Haze (one dose)",
+      "category": "drug",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 30,
+      "substance": "haze",
+      "illegal": true
+    },
+    {
+      "id": "velvet",
+      "label": "Velvet (one dose)",
+      "category": "drug",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 30,
+      "substance": "velvet",
+      "illegal": true
     }
   ]
 }

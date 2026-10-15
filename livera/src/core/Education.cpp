@@ -75,6 +75,7 @@ Status World::startStudy(const CharacterId& actor) {
   const ProgramDef* p = content_->program(e.program);
   if (!p) return fail("not_enrolled", "enroll in a program first");
   if (e.sessionStartedAt) return fail("already_studying", "you're already studying");
+  if (Status st = freeToAct(c); !st) return st;
   if (c.career.shiftStartedAt) return fail("on_shift", "you're at work");
   const bool onCampus = std::find(p->campuses.begin(), p->campuses.end(), c.inside) != p->campuses.end();
   bool atHomeOnline = false;
@@ -170,6 +171,7 @@ Result<Json> World::applyForJob(const CharacterId& actor, const std::string& car
   if (!career) return fail("unknown_career", "no such job");
   if (career->workplaces.empty()) return fail("not_hiring", career->name + " has nowhere to work yet");
   if (c.career.careerId == careerId) return fail("already_hired", "you already work in " + career->name);
+  if (Status st = freeToAct(c); !st) return st.error();
   if (c.career.shiftStartedAt) return fail("on_shift", "finish your shift first");
   // Apply in person: inside the workplace, or at its door.
   const LocationDef* at = nullptr;

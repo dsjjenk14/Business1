@@ -57,6 +57,7 @@ add_library(livera_core
   src/core/Ledger.cpp
   src/core/Life.cpp
   src/core/Music.cpp
+  src/core/Substances.cpp
   src/core/Serialization.cpp
   src/core/World.cpp
   src/core/WorldViews.cpp)
@@ -104,6 +105,7 @@ add_executable(livera_tests
   tests/test_life.cpp
   tests/test_items.cpp
   tests/test_school.cpp
+  tests/test_crime.cpp
   src/client/MusicText.cpp)
 target_link_libraries(livera_tests PRIVATE livera_server_lib)
 target_compile_definitions(livera_tests PRIVATE LIVERA_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")

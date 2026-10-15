@@ -90,11 +90,18 @@ struct CharacterState {
   std::string accessory;
   std::vector<CrimeRecordEntry> record;  // criminal record
   EducationState education;
+  StatMap dependency;        // substance id -> 0..100; addiction past the threshold
+  std::string highOn;        // a substance still in effect
+  GameMinutes highUntil = -1;
+  std::string wantedFor;     // a reported crime the police haven't arrested you for yet
+  GameMinutes jailedUntil = -1;
   // Session state (not saved):
   std::map<std::string, GameMinutes> activityReadyAt;  // "location/activity" -> minute
   GameMinutes performReadyAt = 0;
   std::map<std::string, GameMinutes> itemReadyAt;
   double moveSpeedMps = 0;  // > 0 while riding: overrides walking speed until arrival
+  std::map<std::string, std::vector<GameMinutes>> recentUses;  // substance -> when, for overdoses
+  std::map<CharacterId, GameMinutes> pickpocketedAt;           // victim -> when
 
   SimTier tier() const { return online ? SimTier::Active : SimTier::Dormant; }
 };
@@ -299,6 +306,13 @@ class World {
   // Apply in person at the workplace; hired at the first level if you meet the requirements.
   Result<Json> applyForJob(const CharacterId& actor, const std::string& career);
   bool hasDegree(const CharacterId& id, const std::string& degree) const;
+
+  // --- Crime and the police (Crime.cpp) ---------------------------------------------------
+  Result<Json> steal(const CharacterId& actor, const std::string& offer);
+  Result<Json> pickpocket(const CharacterId& actor, const CharacterId& target);
+  // A police officer on duty arrests a wanted person they're with.
+  Result<Json> arrest(const CharacterId& officer, const CharacterId& suspect);
+  bool inJail(const CharacterId& id) const;
   bool unlocked(const CharacterId& id, const std::string& capability) const;  // by an item you own
 
   // Dev servers only (the server gates it behind --dev): give a character a condition, for testing care and contagion.
@@ -362,6 +376,17 @@ class World {
   void payCliniciansOnDuty(const CharacterId& patient, const LocationDef& where, Cents price, Json& out);
   // Crime.cpp
   void recordCrime(CharacterState& c, const std::string& crime, Cents fineCents, GameMinutes jailMinutes = 0);
+  Status freeToAct(const CharacterState& c) const;  // refuses while in jail
+  double detectionChance(const CharacterState& c, const CrimeDef& crime) const;
+  int policeNearby(const CharacterState& c) const;
+  // Caught: fine, jail, record, contraband confiscated, the police told. Returns what happened.
+  Json arrestCharacter(CharacterState& c, const std::string& crime, const std::string& by);
+  void dispatchPolice(const std::string& text);
+  void stepCrimeHourly();
+  Json takeSubstance(CharacterState& c, const std::string& substance);
+  void overdose(CharacterState& c, const SubstanceDef& s);
+  void stepSubstancesHourly(CharacterState& c);
+  Json phoneRecord(const CharacterState& c) const;
   Json phoneTransit() const;
   double styleOf(const CharacterState& c) const;  // worn items' style, 0..100
   void applyNeeds(CharacterState& c, const StatMap& deltas);

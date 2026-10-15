@@ -171,10 +171,21 @@ void World::stepBodyMinute(CharacterState& c) {
   const LifeConfig& L = content_->life();
   c.caloriesOut += L.baseBurnPerDay / kMinutesPerDay;
 
-  // Conditions: symptoms, unless a treatment is managing a lifelong one.
+  // A high wears off, and there's a crash.
+  if (c.highUntil >= 0 && state_.now >= c.highUntil) {
+    if (const SubstanceDef* s = content_->substance(c.highOn)) {
+      for (const auto& [n, d] : s->crashNeeds) c.needs[n] = clampd(c.needs[n] + d, kStatMin, kStatMax);
+      for (const auto& [e, d] : s->crashEmotions) c.emotions[e] = clampd(c.emotions[e] + d, kStatMin, kStatMax);
+    }
+    c.highOn.clear();
+    c.highUntil = -1;
+  }
+  // Conditions: symptoms, unless a treatment is managing a lifelong one. Withdrawal stops while high.
+  const SubstanceDef* high = content_->substance(c.highOn);
   for (const auto& k : c.conditions) {
     const ConditionDef* def = content_->condition(k.id);
     if (!def || (!def->curable && k.recovery >= 100)) continue;
+    if (high && high->addiction == k.id) continue;
     for (const auto& [n, perHour] : def->needsPerHour) c.needs[n] = clampd(c.needs[n] + perHour / 60.0, kStatMin, kStatMax);
     for (const auto& [e, perHour] : def->emotionsPerHour)
       c.emotions[e] = clampd(c.emotions[e] + perHour / 60.0, kStatMin, kStatMax);
@@ -220,6 +231,7 @@ void World::stepBodyMinute(CharacterState& c) {
 // ---------------------------------------------------------------------------------
 void World::stepHourly() {
   stepHomes();
+  stepCrimeHourly();
   const LifeConfig& L = content_->life();
   for (auto& [id, c] : state_.characters) {
     // Conditions that have run their course.
@@ -228,6 +240,7 @@ void World::stepHourly() {
       if (k.until >= 0 && state_.now >= k.until) over.push_back(k.id);
     }
     for (const auto& k : over) removeCondition(c, k, "you've recovered");
+    stepSubstancesHourly(c);
     if (c.online) {
       stepIllness(c);
       updateWeight(c);
@@ -371,6 +384,21 @@ Result<Json> World::runCareService(CharacterState& c, const std::string& service
       else k.recovery = 100;  // managed: no symptoms while it stays managed
     }
     for (const auto& id : cured) removeCondition(c, id, "treated");
+    out["treated"] = treated;
+    return out;
+  }
+  if (service == "rehab") {
+    Json treated = Json::array();
+    std::vector<std::string> cured;
+    for (const auto& k : c.conditions) {
+      const ConditionDef* def = content_->condition(k.id);
+      if (def && def->kind == "addiction") {
+        treated.push_back(def->name);
+        cured.push_back(k.id);
+      }
+    }
+    for (const auto& id : cured) removeCondition(c, id, "treated");
+    for (auto& [id, dep] : c.dependency) dep = 0;
     out["treated"] = treated;
     return out;
   }

@@ -395,6 +395,7 @@ Status World::moveTo(const CharacterId& actor, Vec2 target) {
   if (!r) return r.error();
   CharacterState& c = *r.value();
   if (!std::isfinite(target.x) || !std::isfinite(target.y)) return fail("invalid_target", "target is not a number");
+  if (Status st = freeToAct(c); !st) return st;
   if (!c.inside.empty()) return fail("inside_building", "leave the building first");
   if (c.moveSpeedMps > 0) return fail("riding", "you're on the bus; get off at your stop");
   const SimulationConfig& sim = content_->sim();
@@ -408,6 +409,7 @@ Status World::enter(const CharacterId& actor, const LocationId& locationId) {
   auto r = activeCharacter(actor);
   if (!r) return r.error();
   CharacterState& c = *r.value();
+  if (Status st = freeToAct(c); !st) return st;
   const LocationDef* loc = content_->location(locationId);
   if (!loc) return fail("unknown_location", "no such place");
   if (!loc->enterable) return fail("not_enterable", loc->name + " is an outdoor space; walk there instead");
@@ -427,8 +429,10 @@ Result<Json> World::exitBuilding(const CharacterId& actor) {
   if (!r) return r.error();
   CharacterState& c = *r.value();
   if (c.inside.empty()) return fail("not_inside", "you are already outside");
+  if (Status st = freeToAct(c); !st) return st.error();
   Json out = Json::object();
-  if (c.career.shiftStartedAt) {
+  const CareerDef* career = content_->career(c.career.careerId);
+  if (c.career.shiftStartedAt && !(career && career->worksOutdoors)) {
     auto shift = endShift(actor);
     if (shift) out["shift"] = shift.value();
   }
@@ -555,14 +559,23 @@ Result<Json> World::buy(const CharacterId& actor, const std::string& offerId, co
   auto r = activeCharacter(actor);
   if (!r) return r.error();
   CharacterState& c = *r.value();
-  if (c.inside.empty()) return fail("not_inside", "you need to be inside a shop");
-  const LocationDef* loc = content_->location(c.inside);
+  if (Status st = freeToAct(c); !st) return st.error();
+  const LocationDef* loc = currentPlace(c);
+  if (!loc) return fail("not_inside", "you need to be inside a shop");
   const Offer* offer = nullptr;
   for (const auto& o : loc->offers) {
     if (o.id == offerId) offer = &o;
   }
   if (!offer) return fail("unknown_offer", loc->name + " doesn't sell that");
   if (!isLocationOpen(*loc)) return fail("closed", loc->name + " is closed");
+  // An illegal buy in front of the police ends in handcuffs, before any money changes hands.
+  if (offer->illegal) {
+    if (const CrimeDef* crime = content_->crimeDef("drug_purchase"); crime && roll() < detectionChance(c, *crime)) {
+      Json out = arrestCharacter(c, "drug_purchase", "police");
+      out["caught"] = true;
+      return out;
+    }
+  }
   LedgerAccountId from;
   if (paymentMethod == "card") from = bankAccountOf(actor);
   else if (paymentMethod == "cash") from = cashAccountOf(actor);
@@ -601,6 +614,7 @@ Result<Json> World::buy(const CharacterId& actor, const std::string& offerId, co
     c.inventory[offer->item] += offer->quantity;
     out["owned"] = c.inventory[offer->item];
   }
+  if (!offer->substance.empty()) out["effect"] = takeSubstance(c, offer->substance);
   applyConditionRecovery(c, offer->conditionRecovery);
   return out;
 }
@@ -666,6 +680,7 @@ Status World::startShift(const CharacterId& actor) {
   auto r = activeCharacter(actor);
   if (!r) return r.error();
   CharacterState& c = *r.value();
+  if (Status st = freeToAct(c); !st) return st;
   const CareerDef* career = content_->career(c.career.careerId);
   if (!career) return fail("no_career", "you don't have a job");
   if (c.career.shiftStartedAt) return fail("already_working", "you are already on shift");
@@ -829,6 +844,7 @@ Result<Json> World::openPhoneApp(const CharacterId& actor, const std::string& ap
   if (app == "transit") return phoneTransit();
   if (app == "school") return phoneSchool(c);
   if (app == "jobs") return phoneJobs(c);
+  if (app == "record") return phoneRecord(c);
   return fail("unknown_app", "no such phone app");
 }
 

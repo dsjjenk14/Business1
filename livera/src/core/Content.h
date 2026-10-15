@@ -60,6 +60,53 @@ struct Offer {
   std::string item;             // buying it puts this item (from data/items) in your inventory
   int quantity = 1;
   std::string requiresDiagnosis;  // prescription: only sold to people diagnosed with this condition
+  std::string substance;        // consumed on the spot: a drink at the bar
+  bool illegal = false;         // buying it is a crime (drug_purchase) if the police see you
+};
+
+// Alcohol and drugs (data/health/substances.json). Illegal ones have fictional names.
+struct SubstanceDef {
+  std::string id;
+  std::string name;
+  bool legal = false;
+  StatMap needs;               // when taken
+  StatMap emotions;
+  int effectMinutes = 120;     // how long the high lasts
+  StatMap crashNeeds;          // when it wears off
+  StatMap crashEmotions;
+  double dependencyPerUse = 0; // toward addiction (0-100)
+  double dependencyDecayPerDay = 2;
+  std::string addiction;       // condition id once dependency reaches the threshold
+  int overdoseUses = 0;        // this many uses within the window is an overdose (0 = never)
+  int overdoseWindowMinutes = 180;
+  std::string possessionCrime; // what the police charge you with
+};
+
+// A crime and what getting caught costs (data/society/crimes.json).
+struct CrimeDef {
+  std::string id;
+  std::string label;
+  Cents fineCents = 0;
+  int jailMinutes = 0;
+  double detection = 0.1;    // chance to be caught in the act, before witnesses
+  double perWitness = 0.05;  // anyone else present
+  double perStaff = 0.2;     // staff on shift where it happens
+  double perPolice = 0.5;    // police officers on duty nearby
+  double notoriety = 0;      // infamy, counts toward fame
+};
+
+struct CrimeConfig {
+  std::map<std::string, CrimeDef> crimes;
+  LocationId jail;
+  double patrolArrestPerHour = 0.03;    // a wanted person outdoors, per hour, even with no police players on
+  double policeNearbyMeters = 40;
+  Cents pickpocketMaxCents = 20000;
+  int pickpocketCooldownMinutes = 1440; // per victim
+  double pickpocketNoticeChance = 0.35; // the victim realises who it was
+  double addictionThreshold = 50;
+  LedgerAccountId finesAccount;
+  Cents overdoseBillCents = 45000;
+  LocationId hospital;
 };
 
 // Things people own: clothes, accessories, electronics, medicine (data/items/items.json).
@@ -77,6 +124,8 @@ struct ItemDef {
   StatMap conditionRecovery; // condition id -> recovery progress per use
   std::vector<std::string> unlocks;  // what owning it lets you do: study_online, health_tracking...
   double style = 0;          // while worn, counts toward how put-together you look
+  std::string substance;     // using it means taking this substance
+  bool illegal = false;      // carrying it is possession
 };
 
 struct TransitStop {
@@ -246,6 +295,7 @@ struct CareerDef {
   std::string requiresDegree;     // hiring requires this degree (data/education)
   bool requiresCleanRecord = false;
   double careFeeShare = 0;        // > 0: a clinician; earns this share of care bought while they're on duty
+  bool worksOutdoors = false;     // the shift continues outside the workplace (police on patrol)
 };
 
 struct DegreeDef {
@@ -440,6 +490,10 @@ class ContentDatabase {
   const ItemDef* item(const std::string& id) const;
   const TransitConfig& transit() const { return transit_; }
   const EducationConfig& education() const { return education_; }
+  const CrimeConfig& crime() const { return crime_; }
+  const CrimeDef* crimeDef(const std::string& id) const;
+  const std::map<std::string, SubstanceDef>& substances() const { return substances_; }
+  const SubstanceDef* substance(const std::string& id) const;
   const ProgramDef* program(const std::string& id) const;
   const DegreeDef* degree(const std::string& id) const;
   // The line and stop for a stop id, or {nullptr, nullptr}.
@@ -479,6 +533,8 @@ class ContentDatabase {
   std::map<std::string, ItemDef> items_;
   TransitConfig transit_;
   EducationConfig education_;
+  CrimeConfig crime_;
+  std::map<std::string, SubstanceDef> substances_;
 };
 
 }  // namespace livera
