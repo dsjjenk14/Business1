@@ -1,0 +1,246 @@
+#pragma once
+
+#include <filesystem>
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "core/Types.h"
+
+namespace livera {
+
+// ---------------------------------------------------------------------------------
+// Content definitions: the immutable, data-driven description of the game.
+// Loaded from data/**/*.json. Runtime state lives in WorldState (World.h), never here.
+// See docs/DATA_MODEL.md for the file format.
+// ---------------------------------------------------------------------------------
+
+struct NeedDef {
+  std::string id;
+  double decayPerHour = 0;  // points lost per game hour while simulated at full fidelity
+  double initial = 75;
+};
+
+struct SimulationConfig {
+  double minutesPerRealSecond = 1.0;
+  GameMinutes startMinute = 7 * 60;
+  double walkSpeedMetersPerSecond = 6.0;
+  double entryRadiusMeters = 5.0;
+  Vec2 worldMin{0, 0};
+  Vec2 worldMax{1000, 1000};
+  std::vector<NeedDef> needs;
+  std::vector<std::string> emotions;
+  StatMap emotionBaselines;              // emotions relax toward these
+  double emotionRelaxPerHour = 4.0;
+  std::vector<std::string> personalityTraits;
+  std::vector<std::string> values;
+  std::vector<std::string> relationshipDimensions;
+  double offlineNeedTarget = 70;        // offline characters are assumed to look after themselves (Tier 3)
+  int memoryImportanceThreshold = 25;   // interactions below this are not remembered individually
+  int maxMessageLength = 500;
+};
+
+struct Offer {
+  std::string id;
+  std::string label;
+  Cents priceCents = 0;
+  StatMap needEffects;
+  StatMap emotionEffects;
+};
+
+// Something you can do at a place without paying: shower at home, jog in the park.
+struct Activity {
+  std::string id;
+  std::string label;
+  int cooldownMinutes = 30;  // game minutes before the same character can repeat it
+  StatMap needEffects;
+  StatMap emotionEffects;
+};
+
+struct OpeningHours {
+  int openHour = 0;   // inclusive
+  int closeHour = 24; // exclusive; a close earlier than open wraps past midnight
+  bool isOpenAt(int hour) const {
+    if (openHour == closeHour) return true;
+    if (openHour < closeHour) return hour >= openHour && hour < closeHour;
+    return hour >= openHour || hour < closeHour;
+  }
+};
+
+enum class AccessRule { Public, Residents, Staff };
+
+struct LocationDef {
+  LocationId id;
+  std::string name;
+  std::string type;       // apartment, coffee_shop, office, construction_site, park, church...
+  std::string district;
+  std::string description;
+  Vec2 door;              // where the building meets the street; entry is checked against this point
+  bool enterable = true;  // false for outdoor places (parks, sites) you stand in rather than enter
+  AccessRule access = AccessRule::Public;
+  std::optional<OpeningHours> hours;
+  std::vector<Offer> offers;
+  std::vector<Activity> activities;
+  double outdoorRadius = 30;       // for non-enterable places: how close counts as "here"
+  LedgerAccountId revenueAccount;  // who is paid for offers
+  std::string constructionProject; // if set, closed until that project completes
+};
+
+struct PropertyDef {
+  std::string id;
+  LocationId location;
+  std::string type;  // apartment, townhouse, house, parcel
+  LedgerAccountId ownerAccount;
+  Cents rentMonthlyCents = 0;
+  Cents marketValueCents = 0;
+  int bedrooms = 0;
+  std::vector<std::string> amenities;
+};
+
+struct CareerLevel {
+  std::string title;
+  Cents hourlyCents = 0;
+  double hoursToPromote = 0;  // 0 = top of track
+  double minPerformance = 0;
+};
+
+struct CareerDef {
+  std::string id;
+  std::string name;
+  std::vector<LocationId> workplaces;
+  LedgerAccountId employerAccount;
+  std::vector<CareerLevel> levels;
+  StatMap needCostPerHour;      // applied while on shift (negative = drain)
+  double maxShiftHours = 10;
+  double minPaidMinutes = 30;
+};
+
+struct InteractionDef {
+  std::string id;
+  std::string label;
+  double rangeMeters = 3;
+  StatMap actorNeeds;
+  StatMap targetNeeds;
+  StatMap actorEmotions;
+  StatMap targetEmotions;
+  StatMap actorToTarget;   // relationship deltas, actor's feelings about target
+  StatMap targetToActor;   // relationship deltas, target's feelings about actor
+  std::string receptivityTrait;  // target personality trait that scales targetToActor
+  std::string memoryType;
+  int importance = 0;
+  int emotionalImpact = 0;  // -100..100, from the target's point of view
+};
+
+struct StartingRelationship {
+  CharacterId to;
+  StatMap dimensions;
+  std::string history;
+};
+
+struct SeedMemory {
+  std::string type;
+  std::vector<CharacterId> participants;
+  CharacterId about;
+  int emotionalImpact = 0;
+  int importance = 0;
+  bool isPublic = false;
+  std::string info;
+  int daysAgo = 0;  // seed memories predate the founding; stored relative to world start
+};
+
+struct CharacterDef {
+  CharacterId id;
+  std::string firstName;
+  std::string lastName;
+  std::string pronouns;
+  std::string gender;
+  int age = 0;
+  bool playable = false;
+  StatMap personality;
+  StatMap values;
+  std::vector<std::string> traits;
+  std::vector<std::string> interests;
+  std::string careerId;
+  int careerLevel = 0;
+  Cents startingCashCents = 0;
+  Cents startingBankCents = 0;
+  std::string homeProperty;
+  LocationId spawnLocation;
+  std::vector<StartingRelationship> relationships;
+  std::vector<SeedMemory> memories;
+  Json profile;  // narrative: appearance, background, goals, secrets, schedule, social media...
+
+  std::string fullName() const { return firstName + " " + lastName; }
+};
+
+struct ConstructionProjectDef {
+  std::string id;
+  std::string name;
+  LocationId site;          // where the crew works (a construction_site location)
+  LocationId opensLocation; // the location that opens on completion
+  double workerHoursRequired = 0;
+  int crewSize = 0;
+  int startHour = 7;
+  int endHour = 16;
+  std::vector<int> workDays;  // 0 = Monday
+  std::string startsAfter;    // another project id, or empty = starts at founding
+  StatMap cityEffects;        // added to city stats on completion
+};
+
+struct CityStageDef {
+  int stage = 1;
+  std::string name;
+  double minPopulation = 0;
+};
+
+struct OrgAccountDef {
+  LedgerAccountId id;
+  std::string name;
+  Cents openingBalanceCents = 0;
+};
+
+class ContentDatabase {
+ public:
+  // Loads every *.json under `dir` (recursively, sorted for determinism) and merges them.
+  // Validates all cross references; returns an error naming the offending file/id.
+  static Result<std::shared_ptr<const ContentDatabase>> loadFromDirectory(const std::filesystem::path& dir);
+  // Same, from an in-memory bundle of documents (used by tests).
+  static Result<std::shared_ptr<const ContentDatabase>> loadFromDocuments(const std::vector<std::pair<std::string, Json>>& docs);
+
+  const SimulationConfig& sim() const { return sim_; }
+  const std::map<LocationId, LocationDef>& locations() const { return locations_; }
+  const std::map<std::string, PropertyDef>& properties() const { return properties_; }
+  const std::map<std::string, CareerDef>& careers() const { return careers_; }
+  const std::map<std::string, InteractionDef>& interactions() const { return interactions_; }
+  const std::map<CharacterId, CharacterDef>& characters() const { return characters_; }
+  const std::vector<ConstructionProjectDef>& constructionProjects() const { return construction_; }
+  const std::vector<CityStageDef>& cityStages() const { return stages_; }
+  const StatMap& cityInitial() const { return cityInitial_; }
+  const std::vector<OrgAccountDef>& orgAccounts() const { return orgAccounts_; }
+
+  const LocationDef* location(const std::string& id) const;
+  const PropertyDef* property(const std::string& id) const;
+  const CareerDef* career(const std::string& id) const;
+  const InteractionDef* interaction(const std::string& id) const;
+  const CharacterDef* character(const std::string& id) const;
+  const ConstructionProjectDef* constructionProject(const std::string& id) const;
+
+ private:
+  Status ingest(const std::string& source, const Json& doc);
+  Status validate() const;
+
+  bool haveSim_ = false;
+  SimulationConfig sim_;
+  std::map<LocationId, LocationDef> locations_;
+  std::map<std::string, PropertyDef> properties_;
+  std::map<std::string, CareerDef> careers_;
+  std::map<std::string, InteractionDef> interactions_;
+  std::map<CharacterId, CharacterDef> characters_;
+  std::vector<ConstructionProjectDef> construction_;
+  std::vector<CityStageDef> stages_;
+  StatMap cityInitial_;
+  std::vector<OrgAccountDef> orgAccounts_;
+};
+
+}  // namespace livera

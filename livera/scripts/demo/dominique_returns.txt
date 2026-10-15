@@ -1,0 +1,7 @@
+# After a full server restart: is everything where she left it?
+login dom livera-demo-1
+play dominique
+phone bank
+phone contacts
+phone notifications
+quit

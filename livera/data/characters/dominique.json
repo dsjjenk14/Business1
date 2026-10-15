@@ -1,0 +1,87 @@
+{
+  "characters": [
+    {
+      "id": "dominique",
+      "first_name": "Dominique",
+      "last_name": "Ashford",
+      "pronouns": "she/her",
+      "gender": "woman",
+      "age": 29,
+      "playable": true,
+      "personality": {
+        "ambition": 88, "sociability": 74, "empathy": 68, "patience": 42,
+        "confidence": 81, "risk_tolerance": 62, "competitiveness": 79, "impulsiveness": 33
+      },
+      "values": {
+        "family": 72, "career": 92, "wealth": 76, "loyalty": 81, "freedom": 58,
+        "status": 70, "community": 64, "romance": 52, "creativity": 55
+      },
+      "traits": ["driven", "polished", "perceptive", "guarded", "fiercely_loyal"],
+      "interests": ["fashion", "networking", "real_estate", "fitness", "rnb_music", "brunch", "interior_design"],
+      "career": { "id": "recruiting", "level": 1 },
+      "finances": { "cash_cents": 18000, "bank_cents": 1450000 },
+      "home": { "property": "lexington_1204", "tenure": "rent" },
+      "spawn_location": "lexington_1204",
+      "relationships": [
+        {
+          "to": "jaxon",
+          "history": "She placed three of his site engineers at Forge Builders. They've met twice at Lexington leasing events and once argued about a candidate he poached.",
+          "dimensions": { "familiarity": 25, "friendship": 12, "trust": 18, "respect": 34, "physical_attraction": 22, "conflict": 6 }
+        }
+      ],
+      "memories": [
+        {
+          "type": "professional", "participants": ["dominique", "jaxon"], "about": "jaxon",
+          "importance": 30, "emotional_impact": -10, "days_ago": 21,
+          "info": "Jaxon hired a candidate she was placing elsewhere, without telling her."
+        },
+        {
+          "type": "life_change", "participants": ["dominique"],
+          "importance": 80, "emotional_impact": 35, "days_ago": 45,
+          "info": "Accepted Meridian's offer to open the Livéra office. Left Atlanta in a week."
+        }
+      ],
+      "profile": {
+        "tagline": "Came to staff a city. Plans to own part of it.",
+        "why_livera": "career_advancement",
+        "appearance": {
+          "height_cm": 175, "build": "athletic",
+          "skin": "deep brown, warm undertone",
+          "face": "high cheekbones, full brows, a direct gaze",
+          "hair": "sleek shoulder-length silk press, often pinned up for work",
+          "style": "tailored neutrals: camel coats, wide-leg trousers, gold hoops; sneakers only at the gym",
+          "silhouette": "long lines, structured shoulders",
+          "visual_reference": "TODO: link the approved character artwork once added to the repo"
+        },
+        "family_background": "Eldest of three, raised in Decatur, Georgia by a mother who ran a hair salon and a father who drove for MARTA. Sends money home monthly.",
+        "education": "B.A. Communications, Spelman College",
+        "goals": ["Make Recruiting Manager within a year", "Buy, not rent, before thirty-one", "Build a circle in a town where she knows nobody"],
+        "ambitions": ["Run the largest staffing firm in Livéra", "Own a building on Founders Way"],
+        "social_preferences": "Prefers small dinners to big crowds; warms up slowly, then all the way.",
+        "secrets": [
+          {
+            "id": "dom_counteroffer",
+            "truth": "Her old Atlanta firm has a standing offer for her to come back as a partner. She hasn't said no.",
+            "known_by": []
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            { "time": "06:30", "activity": "Gym or a run in Founders Park" },
+            { "time": "08:30", "activity": "Meridian Talent Partners" },
+            { "time": "18:30", "activity": "Home, or networking at Heritage Coffee" }
+          ],
+          "sunday": [{ "time": "10:00", "activity": "Greater Hope service" }]
+        },
+        "starting_inventory": ["phone", "laptop", "camel wool coat", "gold hoops", "running shoes", "Lexington key fob"],
+        "social_media": { "handle": "@dom.ashford", "followers": 2840, "bio": "Talent. Taste. Timing. New to Livéra." },
+        "reputation": { "professional": 62, "social": 40, "public": 15 },
+        "life_history": [
+          "Top-billing recruiter at her Atlanta firm two years running.",
+          "Ended a four-year relationship the month before moving.",
+          "First of the founding residents to sign a lease at The Lexington."
+        ]
+      }
+    }
+  ]
+}

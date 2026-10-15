@@ -1,0 +1,28 @@
+{
+  "$comment": "Global simulation tuning. Every stat name used anywhere in data/ must be declared here.",
+  "simulation": {
+    "minutes_per_real_second": 1.0,
+    "start_minute": 420,
+    "walk_speed_mps": 6.0,
+    "entry_radius_m": 5.0,
+    "world_bounds": { "min": [0, 0], "max": [1000, 800] },
+    "needs": [
+      { "id": "hunger",     "decay_per_hour": 6.0, "initial": 70 },
+      { "id": "energy",     "decay_per_hour": 4.0, "initial": 80 },
+      { "id": "hygiene",    "decay_per_hour": 3.0, "initial": 85 },
+      { "id": "social",     "decay_per_hour": 3.0, "initial": 60 },
+      { "id": "recreation", "decay_per_hour": 3.0, "initial": 60 },
+      { "id": "comfort",    "decay_per_hour": 2.0, "initial": 75 },
+      { "id": "health",     "decay_per_hour": 0.2, "initial": 90 }
+    ],
+    "emotions": ["happiness", "stress", "confidence", "loneliness", "anger", "sadness", "excitement", "embarrassment", "jealousy"],
+    "emotion_baselines": { "happiness": 55, "stress": 25, "confidence": 50, "loneliness": 20 },
+    "emotion_relax_per_hour": 4.0,
+    "personality_traits": ["ambition", "sociability", "empathy", "patience", "confidence", "risk_tolerance", "competitiveness", "impulsiveness"],
+    "values": ["family", "career", "wealth", "loyalty", "freedom", "status", "community", "romance", "creativity"],
+    "relationship_dimensions": ["friendship", "trust", "respect", "loyalty", "romantic_attraction", "physical_attraction", "compatibility", "jealousy", "resentment", "conflict", "familiarity"],
+    "offline_need_target": 70,
+    "memory_importance_threshold": 25,
+    "max_message_length": 500
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "characters": [
+    {
+      "id": "jaxon",
+      "first_name": "Jaxon",
+      "last_name": "Reid",
+      "pronouns": "he/him",
+      "gender": "man",
+      "age": 32,
+      "playable": true,
+      "personality": {
+        "ambition": 76, "sociability": 66, "empathy": 58, "patience": 70,
+        "confidence": 64, "risk_tolerance": 74, "competitiveness": 68, "impulsiveness": 48
+      },
+      "values": {
+        "family": 80, "career": 78, "wealth": 70, "loyalty": 75, "freedom": 72,
+        "status": 48, "community": 77, "romance": 66, "creativity": 61
+      },
+      "traits": ["hands_on", "easygoing", "stubborn", "protective"],
+      "interests": ["architecture", "real_estate", "basketball", "cooking", "rnb_music", "fishing"],
+      "career": { "id": "construction_management", "level": 1 },
+      "finances": { "cash_cents": 9000, "bank_cents": 620000 },
+      "home": { "property": "maple_court_3b", "tenure": "rent" },
+      "spawn_location": "maple_court_3b",
+      "relationships": [
+        {
+          "to": "dominique",
+          "history": "She found him three good engineers. He took a fourth she'd lined up for someone else, and still thinks he did her a favour.",
+          "dimensions": { "familiarity": 25, "friendship": 20, "trust": 22, "respect": 40, "romantic_attraction": 28, "physical_attraction": 35 }
+        }
+      ],
+      "memories": [
+        {
+          "type": "loss", "participants": ["jaxon"],
+          "importance": 85, "emotional_impact": -55, "days_ago": 300,
+          "info": "Closed Reid & Sons Contracting in Houston after a client never paid."
+        }
+      ],
+      "profile": {
+        "tagline": "Builds the town by day. Wants to own a piece of it.",
+        "why_livera": "fresh_start",
+        "appearance": {
+          "height_cm": 188, "build": "broad, strong",
+          "skin": "medium brown",
+          "face": "close beard, easy smile, a scar through the left eyebrow",
+          "hair": "short taper with waves",
+          "style": "work boots and Carhartt by day; crisp white tee and a gold chain at night",
+          "silhouette": "big frame, hard hat often clipped to his belt",
+          "visual_reference": "TODO: link the approved character artwork once added to the repo"
+        },
+        "family_background": "Grew up in Houston's Third Ward working summers on his uncle's framing crew. His mother still calls every Sunday.",
+        "education": "B.S. Construction Management, Prairie View A&M",
+        "goals": ["Run his own project at Forge within a year", "Pay off the old business debt quietly", "Find a reason to stay"],
+        "ambitions": ["Develop his own mixed-use building on a Livéra parcel"],
+        "social_preferences": "Happiest cooking for a crowd. Shows care by fixing things.",
+        "secrets": [
+          {
+            "id": "jax_debt",
+            "truth": "He still owes $38,000 from his failed contracting business. Nobody in Livéra knows.",
+            "known_by": []
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            { "time": "06:00", "activity": "Forge Builders site office" },
+            { "time": "16:30", "activity": "Walk the sites" },
+            { "time": "19:00", "activity": "Home, cooking" }
+          ],
+          "saturday": [{ "time": "09:00", "activity": "Pickup basketball" }]
+        },
+        "starting_inventory": ["phone", "hard hat", "tape measure", "pickup truck keys", "site tablet"],
+        "social_media": { "handle": "@builtbyjax", "followers": 910, "bio": "Concrete, steel and patience." },
+        "reputation": { "professional": 58, "social": 35, "public": 10 },
+        "life_history": [
+          "Ran his own contracting company for three years.",
+          "Lost it when a developer defaulted on a seven-figure invoice.",
+          "Recruited to Forge Builders by a placement Dominique made."
+        ]
+      }
+    }
+  ]
+}
