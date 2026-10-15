@@ -33,6 +33,8 @@
       "interests": ["tech", "basketball", "cooking", "rnb_music", "fishing", "gaming"],
       "career": {"id": "ai_engineering", "level": 1},
       "degrees": ["bachelors"],
+      "reproduction": "sire",
+      "fame": 5,
       "finances": {"cash_cents": 9000, "bank_cents": 620000},
       "home": {"property": "maple_court_3b", "tenure": "rent"},
       "spawn_location": "maple_court_3b",

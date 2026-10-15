@@ -1,0 +1,25 @@
+{
+  "$comment": "Dating, marriage, intimacy and children. Adults only, never within a family, every step needs the other person's yes. Times are game days.",
+  "romance": {
+    "request_minutes": 15,
+    "conception_chance": 0.2,
+    "protection_effectiveness": 0.98,
+    "fertility_by_age": [[18, 1.0], [35, 0.6], [40, 0.25], [45, 0.02]],
+    "pregnancy_game_days": 252,
+    "symptoms_after_days": 14,
+    "test_detects_after_days": 10,
+    "miscarriage_chance": 0.12,
+    "miscarriage_window_days": 84,
+    "abortion_limit_days": 168,
+    "pregnancy_needs_per_hour": {"energy": -0.5, "hunger": -0.5, "bladder": -3},
+    "morning_sickness_needs_per_hour": {"comfort": -1, "hunger": -1},
+    "baby_names": {
+      "girl": ["Amara", "Zoe", "Nia", "Ivy", "Maya", "Lena", "Sofia", "Imani", "Ruby", "Esme"],
+      "boy": ["Elijah", "Miles", "Kai", "Theo", "Isaiah", "Leo", "Jonah", "Malik", "Felix", "Omar"]
+    },
+    "naming_window_days": 7,
+    "divorce_fee_cents": 150000,
+    "divorce_fee_account": "org:hale_law",
+    "sti_protection": 0.1
+  }
+}

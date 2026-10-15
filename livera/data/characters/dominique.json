@@ -33,6 +33,8 @@
       "interests": ["fashion", "networking", "real_estate", "fitness", "rnb_music", "brunch", "interior_design"],
       "career": {"id": "recruiting", "level": 1},
       "degrees": ["bachelors"],
+      "reproduction": "carrier",
+      "fame": 5,
       "finances": {"cash_cents": 18000, "bank_cents": 1450000},
       "home": {"property": "lexington_1204", "tenure": "rent"},
       "spawn_location": "lexington_1204",

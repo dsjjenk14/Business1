@@ -64,6 +64,15 @@ struct EducationState {
   int sessionSamples = 0;
 };
 
+struct PregnancyState {
+  CharacterId partner;
+  GameMinutes conceivedAt = 0;
+  GameMinutes dueAt = 0;
+  bool known = false;       // a test or a doctor confirmed it
+  int prenatalVisits = 0;
+  double risk = 1.0;        // multiplier on miscarriage risk from what happened along the way
+};
+
 struct CharacterState {
   CharacterId id;
   Vec2 position;
@@ -95,6 +104,9 @@ struct CharacterState {
   GameMinutes highUntil = -1;
   std::string wantedFor;     // a reported crime the police haven't arrested you for yet
   GameMinutes jailedUntil = -1;
+  double fame = 0;           // 0..100
+  std::optional<PregnancyState> pregnancy;
+  std::vector<CharacterId> parents;  // family: who you were born to (in the world)
   // Session state (not saved):
   std::map<std::string, GameMinutes> activityReadyAt;  // "location/activity" -> minute
   GameMinutes performReadyAt = 0;
@@ -109,6 +121,8 @@ struct CharacterState {
 // Directional: A's feelings about B are a different record from B's about A.
 struct RelationshipState {
   StatMap dimensions;
+  std::string status;       // dating, engaged, married, ex, divorced; the same on both sides
+  GameMinutes statusSince = -1;
   GameMinutes firstMetAt = -1;
   GameMinutes lastInteractionAt = -1;
   int interactionCount = 0;
@@ -200,6 +214,16 @@ struct CityState {
   int stage = 1;
 };
 
+// An ask that needs the other person's yes: a date, a proposal, a wedding, intimacy.
+struct PendingRequest {
+  std::string id;
+  std::string kind;
+  CharacterId from;
+  CharacterId to;
+  GameMinutes expires = 0;
+  bool protection = false;
+};
+
 struct WorldState {
   GameMinutes now = 0;
   double clockCarry = 0;  // fractional game minutes not yet applied
@@ -217,6 +241,7 @@ struct WorldState {
   // Characters made in the character creator. Founding characters live in content.
   std::map<CharacterId, CharacterDef> createdCharacters;
   std::map<std::string, Song> songs;
+  std::vector<PendingRequest> requests;  // session state: asks expire in minutes and aren't saved
 };
 
 // Something a connected client should hear about. The server routes it; the world
@@ -313,6 +338,18 @@ class World {
   // A police officer on duty arrests a wanted person they're with.
   Result<Json> arrest(const CharacterId& officer, const CharacterId& suspect);
   bool inJail(const CharacterId& id) const;
+
+  // --- Romance and family (Romance.cpp) ---------------------------------------------------
+  // kind: date, kiss, propose, marry, intimacy. The other person answers with respond().
+  Result<Json> request(const CharacterId& actor, const std::string& kind, const CharacterId& target, bool protection = false);
+  Result<Json> respond(const CharacterId& actor, const std::string& requestId, bool accept);
+  // Break up (dating or engaged) or divorce (married). One person can end it.
+  Result<Json> endRelationship(const CharacterId& actor, const CharacterId& partner);
+  Result<Json> nameBaby(const CharacterId& parent, const CharacterId& baby, const std::string& firstName);
+  std::string relationshipStatus(const CharacterId& a, const CharacterId& b) const;
+  bool isFamily(const CharacterId& a, const CharacterId& b) const;
+  // --- Fame (Fame.cpp)
+  std::string fameTierOf(const CharacterId& id) const;
   bool unlocked(const CharacterId& id, const std::string& capability) const;  // by an item you own
 
   // Dev servers only (the server gates it behind --dev): give a character a condition, for testing care and contagion.
@@ -387,6 +424,21 @@ class World {
   void overdose(CharacterState& c, const SubstanceDef& s);
   void stepSubstancesHourly(CharacterState& c);
   Json phoneRecord(const CharacterState& c) const;
+  // Romance.cpp
+  void setStatus(const CharacterId& a, const CharacterId& b, const std::string& status);
+  Status checkRomanceAllowed(const CharacterState& a, const CharacterState& b) const;
+  bool inPrivate(const CharacterState& a, const CharacterState& b) const;
+  Json intimacy(CharacterState& a, CharacterState& b, bool protection);
+  void tryConception(CharacterState& carrier, const CharacterState& sire, bool protectedSex);
+  void stepPregnancyHourly(CharacterState& c);
+  void endPregnancy(CharacterState& c, const std::string& how);
+  void giveBirth(CharacterState& c);
+  Json pregnancyTest(CharacterState& c);
+  Json phoneRomance(const CharacterState& c) const;
+  // Fame.cpp
+  void addFame(CharacterState& c, double amount);
+  void stepFameHourly(CharacterState& c);
+  Json phoneFame(const CharacterState& c) const;
   Json phoneTransit() const;
   double styleOf(const CharacterState& c) const;  // worn items' style, 0..100
   void applyNeeds(CharacterState& c, const StatMap& deltas);

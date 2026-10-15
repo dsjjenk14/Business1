@@ -33,6 +33,8 @@
       "interests": ["networking", "fashion", "nightlife", "dance", "travel", "music"],
       "career": {"id": "event_production", "level": 3},
       "degrees": ["bachelors"],
+      "reproduction": "carrier",
+      "fame": 15,
       "finances": {"cash_cents": 25000, "bank_cents": 3100000},
       "home": {"property": "lexington_0904", "tenure": "rent"},
       "spawn_location": "lexington_0904",

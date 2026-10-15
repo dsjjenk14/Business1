@@ -152,6 +152,7 @@ Json World::creatorOptions() const {
               {"education", choice(c.education)},
               {"relationship_status", choice(c.relationshipStatus)},
               {"goals", choice(c.goals)},
+              {"reproduction", choice(c.reproduction)},
               {"personality", sim.personalityTraits},
               {"personality_budget", c.personalityBudget},
               {"values", sim.values},
@@ -237,6 +238,13 @@ Result<CharacterId> World::createCharacter(const Json& spec) {
   if (!relationshipStatus) return relationshipStatus.error();
   auto goals = pickMany(spec, "goals", opts.goals);
   if (!goals) return goals.error();
+  // Optional: whether this person can become pregnant, get someone pregnant, or neither.
+  if (spec.contains("reproduction") && !opts.reproduction.options.empty()) {
+    auto rep = pickOne(spec, "reproduction", opts.reproduction);
+    if (!rep) return rep.error();
+    auto it = opts.reproductionMeaning.find(rep.value());
+    def.reproduction = it == opts.reproductionMeaning.end() ? "" : it->second;
+  }
   const std::string background = text("background");
   if (static_cast<int>(background.size()) > opts.maxBackgroundLength)
     return fail("invalid_character", "background is too long");

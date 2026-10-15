@@ -191,6 +191,16 @@ void World::stepBodyMinute(CharacterState& c) {
       c.emotions[e] = clampd(c.emotions[e] + perHour / 60.0, kStatMin, kStatMax);
   }
 
+  // Pregnancy: tiring, hungry, and a few weeks of morning sickness.
+  if (c.pregnancy) {
+    const RomanceConfig& R = content_->romance();
+    const double days = static_cast<double>(state_.now - c.pregnancy->conceivedAt) / kMinutesPerDay;
+    for (const auto& [n, perHour] : R.pregnancyNeedsPerHour) c.needs[n] = clampd(c.needs[n] + perHour / 60.0, kStatMin, kStatMax);
+    if (days >= R.symptomsAfterDays && days < R.miscarriageWindowDays) {
+      for (const auto& [n, perHour] : R.morningSicknessNeedsPerHour)
+        c.needs[n] = clampd(c.needs[n] + perHour / 60.0, kStatMin, kStatMax);
+    }
+  }
   // Age and weight wear on health.
   double extraHealthLoss = 0;
   for (const auto& n : content_->sim().needs) {
@@ -241,6 +251,8 @@ void World::stepHourly() {
     }
     for (const auto& k : over) removeCondition(c, k, "you've recovered");
     stepSubstancesHourly(c);
+    stepPregnancyHourly(c);
+    stepFameHourly(c);
     if (c.online) {
       stepIllness(c);
       updateWeight(c);
@@ -345,6 +357,14 @@ void World::checkBirthday(CharacterState& c) {
   m.emotionalImpact = 20;
   m.info = "Turned " + std::to_string(age);
   addMemory(std::move(m));
+  // A child born in Livéra grows up: at adulthood they can be played.
+  auto created = state_.createdCharacters.find(c.id);
+  if (created != state_.createdCharacters.end() && !created->second.playable && age >= content_->life().adultAge) {
+    created->second.playable = true;
+    for (const auto& parent : c.parents) {
+      if (character(parent)) notify(parent, "family", created->second.firstName + " is grown up now, and can be played.");
+    }
+  }
   (void)before;
 }
 
@@ -360,6 +380,11 @@ Result<Json> World::runCareService(CharacterState& c, const std::string& service
       if (const ConditionDef* def = content_->condition(k.id)) found.push_back(def->name);
     }
     out["diagnosed"] = found;
+    if (c.pregnancy && static_cast<double>(state_.now - c.pregnancy->conceivedAt) / kMinutesPerDay >= 7) {
+      c.pregnancy->known = true;
+      out["pregnant"] = true;
+      out["due"] = formatDateTime(c.pregnancy->dueAt);
+    }
     out["weight_kg"] = std::round(c.weightKg * 10) / 10;
     out["bmi"] = std::round(bmiOf(c) * 10) / 10;
     c.needs["health"] = clampd(c.needs["health"] + 5, kStatMin, kStatMax);
@@ -385,6 +410,31 @@ Result<Json> World::runCareService(CharacterState& c, const std::string& service
     }
     for (const auto& id : cured) removeCondition(c, id, "treated");
     out["treated"] = treated;
+    return out;
+  }
+  if (service == "sti_test") {
+    Json found = Json::array();
+    for (auto& k : c.conditions) {
+      const ConditionDef* def = content_->condition(k.id);
+      if (def && def->kind == "sti") {
+        k.diagnosed = true;
+        found.push_back(def->name);
+      }
+    }
+    out["positive"] = found;
+    return out;
+  }
+  if (service == "prenatal") {
+    if (!c.pregnancy) return fail("not_pregnant", "you're not pregnant");
+    c.pregnancy->known = true;
+    c.pregnancy->prenatalVisits += 1;
+    c.needs["health"] = clampd(c.needs["health"] + 5, kStatMin, kStatMax);
+    out["due"] = formatDateTime(c.pregnancy->dueAt);
+    out["visits"] = c.pregnancy->prenatalVisits;
+    return out;
+  }
+  if (service == "abortion") {
+    endPregnancy(c, "abortion");
     return out;
   }
   if (service == "rehab") {

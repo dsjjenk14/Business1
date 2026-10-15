@@ -1200,7 +1200,9 @@
           "needs": {"hunger": 10, "health": 2, "bladder": -10},
           "calories": 120
         },
-        {"id": "flowers", "label": "Bouquet of flowers", "price_cents": 2200, "emotions": {"happiness": 4}}
+        {"id": "flowers", "label": "Bouquet of flowers", "price_cents": 2200, "emotions": {"happiness": 4}},
+        {"id": "condoms", "label": "Condoms (3)", "price_cents": 1200, "item": "condoms", "quantity": 3},
+        {"id": "pregnancy_test", "label": "Pregnancy test", "price_cents": 1500, "item": "pregnancy_test"}
       ],
       "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
@@ -1255,7 +1257,16 @@
           "price_cents": 9000,
           "needs": {"comfort": -5},
           "service": "dental_care"
-        }
+        },
+        {"id": "sti_test", "label": "STI test", "price_cents": 8000, "service": "sti_test"},
+        {
+          "id": "prenatal",
+          "label": "Prenatal visit",
+          "price_cents": 12000,
+          "service": "prenatal",
+          "emotions": {"stress": -5}
+        },
+        {"id": "abortion", "label": "Abortion care (private)", "price_cents": 60000, "service": "abortion"}
       ],
       "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
@@ -1279,7 +1290,8 @@
         },
         {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}
       ],
-      "stage": true
+      "stage": true,
+      "weddings": true
     },
     {
       "id": "founders_park",
@@ -1553,7 +1565,9 @@
           "item": "antidepressants",
           "quantity": 30,
           "requires_diagnosis": "depression"
-        }
+        },
+        {"id": "condoms", "label": "Condoms (3)", "price_cents": 1200, "item": "condoms", "quantity": 3},
+        {"id": "pregnancy_test", "label": "Pregnancy test", "price_cents": 1500, "item": "pregnancy_test"}
       ]
     },
     {
@@ -1579,6 +1593,13 @@
           "price_cents": 85000,
           "item": "designer_bag",
           "emotions": {"happiness": 5}
+        },
+        {
+          "id": "engagement_ring",
+          "label": "Engagement ring",
+          "price_cents": 250000,
+          "item": "engagement_ring",
+          "emotions": {"excitement": 5}
         }
       ]
     },
@@ -1689,7 +1710,16 @@
           "needs": {"health": 10},
           "emotions": {"stress": -10},
           "service": "rehab"
-        }
+        },
+        {"id": "sti_test", "label": "STI test", "price_cents": 8000, "service": "sti_test"},
+        {
+          "id": "prenatal",
+          "label": "Prenatal visit",
+          "price_cents": 12000,
+          "service": "prenatal",
+          "emotions": {"stress": -5}
+        },
+        {"id": "abortion", "label": "Abortion care (private)", "price_cents": 60000, "service": "abortion"}
       ]
     },
     {

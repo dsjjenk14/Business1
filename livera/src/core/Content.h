@@ -126,6 +126,46 @@ struct ItemDef {
   double style = 0;          // while worn, counts toward how put-together you look
   std::string substance;     // using it means taking this substance
   bool illegal = false;      // carrying it is possession
+  std::string test;          // a home test: "pregnancy"
+  bool contraception = false;  // used up during intimacy when protection is chosen
+};
+
+// Dating, marriage, intimacy and having children (data/society/romance.json).
+struct RomanceConfig {
+  int requestMinutes = 15;              // how long an ask stays open
+  double conceptionChance = 0.2;        // per unprotected encounter, at peak fertility
+  double protectionEffectiveness = 0.98;
+  std::vector<std::pair<int, double>> fertilityByAge;  // (from age, multiplier)
+  double pregnancyGameDays = 252;
+  double symptomsAfterDays = 14;
+  double testDetectsAfterDays = 10;
+  double miscarriageChance = 0.12;      // over the window, before risk factors
+  double miscarriageWindowDays = 84;
+  double abortionLimitDays = 168;
+  StatMap pregnancyNeedsPerHour;
+  StatMap morningSicknessNeedsPerHour;
+  std::vector<std::string> girlNames;
+  std::vector<std::string> boyNames;
+  int namingWindowDays = 7;
+  Cents divorceFeeCents = 150000;
+  LedgerAccountId divorceFeeAccount;
+  double stiProtection = 0.1;           // protection multiplies transmission chances by this
+};
+
+struct FameTier {
+  std::string id;
+  std::string label;
+  double minFame = 0;
+};
+
+struct FameConfig {
+  std::vector<FameTier> tiers;
+  double decayPerDay = 0.2;
+  double perQualityAudience = 0.002;  // a performance adds quality x audience x this
+  double perRelease = 1;
+  double perWedding = 2;
+  double celebrityAt = 60;            // people present hear when someone this famous walks in
+  double receptivityBonus = 0.2;      // strangers warm to celebrities this much more
 };
 
 struct TransitStop {
@@ -261,6 +301,7 @@ struct LocationDef {
   LedgerAccountId revenueAccount;  // who is paid for offers
   std::string constructionProject; // if set, closed until that project completes
   bool stage = false;              // music can be performed here (open mic, church, park, club)
+  bool weddings = false;           // couples can marry here
 };
 
 struct PropertyDef {
@@ -379,6 +420,8 @@ struct CharacterDef {
   std::string homeProperty;
   LocationId spawnLocation;
   std::vector<std::string> degrees;
+  std::string reproduction;  // "carrier" (can become pregnant), "sire" (can get someone pregnant), or "" (neither)
+  double fame = 0;           // starting fame
   std::vector<StartingRelationship> relationships;
   std::vector<SeedMemory> memories;
   Json profile;  // narrative: appearance, background, goals, secrets, schedule, social media...
@@ -433,6 +476,8 @@ struct CreatorOptions {
   CreatorChoice education;
   CreatorChoice relationshipStatus;
   CreatorChoice goals;
+  CreatorChoice reproduction;  // optional answer; maps to CharacterDef::reproduction
+  std::map<std::string, std::string> reproductionMeaning;
   double personalityBudget = 400;  // sum of all personality traits may not exceed this
   double valuesBudget = 450;
   int maxBackgroundLength = 400;
@@ -494,6 +539,8 @@ class ContentDatabase {
   const CrimeDef* crimeDef(const std::string& id) const;
   const std::map<std::string, SubstanceDef>& substances() const { return substances_; }
   const SubstanceDef* substance(const std::string& id) const;
+  const RomanceConfig& romance() const { return romance_; }
+  const FameConfig& fame() const { return fame_; }
   const ProgramDef* program(const std::string& id) const;
   const DegreeDef* degree(const std::string& id) const;
   // The line and stop for a stop id, or {nullptr, nullptr}.
@@ -535,6 +582,8 @@ class ContentDatabase {
   EducationConfig education_;
   CrimeConfig crime_;
   std::map<std::string, SubstanceDef> substances_;
+  RomanceConfig romance_;
+  FameConfig fame_;
 };
 
 }  // namespace livera

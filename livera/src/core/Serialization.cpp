@@ -42,6 +42,13 @@ Json toJson(const CharacterState& c) {
   j["high_until"] = c.highUntil;
   j["wanted_for"] = c.wantedFor;
   j["jailed_until"] = c.jailedUntil;
+  j["fame"] = c.fame;
+  j["parents"] = c.parents;
+  if (c.pregnancy) {
+    const PregnancyState& p = *c.pregnancy;
+    j["pregnancy"] = Json{{"partner", p.partner}, {"conceived_at", p.conceivedAt}, {"due_at", p.dueAt}, {"known", p.known},
+                          {"prenatal_visits", p.prenatalVisits}, {"risk", p.risk}};
+  }
   j["education"] = Json{{"program", c.education.program},
                         {"hours", c.education.hours},
                         {"grade_sum", c.education.gradeSum},
@@ -95,6 +102,14 @@ CharacterState characterStateFromJson(const Json& j) {
   c.highUntil = j.value("high_until", GameMinutes{-1});
   c.wantedFor = j.value("wanted_for", "");
   c.jailedUntil = j.value("jailed_until", GameMinutes{-1});
+  c.fame = j.value("fame", 0.0);
+  c.parents = j.value("parents", std::vector<std::string>{});
+  if (j.contains("pregnancy")) {
+    const Json& p = j.at("pregnancy");
+    c.pregnancy = PregnancyState{p.at("partner").get<std::string>(), p.at("conceived_at").get<GameMinutes>(),
+                                 p.at("due_at").get<GameMinutes>(), p.value("known", false), p.value("prenatal_visits", 0),
+                                 p.value("risk", 1.0)};
+  }
   if (j.contains("education")) {
     const Json& e = j.at("education");
     c.education.program = e.value("program", "");
@@ -108,6 +123,8 @@ CharacterState characterStateFromJson(const Json& j) {
 
 Json toJson(const RelationshipState& r) {
   return Json{{"dimensions", r.dimensions},
+              {"status", r.status},
+              {"status_since", r.statusSince},
               {"first_met_at", r.firstMetAt},
               {"last_interaction_at", r.lastInteractionAt},
               {"interaction_count", r.interactionCount}};
@@ -116,6 +133,8 @@ Json toJson(const RelationshipState& r) {
 RelationshipState relationshipStateFromJson(const Json& j) {
   RelationshipState r;
   r.dimensions = j.at("dimensions").get<StatMap>();
+  r.status = j.value("status", "");
+  r.statusSince = j.value("status_since", GameMinutes{-1});
   r.firstMetAt = j.at("first_met_at").get<GameMinutes>();
   r.lastInteractionAt = j.at("last_interaction_at").get<GameMinutes>();
   r.interactionCount = j.at("interaction_count").get<int>();
@@ -205,6 +224,8 @@ Json toJson(const CharacterDef& c) {
               {"home", {{"property", c.homeProperty}}},
               {"spawn_location", c.spawnLocation},
               {"degrees", c.degrees},
+              {"reproduction", c.reproduction},
+              {"fame", c.fame},
               {"relationships", relationships},
               {"profile", c.profile}};
 }

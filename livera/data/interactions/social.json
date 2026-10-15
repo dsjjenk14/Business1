@@ -65,6 +65,19 @@
       "memory_type": "argument",
       "importance": 45,
       "emotional_impact": -40
+    },
+    {
+      "id": "flirt",
+      "label": "Flirt",
+      "range_m": 3,
+      "actor_needs": {"social": 5},
+      "target_needs": {"social": 5},
+      "target_emotions": {"happiness": 2, "excitement": 3},
+      "actor_to_target": {"romantic_attraction": 2, "familiarity": 1},
+      "target_to_actor": {"romantic_attraction": 3, "physical_attraction": 2, "familiarity": 1},
+      "receptivity_trait": "confidence",
+      "importance": 15,
+      "emotional_impact": 10
     }
   ]
 }

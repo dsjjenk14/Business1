@@ -75,7 +75,8 @@ Activity readActivity(const Json& a) {
 }
 
 // Services a care provider can run when one of its offers is bought.
-const std::set<std::string> kCareServices = {"checkup", "treatment", "dental_care", "emergency", "rehab"};
+const std::set<std::string> kCareServices = {"checkup", "treatment", "dental_care", "emergency", "rehab",
+                                             "sti_test", "prenatal", "abortion"};
 
 template <class Map>
 Status insertUnique(Map& map, const std::string& kind, const std::string& id, typename Map::mapped_type value) {
@@ -146,6 +147,8 @@ Result<CharacterDef> ContentDatabase::parseCharacter(const Json& j) {
     c.homeProperty = j.at("home").at("property").get<std::string>();
     c.spawnLocation = j.at("spawn_location").get<std::string>();
     c.degrees = readStrings(j, "degrees");
+    c.reproduction = j.value("reproduction", "");
+    c.fame = j.value("fame", 0.0);
     if (j.contains("relationships")) {
       for (const auto& r : j.at("relationships")) {
         c.relationships.push_back(
@@ -228,6 +231,7 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           l.revenueAccount = j.value("revenue_account", "");
           l.constructionProject = j.value("construction_project", "");
           l.stage = j.value("stage", false);
+          l.weddings = j.value("weddings", false);
           if (auto s = insertUnique(locations_, "location", l.id, l); !s) return s;
         }
       } else if (section == "properties") {
@@ -334,6 +338,11 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
         c.education = readChoice(body.at("education"));
         c.relationshipStatus = readChoice(body.at("relationship_status"));
         c.goals = readChoice(body.at("goals"));
+        if (body.contains("reproduction")) {
+          c.reproduction = readChoice(body.at("reproduction").at("choice"));
+          for (const auto& [answer, meaning] : body.at("reproduction").at("means").items())
+            c.reproductionMeaning[answer] = meaning.get<std::string>();
+        }
         c.personalityBudget = body.value("personality_budget", c.personalityBudget);
         c.valuesBudget = body.value("values_budget", c.valuesBudget);
         c.maxBackgroundLength = body.value("max_background_length", c.maxBackgroundLength);
@@ -435,6 +444,8 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           i.style = j.value("style", 0.0);
           i.substance = j.value("substance", "");
           i.illegal = j.value("illegal", false);
+          i.test = j.value("test", "");
+          i.contraception = j.value("contraception", false);
           if (auto st = insertUnique(items_, "item", i.id, i); !st) return st;
         }
       } else if (section == "education") {
@@ -504,6 +515,36 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           d.possessionCrime = j.value("possession_crime", "");
           if (auto st = insertUnique(substances_, "substance", d.id, d); !st) return st;
         }
+      } else if (section == "romance") {
+        auto& R = romance_;
+        R.requestMinutes = body.value("request_minutes", R.requestMinutes);
+        R.conceptionChance = body.value("conception_chance", R.conceptionChance);
+        R.protectionEffectiveness = body.value("protection_effectiveness", R.protectionEffectiveness);
+        for (const auto& f : body.at("fertility_by_age")) R.fertilityByAge.emplace_back(f.at(0).get<int>(), f.at(1).get<double>());
+        R.pregnancyGameDays = body.value("pregnancy_game_days", R.pregnancyGameDays);
+        R.symptomsAfterDays = body.value("symptoms_after_days", R.symptomsAfterDays);
+        R.testDetectsAfterDays = body.value("test_detects_after_days", R.testDetectsAfterDays);
+        R.miscarriageChance = body.value("miscarriage_chance", R.miscarriageChance);
+        R.miscarriageWindowDays = body.value("miscarriage_window_days", R.miscarriageWindowDays);
+        R.abortionLimitDays = body.value("abortion_limit_days", R.abortionLimitDays);
+        R.pregnancyNeedsPerHour = readStats(body, "pregnancy_needs_per_hour");
+        R.morningSicknessNeedsPerHour = readStats(body, "morning_sickness_needs_per_hour");
+        R.girlNames = body.at("baby_names").at("girl").get<std::vector<std::string>>();
+        R.boyNames = body.at("baby_names").at("boy").get<std::vector<std::string>>();
+        R.namingWindowDays = body.value("naming_window_days", R.namingWindowDays);
+        R.divorceFeeCents = body.value("divorce_fee_cents", R.divorceFeeCents);
+        R.divorceFeeAccount = body.at("divorce_fee_account").get<std::string>();
+        R.stiProtection = body.value("sti_protection", R.stiProtection);
+      } else if (section == "fame") {
+        auto& F = fame_;
+        for (const auto& t : body.at("tiers"))
+          F.tiers.push_back(FameTier{t.at("id").get<std::string>(), t.at("label").get<std::string>(), t.at("min").get<double>()});
+        F.decayPerDay = body.value("decay_per_day", F.decayPerDay);
+        F.perQualityAudience = body.value("per_quality_audience", F.perQualityAudience);
+        F.perRelease = body.value("per_release", F.perRelease);
+        F.perWedding = body.value("per_wedding", F.perWedding);
+        F.celebrityAt = body.value("celebrity_at", F.celebrityAt);
+        F.receptivityBonus = body.value("receptivity_bonus", F.receptivityBonus);
       } else if (section == "transit") {
         transit_.operatorAccount = body.at("operator_account").get<std::string>();
         transit_.boardingRadiusMeters = body.value("boarding_radius_m", transit_.boardingRadiusMeters);
@@ -702,6 +743,13 @@ Status ContentDatabase::validate() const {
     if (!d.addiction.empty() && !condition(d.addiction)) return fail("content_invalid", where + ": unknown addiction condition");
     if (!d.possessionCrime.empty() && !crimeDef(d.possessionCrime)) return fail("content_invalid", where + ": unknown possession_crime");
   }
+  if (!romance_.divorceFeeAccount.empty() && !orgs.count(romance_.divorceFeeAccount))
+    return fail("content_invalid", "romance: unknown divorce_fee_account");
+  if (auto s = checkKeys(romance_.pregnancyNeedsPerHour, needs, "romance.pregnancy_needs_per_hour"); !s) return s;
+  if (auto s = checkKeys(romance_.morningSicknessNeedsPerHour, needs, "romance.morning_sickness_needs_per_hour"); !s) return s;
+  for (std::size_t i = 1; i < fame_.tiers.size(); ++i) {
+    if (fame_.tiers[i].minFame <= fame_.tiers[i - 1].minFame) return fail("content_invalid", "fame tiers must increase");
+  }
   if (!crime_.crimes.empty()) {
     if (!location(crime_.jail)) return fail("content_invalid", "crime: unknown jail");
     if (!location(crime_.hospital)) return fail("content_invalid", "crime: unknown hospital");
@@ -738,15 +786,21 @@ Status ContentDatabase::validateCharacter(const CharacterDef& c,
   for (const auto& [k, v] : c.skills) {
     if (v < 0 || v > 100) return fail("content_invalid", where + ": skill " + k + " must be 0-100");
   }
-  const CareerDef* career = this->career(c.careerId);
-  if (!career) return fail("content_invalid", where + ": unknown career " + c.careerId);
-  if (c.careerLevel < 0 || c.careerLevel >= static_cast<int>(career->levels.size()))
-    return fail("content_invalid", where + ": career level out of range");
+  // Children born in the world have no job yet.
+  if (!(c.careerId.empty() && !c.playable)) {
+    const CareerDef* career = this->career(c.careerId);
+    if (!career) return fail("content_invalid", where + ": unknown career " + c.careerId);
+    if (c.careerLevel < 0 || c.careerLevel >= static_cast<int>(career->levels.size()))
+      return fail("content_invalid", where + ": career level out of range");
+  }
   if (!property(c.homeProperty)) return fail("content_invalid", where + ": unknown home property " + c.homeProperty);
   if (!location(c.spawnLocation)) return fail("content_invalid", where + ": unknown spawn_location");
   for (const auto& d : c.degrees) {
     if (!education_.degrees.empty() && !degree(d)) return fail("content_invalid", where + ": unknown degree " + d);
   }
+  if (!c.reproduction.empty() && c.reproduction != "carrier" && c.reproduction != "sire")
+    return fail("content_invalid", where + ": reproduction must be carrier, sire or empty");
+  if (c.fame < 0 || c.fame > 100) return fail("content_invalid", where + ": fame must be 0-100");
   if (c.startingBankCents < 0 || c.startingCashCents < 0) return fail("content_invalid", where + ": negative money");
   for (const auto& r : c.relationships) {
     if (!characterExists(r.to)) return fail("content_invalid", where + ": relationship to unknown character " + r.to);

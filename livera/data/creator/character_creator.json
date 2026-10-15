@@ -211,7 +211,12 @@
     },
     "personality_budget": 400,
     "values_budget": 450,
-    "max_background_length": 400
+    "max_background_length": 400,
+    "reproduction": {
+      "$comment": "Optional. Only used for pregnancy; separate from gender and pronouns.",
+      "choice": ["can become pregnant", "can get someone pregnant", "neither"],
+      "means": {"can become pregnant": "carrier", "can get someone pregnant": "sire", "neither": ""}
+    }
   },
   "origins": [
     {

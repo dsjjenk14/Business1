@@ -412,6 +412,10 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
   if (op == "steal") return world_.steal(me, str(req, "offer"));
   if (op == "pickpocket") return world_.pickpocket(me, str(req, "target"));
   if (op == "arrest") return world_.arrest(me, str(req, "target"));
+  if (op == "request") return world_.request(me, str(req, "kind"), str(req, "target"), req.value("protection", false));
+  if (op == "respond") return world_.respond(me, str(req, "request"), req.value("accept", false));
+  if (op == "end_relationship") return world_.endRelationship(me, str(req, "target"));
+  if (op == "name_baby") return world_.nameBaby(me, str(req, "child"), str(req, "name"));
   if (op == "message") {
     auto id = world_.sendMessage(me, str(req, "to"), str(req, "text"));
     if (!id) return id.error();

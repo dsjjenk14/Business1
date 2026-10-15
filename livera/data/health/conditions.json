@@ -1,5 +1,5 @@
 {
-  "$comment": "Conditions characters can have. Chances are per game hour. treated_by names care services or items.",
+  "$comment": "Conditions characters can have. Chances are per game hour. treated_by names care services or items. Sexually transmitted infections have fictional names.",
   "conditions": [
     {
       "id": "common_cold",
@@ -103,6 +103,49 @@
       "emotions_per_hour": {"stress": 2, "sadness": 2},
       "performance_penalty": 0.4,
       "treated_by": ["rehab"]
+    },
+    {
+      "id": "crimson_bloom",
+      "name": "Crimson Bloom",
+      "kind": "sti",
+      "hours": [0, 0],
+      "needs_per_hour": {"comfort": -1},
+      "emotions_per_hour": {"embarrassment": 0.5},
+      "performance_penalty": 0.05,
+      "catch": {"sexual_transmission": 0.3},
+      "treated_by": ["treatment"]
+    },
+    {
+      "id": "ashen_itch",
+      "name": "Ashen Itch",
+      "kind": "sti",
+      "hours": [0, 0],
+      "needs_per_hour": {"comfort": -1.5},
+      "performance_penalty": 0.05,
+      "catch": {"sexual_transmission": 0.4},
+      "treated_by": ["treatment"]
+    },
+    {
+      "id": "silent_lace",
+      "name": "Silent Lace",
+      "kind": "sti",
+      "hours": [0, 0],
+      "needs_per_hour": {"health": -0.1},
+      "symptomatic": false,
+      "catch": {"sexual_transmission": 0.25},
+      "treated_by": ["treatment"]
+    },
+    {
+      "id": "hollow_fever",
+      "name": "Hollow Fever",
+      "kind": "sti",
+      "hours": [0, 0],
+      "needs_per_hour": {"energy": -1, "health": -0.2},
+      "symptomatic": false,
+      "curable": false,
+      "performance_penalty": 0.15,
+      "catch": {"sexual_transmission": 0.2},
+      "treated_by": ["treatment"]
     }
   ]
 }

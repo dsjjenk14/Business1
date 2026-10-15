@@ -1,0 +1,18 @@
+{
+  "$comment": "Fame from performances, releases, weddings and headlines. It fades without new reasons.",
+  "fame": {
+    "tiers": [
+      {"id": "resident", "label": "Resident", "min": 0},
+      {"id": "local_name", "label": "Local name", "min": 15},
+      {"id": "rising_star", "label": "Rising star", "min": 35},
+      {"id": "celebrity", "label": "Celebrity", "min": 60},
+      {"id": "icon", "label": "Icon", "min": 85}
+    ],
+    "decay_per_day": 0.2,
+    "per_quality_audience": 0.002,
+    "per_release": 1,
+    "per_wedding": 2,
+    "celebrity_at": 60,
+    "receptivity_bonus": 0.2
+  }
+}

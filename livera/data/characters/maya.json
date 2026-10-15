@@ -33,6 +33,8 @@
       "interests": ["volunteering", "faith", "dance", "cooking", "reading", "music"],
       "career": {"id": "nonprofit", "level": 3},
       "degrees": ["bachelors"],
+      "reproduction": "carrier",
+      "fame": 10,
       "finances": {"cash_cents": 8000, "bank_cents": 640000},
       "home": {"property": "maple_court_1a", "tenure": "rent"},
       "spawn_location": "maple_court_1a",

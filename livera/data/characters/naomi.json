@@ -33,6 +33,8 @@
       "interests": ["fashion", "art", "architecture", "photography", "travel"],
       "career": {"id": "fashion_design", "level": 3},
       "degrees": ["bachelors"],
+      "reproduction": "carrier",
+      "fame": 20,
       "finances": {"cash_cents": 15000, "bank_cents": 4200000},
       "home": {"property": "lexington_1801", "tenure": "rent"},
       "spawn_location": "lexington_1801",

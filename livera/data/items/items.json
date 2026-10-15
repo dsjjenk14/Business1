@@ -158,6 +158,23 @@
       "cooldown_minutes": 30,
       "substance": "velvet",
       "illegal": true
+    },
+    {
+      "id": "engagement_ring",
+      "label": "Engagement ring",
+      "category": "jewelry",
+      "slot": "accessory",
+      "style": 10
+    },
+    {"id": "condoms", "label": "Condoms", "category": "contraception", "contraception": true},
+    {
+      "id": "pregnancy_test",
+      "label": "Pregnancy test",
+      "category": "health",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 5,
+      "test": "pregnancy"
     }
   ]
 }

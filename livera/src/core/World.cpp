@@ -155,6 +155,7 @@ void World::addCharacterState(const CharacterDef& def, const OriginDef* origin) 
   c.career.careerId = def.careerId;
   c.career.level = def.careerLevel;
   c.education.degrees = def.degrees;
+  c.fame = def.fame;
   c.lastSimulatedAt = state_.now;
   initBody(c, def);
   state_.characters[id] = c;
@@ -420,7 +421,13 @@ Status World::enter(const CharacterId& actor, const LocationId& locationId) {
   c.inside = loc->id;
   c.position = loc->door;
   c.moveTarget.reset();
-  emit(presentWith(c), "presence", Json{{"character", actor}, {"status", "entered"}, {"location", loc->id}});
+  const auto here = presentWith(c);
+  emit(here, "presence", Json{{"character", actor}, {"status", "entered"}, {"location", loc->id}});
+  // A celebrity walking in turns heads.
+  if (c.fame >= content_->fame().celebrityAt) {
+    const CharacterDef* def = definition(actor);
+    for (const auto& id : here) notify(id, "fame", (def ? def->fullName() : actor) + " (" + fameTierOf(actor) + ") just walked in.");
+  }
   return okStatus();
 }
 
@@ -497,6 +504,7 @@ Result<Json> World::interact(const CharacterId& actor, const std::string& intera
     receptivity = 0.5 + (it == targetDef.personality.end() ? 50 : it->second) / 100.0;
   }
   const bool grudge = holdsGrudge(targetId, actor);
+  if (a.fame >= content_->fame().celebrityAt) receptivity *= 1.0 + content_->fame().receptivityBonus;
 
   for (const auto& [dim, delta] : def->actorToTarget) adjustRelationship(actor, targetId, dim, delta);
   const LifeConfig& life = content_->life();
@@ -583,6 +591,12 @@ Result<Json> World::buy(const CharacterId& actor, const std::string& offerId, co
   if (!offer->requiresDiagnosis.empty()) {
     const ConditionState* k = findCondition(c, offer->requiresDiagnosis);
     if (!k || !k->diagnosed) return fail("needs_prescription", "a doctor has to diagnose you before you can buy that");
+  }
+  if (offer->service == "prenatal" && !c.pregnancy) return fail("not_pregnant", "you're not pregnant");
+  if (offer->service == "abortion") {
+    if (!c.pregnancy || !c.pregnancy->known) return fail("not_pregnant", "a test or a doctor needs to confirm the pregnancy first");
+    const double days = static_cast<double>(state_.now - c.pregnancy->conceivedAt) / kMinutesPerDay;
+    if (days > content_->romance().abortionLimitDays) return fail("too_late", "it's past the limit for this procedure");
   }
   // Don't charge for treatment there is nothing to give.
   if (offer->service == "treatment") {
@@ -845,6 +859,8 @@ Result<Json> World::openPhoneApp(const CharacterId& actor, const std::string& ap
   if (app == "school") return phoneSchool(c);
   if (app == "jobs") return phoneJobs(c);
   if (app == "record") return phoneRecord(c);
+  if (app == "romance") return phoneRomance(c);
+  if (app == "fame") return phoneFame(c);
   return fail("unknown_app", "no such phone app");
 }
 
@@ -973,7 +989,10 @@ Status World::canAccess(const CharacterId& actor, const LocationDef& loc) const 
     case AccessRule::Residents:
       for (const auto& [pid, p] : state_.properties) {
         const PropertyDef* def = content_->property(pid);
-        if (def && def->location == loc.id && p.tenant == actor) return okStatus();
+        if (!def || def->location != loc.id || p.tenant.empty()) continue;
+        if (p.tenant == actor) return okStatus();
+        const std::string bond = relationshipStatus(actor, p.tenant);
+        if (bond == "dating" || bond == "engaged" || bond == "married") return okStatus();  // your partner can come over
       }
       return fail("no_access", "you don't live here");
     case AccessRule::Staff:

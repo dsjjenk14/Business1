@@ -154,6 +154,7 @@ Result<Json> World::releaseSong(const CharacterId& actor, const std::string& son
   if (song.released) return fail("song_released", "already released");
   song.released = true;
   CharacterState& c = *r.value();
+  addFame(c, content_->fame().perRelease);
   if (c.skills.count(kMusicSkill)) c.skills[kMusicSkill] = clampd(c.skills[kMusicSkill] + skillGain(c.skills[kMusicSkill], 2), 0, 100);
   // People who know you hear about it.
   const CharacterDef* me = definition(actor);
@@ -267,6 +268,7 @@ Result<Json> World::perform(const CharacterId& actor, const std::string& songId)
   }
   applyEmotions(c, {{"confidence", 3}});
   if (!audience.empty()) applyNeeds(c, {{"social", 5}});
+  addFame(c, quality * static_cast<double>(audience.size()) * content_->fame().perQualityAudience);
   return Json{{"song", song.title},
               {"quality", quality},
               {"audience", audience.size()},

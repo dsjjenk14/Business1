@@ -34,6 +34,8 @@
       "skills": {"music": 72},
       "career": {"id": "music_production", "level": 2},
       "degrees": [],
+      "reproduction": "sire",
+      "fame": 30,
       "finances": {"cash_cents": 60000, "bank_cents": 380000},
       "home": {"property": "riverside_lofts_2", "tenure": "rent"},
       "spawn_location": "riverside_lofts_2",

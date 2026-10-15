@@ -110,6 +110,7 @@ Json World::arrestCharacter(CharacterState& c, const std::string& crime, const s
   }
   c.wantedFor.clear();
   applyEmotions(c, {{"embarrassment", 30}, {"stress", 20}, {"sadness", 10}});
+  if (def) addFame(c, def->notoriety);  // any headline makes you known
   out["fine_cents"] = fines;
   out["jail_minutes"] = jail;
   if (!seized.empty()) out["seized"] = seized;

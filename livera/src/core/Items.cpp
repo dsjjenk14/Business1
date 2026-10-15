@@ -47,6 +47,7 @@ Result<Json> World::useItem(const CharacterId& actor, const std::string& item) {
   const ItemDef* def = content_->item(item);
   if (!def) return fail("unknown_item", "no such item");
   if (!owns(actor, item)) return fail("not_owned", "you don't have " + def->label);
+  if (def->contraception) return fail("not_usable", "it's used during intimacy");
   if (!def->usable) {
     if (!def->slot.empty()) return fail("not_usable", "put it on instead");
     return fail("not_usable", "you can't use that by itself");
@@ -68,6 +69,7 @@ Result<Json> World::useItem(const CharacterId& actor, const std::string& item) {
   applyNeeds(c, def->needEffects);
   applyEmotions(c, def->emotionEffects);
   Json effect = def->substance.empty() ? Json() : takeSubstance(c, def->substance);
+  if (def->test == "pregnancy") effect = pregnancyTest(c);
   // Medicine that shortens an illness.
   std::vector<std::string> over;
   for (auto& k : c.conditions) {
