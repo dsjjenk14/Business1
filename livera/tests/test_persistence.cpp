@@ -178,3 +178,23 @@ TEST_CASE("persistence: a save from before everyday life loads with bodies, degr
   CHECK(loaded.ageOf("andre") == 29);
   CHECK(loaded.hasDegree("dominique", "bachelors"));
 }
+
+TEST_CASE("persistence: businesses added after a world was saved open on load, funded, and take payments") {
+  World w = World::createNew(realContent());
+  WorldState s = w.state();
+  // A save from before the bus line: rebuild the ledger without the transit account, with
+  // its opening money back in the outside economy.
+  Ledger old;
+  for (const auto& [id, a] : s.ledger.accounts())
+    if (id != "org:livera_transit") REQUIRE(old.openAccount(LedgerAccount{a.id, a.ownerId, a.kind, 0, a.allowNegative}));
+  for (const auto& [id, a] : s.ledger.accounts())
+    if (id != "org:livera_transit" && a.balanceCents > 0) REQUIRE(old.transfer(kEconomyAccount, id, a.balanceCents, "opening_balance", "", 0));
+  s.ledger = old;
+  World loaded(realContent(), s);
+  CHECK(loaded.state().ledger.balance("org:livera_transit") == w.state().ledger.balance("org:livera_transit"));
+  CHECK(loaded.state().ledger.balance("org:livera_transit") > 0);
+  CHECK(loaded.state().ledger.sumOfBalances() == 0);
+  // Loading the same state again opens nothing twice.
+  World again(realContent(), loaded.state());
+  CHECK(again.state().ledger.balance("org:livera_transit") == loaded.state().ledger.balance("org:livera_transit"));
+}

@@ -57,15 +57,8 @@ World World::createNew(std::shared_ptr<const ContentDatabase> content) {
   WorldState s;
   s.now = db.sim().startMinute;
 
-  // Ledger: the outside economy and organisations. Characters are added by the constructor.
+  // Ledger: the outside economy. Organisations, properties and characters are added by the constructor.
   (void)s.ledger.openAccount(LedgerAccount{kEconomyAccount, "system", "system", 0, true});
-  for (const auto& org : db.orgAccounts()) {
-    (void)s.ledger.openAccount(LedgerAccount{org.id, org.id, "business", 0, false});
-    if (org.openingBalanceCents > 0)
-      (void)s.ledger.transfer(kEconomyAccount, org.id, org.openingBalanceCents, "opening_balance", org.name, s.now);
-  }
-
-  for (const auto& [pid, p] : db.properties()) s.properties[pid] = PropertyState{pid, p.ownerAccount, ""};
 
   for (const auto& p : db.constructionProjects()) {
     ConstructionState cs;
@@ -109,9 +102,19 @@ World World::createNew(std::shared_ptr<const ContentDatabase> content) {
 
 World::World(std::shared_ptr<const ContentDatabase> content, WorldState state)
     : content_(std::move(content)), state_(std::move(state)) {
+  const ContentDatabase& db = *content_;
+  // Businesses and properties added to content after the world was saved open now, funded
+  // the same way a new world funds them, so fares, fees and purchases have somewhere to go.
+  for (const auto& org : db.orgAccounts()) {
+    if (state_.ledger.account(org.id)) continue;
+    (void)state_.ledger.openAccount(LedgerAccount{org.id, org.id, "business", 0, false});
+    if (org.openingBalanceCents > 0)
+      (void)state_.ledger.transfer(kEconomyAccount, org.id, org.openingBalanceCents, "opening_balance", org.name,
+                                   state_.now);
+  }
+  for (const auto& [pid, p] : db.properties()) state_.properties.try_emplace(pid, PropertyState{pid, p.ownerAccount, ""});
   // Founding characters missing from the state (a new world, or content added after the
   // world was saved) move in now.
-  const ContentDatabase& db = *content_;
   for (const auto& [id, def] : db.characters()) {
     if (!state_.characters.count(id)) addCharacterState(def, nullptr);
   }

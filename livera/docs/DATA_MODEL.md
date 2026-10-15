@@ -140,3 +140,8 @@ Session state is not saved: who is online, move targets, activity cooldowns. Ope
 are settled on logout and shutdown, so none survive a save.
 
 JSON field names in state blobs are part of the format. Renaming one needs a migration.
+
+Content added after a world was saved joins it on load (`World`'s constructor): new
+organisations open their ledger accounts and get their opening balance from the outside
+economy, new properties appear unlet, new founding characters move in, and stats, bodies,
+degrees and fame missing from older character blobs start from their definitions.
