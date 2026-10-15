@@ -129,3 +129,18 @@ Relationship changes stay tied to explicit interactions so they can't be farmed 
 own key (`song`, `song_id`, `character`...).
 **Why:** A test caught the request id overwriting a song id. Reserving the key removes
 that class of bug for every future op.
+
+## D-021 — The art cards define the founding cast
+**Context:** The product owner supplied reference sheets for 11 characters. Only Aaliyah
+and Sienna matched the spec's original 16 names.
+**Decision (product owner):** These 11 are the founding cast; the spec's other names are
+dropped. Jaxon Reid becomes Dax Hendrix, AI Engineer (his sheet was drawn from Jaxon's
+description). The unnamed sheet is Dominique. All 11 are playable now.
+**How:** Card facts (name, age, height, occupation, ethnicity, build, skin tone, features,
+personality) are canon and copied into each character's data. Backstories, secrets and ties
+were written to fit the cards and are meant to be edited. Pronouns were confirmed by the
+product owner.
+
+## D-022 — Staff can always enter their own workplace
+**Why:** Opening hours are for customers. Andre must be able to open his own studio at
+9 a.m. even though the public can't come in until noon.

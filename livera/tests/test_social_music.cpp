@@ -12,7 +12,7 @@ World threeOnline() {
   World w = World::createNew(realContent());
   std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
   REQUIRE(w.createCharacter(Json::parse(in)));
-  for (const char* id : {"dominique", "jaxon", "sol-rivera"}) REQUIRE(w.connect(id));
+  for (const char* id : {"dominique", "dax", "sol-rivera"}) REQUIRE(w.connect(id));
   (void)w.drainEvents();
   return w;
 }
@@ -42,37 +42,37 @@ Json groove() {
 TEST_CASE("speech: people in the same building hear you; people elsewhere don't") {
   World w = threeOnline();
   walkInto(w, "dominique", "heritage_coffee");
-  walkInto(w, "jaxon", "heritage_coffee");
+  walkInto(w, "dax", "heritage_coffee");
   (void)w.drainEvents();  // sol-rivera is still at home
   auto r = w.say("dominique", "Morning, everyone!", "say");
   REQUIRE(r);
   CHECK(r.value()["heard_by"] == 1);
-  CHECK(heard(w, "speech") == std::vector<CharacterId>{"jaxon"});
+  CHECK(heard(w, "speech") == std::vector<CharacterId>{"dax"});
 }
 
 TEST_CASE("speech: outdoors, how far you're heard depends on how loud you are") {
   World w = threeOnline();
-  for (const char* id : {"dominique", "jaxon", "sol-rivera"}) REQUIRE(w.exitBuilding(id));
+  for (const char* id : {"dominique", "dax", "sol-rivera"}) REQUIRE(w.exitBuilding(id));
   walkTo(w, "dominique", "founders_park");
-  REQUIRE(w.moveTo("jaxon", {415, 350}));  // 15 m from the park's centre
+  REQUIRE(w.moveTo("dax", {415, 350}));  // 15 m from the park's centre
   REQUIRE(w.moveTo("sol-rivera", {450, 350}));  // 50 m away
   for (int i = 0; i < 1000; ++i) w.advanceRealTime(0.1);
   (void)w.drainEvents();
   REQUIRE(w.say("dominique", "Over here", "say"));
-  CHECK(heard(w, "speech") == std::vector<CharacterId>{"jaxon"});
+  CHECK(heard(w, "speech") == std::vector<CharacterId>{"dax"});
   REQUIRE(w.say("dominique", "OVER HERE", "shout"));
-  CHECK(heard(w, "speech") == (std::vector<CharacterId>{"jaxon", "sol-rivera"}));
-  CHECK(w.say("dominique", "psst", "whisper", "jaxon").error().code == "too_far");  // 15 m is not a whisper
+  CHECK(heard(w, "speech") == (std::vector<CharacterId>{"dax", "sol-rivera"}));
+  CHECK(w.say("dominique", "psst", "whisper", "dax").error().code == "too_far");  // 15 m is not a whisper
 }
 
 TEST_CASE("speech: whispers reach one person; bad lines are refused") {
   World w = threeOnline();
   walkInto(w, "dominique", "heritage_coffee");
-  walkInto(w, "jaxon", "heritage_coffee");
+  walkInto(w, "dax", "heritage_coffee");
   walkInto(w, "sol-rivera", "heritage_coffee");
   (void)w.drainEvents();
-  REQUIRE(w.say("dominique", "Don't tell anyone.", "whisper", "jaxon"));
-  CHECK(heard(w, "speech") == std::vector<CharacterId>{"jaxon"});
+  REQUIRE(w.say("dominique", "Don't tell anyone.", "whisper", "dax"));
+  CHECK(heard(w, "speech") == std::vector<CharacterId>{"dax"});
   CHECK(w.say("dominique", "   ", "say").error().code == "invalid_speech");
   CHECK(w.say("dominique", std::string(301, 'a'), "say").error().code == "invalid_speech");
   CHECK(w.say("dominique", "hi", "sing").error().code == "invalid_speech");
@@ -139,7 +139,7 @@ TEST_CASE("music: releasing makes a song public, final, and news") {
   bool told = false;
   for (const auto& n : w.state().notifications) told |= n.recipient == "dominique" && n.text.find("Founders Groove") != std::string::npos;
   CHECK(told);
-  CHECK(w.openPhoneApp("jaxon", "studio").value()["chart"].size() == 1);
+  CHECK(w.openPhoneApp("dax", "studio").value()["chart"].size() == 1);
 }
 
 TEST_CASE("music: performing on a stage entertains the room and builds skill") {
@@ -148,14 +148,14 @@ TEST_CASE("music: performing on a stage entertains the room and builds skill") {
   CHECK(w.perform("sol-rivera", id).error().code == "no_stage");  // their apartment isn't a stage
   walkInto(w, "sol-rivera", "heritage_coffee");
   walkInto(w, "dominique", "heritage_coffee");
-  walkInto(w, "jaxon", "heritage_coffee");
+  walkInto(w, "dax", "heritage_coffee");
   (void)w.drainEvents();
   const double fun = w.character("dominique")->needs.at("recreation");
   const double respect = w.relationshipValue("dominique", "sol-rivera", "respect");
   auto r = w.perform("sol-rivera", id);
   REQUIRE(r);
   CHECK(r.value()["audience"] == 2);
-  CHECK(heard(w, "performance") == (std::vector<CharacterId>{"dominique", "jaxon"}));
+  CHECK(heard(w, "performance") == (std::vector<CharacterId>{"dax", "dominique"}));
   CHECK(w.character("dominique")->needs.at("recreation") > fun);
   CHECK(w.relationshipValue("dominique", "sol-rivera", "respect") > respect);
   CHECK(w.character("sol-rivera")->skills.at("music") > 0);

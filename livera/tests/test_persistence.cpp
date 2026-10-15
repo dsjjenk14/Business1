@@ -32,15 +32,15 @@ TEST_CASE("persistence: the world survives a save/load round trip") {
   {
     World w = World::createNew(realContent());
     REQUIRE(w.connect("dominique"));
-    REQUIRE(w.connect("jaxon"));
+    REQUIRE(w.connect("dax"));
     walkInto(w, "dominique", "heritage_coffee");
-    walkInto(w, "jaxon", "heritage_coffee");
+    walkInto(w, "dax", "heritage_coffee");
     REQUIRE(w.buy("dominique", "latte", "card"));
-    REQUIRE(w.interact("dominique", "deep_talk", "jaxon"));
-    REQUIRE(w.sendMessage("jaxon", "dominique", "Good talk."));
+    REQUIRE(w.interact("dominique", "deep_talk", "dax"));
+    REQUIRE(w.sendMessage("dax", "dominique", "Good talk."));
     w.advanceMinutes(3 * kMinutesPerDay);
     w.disconnect("dominique");
-    w.disconnect("jaxon");
+    w.disconnect("dax");
     auto store = SqliteStore::open(path.string());
     REQUIRE(store);
     REQUIRE(store.value()->saveWorld(w.state()));
@@ -56,7 +56,7 @@ TEST_CASE("persistence: the world survives a save/load round trip") {
   CHECK(s.characters.at("dominique").inside == "heritage_coffee");
   CHECK(s.characters.at("dominique").needs == saved.characters.at("dominique").needs);
   CHECK(s.relationships.size() == saved.relationships.size());
-  CHECK(s.relationships.at({"jaxon", "dominique"}).dimensions == saved.relationships.at({"jaxon", "dominique"}).dimensions);
+  CHECK(s.relationships.at({"dax", "dominique"}).dimensions == saved.relationships.at({"dax", "dominique"}).dimensions);
   CHECK(s.memories.size() == saved.memories.size());
   CHECK(s.ledger.transactions().size() == saved.ledger.transactions().size());
   CHECK(s.ledger.balance(bankAccountOf("dominique")) == saved.ledger.balance(bankAccountOf("dominique")));
@@ -104,7 +104,7 @@ TEST_CASE("persistence: accounts and one-character-per-account claims") {
   REQUIRE(store.claimCharacter("dom", "dominique"));
   CHECK(store.claimCharacter("dom", "dominique"));  // idempotent
   CHECK(store.claimCharacter("jax", "dominique").error().code == "character_taken");
-  CHECK(store.claimCharacter("dom", "jaxon").error().code == "already_has_character");
+  CHECK(store.claimCharacter("dom", "dax").error().code == "already_has_character");
   CHECK(*store.characterOf("dom") == "dominique");
   CHECK(*store.claimedBy("dominique") == "dom");
   CHECK(!store.characterOf("jax"));

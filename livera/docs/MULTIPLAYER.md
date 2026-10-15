@@ -28,7 +28,7 @@ Request: `{"id": 7, "op": "buy", "offer": "latte", "method": "card"}`. **`id` is
 for matching replies to requests; no op may use it as an argument (songs are named by
 `song` / `song_id`).
 Reply: `{"re": 7, "ok": true, "data": {...}}` or `{"re": 7, "ok": false, "error": {"code": "insufficient_funds", "message": "not enough money"}}`
-Event (server push): `{"event": "message", "data": {"from": "jaxon", "body": "..."}}`
+Event (server push): `{"event": "message", "data": {"from": "dax", "body": "..."}}`
 
 | Op | Needs | Arguments |
 |---|---|---|

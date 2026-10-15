@@ -141,7 +141,10 @@ void World::addCharacterState(const CharacterDef& def, const OriginDef* origin) 
   if (origin) {
     for (const auto& [e, d] : origin->emotions) c.emotions[e] = clampd(c.emotions[e] + d, kStatMin, kStatMax);
   }
-  for (const auto& k : db.sim().skills) c.skills[k] = 0;
+  for (const auto& k : db.sim().skills) {
+    auto it = def.skills.find(k);
+    c.skills[k] = it == def.skills.end() ? 0 : it->second;
+  }
   c.career.careerId = def.careerId;
   c.career.level = def.careerLevel;
   c.lastSimulatedAt = state_.now;
@@ -833,6 +836,13 @@ std::string World::locationStatus(const LocationDef& loc) const {
 Status World::canAccess(const CharacterId& actor, const LocationDef& loc) const {
   const std::string status = locationStatus(loc);
   if (status == "under_construction") return fail("under_construction", loc.name + " is still being built");
+  // People can always get into their own workplace, whatever the opening hours.
+  if (const CharacterState* c = character(actor)) {
+    if (const CareerDef* career = content_->career(c->career.careerId)) {
+      if (std::find(career->workplaces.begin(), career->workplaces.end(), loc.id) != career->workplaces.end())
+        return okStatus();
+    }
+  }
   switch (loc.access) {
     case AccessRule::Public:
       if (status == "closed") return fail("closed", loc.name + " is closed right now");
@@ -843,13 +853,8 @@ Status World::canAccess(const CharacterId& actor, const LocationDef& loc) const 
         if (def && def->location == loc.id && p.tenant == actor) return okStatus();
       }
       return fail("no_access", "you don't live here");
-    case AccessRule::Staff: {
-      const CharacterState* c = character(actor);
-      const CareerDef* career = c ? content_->career(c->career.careerId) : nullptr;
-      if (career && std::find(career->workplaces.begin(), career->workplaces.end(), loc.id) != career->workplaces.end())
-        return okStatus();
-      return fail("no_access", "staff only");
-    }
+    case AccessRule::Staff:
+      return fail("no_access", "staff only");  // staff were let in above
   }
   return fail("no_access", "you can't go in");
 }

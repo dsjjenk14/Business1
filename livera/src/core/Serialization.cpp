@@ -136,6 +136,7 @@ Json toJson(const CharacterDef& c) {
               {"values", c.values},
               {"traits", c.traits},
               {"interests", c.interests},
+              {"skills", c.skills},
               {"career", {{"id", c.careerId}, {"level", c.careerLevel}}},
               {"finances", {{"cash_cents", c.startingCashCents}, {"bank_cents", c.startingBankCents}}},
               {"home", {{"property", c.homeProperty}}},

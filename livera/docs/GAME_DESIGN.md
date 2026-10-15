@@ -76,63 +76,67 @@ The founding characters already carry `profile.why_livera`.
 
 ## The founding cast
 
-Sixteen founding residents. They are not templates: each has their own data file with
-personality, values, finances, home, career, relationships, memories, secrets, schedule
-and look. **Two are built:** Dominique Ashford and Jaxon Reid (`data/characters/`). The
-other fourteen are the plan below. Per the spec, they're added after one character is
-complete, then one at a time.
+Eleven founding residents, each with an approved reference sheet in
+`art/reference/characters/` and a complete, playable character file in `data/characters/`.
+The art cards (name, archetype, age, height, occupation, ethnicity, build, skin tone, key
+features, personality) are canon. The rest of each file (family, goals, secrets, history,
+ties) is written to fit the cards; edit it freely.
 
 ### Why they came: the Livéra Founders' Grant
 
-Livéra was chartered on reclaimed riverfront land by a development consortium betting that
-a new town, built right, would pull talent out of crowded cities. To seed it, they offered
-the **Founders' Grant**: discounted leases and relocation money for the first residents
-who'd commit to two years. Sixteen people took it, for sixteen different reasons. Some
-knew each other before. Most didn't. A few wish they didn't.
+Livéra was chartered on reclaimed riverfront land by a development consortium led by
+Whitaker Capital, betting that a new town, built right, would pull talent out of crowded
+cities. To seed it, they offered the **Founders' Grant**: discounted leases and relocation
+money for the first residents who'd commit to two years. Eleven people took it, for eleven
+different reasons. Some knew each other before. Most didn't. A few wish they didn't.
 
-### Built
+| Character | Archetype | Work (in game) | Why Livéra | Secret |
+|---|---|---|---|---|
+| **Dominique Ashford**, 29 | The Closer | Senior Recruiter, Meridian Talent Partners | Career advancement | A standing partner offer back in Atlanta; sees Harper for therapy |
+| **Dax Hendrix**, 32 | The Builder | Senior AI Engineer, Parallax Labs | Fresh start | $38k of debt from his failed robotics startup; knows Parallax's demo is hand-tuned |
+| **Harper James**, 32 | The Confidante | Practice Owner, James Wellness | Business opportunity | Her studio has about two months of money left |
+| **Andre Campbell**, 29 | The Wild Card | Studio Producer, Low End Studios | Financial opportunity | His breakout hit uses an uncleared sample; he moved here because Aaliyah did |
+| **Naomi Ellis**, 30 | The Visionary | Label Owner, Ellis Atelier | Business opportunity | If her label misses targets, Whitaker Capital takes her name |
+| **Graham Whitaker**, 35 | The Investor | Partner, Whitaker Capital | Real-estate investment | His investors want out; he's under pressure to flip Maple Court |
+| **Maya Bennett**, 28 | The Idealist | Founder & CEO, Common Ground | Family | Graham's donation came with conditions her board doesn't know about |
+| **Julian Park**, 30 | The Innovator | Founder & CEO, Parallax Labs | Business opportunity | Parallax's consortium demo used results the model can't reproduce |
+| **Leila Rahal**, 33 | The Insider | Senior Investigative Reporter, The Livéra Ledger | Career advancement | A source inside Whitaker Capital |
+| **Aaliyah Baptiste**, 28 | The Connector | Creative Producer, Baptiste & Co. Events | Business opportunity | Two years with Andre in Miami; nobody here knows |
+| **Sienna Brooks**, 27 | The Tastemaker | Creative Director, Lumen Creative | Career advancement | She runs @livera.unfiltered, the town's anonymous gossip account |
 
-- **Dominique Ashford** (29, she/her): Senior Recruiter opening Meridian Talent's Livéra
-  office. Career advancement. Polished, perceptive, guarded. Secret: a standing offer to
-  go back to Atlanta as a partner.
-- **Jaxon Reid** (32, he/him): Assistant PM at Forge Builders, building half the town.
-  Fresh start after his Houston contracting firm failed. Secret: $38k of old business debt.
-  Already a little sweet on Dominique; she doesn't know (directional relationships).
+Pronouns: Dominique, Harper, Naomi, Maya, Leila, Aaliyah and Sienna are she/her; Dax,
+Andre, Graham and Julian are he/him.
 
-### Planned (names from the spec; details are proposals to confirm)
+### How they're tied together
 
-| Character | Proposed role & motivation | Proposed hooks |
-|---|---|---|
-| Aaliyah | Physician opening the clinic → Riverdale Medical Center. Career. | Dominique's college roommate; the friendship is strained by something unsaid. |
-| Bri | Lifestyle creator. Wealth & attention: first big influencer in a new town. | Will bring someone Dominique dislikes to her party (spec's emergent-story example). |
-| Kailyn | Real-estate agent. Real-estate opportunity. | Competes with Elodie for the same listings. |
-| Nia | Teacher at the first school. Community. | Sings in the Greater Hope choir; knows everyone's business. |
-| Sienna | Restaurateur. Entrepreneurship. | Wants the riverside parcel Jaxon's crew is preparing. |
-| Elodie | Developer's daughter, consortium liaison. Family relocation. | Knows the city plan before anyone else; information as currency. |
-| Valentina | Fashion designer opening a boutique. Creativity. | Romantic history with Luca. |
-| Malik | Attorney setting up the town's first firm (unlocks the Law career). Career. | Old rivalry with Darian. |
-| Chris | Barista turned partner at Heritage Coffee. Escape from a previous life. | Hears everything said at the communal table. |
-| Darian | Finance/tech founder. Wealth. | Funding a project that could displace Maple Court tenants. |
-| Elijah | Associate pastor at Greater Hope. Community. | Counsels half the cast; holds several secrets. |
-| Pluto | DJ and nightlife promoter, waiting for ÉCLAT to open. Adventure. | Brings the nightlife district to life. |
-| Luca | Architect on the consortium's master plan. Career. | Valentina's ex; works closely with Jaxon. |
-| Mateo | Firefighter, Station 1. Family relocation. | Jaxon's pickup-basketball rival. |
+Not everyone knows everyone. Each character starts with three to five directional ties
+(how A feels about B is stored separately from how B feels about A):
 
-Relationship rule for the cast: not everyone knows everyone equally. Expect 3–5
-pre-existing ties per character, a mix of friendship, rivalry, romance, professional and
-family, plus at least one secret each, discoverable through play.
+- **Dominique**: best friends with Aaliyah · Harper's client (secret) · placed engineers at
+  Dax's company · Graham is her biggest client · keeps Leila at arm's length.
+- **Dax**: works for Julian, who he doesn't fully trust · Saturday basketball with Andre ·
+  a little sweet on Dominique, who doesn't know.
+- **Harper and Leila**: college roommates and oldest friends. **Harper and Maya**: close
+  friends through Common Ground.
+- **Andre and Aaliyah**: exes from Miami. He still carries a torch; she carries a grudge.
+  Andre is also drawn to Sienna.
+- **Naomi and Sienna**: cousins who grew up sharing a bedroom. Quietly competitive, Sienna
+  more than Naomi. **Naomi and Julian**: one summer in New York; she ended it.
+- **Graham**: funds Naomi's label, Julian's startup and Maya's nonprofit, each with strings
+  attached. Leila is investigating him; he doesn't know how closely.
+- **Maya and Leila**: source and reporter. **Sienna and Aaliyah**: collaborators.
 
-## Visual direction
-
-Contemporary, upscale, cinematic, semi-realistic, warm, fashion-forward, diverse. Each
-character needs a distinct silhouette, face, wardrobe and palette. Character profiles carry
-an `appearance` block. **The previously created character artwork is not in this
-repository yet.** Add it under `livera/art/reference/` and link it from each character's
-`appearance.visual_reference`.
+Stories these ties are built to produce: Aaliyah producing ÉCLAT's opening with Andre as
+resident producer; Leila closing in on Graham through Maya; Naomi's label at risk; Dax
+deciding whether to say what he knows about Parallax; Sienna's account posting about
+all of them.
 
 ## Locations in the founding town (data/world/founding_town.json)
 
-Built with gameplay: The Lexington (Dominique), Maple Court (Jaxon), Heritage Coffee Co.,
+Built with gameplay: The Lexington (Dominique, Naomi, Graham, Aaliyah), Maple Court (Dax,
+Maya), Riverside Lofts (Andre, Sienna, Julian), Founders Row (Harper, Leila), James Wellness,
+Low End Studios (a stage), Ellis Atelier, Whitaker Capital, Common Ground Community Center,
+Parallax Labs, The Livéra Ledger, Baptiste & Co. Events, Lumen Creative, Heritage Coffee Co.,
 Greenleaf Market, Meridian Talent Partners, Forge Builders site office, Riverdale Clinic,
 Greater Hope Missionary Baptist Church, Founders Park. Under construction: Founders Way,
 Body & Balance gym, Maple Court Phase II, ÉCLAT (starts after Founders Way). Landmarks only,

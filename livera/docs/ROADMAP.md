@@ -57,6 +57,20 @@ Requested by the product owner ahead of the spec's phase order (character creati
 - **Also:** an entry-level Café career (Barista → Shift Lead → Café Manager), save format v2,
   66 tests.
 
+## M0.6 — The founding cast ✅
+
+- Character reference art for all 11 founding characters in `art/reference/characters/`,
+  linked from each character's data (a test checks every link).
+- Jaxon Reid became **Dax Hendrix**, AI Engineer (same face, history and secrets, adapted).
+- Nine new playable characters from the art cards: Harper, Andre, Naomi, Graham, Maya,
+  Julian, Leila, Aaliyah, Sienna. Each has a home, a career at a real workplace, money,
+  personality, values, secrets, a schedule and directional ties to others.
+- Nine new places with gameplay (therapy and yoga, a recording studio that's a stage, a
+  boutique, a community center with volunteering and dinners...), ten new careers (seven
+  open to new players), Founders Row townhouses and Riverside Lofts.
+- Staff can always enter their own workplace. Characters can start with skills.
+- 71 tests.
+
 **Not in M0.5:** voice chat (needs the engine's voice service, M1), a visual character
 creator and 3D preview (M1/M2), song editing UI (the client's job), royalties or music
 careers, moderation tools for chat (needed before any public server).
@@ -90,8 +104,8 @@ ranges as text, and in-world playback of songs (instruments from the song's note
 ## M3 — Social simulation (spec Phase 4) ⬜
 
 Conversations with choices, memory decay and recall, memory-driven reactions,
-information and secrets (facts vs beliefs), first gossip propagation, the remaining
-founding cast added one at a time with their ties.
+information and secrets (facts vs beliefs: the cast's secrets are already in their data,
+ready to become Facts), first gossip propagation (starting with @livera.unfiltered).
 
 ## M4 — Economy (spec Phase 5) ⬜
 

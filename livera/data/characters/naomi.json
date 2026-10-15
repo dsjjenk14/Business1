@@ -1,0 +1,129 @@
+{
+  "characters": [
+    {
+      "id": "naomi",
+      "first_name": "Naomi",
+      "last_name": "Ellis",
+      "pronouns": "she/her",
+      "gender": "woman",
+      "age": 30,
+      "playable": true,
+      "personality": {
+        "ambition": 85,
+        "sociability": 45,
+        "empathy": 50,
+        "patience": 55,
+        "confidence": 80,
+        "risk_tolerance": 60,
+        "competitiveness": 75,
+        "impulsiveness": 30
+      },
+      "values": {
+        "family": 55,
+        "career": 90,
+        "wealth": 65,
+        "loyalty": 60,
+        "freedom": 85,
+        "status": 70,
+        "community": 35,
+        "romance": 40,
+        "creativity": 98
+      },
+      "traits": ["inventive", "exacting", "independent"],
+      "interests": ["fashion", "art", "architecture", "photography", "travel"],
+      "career": {"id": "fashion_design", "level": 3},
+      "finances": {"cash_cents": 15000, "bank_cents": 4200000},
+      "home": {"property": "lexington_1801", "tenure": "rent"},
+      "spawn_location": "lexington_1801",
+      "relationships": [
+        {
+          "to": "graham",
+          "history": "Whitaker Capital bankrolled her debut collection. She read the contract twice and signed it anyway.",
+          "dimensions": {"familiarity": 35, "respect": 42, "trust": 24, "resentment": 20}
+        },
+        {
+          "to": "sienna",
+          "history": "Cousins. Their mothers are sisters. They grew up sharing a bedroom and a sketchbook.",
+          "dimensions": {"familiarity": 92, "friendship": 56, "loyalty": 62, "trust": 48, "jealousy": 15}
+        },
+        {
+          "to": "julian",
+          "history": "They dated for one summer in New York. She ended it before he could make it a pitch.",
+          "dimensions": {"familiarity": 52, "friendship": 25, "romantic_attraction": 10, "trust": 30}
+        }
+      ],
+      "memories": [
+        {
+          "type": "family",
+          "participants": ["naomi", "sienna"],
+          "importance": 50,
+          "emotional_impact": 30,
+          "days_ago": 4000,
+          "info": "Sienna wore Naomi's first dress to prom and won best dressed.",
+          "about": "sienna"
+        },
+        {
+          "type": "business",
+          "participants": ["naomi", "graham"],
+          "importance": 70,
+          "emotional_impact": -5,
+          "days_ago": 120,
+          "info": "Signed Whitaker Capital's term sheet at midnight in a hotel bar.",
+          "about": "graham"
+        }
+      ],
+      "profile": {
+        "tagline": "Designs what Livéra will wear before Livéra knows it.",
+        "why_livera": "business_opportunity",
+        "ethnicity": "Black and Asian American",
+        "card": {"occupation": "Fashion Designer", "height_cm": 171, "build": "Lean", "skin_tone": "Light caramel"},
+        "appearance": {
+          "height_cm": 171,
+          "build": "lean",
+          "skin": "light caramel",
+          "face": "almond-shaped eyes with winged liner, defined jawline, glossy nude lip",
+          "hair": "sleek chin-length bob, side part",
+          "style": "oversized black blazer, white tank, high-waisted black wide-leg trousers, black pointed heels, black structured top-handle bag, silver hoops and ear cuffs",
+          "silhouette": "architectural black tailoring, all straight lines",
+          "key_features": [
+            "Almond-shaped eyes",
+            "Defined jawline",
+            "Sleek chin-length bob",
+            "Minimalist, architectural style",
+            "Polished, modern beauty"
+          ],
+          "visual_reference": "art/reference/characters/naomi.jpg"
+        },
+        "family_background": "Daughter of a Korean seamstress and a Black architect from Philadelphia. Her mother taught her to sew; her father taught her to build.",
+        "education": "B.F.A. Fashion Design, Parsons",
+        "goals": [
+          "Show the first Ellis collection in Livéra",
+          "Keep her name on her label",
+          "Dress the whole founding circle without them noticing"
+        ],
+        "ambitions": ["An Ellis flagship on Founders Way"],
+        "social_preferences": "Small, late dinners; leaves parties early to sketch.",
+        "secrets": [
+          {
+            "id": "naomi_contract",
+            "truth": "If the Ellis label misses its targets, Whitaker Capital takes control of her name.",
+            "known_by": ["graham"]
+          }
+        ],
+        "schedule": {
+          "weekdays": [{"time": "09:30", "activity": "Ellis Atelier"}, {"time": "21:00", "activity": "Sketching at home"}],
+          "saturday": [{"time": "11:00", "activity": "Fittings"}]
+        },
+        "starting_inventory": ["phone", "sketchbook", "tailor's shears", "fabric swatches", "black top-handle bag"],
+        "social_media": {"handle": "@naomiellis.studio", "followers": 31500, "bio": "Ellis. Line, then everything else."},
+        "reputation": {"professional": 70, "social": 45, "public": 35},
+        "life_history": [
+          "Assistant designer at two New York houses.",
+          "Debut capsule sold out in a weekend.",
+          "Moved her atelier to Livéra when Whitaker Capital offered to fund it."
+        ],
+        "archetype": "The Visionary"
+      }
+    }
+  ]
+}

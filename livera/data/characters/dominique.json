@@ -37,8 +37,8 @@
       "spawn_location": "lexington_1204",
       "relationships": [
         {
-          "to": "jaxon",
-          "history": "She placed three of his site engineers at Forge Builders. They've met twice at Lexington leasing events and once argued about a candidate he poached.",
+          "to": "dax",
+          "history": "She placed three engineers at Parallax Labs. He hired a fourth she'd lined up for someone else, and still thinks he did her a favour.",
           "dimensions": {
             "familiarity": 25,
             "friendship": 12,
@@ -47,17 +47,37 @@
             "physical_attraction": 22,
             "conflict": 6
           }
+        },
+        {
+          "to": "aaliyah",
+          "history": "Met at a gala Aaliyah produced in Atlanta six years ago. Aaliyah is the reason Dominique said yes to Livéra.",
+          "dimensions": {"familiarity": 78, "friendship": 72, "trust": 66, "loyalty": 64, "respect": 60}
+        },
+        {
+          "to": "graham",
+          "history": "Meridian fills executive roles for Whitaker Capital's portfolio companies. He's her biggest client in town.",
+          "dimensions": {"familiarity": 30, "respect": 48, "trust": 22, "physical_attraction": 24}
+        },
+        {
+          "to": "leila",
+          "history": "Leila keeps asking who's being hired where. Dominique keeps not answering.",
+          "dimensions": {"familiarity": 15, "respect": 32, "trust": 10}
+        },
+        {
+          "to": "harper",
+          "history": "Dominique sees Harper every Thursday at 7 a.m., before anyone else is awake. Nobody knows.",
+          "dimensions": {"familiarity": 42, "trust": 58, "respect": 55, "friendship": 20}
         }
       ],
       "memories": [
         {
           "type": "professional",
-          "participants": ["dominique", "jaxon"],
-          "about": "jaxon",
+          "participants": ["dominique", "dax"],
           "importance": 30,
           "emotional_impact": -10,
           "days_ago": 21,
-          "info": "Jaxon hired a candidate she was placing elsewhere, without telling her."
+          "info": "Dax hired a candidate she was placing elsewhere, without telling her.",
+          "about": "dax"
         },
         {
           "type": "life_change",
@@ -66,27 +86,48 @@
           "emotional_impact": 35,
           "days_ago": 45,
           "info": "Accepted Meridian's offer to open the Livéra office. Left Atlanta in a week."
+        },
+        {
+          "type": "friendship",
+          "participants": ["dominique", "aaliyah"],
+          "importance": 55,
+          "emotional_impact": 45,
+          "days_ago": 47,
+          "info": "Aaliyah flew to Atlanta to help her pack.",
+          "about": "aaliyah"
         }
       ],
       "profile": {
         "tagline": "Came to staff a city. Plans to own part of it.",
         "why_livera": "career_advancement",
+        "card": {
+          "occupation": "Senior Recruiter, Meridian Talent Partners",
+          "height_cm": 175,
+          "build": "Curvy hourglass",
+          "skin_tone": "Brown, warm undertone"
+        },
         "appearance": {
           "height_cm": 175,
-          "build": "athletic",
-          "skin": "deep brown, warm undertone",
-          "face": "high cheekbones, full brows, a direct gaze",
-          "hair": "sleek shoulder-length silk press, often pinned up for work",
-          "style": "tailored neutrals: camel coats, wide-leg trousers, gold hoops; sneakers only at the gym",
-          "silhouette": "long lines, structured shoulders",
-          "visual_reference": "TODO: link the approved character artwork once added to the repo"
+          "build": "curvy hourglass",
+          "skin": "brown with a warm undertone",
+          "face": "soft oval face, full brows, full lips, a direct gaze that warms into a wide laugh",
+          "hair": "very long, sleek jet-black hair with a centre part, worn down",
+          "style": "camel coat worn over the shoulders, cream ribbed knit, taupe high-waisted wide-leg trousers, nude pointed heels, cognac top-handle bag, gold hoops",
+          "silhouette": "long coat line over a defined waist; wide-leg trousers to the floor",
+          "key_features": [
+            "Long sleek black hair",
+            "Gold hoop earrings",
+            "Expressive, slightly skeptical brows",
+            "Camel-and-cream neutral palette"
+          ],
+          "visual_reference": "art/reference/characters/dominique.jpg"
         },
         "family_background": "Eldest of three, raised in Decatur, Georgia by a mother who ran a hair salon and a father who drove for MARTA. Sends money home monthly.",
         "education": "B.A. Communications, Spelman College",
         "goals": [
           "Make Recruiting Manager within a year",
           "Buy, not rent, before thirty-one",
-          "Build a circle in a town where she knows nobody"
+          "Build a circle in a town where she knows almost nobody"
         ],
         "ambitions": ["Run the largest staffing firm in Livéra", "Own a building on Founders Way"],
         "social_preferences": "Prefers small dinners to big crowds; warms up slowly, then all the way.",
@@ -95,6 +136,11 @@
             "id": "dom_counteroffer",
             "truth": "Her old Atlanta firm has a standing offer for her to come back as a partner. She hasn't said no.",
             "known_by": []
+          },
+          {
+            "id": "dom_therapy",
+            "truth": "She sees Harper James for therapy every Thursday morning.",
+            "known_by": ["harper"]
           }
         ],
         "schedule": {
@@ -103,6 +149,7 @@
             {"time": "08:30", "activity": "Meridian Talent Partners"},
             {"time": "18:30", "activity": "Home, or networking at Heritage Coffee"}
           ],
+          "thursday": [{"time": "07:00", "activity": "James Wellness (private)"}],
           "sunday": [{"time": "10:00", "activity": "Greater Hope service"}]
         },
         "starting_inventory": ["phone", "laptop", "camel wool coat", "gold hoops", "running shoes", "Lexington key fob"],
@@ -112,7 +159,8 @@
           "Top-billing recruiter at her Atlanta firm two years running.",
           "Ended a four-year relationship the month before moving.",
           "First of the founding residents to sign a lease at The Lexington."
-        ]
+        ],
+        "archetype": "The Closer"
       }
     }
   ]

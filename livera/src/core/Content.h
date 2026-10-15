@@ -170,6 +170,7 @@ struct CharacterDef {
   StatMap values;
   std::vector<std::string> traits;
   std::vector<std::string> interests;
+  StatMap skills;  // starting skill levels (e.g. a producer starts good at music)
   std::string careerId;
   int careerLevel = 0;
   Cents startingCashCents = 0;

@@ -19,7 +19,7 @@ Json minimalSim() {
 TEST_CASE("content: the shipped data loads and validates") {
   auto db = realContent();
   CHECK(db->character("dominique") != nullptr);
-  CHECK(db->character("jaxon") != nullptr);
+  CHECK(db->character("dax") != nullptr);
   CHECK(db->career("recruiting")->levels.size() == 6);
   CHECK(db->location("heritage_coffee")->offers.size() >= 3);
   CHECK(db->constructionProjects().size() >= 3);

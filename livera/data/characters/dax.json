@@ -1,0 +1,144 @@
+{
+  "characters": [
+    {
+      "id": "dax",
+      "first_name": "Dax",
+      "last_name": "Hendrix",
+      "pronouns": "he/him",
+      "gender": "man",
+      "age": 32,
+      "playable": true,
+      "personality": {
+        "ambition": 76,
+        "sociability": 66,
+        "empathy": 58,
+        "patience": 70,
+        "confidence": 64,
+        "risk_tolerance": 74,
+        "competitiveness": 68,
+        "impulsiveness": 48
+      },
+      "values": {
+        "family": 80,
+        "career": 78,
+        "wealth": 70,
+        "loyalty": 75,
+        "freedom": 72,
+        "status": 48,
+        "community": 77,
+        "romance": 66,
+        "creativity": 61
+      },
+      "traits": ["hands_on", "easygoing", "stubborn", "protective"],
+      "interests": ["tech", "basketball", "cooking", "rnb_music", "fishing", "gaming"],
+      "career": {"id": "ai_engineering", "level": 1},
+      "finances": {"cash_cents": 9000, "bank_cents": 620000},
+      "home": {"property": "maple_court_3b", "tenure": "rent"},
+      "spawn_location": "maple_court_3b",
+      "relationships": [
+        {
+          "to": "dominique",
+          "history": "She found Parallax three good engineers. He took a fourth she'd lined up for someone else, and still thinks he did her a favour.",
+          "dimensions": {
+            "familiarity": 25,
+            "friendship": 20,
+            "trust": 22,
+            "respect": 40,
+            "romantic_attraction": 28,
+            "physical_attraction": 35
+          }
+        },
+        {
+          "to": "julian",
+          "history": "Julian recruited him with a pitch about building cities. Dax builds the model; Julian builds the story about it.",
+          "dimensions": {"familiarity": 60, "friendship": 30, "respect": 40, "trust": 25, "resentment": 15}
+        },
+        {
+          "to": "andre",
+          "history": "Saturday pickup partners. Andre talks trash; Dax wins.",
+          "dimensions": {"familiarity": 48, "friendship": 45, "respect": 35}
+        }
+      ],
+      "memories": [
+        {
+          "type": "loss",
+          "participants": ["dax"],
+          "importance": 85,
+          "emotional_impact": -55,
+          "days_ago": 300,
+          "info": "Shut down Hendrix Robotics in Houston after the funding fell through, owing $38,000."
+        },
+        {
+          "type": "professional",
+          "participants": ["dax", "julian"],
+          "importance": 60,
+          "emotional_impact": -30,
+          "days_ago": 30,
+          "info": "Watched Julian demo Parallax to the consortium using numbers Dax hadn't signed off on.",
+          "about": "julian"
+        }
+      ],
+      "profile": {
+        "tagline": "Builds the brain behind the city. Wants a city worth building for.",
+        "why_livera": "fresh_start",
+        "card": {
+          "occupation": "AI Engineer",
+          "height_cm": 188,
+          "build": "Athletic and strong",
+          "skin_tone": "Medium brown"
+        },
+        "appearance": {
+          "height_cm": 188,
+          "build": "athletic and strong",
+          "skin": "medium brown, clean even complexion",
+          "face": "close-trimmed full beard, full lips, a small scar through the left eyebrow, confident warm expression",
+          "hair": "short waves with a crisp lineup",
+          "style": "work: black fitted polo, black trousers, silver watch, laptop under his arm; evening: white tee, gold chain, gold watch, black jeans",
+          "silhouette": "broad shoulders, tattooed forearms, all-black work uniform",
+          "key_features": [
+            "Close-trimmed full beard",
+            "Short waves with crisp lineup",
+            "Small scar through left eyebrow",
+            "Diamond stud earrings",
+            "Forearm tattoos"
+          ],
+          "visual_reference": "art/reference/characters/dax.jpg"
+        },
+        "family_background": "Grew up in Houston's Third Ward. Learned to code fixing the computers at his uncle's body shop. His mother still calls every Sunday.",
+        "education": "B.S. Computer Science, Prairie View A&M",
+        "goals": [
+          "Ship Parallax's planning model for real",
+          "Pay off the old startup debt quietly",
+          "Find a reason to stay"
+        ],
+        "ambitions": ["Start a company again, the right way this time"],
+        "social_preferences": "Happiest cooking for a crowd. Shows care by fixing things.",
+        "secrets": [
+          {
+            "id": "dax_debt",
+            "truth": "He still owes $38,000 from his failed robotics startup. Nobody in Livéra knows.",
+            "known_by": []
+          },
+          {
+            "id": "dax_demo",
+            "truth": "Parallax's city-planning demo is mostly hand-tuned. Dax knows exactly how much.",
+            "known_by": ["julian"]
+          }
+        ],
+        "schedule": {
+          "weekdays": [{"time": "08:00", "activity": "Parallax Labs"}, {"time": "19:00", "activity": "Home, cooking"}],
+          "saturday": [{"time": "09:00", "activity": "Pickup basketball with Andre"}]
+        },
+        "starting_inventory": ["phone", "laptop", "noise-cancelling headphones", "basketball", "pickup truck keys"],
+        "social_media": {"handle": "@dax.builds", "followers": 1430, "bio": "Models, code and brisket."},
+        "reputation": {"professional": 60, "social": 35, "public": 10},
+        "life_history": [
+          "Founded Hendrix Robotics at 27.",
+          "Shut it down three years later when the funding fell through.",
+          "Hired at Parallax Labs through a placement Dominique made."
+        ],
+        "archetype": "The Builder"
+      }
+    }
+  ]
+}

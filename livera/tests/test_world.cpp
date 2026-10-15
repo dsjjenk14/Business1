@@ -9,7 +9,7 @@ namespace {
 World onlineWorld(std::shared_ptr<const ContentDatabase> db = realContent()) {
   World w = World::createNew(std::move(db));
   REQUIRE(w.connect("dominique"));
-  REQUIRE(w.connect("jaxon"));
+  REQUIRE(w.connect("dax"));
   (void)w.drainEvents();
   return w;
 }
@@ -45,10 +45,10 @@ TEST_CASE("world: a new world is founded from content") {
 
 TEST_CASE("world: relationships are directional from the start") {
   World w = World::createNew(realContent());
-  CHECK(w.relationshipValue("dominique", "jaxon", "friendship") == 12);
-  CHECK(w.relationshipValue("jaxon", "dominique", "friendship") == 20);
-  CHECK(w.relationshipValue("jaxon", "dominique", "romantic_attraction") == 28);
-  CHECK(w.relationshipValue("dominique", "jaxon", "romantic_attraction") == 0);
+  CHECK(w.relationshipValue("dominique", "dax", "friendship") == 12);
+  CHECK(w.relationshipValue("dax", "dominique", "friendship") == 20);
+  CHECK(w.relationshipValue("dax", "dominique", "romantic_attraction") == 28);
+  CHECK(w.relationshipValue("dominique", "dax", "romantic_attraction") == 0);
 }
 
 TEST_CASE("world: offline characters cannot act") {
@@ -86,11 +86,11 @@ TEST_CASE("movement: you must be at the door to enter, and outside to walk") {
 
 TEST_CASE("access: homes are for residents, offices for staff") {
   World w = onlineWorld();
-  walkTo(w, "jaxon", "lexington_1204");
-  CHECK(w.enter("jaxon", "lexington_1204").error().code == "no_access");
-  walkTo(w, "dominique", "forge_site_office");
-  CHECK(w.enter("dominique", "forge_site_office").error().code == "no_access");
-  walkInto(w, "jaxon", "forge_site_office");
+  walkTo(w, "dax", "lexington_1204");
+  CHECK(w.enter("dax", "lexington_1204").error().code == "no_access");
+  walkTo(w, "dominique", "parallax_labs");
+  CHECK(w.enter("dominique", "parallax_labs").error().code == "no_access");
+  walkInto(w, "dax", "parallax_labs");
 }
 
 TEST_CASE("access: shops keep opening hours; unfinished buildings stay shut") {
@@ -106,40 +106,40 @@ TEST_CASE("access: shops keep opening hours; unfinished buildings stay shut") {
 
 TEST_CASE("social: you have to be with someone to interact") {
   World w = onlineWorld();
-  CHECK(w.interact("dominique", "chat", "jaxon").error().code == "too_far");
+  CHECK(w.interact("dominique", "chat", "dax").error().code == "too_far");
   CHECK(w.interact("dominique", "chat", "dominique").error().code == "invalid_target");
-  CHECK(w.interact("dominique", "serenade", "jaxon").error().code == "unknown_interaction");
+  CHECK(w.interact("dominique", "serenade", "dax").error().code == "unknown_interaction");
 }
 
 TEST_CASE("social: interactions change both directions differently") {
   World w = onlineWorld();
   walkInto(w, "dominique", "heritage_coffee");
-  walkInto(w, "jaxon", "heritage_coffee");
-  const double domBefore = w.relationshipValue("dominique", "jaxon", "trust");
-  const double jaxBefore = w.relationshipValue("jaxon", "dominique", "trust");
-  auto r = w.interact("dominique", "deep_talk", "jaxon");
+  walkInto(w, "dax", "heritage_coffee");
+  const double domBefore = w.relationshipValue("dominique", "dax", "trust");
+  const double jaxBefore = w.relationshipValue("dax", "dominique", "trust");
+  auto r = w.interact("dominique", "deep_talk", "dax");
   REQUIRE(r);
   CHECK(!r.value()["first_meeting"].get<bool>());  // they already knew each other
-  const double domGain = w.relationshipValue("dominique", "jaxon", "trust") - domBefore;
-  const double jaxGain = w.relationshipValue("jaxon", "dominique", "trust") - jaxBefore;
+  const double domGain = w.relationshipValue("dominique", "dax", "trust") - domBefore;
+  const double jaxGain = w.relationshipValue("dax", "dominique", "trust") - jaxBefore;
   CHECK(domGain > 0);
   CHECK(jaxGain > 0);
-  CHECK(domGain != jaxGain);  // Jaxon's empathy (58) scales how he receives it
+  CHECK(domGain != jaxGain);  // Dax's empathy (58) scales how he receives it
   // The actor sees only their own feelings, never the target's.
   CHECK(r.value().contains("your_feelings"));
   CHECK(!r.value().contains("their_feelings"));
   // Spamming is refused.
-  CHECK(w.interact("dominique", "chat", "jaxon").error().code == "too_soon");
+  CHECK(w.interact("dominique", "chat", "dax").error().code == "too_soon");
   w.advanceMinutes(5);
-  CHECK(w.interact("dominique", "chat", "jaxon"));
+  CHECK(w.interact("dominique", "chat", "dax"));
 }
 
 TEST_CASE("social: the target is told, and only the target") {
   World w = onlineWorld();
   walkInto(w, "dominique", "heritage_coffee");
-  walkInto(w, "jaxon", "heritage_coffee");
+  walkInto(w, "dax", "heritage_coffee");
   (void)w.drainEvents();
-  REQUIRE(w.interact("jaxon", "compliment", "dominique"));
+  REQUIRE(w.interact("dax", "compliment", "dominique"));
   int toDom = 0, toJax = 0;
   for (const auto& e : w.drainEvents()) {
     if (e.type != "interaction") continue;
@@ -152,16 +152,16 @@ TEST_CASE("social: the target is told, and only the target") {
 TEST_CASE("memory: important moments are remembered by both people") {
   World w = onlineWorld();
   walkInto(w, "dominique", "heritage_coffee");
-  walkInto(w, "jaxon", "heritage_coffee");
+  walkInto(w, "dax", "heritage_coffee");
   const auto domBefore = w.memoriesOf("dominique").size();
-  const auto jaxBefore = w.memoriesOf("jaxon").size();
-  REQUIRE(w.interact("dominique", "chat", "jaxon"));  // below the memory threshold
+  const auto jaxBefore = w.memoriesOf("dax").size();
+  REQUIRE(w.interact("dominique", "chat", "dax"));  // below the memory threshold
   CHECK(w.memoriesOf("dominique").size() == domBefore);
   w.advanceMinutes(5);
-  REQUIRE(w.interact("dominique", "deep_talk", "jaxon"));
+  REQUIRE(w.interact("dominique", "deep_talk", "dax"));
   REQUIRE(w.memoriesOf("dominique").size() == domBefore + 1);
-  REQUIRE(w.memoriesOf("jaxon").size() == jaxBefore + 1);
-  const Memory* m = w.memoriesOf("jaxon").back();
+  REQUIRE(w.memoriesOf("dax").size() == jaxBefore + 1);
+  const Memory* m = w.memoriesOf("dax").back();
   CHECK(m->type == "heart_to_heart");
   CHECK(m->location == "heritage_coffee");
   CHECK(m->about == "dominique");
@@ -172,14 +172,14 @@ TEST_CASE("memory: a remembered argument makes people slower to warm up") {
   auto complimentGain = [](bool argueFirst) {
     World w = onlineWorld();
     walkInto(w, "dominique", "heritage_coffee");
-    walkInto(w, "jaxon", "heritage_coffee");
+    walkInto(w, "dax", "heritage_coffee");
     if (argueFirst) {
-      REQUIRE(w.interact("dominique", "argue", "jaxon"));
+      REQUIRE(w.interact("dominique", "argue", "dax"));
       w.advanceMinutes(10);
     }
-    const double before = w.relationshipValue("jaxon", "dominique", "friendship");
-    REQUIRE(w.interact("dominique", "compliment", "jaxon"));
-    return w.relationshipValue("jaxon", "dominique", "friendship") - before;
+    const double before = w.relationshipValue("dax", "dominique", "friendship");
+    REQUIRE(w.interact("dominique", "compliment", "dax"));
+    return w.relationshipValue("dax", "dominique", "friendship") - before;
   };
   const double normal = complimentGain(false);
   const double afterArgument = complimentGain(true);
@@ -191,7 +191,7 @@ TEST_CASE("memory: a remembered argument makes people slower to warm up") {
 TEST_CASE("social: strangers meeting for the first time form memories and compatibility") {
   // Two characters with no shared history, made by patching content.
   auto db = patchedContent([](Json& doc, const std::string& file) {
-    if (file == "jaxon.json") {
+    if (file == "dax.json") {
       doc["characters"][0].erase("relationships");
     }
     if (file == "dominique.json") {
@@ -201,28 +201,35 @@ TEST_CASE("social: strangers meeting for the first time form memories and compat
   });
   World w = onlineWorld(db);
   walkInto(w, "dominique", "heritage_coffee");
-  walkInto(w, "jaxon", "heritage_coffee");
-  auto r = w.interact("jaxon", "chat", "dominique");
+  walkInto(w, "dax", "heritage_coffee");
+  auto r = w.interact("dax", "chat", "dominique");
   REQUIRE(r);
   CHECK(r.value()["first_meeting"].get<bool>());
-  CHECK(w.relationshipValue("dominique", "jaxon", "compatibility") > 0);
+  CHECK(w.relationshipValue("dominique", "dax", "compatibility") > 0);
   bool remembered = false;
-  for (const Memory* m : w.memoriesOf("dominique")) remembered |= m->type == "first_meeting" && m->about == "jaxon";
+  for (const Memory* m : w.memoriesOf("dominique")) remembered |= m->type == "first_meeting" && m->about == "dax";
   CHECK(remembered);
 }
 
 TEST_CASE("social: a one-sided acquaintance becomes mutual after they interact") {
   auto db = patchedContent([](Json& doc, const std::string& file) {
-    if (file == "jaxon.json") doc["characters"][0].erase("relationships");
+    if (file == "dax.json") doc["characters"][0].erase("relationships");
   });
   World w = onlineWorld(db);
-  CHECK(w.openPhoneApp("jaxon", "contacts").value()["contacts"].empty());
+  auto knowsDominique = [&] {
+    const Json contacts = w.openPhoneApp("dax", "contacts").value()["contacts"];  // copy: the Result is a temporary
+    for (const auto& c : contacts) {
+      if (c["id"] == "dominique") return true;
+    }
+    return false;
+  };
+  CHECK(!knowsDominique());
   walkInto(w, "dominique", "heritage_coffee");
-  walkInto(w, "jaxon", "heritage_coffee");
-  auto r = w.interact("dominique", "chat", "jaxon");
+  walkInto(w, "dax", "heritage_coffee");
+  auto r = w.interact("dominique", "chat", "dax");
   REQUIRE(r);
   CHECK(!r.value()["first_meeting"].get<bool>());  // Dominique already knew him
-  CHECK(w.openPhoneApp("jaxon", "contacts").value()["contacts"].size() == 1);
+  CHECK(knowsDominique());
 }
 
 // --- Economy ---------------------------------------------------------------------------
@@ -309,15 +316,20 @@ TEST_CASE("career: promotion follows hours and performance") {
 
 TEST_CASE("economy: rent is charged monthly; shortfalls become arrears") {
   auto db = patchedContent([](Json& doc, const std::string& file) {
-    if (file == "jaxon.json") doc["characters"][0]["finances"]["bank_cents"] = 1000;
+    if (file == "dax.json") doc["characters"][0]["finances"]["bank_cents"] = 1000;
   });
   World w = World::createNew(db);
   const Cents domBefore = bank(w, "dominique");
   w.advanceMinutes(kMinutesPerMonth - w.now() % kMinutesPerMonth);
   CHECK(bank(w, "dominique") == domBefore - 245000);
-  CHECK(w.state().ledger.balance("org:lexington_props") == 50000000 + 245000);
-  CHECK(w.character("jaxon")->rentArrearsCents == 135000);
-  CHECK(bank(w, "jaxon") == 1000);
+  bool paidLandlord = false;
+  for (const auto& tx : w.state().ledger.transactions()) {
+    paidLandlord |= tx.kind == "rent" && tx.from == bankAccountOf("dominique") && tx.to == "org:lexington_props" &&
+                    tx.amountCents == 245000;
+  }
+  CHECK(paidLandlord);
+  CHECK(w.character("dax")->rentArrearsCents == 135000);
+  CHECK(bank(w, "dax") == 1000);
   CHECK(w.state().ledger.sumOfBalances() == 0);
 }
 
@@ -391,18 +403,18 @@ TEST_CASE("tiers: a dormant character catches up cheaply instead of starving") {
 TEST_CASE("phone: messages reach offline players and are marked read when opened") {
   World w = World::createNew(realContent());
   REQUIRE(w.connect("dominique"));
-  REQUIRE(w.sendMessage("dominique", "jaxon", "  Coffee at Heritage?  "));
-  CHECK(w.sendMessage("dominique", "jaxon", "   ").error().code == "invalid_message");
-  CHECK(w.sendMessage("dominique", "jaxon", std::string(501, 'x')).error().code == "invalid_message");
+  REQUIRE(w.sendMessage("dominique", "dax", "  Coffee at Heritage?  "));
+  CHECK(w.sendMessage("dominique", "dax", "   ").error().code == "invalid_message");
+  CHECK(w.sendMessage("dominique", "dax", std::string(501, 'x')).error().code == "invalid_message");
   CHECK(w.sendMessage("dominique", "nobody", "hi").error().code == "unknown_character");
-  REQUIRE(w.connect("jaxon"));
-  auto inbox = w.openPhoneApp("jaxon", "messages");
+  REQUIRE(w.connect("dax"));
+  auto inbox = w.openPhoneApp("dax", "messages");
   REQUIRE(inbox);
   const Json& thread = inbox.value()["threads"]["dominique"];
   REQUIRE(thread.size() == 1);
   CHECK(thread[0]["body"] == "Coffee at Heritage?");
   CHECK(thread[0]["unread"] == true);
-  CHECK(w.openPhoneApp("jaxon", "messages").value()["threads"]["dominique"][0]["unread"] == false);
+  CHECK(w.openPhoneApp("dax", "messages").value()["threads"]["dominique"][0]["unread"] == false);
 }
 
 TEST_CASE("phone: every app opens; contacts show only your own feelings") {
@@ -412,20 +424,24 @@ TEST_CASE("phone: every app opens; contacts show only your own feelings") {
   }
   CHECK(w.openPhoneApp("dominique", "tiktok").error().code == "unknown_app");
   const Json contacts = w.openPhoneApp("dominique", "contacts").value()["contacts"];
-  REQUIRE(contacts.size() == 1);
-  CHECK(contacts[0]["your_feelings"]["romantic_attraction"] == 0);  // not Jaxon's 28
+  Json dax;
+  for (const auto& c : contacts) {
+    if (c["id"] == "dax") dax = c;
+  }
+  REQUIRE(dax.is_object());
+  CHECK(dax["your_feelings"]["romantic_attraction"] == 0);  // not Dax's 28
   CHECK(w.openPhoneApp("dominique", "bank").value()["bank_cents"] == 1450000);
 }
 
 TEST_CASE("look: shows people who are with you, not their private state") {
   World w = onlineWorld();
   walkInto(w, "dominique", "heritage_coffee");
-  walkInto(w, "jaxon", "heritage_coffee");
+  walkInto(w, "dax", "heritage_coffee");
   auto look = w.look("dominique");
   REQUIRE(look);
   const Json& people = look.value()["people"];
   REQUIRE(people.size() == 1);
-  CHECK(people[0]["id"] == "jaxon");
+  CHECK(people[0]["id"] == "dax");
   CHECK(!people[0].contains("needs"));
   CHECK(look.value()["here"]["offers"].size() == 4);
 }

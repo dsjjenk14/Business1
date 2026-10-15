@@ -113,6 +113,7 @@ Result<CharacterDef> ContentDatabase::parseCharacter(const Json& j) {
     c.values = readStats(j, "values");
     c.traits = readStrings(j, "traits");
     c.interests = readStrings(j, "interests");
+    c.skills = readStats(j, "skills");
     c.careerId = j.at("career").at("id").get<std::string>();
     c.careerLevel = j.at("career").value("level", 0);
     c.startingCashCents = j.at("finances").at("cash_cents").get<Cents>();
@@ -438,6 +439,11 @@ Status ContentDatabase::validateCharacter(const CharacterDef& c,
   const std::string where = "character " + id;
   if (auto s = checkKeys(c.personality, traits, where + " personality"); !s) return s;
   if (auto s = checkKeys(c.values, values, where + " values"); !s) return s;
+  const std::set<std::string> skills(sim_.skills.begin(), sim_.skills.end());
+  if (auto s = checkKeys(c.skills, skills, where + " skills"); !s) return s;
+  for (const auto& [k, v] : c.skills) {
+    if (v < 0 || v > 100) return fail("content_invalid", where + ": skill " + k + " must be 0-100");
+  }
   const CareerDef* career = this->career(c.careerId);
   if (!career) return fail("content_invalid", where + ": unknown career " + c.careerId);
   if (c.careerLevel < 0 || c.careerLevel >= static_cast<int>(career->levels.size()))

@@ -131,7 +131,7 @@ TEST_CASE("server: the founding vertical slice works over the network and surviv
   const std::string db = tempPath("slice.db").string();
   Cents domBank = 0;
   GameMinutes timeBeforeShutdown = 0;
-  double domTrustInJaxon = 0;
+  double domTrustInDax = 0;
   {
     RunningServer server(db);
     TestClient dom(server.port());
@@ -147,12 +147,12 @@ TEST_CASE("server: the founding vertical slice works over the network and surviv
     jax.ok({{"op", "login"}, {"username", "jax"}, {"password", "livera-pass-2"}});
 
     // Select characters; nobody can take a character someone else plays.
-    CHECK(dom.ok({{"op", "characters"}})["characters"].size() == 2);
+    CHECK(dom.ok({{"op", "characters"}})["characters"].size() == 11);  // the founding cast
     CHECK(dom.refusal({{"op", "look"}}) == "not_playing");
     Json start = dom.ok({{"op", "play"}, {"character", "dominique"}});
     CHECK(start["you"]["inside"] == "lexington_1204");
     CHECK(jax.refusal({{"op", "play"}, {"character", "dominique"}}) == "character_taken");
-    jax.ok({{"op", "play"}, {"character", "jaxon"}});
+    jax.ok({{"op", "play"}, {"character", "dax"}});
 
     // The client sends intent; the server rejects what the rules don't allow.
     CHECK(dom.refusal({{"op", "move"}, {"x", 10}, {"y", 10}}) == "inside_building");
@@ -174,13 +174,13 @@ TEST_CASE("server: the founding vertical slice works over the network and surviv
     jax.ok({{"op", "enter"}, {"location", "heritage_coffee"}});
     Json seen = dom.ok({{"op", "look"}});
     REQUIRE(seen["people"].size() == 1);
-    CHECK(seen["people"][0]["id"] == "jaxon");
-    Json talk = dom.ok({{"op", "interact"}, {"interaction", "deep_talk"}, {"target", "jaxon"}});
-    domTrustInJaxon = talk["your_feelings"]["trust"].get<double>();
-    CHECK(domTrustInJaxon > 18);
+    CHECK(seen["people"][0]["id"] == "dax");
+    Json talk = dom.ok({{"op", "interact"}, {"interaction", "deep_talk"}, {"target", "dax"}});
+    domTrustInDax = talk["your_feelings"]["trust"].get<double>();
+    CHECK(domTrustInDax > 18);
     jax.pump(0.3);
     CHECK(jax.sawEvent("interaction"));
-    dom.ok({{"op", "message"}, {"to", "jaxon"}, {"text", "Lunch next week?"}});
+    dom.ok({{"op", "message"}, {"to", "dax"}, {"text", "Lunch next week?"}});
     jax.pump(0.3);
     CHECK(jax.sawEvent("message"));
 
@@ -190,12 +190,12 @@ TEST_CASE("server: the founding vertical slice works over the network and surviv
 
     // Go to work and earn money.
     jax.ok({{"op", "exit"}});
-    jax.walkTo("forge_site_office");
-    jax.ok({{"op", "enter"}, {"location", "forge_site_office"}});
+    jax.walkTo("parallax_labs");
+    jax.ok({{"op", "enter"}, {"location", "parallax_labs"}});
     jax.ok({{"op", "work"}, {"action", "start"}});
     jax.ok({{"op", "dev_advance"}, {"minutes", 8 * 60}});
     Json pay = jax.ok({{"op", "work"}, {"action", "end"}});
-    CHECK(pay["pay_cents"] == 8 * 4100);
+    CHECK(pay["pay_cents"] == 8 * 6800);  // Senior AI Engineer
     jax.pump(0.3);
     CHECK(jax.sawEvent("notification"));  // paycheck deposited
 
@@ -234,10 +234,14 @@ TEST_CASE("server: the founding vertical slice works over the network and surviv
     CHECK(back["time"]["minute"].get<GameMinutes>() >= timeBeforeShutdown);
     CHECK(dom.ok({{"op", "phone"}, {"app", "bank"}})["bank_cents"] == domBank);
     Json contacts = dom.ok({{"op", "phone"}, {"app", "contacts"}})["contacts"];
-    REQUIRE(contacts.size() == 1);
-    CHECK(contacts[0]["your_feelings"]["trust"].get<double>() == std::round(domTrustInJaxon));
+    Json dax;
+    for (const auto& c : contacts) {
+      if (c["id"] == "dax") dax = c;
+    }
+    REQUIRE(dax.is_object());
+    CHECK(dax["your_feelings"]["trust"].get<double>() == std::round(domTrustInDax));
     Json inbox = dom.ok({{"op", "phone"}, {"app", "messages"}});
-    CHECK(inbox["threads"]["jaxon"].size() == 1);
+    CHECK(inbox["threads"]["dax"].size() == 1);
 
     // Logging in again elsewhere replaces the old connection.
     TestClient again(server.port());
@@ -252,7 +256,7 @@ TEST_CASE("server: rate limiting and dev-command authorization") {
   TestClient c(server.port());
   c.ok({{"op", "register"}, {"username", "pat"}, {"password", "password123"}});
   c.ok({{"op", "login"}, {"username", "pat"}, {"password", "password123"}});
-  c.ok({{"op", "play"}, {"character", "jaxon"}});
+  c.ok({{"op", "play"}, {"character", "dax"}});
   CHECK(c.refusal({{"op", "dev_advance"}, {"minutes", 60}}) == "forbidden");
   std::string burst;
   for (int i = 0; i < 100; ++i) burst += Json{{"op", "ping"}, {"id", i}}.dump() + "\n";

@@ -9,13 +9,13 @@ exit
 walk heritage_coffee
 enter heritage_coffee
 buy latte card
-# Jaxon and Sol are still walking over from Maple Court; Sol plays the open mic.
+# Dax and Sol are still walking over from Maple Court; Sol plays the open mic.
 wait 30
 look
 say Welcome to Livéra, Sol! That was beautiful.
 tip sol-rivera 5
-talk jaxon deep_talk
-msg jaxon Good seeing you. Let's get lunch when the gym opens.
+talk dax deep_talk
+msg dax Good seeing you. Let's get lunch when the gym opens.
 exit
 walk meridian_talent
 enter meridian_talent

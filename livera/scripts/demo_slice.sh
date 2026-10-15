@@ -23,7 +23,7 @@ echo "=== Day 1: three players, one server ==="
 "$BUILD/livera_cli" --port "$PORT" --script "$ROOT/scripts/demo/dominique_day1.txt" > "$WORK/dom.out" &
 DOM=$!
 sleep 1
-"$BUILD/livera_cli" --port "$PORT" --script "$ROOT/scripts/demo/jaxon_day1.txt" > "$WORK/jax.out" &
+"$BUILD/livera_cli" --port "$PORT" --script "$ROOT/scripts/demo/dax_day1.txt" > "$WORK/jax.out" &
 JAX=$!
 "$BUILD/livera_cli" --port "$PORT" --script "$ROOT/scripts/demo/sol_day1.txt" > "$WORK/sol.out" &
 SOL=$!
@@ -32,7 +32,7 @@ wait $DOM || STATUS=1
 wait $JAX || STATUS=1
 wait $SOL || STATUS=1
 echo "--- Dominique ---"; cat "$WORK/dom.out"
-echo "--- Jaxon ---"; cat "$WORK/jax.out"
+echo "--- Dax ---"; cat "$WORK/jax.out"
 echo "--- Sol (made their own character) ---"; cat "$WORK/sol.out"
 if [ -n "${LIVERA_DEMO_OUT:-}" ] && [ -f founders_groove.mid ]; then
   mkdir -p "$LIVERA_DEMO_OUT" && cp founders_groove.mid "$LIVERA_DEMO_OUT/"

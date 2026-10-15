@@ -14,7 +14,7 @@ play the current build through a text client. See [What works today](#what-works
 ```bash
 cd livera
 cmake -S . -B build -G Ninja && cmake --build build
-./build/livera_tests            # 66 tests
+./build/livera_tests            # 71 tests
 scripts/demo_slice.sh           # three players live a morning (one makes their own character), then a restart
 ```
 
@@ -52,7 +52,7 @@ The founding vertical slice (docs/ROADMAP.md, M0), all server-authoritative and 
 | Step | Status |
 |---|---|
 | Launch, enter the founding town | ✅ server + text client (no 3D) |
-| Create or select a character | ✅ full character creator (appearance, personality, origin, career...) or pick Dominique/Jaxon |
+| Create or select a character | ✅ full character creator (appearance, personality, origin, career...) or play one of the 11 founding characters |
 | Walk around | ✅ server-moved at walking speed, no teleporting; no rendering |
 | Enter an apartment | ✅ residents only |
 | Use the phone | ✅ bank, messages, contacts, calendar, map, career, property, notifications, city (data, no UI) |
@@ -64,7 +64,10 @@ The founding vertical slice (docs/ROADMAP.md, M0), all server-authoritative and 
 | See the world change | ✅ construction crews build on schedules; places open; city stats grow |
 | Save, disconnect, reconnect, state preserved | ✅ SQLite, survives a full server restart |
 
-Not built yet: the 3D client, voice chat, the other 14 founding characters,
+The founding cast: 11 playable characters with reference art (`art/reference/characters/`),
+homes, careers, secrets and history with each other. See docs/GAME_DESIGN.md.
+
+Not built yet: the 3D client, voice chat,
 autonomous NPCs (construction crews are abstract), gossip/secrets propagation, social
 media, business ownership, buying property, the event engine, generations.
 
@@ -81,6 +84,7 @@ expose a dev server to the internet. See docs/MULTIPLAYER.md.
 | `src/net/`, `src/server/` | Dedicated server: sockets, protocol, sessions, auth, rate limiting. |
 | `src/client/` | `livera_cli`, the headless development client. |
 | `data/` | All game content as JSON: town, characters, careers, interactions, economy, city growth. |
+| `art/` | Character reference sheets (the approved look of each founding character). |
 | `tests/` | Unit tests and an end-to-end network test. |
 | `scripts/` | `demo_slice.sh` and its client scripts. |
 | `docs/` | Architecture, design, data model, multiplayer, simulation, roadmap, decisions. |

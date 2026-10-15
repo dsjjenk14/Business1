@@ -210,6 +210,441 @@
       ]
     },
     {
+      "id": "james_wellness",
+      "name": "James Wellness",
+      "type": "wellness_studio",
+      "district": "Downtown",
+      "description": "Harper James's therapy and wellness studio: warm lamps, deep leather chairs, a yoga room upstairs.",
+      "door": [380, 455],
+      "hours": [7, 20],
+      "revenue_account": "org:james_wellness",
+      "offers": [
+        {
+          "id": "therapy_session",
+          "label": "Therapy session (50 min)",
+          "price_cents": 9500,
+          "needs": {"comfort": 10},
+          "emotions": {"stress": -15, "happiness": 4, "loneliness": -5}
+        },
+        {
+          "id": "yoga_class",
+          "label": "Drop-in yoga class",
+          "price_cents": 2500,
+          "needs": {"health": 3, "recreation": 10, "energy": -5},
+          "emotions": {"stress": -6}
+        },
+        {"id": "herbal_tea", "label": "Herbal tea", "price_cents": 450, "needs": {"comfort": 5}}
+      ]
+    },
+    {
+      "id": "low_end_studios",
+      "name": "Low End Studios",
+      "type": "recording_studio",
+      "district": "Riverside",
+      "description": "Andre Campbell's recording studio: a vintage console, a wall of synths, and a couch that has heard every demo in town. Listening sessions most nights.",
+      "door": [720, 520],
+      "hours": [12, 3],
+      "revenue_account": "org:low_end_studios",
+      "stage": true,
+      "offers": [
+        {
+          "id": "studio_hour",
+          "label": "An hour of studio time",
+          "price_cents": 6000,
+          "needs": {"recreation": 15},
+          "emotions": {"excitement": 6}
+        }
+      ]
+    },
+    {
+      "id": "ellis_atelier",
+      "name": "Ellis Atelier",
+      "type": "boutique",
+      "district": "Downtown",
+      "description": "Naomi Ellis's atelier and showroom: mood boards, black-and-white lookbooks, and one rail of finished pieces.",
+      "door": [560, 420],
+      "hours": [10, 19],
+      "revenue_account": "org:ellis_atelier",
+      "offers": [
+        {
+          "id": "silk_scarf",
+          "label": "Silk scarf (Ellis)",
+          "price_cents": 9500,
+          "emotions": {"confidence": 4, "happiness": 2}
+        },
+        {
+          "id": "tailored_blazer",
+          "label": "Tailored blazer (Ellis)",
+          "price_cents": 48000,
+          "emotions": {"confidence": 8, "happiness": 3}
+        }
+      ]
+    },
+    {
+      "id": "whitaker_capital",
+      "name": "Whitaker Capital",
+      "type": "office",
+      "district": "Civic Row",
+      "description": "The consortium's Livéra office: glass, walnut, and a model of the city as it will look in ten years.",
+      "door": [590, 330],
+      "access": "staff"
+    },
+    {
+      "id": "common_ground",
+      "name": "Common Ground Community Center",
+      "type": "community_center",
+      "district": "Maple Court",
+      "description": "Maya Bennett's nonprofit: a community center for the people building Livéra. Free dinners, tutoring, a legal clinic on Thursdays.",
+      "door": [270, 470],
+      "hours": [8, 21],
+      "activities": [
+        {
+          "id": "volunteer",
+          "label": "Volunteer for a shift",
+          "cooldown_minutes": 180,
+          "needs": {"social": 15, "energy": -5},
+          "emotions": {"happiness": 6, "loneliness": -6}
+        },
+        {
+          "id": "community_dinner",
+          "label": "Eat at the community dinner",
+          "cooldown_minutes": 240,
+          "needs": {"hunger": 30, "social": 10}
+        }
+      ]
+    },
+    {
+      "id": "parallax_labs",
+      "name": "Parallax Labs",
+      "type": "tech_office",
+      "district": "Downtown",
+      "description": "Julian Park's startup, building AI that plans cities, with Livéra as its first customer. Standing desks, a whiteboard wall, cold brew on tap.",
+      "door": [540, 345],
+      "access": "staff"
+    },
+    {
+      "id": "livera_ledger",
+      "name": "The Livéra Ledger",
+      "type": "newsroom",
+      "district": "Civic Row",
+      "description": "The town's newspaper: four desks, a police scanner, and Leila Rahal's corkboard of red string.",
+      "door": [610, 285],
+      "access": "staff"
+    },
+    {
+      "id": "baptiste_events",
+      "name": "Baptiste & Co. Events",
+      "type": "event_agency",
+      "district": "Downtown",
+      "description": "Aaliyah Baptiste's event agency: swatches, seating charts, and the guest list for every opening in town.",
+      "door": [505, 455],
+      "access": "staff"
+    },
+    {
+      "id": "lumen_creative",
+      "name": "Lumen Creative",
+      "type": "creative_agency",
+      "district": "Downtown",
+      "description": "The agency branding Livéra itself. Sienna Brooks runs the creative floor.",
+      "door": [575, 375],
+      "access": "staff"
+    },
+    {
+      "id": "lexington_1801",
+      "name": "The Lexington, Apt 1801",
+      "type": "apartment",
+      "district": "Downtown",
+      "description": "A corner one-bedroom with a dress form by the window and fabric swatches on every surface.",
+      "door": [430, 470],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Nap on the sofa",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "emotions": {"happiness": 2}
+        },
+        {
+          "id": "watch_tv",
+          "label": "Watch TV",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20, "comfort": 5}
+        }
+      ]
+    },
+    {
+      "id": "lexington_ph1",
+      "name": "The Lexington, Penthouse",
+      "type": "apartment",
+      "district": "Downtown",
+      "description": "The top floor: three bedrooms, a terrace over the river, and very little furniture yet.",
+      "door": [430, 470],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Nap on the sofa",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "emotions": {"happiness": 2}
+        },
+        {
+          "id": "watch_tv",
+          "label": "Watch TV",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20, "comfort": 5}
+        }
+      ]
+    },
+    {
+      "id": "lexington_0904",
+      "name": "The Lexington, Apt 0904",
+      "type": "apartment",
+      "district": "Downtown",
+      "description": "Fresh flowers every Monday, a closet sorted by colour, and a calendar booked solid.",
+      "door": [430, 470],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Nap on the sofa",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "emotions": {"happiness": 2}
+        },
+        {
+          "id": "watch_tv",
+          "label": "Watch TV",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20, "comfort": 5}
+        }
+      ]
+    },
+    {
+      "id": "maple_court_1a",
+      "name": "Maple Court, Unit 1A",
+      "type": "apartment",
+      "district": "Maple Court",
+      "description": "A ground-floor one-bedroom, two blocks from Common Ground. The door is never locked for long.",
+      "door": [300, 520],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {"id": "cook", "label": "Cook something simple", "cooldown_minutes": 90, "needs": {"hunger": 35}},
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}}
+      ]
+    },
+    {
+      "id": "riverside_lofts_2",
+      "name": "Riverside Lofts, Unit 2",
+      "type": "apartment",
+      "district": "Riverside",
+      "description": "An open loft with a keyboard in the kitchen and a view of where ÉCLAT is going up.",
+      "door": [740, 560],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Crash on the couch",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 5}
+        },
+        {"id": "cook", "label": "Cook something", "cooldown_minutes": 90, "needs": {"hunger": 35}},
+        {
+          "id": "record_demo",
+          "label": "Mess around on the keys",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20},
+          "emotions": {"happiness": 3}
+        }
+      ]
+    },
+    {
+      "id": "riverside_lofts_3",
+      "name": "Riverside Lofts, Unit 3",
+      "type": "apartment",
+      "district": "Riverside",
+      "description": "A loft of concrete, linen and one perfect lamp.",
+      "door": [740, 560],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Crash on the couch",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 5}
+        },
+        {"id": "cook", "label": "Cook something", "cooldown_minutes": 90, "needs": {"hunger": 35}},
+        {
+          "id": "record_demo",
+          "label": "Mess around on the keys",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20},
+          "emotions": {"happiness": 3}
+        }
+      ]
+    },
+    {
+      "id": "riverside_lofts_5",
+      "name": "Riverside Lofts, Unit 5",
+      "type": "apartment",
+      "district": "Riverside",
+      "description": "A loft with three monitors, a pull-up bar and an unopened box of plates.",
+      "door": [740, 560],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Crash on the couch",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 5}
+        },
+        {"id": "cook", "label": "Cook something", "cooldown_minutes": 90, "needs": {"hunger": 35}},
+        {
+          "id": "record_demo",
+          "label": "Mess around on the keys",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20},
+          "emotions": {"happiness": 3}
+        }
+      ]
+    },
+    {
+      "id": "founders_row_3",
+      "name": "3 Founders Row",
+      "type": "townhouse",
+      "district": "Founders Row",
+      "description": "A brick townhouse full of plants, books and mismatched armchairs.",
+      "door": [335, 400],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a bath",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 10}
+        },
+        {
+          "id": "nap",
+          "label": "Nap in the reading chair",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook dinner",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 40},
+          "emotions": {"happiness": 3}
+        },
+        {
+          "id": "read",
+          "label": "Read by the window",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 15, "comfort": 8},
+          "emotions": {"stress": -4}
+        }
+      ]
+    },
+    {
+      "id": "founders_row_7",
+      "name": "7 Founders Row",
+      "type": "townhouse",
+      "district": "Founders Row",
+      "description": "A narrow townhouse with blackout curtains and a desk buried in files.",
+      "door": [355, 400],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a bath",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 10}
+        },
+        {
+          "id": "nap",
+          "label": "Nap in the reading chair",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook dinner",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 40},
+          "emotions": {"happiness": 3}
+        },
+        {
+          "id": "read",
+          "label": "Read by the window",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 15, "comfort": 8},
+          "emotions": {"stress": -4}
+        }
+      ]
+    },
+    {
       "id": "heritage_coffee",
       "name": "Heritage Coffee Co.",
       "type": "coffee_shop",
