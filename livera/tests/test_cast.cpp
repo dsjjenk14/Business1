@@ -45,6 +45,11 @@ TEST_CASE("cast: every character is complete and linked to art that exists") {
     const std::string art = look.value("visual_reference", "");
     if (!std::filesystem::exists(root / art)) std::fprintf(stderr, "    %s: art not found at %s\n", id.c_str(), art.c_str());
     CHECK(std::filesystem::exists(root / art));
+    const Json sheets = look.value("reference_sheets", Json::object());  // a local: items() must not outlive it
+    for (const auto& [kind, sheet] : sheets.items()) {
+      if (!std::filesystem::exists(root / sheet.get<std::string>())) std::fprintf(stderr, "    %s: %s sheet missing\n", id.c_str(), kind.c_str());
+      CHECK(std::filesystem::exists(root / sheet.get<std::string>()));
+    }
   }
 }
 
@@ -119,4 +124,21 @@ TEST_CASE("cast: Andre is already a musician; his sets land better than a beginn
   const double pro = w.perform("andre", andreSong).value()["quality"];
   const double beginner = w.perform("dominique", domSong).value()["quality"];
   CHECK(pro > beginner + 30);
+}
+
+TEST_CASE("cast: Dominique's life stages follow her reference sheet (19, 24, 29)") {
+  const CharacterDef* d = realContent()->character("dominique");
+  REQUIRE(d);
+  const Json& stages = d->profile["life_stages"];
+  REQUIRE(stages.size() == 3);
+  CHECK(stages[0]["age"] == 19);
+  CHECK(stages[1]["age"] == 24);
+  CHECK(stages[2]["age"] == 29);
+  CHECK(stages.back()["age"] == d->age);  // the last stage is who she is now
+  for (const auto& s : stages) CHECK(s["look"]["jewelry"].get<std::string>().find("gold coin pendant") != std::string::npos);
+  CHECK(d->profile["appearance"]["visual_reference"] == "art/reference/characters/dominique_ages.jpg");
+  World w = World::createNew(realContent());
+  bool heirloom = false;
+  for (const Memory* m : w.memoriesOf("dominique")) heirloom |= m->type == "heirloom";
+  CHECK(heirloom);
 }

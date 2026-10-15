@@ -49,7 +49,16 @@ Money is always integer cents (`*_cents`). Coordinates are meters.
 }
 ```
 
-A complete example: `scripts/demo/sol_rivera.json`. The id is made from the name
+A complete example: `scripts/demo/sol_rivera.json`.
+
+### Character profile conventions
+
+`profile` is free-form narrative, but these keys have meaning:
+- `appearance`: `visual_reference` (main art sheet, checked by tests), `reference_sheets`
+  {kind: path}, `key_features[]`, `outfits` {occasion: description}, plus hair, face, build...
+- `life_stages[]`: `{age, stage, chapter, look{hair, outfit, carrying, jewelry}}`, oldest
+  first. The last stage is the character's current age (tested for Dominique).
+- `secrets[]`: `{id, truth, known_by[]}`, ready to become Facts in the information system. The id is made from the name
 (`sol-rivera`, then `sol-rivera-2`...).
 
 ## Runtime state (`WorldState`, src/core/World.h)

@@ -9,7 +9,8 @@ file that exists.
 
 | Character | Sheet | Card title |
 |---|---|---|
-| Dominique Ashford | `dominique.jpg` | turnaround + expressions |
+| Dominique Ashford | `dominique_ages.jpg` (main) | life stages: 19, 24, 29 |
+| Dominique Ashford | `dominique.jpg` | turnaround + expressions (weekend look) |
 | Dax Hendrix | `dax.jpg` | work and evening looks, turnaround, expressions |
 | Harper James | `harper.jpg` | The Confidante |
 | Andre Campbell | `andre.jpg` | The Wild Card |
@@ -23,6 +24,16 @@ file that exists.
 
 These are JPEG copies (quality 90, full resolution) of the original PNG sheets, so the
 repository stays small. Keep the original PNGs as the masters.
+
+A character can have several sheets. `visual_reference` names the main one;
+`appearance.reference_sheets` lists them all by kind (`life_stages`, `turnaround`...).
+
+## Life-stage sheets
+
+A life-stage sheet shows one character at several ages, each labelled (e.g. "DOMINIQUE —
+AGE 19"). It goes with `profile.life_stages` in the character's data: one entry per panel,
+with that age's chapter of their story and the look in the panel. The generational system
+(children who grow up, people who age) will use the same format.
 
 ## What a sheet must show
 

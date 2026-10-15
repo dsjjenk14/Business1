@@ -95,6 +95,30 @@
           "days_ago": 47,
           "info": "Aaliyah flew to Atlanta to help her pack.",
           "about": "aaliyah"
+        },
+        {
+          "type": "heirloom",
+          "participants": ["dominique"],
+          "importance": 75,
+          "emotional_impact": 45,
+          "days_ago": 3800,
+          "info": "Grandma Inez put the gold coin pendant around her neck the morning she left for Spelman: 'So you remember who sent you.'"
+        },
+        {
+          "type": "career_start",
+          "participants": ["dominique"],
+          "importance": 70,
+          "emotional_impact": 50,
+          "days_ago": 3650,
+          "info": "At 19, matched a classmate with her first internship from the career-center front desk. Found out she was good at this."
+        },
+        {
+          "type": "first_placement",
+          "participants": ["dominique"],
+          "importance": 65,
+          "emotional_impact": 55,
+          "days_ago": 1825,
+          "info": "At 24, placed a nurse who'd been turned down thirty times. Bought her first blazer with the commission."
         }
       ],
       "profile": {
@@ -104,25 +128,37 @@
           "occupation": "Senior Recruiter, Meridian Talent Partners",
           "height_cm": 175,
           "build": "Curvy hourglass",
-          "skin_tone": "Brown, warm undertone"
+          "skin_tone": "Warm medium brown"
         },
         "appearance": {
           "height_cm": 175,
           "build": "curvy hourglass",
-          "skin": "brown with a warm undertone",
-          "face": "soft oval face, full brows, full lips, a direct gaze that warms into a wide laugh",
-          "hair": "very long, sleek jet-black hair with a centre part, worn down",
-          "style": "camel coat worn over the shoulders, cream ribbed knit, taupe high-waisted wide-leg trousers, nude pointed heels, cognac top-handle bag, gold hoops",
-          "silhouette": "long coat line over a defined waist; wide-leg trousers to the floor",
+          "skin": "warm medium brown",
+          "face": "soft oval face, full brows, full lips, a steady gaze and a slight closed-mouth smile",
+          "hair": "long, voluminous jet-black body waves with a centre part",
+          "nails": "soft pink, almond",
+          "style": "black double-breasted blazer with gold buttons, blush-pink wrap blouse, black high-waisted wide-leg trousers, black belt with a gold buckle, black patent pointed pumps, burgundy structured top-handle bag with gold hardware",
+          "jewelry": "her grandmother's gold coin pendant (never off), gold watch, small gold hoops",
+          "silhouette": "sharp-shouldered blazer over a defined waist; wide-leg trousers to the floor",
+          "palette": ["black", "blush pink", "burgundy", "gold"],
+          "outfits": {
+            "work": "black double-breasted blazer, blush-pink wrap blouse, black wide-leg trousers, black patent pumps, burgundy top-handle bag",
+            "weekend": "camel coat over the shoulders, cream ribbed knit, taupe wide-leg trousers, nude pointed heels, cognac top-handle bag"
+          },
           "key_features": [
-            "Long sleek black hair",
-            "Gold hoop earrings",
-            "Expressive, slightly skeptical brows",
-            "Camel-and-cream neutral palette"
+            "Long jet-black hair: straight at 19, a messy bun at 24, full body waves now",
+            "Her grandmother's gold coin pendant, at every age",
+            "Soft oval face and full lips",
+            "Curvy hourglass figure",
+            "Wide-leg trousers, always; a power palette of black, blush and burgundy"
           ],
-          "visual_reference": "art/reference/characters/dominique.jpg"
+          "visual_reference": "art/reference/characters/dominique_ages.jpg",
+          "reference_sheets": {
+            "life_stages": "art/reference/characters/dominique_ages.jpg",
+            "turnaround": "art/reference/characters/dominique.jpg"
+          }
         },
-        "family_background": "Eldest of three, raised in Decatur, Georgia by a mother who ran a hair salon and a father who drove for MARTA. Sends money home monthly.",
+        "family_background": "Eldest of three, raised in Decatur, Georgia by a mother who ran a hair salon and a father who drove for MARTA. Her grandmother Inez gave her the gold coin pendant the morning she left for Spelman. Sends money home monthly.",
         "education": "B.A. Communications, Spelman College",
         "goals": [
           "Make Recruiting Manager within a year",
@@ -152,15 +188,64 @@
           "thursday": [{"time": "07:00", "activity": "James Wellness (private)"}],
           "sunday": [{"time": "10:00", "activity": "Greater Hope service"}]
         },
-        "starting_inventory": ["phone", "laptop", "camel wool coat", "gold hoops", "running shoes", "Lexington key fob"],
+        "starting_inventory": [
+          "phone",
+          "laptop",
+          "grandmother's gold coin pendant",
+          "gold watch",
+          "small gold hoops",
+          "black double-breasted blazer",
+          "burgundy top-handle bag",
+          "camel wool coat",
+          "running shoes",
+          "Lexington key fob"
+        ],
         "social_media": {"handle": "@dom.ashford", "followers": 2840, "bio": "Talent. Taste. Timing. New to Livéra."},
         "reputation": {"professional": 62, "social": 40, "public": 15},
         "life_history": [
-          "Top-billing recruiter at her Atlanta firm two years running.",
-          "Ended a four-year relationship the month before moving.",
-          "First of the founding residents to sign a lease at The Lexington."
+          "19: work-study at the Spelman career center; placed her first classmate in an internship.",
+          "22: graduated from Spelman and took a job nobody else wanted, recruiting night-shift nurses.",
+          "24: top biller on her team; bought her first work wardrobe with her first commission.",
+          "27: moved to Meridian Talent; top-billing recruiter in Atlanta two years running.",
+          "28: ended a four-year relationship the month before moving.",
+          "29: first of the founding residents to sign a lease at The Lexington."
         ],
-        "archetype": "The Closer"
+        "archetype": "The Closer",
+        "life_stages": [
+          {
+            "age": 19,
+            "stage": "College",
+            "chapter": "Sophomore at Spelman, working the front desk of the campus career center for work-study. Matched a classmate with her first internship and realised she was good at it.",
+            "look": {
+              "hair": "long, straight, centre part",
+              "outfit": "oversized grey zip hoodie slipping off the shoulders, white ribbed crop tank, light-wash baggy wide-leg jeans, grey-and-white sneakers",
+              "carrying": "monogram backpack, an armful of notebooks",
+              "jewelry": "the gold coin pendant"
+            }
+          },
+          {
+            "age": 24,
+            "stage": "First real job",
+            "chapter": "Recruiter at a healthcare staffing firm in Atlanta: sixty-hour weeks, nurses and night shifts. Bought her first real work clothes with her first commission check.",
+            "look": {
+              "hair": "high messy bun, face-framing strands",
+              "outfit": "chocolate-brown square-neck fitted knit, beige high-waisted pleated wide-leg trousers, dark brown belt with a gold buckle, tan pointed heels",
+              "carrying": "brown leather tote on the shoulder",
+              "jewelry": "the gold coin pendant, a gold watch"
+            }
+          },
+          {
+            "age": 29,
+            "stage": "Opening Livéra",
+            "chapter": "Senior Recruiter sent to open Meridian Talent's Livéra office: the first recruiter in a town that needs to hire everyone.",
+            "look": {
+              "hair": "long, voluminous body waves, centre part",
+              "outfit": "black double-breasted blazer with gold buttons, blush-pink wrap blouse, black high-waisted wide-leg trousers, black patent pointed pumps",
+              "carrying": "burgundy structured top-handle bag",
+              "jewelry": "the gold coin pendant, a gold watch, small gold hoops"
+            }
+          }
+        ]
       }
     }
   ]

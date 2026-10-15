@@ -14,7 +14,7 @@ play the current build through a text client. See [What works today](#what-works
 ```bash
 cd livera
 cmake -S . -B build -G Ninja && cmake --build build
-./build/livera_tests            # 71 tests
+./build/livera_tests            # 72 tests
 scripts/demo_slice.sh           # three players live a morning (one makes their own character), then a restart
 ```
 

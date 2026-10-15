@@ -92,7 +92,7 @@ different reasons. Some knew each other before. Most didn't. A few wish they did
 
 | Character | Archetype | Work (in game) | Why Livéra | Secret |
 |---|---|---|---|---|
-| **Dominique Ashford**, 29 | The Closer | Senior Recruiter, Meridian Talent Partners | Career advancement | A standing partner offer back in Atlanta; sees Harper for therapy |
+| **Dominique Ashford**, 29 (sheets: ages 19, 24, 29; turnaround) | The Closer | Senior Recruiter, Meridian Talent Partners | Career advancement | A standing partner offer back in Atlanta; sees Harper for therapy |
 | **Dax Hendrix**, 32 | The Builder | Senior AI Engineer, Parallax Labs | Fresh start | $38k of debt from his failed robotics startup; knows Parallax's demo is hand-tuned |
 | **Harper James**, 32 | The Confidante | Practice Owner, James Wellness | Business opportunity | Her studio has about two months of money left |
 | **Andre Campbell**, 29 | The Wild Card | Studio Producer, Low End Studios | Financial opportunity | His breakout hit uses an uncleared sample; he moved here because Aaliyah did |
