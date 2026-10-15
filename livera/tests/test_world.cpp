@@ -350,6 +350,20 @@ TEST_CASE("city: crews build only during working hours") {
   CHECK_NEAR(progress() - sunday, 20.0, 1e-6);  // 20 workers x 1 hour
 }
 
+TEST_CASE("city: a project finishes on the minute its last worker-hour is done") {
+  // Founders Way: 12 workers, 540 worker-hours, 07:00-16:00 Mon-Sat, so exactly five working days.
+  // Float drift once left it just short on Friday afternoon, and it finished Saturday morning instead.
+  World w = World::createNew(realContent());
+  const auto status = [&] { return w.state().construction.at("founders_way").status; };
+  REQUIRE(w.state().construction.at("founders_way").workerHoursDone == 0);
+  advanceTo(w, 4, 15);
+  w.advanceMinutes(59);  // Friday 15:59: one working minute left
+  CHECK(status() == ConstructionStatus::Active);
+  w.advanceMinutes(1);
+  CHECK(status() == ConstructionStatus::Complete);
+  CHECK(toDateTime(w.state().construction.at("founders_way").completedAt).weekday == 4);
+}
+
 TEST_CASE("city: finished projects open places, change the city, and start what was waiting") {
   World w = onlineWorld();
   CHECK(w.state().construction.at("eclat").status == ConstructionStatus::Planned);

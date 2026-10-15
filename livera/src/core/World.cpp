@@ -260,7 +260,9 @@ void World::stepConstruction() {
     const bool workDay = std::find(def.workDays.begin(), def.workDays.end(), d.weekday) != def.workDays.end();
     if (!workDay || d.hour < def.startHour || d.hour >= def.endHour) continue;
     st.workerHoursDone += static_cast<double>(def.crewSize) / 60.0;
-    if (st.workerHoursDone >= def.workerHoursRequired) completeProject(def, st);
+    // crewSize / 60 is rarely exact in binary, so the running sum can land a hair under the target
+    // on the minute the work is really done. The smallest step is 1/60 h, so 1e-6 never finishes early.
+    if (st.workerHoursDone >= def.workerHoursRequired - 1e-6) completeProject(def, st);
   }
 }
 
