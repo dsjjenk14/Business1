@@ -107,6 +107,16 @@ struct CharacterState {
   double fame = 0;           // 0..100
   std::optional<PregnancyState> pregnancy;
   std::vector<CharacterId> parents;  // family: who you were born to (in the world)
+  // Childhood: where a child is enrolled, how school is going, and who is looking after them.
+  std::string childcare;             // "school", "daycare" or empty
+  double schoolGradeSum = 0;         // per school day attended
+  int schoolDays = 0;
+  double schoolBonusToday = 0;       // homework help and bedtime stories count toward today's grade
+  double unsupervisedHoursToday = 0; // a child under the supervision age left alone
+  CharacterId childcarePayer;        // the parent who enrolled them and pays the daycare
+  std::int64_t childcarePaidDay = -1;
+  CharacterId nannyFor;              // a nanny: the parent whose family employs them
+  bool rebaseAge = false;            // session: born_at was saved under the old aging rule (fixed on load)
   // Session state (not saved):
   std::map<std::string, GameMinutes> activityReadyAt;  // "location/activity" -> minute
   GameMinutes performReadyAt = 0;
@@ -346,6 +356,17 @@ class World {
   // Break up (dating or engaged) or divorce (married). One person can end it.
   Result<Json> endRelationship(const CharacterId& actor, const CharacterId& partner);
   Result<Json> nameBaby(const CharacterId& parent, const CharacterId& baby, const std::string& firstName);
+  // --- Children (Family.cpp): care, school and daycare, a nanny -------------------------------
+  // A parent (or the family's nanny on shift) at home with a child: feed, bathe, play, read, homework.
+  Result<Json> careFor(const CharacterId& actor, const CharacterId& child, const std::string& action);
+  // A parent enrols a child in school or daycare, in person; "" withdraws them.
+  Result<Json> enrollChild(const CharacterId& parent, const CharacterId& child, const std::string& where);
+  // A parent hires a nanny (who must have the nanny career and say yes), or lets one go.
+  Result<Json> hireNanny(const CharacterId& parent, const CharacterId& nanny);
+  Result<Json> dismissNanny(const CharacterId& parent);
+  bool isParentOf(const CharacterId& parent, const CharacterId& child) const;
+  bool supervised(const CharacterState& child) const;
+  std::vector<CharacterId> childrenOf(const CharacterId& parent) const;
   std::string relationshipStatus(const CharacterId& a, const CharacterId& b) const;
   bool isFamily(const CharacterId& a, const CharacterId& b) const;
   // --- Fame (Fame.cpp)
@@ -435,6 +456,12 @@ class World {
   void giveBirth(CharacterState& c);
   Json pregnancyTest(CharacterState& c);
   Json phoneRomance(const CharacterState& c) const;
+  // Family.cpp
+  void stepChildHourly(CharacterState& c);
+  bool atSchoolNow(const CharacterState& c) const;
+  bool atDaycareNow(const CharacterState& c) const;
+  void graduateSchool(CharacterState& c);
+  Json phoneFamily(const CharacterState& c) const;
   // Fame.cpp
   void addFame(CharacterState& c, double amount);
   void stepFameHourly(CharacterState& c);

@@ -32,8 +32,7 @@
       "traits": ["hands_on", "easygoing", "stubborn", "protective"],
       "interests": ["tech", "basketball", "cooking", "rnb_music", "fishing", "gaming"],
       "career": {"id": "ai_engineering", "level": 1},
-      "degrees": ["bachelors"],
-      "reproduction": "sire",
+      "degrees": ["high_school", "bachelors"],
       "fame": 5,
       "finances": {"cash_cents": 9000, "bank_cents": 620000},
       "home": {"property": "maple_court_3b", "tenure": "rent"},
@@ -141,7 +140,8 @@
           "Hired at Parallax Labs through a placement Dominique made."
         ],
         "archetype": "The Builder"
-      }
+      },
+      "sex": "male"
     }
   ]
 }

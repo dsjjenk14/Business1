@@ -126,6 +126,16 @@ World::World(std::shared_ptr<const ContentDatabase> content, WorldState state)
     // Saves from before bodies existed: give everyone one from their definition.
     if (c.weightKg <= 0) {
       if (const CharacterDef* def = definition(id)) initBody(c, *def);
+      c.rebaseAge = false;
+    }
+    // Saves from before ages followed the calendar counted 1800 game days a year: keep the
+    // age they had reached and how far they were into the year.
+    if (c.rebaseAge) {
+      const double oldYear = 1800.0 * kMinutesPerDay;
+      const double years = static_cast<double>(state_.now - c.bornAt) / oldYear;
+      const double fraction = std::max(0.0, years - std::floor(years));
+      c.bornAt = state_.now - static_cast<GameMinutes>((c.lastBirthdayAge + fraction) * static_cast<double>(kMinutesPerYear));
+      c.rebaseAge = false;
     }
     if (c.education.degrees.empty()) {
       if (const CharacterDef* def = definition(id)) c.education.degrees = def->degrees;
@@ -705,8 +715,15 @@ Status World::startShift(const CharacterId& actor) {
   const CareerDef* career = content_->career(c.career.careerId);
   if (!career) return fail("no_career", "you don't have a job");
   if (c.career.shiftStartedAt) return fail("already_working", "you are already on shift");
-  if (std::find(career->workplaces.begin(), career->workplaces.end(), c.inside) == career->workplaces.end())
+  if (career->atEmployersHome) {
+    // A nanny works in the home of the family that hired them.
+    if (c.nannyFor.empty()) return fail("no_employer", "no family has hired you yet");
+    const PropertyState* home = homeOf(c.nannyFor);
+    const PropertyDef* def = home ? content_->property(home->id) : nullptr;
+    if (!def || c.inside != def->location) return fail("wrong_place", "go to the family's home first");
+  } else if (std::find(career->workplaces.begin(), career->workplaces.end(), c.inside) == career->workplaces.end()) {
     return fail("wrong_place", "go to your workplace first");
+  }
   c.career.shiftStartedAt = state_.now;
   c.career.shiftLocation = c.inside;
   c.career.shiftWellbeingSum = 0;
@@ -732,11 +749,14 @@ Result<Json> World::endShift(const CharacterId& actor) {
     return out;
   }
   const auto pay = static_cast<Cents>(std::llround(paidHours * static_cast<double>(level.hourlyCents)));
-  auto tx = state_.ledger.transfer(career->employerAccount, bankAccountOf(actor), pay, "salary",
-                                   career->name + " pay: " + level.title, state_.now);
+  // A nanny is paid by the family, out of the parent's bank account.
+  const LedgerAccountId payer = career->atEmployersHome ? bankAccountOf(c->nannyFor) : career->employerAccount;
+  auto tx = state_.ledger.transfer(payer, bankAccountOf(actor), pay, "salary", career->name + " pay: " + level.title, state_.now);
   if (!tx) {
     // The employer could not make payroll. The work still counts toward experience.
     notify(actor, "career", "Payroll failed: your employer could not pay you for this shift.");
+    if (career->atEmployersHome && character(c->nannyFor))
+      notify(c->nannyFor, "family", "You couldn't pay your nanny " + formatMoney(pay) + " for today's shift.");
     out["pay_cents"] = 0;
     out["note"] = "Employer could not make payroll.";
   } else {
@@ -868,6 +888,7 @@ Result<Json> World::openPhoneApp(const CharacterId& actor, const std::string& ap
   if (app == "record") return phoneRecord(c);
   if (app == "romance") return phoneRomance(c);
   if (app == "fame") return phoneFame(c);
+  if (app == "family") return phoneFamily(c);
   return fail("unknown_app", "no such phone app");
 }
 
@@ -987,6 +1008,13 @@ Status World::canAccess(const CharacterId& actor, const LocationDef& loc) const 
       if (std::find(program->campuses.begin(), program->campuses.end(), loc.id) != program->campuses.end() &&
           (loc.access != AccessRule::Public || status == "open"))
         return okStatus();
+    }
+    // The family's nanny has a key to their home.
+    if (!c->nannyFor.empty()) {
+      for (const auto& [pid, p] : state_.properties) {
+        const PropertyDef* def = content_->property(pid);
+        if (def && def->location == loc.id && p.tenant == c->nannyFor) return okStatus();
+      }
     }
   }
   switch (loc.access) {

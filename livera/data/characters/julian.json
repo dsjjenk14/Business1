@@ -32,8 +32,7 @@
       "traits": ["restless", "inventive", "charming"],
       "interests": ["tech", "gaming", "travel", "fitness", "networking"],
       "career": {"id": "startup", "level": 1},
-      "degrees": [],
-      "reproduction": "sire",
+      "degrees": ["high_school"],
       "fame": 15,
       "finances": {"cash_cents": 12000, "bank_cents": 1900000},
       "home": {"property": "riverside_lofts_5", "tenure": "rent"},
@@ -135,7 +134,8 @@
           "Talked the consortium into making Livéra Parallax's first customer."
         ],
         "archetype": "The Innovator"
-      }
+      },
+      "sex": "male"
     }
   ]
 }

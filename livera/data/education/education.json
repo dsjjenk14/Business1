@@ -2,6 +2,7 @@
   "$comment": "Degrees, programs and what the character creator's education answers mean. Study hours are game hours spent in study sessions.",
   "education": {
     "degrees": [
+      {"id": "high_school", "name": "High school diploma"},
       {"id": "bachelors", "name": "Bachelor's degree"},
       {"id": "masters", "name": "Master's degree"},
       {"id": "jd", "name": "Juris Doctor (law degree)"},
@@ -21,7 +22,8 @@
         "campuses": ["livera_university"],
         "online": true,
         "need_cost_per_hour": {"energy": -3, "recreation": -2},
-        "tuition_account": "org:livera_university"
+        "tuition_account": "org:livera_university",
+        "requires_degree": "high_school"
       },
       {
         "id": "law_school",
@@ -73,11 +75,15 @@
       }
     ],
     "creator_education": {
-      "bachelor's degree": ["bachelors"],
-      "master's degree": ["bachelors", "masters"],
-      "law degree": ["bachelors", "jd"],
-      "medical degree": ["bachelors", "md"],
-      "doctorate": ["bachelors", "masters", "doctorate"]
+      "bachelor's degree": ["high_school", "bachelors"],
+      "master's degree": ["high_school", "bachelors", "masters"],
+      "law degree": ["high_school", "bachelors", "jd"],
+      "medical degree": ["high_school", "bachelors", "md"],
+      "doctorate": ["high_school", "bachelors", "masters", "doctorate"],
+      "high school": ["high_school"],
+      "trade school": ["high_school"],
+      "some college": ["high_school"],
+      "associate degree": ["high_school"]
     }
   }
 }

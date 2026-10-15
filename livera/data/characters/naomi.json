@@ -32,8 +32,7 @@
       "traits": ["inventive", "exacting", "independent"],
       "interests": ["fashion", "art", "architecture", "photography", "travel"],
       "career": {"id": "fashion_design", "level": 3},
-      "degrees": ["bachelors"],
-      "reproduction": "carrier",
+      "degrees": ["high_school", "bachelors"],
       "fame": 20,
       "finances": {"cash_cents": 15000, "bank_cents": 4200000},
       "home": {"property": "lexington_1801", "tenure": "rent"},
@@ -126,7 +125,8 @@
           "Moved her atelier to Livéra when Whitaker Capital offered to fund it."
         ],
         "archetype": "The Visionary"
-      }
+      },
+      "sex": "female"
     }
   ]
 }

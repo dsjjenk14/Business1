@@ -204,6 +204,45 @@ at the door, since some are staff-only). Leaving a building ends a shift, except
 careers that work outdoors (police), who stay on duty while patrolling.
 **Why:** It keeps the town's places meaningful, and the academy is behind a staff-only door.
 
+## D-031 — Only a woman and a man can conceive, and she carries
+**Decision:** Every character is `female` or `male` (`sex`), separate from gender identity
+and pronouns. The creator asks it. A pregnancy can only start between a female and a male
+character, and the woman carries it. The earlier carrier/sire field is read from old saves
+and mapped (carrier → female, sire → male).
+**Why:** The product owner's rule. Keeping sex apart from gender and pronouns lets players
+present however they like without the game guessing about their bodies.
+
+## D-032 — Ages follow the calendar
+**Decision:** One birthday a game year: twelve months of twenty-eight days (D-007), 336
+game days. At one game minute a real second that is a year every 5.6 real days. Saves from
+the old rule (1800 game days a year) load with the age each character had reached and how
+far into the year they were.
+**Why:** Under the old rule a nine-month pregnancy (252 game days) and an eighteen-year
+childhood (32,400 game days) lived on different clocks, and a birthday never fell on a
+date. Now a pregnancy, a school year and a birthday all read off the same calendar, and a
+child born in Livéra is an adult in about a hundred real days. If that feels fast, the knob
+is the clock rate (`minutes_per_real_second`), not a second aging rule.
+
+## D-033 — Children are routines, with consequences
+**Decision:** Nobody plays a child. Children live at home, go to daycare (under five, paid by
+the day) or school (five to seventeen, weekdays), and are stepped once a game hour. Under
+thirteen they need an adult: a parent at home (an offline parent's routine covers them,
+unless they've stopped coping), the family's nanny on shift, or the staff where they're
+enrolled. Hours alone add up to a child-services report: a fine and a record for each
+parent. Parents (and the nanny) do care routines at home that lift the child's needs,
+build the bond and help with school. School days produce grades; a diploma at eighteen
+needs an average of 60. A nanny is a career hired by a family (the parent asks, the nanny
+says yes) and paid from the parent's bank account for shifts worked in the family's home.
+**Why:** Children have to matter without being a second game. Supervision, money and grades
+are the three things a parent actually decides about, so those are what the simulation
+tracks. Children stay home rather than tagging along; carrying a baby around town is M1 work.
+
+## D-034 — You start at 18, in your twenties or in your thirties
+**Decision:** The creator asks for an age group (`18`, `twenties`, `thirties`) and an
+optional exact age inside it; otherwise one is rolled from the world's random stream.
+**Why:** The product owner's choice. Three groups are enough to pick a life stage without a
+slider full of numbers nobody feels strongly about.
+
 ## D-030 — Clinicians earn from care given on their shift
 **Decision:** Care is bought as offers (checkups, treatment, STI tests, prenatal visits,
 the ER, rehab, abortion care). A doctor or nurse on shift where it's bought earns a share

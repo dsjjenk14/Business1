@@ -33,6 +33,13 @@ double toward(double v, double target, double step) {
   return std::max(target, v - step);
 }
 
+// A child's height by age, newborn to grown.
+double heightForAge(int age) {
+  constexpr double kNewborn = 50, kGrown = 172;
+  const double t = std::min(1.0, age / 18.0);
+  return kNewborn + (kGrown - kNewborn) * std::pow(t, 0.75);
+}
+
 // Spreads birthdays across the year instead of putting everyone's on founding day.
 double yearFraction(const std::string& id) {
   std::uint32_t h = 2166136261u;
@@ -53,8 +60,7 @@ double World::roll() {
 
 void World::initBody(CharacterState& c, const CharacterDef& def) {
   const LifeConfig& L = content_->life();
-  const double yearMinutes = L.gameDaysPerYear * kMinutesPerDay;
-  c.bornAt = state_.now - static_cast<GameMinutes>((def.age + yearFraction(def.id)) * yearMinutes);
+  c.bornAt = state_.now - static_cast<GameMinutes>((def.age + yearFraction(def.id)) * static_cast<double>(kMinutesPerYear));
   c.lastBirthdayAge = def.age;
   const Json& look = def.profile.is_object() && def.profile.contains("appearance") ? def.profile.at("appearance") : Json();
   if (look.is_object() && look.contains("height_cm") && look.at("height_cm").is_number())
@@ -68,8 +74,8 @@ void World::initBody(CharacterState& c, const CharacterDef& def) {
 int World::ageOf(const CharacterId& id) const {
   const CharacterState* c = character(id);
   if (!c) return 0;
-  const double yearMinutes = content_->life().gameDaysPerYear * kMinutesPerDay;
-  return static_cast<int>(std::floor(static_cast<double>(state_.now - c->bornAt) / yearMinutes));
+  if (state_.now < c->bornAt) return 0;
+  return static_cast<int>((state_.now - c->bornAt) / kMinutesPerYear);
 }
 
 std::string World::lifeStageOf(const CharacterId& id) const {
@@ -253,6 +259,11 @@ void World::stepHourly() {
     stepSubstancesHourly(c);
     stepPregnancyHourly(c);
     stepFameHourly(c);
+    if (ageOf(id) < L.adultAge) {
+      stepChildHourly(c);
+      checkBirthday(c);
+      continue;
+    }
     if (c.online) {
       stepIllness(c);
       updateWeight(c);
@@ -357,10 +368,20 @@ void World::checkBirthday(CharacterState& c) {
   m.emotionalImpact = 20;
   m.info = "Turned " + std::to_string(age);
   addMemory(std::move(m));
-  // A child born in Livéra grows up: at adulthood they can be played.
+  // A child born in Livéra grows: taller every year, and at adulthood they can be played.
   auto created = state_.createdCharacters.find(c.id);
+  if (created != state_.createdCharacters.end() && age < content_->life().adultAge) {
+    c.heightCm = heightForAge(age);
+    const double metres = c.heightCm / 100.0;
+    c.weightKg = std::round(content_->family().childBmi * metres * metres * 10) / 10;
+  }
   if (created != state_.createdCharacters.end() && !created->second.playable && age >= content_->life().adultAge) {
     created->second.playable = true;
+    created->second.age = age;
+    c.heightCm = heightForAge(age);
+    const double metres = c.heightCm / 100.0;
+    c.weightKg = std::round(content_->life().defaultBmi * metres * metres * 10) / 10;
+    graduateSchool(c);
     for (const auto& parent : c.parents) {
       if (character(parent)) notify(parent, "family", created->second.firstName + " is grown up now, and can be played.");
     }

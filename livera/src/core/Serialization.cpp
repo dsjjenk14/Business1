@@ -23,6 +23,7 @@ Json toJson(const CharacterState& c) {
   for (const auto& k : c.conditions)
     conditions.push_back(Json{{"id", k.id}, {"since", k.since}, {"until", k.until}, {"diagnosed", k.diagnosed}, {"recovery", k.recovery}});
   j["body"] = Json{{"born_at", c.bornAt},
+                   {"calendar", true},  // ages follow the calendar (M0.8); older saves counted 1800 days a year
                    {"last_birthday_age", c.lastBirthdayAge},
                    {"height_cm", c.heightCm},
                    {"weight_kg", c.weightKg},
@@ -44,6 +45,14 @@ Json toJson(const CharacterState& c) {
   j["jailed_until"] = c.jailedUntil;
   j["fame"] = c.fame;
   j["parents"] = c.parents;
+  j["childhood"] = Json{{"childcare", c.childcare},
+                        {"school_grade_sum", c.schoolGradeSum},
+                        {"school_days", c.schoolDays},
+                        {"school_bonus_today", c.schoolBonusToday},
+                        {"unsupervised_hours_today", c.unsupervisedHoursToday},
+                        {"childcare_payer", c.childcarePayer},
+                        {"childcare_paid_day", c.childcarePaidDay}};
+  j["nanny_for"] = c.nannyFor;
   if (c.pregnancy) {
     const PregnancyState& p = *c.pregnancy;
     j["pregnancy"] = Json{{"partner", p.partner}, {"conceived_at", p.conceivedAt}, {"due_at", p.dueAt}, {"known", p.known},
@@ -79,6 +88,7 @@ CharacterState characterStateFromJson(const Json& j) {
   if (j.contains("body")) {
     const Json& b = j.at("body");
     c.bornAt = b.value("born_at", GameMinutes{0});
+    c.rebaseAge = !b.value("calendar", false);
     c.lastBirthdayAge = b.value("last_birthday_age", 0);
     c.heightCm = b.value("height_cm", 170.0);
     c.weightKg = b.value("weight_kg", 0.0);
@@ -104,6 +114,17 @@ CharacterState characterStateFromJson(const Json& j) {
   c.jailedUntil = j.value("jailed_until", GameMinutes{-1});
   c.fame = j.value("fame", -1.0);  // -1: a save from before fame; World starts it from the definition
   c.parents = j.value("parents", std::vector<std::string>{});
+  if (j.contains("childhood")) {
+    const Json& k = j.at("childhood");
+    c.childcare = k.value("childcare", "");
+    c.schoolGradeSum = k.value("school_grade_sum", 0.0);
+    c.schoolDays = k.value("school_days", 0);
+    c.schoolBonusToday = k.value("school_bonus_today", 0.0);
+    c.unsupervisedHoursToday = k.value("unsupervised_hours_today", 0.0);
+    c.childcarePayer = k.value("childcare_payer", "");
+    c.childcarePaidDay = k.value("childcare_paid_day", std::int64_t{-1});
+  }
+  c.nannyFor = j.value("nanny_for", "");
   if (j.contains("pregnancy")) {
     const Json& p = j.at("pregnancy");
     c.pregnancy = PregnancyState{p.at("partner").get<std::string>(), p.at("conceived_at").get<GameMinutes>(),
@@ -224,7 +245,7 @@ Json toJson(const CharacterDef& c) {
               {"home", {{"property", c.homeProperty}}},
               {"spawn_location", c.spawnLocation},
               {"degrees", c.degrees},
-              {"reproduction", c.reproduction},
+              {"sex", c.sex},
               {"fame", c.fame},
               {"relationships", relationships},
               {"profile", c.profile}};

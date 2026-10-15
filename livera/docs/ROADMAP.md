@@ -108,6 +108,21 @@ out (needs the gossip system), moving in together beyond visiting rights, buying
 reporting and blocking players (required before a public server), voice, and anything
 visual (M1).
 
+## M0.8 — Family, home, work and the town, at the product owner's request 🔶 in progress
+
+- **Who can conceive:** female and male characters (`sex`), asked in the creator; only a
+  woman and a man together can start a pregnancy, and she carries it (D-031).
+- **Aging on the calendar:** one birthday a game year; old saves keep their ages (D-032).
+- **Starting age:** 18, your twenties or your thirties (D-034).
+- **Children:** daycare (Little Sprouts) and school (Founders School, K-12) with grades and a
+  diploma; supervision and child services; care routines at home; nannies hired and paid by
+  families; daycare and school-teaching careers (D-033).
+- 146 tests, sanitizer-clean.
+
+**Still to come in M0.8:** buying houses and condos together and moving in; work decisions
+during shifts; coins bought with real money; phones and LivPay; sports, date spots, pets,
+medicine; wetting yourself as a very big deal; small details.
+
 ## M1 — Unreal client shell (spec Phases 1 + 3) ⬜ — next
 
 Needs: an Unreal Engine 5 install (Windows or Linux build machine) and a decision on the

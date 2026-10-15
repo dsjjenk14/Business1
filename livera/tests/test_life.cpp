@@ -124,25 +124,26 @@ TEST_CASE("life: weight follows what you eat and how much you move") {
 }
 
 TEST_CASE("life: characters age, have birthdays, and move through life stages") {
-  auto db = patchedContent([](Json& doc, const std::string& file) {
-    if (file == "life.json") doc["life"]["aging"]["game_days_per_year"] = 2;
-  });
-  World w = World::createNew(db);
+  World w = World::createNew(realContent());
   CHECK(w.ageOf("dominique") == 29);
   CHECK(w.lifeStageOf("dominique") == "young_adult");
   CHECK(w.ageOf("graham") == 35);
   CHECK(w.lifeStageOf("graham") == "adult");
-  w.advanceMinutes(2 * kMinutesPerDay);
-  CHECK(w.ageOf("dominique") == 30);
-  CHECK(w.lifeStageOf("dominique") == "adult");
-  CHECK(notified(w, "dominique", "Happy birthday! You're 30."));
+  // Her thirtieth birthday is tomorrow.
+  WorldState s = w.state();
+  s.characters.at("dominique").bornAt = s.now + kMinutesPerDay - 30 * kMinutesPerYear;
+  World v(realContent(), s);
+  v.advanceMinutes(2 * kMinutesPerDay);
+  CHECK(v.ageOf("dominique") == 30);
+  CHECK(v.lifeStageOf("dominique") == "adult");
+  CHECK(notified(v, "dominique", "Happy birthday! You're 30."));
 }
 
-TEST_CASE("life: the real aging clock gives one birthday per real month") {
+TEST_CASE("life: a year on the calendar is twelve months of twenty-eight days") {
   World w = World::createNew(realContent());
-  CHECK(w.content().life().gameDaysPerYear == 1800);
   w.advanceMinutes(10 * kMinutesPerDay);
   CHECK(w.ageOf("dominique") == 29);
+  CHECK(kMinutesPerYear == 336 * kMinutesPerDay);
 }
 
 // --- Home -----------------------------------------------------------------------------------

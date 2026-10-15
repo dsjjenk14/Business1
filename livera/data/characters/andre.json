@@ -33,8 +33,7 @@
       "interests": ["music", "hip_hop", "rnb_music", "nightlife", "basketball", "fashion"],
       "skills": {"music": 72},
       "career": {"id": "music_production", "level": 2},
-      "degrees": [],
-      "reproduction": "sire",
+      "degrees": ["high_school"],
       "fame": 30,
       "finances": {"cash_cents": 60000, "bank_cents": 380000},
       "home": {"property": "riverside_lofts_2", "tenure": "rent"},
@@ -140,7 +139,8 @@
           "Produced 'Golden Hour', a regional hit, at twenty-six."
         ],
         "archetype": "The Wild Card"
-      }
+      },
+      "sex": "male"
     }
   ]
 }

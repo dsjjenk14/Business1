@@ -145,6 +145,51 @@
         {"title": "Bartender", "hourly_cents": 2400, "hours_to_promote": 300, "min_performance": 58},
         {"title": "Bar Manager", "hourly_cents": 3600}
       ]
+    },
+    {
+      "id": "nanny",
+      "name": "Nanny",
+      "workplaces": ["little_sprouts"],
+      "at_employers_home": true,
+      "entry_level": true,
+      "requires_clean_record": true,
+      "need_cost_per_hour": {"energy": -4, "social": 2},
+      "max_shift_hours": 10,
+      "levels": [
+        {"title": "Nanny", "hourly_cents": 1800, "hours_to_promote": 120, "min_performance": 60},
+        {"title": "Senior Nanny", "hourly_cents": 2400, "hours_to_promote": 300, "min_performance": 65},
+        {"title": "Household Manager", "hourly_cents": 3200}
+      ]
+    },
+    {
+      "id": "daycare",
+      "name": "Daycare",
+      "workplaces": ["little_sprouts"],
+      "employer_account": "org:little_sprouts",
+      "entry_level": true,
+      "requires_clean_record": true,
+      "need_cost_per_hour": {"energy": -4, "hygiene": -2, "social": 2},
+      "max_shift_hours": 10,
+      "levels": [
+        {"title": "Daycare Assistant", "hourly_cents": 1700, "hours_to_promote": 150, "min_performance": 60},
+        {"title": "Daycare Teacher", "hourly_cents": 2300, "hours_to_promote": 400, "min_performance": 65},
+        {"title": "Daycare Director", "hourly_cents": 3400}
+      ]
+    },
+    {
+      "id": "school_teaching",
+      "name": "School Teaching",
+      "workplaces": ["founders_school"],
+      "employer_account": "org:founders_school",
+      "requires_degree": "bachelors",
+      "requires_clean_record": true,
+      "need_cost_per_hour": {"energy": -4, "social": 1},
+      "max_shift_hours": 9,
+      "levels": [
+        {"title": "Teacher", "hourly_cents": 3000, "hours_to_promote": 400, "min_performance": 65},
+        {"title": "Senior Teacher", "hourly_cents": 3800, "hours_to_promote": 800, "min_performance": 70},
+        {"title": "Principal", "hourly_cents": 5200}
+      ]
     }
   ]
 }

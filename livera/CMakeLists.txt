@@ -51,9 +51,11 @@ add_library(livera_core
   src/core/CharacterCreator.cpp
   src/core/Clock.cpp
   src/core/Content.cpp
+  src/core/ContentMore.cpp
   src/core/Crime.cpp
   src/core/Education.cpp
   src/core/Fame.cpp
+  src/core/Family.cpp
   src/core/Items.cpp
   src/core/Ledger.cpp
   src/core/Life.cpp
@@ -109,6 +111,7 @@ add_executable(livera_tests
   tests/test_school.cpp
   tests/test_crime.cpp
   tests/test_romance.cpp
+  tests/test_family.cpp
   src/client/MusicText.cpp)
 target_link_libraries(livera_tests PRIVATE livera_server_lib)
 target_compile_definitions(livera_tests PRIVATE LIVERA_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")

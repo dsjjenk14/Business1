@@ -42,8 +42,7 @@
       "unhealthy_bmi_health_decay": 0.5
     },
     "aging": {
-      "$comment": "One year of age per game_days_per_year game days (1800 = one birthday per real month at 1 game minute per real second).",
-      "game_days_per_year": 1800,
+      "$comment": "Ages follow the calendar: one birthday a game year (12 months of 28 days). At one game minute a real second that is a year every 5.6 real days.",
       "adult_age": 18,
       "life_stages": [
         {"id": "baby", "min_age": 0},

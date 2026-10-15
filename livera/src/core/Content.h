@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <filesystem>
 #include <functional>
 #include <map>
@@ -241,8 +242,8 @@ struct LifeConfig {
   double highBmi = 30;
   double lowBmi = 18.5;
   double unhealthyBmiHealthDecay = 0.5;  // extra health loss per hour outside the healthy range
-  // Aging.
-  double gameDaysPerYear = 1800;
+  // Aging follows the calendar: a birthday once a game year (Clock.h), so a pregnancy is
+  // nine months and a child grows up in eighteen years of the same calendar.
   int adultAge = 18;
   std::vector<LifeStageDef> lifeStages;
   // Grooming makes first impressions: physical attraction gains scale between these.
@@ -276,10 +277,15 @@ struct ConditionDef {
 struct OpeningHours {
   int openHour = 0;   // inclusive
   int closeHour = 24; // exclusive; a close earlier than open wraps past midnight
+  std::vector<int> days;  // weekdays it opens (0 = Monday); empty = every day
   bool isOpenAt(int hour) const {
     if (openHour == closeHour) return true;
     if (openHour < closeHour) return hour >= openHour && hour < closeHour;
     return hour >= openHour || hour < closeHour;
+  }
+  bool isOpenOn(int weekday, int hour) const {
+    if (!days.empty() && std::find(days.begin(), days.end(), weekday) == days.end()) return false;
+    return isOpenAt(hour);
   }
 };
 
@@ -337,6 +343,7 @@ struct CareerDef {
   bool requiresCleanRecord = false;
   double careFeeShare = 0;        // > 0: a clinician; earns this share of care bought while they're on duty
   bool worksOutdoors = false;     // the shift continues outside the workplace (police on patrol)
+  bool atEmployersHome = false;   // a nanny: hired by a family, works in their home, paid by them
 };
 
 struct DegreeDef {
@@ -420,7 +427,7 @@ struct CharacterDef {
   std::string homeProperty;
   LocationId spawnLocation;
   std::vector<std::string> degrees;
-  std::string reproduction;  // "carrier" (can become pregnant), "sire" (can get someone pregnant), or "" (neither)
+  std::string sex;           // "female" or "male": only a woman and a man together can conceive, and she carries
   double fame = 0;           // starting fame
   std::vector<StartingRelationship> relationships;
   std::vector<SeedMemory> memories;
@@ -463,9 +470,16 @@ struct CreatorChoice {
   bool allowCustom = false;  // free text allowed (pronouns, gender identity)
 };
 
-struct CreatorOptions {
+// "How old are you?" in the creator: 18, your 20s, or your 30s.
+struct AgeGroup {
+  std::string id;
+  std::string label;
   int minAge = 18;
-  int maxAge = 80;
+  int maxAge = 18;
+};
+
+struct CreatorOptions {
+  std::vector<AgeGroup> ageGroups;
   int minHeightCm = 145;
   int maxHeightCm = 210;
   CreatorChoice pronouns;
@@ -476,11 +490,48 @@ struct CreatorOptions {
   CreatorChoice education;
   CreatorChoice relationshipStatus;
   CreatorChoice goals;
-  CreatorChoice reproduction;  // optional answer; maps to CharacterDef::reproduction
-  std::map<std::string, std::string> reproductionMeaning;
+  CreatorChoice sex;           // female or male; separate from gender identity and pronouns
   double personalityBudget = 400;  // sum of all personality traits may not exceed this
   double valuesBudget = 450;
   int maxBackgroundLength = 400;
+};
+
+// A care routine a parent (or a nanny on shift) does with a child at home.
+struct CareActionDef {
+  std::string id;
+  std::string label;
+  std::vector<std::string> stages;  // life stages it suits
+  StatMap childNeeds;
+  StatMap childEmotions;
+  StatMap carerNeeds;
+  double bond = 0;                  // friendship and familiarity, both ways
+  double grade = 0;                 // toward today's school grade (homework, a story)
+  int cooldownMinutes = 120;
+};
+
+// Children: growth, who looks after them, school and daycare (data/society/family.json).
+struct FamilyConfig {
+  int superviseUnder = 13;               // younger children need an adult, daycare, school or a nanny
+  std::vector<std::string> childNeeds;   // needs that run down for a child in a parent's care
+  double childBmi = 16;
+  int neglectReportHours = 4;            // unsupervised hours in one day before child services step in
+  std::string neglectCrime;
+  LocationId school;
+  int schoolMinAge = 5;
+  int schoolMaxAge = 17;
+  std::vector<int> schoolDays;
+  int schoolStartHour = 8;
+  int schoolEndHour = 15;
+  std::string diplomaDegree;             // granted at adulthood with a good enough average
+  double diplomaGrade = 60;
+  LocationId daycare;
+  int daycareMaxAge = 4;
+  std::vector<int> daycareDays;
+  int daycareStartHour = 7;
+  int daycareEndHour = 18;
+  Cents daycareFeeCents = 4500;          // per day attended, from the parent who enrolled them
+  LedgerAccountId daycareAccount;
+  std::vector<CareActionDef> careActions;
 };
 
 struct InstrumentDef {
@@ -541,6 +592,8 @@ class ContentDatabase {
   const SubstanceDef* substance(const std::string& id) const;
   const RomanceConfig& romance() const { return romance_; }
   const FameConfig& fame() const { return fame_; }
+  const FamilyConfig& family() const { return family_; }
+  const CareActionDef* careAction(const std::string& id) const;
   const ProgramDef* program(const std::string& id) const;
   const DegreeDef* degree(const std::string& id) const;
   // The line and stop for a stop id, or {nullptr, nullptr}.
@@ -557,6 +610,9 @@ class ContentDatabase {
 
  private:
   Status ingest(const std::string& source, const Json& doc);
+  // Sections added in M0.8 and later live in ContentMore.cpp; `handled` says whether one matched.
+  Status ingestMore(const std::string& source, const std::string& section, const Json& body, bool& handled);
+  Status validateMore() const;
   Status validate() const;
 
   bool haveSim_ = false;
@@ -584,6 +640,8 @@ class ContentDatabase {
   std::map<std::string, SubstanceDef> substances_;
   RomanceConfig romance_;
   FameConfig fame_;
+  bool haveFamily_ = false;
+  FamilyConfig family_;
 };
 
 }  // namespace livera

@@ -1787,6 +1787,30 @@
         {"id": "haze", "label": "Haze", "price_cents": 2500, "item": "haze", "illegal": true},
         {"id": "velvet", "label": "Velvet", "price_cents": 6000, "item": "velvet", "illegal": true}
       ]
+    },
+    {
+      "id": "founders_school",
+      "name": "Founders School",
+      "type": "school",
+      "district": "Downtown",
+      "description": "Kindergarten through twelfth grade in one long brick building, with a gym that doubles as the auditorium.",
+      "door": [500, 290],
+      "hours": [7, 16],
+      "open_days": [0, 1, 2, 3, 4],
+      "revenue_account": "org:founders_school",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "little_sprouts",
+      "name": "Little Sprouts Daycare",
+      "type": "daycare",
+      "district": "Downtown",
+      "description": "A bright daycare for babies and toddlers. The office upstairs also places nannies with families.",
+      "door": [300, 335],
+      "hours": [7, 18],
+      "open_days": [0, 1, 2, 3, 4],
+      "revenue_account": "org:little_sprouts",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     }
   ]
 }

@@ -335,21 +335,23 @@ TEST_CASE("fame: performing makes you known; celebrities turn heads") {
   CHECK(w.character("andre")->fame < before);  // it fades without new reasons
 }
 
-TEST_CASE("family: the creator asks who can become pregnant") {
+TEST_CASE("family: the creator asks whether you are female or male") {
   World w = World::createNew(romanceContent());
   std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
   Json sheet = Json::parse(in);
-  auto none = w.createCharacter(sheet);
-  REQUIRE(none);
-  CHECK(w.definition(none.value())->reproduction.empty());  // not asked: neither
+  auto sol = w.createCharacter(sheet);
+  REQUIRE(sol);
+  CHECK(w.definition(sol.value())->sex == "female");
   sheet["first_name"] = "Rae";
-  sheet["reproduction"] = "can become pregnant";
-  auto carrier = w.createCharacter(sheet);
-  REQUIRE(carrier);
-  CHECK(w.definition(carrier.value())->reproduction == "carrier");
+  sheet["sex"] = "male";
+  auto rae = w.createCharacter(sheet);
+  REQUIRE(rae);
+  CHECK(w.definition(rae.value())->sex == "male");
   sheet["first_name"] = "Kit";
-  sheet["reproduction"] = "sometimes";
+  sheet["sex"] = "sometimes";
   CHECK(!w.createCharacter(sheet));
+  sheet.erase("sex");
+  CHECK(!w.createCharacter(sheet));  // it decides who can carry a pregnancy, so it has to be answered
 }
 
 TEST_CASE("romance: relationships, pregnancies, family and fame are saved") {
@@ -374,15 +376,11 @@ TEST_CASE("romance: relationships, pregnancies, family and fame are saved") {
 }
 
 TEST_CASE("family: children grow up, and become playable as adults") {
-  auto db = romanceContent(
-      [](Json& r) {
-        r["conception_chance"] = 1.0;
-        r["miscarriage_chance"] = 0.0;
-        r["pregnancy_game_days"] = 1;
-      },
-      [](Json& doc, const std::string& file) {
-        if (file == "life.json") doc["life"]["aging"]["game_days_per_year"] = 0.01;  // 14.4 minutes a year
-      });
+  auto db = romanceContent([](Json& r) {
+    r["conception_chance"] = 1.0;
+    r["miscarriage_chance"] = 0.0;
+    r["pregnancy_game_days"] = 1;
+  });
   World w = World::createNew(db);
   for (const char* id : {"dominique", "dax"}) REQUIRE(w.connect(id));
   datingAtHome(w);
@@ -394,9 +392,14 @@ TEST_CASE("family: children grow up, and become playable as adults") {
   }
   REQUIRE(!child.empty());
   CHECK(!w.definition(child)->playable);
-  w.advanceMinutes(19 * 15);  // nineteen of these short years
-  CHECK(w.ageOf(child) >= 18);
-  CHECK(w.lifeStageOf(child) == "young_adult");
-  CHECK(w.definition(child)->playable);
-  CHECK(notified(w, "dominique", "is grown up now"));
+  CHECK(w.ageOf(child) == 0);
+  // Eighteen years is a long wait for a test: bring the birthday forward.
+  WorldState s = w.state();
+  s.characters.at(child).bornAt = s.now + 120 - 18 * kMinutesPerYear;
+  World grown(db, s);
+  grown.advanceMinutes(180);
+  CHECK(grown.ageOf(child) == 18);
+  CHECK(grown.lifeStageOf(child) == "young_adult");
+  CHECK(grown.definition(child)->playable);
+  CHECK(notified(grown, "dominique", "is grown up now"));
 }

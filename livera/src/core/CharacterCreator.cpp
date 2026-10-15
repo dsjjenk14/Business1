@@ -142,7 +142,10 @@ Json World::creatorOptions() const {
                            {"hourly_cents", career.levels.front().hourlyCents}, {"workplaces", workplaces}});
   }
   const SimulationConfig& sim = content_->sim();
-  return Json{{"age", {c.minAge, c.maxAge}},
+  Json ageGroups = Json::array();
+  for (const auto& g : c.ageGroups) ageGroups.push_back(Json{{"id", g.id}, {"label", g.label}, {"ages", {g.minAge, g.maxAge}}});
+  return Json{{"age_groups", ageGroups},
+              {"sex", choice(c.sex)},
               {"height_cm", {c.minHeightCm, c.maxHeightCm}},
               {"pronouns", choice(c.pronouns)},
               {"gender", choice(c.gender)},
@@ -152,7 +155,6 @@ Json World::creatorOptions() const {
               {"education", choice(c.education)},
               {"relationship_status", choice(c.relationshipStatus)},
               {"goals", choice(c.goals)},
-              {"reproduction", choice(c.reproduction)},
               {"personality", sim.personalityTraits},
               {"personality_budget", c.personalityBudget},
               {"values", sim.values},
@@ -180,12 +182,28 @@ Result<CharacterId> World::createCharacter(const Json& spec) {
     return fail("invalid_character", "names use letters, spaces, hyphens and apostrophes (up to 24)");
   def.firstName = first;
   def.lastName = last;
-  if (!spec.contains("age") || !spec.at("age").is_number_integer())
-    return fail("invalid_character", "age is required");
-  def.age = spec.at("age").get<int>();
-  if (def.age < opts.minAge || def.age > opts.maxAge)
-    return fail("invalid_character",
-                "age must be " + std::to_string(opts.minAge) + "-" + std::to_string(opts.maxAge));
+  // How old: a group (18, your twenties, your thirties), and within it an exact age or a rolled one.
+  const AgeGroup* group = nullptr;
+  for (const auto& g : opts.ageGroups) {
+    if (g.id == text("age_group")) group = &g;
+  }
+  if (!group) {
+    std::string ids;
+    for (const auto& g : opts.ageGroups) ids += (ids.empty() ? "" : ", ") + g.id;
+    return fail("invalid_character", "choose an age group: " + ids);
+  }
+  if (spec.contains("age")) {
+    if (!spec.at("age").is_number_integer()) return fail("invalid_character", "age must be a whole number");
+    def.age = spec.at("age").get<int>();
+    if (def.age < group->minAge || def.age > group->maxAge)
+      return fail("invalid_character", group->label + " means " + std::to_string(group->minAge) + "-" + std::to_string(group->maxAge));
+  } else {
+    def.age = group->minAge + static_cast<int>(roll() * (group->maxAge - group->minAge + 1));
+    def.age = std::min(def.age, group->maxAge);
+  }
+  auto sex = pickOne(spec, "sex", opts.sex);
+  if (!sex) return sex.error();
+  def.sex = sex.value();
 
   auto pronouns = pickOne(spec, "pronouns", opts.pronouns);
   if (!pronouns) return pronouns.error();
@@ -238,13 +256,6 @@ Result<CharacterId> World::createCharacter(const Json& spec) {
   if (!relationshipStatus) return relationshipStatus.error();
   auto goals = pickMany(spec, "goals", opts.goals);
   if (!goals) return goals.error();
-  // Optional: whether this person can become pregnant, get someone pregnant, or neither.
-  if (spec.contains("reproduction") && !opts.reproduction.options.empty()) {
-    auto rep = pickOne(spec, "reproduction", opts.reproduction);
-    if (!rep) return rep.error();
-    auto it = opts.reproductionMeaning.find(rep.value());
-    def.reproduction = it == opts.reproductionMeaning.end() ? "" : it->second;
-  }
   const std::string background = text("background");
   if (static_cast<int>(background.size()) > opts.maxBackgroundLength)
     return fail("invalid_character", "background is too long");

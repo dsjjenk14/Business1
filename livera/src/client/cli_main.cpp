@@ -446,6 +446,9 @@ Romance and family (adults only; every step needs the other person's yes):
   answer REQUEST yes|no     answer an ask
   breakup ID                end it (divorce, if you're married)
   namebaby CHILD NAME       name your newborn (within a week)
+  care CHILD ROUTINE        feed, bathe, play, story, homework, bedtime, talk (at home with them)
+  enrol CHILD school|daycare|none   in person at Founders School or Little Sprouts
+  hire ID                   hire a nanny (they answer with `answer`); `dismiss` lets them go
 
   skip MINUTES              advance world time (only on servers started with --dev)
   logout | quit
@@ -606,6 +609,17 @@ bool runCommand(Client& c, const std::string& input) {
   } else if (cmd == "namebaby") {
     const std::string child = arg();
     req = {{"op", "name_baby"}, {"child", child}, {"name", rest()}};
+  } else if (cmd == "care") {
+    const std::string child = arg();
+    req = {{"op", "care"}, {"child", child}, {"action", arg()}};
+  } else if (cmd == "enrol" || cmd == "enroll_child") {
+    const std::string child = arg();
+    const std::string where = arg();
+    req = {{"op", "enroll_child"}, {"child", child}, {"where", where == "none" ? "" : where}};
+  } else if (cmd == "hire") {
+    req = {{"op", "hire_nanny"}, {"target", arg()}};
+  } else if (cmd == "dismiss") {
+    req = {{"op", "dismiss_nanny"}};
   } else if (cmd == "skip") {
     req = {{"op", "dev_advance"}, {"minutes", std::stoll(arg())}};
   } else if (cmd == "logout") {

@@ -155,7 +155,7 @@ Result<Json> World::ride(const CharacterId& actor, const std::string& toStop, bo
   }
   if (!from) return fail("not_at_stop", "walk to a " + line->name + " stop first");
   if (from->id == dest->id) return fail("already_here", "you're already at " + dest->name);
-  if (!OpeningHours{line->firstHour, line->lastHour}.isOpenAt(toDateTime(state_.now).hour))
+  if (!OpeningHours{line->firstHour, line->lastHour, {}}.isOpenAt(toDateTime(state_.now).hour))
     return fail("no_service", line->name + " runs " + std::to_string(line->firstHour) + ":00 to " + std::to_string(line->lastHour) + ":00");
 
   Json out{{"line", line->name}, {"from", from->name}, {"to", dest->name}};

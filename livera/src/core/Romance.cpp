@@ -161,6 +161,17 @@ Result<Json> World::respond(const CharacterId& actor, const std::string& request
   CharacterState* fromPtr = mutableCharacter(q.from);
   if (!fromPtr || !fromPtr->online) return fail("target_unavailable", "they're gone");
   CharacterState& from = *fromPtr;
+  if (q.kind == "nanny") {
+    // A job offer, not a romance: the family hires you and you work in their home.
+    const CareerDef* career = content_->career(me.career.careerId);
+    if (!career || !career->atEmployersHome) return fail("not_a_nanny", "you don't work as a nanny anymore");
+    if (!me.nannyFor.empty()) return fail("already_employed", "you already work for a family");
+    me.nannyFor = q.from;
+    const CharacterDef* fromDef = definition(q.from);
+    notify(q.from, "family", myName + " is your family's nanny now.");
+    emit({q.from}, "answer", Json{{"request", q.id}, {"kind", q.kind}, {"accepted", true}});
+    return Json{{"accepted", "nanny"}, {"employer", q.from}, {"family", fromDef ? fromDef->lastName : q.from}};
+  }
   if (Status st = checkRomanceAllowed(from, me); !st) return st.error();
   if (!together(from, me, kAskRangeMeters)) return fail("too_far", "you're not together anymore");
   const CharacterDef* fromDef = definition(q.from);
@@ -302,8 +313,9 @@ Json World::intimacy(CharacterState& a, CharacterState& b, bool protection) {
     const CharacterDef* ad = definition(a.id);
     const CharacterDef* bd = definition(b.id);
     if (ad && bd) {
-      if (ad->reproduction == "carrier" && bd->reproduction == "sire") tryConception(a, b, usedProtection);
-      if (bd->reproduction == "carrier" && ad->reproduction == "sire") tryConception(b, a, usedProtection);
+      // Only a woman and a man together can conceive, and she carries the pregnancy.
+      if (ad->sex == "female" && bd->sex == "male") tryConception(a, b, usedProtection);
+      if (bd->sex == "female" && ad->sex == "male") tryConception(b, a, usedProtection);
     }
     notify(a.id, "romance", "You and " + (bd ? bd->firstName : b.id) + " spent the night together.");
     notify(b.id, "romance", "You and " + (ad ? ad->firstName : a.id) + " spent the night together.");
@@ -402,7 +414,7 @@ void World::giveBirth(CharacterState& c) {
   baby.lastName = mother ? mother->lastName : "";
   baby.pronouns = girl ? "she/her" : "he/him";
   baby.gender = girl ? "girl" : "boy";
-  baby.reproduction = girl ? "carrier" : "sire";
+  baby.sex = girl ? "female" : "male";
   baby.age = 0;
   baby.playable = false;
   const PropertyState* home = homeOf(c.id);

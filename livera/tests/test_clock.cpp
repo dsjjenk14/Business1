@@ -40,11 +40,11 @@ TEST_CASE("clock: day/night cycle") {
 }
 
 TEST_CASE("clock: opening hours wrap past midnight") {
-  OpeningHours club{21, 3};
+  OpeningHours club{21, 3, {}};
   CHECK(club.isOpenAt(22));
   CHECK(club.isOpenAt(1));
   CHECK(!club.isOpenAt(12));
-  OpeningHours cafe{6, 20};
+  OpeningHours cafe{6, 20, {}};
   CHECK(cafe.isOpenAt(6));
   CHECK(!cafe.isOpenAt(20));
 }

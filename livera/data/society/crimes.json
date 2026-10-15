@@ -63,6 +63,17 @@
         "per_staff": 0.05,
         "per_police": 0.4,
         "notoriety": 2
+      },
+      {
+        "id": "child_neglect",
+        "label": "Child neglect",
+        "fine_cents": 50000,
+        "jail_minutes": 0,
+        "detection": 0,
+        "per_witness": 0,
+        "per_staff": 0,
+        "per_police": 0,
+        "notoriety": 3
       }
     ]
   }

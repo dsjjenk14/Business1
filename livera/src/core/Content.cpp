@@ -4,23 +4,13 @@
 #include <fstream>
 #include <set>
 
+#include "core/ContentParse.h"
+
 namespace livera {
 
+using namespace content_parse;
+
 namespace {
-
-StatMap readStats(const Json& j, const char* key) {
-  StatMap out;
-  if (!j.contains(key)) return out;
-  for (const auto& [k, v] : j.at(key).items()) out[k] = v.get<double>();
-  return out;
-}
-
-std::vector<std::string> readStrings(const Json& j, const char* key) {
-  if (!j.contains(key)) return {};
-  return j.at(key).get<std::vector<std::string>>();
-}
-
-Vec2 readVec2(const Json& j) { return Vec2{j.at(0).get<double>(), j.at(1).get<double>()}; }
 
 AccessRule readAccess(const std::string& s) {
   if (s == "public") return AccessRule::Public;
@@ -78,20 +68,6 @@ Activity readActivity(const Json& a) {
 const std::set<std::string> kCareServices = {"checkup", "treatment", "dental_care", "emergency", "rehab",
                                              "sti_test", "prenatal", "abortion"};
 
-template <class Map>
-Status insertUnique(Map& map, const std::string& kind, const std::string& id, typename Map::mapped_type value) {
-  if (map.count(id)) return fail("content_duplicate", "duplicate " + kind + " id '" + id + "'");
-  map.emplace(id, std::move(value));
-  return okStatus();
-}
-
-Status checkKeys(const StatMap& stats, const std::set<std::string>& allowed, const std::string& where) {
-  for (const auto& [k, v] : stats) {
-    if (!allowed.count(k)) return fail("content_invalid", where + ": unknown stat '" + k + "'");
-  }
-  return okStatus();
-}
-
 }  // namespace
 
 Result<std::shared_ptr<const ContentDatabase>> ContentDatabase::loadFromDirectory(const std::filesystem::path& dir) {
@@ -147,7 +123,12 @@ Result<CharacterDef> ContentDatabase::parseCharacter(const Json& j) {
     c.homeProperty = j.at("home").at("property").get<std::string>();
     c.spawnLocation = j.at("spawn_location").get<std::string>();
     c.degrees = readStrings(j, "degrees");
-    c.reproduction = j.value("reproduction", "");
+    c.sex = j.value("sex", "");
+    if (c.sex.empty()) {
+      // Characters saved before M0.8 recorded who could carry a pregnancy instead.
+      const std::string legacy = j.value("reproduction", "");
+      c.sex = legacy == "carrier" ? "female" : legacy == "sire" ? "male" : "";
+    }
     c.fame = j.value("fame", 0.0);
     if (j.contains("relationships")) {
       for (const auto& r : j.at("relationships")) {
@@ -220,7 +201,8 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           l.door = readVec2(j.at("door"));
           l.enterable = j.value("enterable", true);
           l.access = readAccess(j.value("access", "public"));
-          if (j.contains("hours")) l.hours = OpeningHours{j.at("hours").at(0).get<int>(), j.at("hours").at(1).get<int>()};
+          if (j.contains("hours"))
+            l.hours = OpeningHours{j.at("hours").at(0).get<int>(), j.at("hours").at(1).get<int>(), readInts(j, "open_days")};
           if (j.contains("offers")) {
             for (const auto& o : j.at("offers")) l.offers.push_back(readOffer(o));
           }
@@ -254,7 +236,8 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           c.id = j.at("id").get<std::string>();
           c.name = j.at("name").get<std::string>();
           c.workplaces = readStrings(j, "workplaces");
-          c.employerAccount = j.at("employer_account").get<std::string>();
+          c.atEmployersHome = j.value("at_employers_home", false);
+          c.employerAccount = c.atEmployersHome ? j.value("employer_account", "") : j.at("employer_account").get<std::string>();
           for (const auto& lv : j.at("levels")) {
             c.levels.push_back(CareerLevel{lv.at("title").get<std::string>(), lv.at("hourly_cents").get<Cents>(),
                                            lv.value("hours_to_promote", 0.0), lv.value("min_performance", 0.0)});
@@ -326,8 +309,10 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
         if (haveCreator_) return fail("content_duplicate", source + ": 'character_creator' defined twice");
         haveCreator_ = true;
         auto& c = creator_;
-        c.minAge = body.at("age").at(0).get<int>();
-        c.maxAge = body.at("age").at(1).get<int>();
+        for (const auto& g : body.at("age_groups")) {
+          c.ageGroups.push_back(AgeGroup{g.at("id").get<std::string>(), g.at("label").get<std::string>(),
+                                         g.at("ages").at(0).get<int>(), g.at("ages").at(1).get<int>()});
+        }
         c.minHeightCm = body.at("height_cm").at(0).get<int>();
         c.maxHeightCm = body.at("height_cm").at(1).get<int>();
         c.pronouns = readChoice(body.at("pronouns"));
@@ -338,11 +323,7 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
         c.education = readChoice(body.at("education"));
         c.relationshipStatus = readChoice(body.at("relationship_status"));
         c.goals = readChoice(body.at("goals"));
-        if (body.contains("reproduction")) {
-          c.reproduction = readChoice(body.at("reproduction").at("choice"));
-          for (const auto& [answer, meaning] : body.at("reproduction").at("means").items())
-            c.reproductionMeaning[answer] = meaning.get<std::string>();
-        }
+        c.sex = readChoice(body.at("sex"));
         c.personalityBudget = body.value("personality_budget", c.personalityBudget);
         c.valuesBudget = body.value("values_budget", c.valuesBudget);
         c.maxBackgroundLength = body.value("max_background_length", c.maxBackgroundLength);
@@ -391,7 +372,6 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
         L.lowBmi = w.value("low_bmi", L.lowBmi);
         L.unhealthyBmiHealthDecay = w.value("unhealthy_bmi_health_decay", L.unhealthyBmiHealthDecay);
         const Json& age = body.at("aging");
-        L.gameDaysPerYear = age.value("game_days_per_year", L.gameDaysPerYear);
         L.adultAge = age.value("adult_age", L.adultAge);
         for (const auto& st : age.at("life_stages")) {
           L.lifeStages.push_back(LifeStageDef{st.at("id").get<std::string>(), st.at("min_age").get<int>(),
@@ -569,7 +549,9 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           if (auto st = insertUnique(instruments_, "instrument", i.id, i); !st) return st;
         }
       } else {
-        return fail("content_invalid", source + ": unknown section '" + section + "'");
+        bool handled = false;
+        if (auto st = ingestMore(source, section, body, handled); !st) return st;
+        if (!handled) return fail("content_invalid", source + ": unknown section '" + section + "'");
       }
     }
   } catch (const std::exception& e) {
@@ -626,7 +608,7 @@ Status ContentDatabase::validate() const {
   }
   for (const auto& [id, c] : careers_) {
     if (c.levels.empty()) return fail("content_invalid", "career " + id + ": no levels");
-    if (!orgs.count(c.employerAccount)) return fail("content_invalid", "career " + id + ": unknown employer_account");
+    if (!c.atEmployersHome && !orgs.count(c.employerAccount)) return fail("content_invalid", "career " + id + ": unknown employer_account");
     for (const auto& w : c.workplaces) {
       if (!location(w)) return fail("content_invalid", "career " + id + ": unknown workplace " + w);
     }
@@ -693,7 +675,13 @@ Status ContentDatabase::validate() const {
   }
   if (haveCreator_) {
     if (origins_.empty()) return fail("content_invalid", "character_creator needs at least one origin");
-    if (creator_.minAge < 18) return fail("content_invalid", "character_creator: minimum age is 18");
+    if (creator_.ageGroups.empty()) return fail("content_invalid", "character_creator needs age_groups");
+    for (const auto& g : creator_.ageGroups) {
+      if (g.minAge < 18 || g.maxAge < g.minAge) return fail("content_invalid", "character_creator: age group " + g.id + " must be adult [min, max]");
+    }
+    for (const auto& o : creator_.sex.options) {
+      if (o != "female" && o != "male") return fail("content_invalid", "character_creator: sex options are female and male");
+    }
   }
   if (haveLife_) {
     if (life_.selfCareRealDays <= 0) return fail("content_invalid", "life.offline.self_care_real_days must be > 0");
@@ -701,7 +689,7 @@ Status ContentDatabase::validate() const {
     if (auto s = checkKeys(life_.depressedEmotionTargets, emotions, "life.offline.depressed_emotion_targets"); !s) return s;
     if (auto s = checkKeys(life_.dirtyHomeNeedsPerHour, needs, "life.home.dirty_home_needs_per_hour"); !s) return s;
     if (!condition(life_.depressionCondition)) return fail("content_invalid", "life: unknown depression_condition");
-    if (life_.gameDaysPerYear <= 0 || life_.kcalPerKg <= 0) return fail("content_invalid", "life: bad aging or weight tuning");
+    if (life_.kcalPerKg <= 0) return fail("content_invalid", "life: bad weight tuning");
     if (life_.lifeStages.empty() || life_.lifeStages.front().minAge != 0)
       return fail("content_invalid", "life.aging.life_stages must start at age 0");
     for (std::size_t i = 1; i < life_.lifeStages.size(); ++i) {
@@ -769,7 +757,7 @@ Status ContentDatabase::validate() const {
   for (const auto& [id, i] : instruments_) {
     if (i.midiProgram < 0 || i.midiProgram > 127) return fail("content_invalid", "instrument " + id + ": midi_program 0..127");
   }
-  return okStatus();
+  return validateMore();
 }
 
 Status ContentDatabase::validateCharacter(const CharacterDef& c,
@@ -798,8 +786,7 @@ Status ContentDatabase::validateCharacter(const CharacterDef& c,
   for (const auto& d : c.degrees) {
     if (!education_.degrees.empty() && !degree(d)) return fail("content_invalid", where + ": unknown degree " + d);
   }
-  if (!c.reproduction.empty() && c.reproduction != "carrier" && c.reproduction != "sire")
-    return fail("content_invalid", where + ": reproduction must be carrier, sire or empty");
+  if (!c.sex.empty() && c.sex != "female" && c.sex != "male") return fail("content_invalid", where + ": sex must be female or male");
   if (c.fame < 0 || c.fame > 100) return fail("content_invalid", where + ": fame must be 0-100");
   if (c.startingBankCents < 0 || c.startingCashCents < 0) return fail("content_invalid", where + ": negative money");
   for (const auto& r : c.relationships) {

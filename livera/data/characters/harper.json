@@ -32,8 +32,7 @@
       "traits": ["empathetic", "insightful", "quietly_stubborn"],
       "interests": ["reading", "fitness", "cooking", "interior_design", "volunteering", "jazz"],
       "career": {"id": "therapy", "level": 3},
-      "degrees": ["bachelors", "masters"],
-      "reproduction": "carrier",
+      "degrees": ["high_school", "bachelors", "masters"],
       "fame": 5,
       "finances": {"cash_cents": 22000, "bank_cents": 2150000},
       "home": {"property": "founders_row_3", "tenure": "rent"},
@@ -141,7 +140,8 @@
           "Moved to Livéra because Leila told her the town had no therapists at all."
         ],
         "archetype": "The Confidante"
-      }
+      },
+      "sex": "female"
     }
   ]
 }

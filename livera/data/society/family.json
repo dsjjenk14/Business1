@@ -1,0 +1,102 @@
+{
+  "$comment": "Children: who looks after them, daycare and school, and the routines a parent (or a nanny on shift) does with them at home. Ages follow the calendar (Clock.h): one birthday a game year. See docs/SIMULATION.md.",
+  "family": {
+    "supervise_under": 13,
+    "child_needs": ["hunger", "hygiene", "social", "recreation", "energy", "comfort"],
+    "child_bmi": 16,
+    "neglect_report_hours": 4,
+    "neglect_crime": "child_neglect",
+    "school": {
+      "location": "founders_school",
+      "min_age": 5,
+      "max_age": 17,
+      "days": [0, 1, 2, 3, 4],
+      "start_hour": 8,
+      "end_hour": 15,
+      "diploma": "high_school",
+      "diploma_grade": 60
+    },
+    "daycare": {
+      "location": "little_sprouts",
+      "max_age": 4,
+      "days": [0, 1, 2, 3, 4],
+      "start_hour": 7,
+      "end_hour": 18,
+      "fee_per_day_cents": 4500,
+      "account": "org:little_sprouts"
+    },
+    "care_actions": [
+      {
+        "id": "feed",
+        "label": "Feed them",
+        "stages": ["baby", "toddler", "child"],
+        "child_needs": {"hunger": 30, "comfort": 5},
+        "child_emotions": {"happiness": 3},
+        "carer_needs": {"energy": -2},
+        "bond": 1.5,
+        "cooldown_minutes": 180
+      },
+      {
+        "id": "bathe",
+        "label": "Bath time",
+        "stages": ["baby", "toddler", "child"],
+        "child_needs": {"hygiene": 40, "comfort": 5},
+        "child_emotions": {"happiness": 2},
+        "carer_needs": {"energy": -3, "hygiene": -5},
+        "bond": 1.5,
+        "cooldown_minutes": 600
+      },
+      {
+        "id": "play",
+        "label": "Play together",
+        "stages": ["toddler", "child", "teen"],
+        "child_needs": {"recreation": 25, "social": 20},
+        "child_emotions": {"happiness": 6},
+        "carer_needs": {"energy": -4, "recreation": 6, "social": 6},
+        "bond": 2.5,
+        "cooldown_minutes": 120
+      },
+      {
+        "id": "story",
+        "label": "Read them a story",
+        "stages": ["baby", "toddler", "child"],
+        "child_needs": {"social": 10, "comfort": 10, "energy": 10},
+        "child_emotions": {"happiness": 4, "stress": -4},
+        "carer_needs": {"social": 3},
+        "bond": 2,
+        "grade": 3,
+        "cooldown_minutes": 360
+      },
+      {
+        "id": "homework",
+        "label": "Help with homework",
+        "stages": ["child", "teen"],
+        "child_needs": {"social": 5},
+        "child_emotions": {"stress": -3},
+        "carer_needs": {"energy": -3},
+        "bond": 1.5,
+        "grade": 12,
+        "cooldown_minutes": 720
+      },
+      {
+        "id": "bedtime",
+        "label": "Put them to bed",
+        "stages": ["baby", "toddler", "child"],
+        "child_needs": {"energy": 35, "comfort": 10},
+        "child_emotions": {"stress": -5},
+        "bond": 1,
+        "cooldown_minutes": 720
+      },
+      {
+        "id": "talk",
+        "label": "Talk about their day",
+        "stages": ["child", "teen"],
+        "child_needs": {"social": 15},
+        "child_emotions": {"happiness": 3, "loneliness": -5, "stress": -3},
+        "carer_needs": {"social": 4},
+        "bond": 2,
+        "cooldown_minutes": 240
+      }
+    ]
+  }
+}

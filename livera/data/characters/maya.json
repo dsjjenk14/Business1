@@ -32,8 +32,7 @@
       "traits": ["compassionate", "determined", "principled"],
       "interests": ["volunteering", "faith", "dance", "cooking", "reading", "music"],
       "career": {"id": "nonprofit", "level": 3},
-      "degrees": ["bachelors"],
-      "reproduction": "carrier",
+      "degrees": ["high_school", "bachelors"],
       "fame": 10,
       "finances": {"cash_cents": 8000, "bank_cents": 640000},
       "home": {"property": "maple_court_1a", "tenure": "rent"},
@@ -135,7 +134,8 @@
           "Followed her brother's crew to Livéra and opened the center in a month."
         ],
         "archetype": "The Idealist"
-      }
+      },
+      "sex": "female"
     }
   ]
 }

@@ -370,7 +370,7 @@ TEST_CASE("server: everyday life over the network: phone apps, things, school, t
   dom.ok({{"op", "dev_advance"}, {"minutes", 180}});  // 10:00: the shops are open
   for (const char* app : {"health", "items", "transit", "school", "jobs", "record", "romance", "fame"})
     CHECK(dom.ok({{"op", "phone"}, {"app", app}}).is_object());
-  CHECK(dom.ok({{"op", "phone"}, {"app", "school"}})["degrees"][0] == "Bachelor's degree");
+  CHECK(dom.ok({{"op", "phone"}, {"app", "school"}})["degrees"][1] == "Bachelor's degree");  // after the school diploma
 
   dom.ok({{"op", "exit"}});
   dom.walkTo("circuit_electronics");

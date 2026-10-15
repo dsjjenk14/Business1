@@ -155,9 +155,26 @@ home goes untended. Coming back, depression is a condition like any other.
 
 ## Aging
 
-Age = (now − born at) / `game_days_per_year`. Birthdays are notifications and memories.
-Life stages: baby 0, toddler 1, child 4, teen 13, young adult 18, adult 30, elder 60
-(health declines 1.5x), senior 75 (2.5x). Children born in the world become playable at 18.
+Age = (now − born at) / one calendar year (336 game days; D-032). Birthdays are
+notifications and memories. Life stages: baby 0, toddler 1, child 4, teen 13, young adult
+18, adult 30, elder 60 (health declines 1.5x), senior 75 (2.5x). Children born in the world
+grow taller each birthday and become playable at 18.
+
+## Children
+
+Nobody plays a child (D-033). Each game hour a child is placed (home, daycare, school), their
+needs drift toward 70 when someone responsible is around and toward 20 when not, and
+unsupervised hours are counted. `supervised` is true when the child is thirteen or older,
+at school or daycare, a parent is home (or offline and coping), or the family's nanny is
+on shift in the home. Four unsupervised hours in a day (`neglect_report_hours`) bring child
+services: the `child_neglect` crime on each parent's record and its fine. Care routines
+(`care`) are data: feed, bathe, play, story, homework, bedtime, talk, each for certain
+stages, with child and carer effects, a bond and a grade bonus. Daycare charges its fee when
+the doors open; no payment, no place that day. School days end with a grade (average needs
+plus the day's bonus); at eighteen an average of `diploma_grade` earns the `high_school`
+degree, which the bachelor's program now requires. A nanny (`at_employers_home` career) is
+hired with an ask the nanny accepts, has a key to the family's home, clocks in there and is
+paid from the parent's bank account.
 
 ## Substances
 

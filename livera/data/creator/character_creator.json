@@ -1,10 +1,18 @@
 {
   "$comment": "Character creator. Pick-one choices are lists; pick-many choices give min/max. allow_custom lets players type their own (pronouns, gender identity). Personality/values: each 0-100, total within budget. Origins answer 'Why did you move to Livéra?' and set starting money, career level and housing tier (properties carry a tier).",
   "character_creator": {
-    "age": [18, 80],
+    "age_groups": [
+      {"id": "18", "label": "Just turned 18", "ages": [18, 18]},
+      {"id": "twenties", "label": "In my twenties", "ages": [20, 29]},
+      {"id": "thirties", "label": "In my thirties", "ages": [30, 39]}
+    ],
     "height_cm": [145, 210],
     "pronouns": {"options": ["she/her", "he/him", "they/them", "she/they", "he/they"], "allow_custom": true},
     "gender": {"options": ["woman", "man", "non-binary"], "allow_custom": true},
+    "sex": {
+      "$comment": "Female or male. Separate from gender identity and pronouns; it only decides who can carry a pregnancy and who can father one.",
+      "options": ["female", "male"]
+    },
     "appearance": {
       "skin_tone": {
         "options": [
@@ -211,12 +219,7 @@
     },
     "personality_budget": 400,
     "values_budget": 450,
-    "max_background_length": 400,
-    "reproduction": {
-      "$comment": "Optional. Only used for pregnancy; separate from gender and pronouns.",
-      "choice": ["can become pregnant", "can get someone pregnant", "neither"],
-      "means": {"can become pregnant": "carrier", "can get someone pregnant": "sire", "neither": ""}
-    }
+    "max_background_length": 400
   },
   "origins": [
     {

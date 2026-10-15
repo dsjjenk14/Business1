@@ -32,8 +32,7 @@
       "traits": ["curious", "skeptical", "fearless"],
       "interests": ["reading", "film", "travel", "photography", "nightlife"],
       "career": {"id": "journalism", "level": 2},
-      "degrees": ["bachelors"],
-      "reproduction": "carrier",
+      "degrees": ["high_school", "bachelors"],
       "fame": 15,
       "finances": {"cash_cents": 20000, "bank_cents": 1120000},
       "home": {"property": "founders_row_7", "tenure": "rent"},
@@ -132,7 +131,8 @@
           "Took over the Ledger when its founder retired the week Livéra was chartered."
         ],
         "archetype": "The Insider"
-      }
+      },
+      "sex": "female"
     }
   ]
 }

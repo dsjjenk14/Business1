@@ -416,6 +416,10 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
   if (op == "respond") return world_.respond(me, str(req, "request"), req.value("accept", false));
   if (op == "end_relationship") return world_.endRelationship(me, str(req, "target"));
   if (op == "name_baby") return world_.nameBaby(me, str(req, "child"), str(req, "name"));
+  if (op == "care") return world_.careFor(me, str(req, "child"), str(req, "action"));
+  if (op == "enroll_child") return world_.enrollChild(me, str(req, "child"), str(req, "where"));
+  if (op == "hire_nanny") return world_.hireNanny(me, str(req, "target"));
+  if (op == "dismiss_nanny") return world_.dismissNanny(me);
   if (op == "message") {
     auto id = world_.sendMessage(me, str(req, "to"), str(req, "text"));
     if (!id) return id.error();

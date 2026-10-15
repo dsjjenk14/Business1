@@ -40,14 +40,21 @@ unknown stat names and dangling references fail the load with the file and id na
 | `crime` | `jail, hospital, fines_account, patrol_arrest_per_hour, police_nearby_m, pickpocket_*, addiction_threshold, overdose_bill_cents, crimes[] {id, label, fine_cents, jail_minutes, detection, per_witness, per_staff, per_police, notoriety}` | data/society/crimes.json. |
 | `romance` | `request_minutes, conception_chance, protection_effectiveness, fertility_by_age[[age, x]], pregnancy_game_days, symptoms_after_days, test_detects_after_days, miscarriage_chance, miscarriage_window_days, abortion_limit_days, pregnancy_needs_per_hour{}, morning_sickness_needs_per_hour{}, baby_names{girl[], boy[]}, naming_window_days, divorce_fee_cents, divorce_fee_account, sti_protection` | data/society/romance.json. |
 | `fame` | `tiers[] {id, label, min}, decay_per_day, per_quality_audience, per_release, per_wedding, celebrity_at, receptivity_bonus` | data/society/fame.json. |
+| `family` | `supervise_under, child_needs[], child_bmi, neglect_report_hours, neglect_crime, school{location, min_age, max_age, days[], start_hour, end_hour, diploma, diploma_grade}, daycare{location, max_age, days[], start_hour, end_hour, fee_per_day_cents, account}, care_actions[] {id, label, stages[], child_needs{}, child_emotions{}, carer_needs{}, bond, grade, cooldown_minutes}` | data/society/family.json (M0.8). |
 
 New fields on existing sections: offers gain `calories`, `calories_burned`, `service`
 (checkup, treatment, dental_care, emergency, rehab, sti_test, prenatal, abortion),
 `condition_recovery`, `item`, `quantity`, `requires_diagnosis`, `substance`, `illegal`;
 activities gain `home_effects{cleanliness, trash}`, `calories`, `calories_burned`;
 locations gain `weddings`; careers gain `requires_degree`, `requires_clean_record`,
-`care_fee_share`, `works_outdoors`; characters gain `degrees[]`, `reproduction`
-(carrier/sire/empty), `fame`; the creator gains an optional `reproduction` question.
+`care_fee_share`, `works_outdoors`; characters gain `degrees[]`, `fame`.
+
+M0.8: characters have `sex` (female/male; the old `reproduction` carrier/sire is still read
+and mapped); the creator has `age_groups[] {id, label, ages[min, max]}` and a required `sex`
+question instead of an age range and `reproduction`; `life.aging` lost `game_days_per_year`
+(ages follow the calendar); careers gain `at_employers_home` (a nanny: no
+`employer_account`, paid by the family); locations gain `open_days[]` (weekdays, 0 =
+Monday).
 
 Money is always integer cents (`*_cents`). Coordinates are meters.
 
@@ -55,8 +62,8 @@ Money is always integer cents (`*_cents`). Coordinates are meters.
 
 ```json
 {
-  "first_name": "Sol", "last_name": "Rivera", "age": 26,
-  "pronouns": "they/them", "gender": "non-binary",
+  "first_name": "Sol", "last_name": "Rivera", "age_group": "twenties", "age": 26,
+  "pronouns": "they/them", "gender": "non-binary", "sex": "female",
   "appearance": {"skin_tone": "golden brown", "hair_style": "curly afro", "tattoos": ["wrist"], "height_cm": 170, "...": "every single-pick field"},
   "personality": {"sociability": 70, "...": "0-100, missing = 50, total within budget"},
   "values": {"creativity": 70},
@@ -135,6 +142,7 @@ Schema version is `PRAGMA user_version`; migrations are an append-only list in
 | `songs` | id, owner, body JSON — v2 |
 | `properties.upkeep` | cleanliness and trash JSON — v3 |
 | `meta.rng` | the random stream's state — v3 (meta is key/value, no migration needed) |
+| `characters.state` additions | `body.calendar` (true once ages follow the calendar), `childhood{childcare, school_grade_sum, school_days, school_bonus_today, unsupervised_hours_today, childcare_payer, childcare_paid_day}`, `nanny_for` — M0.8, JSON fields only, no migration needed |
 
 Session state is not saved: who is online, move targets, activity cooldowns. Open shifts
 are settled on logout and shutdown, so none survive a save.
