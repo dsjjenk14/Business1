@@ -83,7 +83,8 @@ bool World::inPrivate(const CharacterState& a, const CharacterState& b) const {
   return false;
 }
 
-Result<Json> World::request(const CharacterId& actor, const std::string& kind, const CharacterId& target, bool protection) {
+Result<Json> World::request(const CharacterId& actor, const std::string& kind, const CharacterId& target,
+                            bool protection, const std::string& subject) {
   auto r = activeCharacter(actor);
   if (!r) return r.error();
   CharacterState& a = *r.value();
@@ -124,8 +125,12 @@ Result<Json> World::request(const CharacterId& actor, const std::string& kind, c
       if (!have) return fail("no_protection", "neither of you has protection");
     }
     ask = name + " wants to spend the night with you" + (protection ? " (with protection)." : ".");
+  } else if (kind == "buy_home" || kind == "move_in" || kind == "sell_home") {
+    auto text = homeAsk(a, *t, kind, subject);  // Homes.cpp
+    if (!text) return text.error();
+    ask = text.value();
   } else {
-    return fail("bad_request", "kind must be date, kiss, propose, marry or intimacy");
+    return fail("bad_request", "kind must be date, kiss, propose, marry, intimacy, buy_home, move_in or sell_home");
   }
   // One open ask of each kind at a time.
   state_.requests.erase(std::remove_if(state_.requests.begin(), state_.requests.end(),
@@ -134,9 +139,11 @@ Result<Json> World::request(const CharacterId& actor, const std::string& kind, c
   for (const auto& q : state_.requests) {
     if (q.from == actor && q.to == target && q.kind == kind) return fail("already_asked", "you already asked; give them a moment");
   }
-  PendingRequest q{nextId("ask"), kind, actor, target, state_.now + content_->romance().requestMinutes, protection};
+  PendingRequest q{nextId("ask"), kind, actor, target, state_.now + content_->romance().requestMinutes, protection,
+                   subject};
   state_.requests.push_back(q);
-  notify(target, "romance", ask + " (answer with request id " + q.id + ")");
+  notify(target, kind == "buy_home" || kind == "move_in" || kind == "sell_home" ? "home" : "romance",
+         ask + " (answer with request id " + q.id + ")");
   emit({target}, "request", Json{{"id", q.id}, {"kind", kind}, {"from", actor}, {"text", ask}});
   return Json{{"request", q.id}, {"kind", kind}, {"waiting_for", target}};
 }
@@ -153,8 +160,9 @@ Result<Json> World::respond(const CharacterId& actor, const std::string& request
   state_.requests.erase(it);
   const CharacterDef* myDef = definition(actor);
   const std::string myName = myDef ? myDef->firstName : actor;
+  const bool aboutHome = q.kind == "buy_home" || q.kind == "move_in" || q.kind == "sell_home";  // Homes.cpp
   if (!accept) {
-    notify(q.from, "romance", myName + " said no.");
+    notify(q.from, aboutHome ? "home" : "romance", myName + " said no.");
     emit({q.from}, "answer", Json{{"request", q.id}, {"kind", q.kind}, {"accepted", false}});
     return Json{{"declined", q.kind}};
   }
@@ -252,8 +260,12 @@ Result<Json> World::respond(const CharacterId& actor, const std::string& request
   } else if (q.kind == "intimacy") {
     if (!inPrivate(from, me)) return fail("not_private", "that's for somewhere private");
     out["night"] = intimacy(from, me, q.protection);
+  } else if (q.kind == "buy_home" || q.kind == "move_in" || q.kind == "sell_home") {
+    auto done = homeAnswer(q, from, me);  // Homes.cpp
+    if (!done) return done.error();
+    out["home"] = done.value();
   }
-  notify(q.from, "romance", myName + " said yes.");
+  notify(q.from, aboutHome ? "home" : "romance", myName + " said yes.");
   emit({q.from}, "answer", Json{{"request", q.id}, {"kind", q.kind}, {"accepted", true}});
   return out;
 }

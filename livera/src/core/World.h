@@ -75,6 +75,21 @@ struct PregnancyState {
 
 // ---- M0.8 feature state (each block belongs to one feature; see docs/m08/) ----
 // m08:homes state { Buying homes, mortgages, moving in together (Homes.cpp)
+// A home loan from the lender in data (homes.lender). The schedule moves on every month; a
+// payment that couldn't be made is owed on top of it as arrears, and enough of those in a row
+// and the bank takes the home.
+struct MortgageState {
+  LedgerAccountId lender;
+  Cents principalCents = 0;  // borrowed at purchase
+  Cents balanceCents = 0;    // still owed on the schedule
+  Cents paymentCents = 0;    // the monthly payment (standard amortization), fixed at purchase
+  double annualRate = 0;
+  int termMonths = 0;
+  int monthsLeft = 0;
+  int missedPayments = 0;    // payments behind
+  Cents arrearsCents = 0;    // what those missed payments and their late fees add up to
+  GameMinutes startedAt = 0;
+};
 // } m08:homes
 
 // m08:work state { Work decisions during shifts (WorkTasks.cpp)
@@ -239,10 +254,15 @@ struct Notification {
 
 struct PropertyState {
   std::string id;
-  LedgerAccountId ownerAccount;
-  CharacterId tenant;  // empty = vacant
+  LedgerAccountId ownerAccount;  // paid the rent; for a home a character bought, the first owner's bank
+  CharacterId tenant;  // the lease holder; an owned home's owner who lives there (else its first owner); empty = vacant
   double cleanliness = 80;  // 0..100: housework keeps it up
   double trash = 0;         // 0..100: full trash makes a home get dirty faster
+  // Homes (Homes.cpp; saved in the homes world part). A home for sale is on the market while no
+  // character owns it.
+  std::vector<CharacterId> residents = {};  // the adults who live here (children: their homeProperty)
+  std::vector<CharacterId> owners = {};     // characters who bought it, alone or together
+  std::optional<MortgageState> mortgage = {};
 };
 
 enum class ConstructionStatus { Planned, Active, Complete };
@@ -297,6 +317,7 @@ struct PendingRequest {
   CharacterId to;
   GameMinutes expires = 0;
   bool protection = false;
+  std::string subject = {};  // what it's about: the home to buy or sell together
 };
 
 struct WorldState {
@@ -432,8 +453,10 @@ class World {
   bool inJail(const CharacterId& id) const;
 
   // --- Romance and family (Romance.cpp) ---------------------------------------------------
-  // kind: date, kiss, propose, marry, intimacy. The other person answers with respond().
-  Result<Json> request(const CharacterId& actor, const std::string& kind, const CharacterId& target, bool protection = false);
+  // kind: date, kiss, propose, marry, intimacy; buy_home, move_in, sell_home (Homes.cpp; `subject`
+  // is the home to buy or sell). The other person answers with respond().
+  Result<Json> request(const CharacterId& actor, const std::string& kind, const CharacterId& target,
+                       bool protection = false, const std::string& subject = "");
   Result<Json> respond(const CharacterId& actor, const std::string& requestId, bool accept);
   // Break up (dating or engaged) or divorce (married). One person can end it.
   Result<Json> endRelationship(const CharacterId& actor, const CharacterId& partner);
@@ -451,6 +474,16 @@ class World {
   std::vector<CharacterId> childrenOf(const CharacterId& parent) const;
 
   // m08:homes commands { Buying homes, mortgages, moving in together (Homes.cpp)
+  // Buy a home for sale on your own, in person at its door. downPaymentCents 0 = the minimum;
+  // the lender covers the rest with a mortgage. You move in. (Together: request kind=buy_home.)
+  Result<Json> buyHome(const CharacterId& actor, const std::string& property, Cents downPaymentCents = 0);
+  // Stop living where you live. A co-owner stays an owner; a lease passes to whoever stays.
+  Result<Json> moveOut(const CharacterId& actor);
+  // Move (back) into a home you own, in person.
+  Result<Json> moveHome(const CharacterId& actor, const std::string& property);
+  // Sell a home you own alone to the market at its value; the mortgage is paid off first.
+  // A co-owned home needs the other owner's yes: request kind=sell_home.
+  Result<Json> sellHome(const CharacterId& actor, const std::string& property);
   // } m08:homes
 
   // m08:work commands { Work decisions during shifts (WorkTasks.cpp)
@@ -571,6 +604,34 @@ class World {
   // m08:homes helpers { Buying homes, mortgages, moving in together (Homes.cpp)
   void stepHomesHourly();  // called once a game hour from stepHourly (Life.cpp)
   Json phoneHomes(const CharacterState& c) const;
+  // Who has a key: residents, owners, the lease holder, and children whose family home it is.
+  bool hasKey(const PropertyState& p, const CharacterId& id) const;
+  // The adults who live in a home (saves from before M0.8 only knew the lease holder).
+  std::vector<CharacterId> residentsOf(const PropertyState& p) const;
+  // A child's home: the family home they moved with, or wherever a parent lives now.
+  const PropertyDef* familyHomeOf(const CharacterState& child) const;
+  // From chargeRent (World.cpp), on the first of the month: rent split between the residents,
+  // then mortgage payments split between the owners, missed payments and foreclosures.
+  void chargeHomeRent(PropertyState& p, const PropertyDef& def);
+  void chargeMortgages();
+  // From request()/respond() (Romance.cpp): the asks buy_home, move_in and sell_home.
+  Result<std::string> homeAsk(const CharacterState& a, const CharacterState& t, const std::string& kind,
+                              const std::string& subject);
+  Result<Json> homeAnswer(const PendingRequest& q, CharacterState& from, CharacterState& me);
+  // The work behind a yes; homeAnswer tells the asker when it can't go through.
+  Result<Json> settleHomeAsk(const PendingRequest& q, CharacterState& from, CharacterState& me);
+  Status checkBuyer(const CharacterState& c, Cents downShare, Cents paymentShare, bool together) const;
+  Result<Json> closePurchase(const std::vector<CharacterId>& buyers, const std::vector<Cents>& downShares,
+                             PropertyState& p, const PropertyDef& def);
+  Result<Json> completeSale(PropertyState& p, const PropertyDef& def);
+  bool roomFor(const PropertyState& p, const PropertyDef& def) const;  // one more adult can live here
+  // Returns what happened to the home they left; who still lives there is told (except `movingToo`).
+  Json moveIn(const CharacterId& id, PropertyState& to, const std::vector<CharacterId>& movingToo = {});
+  Json leaveHome(const CharacterId& id, PropertyState& from, PropertyState* to);
+  void showOut(const PropertyDef& def);  // people inside who no longer have a key step outside
+  void foreclose(PropertyState& p, const PropertyDef& def);
+  Cents mortgageShareOf(const CharacterId& id) const;  // your share of the payments you already carry
+  Cents monthlyPayOf(const CharacterState& c) const;   // at your career level
   // } m08:homes
 
   // m08:work helpers { Work decisions during shifts (WorkTasks.cpp)

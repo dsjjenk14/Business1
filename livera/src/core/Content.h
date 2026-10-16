@@ -320,6 +320,7 @@ struct PropertyDef {
   int bedrooms = 0;
   std::vector<std::string> amenities;
   std::string tier;  // starter, luxury: which new arrivals can be housed here
+  bool forSale = false;  // sold (at market value), not rented: see the homes section (Homes.cpp)
 };
 
 struct CareerLevel {
@@ -555,6 +556,22 @@ struct OrgAccountDef {
 
 // ---- M0.8 feature content (each block belongs to one feature; see docs/m08/) ----
 // m08:homes content { Buying homes, mortgages, moving in together (Homes.cpp)
+// Buying homes: the lender and its one mortgage product, and who it will lend to
+// (data/world/homes_places.json).
+struct HomesConfig {
+  LedgerAccountId lender;               // an org account; pays sellers what down payments don't cover
+  double minDownPayment = 0.1;          // fraction of the price
+  double annualRate = 0.06;
+  int termMonths = 360;                 // game months
+  int missedPaymentsToForeclose = 3;
+  Cents lateFeeCents = 0;               // added to the arrears for each missed payment
+  // The bank lends if your share of the payments is under this share of your monthly pay
+  // (career level hourly x work_hours_per_month), or your savings cover reserve_months of them.
+  double maxPaymentShareOfPay = 0.4;
+  double workHoursPerMonth = 160;
+  int reserveMonths = 12;
+  int residentsPerBedroom = 2;          // how many adults can live in a home
+};
 // } m08:homes
 
 // m08:work content { Work decisions during shifts (WorkTasks.cpp)
@@ -636,6 +653,7 @@ class ContentDatabase {
   const FamilyConfig& family() const { return family_; }
   const CareActionDef* careAction(const std::string& id) const;
   // m08:homes accessors { Buying homes, mortgages, moving in together (Homes.cpp)
+  const HomesConfig& homes() const { return homes_; }
   // } m08:homes
 
   // m08:work accessors { Work decisions during shifts (WorkTasks.cpp)
@@ -734,6 +752,8 @@ class ContentDatabase {
   bool haveFamily_ = false;
   FamilyConfig family_;
   // m08:homes members { Buying homes, mortgages, moving in together (Homes.cpp)
+  bool haveHomes_ = false;
+  HomesConfig homes_;
   // } m08:homes
 
   // m08:work members { Work decisions during shifts (WorkTasks.cpp)

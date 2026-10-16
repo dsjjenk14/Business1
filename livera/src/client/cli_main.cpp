@@ -456,7 +456,15 @@ Romance and family (adults only; every step needs the other person's yes):
 
 // M0.8 commands, one block per feature (each block belongs to one feature; see docs/m08/).
 // m08:homes help {
-const char* kHelpHomes = "";
+const char* kHelpHomes = R"(Homes (adults; you can play without a home, but home activities need one):
+  homes                     your home, rent or mortgage, homes you own, listings and who you could buy with
+  buyhome HOME [DOLLARS]    buy a house or condo at its door; DOLLARS down (default: the minimum)
+  buywith ID HOME           ask your partner to buy it together (both at the door; they `answer`)
+  movein ID                 ask your partner to move in with you (both at your home)
+  moveout                   stop living where you live (a co-owner stays an owner)
+  movehome HOME             move back into a home you own
+  sellhome HOME             sell a home you own alone, at market value (the mortgage is paid off first)
+  sellwith ID HOME          ask your co-owner to sell your home together)";
 // } m08:homes
 
 // m08:work help {
@@ -697,6 +705,89 @@ bool runCommand(Client& c, const std::string& input) {
   } else if (cmd == "dismiss") {
     req = {{"op", "dismiss_nanny"}};
     // m08:homes commands { Buying homes, mortgages, moving in together (Homes.cpp)
+  } else if (cmd == "buyhome") {
+    const std::string home = arg();
+    const std::string amount = arg();
+    double dollars = 0;  // 0 = the minimum down payment
+    try {
+      if (!amount.empty()) dollars = std::stod(amount);
+    } catch (...) {
+      std::printf("  ! the down payment is a number of dollars\n");
+      return true;
+    }
+    req = {{"op", "buy_home"}, {"property", home}, {"down_payment_cents", std::llround(dollars * 100)}};
+  } else if (cmd == "buywith" || cmd == "sellwith") {
+    const std::string target = arg();
+    const std::string kind = cmd == "buywith" ? "buy_home" : "sell_home";
+    req = {{"op", "request"}, {"kind", kind}, {"target", target}, {"subject", arg()}};
+  } else if (cmd == "movein") {
+    req = {{"op", "request"}, {"kind", "move_in"}, {"target", arg()}};
+  } else if (cmd == "moveout") {
+    req = {{"op", "move_out"}};
+  } else if (cmd == "movehome") {
+    req = {{"op", "move_home"}, {"property", arg()}};
+  } else if (cmd == "sellhome") {
+    req = {{"op", "sell_home"}, {"property", arg()}};
+  } else if (cmd == "homes") {
+    // `phone homes`, readable: where you live and what you owe, what you own, and what's for sale.
+    auto d = callOk(c, {{"op", "phone"}, {"app", "homes"}});
+    if (!d) return true;
+    auto names = [](const Json& people) {
+      std::string s;
+      for (const auto& p : people) s += (s.empty() ? "" : ", ") + p.value("name", "");
+      return s.empty() ? std::string("nobody") : s;
+    };
+    auto showHome = [&](const Json& h, const char* label) {
+      const int beds = h.value("bedrooms", 0);
+      std::printf("  %s %s (%s, %d bedroom%s): %s\n", label, h.value("address", "").c_str(),
+                  h.value("type", "").c_str(), beds, beds == 1 ? "" : "s", h.value("tenure", "").c_str());
+      std::printf("    owners: %s; living here: %s\n", names(h["owners"]).c_str(), names(h["residents"]).c_str());
+      if (h.contains("rent")) {
+        const Json& r = h["rent"];
+        std::printf("    rent %s a month", money(r.value("monthly_cents", 0LL)).c_str());
+        if (r.value("split_between", 1) > 1)
+          std::printf(", your share %s (split %d ways)", money(r.value("your_share_cents", 0LL)).c_str(),
+                      r.value("split_between", 1));
+        std::printf(", due %s", r.value("next_due", "").c_str());
+        const long long owed = r.value("your_arrears_cents", 0LL);
+        if (owed > 0) std::printf("; you owe %s", money(owed).c_str());
+        std::printf("\n");
+      }
+      if (h.contains("mortgage") && h["mortgage"].is_object()) {
+        const Json& m = h["mortgage"];
+        std::printf("    mortgage with %s: %s a month (your share %s), %s left, %d months to go, next %s\n",
+                    m.value("lender", "").c_str(), money(m.value("payment_cents", 0LL)).c_str(),
+                    money(m.value("your_share_cents", 0LL)).c_str(), money(m.value("balance_cents", 0LL)).c_str(),
+                    m.value("months_left", 0), m.value("next_payment", "").c_str());
+        if (m.value("missed_payments", 0) > 0)
+          std::printf("    ! %d missed payments, %s behind: the bank forecloses at %d\n", m.value("missed_payments", 0),
+                      money(m.value("arrears_cents", 0LL)).c_str(), m.value("forecloses_after", 0));
+      } else if (h.value("owned_outright", false)) {
+        std::printf("    owned outright (market value %s)\n", money(h.value("market_value_cents", 0LL)).c_str());
+      }
+    };
+    if (d->contains("home") && (*d)["home"].is_object()) showHome((*d)["home"], "Home:");
+    else std::printf("  No home. %s\n", d->value("note", "").c_str());
+    for (const auto& h : (*d)["also_own"]) showHome(h, "Also own:");
+    std::printf("  For sale:\n");
+    for (const auto& l : (*d)["listings"])
+      std::printf("    %-14s %-26s %-6s %d bd  %12s  min down %11s  ~%s a month  (%s)\n",
+                  l.value("property", "").c_str(), l.value("name", "").c_str(), l.value("type", "").c_str(),
+                  l.value("bedrooms", 0),
+                  money(l.value("price_cents", 0LL)).c_str(), money(l.value("min_down_payment_cents", 0LL)).c_str(),
+                  money(l.value("est_monthly_cents", 0LL)).c_str(), l.value("seller", "").c_str());
+    if ((*d)["listings"].empty()) std::printf("    nothing right now\n");
+    for (const auto& p : (*d)["buy_with"])
+      std::printf("  Could buy with: %s (%s, %s)%s\n", p.value("name", "").c_str(), p.value("id", "").c_str(),
+                  p.value("status", "").c_str(), p.value("lives_with_you", false) ? ", lives with you" : "");
+    const Json& t = (*d)["terms"];
+    std::printf("  %s: %.0f%% down, %.1f%% a year over %d months. It lends if your share of the payments is under"
+                " %.0f%% of your pay (%s a month) or your savings cover %d months of them.\n",
+                t.value("lender", "").c_str(), t.value("min_down_payment", 0.0) * 100,
+                t.value("annual_rate", 0.0) * 100, t.value("term_months", 0),
+                t.value("max_payment_share_of_pay", 0.0) * 100, money(t.value("your_monthly_pay_cents", 0LL)).c_str(),
+                t.value("reserve_months", 0));
+    return true;
     // } m08:homes
 
     // m08:work commands { Work decisions during shifts (WorkTasks.cpp)

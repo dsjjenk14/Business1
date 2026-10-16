@@ -149,15 +149,17 @@ double World::performancePenalty(const CharacterState& c) const {
 }
 
 PropertyState* World::homeOf(const CharacterId& id) {
-  for (auto& [pid, p] : state_.properties) {
-    if (p.tenant == id) return &p;
-  }
-  return nullptr;
+  return const_cast<PropertyState*>(std::as_const(*this).homeOf(id));
 }
 
+// Where you live: a home you're one of the residents of (Homes.cpp keeps the list, so
+// partners who moved in count). State from before the list only knew the lease holder.
 const PropertyState* World::homeOf(const CharacterId& id) const {
   for (const auto& [pid, p] : state_.properties) {
-    if (p.tenant == id) return &p;
+    if (std::find(p.residents.begin(), p.residents.end(), id) != p.residents.end()) return &p;
+  }
+  for (const auto& [pid, p] : state_.properties) {
+    if (p.tenant == id && p.residents.empty() && p.owners.empty()) return &p;
   }
   return nullptr;
 }

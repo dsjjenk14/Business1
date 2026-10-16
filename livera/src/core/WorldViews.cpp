@@ -230,15 +230,21 @@ Json World::phoneCareer(const CharacterState& c) const {
 
 Json World::phoneProperty(const CharacterState& c) const {
   Json homes = Json::array();
+  const PropertyState* home = homeOf(c.id);
   for (const auto& [pid, p] : state_.properties) {
-    if (p.tenant != c.id) continue;
+    // Where you live, and homes you own (alone or together; phone homes has the mortgage).
+    const bool owner = std::find(p.owners.begin(), p.owners.end(), c.id) != p.owners.end();
+    if (&p != home && !owner) continue;
+    const char* tenure = owner ? (p.owners.size() > 1 ? "co-owner" : "owner")
+                               : (p.owners.empty() ? "renting" : "living with the owner");
     const PropertyDef* pd = content_->property(pid);
     const LocationDef* loc = content_->location(pd->location);
     homes.push_back(Json{{"id", pid},
                          {"location", pd->location},
                          {"name", loc ? loc->name : pd->location},
                          {"type", pd->type},
-                         {"tenure", "renting"},
+                         {"tenure", tenure},
+                         {"lives_here", &p == home},
                          {"bedrooms", pd->bedrooms},
                          {"amenities", pd->amenities},
                          {"rent_monthly_cents", pd->rentMonthlyCents},

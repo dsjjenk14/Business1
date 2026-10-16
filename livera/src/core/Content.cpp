@@ -228,6 +228,7 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           p.bedrooms = j.value("bedrooms", 0);
           p.amenities = readStrings(j, "amenities");
           p.tier = j.value("tier", "");
+          p.forSale = j.value("for_sale", false);
           if (auto s = insertUnique(properties_, "property", p.id, p); !s) return s;
         }
       } else if (section == "careers") {

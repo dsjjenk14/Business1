@@ -412,7 +412,9 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
   if (op == "steal") return world_.steal(me, str(req, "offer"));
   if (op == "pickpocket") return world_.pickpocket(me, str(req, "target"));
   if (op == "arrest") return world_.arrest(me, str(req, "target"));
-  if (op == "request") return world_.request(me, str(req, "kind"), str(req, "target"), req.value("protection", false));
+  if (op == "request")
+    return world_.request(me, str(req, "kind"), str(req, "target"), req.value("protection", false),
+                          str(req, "subject"));
   if (op == "respond") return world_.respond(me, str(req, "request"), req.value("accept", false));
   if (op == "end_relationship") return world_.endRelationship(me, str(req, "target"));
   if (op == "name_baby") return world_.nameBaby(me, str(req, "child"), str(req, "name"));
@@ -421,6 +423,11 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
   if (op == "hire_nanny") return world_.hireNanny(me, str(req, "target"));
   if (op == "dismiss_nanny") return world_.dismissNanny(me);
   // m08:homes ops { Buying homes, mortgages, moving in together (Homes.cpp)
+  // Buying together, moving in together and selling a co-owned home are asks: request kind=buy_home|move_in|sell_home.
+  if (op == "buy_home") return world_.buyHome(me, str(req, "property"), req.value("down_payment_cents", Cents{0}));
+  if (op == "move_out") return world_.moveOut(me);
+  if (op == "move_home") return world_.moveHome(me, str(req, "property"));
+  if (op == "sell_home") return world_.sellHome(me, str(req, "property"));
   // } m08:homes
 
   // m08:work ops { Work decisions during shifts (WorkTasks.cpp)

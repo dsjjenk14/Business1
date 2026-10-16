@@ -64,8 +64,7 @@ bool World::supervised(const CharacterState& child) const {
   const FamilyConfig& F = content_->family();
   if (ageOf(child.id) >= F.superviseUnder) return true;
   if (atSchoolNow(child) || atDaycareNow(child)) return true;
-  const CharacterDef* def = definition(child.id);
-  const PropertyDef* home = def ? content_->property(def->homeProperty) : nullptr;
+  const PropertyDef* home = familyHomeOf(child);  // follows the family when they move (Homes.cpp)
   const LocationId homeLoc = home ? home->location : "";
   for (const auto& p : child.parents) {
     const CharacterState* parent = character(p);
@@ -89,7 +88,7 @@ void World::stepChildHourly(CharacterState& c) {
   const SimulationConfig& sim = content_->sim();
   const DateTime d = toDateTime(state_.now);
   const CharacterDef* def = definition(c.id);
-  const PropertyDef* home = def ? content_->property(def->homeProperty) : nullptr;
+  const PropertyDef* home = familyHomeOf(c);  // follows the family when they move (Homes.cpp)
   const LocationDef* homeLoc = home ? content_->location(home->location) : nullptr;
 
   // Daycare charges by the day, when the doors open. No payment, no place that day.
@@ -192,8 +191,7 @@ Result<Json> World::careFor(const CharacterId& actor, const CharacterId& childId
   if (!isParentOf(actor, childId) && !asNanny) return fail("not_parent", "that's not your child, and you're not their nanny on shift");
   const CareActionDef* act = content_->careAction(action);
   if (!act) return fail("unknown_action", "no such care routine");
-  const CharacterDef* def = definition(childId);
-  const PropertyDef* home = def ? content_->property(def->homeProperty) : nullptr;
+  const PropertyDef* home = familyHomeOf(*child);  // follows the family when they move (Homes.cpp)
   if (!home || me.inside != home->location) return fail("wrong_place", "you need to be home with them");
   if (atSchoolNow(*child) || atDaycareNow(*child))
     return fail("not_home", std::string("they're at ") + (atSchoolNow(*child) ? "school" : "daycare") + " right now");
