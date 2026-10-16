@@ -29,7 +29,9 @@ constexpr double kStatMin = 0;
 constexpr double kStatMax = 100;
 constexpr int kMaxOvertimes = 3;
 
-bool contains(const std::vector<std::string>& v, const std::string& x) { return std::find(v.begin(), v.end(), x) != v.end(); }
+bool contains(const std::vector<std::string>& v, const std::string& x) {
+  return std::find(v.begin(), v.end(), x) != v.end();
+}
 
 // Practice helps less the better you already are (the same curve as music).
 double skillGain(double current, double base) { return base * std::max(0.1, 1.0 - current / 120.0); }
@@ -87,14 +89,15 @@ Json matchJson(const World& w, const LeisureMatch& m) {
 }
 
 Json standingJson(const LeisureStanding& s) {
-  return Json{{"played", s.played}, {"won", s.won},       {"drawn", s.drawn},   {"lost", s.lost},
+  return Json{{"played", s.played}, {"won", s.won},          {"drawn", s.drawn},  {"lost", s.lost},
               {"for", s.scored},    {"against", s.conceded}, {"points", s.points}};
 }
 
 }  // namespace
 
 // ---- Content -------------------------------------------------------------------------------
-Status ContentDatabase::ingestLeisure(const std::string& source, const std::string& section, const Json& body, bool& handled) {
+Status ContentDatabase::ingestLeisure(const std::string& source, const std::string& section, const Json& body,
+                                      bool& handled) {
   handled = section == "leisure";
   if (!handled) return okStatus();
   if (haveLeisure_) return fail("content_duplicate", source + ": 'leisure' defined twice");
@@ -229,16 +232,20 @@ Status ContentDatabase::validateLeisure() const {
   for (const auto& d : L.dateSpots) {
     const LocationDef* loc = location(d.place);
     if (!loc) return bad("date spot: unknown place " + d.place);
-    if (d.offer.empty() == d.activity.empty()) return bad("date spot at " + d.place + " needs exactly one of offer or activity");
-    if (!d.offer.empty() && !findOffer(*loc, d.offer)) return bad("date spot: " + loc->name + " has no offer " + d.offer);
+    if (d.offer.empty() == d.activity.empty())
+      return bad("date spot at " + d.place + " needs exactly one of offer or activity");
+    if (!d.offer.empty() && !findOffer(*loc, d.offer))
+      return bad("date spot: " + loc->name + " has no offer " + d.offer);
     if (!d.activity.empty() && !findActivity(*loc, d.activity))
       return bad("date spot: " + loc->name + " has no activity " + d.activity);
     if (d.memory.empty()) return bad("date spot at " + d.place + " needs a memory");
-    if (!spots.insert(d.place + "/" + d.offer + "/" + d.activity).second) return bad("duplicate date spot at " + d.place);
+    if (!spots.insert(d.place + "/" + d.offer + "/" + d.activity).second)
+      return bad("duplicate date spot at " + d.place);
   }
   for (const auto& h : L.activityHours) {
     const LocationDef* loc = location(h.place);
-    if (!loc || !findActivity(*loc, h.activity)) return bad("activity_hours: no activity " + h.place + "/" + h.activity);
+    if (!loc || !findActivity(*loc, h.activity))
+      return bad("activity_hours: no activity " + h.place + "/" + h.activity);
     if (h.hours.openHour < 0 || h.hours.openHour > 23 || h.hours.closeHour < 0 || h.hours.closeHour > 24)
       return bad("activity_hours: hours must be 0-24");
   }
@@ -260,7 +267,8 @@ Status ContentDatabase::validateLeisure() const {
     if (s.lineup < 1) return bad(where + ": lineup must be at least 1");
     if (s.scoring != "goals" && s.scoring != "points") return bad(where + ": scoring model must be goals or points");
     if (s.perTeam <= 0 || s.sensitivity < 0 || s.noise < 0 || s.maxScore < 1) return bad(where + ": bad scoring");
-    if (!s.draws && (s.overtimeFraction <= 0 || s.overtimeFraction > 1)) return bad(where + ": overtime_fraction must be in (0, 1]");
+    if (!s.draws && (s.overtimeFraction <= 0 || s.overtimeFraction > 1))
+      return bad(where + ": overtime_fraction must be in (0, 1]");
     int teams = 0;
     for (const auto& t : L.teams) teams += t.sport == s.id ? 1 : 0;
     if (teams < 2) return bad(where + " needs at least two teams");
@@ -316,7 +324,8 @@ GameMinutes World::leisureNextKickoff(const LeisureSportDef& sport, GameMinutes 
 // A round robin by the circle method: the first team stays put, the others rotate a seat each
 // week, so every pairing comes round once every (teams - 1) weeks; the next time round, home
 // and away swap. With an odd number of teams, one sits the week out.
-std::vector<std::pair<std::string, std::string>> World::leisureFixtures(const LeisureSportDef& sport, std::int64_t week) const {
+std::vector<std::pair<std::string, std::string>> World::leisureFixtures(const LeisureSportDef& sport,
+                                                                        std::int64_t week) const {
   std::vector<std::string> ids;
   for (const auto& t : content_->leisure().teams) {
     if (t.sport == sport.id) ids.push_back(t.id);
@@ -354,7 +363,8 @@ Result<Json> World::joinTeam(const CharacterId& actor, const std::string& teamId
   for (const auto& t : c.leisureTeams) {
     const LeisureTeamDef* other = content_->leisureTeam(t);
     if (other && other->sport == team->sport)
-      return fail("one_team_per_sport", "you already play " + sport->name + " for " + other->name + "; leave them first");
+      return fail("one_team_per_sport",
+                  "you already play " + sport->name + " for " + other->name + "; leave them first");
   }
   const LocationDef* clubhouse = content_->location(L.clubhouse);
   const LocationDef* venue = content_->location(sport->venue);
@@ -362,7 +372,8 @@ Result<Json> World::joinTeam(const CharacterId& actor, const std::string& teamId
   const bool atClubhouse = here && here->id == L.clubhouse;
   if (!atClubhouse && !(here && here->id == sport->venue))
     return fail("wrong_place", "sign up in person at " + clubhouse->name + " or " + venue->name);
-  if (atClubhouse && !isLocationOpen(*clubhouse)) return fail("closed", "the league office at " + clubhouse->name + " is closed");
+  if (atClubhouse && !isLocationOpen(*clubhouse))
+    return fail("closed", "the league office at " + clubhouse->name + " is closed");
   Json out{{"team", team->id}, {"name", team->name}, {"sport", sport->name}, {"fee_cents", L.leagueFeeCents}};
   if (L.leagueFeeCents > 0) {
     auto tx = state_.ledger.transfer(bankAccountOf(actor), L.leagueAccount, L.leagueFeeCents, "league_fee",
@@ -371,14 +382,16 @@ Result<Json> World::joinTeam(const CharacterId& actor, const std::string& teamId
     out["tx"] = tx.value();
     out["balance_cents"] = state_.ledger.balance(bankAccountOf(actor));
   }
-  for (const auto& mate : leisureTeamMembers(teamId)) notify(mate, "sports", nameOf(*this, actor) + " joined the " + team->name + ".");
+  for (const auto& mate : leisureTeamMembers(teamId))
+    notify(mate, "sports", nameOf(*this, actor) + " joined the " + team->name + ".");
   c.leisureTeams.push_back(teamId);
   const GameMinutes next = leisureNextKickoff(*sport, state_.now);
   out["next_kickoff"] = next;
   out["next_kickoff_text"] = formatDateTime(next);
   out["venue"] = venue->name;
-  notify(actor, "sports", "You're on the " + team->name + ". Matches are " + weekdayName(sport->matchWeekday) + "s at " +
-                              hourText(sport->matchHour) + " at " + venue->name + ": be there at kickoff to play.");
+  notify(actor, "sports",
+         "You're on the " + team->name + ". Matches are " + weekdayName(sport->matchWeekday) + "s at " +
+             hourText(sport->matchHour) + " at " + venue->name + ": be there at kickoff to play.");
   return out;
 }
 
@@ -391,7 +404,8 @@ Result<Json> World::leaveTeam(const CharacterId& actor, const std::string& teamI
   const std::string name = team ? team->name : teamId;
   if (!contains(c.leisureTeams, teamId)) return fail("not_on_team", "you don't play for " + name);
   std::erase(c.leisureTeams, teamId);
-  for (const auto& mate : leisureTeamMembers(teamId)) notify(mate, "sports", nameOf(*this, actor) + " left the " + name + ".");
+  for (const auto& mate : leisureTeamMembers(teamId))
+    notify(mate, "sports", nameOf(*this, actor) + " left the " + name + ".");
   return Json{{"left", teamId}, {"name", name}};
 }
 
@@ -409,7 +423,9 @@ Json World::leisureDate(CharacterState& c, const LocationDef& place, const std::
     const std::string key = coupleKey(c.id, id, place.id);
     auto it = state_.leisureDates.find(key);
     if (it != state_.leisureDates.end() && it->second == today) {
-      dates.push_back(Json{{"with", id}, {"name", nameOf(*this, id)}, {"counted", false},
+      dates.push_back(Json{{"with", id},
+                           {"name", nameOf(*this, id)},
+                           {"counted", false},
                            {"note", "you've already had a date at " + place.name + " today"}});
       continue;
     }
@@ -458,7 +474,8 @@ Result<Json> World::leisureActivity(CharacterState& c, const LocationDef& place,
   // Some things have their hours, even in a park that never closes.
   for (const auto& h : L.activityHours) {
     if (h.place == place.id && h.activity == act.id && !h.hours.isOpenAt(toDateTime(state_.now).hour))
-      return fail("not_now", act.label + " is only from " + hourText(h.hours.openHour) + " to " + hourText(h.hours.closeHour));
+      return fail("not_now",
+                  act.label + ": only between " + hourText(h.hours.openHour) + " and " + hourText(h.hours.closeHour));
   }
   Json out = Json::object();
   for (const auto& p : L.practice) {
@@ -503,7 +520,8 @@ double World::leisurePlayerValue(const CharacterState& c) const {
 void World::leisureKickoff(const LeisureSportDef& sport, const std::string& home, const std::string& away) {
   const LeisureConfig& L = content_->leisure();
   for (const auto& m : state_.leisureMatches) {
-    if (m.kickoff == state_.now && m.sport == sport.id && m.home == home && m.away == away) return;  // already under way
+    if (m.kickoff == state_.now && m.sport == sport.id && m.home == home && m.away == away)
+      return;  // already under way
   }
   LeisureMatch m;
   m.id = nextId("match");
@@ -520,7 +538,9 @@ void World::leisureKickoff(const LeisureSportDef& sport, const std::string& home
       const LocationDef* at = currentPlace(c);
       if (at && at->id == sport.venue) present.emplace_back(leisurePlayerValue(c), id);
     }
-    std::sort(present.begin(), present.end(), [](const auto& a, const auto& b) { return a.first != b.first ? a.first > b.first : a.second < b.second; });
+    std::sort(present.begin(), present.end(), [](const auto& a, const auto& b) {
+      return a.first != b.first ? a.first > b.first : a.second < b.second;
+    });
     if (present.size() > static_cast<std::size_t>(sport.lineup)) present.resize(static_cast<std::size_t>(sport.lineup));
     const LeisureTeamDef* def = content_->leisureTeam(team);
     double strength = def ? def->strength : 0;
@@ -536,7 +556,9 @@ void World::leisureKickoff(const LeisureSportDef& sport, const std::string& home
   const std::string fixture = teamName(*content_, home) + " vs " + teamName(*content_, away);
   for (const auto& side : {std::pair{&m.homeLineup, home}, std::pair{&m.awayLineup, away}}) {
     for (const auto& id : *side.first)
-      notify(id, "sports", "Kickoff at " + venue->name + ": " + fixture + ". You're playing for the " + teamName(*content_, side.second) + ".");
+      notify(id, "sports",
+             "Kickoff at " + venue->name + ": " + fixture + ". You're playing for the " +
+                 teamName(*content_, side.second) + ".");
   }
   std::vector<CharacterId> there;
   for (const auto& [id, c] : state_.characters) {
@@ -615,8 +637,8 @@ void World::leisureFinish(LeisureMatch& m) {
 
   // Players who saw it through get the game; spectators get the show; members hear the result.
   const LocationDef* venue = content_->location(sport->venue);
-  const std::string scoreline = home->name + " " + std::to_string(m.homeScore) + "-" + std::to_string(m.awayScore) + " " +
-                                away->name + (m.overtime ? " (after overtime)" : "");
+  const std::string scoreline = home->name + " " + std::to_string(m.homeScore) + "-" + std::to_string(m.awayScore) +
+                                " " + away->name + (m.overtime ? " (after overtime)" : "");
   auto atVenue = [&](const CharacterState& c) {
     const LocationDef* at = c.online ? currentPlace(c) : nullptr;
     return at && at->id == sport->venue;
@@ -633,7 +655,8 @@ void World::leisureFinish(LeisureMatch& m) {
       if (!c) continue;
       told.insert(id);
       if (!atVenue(*c)) {
-        notify(id, "sports", "Full time: " + scoreline + ". You left before the final whistle, so the game doesn't count for you.");
+        notify(id, "sports",
+               "Full time: " + scoreline + ". You left before the final whistle, so the game doesn't count for you.");
         continue;
       }
       applyNeeds(*c, L.playerNeeds);
@@ -657,7 +680,8 @@ void World::leisureFinish(LeisureMatch& m) {
       mem.isPublic = true;
       mem.info = "Played " + sport->name + " for the " + team->name + ": " + scoreline;
       addMemory(std::move(mem));
-      notify(id, "sports", "Full time: " + scoreline + ". " + (won ? "You won!" : drew ? "A draw." : "You lost this one."));
+      const char* verdict = won ? "You won!" : drew ? "A draw." : "You lost this one.";
+      notify(id, "sports", "Full time: " + scoreline + ". " + verdict);
     }
   }
   std::vector<CharacterId> recipients(players.begin(), players.end());
@@ -691,7 +715,8 @@ void World::stepLeisureHourly() {
   const DateTime d = toDateTime(state_.now);
   for (const auto& sport : L.sports) {
     if (d.weekday == sport.matchWeekday && d.hour == sport.matchHour && d.minute == 0) {
-      for (const auto& [home, away] : leisureFixtures(sport, d.dayIndex / kDaysPerWeek)) leisureKickoff(sport, home, away);
+      for (const auto& [home, away] : leisureFixtures(sport, d.dayIndex / kDaysPerWeek))
+        leisureKickoff(sport, home, away);
     }
     const GameMinutes next = leisureNextKickoff(sport, state_.now);
     if (next - state_.now == kMinutesPerHour) {
@@ -756,7 +781,8 @@ Json World::phoneSports(const CharacterState& c) const {
     const GameMinutes next = leisureNextKickoff(sport, state_.now);
     Json fixtures = Json::array();
     for (const auto& [home, away] : leisureFixtures(sport, next / kMinutesPerDay / kDaysPerWeek))
-      fixtures.push_back(Json{{"home", home}, {"home_name", teamName(db, home)}, {"away", away}, {"away_name", teamName(db, away)}});
+      fixtures.push_back(
+          Json{{"home", home}, {"home_name", teamName(db, home)}, {"away", away}, {"away_name", teamName(db, away)}});
     sports.push_back(Json{{"id", sport.id},
                           {"name", sport.name},
                           {"venue", sport.venue},
@@ -872,7 +898,8 @@ void leisurePartFromJson(WorldState& s, const Json& j) {
 }
 
 void writeLeisureCharacter(const CharacterState& c, Json& j) {
-  j["leisure"] = Json{{"teams", c.leisureTeams}, {"matches_played", c.leisureMatchesPlayed}, {"matches_won", c.leisureMatchesWon}};
+  j["leisure"] =
+      Json{{"teams", c.leisureTeams}, {"matches_played", c.leisureMatchesPlayed}, {"matches_won", c.leisureMatchesWon}};
 }
 
 void readLeisureCharacter(CharacterState& c, const Json& j) {

@@ -469,13 +469,13 @@ const char* kHelpWallet = "";
 
 // m08:leisure help {
 const char* kHelpLeisure = R"(Sports and date spots:
-  team join TEAM            join a town team, in person at Riverside Clubhouse or the team's field/court (league fee)
+  team join TEAM            join a town team, in person at Riverside Clubhouse or its field or court (league fee)
   team leave TEAM           leave a team
-  phone sports              teams and who plays for them, the table, next matches, your teams, latest results
-  do practice_soccer        practice at Riverside Field (practice_basketball at Riverside Court): grows athletics
-                            Matches are played on schedule: be at the venue at kickoff to play, or come and watch.
-  Date spots: Lumière Bistro (dinner, dessert, wine), Starlight Cinema (movie_ticket), Willow Lake Park (rowboat,
-  picnic, do boardwalk_walk, do stargazing 20:00-02:00). With your partner there with you, it counts as a date.)";
+  phone sports              the teams and who plays for them, the table, next matches, your teams, latest results
+  do practice_soccer        practice at Riverside Field (do practice_basketball at Riverside Court): athletics
+                            Matches run on schedule: be at the venue at kickoff to play, or come and watch for free.
+  With your partner there with you, these count as a date: Lumière Bistro (buy dinner, dessert, wine), the
+  Starlight Cinema (buy movie_ticket), Willow Lake Park (buy rowboat, picnic; do boardwalk_walk, stargazing 20-02).)";
 // } m08:leisure
 
 // m08:pets help {

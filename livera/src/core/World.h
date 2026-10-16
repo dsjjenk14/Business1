@@ -472,7 +472,8 @@ class World {
   // The next kickoff of a sport strictly after `after`.
   GameMinutes leisureNextKickoff(const LeisureSportDef& sport, GameMinutes after) const;
   // This week's fixtures for a sport (home, away), rotating through every pairing week by week.
-  std::vector<std::pair<std::string, std::string>> leisureFixtures(const LeisureSportDef& sport, std::int64_t week) const;
+  std::vector<std::pair<std::string, std::string>> leisureFixtures(const LeisureSportDef& sport,
+                                                                   std::int64_t week) const;
   // } m08:leisure
 
   // m08:pets commands { Pets and medicine (Pets.cpp)

@@ -196,7 +196,8 @@ TEST_CASE("leisure: family is never a date") {
   WorldState s = base.state();
   // A state the romance rules would never allow, to be sure the date check stands on its own.
   s.characters.at("dax").parents = {"graham"};
-  for (const auto& [a, b] : {std::pair{"graham", "dax"}, std::pair{"dax", "graham"}}) s.relationships[{a, b}].status = "dating";
+  for (const auto& [a, b] : {std::pair{"graham", "dax"}, std::pair{"dax", "graham"}})
+    s.relationships[{a, b}].status = "dating";
   World w(fastContent(), s);
   REQUIRE(w.connect("dax"));
   REQUIRE(w.connect("graham"));
@@ -376,7 +377,8 @@ TEST_CASE("leisure: fixtures rotate through every pairing, home and away") {
 
   auto db = patchedContent([](Json& doc, const std::string& file) {
     if (file == "sports.json")
-      doc["leisure"]["teams"].push_back(Json{{"id", "willow_wanderers"}, {"name", "Willow Wanderers"}, {"sport", "soccer"}, {"strength", 45}});
+      doc["leisure"]["teams"].push_back(
+          Json{{"id", "willow_wanderers"}, {"name", "Willow Wanderers"}, {"sport", "soccer"}, {"strength", 45}});
   });
   World three = World::createNew(db);
   std::map<std::pair<std::string, std::string>, int> seen;
@@ -539,8 +541,10 @@ TEST_CASE("leisure: basketball never ends level, and leaving early doesn't count
   advanceToHour(w, 17, 2);
   REQUIRE(w.connect("dominique"));
   advanceToHour(w, 18);
-  CHECK(std::find(lastMatch(w, "basketball").awayLineup.begin(), lastMatch(w, "basketball").awayLineup.end(), "dominique") != lastMatch(w, "basketball").awayLineup.end() ||
-        std::find(lastMatch(w, "basketball").homeLineup.begin(), lastMatch(w, "basketball").homeLineup.end(), "dominique") != lastMatch(w, "basketball").homeLineup.end());
+  CHECK(std::find(lastMatch(w, "basketball").awayLineup.begin(), lastMatch(w, "basketball").awayLineup.end(),
+                  "dominique") != lastMatch(w, "basketball").awayLineup.end() ||
+        std::find(lastMatch(w, "basketball").homeLineup.begin(), lastMatch(w, "basketball").homeLineup.end(),
+                  "dominique") != lastMatch(w, "basketball").homeLineup.end());
   w.advanceMinutes(30);
   walkTo(w, "dominique", "heritage_coffee");
   advanceToHour(w, 19);
@@ -583,7 +587,7 @@ TEST_CASE("leisure: persistence: league table, a match in play, teams and dates 
     REQUIRE(matchesOf(w, "soccer") == 1);
     REQUIRE(!lastMatch(w, "soccer").finished);
     REQUIRE(lastMatch(w, "soccer").awayLineup == std::vector<CharacterId>{"dominique"});
-    REQUIRE(!w.state().leisureDates.empty());  // today's date
+    REQUIRE(!w.state().leisureDates.empty());      // today's date
     REQUIRE(!w.state().leisureStandings.empty());  // Wednesday's basketball
     auto store = SqliteStore::open(path.string());
     REQUIRE(store);
@@ -671,12 +675,11 @@ TEST_CASE("leisure: content: the league is checked when content loads") {
   CHECK(broken([](Json& L) { L["sports"][0]["venue"] = "lumiere_bistro"; }).find("outdoor") != std::string::npos);
   CHECK(broken([](Json& L) { L["date_spots"][0]["offer"] = "caviar"; }).find("no offer") != std::string::npos);
   CHECK(broken([](Json& L) { L["skill"] = "juggling"; }).find("simulation.skills") != std::string::npos);
-  CHECK(broken([](Json& L) { 
-             L["sports"][1]["venue"] = "riverside_field";
-             L["sports"][1]["match_day"] = 5;
-             L["sports"][1]["match_hour"] = 16;
-           })
-            .find("overlap") != std::string::npos);
+  CHECK(broken([](Json& L) {
+          L["sports"][1]["venue"] = "riverside_field";
+          L["sports"][1]["match_day"] = 5;
+          L["sports"][1]["match_hour"] = 16;
+        }).find("overlap") != std::string::npos);
   CHECK(broken([](Json& L) { L["league_account"] = "org:nobody"; }).find("league_account") != std::string::npos);
   CHECK(broken([](Json&) {}).empty());
 }
