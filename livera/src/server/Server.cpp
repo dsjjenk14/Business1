@@ -424,6 +424,15 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
   // } m08:homes
 
   // m08:work ops { Work decisions during shifts (WorkTasks.cpp)
+  if (op == "work_tasks") return world_.workTasks(me);
+  if (op == "work_answer") {
+    // `option` is the option's index in the order work_tasks sent; anything else is no option.
+    const auto it = req.find("option");
+    if (it == req.end() || !it->is_number_integer())
+      return fail("bad_request", "send the option's number as \"option\"");
+    const auto n = it->get<std::int64_t>();
+    return world_.answerWorkTask(me, str(req, "task"), n < 0 || n > 64 ? -1 : static_cast<int>(n));
+  }
   // } m08:work
 
   // m08:wallet ops { Coins, phones and LivPay (Wallet.cpp)

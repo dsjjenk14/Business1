@@ -558,6 +558,28 @@ struct OrgAccountDef {
 // } m08:homes
 
 // m08:work content { Work decisions during shifts (WorkTasks.cpp)
+// One answer to a work decision. `score` and `why` stay on the server until it's answered.
+struct WorkOptionDef {
+  std::string label;
+  std::string detail;  // optional
+  double score = 0;    // 0..1; exactly one option of a task scores 1
+  std::string why;
+};
+
+// A job decision (data/careers/work_tasks.json): a situation and three or four ways to handle it.
+struct WorkTaskDef {
+  std::string id;
+  std::string career;
+  std::string prompt;
+  std::vector<WorkOptionDef> options;
+};
+
+struct WorkDecisionsConfig {
+  int perDay = 3;                   // decisions a work day
+  double performanceBest = 6;       // performance change for the best call (score 1)
+  double performanceWorst = -4;     // and for the worst (score 0); linear in between
+  double bonusHoursPerPoint = 1.5;  // promotion hours per point of score
+};
 // } m08:work
 
 // m08:wallet content { Coins, phones and LivPay (Wallet.cpp)
@@ -617,6 +639,10 @@ class ContentDatabase {
   // } m08:homes
 
   // m08:work accessors { Work decisions during shifts (WorkTasks.cpp)
+  const WorkDecisionsConfig& workDecisions() const { return workDecisions_; }
+  const WorkTaskDef* workTask(const std::string& id) const;
+  // A career's decisions in data order; empty if it has none.
+  const std::vector<std::string>& workTasksFor(const std::string& career) const;
   // } m08:work
 
   // m08:wallet accessors { Coins, phones and LivPay (Wallet.cpp)
@@ -711,6 +737,10 @@ class ContentDatabase {
   // } m08:homes
 
   // m08:work members { Work decisions during shifts (WorkTasks.cpp)
+  bool haveWorkDecisions_ = false;
+  WorkDecisionsConfig workDecisions_;
+  std::map<std::string, WorkTaskDef> workTasks_;
+  std::map<std::string, std::vector<std::string>> workTasksByCareer_;
   // } m08:work
 
   // m08:wallet members { Coins, phones and LivPay (Wallet.cpp)

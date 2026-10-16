@@ -460,7 +460,54 @@ const char* kHelpHomes = "";
 // } m08:homes
 
 // m08:work help {
-const char* kHelpWork = "";
+const char* kHelpWork = R"(Work decisions (on shift, up to three a day; optional, but good calls mean faster promotion):
+  tasks                     today's decisions at work, with numbered options
+  decide TASK OPTION        make a call: TASK is its number in `tasks` (or its id), OPTION the option's number
+  phone work                performance, hours toward your next title, today's results)";
+
+void printWorkProgress(const Json& d) {
+  std::printf("  %s, %s. Performance %.0f.", d.value("title", "").c_str(), d.value("career", "").c_str(),
+              d.value("performance", 0.0));
+  if (d.contains("next_title") && d.at("next_title").is_string()) {
+    const std::string next = d.at("next_title").get<std::string>();
+    std::printf(" %.1f of %.0f hours toward %s (%.1f from decisions); needs performance %.0f.\n",
+                d.value("hours_at_level", 0.0), d.value("hours_to_promote", 0.0), next.c_str(),
+                d.value("decision_bonus_hours", 0.0), d.value("min_performance", 0.0));
+  } else {
+    std::printf(" Top of the ladder.\n");
+  }
+}
+
+void printWorkOutcome(const Json& t) {
+  const Json chose = t.value("you_chose", Json::object());
+  const Json best = t.value("best", Json::object());
+  if (t.value("best_call", false)) {
+    std::printf("     ✓ Best call: %s. %s\n", chose.value("label", "").c_str(), chose.value("why", "").c_str());
+  } else {
+    std::printf("     ✗ You chose %s: %s\n", chose.value("label", "").c_str(), chose.value("why", "").c_str());
+    std::printf("       Best call: [%d] %s. %s\n", best.value("option", 0) + 1, best.value("label", "").c_str(),
+                best.value("why", "").c_str());
+  }
+  std::printf("       Performance %+.1f, +%.1f promotion hours\n", t.value("performance_change", 0.0),
+              t.value("bonus_hours", 0.0));
+}
+
+void printWorkTasks(const Json& d) {
+  printWorkProgress(d);
+  int n = 0;
+  for (const auto& t : d.value("decisions", Json::array())) {
+    const Json options = t.value("options", Json::array());
+    std::printf("\n  %d. %s\n", ++n, t.value("prompt", "").c_str());
+    for (const auto& o : options) {
+      std::printf("     [%d] %s", o.value("option", 0) + 1, o.value("label", "").c_str());
+      if (o.contains("detail")) std::printf(" (%s)", o.value("detail", "").c_str());
+      std::printf("\n");
+    }
+    if (t.value("answered", false)) printWorkOutcome(t);
+    else std::printf("     → decide %d <1-%zu>\n", n, options.size());
+  }
+  if (d.contains("note")) std::printf("\n  %s\n", d.value("note", "").c_str());
+}
 // } m08:work
 
 // m08:wallet help {
@@ -653,6 +700,35 @@ bool runCommand(Client& c, const std::string& input) {
     // } m08:homes
 
     // m08:work commands { Work decisions during shifts (WorkTasks.cpp)
+  } else if (cmd == "tasks") {
+    if (auto d = callOk(c, {{"op", "work_tasks"}})) printWorkTasks(*d);
+    return true;
+  } else if (cmd == "decide") {
+    std::string task = arg();
+    const std::string pick = arg();
+    const bool numbered = !pick.empty() && pick.find_first_not_of("0123456789") == std::string::npos && pick.size() < 3;
+    if (task.empty() || !numbered || std::stoi(pick) < 1) {
+      std::printf("  usage: decide TASK OPTION (the numbers `tasks` shows)\n");
+      return true;
+    }
+    if (task.find_first_not_of("0123456789") == std::string::npos) {  // its number in `tasks`
+      auto list = callOk(c, {{"op", "work_tasks"}});
+      if (!list) return true;
+      const Json all = list->value("decisions", Json::array());
+      const auto i = task.size() < 3 ? std::stoul(task) : 0;
+      if (i < 1 || i > all.size()) {
+        std::printf("  ! there %s %zu decision%s today\n", all.size() == 1 ? "is" : "are", all.size(),
+                    all.size() == 1 ? "" : "s");
+        return true;
+      }
+      task = all[i - 1].value("task", "");
+    }
+    if (auto d = callOk(c, {{"op", "work_answer"}, {"task", task}, {"option", std::stoi(pick) - 1}})) {
+      printWorkOutcome(*d);
+      printWorkProgress(*d);
+      std::printf("  %d decision%s left today.\n", d->value("open", 0), d->value("open", 0) == 1 ? "" : "s");
+    }
+    return true;
     // } m08:work
 
     // m08:wallet commands { Coins, phones and LivPay (Wallet.cpp)

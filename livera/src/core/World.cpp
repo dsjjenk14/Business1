@@ -778,6 +778,8 @@ Result<Json> World::endShift(const CharacterId& actor) {
   const double paidHours = std::min(static_cast<double>(worked) / 60.0, career->maxShiftHours);
   const CareerLevel& level = career->levels.at(static_cast<std::size_t>(cs.level));
   Json out{{"minutes_worked", worked}, {"title", level.title}};
+  // Decisions made this shift (WorkTasks.cpp); they count toward promotion only if the shift does.
+  workShiftReport(*c, *cs.shiftStartedAt, static_cast<double>(worked) >= career->minPaidMinutes, out);
 
   cs.shiftStartedAt.reset();
   if (static_cast<double>(worked) < career->minPaidMinutes) {

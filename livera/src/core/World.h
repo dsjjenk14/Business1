@@ -78,6 +78,34 @@ struct PregnancyState {
 // } m08:homes
 
 // m08:work state { Work decisions during shifts (WorkTasks.cpp)
+// One answered work decision, as it was applied.
+struct WorkAnswer {
+  std::string task;
+  int option = 0;                // the option's index in the bank (the order shown is shuffled per day)
+  double score = 0;              // 0..1; 1 is the best call
+  double performanceChange = 0;  // after clamping to 0..100
+  double bonusHours = 0;         // promotion hours it added
+  GameMinutes at = 0;
+  std::int64_t day = -1;         // the game day it was one of the decisions for
+  bool reported = false;         // session: already in a shift report
+};
+
+// A character's decisions at work: today's draw from the career's bank, the answers, how
+// often each task has come up (so the days work through the whole bank), and the decision
+// bonus counted toward the current title.
+struct WorkDecisionsState {
+  std::int64_t day = -1;                     // the game day `tasks` were drawn for
+  std::string career;                        // and the career they were drawn from
+  std::vector<std::string> tasks;            // today's decisions, in the order they're shown
+  std::vector<WorkAnswer> answers;           // today's (and, until the shift ends, the shift's)
+  std::map<std::string, int> drawn;          // task id -> how many days it has come up
+  std::int64_t nudgedDay = -1;               // the day the phone last said decisions were waiting
+  std::string bonusCareer;                   // the bonus belongs to this career and level only
+  int bonusLevel = -1;
+  double bonusHours = 0;
+  int answeredTotal = 0;                     // lifetime
+  int bestTotal = 0;
+};
 // } m08:work
 
 // m08:wallet state { Coins, phones and LivPay (Wallet.cpp)
@@ -140,6 +168,7 @@ struct CharacterState {
   // } m08:homes
 
   // m08:work character { Work decisions during shifts (WorkTasks.cpp)
+  WorkDecisionsState workDecisions;
   // } m08:work
 
   // m08:wallet character { Coins, phones and LivPay (Wallet.cpp)
@@ -425,6 +454,11 @@ class World {
   // } m08:homes
 
   // m08:work commands { Work decisions during shifts (WorkTasks.cpp)
+  // Today's decisions at work, on shift only: up to work_decisions.per_day, options shuffled
+  // per day, scores and explanations kept back until answered.
+  Result<Json> workTasks(const CharacterId& actor);
+  // Answer one of today's decisions, once. `option` is its index in the order workTasks sent.
+  Result<Json> answerWorkTask(const CharacterId& actor, const std::string& task, int option);
   // } m08:work
 
   // m08:wallet commands { Coins, phones and LivPay (Wallet.cpp)
@@ -542,6 +576,17 @@ class World {
   // m08:work helpers { Work decisions during shifts (WorkTasks.cpp)
   void stepWorkHourly();  // called once a game hour from stepHourly (Life.cpp)
   Json phoneWork(const CharacterState& c) const;
+  // Today's decisions for a character: the stored draw if it's today's, else the draw it would be.
+  std::vector<std::string> workTasksToday(const CharacterState& c) const;
+  std::vector<std::string> drawWorkTasks(const CharacterState& c, std::int64_t day) const;
+  // Stores today's draw; yesterday's unanswered decisions lapse.
+  void refreshWorkDay(CharacterState& c);
+  const WorkAnswer* workAnswerToday(const CharacterState& c, const std::string& task) const;
+  Json workTaskView(const CharacterState& c, const std::string& task) const;
+  Json workProgress(const CharacterState& c) const;
+  // Adds the decisions made since `shiftStart` and their bonus to endShift's reply. A shift
+  // that doesn't count (too short to be paid) takes its decisions' promotion hours back.
+  void workShiftReport(CharacterState& c, GameMinutes shiftStart, bool counts, Json& out);
   // } m08:work
 
   // m08:wallet helpers { Coins, phones and LivPay (Wallet.cpp)
