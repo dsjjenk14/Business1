@@ -648,6 +648,95 @@ struct WalletConfig {
 // } m08:wallet
 
 // m08:leisure content { Sports, date spots and the lake park (Leisure.cpp)
+// A town league sport (data/leisure/sports.json): where and when its matches are played, and
+// how a match's score follows from the two sides' strengths.
+struct LeisureSportDef {
+  std::string id;
+  std::string name;
+  LocationId venue;            // an outdoor place; players and spectators stand in it
+  int matchWeekday = 5;        // 0 = Monday
+  int matchHour = 15;          // kickoff, on the hour
+  int durationMinutes = 120;   // the result comes at the first hourly step after this
+  int lineup = 11;             // the most players a side fields; the best of those present play
+  std::string scoring = "goals";  // goals: counted like soccer goals; points: like basketball
+  double perTeam = 1.4;        // a side's expected score in an even match
+  double sensitivity = 1.0;    // how far a strength edge moves the expected scores
+  double noise = 1.0;          // goals: 1 = Poisson chance, 0 = exact; points: standard deviation
+  int maxScore = 9;
+  bool draws = true;           // false: a tie goes to overtime
+  double overtimeFraction = 0.1;  // an overtime period, as a share of a match
+  int pointsWin = 3;
+  int pointsDraw = 1;
+  int pointsLoss = 0;
+};
+
+// A town team. `strength` is its non-player roster: the townsfolk who turn up every week.
+struct LeisureTeamDef {
+  std::string id;
+  std::string name;
+  std::string sport;
+  double strength = 50;
+};
+
+// Something that counts as a date when your partner is there with you: an offer or an activity.
+struct LeisureDateSpotDef {
+  LocationId place;
+  std::string offer;
+  std::string activity;
+  std::string memory;  // "Dinner at Lumière" -> "Dinner at Lumière with Dax"
+};
+
+// An activity that can only be done at some hours (stargazing after dark).
+struct LeisureActivityHoursDef {
+  LocationId place;
+  std::string activity;
+  OpeningHours hours;
+};
+
+// An activity that trains skills (practice at the field or the court).
+struct LeisurePracticeDef {
+  LocationId place;
+  std::string activity;
+  StatMap skills;  // skill -> base gain per session (less the better you already are)
+};
+
+struct LeisureConfig {
+  LedgerAccountId leagueAccount;
+  LocationId clubhouse;           // you sign up here, or at the team's venue
+  Cents leagueFeeCents = 0;       // once, when you join a team
+  std::string skill = "athletics";
+  std::vector<std::string> coachCareers;  // on shift at a venue, they make practice there count for more
+  double coachedPracticeBonus = 0.5;
+  // A player's worth at kickoff: (base + skill x weight) x (minEnergyFactor .. 1 by energy).
+  double playerBase = 4;
+  double skillWeight = 0.2;
+  std::string energyNeed = "energy";
+  double minEnergyFactor = 0.5;
+  double luck = 12;               // up to this much is added to each side's strength by chance
+  StatMap playerNeeds;            // what a match takes out of (and gives) a player
+  double playerCalories = 600;
+  double matchSkillGain = 3;
+  double fameWin = 0.6;
+  double fameDraw = 0.3;
+  double fameLoss = 0.15;
+  StatMap winEmotions;
+  StatMap drawEmotions;
+  StatMap lossEmotions;
+  StatMap spectatorEmotions;
+  StatMap spectatorNeeds;
+  int resultsKept = 20;
+  // Dates.
+  std::vector<std::string> dateStatuses;  // relationship statuses that make it a date
+  StatMap dateRelationship;               // both ways
+  StatMap dateEmotions;                   // both of you
+  int dateImportance = 45;
+  int dateImpact = 40;
+  std::vector<LeisureDateSpotDef> dateSpots;
+  std::vector<LeisureActivityHoursDef> activityHours;
+  std::vector<LeisurePracticeDef> practice;
+  std::vector<LeisureSportDef> sports;
+  std::vector<LeisureTeamDef> teams;
+};
 // } m08:leisure
 
 // m08:pets content { Pets and medicine (Pets.cpp)
@@ -716,6 +805,9 @@ class ContentDatabase {
   // } m08:wallet
 
   // m08:leisure accessors { Sports, date spots and the lake park (Leisure.cpp)
+  const LeisureConfig& leisure() const { return leisure_; }
+  const LeisureSportDef* leisureSport(const std::string& id) const;
+  const LeisureTeamDef* leisureTeam(const std::string& id) const;
   // } m08:leisure
 
   // m08:pets accessors { Pets and medicine (Pets.cpp)
@@ -817,6 +909,8 @@ class ContentDatabase {
   // } m08:wallet
 
   // m08:leisure members { Sports, date spots and the lake park (Leisure.cpp)
+  bool haveLeisure_ = false;
+  LeisureConfig leisure_;
   // } m08:leisure
 
   // m08:pets members { Pets and medicine (Pets.cpp)

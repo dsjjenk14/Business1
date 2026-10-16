@@ -10,7 +10,43 @@
       "door": [290, 690],
       "enterable": false,
       "outdoor_radius_m": 40,
-      "stage": true
+      "stage": true,
+      "revenue_account": "org:willow_lake_boathouse",
+      "offers": [
+        {
+          "id": "rowboat",
+          "label": "Rent a rowboat (1 hour)",
+          "price_cents": 1800,
+          "needs": {"recreation": 25, "comfort": 3, "energy": -6},
+          "emotions": {"happiness": 5, "stress": -4},
+          "calories_burned": 250
+        },
+        {
+          "id": "picnic",
+          "label": "Picnic basket from the boathouse",
+          "price_cents": 2600,
+          "needs": {"hunger": 40, "recreation": 8, "comfort": 4},
+          "emotions": {"happiness": 4},
+          "calories": 900
+        }
+      ],
+      "activities": [
+        {
+          "id": "boardwalk_walk",
+          "label": "Walk the boardwalk around the lake",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 15, "comfort": 3, "energy": -3},
+          "emotions": {"stress": -4},
+          "calories_burned": 150
+        },
+        {
+          "id": "stargazing",
+          "label": "Lie on the grass and stargaze",
+          "cooldown_minutes": 120,
+          "needs": {"recreation": 15, "comfort": 5},
+          "emotions": {"stress": -6, "happiness": 4}
+        }
+      ]
     },
     {
       "id": "lumiere_bistro",
@@ -21,7 +57,33 @@
       "door": [500, 545],
       "hours": [17, 23],
       "revenue_account": "org:lumiere_bistro",
-      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}],
+      "offers": [
+        {
+          "id": "dinner",
+          "label": "Three-course dinner",
+          "price_cents": 4800,
+          "needs": {"hunger": 55, "comfort": 6, "recreation": 8},
+          "emotions": {"happiness": 5},
+          "calories": 1100
+        },
+        {
+          "id": "dessert",
+          "label": "Crème brûlée",
+          "price_cents": 1100,
+          "needs": {"hunger": 12},
+          "emotions": {"happiness": 3},
+          "calories": 380
+        },
+        {
+          "id": "wine",
+          "label": "Glass of Bordeaux",
+          "price_cents": 1400,
+          "needs": {"bladder": -10},
+          "calories": 125,
+          "substance": "alcohol"
+        }
+      ]
     },
     {
       "id": "starlight_cinema",
@@ -32,7 +94,23 @@
       "door": [600, 630],
       "hours": [12, 24],
       "revenue_account": "org:starlight_cinema",
-      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}],
+      "offers": [
+        {
+          "id": "movie_ticket",
+          "label": "Movie ticket",
+          "price_cents": 1450,
+          "needs": {"recreation": 35, "comfort": 5},
+          "emotions": {"happiness": 4, "excitement": 6}
+        },
+        {
+          "id": "popcorn",
+          "label": "Buttered popcorn (medium)",
+          "price_cents": 850,
+          "needs": {"hunger": 15, "bladder": -5},
+          "calories": 600
+        }
+      ]
     },
     {
       "id": "riverside_field",
@@ -42,7 +120,17 @@
       "description": "A floodlit grass pitch by the river, home of the town soccer league, with a small grandstand.",
       "door": [690, 660],
       "enterable": false,
-      "outdoor_radius_m": 35
+      "outdoor_radius_m": 35,
+      "activities": [
+        {
+          "id": "practice_soccer",
+          "label": "Soccer practice: drills and a scrimmage",
+          "cooldown_minutes": 90,
+          "needs": {"energy": -15, "hygiene": -20, "recreation": 15, "health": 2},
+          "emotions": {"confidence": 2, "stress": -3},
+          "calories_burned": 450
+        }
+      ]
     },
     {
       "id": "riverside_court",
@@ -52,7 +140,17 @@
       "description": "An outdoor basketball court with new nets and old bleachers.",
       "door": [780, 630],
       "enterable": false,
-      "outdoor_radius_m": 20
+      "outdoor_radius_m": 20,
+      "activities": [
+        {
+          "id": "practice_basketball",
+          "label": "Shoot around and run drills",
+          "cooldown_minutes": 90,
+          "needs": {"energy": -12, "hygiene": -15, "recreation": 15, "health": 2},
+          "emotions": {"confidence": 2, "stress": -3},
+          "calories_burned": 380
+        }
+      ]
     },
     {
       "id": "riverside_clubhouse",
@@ -63,13 +161,31 @@
       "door": [730, 640],
       "hours": [7, 22],
       "revenue_account": "org:livera_league",
-      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+      "activities": [
+        {
+          "id": "locker_shower",
+          "label": "Shower in the locker room",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 40, "comfort": 3}
+        },
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}
+      ],
+      "offers": [
+        {
+          "id": "sports_drink",
+          "label": "Sports drink",
+          "price_cents": 350,
+          "needs": {"energy": 5, "bladder": -10},
+          "calories": 140
+        }
+      ]
     }
   ],
   "org_accounts": [
     {"id": "org:lumiere_bistro", "name": "Lumière Bistro", "opening_balance_cents": 3000000},
     {"id": "org:starlight_cinema", "name": "Starlight Cinema", "opening_balance_cents": 2500000},
-    {"id": "org:livera_league", "name": "Livéra Town League", "opening_balance_cents": 2000000}
+    {"id": "org:livera_league", "name": "Livéra Town League", "opening_balance_cents": 2000000},
+    {"id": "org:willow_lake_boathouse", "name": "Willow Lake Boathouse", "opening_balance_cents": 800000}
   ],
   "careers": [
     {

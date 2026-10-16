@@ -175,6 +175,9 @@ World::World(std::shared_ptr<const ContentDatabase> content, WorldState state)
   // } m08:wallet
 
   // m08:leisure on load { Sports, date spots and the lake park (Leisure.cpp)
+  // Teams taken out of content since the save: their players are free agents again.
+  for (auto& [id, c] : state_.characters)
+    std::erase_if(c.leisureTeams, [&](const std::string& t) { return db.leisureTeam(t) == nullptr; });
   // } m08:leisure
 
   // m08:pets on load { Pets and medicine (Pets.cpp)
@@ -703,6 +706,7 @@ Result<Json> World::buy(const CharacterId& actor, const std::string& offerId, co
   }
   if (!offer->substance.empty()) out["effect"] = takeSubstance(c, offer->substance);
   applyConditionRecovery(c, offer->conditionRecovery);
+  leisureAfterPurchase(c, *loc, offer->id, out);  // m08:leisure: a date at a date spot (Leisure.cpp)
   return out;
 }
 
@@ -730,6 +734,8 @@ Result<Json> World::useActivity(const CharacterId& actor, const std::string& act
     if (!def || def->location != loc->id) return fail("not_your_home", "you can only do that in your own home");
     home = mine;
   }
+  auto leisure = leisureActivity(c, *loc, *act);  // m08:leisure: hours, practice, dates (Leisure.cpp)
+  if (!leisure) return leisure.error();
   c.activityReadyAt[key] = state_.now + act->cooldownMinutes;
   applyNeeds(c, act->needEffects);
   applyEmotions(c, act->emotionEffects);
@@ -745,6 +751,7 @@ Result<Json> World::useActivity(const CharacterId& actor, const std::string& act
     }
     out["home"] = Json{{"cleanliness", std::round(home->cleanliness)}, {"trash", std::round(home->trash)}};
   }
+  out.update(leisure.value());  // m08:leisure
   return out;
 }
 

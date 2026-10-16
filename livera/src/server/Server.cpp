@@ -479,6 +479,8 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
   // } m08:wallet
 
   // m08:leisure ops { Sports, date spots and the lake park (Leisure.cpp)
+  if (op == "join_team") return world_.joinTeam(me, str(req, "team"));
+  if (op == "leave_team") return world_.leaveTeam(me, str(req, "team"));
   // } m08:leisure
 
   // m08:pets ops { Pets and medicine (Pets.cpp)
