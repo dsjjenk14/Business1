@@ -87,6 +87,38 @@ struct PregnancyState {
 // } m08:leisure
 
 // m08:pets state { Pets and medicine (Pets.cpp)
+// An animal in Livéra: someone's pet, or back at the shelter (owner empty) after animal control
+// took it. Animals the shelter lists each week aren't in the state until they're adopted.
+struct PetState {
+  std::string id;
+  std::string name;
+  std::string species;
+  std::string breed;
+  CharacterId owner;            // empty = at the shelter
+  std::string home;             // property id it lives at; empty at the shelter
+  GameMinutes bornAt = 0;
+  StatMap needs;                // hunger, fun, hygiene, health (0..100)
+  std::map<CharacterId, double> bond;  // with the owner, and anyone else at home who cares for it (0..100)
+  std::string illness;          // empty = healthy
+  bool illnessKnown = false;    // a vet has said what it is
+  GameMinutes vaccinatedUntil = -1;
+  GameMinutes adoptedAt = -1;
+  GameMinutes starvingSince = -1;  // hunger at 0 since then
+  bool hungerWarned = false;
+  std::string stage;            // last life stage the household was told about
+  CharacterId takenFrom;        // animal control took it from them; the shelter won't give it back
+  std::map<std::string, GameMinutes> readyAt;  // care action -> next minute it helps again
+};
+
+// Written by a doctor at a diagnosis; filled at the pharmacy.
+struct PrescriptionState {
+  std::string medicine;  // item id
+  std::string condition; // what it was written for
+  int refillsLeft = 0;   // fills left
+  GameMinutes writtenAt = 0;
+  GameMinutes expiresAt = 0;
+  std::string writtenBy; // the clinic or hospital
+};
 // } m08:pets
 
 // m08:details state { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
@@ -149,6 +181,8 @@ struct CharacterState {
   // } m08:leisure
 
   // m08:pets character { Pets and medicine (Pets.cpp)
+  std::vector<PrescriptionState> prescriptions;
+  std::map<std::string, std::vector<GameMinutes>> medicineDoses;  // item -> doses within the dose window
   // } m08:pets
 
   // m08:details character { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
@@ -301,6 +335,9 @@ struct WorldState {
   // } m08:leisure
 
   // m08:pets world { Pets and medicine (Pets.cpp)
+  std::map<std::string, PetState> pets;
+  std::map<std::string, CharacterId> adoptedListings;  // this week's shelter listings already adopted -> by whom
+  std::int64_t shelterWeek = -1;                       // the week those listings belong to
   // } m08:pets
 
   // m08:details world { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
@@ -434,6 +471,23 @@ class World {
   // } m08:leisure
 
   // m08:pets commands { Pets and medicine (Pets.cpp)
+  // In person at the shelter while it's open: one of this week's listings (or an animal brought
+  // back). The fee goes to the shelter and the pet lives at your home. `name` (optional) renames it.
+  Result<Json> adoptPet(const CharacterId& actor, const std::string& pet, const std::string& name,
+                        const std::string& paymentMethod);
+  // feed, play, cuddle, groom at home; walk (dogs) outdoors near home. Anyone who lives with the pet.
+  Result<Json> careForPet(const CharacterId& actor, const std::string& pet, const std::string& action);
+  // checkup, vaccines, treatment: bring the pet to the vet.
+  Result<Json> vetVisit(const CharacterId& actor, const std::string& pet, const std::string& service,
+                        const std::string& paymentMethod);
+  const PetState* pet(const std::string& id) const;
+  // The animals the shelter has right now: this week's listings not yet adopted, and pets brought back.
+  Json shelterListings() const;
+  int petAgeMonths(const PetState& p) const;
+  std::string petStageOf(const PetState& p) const;
+  // The property someone lives at: the home they rent, or (a grown child) the parent's home they grew up in.
+  std::string residenceOf(const CharacterId& id) const;
+  bool livesWithPet(const CharacterId& id, const PetState& p) const;
   // } m08:pets
 
   // m08:details commands { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
@@ -558,6 +612,22 @@ class World {
   // m08:pets helpers { Pets and medicine (Pets.cpp)
   void stepPetsHourly();  // called once a game hour from stepHourly (Life.cpp)
   Json phonePets(const CharacterState& c) const;
+  std::vector<PetState> shelterAnimals(std::int64_t week) const;  // the week's generated listings
+  void stepPet(PetState& p);
+  void petToShelter(PetState& p, const std::string& why, bool neglect);
+  std::vector<CharacterId> householdOf(const PetState& p) const;  // everyone living with the pet
+  std::string petHomeOf(const PetState& p) const;  // the owner's home (a pet moves with its owner)
+  PetState* householdPet(const CharacterId& actor, const std::string& idOrName);  // a pet you live with
+  Json petView(const PetState& p, const CharacterId& viewer) const;
+  void payVetsOnDuty(const CharacterId& client, const LocationDef& where, Cents price, Json& out);
+  // Medicine. Hooks: World::buy (check, fill), runCareService (write), useItem (doses), phoneHealth (view).
+  Status checkPrescription(const CharacterState& c, const Offer& offer) const;
+  void fillPrescription(CharacterState& c, const Offer& offer, Json& out);
+  Json writePrescriptions(CharacterState& c, const LocationDef& where);
+  Json takeMedicineDose(CharacterState& c, const ItemDef& item);
+  void medicineEmergency(CharacterState& c, const std::string& what);
+  void addMedicineToHealth(const CharacterState& c, Json& out) const;
+  void stepMedicineHourly(CharacterState& c);
   // } m08:pets
 
   // m08:details helpers { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)

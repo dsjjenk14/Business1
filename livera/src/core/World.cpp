@@ -159,6 +159,10 @@ World::World(std::shared_ptr<const ContentDatabase> content, WorldState state)
   // } m08:leisure
 
   // m08:pets on load { Pets and medicine (Pets.cpp)
+  // Pet needs added to content later start where the shelter keeps them.
+  for (auto& [pid, p] : state_.pets) {
+    for (const auto& n : db.pets().needs) p.needs.try_emplace(n, db.pets().routineTarget);
+  }
   // } m08:pets
 
   // m08:details on load { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
@@ -646,6 +650,7 @@ Result<Json> World::buy(const CharacterId& actor, const std::string& offerId, co
     const ConditionState* k = findCondition(c, offer->requiresDiagnosis);
     if (!k || !k->diagnosed) return fail("needs_prescription", "a doctor has to diagnose you before you can buy that");
   }
+  if (Status rx = checkPrescription(c, *offer); !rx) return rx.error();  // m08:pets: prescriptions (Pets.cpp)
   if (offer->service == "prenatal" && !c.pregnancy) return fail("not_pregnant", "you're not pregnant");
   if (offer->service == "abortion") {
     if (!c.pregnancy || !c.pregnancy->known) return fail("not_pregnant", "a test or a doctor needs to confirm the pregnancy first");
@@ -681,6 +686,7 @@ Result<Json> World::buy(const CharacterId& actor, const std::string& offerId, co
   if (!offer->item.empty()) {
     c.inventory[offer->item] += offer->quantity;
     out["owned"] = c.inventory[offer->item];
+    fillPrescription(c, *offer, out);  // m08:pets: each fill uses a refill (Pets.cpp)
   }
   if (!offer->substance.empty()) out["effect"] = takeSubstance(c, offer->substance);
   applyConditionRecovery(c, offer->conditionRecovery);

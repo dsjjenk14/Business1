@@ -415,6 +415,7 @@ Result<Json> World::runCareService(CharacterState& c, const std::string& service
     out["weight_kg"] = std::round(c.weightKg * 10) / 10;
     out["bmi"] = std::round(bmiOf(c) * 10) / 10;
     c.needs["health"] = clampd(c.needs["health"] + 5, kStatMin, kStatMax);
+    if (Json rx = writePrescriptions(c, where); !rx.empty()) out["prescriptions"] = rx;  // m08:pets (Pets.cpp)
     return out;
   }
   if (service == "emergency") {
@@ -422,6 +423,7 @@ Result<Json> World::runCareService(CharacterState& c, const std::string& service
     for (auto& k : c.conditions) k.diagnosed = true;
     auto treated = runCareService(c, "treatment", where);
     if (treated) out["treated"] = treated.value().at("treated");
+    if (treated && treated.value().contains("prescriptions")) out["prescriptions"] = treated.value().at("prescriptions");  // m08:pets
     return out;
   }
   if (service == "treatment") {
@@ -437,6 +439,7 @@ Result<Json> World::runCareService(CharacterState& c, const std::string& service
     }
     for (const auto& id : cured) removeCondition(c, id, "treated");
     out["treated"] = treated;
+    if (Json rx = writePrescriptions(c, where); !rx.empty()) out["prescriptions"] = rx;  // m08:pets (Pets.cpp)
     return out;
   }
   if (service == "sti_test") {
@@ -523,6 +526,7 @@ Json World::phoneHealth(const CharacterState& c) const {
            {"conditions", conditions}};
   if (const PropertyState* home = homeOf(c.id))
     out["home"] = Json{{"cleanliness", std::round(home->cleanliness)}, {"trash", std::round(home->trash)}};
+  addMedicineToHealth(c, out);  // m08:pets: prescriptions and today's doses (Pets.cpp)
   return out;
 }
 

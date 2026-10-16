@@ -472,7 +472,15 @@ const char* kHelpLeisure = "";
 // } m08:leisure
 
 // m08:pets help {
-const char* kHelpPets = "";
+const char* kHelpPets = R"(Pets and medicine:
+  adopt ANIMAL [NAME...]    adopt at Paws & Whiskers, 10:00-18:00 (phone pets lists the animals); NAME renames them
+  pet PET ACTION            feed (uses pet food), play, cuddle, groom at home; walk a dog outdoors near home
+  vet PET SERVICE           checkup, vaccines or treatment at Founders Animal Hospital
+  phone pets                your pets (needs, bond, age, sick or not), the shelter's animals, the vet
+  phone health              also shows your prescriptions and today's doses of medicine
+  Prescription medicine (antibiotics, antivirals, antidepressants) needs a doctor's prescription:
+  a checkup that finds what it treats writes one. Don't take more than the daily limit, and never
+  a sleep aid after drinking.)";
 // } m08:pets
 
 // m08:details help {
@@ -662,6 +670,15 @@ bool runCommand(Client& c, const std::string& input) {
     // } m08:leisure
 
     // m08:pets commands { Pets and medicine (Pets.cpp)
+  } else if (cmd == "adopt") {
+    const std::string pet = arg();
+    req = {{"op", "adopt"}, {"pet", pet}, {"name", rest()}};
+  } else if (cmd == "pet") {
+    const std::string pet = arg();
+    req = {{"op", "pet"}, {"pet", pet}, {"action", arg()}};
+  } else if (cmd == "vet") {
+    const std::string pet = arg();
+    req = {{"op", "vet"}, {"pet", pet}, {"service", arg()}};
     // } m08:pets
 
     // m08:details commands { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)

@@ -567,6 +567,116 @@ struct OrgAccountDef {
 // } m08:leisure
 
 // m08:pets content { Pets and medicine (Pets.cpp)
+// A pet's life stage by age in calendar months: puppy, adult, senior.
+struct PetStageDef {
+  std::string id;
+  int minAgeMonths = 0;
+  double needsMultiplier = 1.0;  // how fast needs run down at this age
+  double sickMultiplier = 1.0;   // how often they fall ill
+};
+
+struct PetSpeciesDef {
+  std::string id;
+  std::string label;
+  Cents adoptionFeeCents = 0;
+  StatMap needsPerHour;          // change per game hour (negative = decay)
+  std::vector<PetStageDef> stages;
+  int shelterMinAgeMonths = 2;   // ages of the animals the shelter lists
+  int shelterMaxAgeMonths = 96;
+  std::vector<std::string> breeds;
+  std::vector<std::string> names;
+};
+
+// Something you do with a pet: feed, play, cuddle, groom at home; walk a dog outdoors.
+struct PetActionDef {
+  std::string id;
+  std::string label;
+  std::vector<std::string> species;  // empty = every species
+  std::string where = "home";        // "home" or "outdoors"
+  std::string usesItem;              // consumed from your inventory (pet food)
+  int cooldownMinutes = 60;          // per pet: one feed counts for the whole household
+  StatMap petNeeds;
+  StatMap yourNeeds;
+  StatMap yourEmotions;
+  double caloriesBurned = 0;
+  double bond = 0;
+};
+
+struct PetIllnessDef {
+  std::string id;
+  std::string name;
+  std::vector<std::string> species;  // empty = any
+};
+
+struct VetServiceDef {
+  std::string id;
+  std::string label;
+  Cents priceCents = 0;
+  StatMap petNeeds;
+  bool diagnoses = false;  // says what's wrong
+  bool cures = false;      // treats an illness (refused when there is none)
+  int vaccinatesDays = 0;  // > 0: vaccines that protect for this long
+};
+
+// Pets (data/society/pets.json).
+struct PetConfig {
+  LocationId shelter;
+  LocationId vet;
+  std::string foodItem;
+  std::vector<std::string> needs;  // a pet's own needs: hunger, fun, hygiene, health
+  StatMap adoptedNeeds;            // how an animal leaves the shelter
+  int listingsPerWeek = 4;
+  int maxPetsPerHome = 3;
+  double initialBond = 10;
+  int maxNameLength = 24;
+  int adoptionVaccineDays = 336;   // the adoption fee covers shots
+  double routineTarget = 70;       // an offline owner's routine keeps needs here (and the shelter's staff)
+  double warnBelow = 20;           // the household hears when hunger falls this low
+  int neglectHungerHours = 24;     // starving this long and animal control steps in
+  double neglectBelow = 20;
+  double bondLossPerNeglectedHour = 0.5;
+  double companyMinBond = 40;      // a bonded pet at home is company
+  StatMap companyEmotionsPerHour;  // for anyone at home with them, online
+  StatMap adoptionEmotions;        // the day you bring them home
+  double walkRadiusMeters = 250;   // walks start from your street
+  double sickChancePerHour = 0.002;
+  double sickLowNeedBelow = 25;
+  double sickLowNeedMultiplier = 3;
+  double sickVaccinatedMultiplier = 0.3;
+  StatMap sickNeedsPerHour;
+  StatMap takenAwayEmotions;       // the owner, when animal control takes the pet
+  std::map<std::string, PetSpeciesDef> species;
+  std::vector<PetActionDef> actions;
+  std::vector<PetIllnessDef> illnesses;
+  std::vector<VetServiceDef> vetServices;
+};
+
+// A medicine's dosing rules, keyed by its item (data/items/medicine.json).
+struct MedicineDef {
+  std::string item;
+  int dailyLimit = 0;                 // 0 = no limit
+  double overdoseHealthLoss = -1;     // < 0 = the config default
+  bool prescription = false;
+  std::vector<std::string> prescribedFor;  // conditions a diagnosis writes it for
+  int fills = 1;                      // purchases one prescription allows
+  int validDays = 28;
+  std::string dangerousWith;          // a substance it must not be mixed with
+  int dangerWithinMinutes = 240;
+  StatMap dangerNeeds;
+  StatMap dangerEmotions;
+  bool dangerEmergency = false;
+};
+
+struct MedicineConfig {
+  int doseWindowHours = 24;
+  double overdoseHealthLoss = 25;
+  int emergencyAfterExtraDoses = 2;   // this many doses over the limit and you're taken to the ER
+  double emergencyBelowHealth = 15;   // or an overdose leaves you this unwell
+  LocationId hospital;
+  Cents emergencyBillCents = 45000;
+  double stabilisedHealth = 30;       // the ER gets you at least this far back
+  std::map<std::string, MedicineDef> medicines;
+};
 // } m08:pets
 
 // m08:details content { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
@@ -626,6 +736,12 @@ class ContentDatabase {
   // } m08:leisure
 
   // m08:pets accessors { Pets and medicine (Pets.cpp)
+  const PetConfig& pets() const { return pets_; }
+  const PetSpeciesDef* petSpecies(const std::string& id) const;
+  const PetActionDef* petAction(const std::string& id) const;
+  const VetServiceDef* vetService(const std::string& id) const;
+  const MedicineConfig& medicine() const { return medicine_; }
+  const MedicineDef* medicineFor(const std::string& item) const;
   // } m08:pets
 
   // m08:details accessors { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
@@ -720,6 +836,10 @@ class ContentDatabase {
   // } m08:leisure
 
   // m08:pets members { Pets and medicine (Pets.cpp)
+  bool havePets_ = false;
+  PetConfig pets_;
+  bool haveMedicine_ = false;
+  MedicineConfig medicine_;
   // } m08:pets
 
   // m08:details members { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
