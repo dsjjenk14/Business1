@@ -725,7 +725,7 @@ bool runCommand(Client& c, const std::string& input) {
     std::printf("  For sale:\n");
     for (const auto& l : (*d)["listings"])
       std::printf("    %-14s %-26s %-6s %d bd  %12s  min down %11s  ~%s a month  (%s)\n",
-                  l.value("property", "").c_str(), l.value("address", "").c_str(), l.value("type", "").c_str(),
+                  l.value("property", "").c_str(), l.value("name", "").c_str(), l.value("type", "").c_str(),
                   l.value("bedrooms", 0),
                   money(l.value("price_cents", 0LL)).c_str(), money(l.value("min_down_payment_cents", 0LL)).c_str(),
                   money(l.value("est_monthly_cents", 0LL)).c_str(), l.value("seller", "").c_str());

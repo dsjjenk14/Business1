@@ -160,8 +160,9 @@ Result<Json> World::respond(const CharacterId& actor, const std::string& request
   state_.requests.erase(it);
   const CharacterDef* myDef = definition(actor);
   const std::string myName = myDef ? myDef->firstName : actor;
+  const bool aboutHome = q.kind == "buy_home" || q.kind == "move_in" || q.kind == "sell_home";  // Homes.cpp
   if (!accept) {
-    notify(q.from, "romance", myName + " said no.");
+    notify(q.from, aboutHome ? "home" : "romance", myName + " said no.");
     emit({q.from}, "answer", Json{{"request", q.id}, {"kind", q.kind}, {"accepted", false}});
     return Json{{"declined", q.kind}};
   }
@@ -264,7 +265,7 @@ Result<Json> World::respond(const CharacterId& actor, const std::string& request
     if (!done) return done.error();
     out["home"] = done.value();
   }
-  notify(q.from, "romance", myName + " said yes.");
+  notify(q.from, aboutHome ? "home" : "romance", myName + " said yes.");
   emit({q.from}, "answer", Json{{"request", q.id}, {"kind", q.kind}, {"accepted", true}});
   return out;
 }

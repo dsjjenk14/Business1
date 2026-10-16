@@ -3,7 +3,7 @@
 The product owner asked: "Partners can buy houses/condos together and move in together."
 
 Code: `src/core/Homes.cpp` (plus small hooks listed under "Edits outside the feature's own
-files"). Data: `data/world/homes_places.json`. Tests: `tests/test_homes.cpp` (12 world tests
+files"). Data: `data/world/homes_places.json`. Tests: `tests/test_homes.cpp` (14 world tests
 and one over-the-network server test).
 
 ---
@@ -189,6 +189,18 @@ sellwith ID HOME          ask your co-owner to sell your home together
   routine, but has no key until a parent moves in somewhere (they don't walk anyway).
 - **Children don't tag along in town** when their family has no home; their routine keeps
   them where they last were.
+- **No new leases.** There is no op to rent a place: a character who leaves a rental (or
+  sells, or is foreclosed on) gets back into a home by buying one or by a partner's
+  `move_in`. New arrivals are still housed in vacant rentals by the character creator.
+- **Foreclosure keeps the owners' equity.** The bank takes the home in place of the debt and
+  relists it; the down payment and principal already paid are lost (no surplus is returned
+  after the bank sells), and the arrears are written off.
+- **Grown-up children** (born in Livéra, now adults) aren't residents of their parents' home:
+  they keep a key to it while a parent lives there and move with the family, but their phone
+  shows no home and housework doesn't count for them until they buy or move in somewhere.
+- **The lender's checks are simple.** Pay is the career level's hourly rate x 160 hours (not
+  what you actually worked), there is no credit history, and missed rent doesn't count
+  against you.
 - Homes have no interiors, furniture or upgrades beyond the existing activities.
 
 ---
@@ -203,7 +215,8 @@ sellwith ID HOME          ask your co-owner to sell your home together
   over; the nanny's key follows the employer's current home) and `chargeRent` (rent split
   through `chargeHomeRent`, then `chargeMortgages`).
 - `Life.cpp`: `homeOf` returns the home you're a resident of (older state: lease holders).
-- `Romance.cpp`: `request`/`respond` route `buy_home`, `move_in` and `sell_home` to Homes.cpp.
+- `Romance.cpp`: `request`/`respond` route `buy_home`, `move_in` and `sell_home` to Homes.cpp;
+  the ask and the yes/no notices for those kinds are filed under `home`, not `romance`.
 - `Family.cpp`: a child's home is `familyHomeOf` (follows the family) for supervision, the
   hourly routine and care.
 - `WorldViews.cpp`: `phoneProperty` lists homes you live in or own, with tenure.

@@ -355,6 +355,50 @@ TEST_CASE("homes: the mortgage comes out monthly; missed payments add up, and th
   CHECK(w.state().ledger.sumOfBalances() == 0);
 }
 
+TEST_CASE("homes: the bank lends only what it has, and the last payment clears the mortgage") {
+  World w = World::createNew(homesContent());
+  REQUIRE(w.connect("dominique"));
+  w = withBank(w, {{"dominique", 6000000}});
+  walkTo(w, "dominique", "willow_lane_2");
+  // A bank that has lent out nearly everything can't fund a $378,000 loan: nothing moves.
+  {
+    WorldState s = w.state();
+    REQUIRE(s.ledger.transfer(kLender, kEconomyAccount, s.ledger.balance(kLender) - 10000000, "test", "lent elsewhere",
+                              s.now));
+    World broke(w.contentPtr(), s);
+    CHECK(broke.buyHome("dominique", "willow_lane_2").error().code == "bank_unavailable");
+    CHECK(bank(broke, "dominique") == 6000000);
+    CHECK(broke.state().properties.at("willow_lane_2").owners.empty());
+  }
+  REQUIRE(w.buyHome("dominique", "willow_lane_2"));
+  // Years later, one payment is left.
+  {
+    WorldState s = w.state();
+    MortgageState& m = *s.properties.at("willow_lane_2").mortgage;
+    m.balanceCents = 100000;
+    m.monthsLeft = 1;
+    w = World(w.contentPtr(), s);
+  }
+  const Cents before = bank(w, "dominique");
+  const Cents lender = balance(w, kLender);
+  toNextMonth(w);
+  // $1,000 and a month's interest at 6% ($5): the last payment clears the balance.
+  CHECK(bank(w, "dominique") == before - 100500);
+  CHECK(balance(w, kLender) == lender + 100500);
+  CHECK(!prop(w, "willow_lane_2").mortgage.has_value());
+  CHECK((prop(w, "willow_lane_2").owners == std::vector<CharacterId>{"dominique"}));
+  CHECK(notified(w, "dominique", "The mortgage on 2 Willow Lane is paid off. It's all yours."));
+  const Json app = w.openPhoneApp("dominique", "homes").value();
+  CHECK(app.at("home").at("owned_outright") == true);
+  CHECK(app.at("home").at("mortgage").is_null());
+  CHECK(app.at("terms").at("your_mortgage_payments_cents") == 0);
+  // Nothing more comes out.
+  const Cents after = bank(w, "dominique");
+  toNextMonth(w);
+  CHECK(bank(w, "dominique") == after);
+  CHECK(w.state().ledger.sumOfBalances() == 0);
+}
+
 TEST_CASE("homes: partners buy a house together and split the mortgage") {
   World w = World::createNew(homesContent());
   for (const char* id : {"dominique", "dax", "harper"}) REQUIRE(w.connect(id));
@@ -569,6 +613,7 @@ TEST_CASE("homes: a homeowner who moves in with a partner keeps the house") {
   CHECK((prop(w, "founders_row_3").residents == std::vector<CharacterId>{"harper", "graham"}));
   CHECK((prop(w, "willow_lane_8").owners == std::vector<CharacterId>{"graham"}));
   CHECK(prop(w, "willow_lane_8").residents.empty());
+  CHECK(w.moveHome("graham", "willow_lane_8").error().code == "too_far");  // he's at Harper's
   // It's still his: he can let himself in, and move back whenever he likes.
   walkInto(w, "graham", "willow_lane_8");
   const Json app = w.openPhoneApp("graham", "homes").value();
@@ -580,6 +625,34 @@ TEST_CASE("homes: a homeowner who moves in with a partner keeps the house") {
   REQUIRE(w.moveHome("graham", "willow_lane_8"));
   CHECK((prop(w, "founders_row_3").residents == std::vector<CharacterId>{"harper"}));
   CHECK(prop(w, "founders_row_3").tenant == "harper");
+}
+
+TEST_CASE("homes: a partner who moves back out of a rental leaves the lease with its holder") {
+  World w = World::createNew(homesContent());
+  for (const char* id : {"harper", "julian"}) REQUIRE(w.connect(id));
+  startDating(w, "harper", "julian");
+  walkInto(w, "harper", "founders_row_3");
+  walkInto(w, "julian", "founders_row_3");
+  REQUIRE(w.respond("julian", ask(w, "harper", "move_in", "julian"), true));
+  CHECK(prop(w, "riverside_lofts_5").tenant.empty());  // his own lease ended
+  auto out = w.moveOut("julian");
+  REQUIRE(out);
+  CHECK(!out.value().contains("lease"));  // it was never his
+  CHECK(out.value().at("still_own") == false);
+  CHECK(out.value().at("note").get<std::string>().find("You can still play") != std::string::npos);
+  CHECK(prop(w, "founders_row_3").tenant == "harper");
+  CHECK((prop(w, "founders_row_3").residents == std::vector<CharacterId>{"harper"}));
+  CHECK(notified(w, "harper", "Julian moved out of"));
+  CHECK(!notified(w, "harper", "The lease is yours now."));
+  CHECK(w.openPhoneApp("julian", "homes").value().at("home").is_null());
+  // He's still her partner, so he may stay over; the rent is hers alone again.
+  CHECK(w.character("julian")->inside == "founders_row_3");
+  const Cents harper = bank(w, "harper");
+  const Cents julian = bank(w, "julian");
+  toNextMonth(w);
+  CHECK(bank(w, "harper") == harper - 210000);
+  CHECK(bank(w, "julian") == julian);
+  CHECK(w.state().ledger.sumOfBalances() == 0);
 }
 
 TEST_CASE("homes: selling pays off the mortgage and splits the rest") {
