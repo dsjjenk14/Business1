@@ -5,7 +5,7 @@ The product owner asked: "Add sports teams and sports fields and add date spots 
 Code: `src/core/Leisure.cpp` (and the `m08:leisure` blocks). Data: `data/leisure/sports.json`
 (the league, dates, activity hours, practice) and `data/world/leisure_places.json` (the places,
 their offers and activities). Tests: `tests/test_leisure.cpp` (16 tests, including a save/load
-round trip through SQLite and a server-level test over the network).
+round trip through SQLite and a server-level test over the network; clean under ASan/UBSan).
 
 What a player can do now:
 

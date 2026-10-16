@@ -732,7 +732,7 @@ Result<Json> World::useActivity(const CharacterId& actor, const std::string& act
     }
     out["home"] = Json{{"cleanliness", std::round(home->cleanliness)}, {"trash", std::round(home->trash)}};
   }
-  out.update(leisure.value());
+  out.update(leisure.value());  // m08:leisure
   return out;
 }
 

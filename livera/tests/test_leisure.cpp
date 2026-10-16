@@ -97,7 +97,12 @@ TEST_CASE("leisure: dinner at Lumière with your partner is a date, once per pla
   startDating(w, "dominique", "dax", "heritage_coffee");
   advanceToHour(w, 17);  // Lumière opens
   walkInto(w, "dominique", "lumiere_bistro");
+  // A partner who isn't there yet doesn't make it a date.
+  auto early = w.buy("dominique", "wine", "card");
+  REQUIRE(early);
+  CHECK(!early.value().contains("dates"));
   walkInto(w, "dax", "lumiere_bistro");
+  (void)w.drainEvents();
   const double mine = w.relationshipValue("dominique", "dax", "romantic_attraction");
   const double theirs = w.relationshipValue("dax", "dominique", "romantic_attraction");
   const double familiar = w.relationshipValue("dax", "dominique", "familiarity");
@@ -117,6 +122,11 @@ TEST_CASE("leisure: dinner at Lumière with your partner is a date, once per pla
   CHECK(memoriesOfType(w, "dominique", "date", "Dinner at Lumière with Dax") == 1);
   CHECK(memoriesOfType(w, "dax", "date", "Dinner at Lumière with Dominique") == 1);
   CHECK(notified(w, "dax", "That was a date: Dinner at Lumière with Dominique"));
+  bool told = false;
+  for (const auto& e : w.drainEvents()) {
+    if (e.type == "date" && e.recipients == std::vector<CharacterId>{"dax"}) told = e.data["with"] == "dominique";
+  }
+  CHECK(told);
 
   // Dessert the same evening is the same date, not a second one.
   const double afterDinner = w.relationshipValue("dominique", "dax", "romantic_attraction");
@@ -452,6 +462,11 @@ TEST_CASE("leisure: the league plays at kickoff, and the members who turn up cha
     CHECK(m.awayStrength == 52);
   }
   CHECK(notified(w, "dominique", "Kickoff at Riverside Field"));
+  auto during = w.openPhoneApp("sienna", "sports");
+  REQUIRE(during);
+  REQUIRE(during.value()["in_play"].size() == 1);
+  CHECK(during.value()["in_play"][0]["home_players"] == Json::array({"Dominique Ashford"}));
+  CHECK(!during.value()["in_play"][0].contains("home_score"));  // no live score: the result comes at full time
   (void)w.drainEvents();
   w.advanceMinutes(119);
   const CharacterState* dom = w.character("dominique");
