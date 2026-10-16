@@ -493,7 +493,8 @@ void writeWorkCharacter(const CharacterState& c, Json& j) {
                            {"performance_change", a.performanceChange},
                            {"bonus_hours", a.bonusHours},
                            {"at", a.at},
-                           {"day", a.day}});
+                           {"day", a.day},
+                           {"reported", a.reported}});
   }
   j["work"] = Json{{"day", w.day},
                    {"career", w.career},
@@ -524,6 +525,7 @@ void readWorkCharacter(CharacterState& c, const Json& j) {
     x.bonusHours = a.value("bonus_hours", 0.0);
     x.at = a.value("at", GameMinutes{0});
     x.day = a.value("day", std::int64_t{-1});
+    x.reported = a.value("reported", false);
     w.answers.push_back(std::move(x));
   }
   w.drawn = k.value("drawn", std::map<std::string, int>{});

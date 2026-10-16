@@ -617,6 +617,69 @@ TEST_CASE("persistence: work decisions survive a save and load in the middle of 
   CHECK(fresh.workDecisions.day == -1 && fresh.workDecisions.answers.empty() && fresh.workDecisions.bonusHours == 0);
 }
 
+TEST_CASE("persistence: after a crash mid-shift, the calls already made stay made and aren't reported twice") {
+  // Shifts aren't saved (a clean shutdown ends them first), so an autosave taken mid-shift
+  // and then a crash loses the shift itself, as it always has. The decision made before the
+  // save keeps its effect and stays made for the day.
+  const auto path = tempPath("work_midshift.db");
+  std::string first;
+  double hours = 0;
+  {
+    World w = World::createNew(realContent());
+    REQUIRE(w.connect("dominique"));
+    hours = w.character("dominique")->career.hoursAtLevel;
+    clockIn(w);
+    const Json d = tasksOf(w).at("decisions")[0];
+    first = d.at("task").get<std::string>();
+    REQUIRE(w.answerWorkTask("dominique", first, shownBest(w, d)));
+    auto store = SqliteStore::open(path.string());
+    REQUIRE(store);
+    REQUIRE(store.value()->saveWorld(w.state()));  // an autosave; then the server dies
+  }
+  auto store = SqliteStore::open(path.string());
+  REQUIRE(store);
+  auto loaded = store.value()->loadWorld();
+  REQUIRE(loaded);
+  World w(realContent(), std::move(loaded).value());
+  const CharacterState& c = *w.character("dominique");
+  CHECK(!c.career.shiftStartedAt.has_value());
+  REQUIRE(c.workDecisions.answers.size() == 1);
+  CHECK(c.workDecisions.answers[0].reported);  // settled on load: its shift is gone
+  CHECK_NEAR(c.career.hoursAtLevel, hours + 1.5, 1e-9);
+
+  // Back at work the same day, in the very minute the save was taken: the same decisions,
+  // the first one still made.
+  REQUIRE(w.connect("dominique"));
+  clockIn(w);
+  const Json list = tasksOf(w);
+  CHECK(list.at("decisions")[0].at("task") == first);
+  CHECK(list.at("decisions")[0].at("answered") == true);
+  CHECK(list.at("open") == 2);
+  CHECK(answerCode(w, first, 0) == "already_answered");
+  const Json d = list.at("decisions")[1];
+  REQUIRE(w.answerWorkTask("dominique", d.at("task").get<std::string>(), shownBest(w, d)));
+  w.advanceMinutes(2 * 60);
+  // This shift's report has only this shift's call.
+  const Json shift = w.endShift("dominique").value();
+  REQUIRE(shift.at("decisions").size() == 1);
+  CHECK(shift.at("decisions")[0].at("task") == d.at("task"));
+  CHECK(shift.at("decision_bonus_hours") == 1.5);
+  CHECK(w.openPhoneApp("dominique", "work").value().at("decision_bonus_hours") == 3.0);
+  // Which answers have been reported is saved with them.
+  const CharacterState back = characterStateFromJson(toJson(*w.character("dominique")));
+  REQUIRE(back.workDecisions.answers.size() == 2);
+  CHECK(back.workDecisions.answers[0].reported && back.workDecisions.answers[1].reported);
+
+  // A world copied mid-shift (not loaded after a crash) keeps the shift's calls for its report.
+  REQUIRE(w.startShift("dominique"));
+  WorldState s = w.state();
+  CharacterState& mid = s.characters.at("dominique");
+  mid.workDecisions.answers[1].reported = false;
+  mid.workDecisions.answers[1].at = w.now();
+  World copy(realContent(), s);
+  CHECK(!copy.character("dominique")->workDecisions.answers[1].reported);
+}
+
 // ---- Over the network ----------------------------------------------------------------------
 namespace {
 

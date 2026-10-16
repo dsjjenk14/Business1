@@ -150,6 +150,14 @@ World::World(std::shared_ptr<const ContentDatabase> content, WorldState state)
   // } m08:homes
 
   // m08:work on load { Work decisions during shifts (WorkTasks.cpp)
+  // Off shift, nothing is waiting for a shift report. An answer that still is belongs to a
+  // shift lost to a crash after an autosave (shifts aren't saved; a clean shutdown ends them).
+  // Its effects stand; settling it keeps a new shift that starts in the same game minute from
+  // reporting it (or, if that shift is too short, taking its hours back).
+  for (auto& [id, c] : state_.characters) {
+    if (c.career.shiftStartedAt) continue;
+    for (auto& a : c.workDecisions.answers) a.reported = true;
+  }
   // } m08:work
 
   // m08:wallet on load { Coins, phones and LivPay (Wallet.cpp)

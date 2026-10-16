@@ -14,8 +14,8 @@ as it always did.
 
 Code: `src/core/WorkTasks.cpp` (content, draw, commands, phone app, hourly step, save),
 one call in `World::endShift`, the `m08:work` blocks in `World.h`, `Content.h`,
-`Server.cpp` and `cli_main.cpp`. Tests: `tests/test_work.cpp` (13 tests, one over the
-network).
+`World.cpp` (on load), `Server.cpp` and `cli_main.cpp`. Tests: `tests/test_work.cpp` (14
+tests, one over the network).
 
 ---
 
@@ -71,7 +71,10 @@ command agree without saving anything until the player actually looks.
 - **An answer:** once per decision per day, only today's. Performance changes at once by
   `worst + (best − worst) × score`, clamped 0–100. `hours_at_level` gains `score ×
   bonus_hours_per_point`. The reply says whether it was the best call, the reason for the
-  option chosen, and the best option with its reason.
+  option chosen, and the best option with its reason. At the end of the shift performance
+  is blended with the shift's wellbeing as it always has been (70% kept), so a call's
+  effect carries forward like any other performance: a best call's +6 is a lasting +4.2
+  after that shift.
 - **Promotion:** unchanged and still at `endShift`. The decision hours are part of
   `hours_at_level`, so a character who answers well reaches `hours_to_promote` sooner. The
   bonus earned toward the current title is shown separately in the phone, and starts again
@@ -84,6 +87,11 @@ command agree without saving anything until the player actually looks.
 - **Reminder:** once a day, an hourly check tells an on-shift player how many decisions
   are waiting, unless they've already looked.
 - **Offline characters** don't make decisions; their routine doesn't include shifts.
+- **Restarts:** a clean shutdown ends every shift (and reports it) before the last save. A
+  crash after an autosave loses the shift in progress, as it always has for pay; the calls
+  made in it keep their effects and stay made for the day. On load they are marked
+  reported (nothing is left to report them), so a new shift, even one starting in the
+  same game minute, reports only its own calls.
 
 ---
 
@@ -102,7 +110,7 @@ no decisions made):
 | Field | Meaning |
 |---|---|
 | `work.day`, `work.career`, `work.tasks[]` | The game day (day index) and career today's decisions were drawn for, in the order shown. |
-| `work.answers[] {task, option, score, performance_change, bonus_hours, at, day}` | Today's answers (and, until it ends, the current shift's). `option` is the index in the bank, not the shown order. |
+| `work.answers[] {task, option, score, performance_change, bonus_hours, at, day, reported}` | Today's answers (and, until it ends, the current shift's). `option` is the index in the bank, not the shown order. `reported`: already in a shift report (missing in older saves: false; every answer of an off-shift character is settled to true on load). |
 | `work.drawn {task: n}` | How many days each decision has come up, so the days cycle through the bank. |
 | `work.nudged_day` | The day the phone last reminded them. |
 | `work.bonus {career, level, hours}` | Decision hours earned toward the current title (shown in the phone). |

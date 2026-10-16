@@ -87,7 +87,7 @@ struct WorkAnswer {
   double bonusHours = 0;         // promotion hours it added
   GameMinutes at = 0;
   std::int64_t day = -1;         // the game day it was one of the decisions for
-  bool reported = false;         // session: already in a shift report
+  bool reported = false;         // already in a shift report (so a report never repeats it)
 };
 
 // A character's decisions at work: today's draw from the career's bank, the answers, how
