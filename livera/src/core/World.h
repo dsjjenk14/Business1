@@ -84,6 +84,34 @@ struct PregnancyState {
 // } m08:wallet
 
 // m08:leisure state { Sports, date spots and the lake park (Leisure.cpp)
+// A team's row in the league table.
+struct LeisureStanding {
+  int played = 0;
+  int won = 0;
+  int drawn = 0;
+  int lost = 0;
+  int scored = 0;
+  int conceded = 0;
+  int points = 0;
+};
+
+// A league match: in play from kickoff, then a result kept for the sports app.
+struct LeisureMatch {
+  std::string id;
+  std::string sport;
+  std::string home;  // team ids
+  std::string away;
+  GameMinutes kickoff = 0;
+  GameMinutes endsAt = 0;
+  std::vector<CharacterId> homeLineup;  // players at the venue at kickoff
+  std::vector<CharacterId> awayLineup;
+  double homeStrength = 0;  // fixed at kickoff
+  double awayStrength = 0;
+  bool finished = false;
+  int homeScore = 0;
+  int awayScore = 0;
+  bool overtime = false;
+};
 // } m08:leisure
 
 // m08:pets state { Pets and medicine (Pets.cpp)
@@ -146,6 +174,9 @@ struct CharacterState {
   // } m08:wallet
 
   // m08:leisure character { Sports, date spots and the lake park (Leisure.cpp)
+  std::vector<std::string> leisureTeams;  // town teams you play for, at most one per sport
+  int leisureMatchesPlayed = 0;
+  int leisureMatchesWon = 0;
   // } m08:leisure
 
   // m08:pets character { Pets and medicine (Pets.cpp)
@@ -298,6 +329,9 @@ struct WorldState {
   // } m08:wallet
 
   // m08:leisure world { Sports, date spots and the lake park (Leisure.cpp)
+  std::map<std::string, LeisureStanding> leisureStandings;  // team id -> league table row
+  std::vector<LeisureMatch> leisureMatches;                 // in play, then the latest results (oldest first)
+  std::map<std::string, std::int64_t> leisureDates;         // "a|b|place" -> the game day a date there last counted
   // } m08:leisure
 
   // m08:pets world { Pets and medicine (Pets.cpp)
@@ -431,6 +465,14 @@ class World {
   // } m08:wallet
 
   // m08:leisure commands { Sports, date spots and the lake park (Leisure.cpp)
+  // Join a town team in person at the clubhouse or the team's venue (one team per sport; a league fee).
+  Result<Json> joinTeam(const CharacterId& actor, const std::string& team);
+  Result<Json> leaveTeam(const CharacterId& actor, const std::string& team);
+  std::vector<CharacterId> leisureTeamMembers(const std::string& team) const;
+  // The next kickoff of a sport strictly after `after`.
+  GameMinutes leisureNextKickoff(const LeisureSportDef& sport, GameMinutes after) const;
+  // This week's fixtures for a sport (home, away), rotating through every pairing week by week.
+  std::vector<std::pair<std::string, std::string>> leisureFixtures(const LeisureSportDef& sport, std::int64_t week) const;
   // } m08:leisure
 
   // m08:pets commands { Pets and medicine (Pets.cpp)
@@ -553,6 +595,14 @@ class World {
   // m08:leisure helpers { Sports, date spots and the lake park (Leisure.cpp)
   void stepLeisureHourly();  // called once a game hour from stepHourly (Life.cpp)
   Json phoneSports(const CharacterState& c) const;
+  // Hooks from buy and useActivity (World.cpp): a purchase at a date spot may count as a date;
+  // an activity may have hours (stargazing), train a skill (practice) or count as a date.
+  void leisureAfterPurchase(CharacterState& c, const LocationDef& place, const std::string& offer, Json& out);
+  Result<Json> leisureActivity(CharacterState& c, const LocationDef& place, const Activity& activity);
+  Json leisureDate(CharacterState& c, const LocationDef& place, const std::string& memory);
+  double leisurePlayerValue(const CharacterState& c) const;
+  void leisureKickoff(const LeisureSportDef& sport, const std::string& home, const std::string& away);
+  void leisureFinish(LeisureMatch& m);
   // } m08:leisure
 
   // m08:pets helpers { Pets and medicine (Pets.cpp)

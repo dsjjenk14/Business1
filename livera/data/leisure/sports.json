@@ -1,0 +1,91 @@
+{
+  "$comment": "M0.8 leisure: the town league (sports, teams, how matches are scored), what counts as a date, activity hours and practice. Owned by the leisure feature (docs/m08/leisure.md). Places and offers are in data/world/leisure_places.json.",
+  "leisure": {
+    "league_account": "org:livera_league",
+    "clubhouse": "riverside_clubhouse",
+    "league_fee_cents": 4000,
+    "skill": "athletics",
+    "coach_careers": ["coaching"],
+    "coached_practice_bonus": 0.5,
+    "luck": 12,
+    "results_kept": 20,
+    "player": {"base": 4, "skill_weight": 0.2, "energy_need": "energy", "min_energy_factor": 0.5},
+    "match": {
+      "player_needs": {"energy": -25, "hygiene": -30, "recreation": 20, "social": 10},
+      "player_calories": 700,
+      "skill_gain": 3,
+      "fame_win": 0.6,
+      "fame_draw": 0.3,
+      "fame_loss": 0.15,
+      "win_emotions": {"happiness": 10, "excitement": 12, "confidence": 4},
+      "draw_emotions": {"happiness": 3, "excitement": 6},
+      "loss_emotions": {"sadness": 6, "excitement": 4},
+      "spectator_emotions": {"excitement": 10, "happiness": 5},
+      "spectator_needs": {"recreation": 20, "social": 8}
+    },
+    "date": {
+      "statuses": ["dating", "engaged", "married"],
+      "relationship": {"romantic_attraction": 4, "familiarity": 3},
+      "emotions": {"happiness": 6, "loneliness": -5},
+      "importance": 45,
+      "impact": 40
+    },
+    "date_spots": [
+      {"place": "lumiere_bistro", "offer": "dinner", "memory": "Dinner at Lumière"},
+      {"place": "lumiere_bistro", "offer": "dessert", "memory": "Dessert at Lumière"},
+      {"place": "lumiere_bistro", "offer": "wine", "memory": "Wine at Lumière"},
+      {"place": "starlight_cinema", "offer": "movie_ticket", "memory": "A movie at the Starlight"},
+      {"place": "willow_lake_park", "offer": "rowboat", "memory": "Rowing on Willow Lake"},
+      {"place": "willow_lake_park", "offer": "picnic", "memory": "A picnic by Willow Lake"},
+      {
+        "place": "willow_lake_park",
+        "activity": "boardwalk_walk",
+        "memory": "A walk on the Willow Lake boardwalk"
+      },
+      {"place": "willow_lake_park", "activity": "stargazing", "memory": "Stargazing at Willow Lake"}
+    ],
+    "activity_hours": [{"place": "willow_lake_park", "activity": "stargazing", "hours": [20, 2]}],
+    "practice": [
+      {"place": "riverside_field", "activity": "practice_soccer", "skills": {"athletics": 2}},
+      {"place": "riverside_court", "activity": "practice_basketball", "skills": {"athletics": 2}}
+    ],
+    "sports": [
+      {
+        "id": "soccer",
+        "name": "Soccer",
+        "venue": "riverside_field",
+        "match_day": 5,
+        "match_hour": 15,
+        "duration_minutes": 120,
+        "lineup": 11,
+        "scoring": {"model": "goals", "per_team": 1.4, "sensitivity": 1.0, "noise": 1, "max": 9, "draws": true},
+        "points": {"win": 3, "draw": 1, "loss": 0}
+      },
+      {
+        "id": "basketball",
+        "name": "Basketball",
+        "venue": "riverside_court",
+        "match_day": 2,
+        "match_hour": 18,
+        "duration_minutes": 60,
+        "lineup": 5,
+        "scoring": {
+          "model": "points",
+          "per_team": 68,
+          "sensitivity": 0.4,
+          "noise": 9,
+          "max": 150,
+          "draws": false,
+          "overtime_fraction": 0.1
+        },
+        "points": {"win": 2, "draw": 1, "loss": 1}
+      }
+    ],
+    "teams": [
+      {"id": "livera_lions", "name": "Livéra Lions", "sport": "soccer", "strength": 52},
+      {"id": "riverside_rovers", "name": "Riverside Rovers", "sport": "soccer", "strength": 48},
+      {"id": "founders_five", "name": "Founders Five", "sport": "basketball", "strength": 50},
+      {"id": "river_city_hoops", "name": "River City Hoops", "sport": "basketball", "strength": 50}
+    ]
+  }
+}

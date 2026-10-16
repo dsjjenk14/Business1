@@ -58,7 +58,7 @@
     "offline_need_target": 70,
     "memory_importance_threshold": 25,
     "max_message_length": 500,
-    "skills": ["music"],
+    "skills": ["music", "athletics"],
     "hearing_range_m": 20,
     "shout_range_m": 60,
     "whisper_range_m": 2,

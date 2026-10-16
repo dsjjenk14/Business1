@@ -468,7 +468,14 @@ const char* kHelpWallet = "";
 // } m08:wallet
 
 // m08:leisure help {
-const char* kHelpLeisure = "";
+const char* kHelpLeisure = R"(Sports and date spots:
+  team join TEAM            join a town team, in person at Riverside Clubhouse or the team's field/court (league fee)
+  team leave TEAM           leave a team
+  phone sports              teams and who plays for them, the table, next matches, your teams, latest results
+  do practice_soccer        practice at Riverside Field (practice_basketball at Riverside Court): grows athletics
+                            Matches are played on schedule: be at the venue at kickoff to play, or come and watch.
+  Date spots: Lumière Bistro (dinner, dessert, wine), Starlight Cinema (movie_ticket), Willow Lake Park (rowboat,
+  picnic, do boardwalk_walk, do stargazing 20:00-02:00). With your partner there with you, it counts as a date.)";
 // } m08:leisure
 
 // m08:pets help {
@@ -659,6 +666,13 @@ bool runCommand(Client& c, const std::string& input) {
     // } m08:wallet
 
     // m08:leisure commands { Sports, date spots and the lake park (Leisure.cpp)
+  } else if (cmd == "team") {
+    const std::string action = arg();
+    if (action != "join" && action != "leave") {
+      std::printf("  team join TEAM | team leave TEAM (phone sports lists the teams)\n");
+      return true;
+    }
+    req = {{"op", action == "join" ? "join_team" : "leave_team"}, {"team", arg()}};
     // } m08:leisure
 
     // m08:pets commands { Pets and medicine (Pets.cpp)
