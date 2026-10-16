@@ -32,6 +32,7 @@ constexpr int kLostPetImportance = 65;
 constexpr int kLostPetImpact = -55;
 constexpr int kOverdoseImportance = 80;
 constexpr int kOverdoseImpact = -60;
+constexpr GameMinutes kExpiredKeptMinutes = 7 * kMinutesPerDay;  // an expired prescription is still on file this long
 
 // splitmix64 finaliser: the shelter's listings are a pure function of the week and the slot.
 std::uint64_t mix(std::uint64_t z) {
@@ -1075,19 +1076,15 @@ void World::addMedicineToHealth(const CharacterState& c, Json& out) const {
 }
 
 void World::stepMedicineHourly(CharacterState& c) {
-  std::vector<PrescriptionState> kept;
-  for (auto& rx : c.prescriptions) {
-    if (rx.expiresAt > state_.now) {
-      kept.push_back(rx);
-      continue;
-    }
-    if (rx.refillsLeft > 0) {
-      const ItemDef* item = content_->item(rx.medicine);
-      notify(c.id, "health", "Your prescription for " + (item ? item->label : rx.medicine) + " expired with " +
-                                 std::to_string(rx.refillsLeft) + (rx.refillsLeft == 1 ? " fill" : " fills") + " unused.");
-    }
+  // You hear when a prescription lapses with fills unused; the record stays a week so the
+  // pharmacy can tell you why it won't fill it, then it's gone.
+  for (const auto& rx : c.prescriptions) {
+    if (rx.refillsLeft <= 0 || rx.expiresAt > state_.now || rx.expiresAt <= state_.now - kMinutesPerHour) continue;
+    const ItemDef* item = content_->item(rx.medicine);
+    notify(c.id, "health", "Your prescription for " + (item ? item->label : rx.medicine) + " expired with " +
+                               std::to_string(rx.refillsLeft) + (rx.refillsLeft == 1 ? " fill" : " fills") + " unused.");
   }
-  c.prescriptions = std::move(kept);
+  std::erase_if(c.prescriptions, [&](const PrescriptionState& rx) { return state_.now - rx.expiresAt >= kExpiredKeptMinutes; });
   const GameMinutes window = static_cast<GameMinutes>(content_->medicine().doseWindowHours) * 60;
   for (auto& [item, times] : c.medicineDoses) std::erase_if(times, [&](GameMinutes t) { return state_.now - t >= window; });
   std::erase_if(c.medicineDoses, [](const auto& kv) { return kv.second.empty(); });
