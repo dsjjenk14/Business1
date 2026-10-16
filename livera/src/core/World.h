@@ -124,6 +124,29 @@ struct WorkDecisionsState {
 // } m08:work
 
 // m08:wallet state { Coins, phones and LivPay (Wallet.cpp)
+// Coins live in their own zero-sum ledger, apart from dollars: accounts "coins:<character>", and
+// the issuer "sys:coin_store" (the only account allowed below zero: minus the coins in circulation).
+inline constexpr const char* kCoinIssuerAccount = "sys:coin_store";
+LedgerAccountId coinAccountOf(const CharacterId& id);
+
+// A store receipt that has been credited. Kept forever, so a receipt can never be credited twice.
+struct CoinReceipt {
+  std::string receipt;
+  CharacterId character;
+  std::string product;
+  std::int64_t coins = 0;
+  Cents priceUsdCents = 0;
+  GameMinutes at = 0;
+  bool test = false;  // a test purchase (test payment provider): no real money changed hands
+  std::string tx;     // the coin ledger transaction
+};
+
+// The phone in your hand. Spare phones are ordinary inventory items.
+struct PhoneState {
+  std::string model;     // item id; empty = no phone
+  double battery = 100;  // 0..100; at 0 the phone is dead
+  std::string phoneCase; // a fitted case (item id), cosmetic
+};
 // } m08:wallet
 
 // m08:leisure state { Sports, date spots and the lake park (Leisure.cpp)
@@ -187,6 +210,9 @@ struct CharacterState {
   // } m08:work
 
   // m08:wallet character { Coins, phones and LivPay (Wallet.cpp)
+  PhoneState phone;
+  // Battery left in spare phones you've put away, per model. A spare without an entry is new in the box (full).
+  std::map<std::string, std::vector<double>> spareBatteries;
   // } m08:wallet
 
   // m08:leisure character { Sports, date spots and the lake park (Leisure.cpp)
@@ -345,6 +371,8 @@ struct WorldState {
   // } m08:work
 
   // m08:wallet world { Coins, phones and LivPay (Wallet.cpp)
+  Ledger coins;
+  std::map<std::string, CoinReceipt> coinReceipts;  // by receipt id
   // } m08:wallet
 
   // m08:leisure world { Sports, date spots and the lake park (Leisure.cpp)
@@ -495,6 +523,23 @@ class World {
   // } m08:work
 
   // m08:wallet commands { Coins, phones and LivPay (Wallet.cpp)
+  // Credits a coin pack bought with real money, exactly once per store receipt id. The caller (the
+  // server's payment verifier) has already verified the receipt; `test` marks a test purchase.
+  Result<Json> creditCoins(const CharacterId& actor, const std::string& productId, const std::string& receiptId,
+                           bool test);
+  // The coin shop (phone app "store"): delivered to your inventory.
+  Result<Json> buyWithCoins(const CharacterId& actor, const std::string& item);
+  // Takes a phone out of your inventory and puts the one in your hand away. (`use` on a phone does the same.)
+  Result<Json> switchPhone(const CharacterId& actor, const std::string& item);
+  // LivPay: bank to bank, anywhere, with a working phone. The recipient is notified with the note.
+  Result<Json> livpaySend(const CharacterId& actor, const CharacterId& to, Cents cents, const std::string& note);
+  // ride() paying with "card" (the default), "cash" or "phone" (LivPay).
+  Result<Json> ride(const CharacterId& actor, const std::string& toStop, bool pay, const std::string& payWith);
+  // Refuses with phone_dead (or no_phone) unless the character's phone works.
+  Status phoneUsable(const CharacterState& c) const;
+  // Whether this server can take coin purchases (its payment verifier). Display only: the wallet app
+  // says so. Set by the server; creditCoins is only ever called after a verified receipt.
+  void setTestPayments(bool enabled) { testPayments_ = enabled; }
   // } m08:wallet
 
   // m08:leisure commands { Sports, date spots and the lake park (Leisure.cpp)
@@ -651,6 +696,14 @@ class World {
   // } m08:work
 
   // m08:wallet helpers { Coins, phones and LivPay (Wallet.cpp)
+  // Where the phone in your hand is charging right now ("home", "work", "campus", "outlet"), or "".
+  std::string chargingAt(const CharacterState& c) const;
+  void issuePhone(CharacterState& c);  // a basic phone for an adult who has none
+  Result<Json> usePhoneItem(CharacterState& c, const ItemDef& def);  // `use` on a phone or a phone case
+  Json livpayActivity(const CharacterState& c, std::size_t limit) const;
+  Json coinPacksView() const;
+  Json paymentsView() const;
+  bool testPayments_ = false;
   void stepWalletHourly();  // called once a game hour from stepHourly (Life.cpp)
   Json phoneWallet(const CharacterState& c) const;
   Json phoneStore(const CharacterState& c) const;

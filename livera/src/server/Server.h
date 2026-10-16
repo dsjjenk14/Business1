@@ -25,6 +25,11 @@ struct ServerConfig {
   double autosaveSeconds = 30;
   bool openRegistration = true;       // dev servers let anyone create an account
   bool devCommands = false;           // enables dev_advance (time skip); never on in production
+  // m08:wallet config { Coins, phones and LivPay (Wallet.cpp)
+  // Accept test coin purchases (receipts "test-..."; no money is charged). Dev servers always do.
+  // Real store billing isn't connected, so without this every coin purchase is refused.
+  bool testPayments = false;
+  // } m08:wallet
   int passwordIterations = kDefaultPasswordIterations;
   std::size_t maxPlayers = 8;
   double requestsPerSecond = 20;

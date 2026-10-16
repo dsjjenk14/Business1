@@ -1,0 +1,27 @@
+{
+  "$comment": "Coins (a premium currency bought with real money), the coin shop, and LivPay limits. Pack prices are what the app store charges, in US cents; the server only credits a pack after its payment verifier accepts the store receipt. Coins never turn into dollars and can't be sent to other players. Coin-shop items are cosmetic: validation keeps each one at or below what dollars already buy in the same slot.",
+  "coin_packs": [
+    {"product_id": "livera.coins.100", "label": "Handful of coins", "coins": 100, "price_usd_cents": 99},
+    {"product_id": "livera.coins.550", "label": "Pouch of coins", "coins": 550, "price_usd_cents": 499},
+    {"product_id": "livera.coins.1200", "label": "Purse of coins", "coins": 1200, "price_usd_cents": 999},
+    {"product_id": "livera.coins.2500", "label": "Chest of coins", "coins": 2500, "price_usd_cents": 1999},
+    {"product_id": "livera.coins.6500", "label": "Vault of coins", "coins": 6500, "price_usd_cents": 4999}
+  ],
+  "coin_shop": [
+    {"item": "atelier_nuit_gown", "coin_price": 1200},
+    {"item": "midnight_couture_suit", "coin_price": 1200},
+    {"item": "velour_tracksuit", "coin_price": 600},
+    {"item": "riviera_sunglasses", "coin_price": 350},
+    {"item": "meridian_chronograph", "coin_price": 2200},
+    {"item": "lyra_pro_gold", "coin_price": 3000},
+    {"item": "case_marble", "coin_price": 150},
+    {"item": "case_glitter", "coin_price": 150},
+    {"item": "case_gold_leaf", "coin_price": 400}
+  ],
+  "livpay": {
+    "per_transfer_limit_cents": 250000,
+    "daily_limit_cents": 500000,
+    "daily_transfers": 20,
+    "max_note_length": 140
+  }
+}
