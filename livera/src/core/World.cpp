@@ -145,6 +145,24 @@ World::World(std::shared_ptr<const ContentDatabase> content, WorldState state)
       c.fame = def ? def->fame : 0;
     }
   }
+  // M0.8 features fill in what older saves (and new worlds) don't have yet.
+  // m08:homes on load { Buying homes, mortgages, moving in together (Homes.cpp)
+  // } m08:homes
+
+  // m08:work on load { Work decisions during shifts (WorkTasks.cpp)
+  // } m08:work
+
+  // m08:wallet on load { Coins, phones and LivPay (Wallet.cpp)
+  // } m08:wallet
+
+  // m08:leisure on load { Sports, date spots and the lake park (Leisure.cpp)
+  // } m08:leisure
+
+  // m08:pets on load { Pets and medicine (Pets.cpp)
+  // } m08:pets
+
+  // m08:details on load { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+  // } m08:details
 }
 
 // Gives a character a body in the world: state, bank and cash accounts with their
@@ -189,6 +207,25 @@ void World::addCharacterState(const CharacterDef& def, const OriginDef* origin) 
                                  "Cash on hand", state_.now);
   auto home = state_.properties.find(def.homeProperty);
   if (home != state_.properties.end() && home->second.tenant.empty()) home->second.tenant = id;
+  CharacterState& made = state_.characters.at(id);
+  (void)made;  // M0.8 features set up a newly arrived (or born) character here.
+  // m08:homes new character { Buying homes, mortgages, moving in together (Homes.cpp)
+  // } m08:homes
+
+  // m08:work new character { Work decisions during shifts (WorkTasks.cpp)
+  // } m08:work
+
+  // m08:wallet new character { Coins, phones and LivPay (Wallet.cpp)
+  // } m08:wallet
+
+  // m08:leisure new character { Sports, date spots and the lake park (Leisure.cpp)
+  // } m08:leisure
+
+  // m08:pets new character { Pets and medicine (Pets.cpp)
+  // } m08:pets
+
+  // m08:details new character { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+  // } m08:details
 }
 
 // ---------------------------------------------------------------------------------
@@ -889,6 +926,13 @@ Result<Json> World::openPhoneApp(const CharacterId& actor, const std::string& ap
   if (app == "romance") return phoneRomance(c);
   if (app == "fame") return phoneFame(c);
   if (app == "family") return phoneFamily(c);
+  if (app == "homes") return phoneHomes(c);
+  if (app == "work") return phoneWork(c);
+  if (app == "wallet") return phoneWallet(c);
+  if (app == "store") return phoneStore(c);
+  if (app == "sports") return phoneSports(c);
+  if (app == "pets") return phonePets(c);
+  if (app == "weather") return phoneWeather(c);
   return fail("unknown_app", "no such phone app");
 }
 

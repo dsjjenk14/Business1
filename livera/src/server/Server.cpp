@@ -420,6 +420,23 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
   if (op == "enroll_child") return world_.enrollChild(me, str(req, "child"), str(req, "where"));
   if (op == "hire_nanny") return world_.hireNanny(me, str(req, "target"));
   if (op == "dismiss_nanny") return world_.dismissNanny(me);
+  // m08:homes ops { Buying homes, mortgages, moving in together (Homes.cpp)
+  // } m08:homes
+
+  // m08:work ops { Work decisions during shifts (WorkTasks.cpp)
+  // } m08:work
+
+  // m08:wallet ops { Coins, phones and LivPay (Wallet.cpp)
+  // } m08:wallet
+
+  // m08:leisure ops { Sports, date spots and the lake park (Leisure.cpp)
+  // } m08:leisure
+
+  // m08:pets ops { Pets and medicine (Pets.cpp)
+  // } m08:pets
+
+  // m08:details ops { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+  // } m08:details
   if (op == "message") {
     auto id = world_.sendMessage(me, str(req, "to"), str(req, "text"));
     if (!id) return id.error();

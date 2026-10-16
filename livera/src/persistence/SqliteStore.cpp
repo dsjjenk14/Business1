@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 
+#include "core/Parts.h"
 #include "core/Serialization.h"
 
 namespace livera {
@@ -63,6 +64,10 @@ const std::vector<const char*> kMigrations = {
     // v3: everyday life (home upkeep per property; the world's random stream lives in meta).
     R"sql(
     ALTER TABLE properties ADD COLUMN upkeep TEXT NOT NULL DEFAULT '{}';
+    )sql",
+    // v4: M0.8 features each keep their world-wide state in one JSON part (core/Parts.h).
+    R"sql(
+    CREATE TABLE world_parts (key TEXT PRIMARY KEY, body TEXT NOT NULL);
     )sql",
 };
 
@@ -295,6 +300,12 @@ Status SqliteStore::saveWorld(const WorldState& s) {
       if (!ins.bind(1, id).bind(2, song.owner).bind(3, toJson(song).dump()).run()) return rollback("save song");
     }
   }
+  {
+    Stmt ins(db_, "INSERT OR REPLACE INTO world_parts(key, body) VALUES (?, ?)");
+    for (const auto& [key, body] : worldPartsToJson(s)) {
+      if (!ins.bind(1, key).bind(2, body.dump()).run()) return rollback("save world part");
+    }
+  }
   if (Status c = exec("COMMIT"); !c) {
     (void)exec("ROLLBACK");
     return c;
@@ -394,6 +405,12 @@ Result<WorldState> SqliteStore::loadWorld() {
         Song song = songFromJson(Json::parse(q.text(0)));
         s.songs[song.id] = std::move(song);
       }
+    }
+    {
+      std::map<std::string, Json> parts;
+      Stmt q(db_, "SELECT key, body FROM world_parts");
+      while (q.step() == SQLITE_ROW) parts[q.text(0)] = Json::parse(q.text(1));
+      worldPartsFromJson(s, parts);
     }
   } catch (const std::exception& e) {
     return fail("storage_corrupt", std::string("saved world could not be read: ") + e.what());

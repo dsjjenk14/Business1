@@ -23,7 +23,7 @@ TEST_CASE("persistence: a fresh store migrates to the current schema") {
   auto path = tempPath("schema.db");
   auto store = SqliteStore::open(path.string());
   REQUIRE(store);
-  CHECK(store.value()->schemaVersion() == 3);
+  CHECK(store.value()->schemaVersion() == 4);
   CHECK(!store.value()->hasWorld());
 }
 

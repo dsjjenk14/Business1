@@ -1,0 +1,106 @@
+{
+  "$comment": "M0.8 leisure: date spots, the lake park and the sports complex. Owned by the leisure feature (docs/m08/leisure.md).",
+  "locations": [
+    {
+      "id": "willow_lake_park",
+      "name": "Willow Lake Park",
+      "type": "park",
+      "district": "Willow Lane",
+      "description": "A small lake ringed by willows, with a boardwalk, picnic lawns and rowboats for rent.",
+      "door": [290, 690],
+      "enterable": false,
+      "outdoor_radius_m": 40,
+      "stage": true
+    },
+    {
+      "id": "lumiere_bistro",
+      "name": "Lumière Bistro",
+      "type": "restaurant",
+      "district": "Founders Way",
+      "description": "Candles, a short French menu and a wine list longer than it. The town's date-night spot.",
+      "door": [500, 545],
+      "hours": [17, 23],
+      "revenue_account": "org:lumiere_bistro",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "starlight_cinema",
+      "name": "Starlight Cinema",
+      "type": "cinema",
+      "district": "Founders Way",
+      "description": "Two screens, red velvet seats and real butter on the popcorn.",
+      "door": [600, 630],
+      "hours": [12, 24],
+      "revenue_account": "org:starlight_cinema",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "riverside_field",
+      "name": "Riverside Field",
+      "type": "sports_field",
+      "district": "Riverside",
+      "description": "A floodlit grass pitch by the river, home of the town soccer league, with a small grandstand.",
+      "door": [690, 660],
+      "enterable": false,
+      "outdoor_radius_m": 35
+    },
+    {
+      "id": "riverside_court",
+      "name": "Riverside Court",
+      "type": "sports_court",
+      "district": "Riverside",
+      "description": "An outdoor basketball court with new nets and old bleachers.",
+      "door": [780, 630],
+      "enterable": false,
+      "outdoor_radius_m": 20
+    },
+    {
+      "id": "riverside_clubhouse",
+      "name": "Riverside Clubhouse",
+      "type": "clubhouse",
+      "district": "Riverside",
+      "description": "Locker rooms, a trophy shelf with nothing on it yet, and the league office upstairs.",
+      "door": [730, 640],
+      "hours": [7, 22],
+      "revenue_account": "org:livera_league",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    }
+  ],
+  "org_accounts": [
+    {"id": "org:lumiere_bistro", "name": "Lumière Bistro", "opening_balance_cents": 3000000},
+    {"id": "org:starlight_cinema", "name": "Starlight Cinema", "opening_balance_cents": 2500000},
+    {"id": "org:livera_league", "name": "Livéra Town League", "opening_balance_cents": 2000000}
+  ],
+  "careers": [
+    {
+      "id": "coaching",
+      "name": "Coaching",
+      "workplaces": ["riverside_clubhouse"],
+      "employer_account": "org:livera_league",
+      "entry_level": true,
+      "requires_clean_record": true,
+      "need_cost_per_hour": {"energy": -5, "hygiene": -3, "social": 2},
+      "max_shift_hours": 8,
+      "works_outdoors": true,
+      "levels": [
+        {"title": "Assistant Coach", "hourly_cents": 1900, "hours_to_promote": 160, "min_performance": 60},
+        {"title": "Head Coach", "hourly_cents": 2800, "hours_to_promote": 400, "min_performance": 65},
+        {"title": "Athletic Director", "hourly_cents": 4200}
+      ]
+    },
+    {
+      "id": "restaurant",
+      "name": "Restaurant",
+      "workplaces": ["lumiere_bistro"],
+      "employer_account": "org:lumiere_bistro",
+      "entry_level": true,
+      "need_cost_per_hour": {"energy": -5, "hygiene": -2, "social": 1},
+      "max_shift_hours": 9,
+      "levels": [
+        {"title": "Server", "hourly_cents": 1500, "hours_to_promote": 120, "min_performance": 60},
+        {"title": "Head Server", "hourly_cents": 2100, "hours_to_promote": 300, "min_performance": 65},
+        {"title": "Restaurant Manager", "hourly_cents": 3300}
+      ]
+    }
+  ]
+}

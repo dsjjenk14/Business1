@@ -73,6 +73,25 @@ struct PregnancyState {
   double risk = 1.0;        // multiplier on miscarriage risk from what happened along the way
 };
 
+// ---- M0.8 feature state (each block belongs to one feature; see docs/m08/) ----
+// m08:homes state { Buying homes, mortgages, moving in together (Homes.cpp)
+// } m08:homes
+
+// m08:work state { Work decisions during shifts (WorkTasks.cpp)
+// } m08:work
+
+// m08:wallet state { Coins, phones and LivPay (Wallet.cpp)
+// } m08:wallet
+
+// m08:leisure state { Sports, date spots and the lake park (Leisure.cpp)
+// } m08:leisure
+
+// m08:pets state { Pets and medicine (Pets.cpp)
+// } m08:pets
+
+// m08:details state { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+// } m08:details
+
 struct CharacterState {
   CharacterId id;
   Vec2 position;
@@ -117,6 +136,23 @@ struct CharacterState {
   std::int64_t childcarePaidDay = -1;
   CharacterId nannyFor;              // a nanny: the parent whose family employs them
   bool rebaseAge = false;            // session: born_at was saved under the old aging rule (fixed on load)
+  // m08:homes character { Buying homes, mortgages, moving in together (Homes.cpp)
+  // } m08:homes
+
+  // m08:work character { Work decisions during shifts (WorkTasks.cpp)
+  // } m08:work
+
+  // m08:wallet character { Coins, phones and LivPay (Wallet.cpp)
+  // } m08:wallet
+
+  // m08:leisure character { Sports, date spots and the lake park (Leisure.cpp)
+  // } m08:leisure
+
+  // m08:pets character { Pets and medicine (Pets.cpp)
+  // } m08:pets
+
+  // m08:details character { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+  // } m08:details
   // Session state (not saved):
   std::map<std::string, GameMinutes> activityReadyAt;  // "location/activity" -> minute
   GameMinutes performReadyAt = 0;
@@ -252,6 +288,23 @@ struct WorldState {
   std::map<CharacterId, CharacterDef> createdCharacters;
   std::map<std::string, Song> songs;
   std::vector<PendingRequest> requests;  // session state: asks expire in minutes and aren't saved
+  // m08:homes world { Buying homes, mortgages, moving in together (Homes.cpp)
+  // } m08:homes
+
+  // m08:work world { Work decisions during shifts (WorkTasks.cpp)
+  // } m08:work
+
+  // m08:wallet world { Coins, phones and LivPay (Wallet.cpp)
+  // } m08:wallet
+
+  // m08:leisure world { Sports, date spots and the lake park (Leisure.cpp)
+  // } m08:leisure
+
+  // m08:pets world { Pets and medicine (Pets.cpp)
+  // } m08:pets
+
+  // m08:details world { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+  // } m08:details
 };
 
 // Something a connected client should hear about. The server routes it; the world
@@ -367,6 +420,24 @@ class World {
   bool isParentOf(const CharacterId& parent, const CharacterId& child) const;
   bool supervised(const CharacterState& child) const;
   std::vector<CharacterId> childrenOf(const CharacterId& parent) const;
+
+  // m08:homes commands { Buying homes, mortgages, moving in together (Homes.cpp)
+  // } m08:homes
+
+  // m08:work commands { Work decisions during shifts (WorkTasks.cpp)
+  // } m08:work
+
+  // m08:wallet commands { Coins, phones and LivPay (Wallet.cpp)
+  // } m08:wallet
+
+  // m08:leisure commands { Sports, date spots and the lake park (Leisure.cpp)
+  // } m08:leisure
+
+  // m08:pets commands { Pets and medicine (Pets.cpp)
+  // } m08:pets
+
+  // m08:details commands { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+  // } m08:details
   std::string relationshipStatus(const CharacterId& a, const CharacterId& b) const;
   bool isFamily(const CharacterId& a, const CharacterId& b) const;
   // --- Fame (Fame.cpp)
@@ -462,6 +533,37 @@ class World {
   bool atDaycareNow(const CharacterState& c) const;
   void graduateSchool(CharacterState& c);
   Json phoneFamily(const CharacterState& c) const;
+
+  // m08:homes helpers { Buying homes, mortgages, moving in together (Homes.cpp)
+  void stepHomesHourly();  // called once a game hour from stepHourly (Life.cpp)
+  Json phoneHomes(const CharacterState& c) const;
+  // } m08:homes
+
+  // m08:work helpers { Work decisions during shifts (WorkTasks.cpp)
+  void stepWorkHourly();  // called once a game hour from stepHourly (Life.cpp)
+  Json phoneWork(const CharacterState& c) const;
+  // } m08:work
+
+  // m08:wallet helpers { Coins, phones and LivPay (Wallet.cpp)
+  void stepWalletHourly();  // called once a game hour from stepHourly (Life.cpp)
+  Json phoneWallet(const CharacterState& c) const;
+  Json phoneStore(const CharacterState& c) const;
+  // } m08:wallet
+
+  // m08:leisure helpers { Sports, date spots and the lake park (Leisure.cpp)
+  void stepLeisureHourly();  // called once a game hour from stepHourly (Life.cpp)
+  Json phoneSports(const CharacterState& c) const;
+  // } m08:leisure
+
+  // m08:pets helpers { Pets and medicine (Pets.cpp)
+  void stepPetsHourly();  // called once a game hour from stepHourly (Life.cpp)
+  Json phonePets(const CharacterState& c) const;
+  // } m08:pets
+
+  // m08:details helpers { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+  void stepDetailsHourly();  // called once a game hour from stepHourly (Life.cpp)
+  Json phoneWeather(const CharacterState& c) const;
+  // } m08:details
   // Fame.cpp
   void addFame(CharacterState& c, double amount);
   void stepFameHourly(CharacterState& c);

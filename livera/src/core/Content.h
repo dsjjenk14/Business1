@@ -553,6 +553,25 @@ struct OrgAccountDef {
   Cents openingBalanceCents = 0;
 };
 
+// ---- M0.8 feature content (each block belongs to one feature; see docs/m08/) ----
+// m08:homes content { Buying homes, mortgages, moving in together (Homes.cpp)
+// } m08:homes
+
+// m08:work content { Work decisions during shifts (WorkTasks.cpp)
+// } m08:work
+
+// m08:wallet content { Coins, phones and LivPay (Wallet.cpp)
+// } m08:wallet
+
+// m08:leisure content { Sports, date spots and the lake park (Leisure.cpp)
+// } m08:leisure
+
+// m08:pets content { Pets and medicine (Pets.cpp)
+// } m08:pets
+
+// m08:details content { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+// } m08:details
+
 class ContentDatabase {
  public:
   // Loads every *.json under `dir` (recursively, sorted for determinism) and merges them.
@@ -594,6 +613,23 @@ class ContentDatabase {
   const FameConfig& fame() const { return fame_; }
   const FamilyConfig& family() const { return family_; }
   const CareActionDef* careAction(const std::string& id) const;
+  // m08:homes accessors { Buying homes, mortgages, moving in together (Homes.cpp)
+  // } m08:homes
+
+  // m08:work accessors { Work decisions during shifts (WorkTasks.cpp)
+  // } m08:work
+
+  // m08:wallet accessors { Coins, phones and LivPay (Wallet.cpp)
+  // } m08:wallet
+
+  // m08:leisure accessors { Sports, date spots and the lake park (Leisure.cpp)
+  // } m08:leisure
+
+  // m08:pets accessors { Pets and medicine (Pets.cpp)
+  // } m08:pets
+
+  // m08:details accessors { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+  // } m08:details
   const ProgramDef* program(const std::string& id) const;
   const DegreeDef* degree(const std::string& id) const;
   // The line and stop for a stop id, or {nullptr, nullptr}.
@@ -613,6 +649,35 @@ class ContentDatabase {
   // Sections added in M0.8 and later live in ContentMore.cpp; `handled` says whether one matched.
   Status ingestMore(const std::string& source, const std::string& section, const Json& body, bool& handled);
   Status validateMore() const;
+  // m08:homes parsing { Buying homes, mortgages, moving in together (Homes.cpp)
+  Status ingestHomes(const std::string& source, const std::string& section, const Json& body, bool& handled);
+  Status validateHomes() const;
+  // } m08:homes
+
+  // m08:work parsing { Work decisions during shifts (WorkTasks.cpp)
+  Status ingestWork(const std::string& source, const std::string& section, const Json& body, bool& handled);
+  Status validateWork() const;
+  // } m08:work
+
+  // m08:wallet parsing { Coins, phones and LivPay (Wallet.cpp)
+  Status ingestWallet(const std::string& source, const std::string& section, const Json& body, bool& handled);
+  Status validateWallet() const;
+  // } m08:wallet
+
+  // m08:leisure parsing { Sports, date spots and the lake park (Leisure.cpp)
+  Status ingestLeisure(const std::string& source, const std::string& section, const Json& body, bool& handled);
+  Status validateLeisure() const;
+  // } m08:leisure
+
+  // m08:pets parsing { Pets and medicine (Pets.cpp)
+  Status ingestPets(const std::string& source, const std::string& section, const Json& body, bool& handled);
+  Status validatePets() const;
+  // } m08:pets
+
+  // m08:details parsing { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+  Status ingestDetails(const std::string& source, const std::string& section, const Json& body, bool& handled);
+  Status validateDetails() const;
+  // } m08:details
   Status validate() const;
 
   bool haveSim_ = false;
@@ -642,6 +707,23 @@ class ContentDatabase {
   FameConfig fame_;
   bool haveFamily_ = false;
   FamilyConfig family_;
+  // m08:homes members { Buying homes, mortgages, moving in together (Homes.cpp)
+  // } m08:homes
+
+  // m08:work members { Work decisions during shifts (WorkTasks.cpp)
+  // } m08:work
+
+  // m08:wallet members { Coins, phones and LivPay (Wallet.cpp)
+  // } m08:wallet
+
+  // m08:leisure members { Sports, date spots and the lake park (Leisure.cpp)
+  // } m08:leisure
+
+  // m08:pets members { Pets and medicine (Pets.cpp)
+  // } m08:pets
+
+  // m08:details members { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+  // } m08:details
 };
 
 }  // namespace livera

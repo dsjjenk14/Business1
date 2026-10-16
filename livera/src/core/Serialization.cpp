@@ -2,6 +2,8 @@
 
 #include <stdexcept>
 
+#include "core/Parts.h"
+
 namespace livera {
 
 Json toJson(const CharacterState& c) {
@@ -63,6 +65,13 @@ Json toJson(const CharacterState& c) {
                         {"grade_sum", c.education.gradeSum},
                         {"sessions", c.education.sessions},
                         {"degrees", c.education.degrees}};
+  // M0.8 features write their own keys.
+  writeHomesCharacter(c, j);
+  writeWorkCharacter(c, j);
+  writeWalletCharacter(c, j);
+  writeLeisureCharacter(c, j);
+  writePetsCharacter(c, j);
+  writeDetailsCharacter(c, j);
   // Online state, move targets and in-progress shifts are session state: a saved
   // character always loads offline, standing still, off shift (shifts are settled on logout).
   return j;
@@ -139,6 +148,12 @@ CharacterState characterStateFromJson(const Json& j) {
     c.education.sessions = e.value("sessions", 0);
     c.education.degrees = e.value("degrees", std::vector<std::string>{});
   }
+  readHomesCharacter(c, j);
+  readWorkCharacter(c, j);
+  readWalletCharacter(c, j);
+  readLeisureCharacter(c, j);
+  readPetsCharacter(c, j);
+  readDetailsCharacter(c, j);
   return c;
 }
 

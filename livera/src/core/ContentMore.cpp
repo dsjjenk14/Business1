@@ -57,6 +57,13 @@ Status ContentDatabase::ingestMore(const std::string& source, const std::string&
   } catch (const std::exception& e) {
     return fail("content_invalid", source + ": " + e.what());
   }
+  // M0.8 features parse their own sections.
+  if (auto st = ingestHomes(source, section, body, handled); !st || handled) return st;
+  if (auto st = ingestWork(source, section, body, handled); !st || handled) return st;
+  if (auto st = ingestWallet(source, section, body, handled); !st || handled) return st;
+  if (auto st = ingestLeisure(source, section, body, handled); !st || handled) return st;
+  if (auto st = ingestPets(source, section, body, handled); !st || handled) return st;
+  if (auto st = ingestDetails(source, section, body, handled); !st || handled) return st;
   handled = false;
   return okStatus();
 }
@@ -94,6 +101,12 @@ Status ContentDatabase::validateMore() const {
     if (c.atEmployersHome && !c.employerAccount.empty())
       return fail("content_invalid", "career " + id + ": a job at the employer's home is paid by the family, not an account");
   }
+  if (auto st = validateHomes(); !st) return st;
+  if (auto st = validateWork(); !st) return st;
+  if (auto st = validateWallet(); !st) return st;
+  if (auto st = validateLeisure(); !st) return st;
+  if (auto st = validatePets(); !st) return st;
+  if (auto st = validateDetails(); !st) return st;
   return okStatus();
 }
 

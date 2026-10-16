@@ -454,6 +454,32 @@ Romance and family (adults only; every step needs the other person's yes):
   logout | quit
   raw JSON                  send a raw protocol request)";
 
+// M0.8 commands, one block per feature (each block belongs to one feature; see docs/m08/).
+// m08:homes help {
+const char* kHelpHomes = "";
+// } m08:homes
+
+// m08:work help {
+const char* kHelpWork = "";
+// } m08:work
+
+// m08:wallet help {
+const char* kHelpWallet = "";
+// } m08:wallet
+
+// m08:leisure help {
+const char* kHelpLeisure = "";
+// } m08:leisure
+
+// m08:pets help {
+const char* kHelpPets = "";
+// } m08:pets
+
+// m08:details help {
+const char* kHelpDetails = "";
+// } m08:details
+
+
 // Returns false to quit.
 bool runCommand(Client& c, const std::string& input) {
   std::istringstream in(input);
@@ -475,6 +501,9 @@ bool runCommand(Client& c, const std::string& input) {
   Json req;
   if (cmd == "help") {
     std::printf("%s\n", kHelp);
+    for (const char* more : {kHelpHomes, kHelpWork, kHelpWallet, kHelpLeisure, kHelpPets, kHelpDetails}) {
+      if (*more) std::printf("%s\n", more);
+    }
     return true;
   } else if (cmd == "quit") {
     return false;
@@ -620,6 +649,23 @@ bool runCommand(Client& c, const std::string& input) {
     req = {{"op", "hire_nanny"}, {"target", arg()}};
   } else if (cmd == "dismiss") {
     req = {{"op", "dismiss_nanny"}};
+    // m08:homes commands { Buying homes, mortgages, moving in together (Homes.cpp)
+    // } m08:homes
+
+    // m08:work commands { Work decisions during shifts (WorkTasks.cpp)
+    // } m08:work
+
+    // m08:wallet commands { Coins, phones and LivPay (Wallet.cpp)
+    // } m08:wallet
+
+    // m08:leisure commands { Sports, date spots and the lake park (Leisure.cpp)
+    // } m08:leisure
+
+    // m08:pets commands { Pets and medicine (Pets.cpp)
+    // } m08:pets
+
+    // m08:details commands { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+    // } m08:details
   } else if (cmd == "skip") {
     req = {{"op", "dev_advance"}, {"minutes", std::stoll(arg())}};
   } else if (cmd == "logout") {

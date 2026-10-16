@@ -1,0 +1,51 @@
+{
+  "$comment": "M0.8 pets: the adoption center and the vet. Owned by the pets feature (docs/m08/pets.md).",
+  "locations": [
+    {
+      "id": "paws_whiskers",
+      "name": "Paws & Whiskers Adoption Center",
+      "type": "animal_shelter",
+      "district": "Founders Way",
+      "description": "Dogs, cats and a very opinionated rabbit, all looking for homes. Adoption fees cover shots and a microchip.",
+      "door": [400, 625],
+      "hours": [10, 18],
+      "revenue_account": "org:paws_whiskers",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "founders_animal_hospital",
+      "name": "Founders Animal Hospital",
+      "type": "vet",
+      "district": "Founders Way",
+      "description": "Checkups, shots and the occasional swallowed sock. Open late for emergencies.",
+      "door": [440, 660],
+      "hours": [8, 20],
+      "revenue_account": "org:founders_animal_hospital",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    }
+  ],
+  "org_accounts": [
+    {"id": "org:paws_whiskers", "name": "Paws & Whiskers Adoption Center", "opening_balance_cents": 1500000},
+    {
+      "id": "org:founders_animal_hospital",
+      "name": "Founders Animal Hospital",
+      "opening_balance_cents": 4000000
+    }
+  ],
+  "careers": [
+    {
+      "id": "veterinary",
+      "name": "Veterinary Care",
+      "workplaces": ["founders_animal_hospital"],
+      "employer_account": "org:founders_animal_hospital",
+      "entry_level": true,
+      "need_cost_per_hour": {"energy": -4, "hygiene": -3, "social": 1},
+      "max_shift_hours": 10,
+      "levels": [
+        {"title": "Vet Assistant", "hourly_cents": 1800, "hours_to_promote": 160, "min_performance": 60},
+        {"title": "Vet Technician", "hourly_cents": 2500, "hours_to_promote": 400, "min_performance": 65},
+        {"title": "Clinic Manager", "hourly_cents": 3800}
+      ]
+    }
+  ]
+}

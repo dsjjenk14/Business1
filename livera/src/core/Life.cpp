@@ -248,6 +248,12 @@ void World::stepBodyMinute(CharacterState& c) {
 void World::stepHourly() {
   stepHomes();
   stepCrimeHourly();
+  stepHomesHourly();
+  stepWorkHourly();
+  stepWalletHourly();
+  stepLeisureHourly();
+  stepPetsHourly();
+  stepDetailsHourly();
   const LifeConfig& L = content_->life();
   for (auto& [id, c] : state_.characters) {
     // Conditions that have run their course.
