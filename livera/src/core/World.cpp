@@ -673,8 +673,8 @@ Result<Json> World::buy(const CharacterId& actor, const std::string& offerId, co
   }
 
   auto tx = state_.ledger.transfer(from, loc->revenueAccount, offer->priceCents,
-                                   paymentMethod == "phone" ? "livpay_purchase" : "purchase", offer->label + " at " + loc->name,
-                                   state_.now);
+                                   paymentMethod == "phone" ? "livpay_purchase" : "purchase",
+                                   offer->label + " at " + loc->name, state_.now);
   if (!tx) return tx.error();
   applyNeeds(c, offer->needEffects);
   applyEmotions(c, offer->emotionEffects);

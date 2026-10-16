@@ -529,7 +529,8 @@ TEST_CASE("wallet: a pickpocket gets cash, never what LivPay holds") {
   World w = walletWorld(walletContent({}, [](Json& doc, const std::string& file) {
     if (file != "crimes.json") return;
     for (auto& c : doc["crime"]["crimes"]) {
-      if (c["id"] == "pickpocketing") c["detection"] = 0.0, c["per_witness"] = 0.0, c["per_staff"] = 0.0, c["per_police"] = 0.0;
+      if (c["id"] != "pickpocketing") continue;
+      c["detection"] = 0.0, c["per_witness"] = 0.0, c["per_staff"] = 0.0, c["per_police"] = 0.0;
     }
     doc["crime"]["pickpocket_notice_chance"] = 0.0;
   }));
@@ -636,7 +637,11 @@ class WalletServer {
     ServerConfig cfg;
     cfg.port = 0;
     cfg.dbPath = db;
-    cfg.content = quietWallet();
+    // Fast walking so the test doesn't wait on real-time strolls; every rule is unchanged.
+    static auto fast = walletContent({}, [](Json& doc, const std::string& file) {
+      if (file == "simulation.json") doc["simulation"]["walk_speed_mps"] = 400.0;
+    });
+    cfg.content = fast;
     cfg.devCommands = dev;
     cfg.testPayments = testPayments;
     cfg.passwordIterations = 1000;
@@ -694,6 +699,12 @@ class WalletClient {
   std::string refusal(Json req) {
     Json r = call(std::move(req));
     return r.value("ok", false) ? std::string("(accepted)") : r["error"]["code"].get<std::string>();
+  }
+
+  void walkToPoint(double x, double y) {
+    ok({{"op", "move"}, {"x", x}, {"y", y}});
+    for (int i = 0; i < 100 && ok({{"op", "look"}})["you"]["moving"].get<bool>(); ++i)
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
 
   void play(const std::string& user, const std::string& character) {
@@ -759,6 +770,16 @@ TEST_CASE("wallet: with test payments, coins, the coin shop and LivPay work over
   Json daxWallet = dax.ok({{"op", "phone"}, {"app", "wallet"}});
   CHECK(daxWallet["livpay"]["recent"][0]["amount_cents"] == 1500);
   CHECK(daxWallet["coins"] == 0);
+
+  // Tap to pay on the bus.
+  dom.ok({{"op", "exit"}});
+  dom.walkToPoint(790, 470);  // the Lexington Ave stop
+  CHECK(dom.refusal({{"op", "ride"}, {"to", "stop_riverside"}, {"pay_with", "gold"}}) == "invalid_payment");
+  Json ride = dom.ok({{"op", "ride"}, {"to", "stop_riverside"}, {"pay_with", "phone"}});
+  CHECK(ride["paid_with"] == "phone");
+  Json domWallet = dom.ok({{"op", "phone"}, {"app", "wallet"}});
+  CHECK(domWallet["livpay"]["recent"][0]["what"] == "fare");
+  CHECK(domWallet["livpay"]["recent"][1]["what"] == "sent");
 }
 
 TEST_CASE("wallet: dev servers take test payments too") {

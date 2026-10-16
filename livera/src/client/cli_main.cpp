@@ -490,20 +490,21 @@ void printWalletReply(const std::string& cmd, const Json& d) {
     }
     for (const auto& s : d.value("spare_phones", Json::array())) {
       std::string charges;
-      for (const auto& b : s.value("battery", Json::array())) charges += (charges.empty() ? "" : ", ") + std::to_string(b.get<int>()) + "%";
+      for (const auto& b : s.value("battery", Json::array()))
+        charges += (charges.empty() ? "" : ", ") + std::to_string(b.get<int>()) + "%";
       std::printf("  Spare: %s x%d (%s)\n", s.value("label", "").c_str(), s.value("count", 0), charges.c_str());
     }
     const Json& lp = d.value("livpay", Json::object());
-    std::printf("  LivPay: %s sent today (limit %s), %d of %d transfers. %s\n", money(lp.value("sent_today_cents", 0LL)).c_str(),
-                money(lp.value("daily_limit_cents", 0LL)).c_str(), lp.value("transfers_today", 0), lp.value("daily_transfers", 0),
-                lp.value("protection", "").c_str());
+    std::printf("  LivPay: %s sent today (limit %s), %d of %d transfers. %s\n",
+                money(lp.value("sent_today_cents", 0LL)).c_str(), money(lp.value("daily_limit_cents", 0LL)).c_str(),
+                lp.value("transfers_today", 0), lp.value("daily_transfers", 0), lp.value("protection", "").c_str());
     for (const auto& t : lp.value("recent", Json::array()))
       std::printf("    %s  %-8s %10s  %s\n", t.value("when", "").c_str(), t.value("what", "").c_str(),
                   money(t.value("amount_cents", 0LL)).c_str(), t.value("memo", "").c_str());
     std::printf("  Coin packs (%s):\n", d.value("payments", Json::object()).value("message", "").c_str());
     for (const auto& pack : d.value("coin_packs", Json::array()))
-      std::printf("    %-20s %-18s %6lld coins  %s\n", pack.value("product_id", "").c_str(), pack.value("label", "").c_str(),
-                  pack.value("coins", 0LL), pack.value("price", "").c_str());
+      std::printf("    %-20s %-18s %6lld coins  %s\n", pack.value("product_id", "").c_str(),
+                  pack.value("label", "").c_str(), pack.value("coins", 0LL), pack.value("price", "").c_str());
   } else if (cmd == "store") {
     std::printf("  Coin shop. You have %lld coins. %s\n", d.value("coins", 0LL), d.value("rules", "").c_str());
     for (const auto& it : d.value("items", Json::array()))
@@ -514,8 +515,8 @@ void printWalletReply(const std::string& cmd, const Json& d) {
     std::printf("  ✓ %lld coins added%s. You have %lld coins.\n", d.value("coins_added", 0LL),
                 d.value("test", false) ? " (test purchase: nothing was charged)" : "", d.value("coins", 0LL));
   } else if (cmd == "coinbuy") {
-    std::printf("  ✓ Bought %s for %lld coins. %lld coins left.\n", d.value("label", "").c_str(), d.value("coin_price", 0LL),
-                d.value("coins", 0LL));
+    std::printf("  ✓ Bought %s for %lld coins. %lld coins left.\n", d.value("label", "").c_str(),
+                d.value("coin_price", 0LL), d.value("coins", 0LL));
   } else if (cmd == "switchphone") {
     std::printf("  ✓ Now using %s (%d%%).%s\n", d.value("label", "").c_str(), d.value("battery", 0),
                 d.value("put_away", "").empty() ? "" : (" Put away your " + d.value("put_away", "") + ".").c_str());

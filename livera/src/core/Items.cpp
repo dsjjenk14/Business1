@@ -166,12 +166,14 @@ Result<Json> World::ride(const CharacterId& actor, const std::string& toStop, bo
   Json out{{"line", line->name}, {"from", from->name}, {"to", dest->name}};
   if (pay) {
     // Card and LivPay (tap your phone, Wallet.cpp) draw from the bank; cash from your pocket.
-    if (payWith != "card" && payWith != "cash" && payWith != "phone") return fail("invalid_payment", "pay by card, cash or phone");
+    if (payWith != "card" && payWith != "cash" && payWith != "phone")
+      return fail("invalid_payment", "pay by card, cash or phone");
     if (payWith == "phone") {
       if (Status st = phoneUsable(c); !st) return st.error();
     }
-    auto tx = state_.ledger.transfer(payWith == "cash" ? cashAccountOf(actor) : bankAccountOf(actor), transit.operatorAccount,
-                                     line->fareCents, payWith == "phone" ? "livpay_fare" : "fare", line->name + " fare", state_.now);
+    auto tx = state_.ledger.transfer(payWith == "cash" ? cashAccountOf(actor) : bankAccountOf(actor),
+                                     transit.operatorAccount, line->fareCents,
+                                     payWith == "phone" ? "livpay_fare" : "fare", line->name + " fare", state_.now);
     if (!tx) return tx.error();
     out["fare_cents"] = line->fareCents;
     out["paid_with"] = payWith;

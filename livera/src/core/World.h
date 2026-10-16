@@ -458,7 +458,8 @@ class World {
   // m08:wallet commands { Coins, phones and LivPay (Wallet.cpp)
   // Credits a coin pack bought with real money, exactly once per store receipt id. The caller (the
   // server's payment verifier) has already verified the receipt; `test` marks a test purchase.
-  Result<Json> creditCoins(const CharacterId& actor, const std::string& productId, const std::string& receiptId, bool test);
+  Result<Json> creditCoins(const CharacterId& actor, const std::string& productId, const std::string& receiptId,
+                           bool test);
   // The coin shop (phone app "store"): delivered to your inventory.
   Result<Json> buyWithCoins(const CharacterId& actor, const std::string& item);
   // Takes a phone out of your inventory and puts the one in your hand away. (`use` on a phone does the same.)
