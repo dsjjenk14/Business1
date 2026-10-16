@@ -153,6 +153,13 @@ World::World(std::shared_ptr<const ContentDatabase> content, WorldState state)
   // } m08:work
 
   // m08:wallet on load { Coins, phones and LivPay (Wallet.cpp)
+  if (!state_.coins.account(kCoinIssuerAccount))
+    (void)state_.coins.openAccount(LedgerAccount{kCoinIssuerAccount, "system", "system", 0, true});
+  for (auto& [id, c] : state_.characters) {
+    // A model taken out of content falls back to the basic phone, keeping its charge.
+    if (!c.phone.model.empty() && !db.phoneModel(c.phone.model)) c.phone.model = db.wallet().phones.basicModel;
+    issuePhone(c);
+  }
   // } m08:wallet
 
   // m08:leisure on load { Sports, date spots and the lake park (Leisure.cpp)
@@ -216,6 +223,7 @@ void World::addCharacterState(const CharacterDef& def, const OriginDef* origin) 
   // } m08:work
 
   // m08:wallet new character { Coins, phones and LivPay (Wallet.cpp)
+  issuePhone(made);
   // } m08:wallet
 
   // m08:leisure new character { Sports, date spots and the lake park (Leisure.cpp)
@@ -641,7 +649,10 @@ Result<Json> World::buy(const CharacterId& actor, const std::string& offerId, co
   LedgerAccountId from;
   if (paymentMethod == "card") from = bankAccountOf(actor);
   else if (paymentMethod == "cash") from = cashAccountOf(actor);
-  else return fail("invalid_payment", "pay by card or cash");
+  else if (paymentMethod == "phone") {  // LivPay: tap your phone, paid from your bank (Wallet.cpp)
+    if (Status st = phoneUsable(c); !st) return st.error();
+    from = bankAccountOf(actor);
+  } else return fail("invalid_payment", "pay by card, cash or phone");
   if (!offer->requiresDiagnosis.empty()) {
     const ConditionState* k = findCondition(c, offer->requiresDiagnosis);
     if (!k || !k->diagnosed) return fail("needs_prescription", "a doctor has to diagnose you before you can buy that");
@@ -661,8 +672,9 @@ Result<Json> World::buy(const CharacterId& actor, const std::string& offerId, co
     if (!any) return fail("nothing_to_treat", "nothing diagnosed that treatment helps; get a checkup first");
   }
 
-  auto tx = state_.ledger.transfer(from, loc->revenueAccount, offer->priceCents, "purchase",
-                                   offer->label + " at " + loc->name, state_.now);
+  auto tx = state_.ledger.transfer(from, loc->revenueAccount, offer->priceCents,
+                                   paymentMethod == "phone" ? "livpay_purchase" : "purchase", offer->label + " at " + loc->name,
+                                   state_.now);
   if (!tx) return tx.error();
   applyNeeds(c, offer->needEffects);
   applyEmotions(c, offer->emotionEffects);
@@ -834,6 +846,7 @@ Result<Json> World::endShift(const CharacterId& actor) {
 Result<std::string> World::sendMessage(const CharacterId& from, const CharacterId& to, const std::string& body) {
   auto r = activeCharacter(from);
   if (!r) return r.error();
+  if (Status st = phoneUsable(*r.value()); !st) return st.error();  // texting needs a working phone (Wallet.cpp)
   if (!state_.characters.count(to)) return fail("unknown_character", "no such contact");
   if (to == from) return fail("invalid_target", "you cannot message yourself");
   const std::string text = trim(body);
@@ -907,6 +920,7 @@ Result<Json> World::openPhoneApp(const CharacterId& actor, const std::string& ap
   auto r = activeCharacter(actor);
   if (!r) return r.error();
   CharacterState& c = *r.value();
+  if (Status st = phoneUsable(c); !st) return st.error();  // a dead phone opens nothing (Wallet.cpp)
   if (app == "bank") return phoneBank(c);
   if (app == "messages") return phoneMessages(c);
   if (app == "contacts") return phoneContacts(c);

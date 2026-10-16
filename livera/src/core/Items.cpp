@@ -47,6 +47,7 @@ Result<Json> World::useItem(const CharacterId& actor, const std::string& item) {
   const ItemDef* def = content_->item(item);
   if (!def) return fail("unknown_item", "no such item");
   if (!owns(actor, item)) return fail("not_owned", "you don't have " + def->label);
+  if (def->category == "phone" || def->category == "phone_case") return usePhoneItem(c, *def);  // Wallet.cpp
   if (def->contraception) return fail("not_usable", "it's used during intimacy");
   if (!def->usable) {
     if (!def->slot.empty()) return fail("not_usable", "put it on instead");
@@ -140,6 +141,10 @@ Result<Json> World::giveItem(const CharacterId& actor, const CharacterId& target
 // Public transport
 // ---------------------------------------------------------------------------------
 Result<Json> World::ride(const CharacterId& actor, const std::string& toStop, bool pay) {
+  return ride(actor, toStop, pay, "card");
+}
+
+Result<Json> World::ride(const CharacterId& actor, const std::string& toStop, bool pay, const std::string& payWith) {
   auto r = activeCharacter(actor);
   if (!r) return r.error();
   CharacterState& c = *r.value();
@@ -160,10 +165,16 @@ Result<Json> World::ride(const CharacterId& actor, const std::string& toStop, bo
 
   Json out{{"line", line->name}, {"from", from->name}, {"to", dest->name}};
   if (pay) {
-    auto tx = state_.ledger.transfer(bankAccountOf(actor), transit.operatorAccount, line->fareCents, "fare",
-                                     line->name + " fare", state_.now);
+    // Card and LivPay (tap your phone, Wallet.cpp) draw from the bank; cash from your pocket.
+    if (payWith != "card" && payWith != "cash" && payWith != "phone") return fail("invalid_payment", "pay by card, cash or phone");
+    if (payWith == "phone") {
+      if (Status st = phoneUsable(c); !st) return st.error();
+    }
+    auto tx = state_.ledger.transfer(payWith == "cash" ? cashAccountOf(actor) : bankAccountOf(actor), transit.operatorAccount,
+                                     line->fareCents, payWith == "phone" ? "livpay_fare" : "fare", line->name + " fare", state_.now);
     if (!tx) return tx.error();
     out["fare_cents"] = line->fareCents;
+    out["paid_with"] = payWith;
   } else if (roll() < line->inspectionChance) {
     // Caught without a ticket: fined and put off the bus.
     auto fine = state_.ledger.transfer(bankAccountOf(actor), transit.operatorAccount, line->evasionFineCents, "fine",

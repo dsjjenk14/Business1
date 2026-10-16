@@ -203,6 +203,8 @@ TEST_CASE("family: pregnancy, tests, prenatal care and the due date") {
   auto visit = w.buy("dominique", "prenatal", "card");
   REQUIRE(visit);
   CHECK(w.character("dominique")->pregnancy->prenatalVisits == 1);
+  walkInto(w, "dominique", "lexington_1204");  // 11 days out ran her phone flat: charge it at home first
+  w.advanceMinutes(60);
   CHECK(w.openPhoneApp("dominique", "romance").value().contains("pregnancy"));
   walkInto(w, "dax", "riverdale_clinic");
   CHECK(w.buy("dax", "prenatal", "card").error().code == "not_pregnant");  // and not charged for it

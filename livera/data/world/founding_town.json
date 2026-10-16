@@ -1530,7 +1530,23 @@
           "price_cents": 29900,
           "item": "smartwatch",
           "emotions": {"happiness": 3}
-        }
+        },
+        {"id": "lyra_one", "label": "Lyra One phone", "price_cents": 19900, "item": "lyra_one"},
+        {
+          "id": "lyra_air",
+          "label": "Lyra Air phone",
+          "price_cents": 49900,
+          "item": "lyra_air",
+          "emotions": {"happiness": 4}
+        },
+        {
+          "id": "lyra_pro",
+          "label": "Lyra Pro phone",
+          "price_cents": 109900,
+          "item": "lyra_pro",
+          "emotions": {"happiness": 6}
+        },
+        {"id": "case_clear", "label": "Clear phone case", "price_cents": 1999, "item": "case_clear"}
       ]
     },
     {

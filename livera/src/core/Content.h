@@ -561,6 +561,51 @@ struct OrgAccountDef {
 // } m08:work
 
 // m08:wallet content { Coins, phones and LivPay (Wallet.cpp)
+// Coins: a premium currency bought with real money (data/economy/coins.json). A pack is one store
+// product; its price is what the store charges in US cents and is shown, never charged, by the game.
+struct CoinPackDef {
+  std::string productId;
+  std::string label;
+  std::int64_t coins = 0;
+  Cents priceUsdCents = 0;
+};
+
+// Something the coin shop sells. Cosmetic and status only: validation keeps every coin item at or
+// below what dollars can already buy in the same slot, so coins never buy an edge.
+struct CoinShopEntry {
+  std::string item;
+  std::int64_t coinPrice = 0;
+};
+
+// A phone is an item of category "phone"; its model says how long a full battery lasts.
+struct PhoneModelDef {
+  std::string item;
+  double batteryHours = 40;  // online and away from a charger, from full to dead
+  double chargeHours = 3;    // at a charger, from dead to full
+};
+
+struct PhonesConfig {
+  std::string basicModel;                    // issued to every adult who has no phone; empty = no phones in this world
+  double lowBatteryPercent = 20;             // a warning when the battery drops past this
+  std::vector<std::string> chargeAtTypes;    // location types with outlets anyone can use (cafés, the campus)
+  std::map<std::string, PhoneModelDef> models;  // by item id
+};
+
+// LivPay: tap to pay and send money, bank to bank (data/economy/coins.json, "livpay").
+struct LivPayConfig {
+  Cents perTransferLimitCents = 250000;
+  Cents dailyLimitCents = 500000;   // sent per game day
+  int dailyTransfers = 20;          // sends per game day
+  int maxNoteLength = 140;
+};
+
+struct WalletConfig {
+  std::vector<CoinPackDef> coinPacks;
+  std::vector<CoinShopEntry> coinShop;
+  PhonesConfig phones;
+  LivPayConfig livpay;
+  bool havePacks = false, haveShop = false, havePhones = false, haveLivpay = false;
+};
 // } m08:wallet
 
 // m08:leisure content { Sports, date spots and the lake park (Leisure.cpp)
@@ -620,6 +665,10 @@ class ContentDatabase {
   // } m08:work
 
   // m08:wallet accessors { Coins, phones and LivPay (Wallet.cpp)
+  const WalletConfig& wallet() const { return wallet_; }
+  const CoinPackDef* coinPack(const std::string& productId) const;
+  const CoinShopEntry* coinShopEntry(const std::string& item) const;
+  const PhoneModelDef* phoneModel(const std::string& item) const;
   // } m08:wallet
 
   // m08:leisure accessors { Sports, date spots and the lake park (Leisure.cpp)
@@ -714,6 +763,7 @@ class ContentDatabase {
   // } m08:work
 
   // m08:wallet members { Coins, phones and LivPay (Wallet.cpp)
+  WalletConfig wallet_;
   // } m08:wallet
 
   // m08:leisure members { Sports, date spots and the lake park (Leisure.cpp)

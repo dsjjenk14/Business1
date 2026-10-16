@@ -28,6 +28,25 @@ std::string str(const Json& req, const char* key) {
   return it != req.end() && it->is_string() ? it->get<std::string>() : std::string();
 }
 
+// m08:wallet payments { Coins, phones and LivPay (Wallet.cpp)
+// The payment verifier: real money is verified here, never trusted from the client. The only
+// provider today is the test one (dev servers and --test-payments), which accepts receipts that
+// start "test-" and charges nothing. Verifying real App Store / Google Play receipts needs the
+// stores' server APIs and credentials, which aren't connected yet, so everything else is refused.
+// Returns whether the purchase is a test purchase.
+bool testPaymentsOn(const ServerConfig& cfg) { return cfg.devCommands || cfg.testPayments; }
+
+Result<bool> verifyCoinReceipt(const ServerConfig& cfg, const std::string& receipt) {
+  if (!testPaymentsOn(cfg))
+    return fail("payments_unavailable",
+                "Buying coins needs real store billing (App Store / Google Play), which isn't connected to this server "
+                "yet. Nothing was charged.");
+  if (receipt.rfind("test-", 0) != 0)
+    return fail("receipt_rejected", "this server only takes test purchases: the receipt must start with \"test-\"");
+  return true;
+}
+// } m08:wallet
+
 }  // namespace
 
 Result<std::unique_ptr<Server>> Server::create(ServerConfig config) {
@@ -67,6 +86,7 @@ Server::Server(ServerConfig config, std::unique_ptr<SqliteStore> store, World wo
       listener_(std::move(listener)),
       started_(std::chrono::steady_clock::now()) {
   port_ = net::localPort(listener_);
+  world_.setTestPayments(testPaymentsOn(config_));  // m08:wallet: the wallet app says whether coins can be bought
 }
 
 Server::~Server() = default;
@@ -397,7 +417,8 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
   if (op == "wear") return world_.wear(me, str(req, "item"));
   if (op == "take_off") return world_.takeOff(me, str(req, "slot"));
   if (op == "give") return world_.giveItem(me, str(req, "to"), str(req, "item"));
-  if (op == "ride") return world_.ride(me, str(req, "to"), req.value("pay", true));
+  if (op == "ride")  // pay_with: card, cash or phone (LivPay)
+    return world_.ride(me, str(req, "to"), req.value("pay", true), req.value("pay_with", std::string("card")));
   if (op == "enroll") return world_.enroll(me, str(req, "program"));
   if (op == "study") {
     const std::string action = str(req, "action");
@@ -427,6 +448,18 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
   // } m08:work
 
   // m08:wallet ops { Coins, phones and LivPay (Wallet.cpp)
+  if (op == "buy_coins") {
+    const std::string product = str(req, "product");
+    const std::string receipt = str(req, "receipt");
+    auto verified = verifyCoinReceipt(config_, receipt);
+    if (!verified) return verified.error();
+    auto credited = world_.creditCoins(me, product, receipt, verified.value());
+    if (credited) logLine(s.username + " bought " + product + (verified.value() ? " (test purchase)" : ""));
+    return credited;
+  }
+  if (op == "buy_with_coins") return world_.buyWithCoins(me, str(req, "item"));
+  if (op == "switch_phone") return world_.switchPhone(me, str(req, "item"));
+  if (op == "livpay_send") return world_.livpaySend(me, str(req, "to"), req.at("cents").get<Cents>(), str(req, "note"));
   // } m08:wallet
 
   // m08:leisure ops { Sports, date spots and the lake park (Leisure.cpp)
