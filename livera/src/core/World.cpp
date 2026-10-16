@@ -147,6 +147,10 @@ World::World(std::shared_ptr<const ContentDatabase> content, WorldState state)
   }
   // M0.8 features fill in what older saves (and new worlds) don't have yet.
   // m08:homes on load { Buying homes, mortgages, moving in together (Homes.cpp)
+  // Saves from before M0.8 (and new worlds) only know each home's lease holder: they live there.
+  for (auto& [pid, p] : state_.properties) {
+    if (p.residents.empty() && p.owners.empty() && !p.tenant.empty()) p.residents.push_back(p.tenant);
+  }
   // } m08:homes
 
   // m08:work on load { Work decisions during shifts (WorkTasks.cpp)
@@ -210,6 +214,12 @@ void World::addCharacterState(const CharacterDef& def, const OriginDef* origin) 
   CharacterState& made = state_.characters.at(id);
   (void)made;  // M0.8 features set up a newly arrived (or born) character here.
   // m08:homes new character { Buying homes, mortgages, moving in together (Homes.cpp)
+  if (home != state_.properties.end() && home->second.tenant == id) {
+    PropertyState& p = home->second;
+    // A baby whose mother has no home now would otherwise be handed the lease on her old one.
+    if (def.age < db.life().adultAge) p.tenant.clear();
+    else if (std::find(p.residents.begin(), p.residents.end(), id) == p.residents.end()) p.residents.push_back(id);
+  }
   // } m08:homes
 
   // m08:work new character { Work decisions during shifts (WorkTasks.cpp)
@@ -400,20 +410,9 @@ void World::chargeRent() {
     if (p.tenant.empty()) continue;
     const PropertyDef* def = content_->property(pid);
     if (!def || def->rentMonthlyCents <= 0) continue;
-    CharacterState* tenant = mutableCharacter(p.tenant);
-    if (!tenant) continue;
-    const LocationDef* loc = content_->location(def->location);
-    auto tx = state_.ledger.transfer(bankAccountOf(p.tenant), p.ownerAccount, def->rentMonthlyCents, "rent",
-                                     "Rent: " + (loc ? loc->name : pid), state_.now);
-    if (tx) {
-      notify(p.tenant, "bank", "Rent of " + formatMoney(def->rentMonthlyCents) + " paid.");
-    } else {
-      tenant->rentArrearsCents += def->rentMonthlyCents;
-      notify(p.tenant, "bank",
-             "Rent of " + formatMoney(def->rentMonthlyCents) + " is overdue. Total owed: " +
-                 formatMoney(tenant->rentArrearsCents) + ".");
-    }
+    chargeHomeRent(p, *def);  // split evenly between everyone who lives there (Homes.cpp)
   }
+  chargeMortgages();  // payments, missed payments and foreclosures (Homes.cpp)
 }
 
 // ---------------------------------------------------------------------------------
@@ -1053,12 +1052,11 @@ Status World::canAccess(const CharacterId& actor, const LocationDef& loc) const 
           (loc.access != AccessRule::Public || status == "open"))
         return okStatus();
     }
-    // The family's nanny has a key to their home.
+    // The family's nanny has a key to the home the family lives in now.
     if (!c->nannyFor.empty()) {
-      for (const auto& [pid, p] : state_.properties) {
-        const PropertyDef* def = content_->property(pid);
-        if (def && def->location == loc.id && p.tenant == c->nannyFor) return okStatus();
-      }
+      const PropertyState* family = homeOf(c->nannyFor);
+      const PropertyDef* def = family ? content_->property(family->id) : nullptr;
+      if (def && def->location == loc.id) return okStatus();
     }
   }
   switch (loc.access) {
@@ -1068,10 +1066,13 @@ Status World::canAccess(const CharacterId& actor, const LocationDef& loc) const 
     case AccessRule::Residents:
       for (const auto& [pid, p] : state_.properties) {
         const PropertyDef* def = content_->property(pid);
-        if (!def || def->location != loc.id || p.tenant.empty()) continue;
-        if (p.tenant == actor) return okStatus();
-        const std::string bond = relationshipStatus(actor, p.tenant);
-        if (bond == "dating" || bond == "engaged" || bond == "married") return okStatus();  // your partner can come over
+        if (!def || def->location != loc.id) continue;
+        if (hasKey(p, actor)) return okStatus();  // residents and owners (Homes.cpp)
+        for (const auto& resident : residentsOf(p)) {
+          const std::string bond = relationshipStatus(actor, resident);
+          // Your partner can come over.
+          if (bond == "dating" || bond == "engaged" || bond == "married") return okStatus();
+        }
       }
       return fail("no_access", "you don't live here");
     case AccessRule::Staff:
