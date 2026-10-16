@@ -329,6 +329,7 @@ Result<Json> World::switchPhone(const CharacterId& actor, const std::string& ite
 Result<Json> World::usePhoneItem(CharacterState& c, const ItemDef& def) {
   if (def.category == "phone_case") {
     if (c.phone.model.empty()) return fail("no_phone", "You don't have a phone to put it on.");
+    if (c.phone.phoneCase == def.id) return fail("already_using", "your phone is already in a " + def.label);
     if (--c.inventory[def.id] <= 0) c.inventory.erase(def.id);
     if (!c.phone.phoneCase.empty()) c.inventory[c.phone.phoneCase] += 1;
     const std::string old = c.phone.phoneCase;
@@ -526,6 +527,7 @@ Json World::phoneWallet(const CharacterState& c) const {
     phone = Json{{"model", c.phone.model},
                  {"label", def->label},
                  {"battery", percent(c.phone.battery)},
+                 {"low", c.phone.battery <= db.wallet().phones.lowBatteryPercent},
                  {"charging", chargingAt(c)},
                  {"hours_left", m ? std::round(c.phone.battery / kBatteryFull * m->batteryHours * 10) / 10 : 0},
                  {"case", phoneCase ? phoneCase->label : ""}};

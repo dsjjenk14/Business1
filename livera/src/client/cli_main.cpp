@@ -464,7 +464,69 @@ const char* kHelpWork = "";
 // } m08:work
 
 // m08:wallet help {
-const char* kHelpWallet = "";
+const char* kHelpWallet = R"(Wallet, coins and LivPay:
+  wallet                    money, coins, your phone's battery, LivPay activity and coin packs
+  store                     the coin shop: looks and status items for coins
+  buycoins PRODUCT [RECEIPT]  buy a coin pack; the server verifies the receipt (test servers: a test receipt
+                            is made for you; real store billing isn't connected yet)
+  coinbuy ITEM              buy something in the coin shop with coins
+  switchphone ITEM          switch to another phone you own (`use ITEM` does the same; cases too)
+  livpay ID DOLLARS [NOTE]  send money with LivPay, bank to bank, anywhere
+  tapride STOP              take the bus paying with your phone (LivPay)
+  buy OFFER phone           tap your phone to pay in a shop (LivPay, from your bank))";
+
+// Prints a wallet command's reply.
+void printWalletReply(const std::string& cmd, const Json& d) {
+  if (cmd == "wallet") {
+    std::printf("  Cash %s   Bank %s   Coins %lld\n", money(d.value("cash_cents", 0LL)).c_str(),
+                money(d.value("bank_cents", 0LL)).c_str(), d.value("coins", 0LL));
+    const Json& p = d.value("phone", Json::object());
+    if (p.contains("label")) {
+      const std::string where = p.value("charging", "");
+      std::printf("  Phone: %s, %d%% (%.1f h left)%s%s%s\n", p.value("label", "").c_str(), p.value("battery", 0),
+                  p.value("hours_left", 0.0), p.value("low", false) ? " LOW" : "",
+                  where.empty() ? "" : (", charging (" + where + ")").c_str(),
+                  p.value("case", "").empty() ? "" : (", in a " + p.value("case", "")).c_str());
+    }
+    for (const auto& s : d.value("spare_phones", Json::array())) {
+      std::string charges;
+      for (const auto& b : s.value("battery", Json::array())) charges += (charges.empty() ? "" : ", ") + std::to_string(b.get<int>()) + "%";
+      std::printf("  Spare: %s x%d (%s)\n", s.value("label", "").c_str(), s.value("count", 0), charges.c_str());
+    }
+    const Json& lp = d.value("livpay", Json::object());
+    std::printf("  LivPay: %s sent today (limit %s), %d of %d transfers. %s\n", money(lp.value("sent_today_cents", 0LL)).c_str(),
+                money(lp.value("daily_limit_cents", 0LL)).c_str(), lp.value("transfers_today", 0), lp.value("daily_transfers", 0),
+                lp.value("protection", "").c_str());
+    for (const auto& t : lp.value("recent", Json::array()))
+      std::printf("    %s  %-8s %10s  %s\n", t.value("when", "").c_str(), t.value("what", "").c_str(),
+                  money(t.value("amount_cents", 0LL)).c_str(), t.value("memo", "").c_str());
+    std::printf("  Coin packs (%s):\n", d.value("payments", Json::object()).value("message", "").c_str());
+    for (const auto& pack : d.value("coin_packs", Json::array()))
+      std::printf("    %-20s %-18s %6lld coins  %s\n", pack.value("product_id", "").c_str(), pack.value("label", "").c_str(),
+                  pack.value("coins", 0LL), pack.value("price", "").c_str());
+  } else if (cmd == "store") {
+    std::printf("  Coin shop. You have %lld coins. %s\n", d.value("coins", 0LL), d.value("rules", "").c_str());
+    for (const auto& it : d.value("items", Json::array()))
+      std::printf("    %-22s %-32s %5lld coins%s\n", it.value("item", "").c_str(), it.value("label", "").c_str(),
+                  it.value("coin_price", 0LL), it.value("owned", 0) > 0 ? "  (owned)" : "");
+    std::printf("  %s\n", d.value("payments", Json::object()).value("message", "").c_str());
+  } else if (cmd == "buycoins") {
+    std::printf("  ✓ %lld coins added%s. You have %lld coins.\n", d.value("coins_added", 0LL),
+                d.value("test", false) ? " (test purchase: nothing was charged)" : "", d.value("coins", 0LL));
+  } else if (cmd == "coinbuy") {
+    std::printf("  ✓ Bought %s for %lld coins. %lld coins left.\n", d.value("label", "").c_str(), d.value("coin_price", 0LL),
+                d.value("coins", 0LL));
+  } else if (cmd == "switchphone") {
+    std::printf("  ✓ Now using %s (%d%%).%s\n", d.value("label", "").c_str(), d.value("battery", 0),
+                d.value("put_away", "").empty() ? "" : (" Put away your " + d.value("put_away", "") + ".").c_str());
+  } else if (cmd == "livpay") {
+    std::printf("  ✓ Sent %s to %s with LivPay. Bank %s\n", money(d.value("amount_cents", 0LL)).c_str(),
+                d.value("name", "").c_str(), money(d.value("balance_cents", 0LL)).c_str());
+  } else if (cmd == "tapride") {
+    std::printf("  ✓ On the %s to %s, paid %s with LivPay (about %.0fs)\n", d.value("line", "").c_str(),
+                d.value("to", "").c_str(), money(d.value("fare_cents", 0LL)).c_str(), d.value("eta_seconds", 0.0));
+  }
+}
 // } m08:wallet
 
 // m08:leisure help {
@@ -656,6 +718,48 @@ bool runCommand(Client& c, const std::string& input) {
     // } m08:work
 
     // m08:wallet commands { Coins, phones and LivPay (Wallet.cpp)
+  } else if (cmd == "wallet" || cmd == "store" || cmd == "buycoins" || cmd == "coinbuy" || cmd == "switchphone" ||
+             cmd == "livpay" || cmd == "tapride") {
+    Json walletReq;
+    if (cmd == "wallet" || cmd == "store") {
+      walletReq = {{"op", "phone"}, {"app", cmd}};
+    } else if (cmd == "buycoins") {
+      const std::string product = arg();
+      std::string receipt = arg();
+      // The CLI has no app store: it makes a test receipt, which only a test-payments server accepts.
+      if (receipt.empty())
+        receipt = "test-cli-" + std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(
+                                                   std::chrono::system_clock::now().time_since_epoch())
+                                                   .count());
+      walletReq = {{"op", "buy_coins"}, {"product", product}, {"receipt", receipt}};
+    } else if (cmd == "coinbuy") {
+      walletReq = {{"op", "buy_with_coins"}, {"item", arg()}};
+    } else if (cmd == "switchphone") {
+      walletReq = {{"op", "switch_phone"}, {"item", arg()}};
+    } else if (cmd == "livpay") {
+      const std::string to = arg();
+      double dollars = 0;
+      try {
+        dollars = std::stod(arg());
+      } catch (...) {
+      }
+      walletReq = {{"op", "livpay_send"}, {"to", to}, {"cents", std::llround(dollars * 100)}, {"note", rest()}};
+    } else {
+      walletReq = {{"op", "ride"}, {"to", arg()}, {"pay", true}, {"pay_with", "phone"}};
+    }
+    auto walletReply = request(c, walletReq);
+    if (!walletReply) {
+      c.failed = true;
+      return false;
+    }
+    if (!walletReply->value("ok", false)) {
+      c.lastRefused = true;
+      const Json& e = (*walletReply)["error"];
+      std::printf("  ✗ %s (%s)\n", e.value("message", "").c_str(), e.value("code", "").c_str());
+      return true;
+    }
+    printWalletReply(cmd, (*walletReply)["data"]);
+    return true;
     // } m08:wallet
 
     // m08:leisure commands { Sports, date spots and the lake park (Leisure.cpp)
