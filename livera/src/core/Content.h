@@ -854,6 +854,75 @@ struct MedicineConfig {
 // } m08:pets
 
 // m08:details content { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+struct WeatherKindDef {
+  std::string id;
+  std::string label;
+  bool warn = false;            // online people hear about it in the morning
+  bool umbrellaHalves = false;  // an umbrella only halves it (a storm); otherwise an umbrella keeps you dry
+  StatMap outdoorsNeedsPerHour;  // what being out in it does to you, per game hour, without an umbrella
+  StatMap outdoorsEmotionsPerHour;
+};
+
+struct WeatherSeasonDef {
+  std::vector<int> months;  // 1..12
+  double tempMin = 10;
+  double tempMax = 20;
+  std::vector<std::pair<std::string, double>> chances;  // weather kind -> chance (sums to 1)
+};
+
+// Small things that make a day (data/society/details.json).
+struct DetailsConfig {
+  // Wetting yourself.
+  std::string humiliatedCondition;
+  StatMap accidentEmotions;
+  int accidentImportance = 90;
+  int accidentImpact = -85;
+  int witnessImportance = 70;
+  int witnessImpact = -25;
+  StatMap witnessRelationship;   // a witness's feelings about the person it happened to
+  StatMap partnerRelationship;   // instead, for a witness who is their partner
+  StatMap witnessEmotions;       // second-hand embarrassment
+  double gossipHours = 24;       // how long witnesses keep telling people
+  double gossipChancePerHour = 0.15;  // per witness, per close friend who hasn't heard
+  double gossipMinFriendship = 50;
+  StatMap gossipRelationship;
+  int gossipImportance = 50;
+  int gossipImpact = -10;
+  double newsMinFame = 60;       // famous enough for the Ledger to run it
+  double newsFameLoss = 5;
+  double newsRespect = -3;       // everyone who knows them
+  double humiliatedReceptivity = 0.6;  // how well social moves land while humiliated, soiled or in dirty clothes
+  double soiledReceptivity = 0.7;
+  double dirtyReceptivity = 0.9;
+  // Laundry.
+  double dirtyAfterHours = 16;
+  double dirtyHygienePerHour = -1.5;
+  double soiledHygieneCap = 50;  // you can't feel clean in soiled clothes
+  StatMap homeLaundryNeeds;
+  double homeLaundryTrash = 5;
+  LocationId laundromat;
+  Cents laundromatPriceCents = 800;
+  StatMap laundromatNeeds;
+  // Weather.
+  std::string umbrellaItem;
+  int forecastHour = 6;
+  std::vector<WeatherKindDef> weatherKinds;
+  std::vector<WeatherSeasonDef> seasons;
+  // Birthdays.
+  double birthdayMinFriendship = 40;
+  std::string cakeItem;
+  StatMap cakeEmotions;
+  StatMap cakeGiverEmotions;
+  double cakeFriendship = 8;
+  int cakeImportance = 60;
+  int cakeImpact = 60;
+  // Hangovers.
+  std::string hangoverSubstance;
+  int hangoverDrinks = 3;
+  double hangoverWithinHours = 8;
+  std::string hangoverCondition;
+  int hangoverCheckHour = 6;
+};
 // } m08:details
 
 class ContentDatabase {
@@ -931,6 +1000,8 @@ class ContentDatabase {
   // } m08:pets
 
   // m08:details accessors { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+  const DetailsConfig& details() const { return details_; }
+  const WeatherKindDef* weatherKind(const std::string& id) const;
   // } m08:details
   const ProgramDef* program(const std::string& id) const;
   const DegreeDef* degree(const std::string& id) const;
@@ -1038,6 +1109,8 @@ class ContentDatabase {
   // } m08:pets
 
   // m08:details members { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+  bool haveDetails_ = false;
+  DetailsConfig details_;
   // } m08:details
 };
 

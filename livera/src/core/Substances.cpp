@@ -23,6 +23,7 @@ Json World::takeSubstance(CharacterState& c, const std::string& substance) {
   c.highOn = s->id;
   c.highUntil = state_.now + s->effectMinutes;
   if (c.pregnancy) c.pregnancy->risk *= 1.5;
+  onDrink(c, s->id);
   double& dep = c.dependency[s->id];
   dep = clampd(dep + s->dependencyPerUse, kStatMin, kStatMax);
   if (!s->addiction.empty() && dep >= cfg.addictionThreshold && !findCondition(c, s->addiction))

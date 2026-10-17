@@ -35,6 +35,7 @@ bool World::unlocked(const CharacterId& id, const std::string& capability) const
 double World::styleOf(const CharacterState& c) const {
   double style = 0;
   for (const std::string* worn : {&c.outfit, &c.accessory}) {
+    if (!clothingCountsForStyle(c, *worn)) continue;
     if (const ItemDef* def = content_->item(*worn)) style += def->style;
   }
   return std::min(100.0, style);
@@ -135,7 +136,9 @@ Result<Json> World::giveItem(const CharacterId& actor, const CharacterId& target
   const CharacterDef* from = definition(actor);
   notify(target, "gift", (from ? from->firstName : actor) + " gave you " + def->label + ".");
   emit({target}, "gift", Json{{"from", actor}, {"item", item}, {"label", def->label}});
-  return Json{{"gave", item}, {"to", target}};
+  Json out{{"gave", item}, {"to", target}};
+  onGift(c, *t, item, out);
+  return out;
 }
 
 // ---------------------------------------------------------------------------------
@@ -205,6 +208,7 @@ Json World::phoneItems(const CharacterState& c) const {
     if (!def || count <= 0) continue;
     items.push_back(Json{{"id", id}, {"label", def->label}, {"category", def->category}, {"count", count},
                          {"worn", c.outfit == id || c.accessory == id}, {"usable", def->usable}, {"slot", def->slot}});
+    if (def->slot == "outfit") items.back()["condition"] = clothesCondition(c, id);
   }
   return Json{{"items", items}, {"outfit", c.outfit}, {"accessory", c.accessory}, {"style", std::round(styleOf(c))}};
 }

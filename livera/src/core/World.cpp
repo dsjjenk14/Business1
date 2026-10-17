@@ -581,6 +581,7 @@ Result<Json> World::interact(const CharacterId& actor, const std::string& intera
   }
   const bool grudge = holdsGrudge(targetId, actor);
   if (a.fame >= content_->fame().celebrityAt) receptivity *= 1.0 + content_->fame().receptivityBonus;
+  receptivity *= detailsReceptivity(a);
 
   for (const auto& [dim, delta] : def->actorToTarget) adjustRelationship(actor, targetId, dim, delta);
   const LifeConfig& life = content_->life();

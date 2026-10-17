@@ -1,0 +1,100 @@
+{
+  "$comment": "M0.8 details (docs/m08/details.md): what happens when you wet yourself, laundry, weather, birthdays and hangovers.",
+  "details": {
+    "accident": {
+      "condition": "humiliated",
+      "emotions": {"embarrassment": 100, "confidence": -40, "happiness": -30, "stress": 30},
+      "importance": 90,
+      "impact": -85,
+      "witness": {
+        "importance": 70,
+        "impact": -25,
+        "relationship": {"respect": -10, "physical_attraction": -10, "romantic_attraction": -10},
+        "partner_relationship": {"respect": -12, "physical_attraction": -20, "romantic_attraction": -20},
+        "emotions": {"embarrassment": 10}
+      },
+      "gossip": {
+        "hours": 24,
+        "chance_per_hour": 0.15,
+        "min_friendship": 50,
+        "relationship": {"respect": -5, "physical_attraction": -3},
+        "importance": 50,
+        "impact": -10
+      },
+      "news": {"min_fame": 60, "fame_loss": 5, "respect": -3},
+      "receptivity": {"humiliated": 0.6, "soiled": 0.7, "dirty": 0.9}
+    },
+    "laundry": {
+      "dirty_after_hours": 16,
+      "dirty_hygiene_per_hour": -1.5,
+      "soiled_hygiene_cap": 50,
+      "home_needs": {"energy": -5},
+      "home_trash": 5,
+      "laundromat": "suds_spin",
+      "laundromat_price_cents": 800,
+      "laundromat_needs": {"social": 3}
+    },
+    "weather": {
+      "umbrella": "umbrella",
+      "forecast_hour": 6,
+      "kinds": [
+        {"id": "sun", "label": "sunny"},
+        {"id": "cloud", "label": "cloudy"},
+        {
+          "id": "rain",
+          "label": "rain",
+          "warn": true,
+          "outdoors_needs_per_hour": {"hygiene": -6, "comfort": -8},
+          "outdoors_emotions_per_hour": {"happiness": -3, "stress": 2}
+        },
+        {
+          "id": "storm",
+          "label": "thunderstorms",
+          "warn": true,
+          "umbrella_halves": true,
+          "outdoors_needs_per_hour": {"hygiene": -10, "comfort": -12},
+          "outdoors_emotions_per_hour": {"happiness": -4, "stress": 5}
+        },
+        {
+          "id": "snow",
+          "label": "snow",
+          "warn": true,
+          "outdoors_needs_per_hour": {"comfort": -8, "energy": -2},
+          "outdoors_emotions_per_hour": {"happiness": -1, "excitement": 2}
+        }
+      ],
+      "seasons": [
+        {
+          "months": [12, 1, 2],
+          "temp_c": [-4, 6],
+          "chances": {"sun": 0.25, "cloud": 0.35, "rain": 0.1, "storm": 0.02, "snow": 0.28}
+        },
+        {
+          "months": [3, 4, 5],
+          "temp_c": [8, 19],
+          "chances": {"sun": 0.4, "cloud": 0.3, "rain": 0.25, "storm": 0.05, "snow": 0.0}
+        },
+        {
+          "months": [6, 7, 8],
+          "temp_c": [19, 31],
+          "chances": {"sun": 0.6, "cloud": 0.2, "rain": 0.1, "storm": 0.1, "snow": 0.0}
+        },
+        {
+          "months": [9, 10, 11],
+          "temp_c": [6, 17],
+          "chances": {"sun": 0.35, "cloud": 0.35, "rain": 0.25, "storm": 0.05, "snow": 0.0}
+        }
+      ]
+    },
+    "birthdays": {
+      "min_friendship": 40,
+      "cake": "birthday_cake",
+      "cake_emotions": {"happiness": 20, "loneliness": -15, "excitement": 10},
+      "giver_emotions": {"happiness": 8},
+      "friendship": 8,
+      "importance": 60,
+      "impact": 60
+    },
+    "hangover": {"substance": "alcohol", "drinks": 3, "within_hours": 20, "condition": "hungover", "check_hour": 6}
+  }
+}
