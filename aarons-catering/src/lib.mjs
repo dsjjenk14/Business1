@@ -29,6 +29,21 @@ export function parseDate(iso) {
   return { weekday: DAYS[dt.getUTCDay()], month: MONTHS[m - 1], mon: MONTHS[m - 1].slice(0, 3), day: d, year: y };
 }
 
+// The dates for one holiday in holiday.mjs, with the phrases the pages share.
+export function holidayDates(e) {
+  const by = parseDate(e.orderBy);
+  const handoff = parseDate(e.handoff);
+  return {
+    by,
+    handoffOn: handoff,
+    cancel: parseDate(e.cancelBy),
+    day: parseDate(e.date),
+    orderByText: `${by.weekday}, ${by.month} ${by.day}`, // "Friday, November 20"
+    handoffDay: `${handoff.weekday}, ${handoff.month} ${handoff.day}`, // "Tuesday, November 24"
+    times: `delivery ${e.delivery}, pickup ${e.pickup}`, // "delivery by 11 am, pickup by 1 pm"
+  };
+}
+
 export function longDate(iso) {
   const p = parseDate(iso);
   return `${p.weekday}, ${p.month} ${p.day}`;

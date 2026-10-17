@@ -105,6 +105,11 @@
 
     holidayOrdersOpen = override === 'on' || (state === 'during' && !!ordersOpen);
 
+    // Lines about one holiday (the home page block) go once its orders close.
+    $$('[data-open-until]').forEach(function (el) {
+      if (override !== 'on' && el.getAttribute('data-open-until') < today) el.hidden = true;
+    });
+
     var status = $('[data-holiday-status]');
     if (status) {
       var shown = state === 'during' && !ordersOpen && override !== 'on' ? 'after' : state;
@@ -410,8 +415,8 @@
     });
   }
 
-  /* ---------- Holiday order (Christmas this season) ----------
-     Package, picks, add-ons and pickup or delivery, with a running total.
+  /* ---------- Holiday order (Thanksgiving and Christmas this season) ----------
+     Holiday, package, picks, add-ons and pickup or delivery, with a running total.
      The order is sent to the chef's inbox the same way as the quote form. */
 
   var order = $('[data-order-form]');
@@ -429,6 +434,29 @@
     var orderBar = $('[data-order-bar]', order);
     var lines = [];
     var total = 0;
+
+    // Which holiday. One whose orders have closed can't be picked; the text that
+    // differs by holiday ([data-for-event]) follows the one picked.
+    var holidays = $$('input[name="Holiday"]', order);
+    var orderDay = store('aj-today') || todayEastern();
+    holidays.forEach(function (h) {
+      if (store('aj-holiday') === 'on' || h.getAttribute('data-closes') >= orderDay) return;
+      h.disabled = true;
+      var meta = $('[data-closed-label]', h.parentNode);
+      meta.textContent = meta.getAttribute('data-closed-label');
+    });
+    var holidayPicked = function () { return holidays.filter(function (h) { return h.checked; })[0]; };
+    var syncHoliday = function () {
+      var h = holidayPicked();
+      var id = h ? h.getAttribute('data-id') : '';
+      $$('[data-for-event]').forEach(function (el) { el.hidden = !!id && el.getAttribute('data-for-event') !== id; });
+      order.setAttribute('data-event', h ? h.value : 'Holiday');
+      order.setAttribute('data-day', h ? h.getAttribute('data-day') : '');
+    };
+    var open = holidays.filter(function (h) { return !h.disabled; });
+    var startWith = open.filter(function (h) { return h.getAttribute('data-id') === params.get('for'); })[0] || open[0];
+    if (startWith) startWith.checked = true;
+    syncHoliday();
 
     var current = function () { return packages.filter(function (p) { return p.checked; })[0]; };
     var fulfilment = function () { var r = picked(order, 'Pickup or delivery')[0]; return r ? r.value : ''; };
@@ -531,6 +559,7 @@
 
     order.addEventListener('change', function (e) {
       var g = e.target.closest('[data-pick]');
+      if (e.target.name === 'Holiday') syncHoliday();
       if (e.target.name === 'Package') groups.forEach(syncGroup);
       else if (g) syncGroup(g);
       var step = e.target.closest('[data-required]');
@@ -628,6 +657,9 @@
     order.addEventListener('submit', function (e) {
       e.preventDefault();
       var bad = [];
+      var holidayStep = $('[data-required="Holiday"]', order);
+      var hol = holidayPicked();
+      if (!hol) { setError(holidayStep, 'Which holiday is this for?'); bad.push(holidayStep); }
       var pkg = current();
       var pkgStep = $('[data-required="Package"]', order);
       if (!pkg) { setError(pkgStep, 'Choose a package.'); bad.push(pkgStep); }
@@ -668,6 +700,7 @@
         ['Name', name],
         ['email', val('o-email')],
         ['Phone', val('o-phone')],
+        ['Holiday', hol.value + ', ' + order.getAttribute('data-day')],
         ['Package', pkg.value + ' (' + dollars(Number(pkg.getAttribute('data-price'))) + ')'],
       ];
       groups.forEach(function (g) {
@@ -680,7 +713,7 @@
       if (val('o-notes')) mail.push(['Allergies and notes', val('o-notes')]);
       mail.push(['Order', asText()]);
       mail.push(['Total', dollars(total)]);
-      var info = { name: name.split(/\s+/)[0], total: total, lines: $('[data-summary-lines]', order).innerHTML };
+      var info = { event: hol.getAttribute('data-id'), name: name.split(/\s+/)[0], total: total, lines: $('[data-summary-lines]', order).innerHTML };
 
       var busy = function (text) {
         orderSubmit.disabled = !!text;
@@ -714,6 +747,7 @@
       busy('Opening secure checkout…');
       var payload = {
         order: {
+          event: hol.getAttribute('data-id'),
           package: pkg.getAttribute('data-id'),
           bread: picked(order, 'Bread')[0].value,
           fulfilment: fulfilment(),
@@ -754,6 +788,8 @@
     // Back from Stripe: paid, or canceled.
     var back = saved();
     if (params.has('paid')) {
+      if (back && back.info.event) holidays.forEach(function (h) { h.checked = h.getAttribute('data-id') === back.info.event; });
+      syncHoliday();
       if (back && !back.sent) {
         sendMail(back.mail.concat([['Payment', 'Paid by card on Stripe (' + params.get('paid') + ')']]), true).catch(function () { /* Stripe has the details too */ });
         back.sent = true;
@@ -762,6 +798,7 @@
       showDone(back ? back.info : {}, true);
     } else if (params.has('canceled') && back && back.form) {
       restoreForm(back.form);
+      syncHoliday();
       groups.forEach(syncGroup);
       render();
       $('[data-order-canceled]').hidden = false;

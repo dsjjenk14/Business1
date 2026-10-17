@@ -153,7 +153,7 @@ ${menus.map(panel).join('\n')}
     slug: 'menus',
     title: 'Catering Menus | Soul Food Catering in DC, MD and Northern Virginia | Aaron J’s Catering',
     description:
-      'Soul food catering menus for all events, plus wedding, meal prep and Christmas menus, with ingredients and allergens for every dish.',
+      'Soul food catering menus for all events, plus wedding, meal prep and Thanksgiving and Christmas menus, with ingredients and allergens for every dish.',
     preload: ['page-menus'],
     jsonld: [jsonLd()],
     content,

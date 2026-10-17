@@ -1,4 +1,4 @@
-// Holiday ordering (Christmas this season): pick a package, the meats, sides and dessert, add-ons,
+// Holiday ordering (Thanksgiving and Christmas this season): pick the holiday, a package, the meats, sides and dessert, add-ons,
 // and pickup or delivery, with a running total. site.js does the counting, then
 // sends the order to Stripe to pay by card (netlify/functions/checkout.mjs) and
 // emails it to the chef (FormSubmit, like the quote form).
@@ -7,13 +7,15 @@ import { site } from '../content/site.mjs';
 import { holiday } from '../content/holiday.mjs';
 import { packages, meats, sides, desserts, breads, areas, dinnerDelivery, addOns as addOnList } from '../holiday-order.mjs';
 import { icon } from '../icons.mjs';
-import { esc, curly, eyebrow, parseDate, money } from '../lib.mjs';
+import { esc, curly, eyebrow, holidayDates, money } from '../lib.mjs';
 
-const T = holiday.event;
-const by = parseDate(T.orderBy);
-const handoff = parseDate(T.handoff);
-const cancel = parseDate(T.cancelBy);
-const handoffText = `${handoff.weekday}, ${handoff.month} ${handoff.day}`;
+const events = holiday.events.map((e) => ({ ...e, ...holidayDates(e) }));
+const open = events.filter((e) => !e.soldOut);
+const cap = (text) => text.charAt(0).toUpperCase() + text.slice(1);
+
+// Text that depends on the holiday: one version per holiday, and site.js shows
+// the one for the holiday picked.
+const per = (fn) => events.map((e) => `<span data-for-event="${e.id}">${fn(e)}</span>`).join('');
 
 const cards = holiday.cardPayments;
 
@@ -40,6 +42,22 @@ function packageChoices() {
         </span>
       </label>`;
     })
+    .join('');
+}
+
+// Which holiday. site.js turns off any whose orders have closed.
+function holidayChoices() {
+  return events
+    .map(
+      (e) => `<label class="choice">
+        <input type="radio" name="Holiday" value="${esc(e.name)}" data-id="${e.id}" data-day="${esc(e.handoffDay)}" data-closes="${e.orderBy}"${e.soldOut ? ' disabled' : ''}>
+        <span class="choice-body">
+          <span class="choice-head"><span class="choice-name">${esc(e.name)}</span><span class="price">${e.handoffOn.mon} ${e.handoffOn.day}</span></span>
+          <span class="choice-text">${esc(cap(e.handoffName))}. ${esc(cap(e.times))}.</span>
+          <span class="choice-meta" data-closed-label="Orders closed">${e.soldOut ? 'Sold out' : `Order by ${e.by.mon} ${e.by.day}`}</span>
+        </span>
+      </label>`,
+    )
     .join('');
 }
 
@@ -86,8 +104,8 @@ function field({ id, label, optional = false, input }) {
 }
 
 function orderForm() {
-  return `<form class="order-form quote-form" action="${site.form.action}" method="POST" data-order-form data-endpoint="${site.form.ajax}" data-day="${handoffText}" data-event="${T.name}"${cards ? ' data-checkout="/api/checkout"' : ''}>
-    <input type="hidden" name="_subject" value="${T.name} order from the website">
+  return `<form class="order-form quote-form" action="${site.form.action}" method="POST" data-order-form data-endpoint="${site.form.ajax}" data-day="" data-event="Holiday"${cards ? ' data-checkout="/api/checkout"' : ''}>
+    <input type="hidden" name="_subject" value="Holiday order from the website">
     <input type="hidden" name="_template" value="table">
     <input type="hidden" name="_captcha" value="false">
     <input type="hidden" name="_next" value="${site.url}/thanks.html">
@@ -95,6 +113,12 @@ function orderForm() {
 
     <div class="order-grid">
       <div class="order-main">
+        <fieldset class="order-step" data-required="Holiday">
+          <legend class="order-legend">Which holiday</legend>
+          <div class="choice-grid choice-grid-2">${holidayChoices()}</div>
+          <p class="field-error" data-error hidden></p>
+        </fieldset>
+
         <fieldset class="order-step" data-required="Package">
           <legend class="order-legend">Choose a package</legend>
           <p class="order-hint">${esc(holiday.includedNote)}</p>
@@ -119,20 +143,20 @@ function orderForm() {
 
         <fieldset class="order-step" data-required="Pickup or delivery">
           <legend class="order-legend">Pickup or delivery</legend>
-          <p class="order-hint">Everything goes out ${handoffText}, ${T.handoffName}. Deliveries arrive by ${T.deliverBy}. Pickup is until ${T.pickupBy}.</p>
+          <p class="order-hint">${per((e) => `${e.name} goes out ${e.handoffDay}. ${cap(e.times)}.`)}</p>
           <div class="choice-grid choice-grid-2">
             <label class="choice">
               <input type="radio" name="Pickup or delivery" value="Pickup">
               <span class="choice-body">
                 <span class="choice-head"><span class="choice-name">Pickup</span><span class="price">Free</span></span>
-                <span class="choice-text">In Fairfax, Virginia, by ${T.pickupBy}. We send the address once your order is placed.</span>
+                <span class="choice-text">In Fairfax, Virginia, ${per((e) => e.pickup)}. We send the address once your order is placed.</span>
               </span>
             </label>
             <label class="choice">
               <input type="radio" name="Pickup or delivery" value="Delivery">
               <span class="choice-body">
                 <span class="choice-head"><span class="choice-name">Delivery</span><span class="price">From ${money(Math.min(...areas.map((a) => a.price)))}</span></span>
-                <span class="choice-text">Northern Virginia, DC and Maryland. Arrives by ${T.deliverBy}.</span>
+                <span class="choice-text">Northern Virginia, DC and Maryland. Arrives ${per((e) => e.delivery)}.</span>
               </span>
             </label>
           </div>
@@ -173,8 +197,8 @@ function orderForm() {
         <ul class="summary-lines" role="list" data-summary-lines><li class="summary-empty">Choose a package to start.</li></ul>
         <p class="summary-total"><span>Total</span><span class="price" data-total>${money(0)}</span></p>
         <ul class="summary-notes" role="list">
-          <li>${handoffText}: delivery by ${T.deliverBy}, pickup by ${T.pickupBy}.</li>
-          <li>${cards ? 'You pay by card on the next step, on Stripe’s secure checkout.' : 'Paid in full to confirm.'} Cancel by ${cancel.month} ${cancel.day} for a full refund.</li>
+          <li>${per((e) => `${e.name}, ${e.handoffDay}: ${e.times}.`)}</li>
+          <li>${cards ? 'You pay by card on the next step, on Stripe’s secure checkout.' : 'Paid in full to confirm.'} Cancel by ${per((e) => `${e.cancel.month} ${e.cancel.day}`)} for a full refund.</li>
         </ul>
         <p class="field-error" data-order-error hidden role="alert"></p>
         <button class="btn btn-lg btn-block" type="submit" data-submit data-label="${cards ? 'Continue to payment' : 'Place order'}">${cards ? 'Continue to payment' : 'Place order'}</button>
@@ -195,7 +219,7 @@ function orderForm() {
     <p class="lede">Thanks<span data-first-name></span>. <span data-paid-note hidden>Your payment of <strong data-done-total></strong> went through, and Stripe is emailing you a receipt.</span><span data-unpaid-note>Your total is <strong data-done-total></strong>.</span></p>
     <p data-unpaid-note>We’ll be in touch within one business day to confirm your order and take payment. Your order is confirmed once it’s paid.</p>
     <ul class="summary-lines" role="list" data-done-lines></ul>
-    <p>Pickup or delivery is ${handoffText}, ${T.handoffName}: delivery by ${T.deliverBy}, pickup by ${T.pickupBy}. We’ll confirm a time with you. Questions? Call <a href="${site.phone.href}">${site.phone.display}</a>.</p>
+    <p>${per((e) => `${e.name} goes out ${e.handoffDay}: ${e.times}.`)} We’ll confirm a time with you. Questions? Call <a href="${site.phone.href}">${site.phone.display}</a>.</p>
   </div>
 
   <div class="form-failed" data-form-failed hidden role="alert">
@@ -205,7 +229,7 @@ function orderForm() {
 }
 
 function closed(soldOut) {
-  const title = soldOut ? `We’re sold out for ${T.name} ${holiday.year}` : `${T.name} orders are closed for ${holiday.year}`;
+  const title = soldOut ? `We’re sold out for the holidays` : `Holiday orders are closed for ${holiday.year}`;
   return `<div class="order-closed" data-orders-closed${soldOut ? '' : ' hidden'}>
     <h2 class="h2">${title}</h2>
     <p class="lede">Thank you for thinking of us. Planning ${esc(curly(holiday.next.join(' or ')))}? Tell us and we’ll get back to you.</p>
@@ -214,12 +238,12 @@ function closed(soldOut) {
 }
 
 export default function orderPage() {
-  const soldOut = T.soldOut;
+  const soldOut = !open.length;
   const content = `<section class="page-head" aria-labelledby="page-title">
   <div class="container">
-    ${eyebrow(`${T.name} ${holiday.year}`)}
-    <h1 id="page-title" class="h1">Order ${T.name}</h1>
-    <p class="lede">Delivery by ${T.deliverBy} or pickup by ${T.pickupBy} on ${T.handoffName}, ${handoffText}. Orders close ${by.weekday}, ${by.month} ${by.day}, or sooner if we sell out. <a href="holiday.html">See the full menu</a></p>
+    ${eyebrow(`Holidays ${holiday.year}`)}
+    <h1 id="page-title" class="h1">Order ${events.map((e) => e.name).join(' or ')}</h1>
+    <p class="lede">${events.map((e) => `${e.name} goes out ${e.handoffName}, ${e.handoffOn.month} ${e.handoffOn.day}, and orders close ${e.by.month} ${e.by.day}.`).join(' ')} We may close sooner if we sell out. <a href="holiday.html">See the full menu</a></p>
   </div>
 </section>
 
@@ -231,8 +255,8 @@ export default function orderPage() {
 
   return page({
     slug: 'order',
-    title: `Order ${T.name} ${holiday.year} | Aaron J’s Catering`,
-    description: `Order ${T.name} dinner from Aaron J’s Catering: turkey, ham, short ribs and sides from ${money(Math.min(...holiday.packages.map((p) => p.price)))}. Pickup or delivery ${handoff.month} ${handoff.day} across the DMV.`,
+    title: `Order ${events.map((e) => e.name).join(' or ')} ${holiday.year} | Aaron J’s Catering`,
+    description: `Order ${events.map((e) => e.name).join(' or ')} dinner from Aaron J’s Catering: turkey, ham, short ribs and sides from ${money(Math.min(...holiday.packages.map((p) => p.price)))}. Pickup or delivery across the DMV.`,
     content,
   });
 }

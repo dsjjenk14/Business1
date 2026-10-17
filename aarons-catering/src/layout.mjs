@@ -52,11 +52,15 @@ export function businessJsonLd() {
 }
 
 function holidayBar() {
-  const t = holiday.event;
-  const d = parseDate(t.orderBy);
-  // The last message shows once every deadline has passed.
+  // One message per holiday until its orders close; the last shows once every
+  // deadline has passed.
   const messages = [
-    `<p data-until="${t.orderBy}">${t.name} orders close ${d.mon}&nbsp;${d.day}</p>`,
+    ...holiday.events
+      .filter((e) => !e.soldOut)
+      .map((e) => {
+        const d = parseDate(e.orderBy);
+        return `<p data-until="${e.orderBy}" data-link="order.html?for=${e.id}" data-label="Order">${e.name} orders close ${d.mon}&nbsp;${d.day}</p>`;
+      }),
     `<p data-until="${holiday.season.closes}" data-link="contact.html?event=holiday" data-label="Ask us">Planning ${esc(curly(holiday.next.join(' or ')))}?</p>`,
   ];
   return `<div class="holiday-bar" data-holiday-bar data-opens="${holiday.season.opens}" data-closes="${holiday.season.closes}" hidden>

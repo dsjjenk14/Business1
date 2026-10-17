@@ -1,5 +1,5 @@
-// Holiday ordering: the Aaron J's Christmas 2026 menu (the same packages and
-// prices as the printed Thanksgiving 2026 menu).
+// Holiday ordering: the Aaron J's Thanksgiving and Christmas 2026 menus (the
+// packages and prices from the printed Thanksgiving 2026 menu, the same for both).
 // Update this file each season (dates are YYYY-MM-DD). Weekday names are worked
 // out from the dates at build time, so they can't be wrong.
 
@@ -10,20 +10,38 @@ export const holiday = {
   // dates (inclusive, Eastern time). Preview any time with ?holiday=on.
   season: { opens: '2026-10-01', closes: '2027-01-01' },
 
-  // The holiday with a menu this season. Its name is used across the site
-  // ("Christmas orders close Dec 18", "Order Christmas", the order emails).
-  event: {
-    name: 'Christmas',
-    date: '2026-12-25',
-    orderBy: '2026-12-18', // orders close, or sooner if we sell out
-    cancelBy: '2026-12-18', // full refund until then
-    handoff: '2026-12-24', // every pickup and delivery happens this day (Christmas Eve)
-    handoffName: 'Christmas Eve',
-    deliverBy: '11 am', // deliveries arrive by then
-    pickupBy: '1 pm', // pickups until then
-    // Sold out early? Set this to true and the order page stops taking orders.
-    soldOut: false,
-  },
+  // The holidays taking orders this season, in date order. Customers pick one
+  // on the order page; each closes on its own date. `delivery` and `pickup`
+  // finish the sentence "Delivery ..., pickup ...". `handoffName` names the
+  // handoff day in a sentence ("Thanksgiving goes out Tuesday evening, November 24").
+  // Sold out early? Set `soldOut: true` and that holiday stops taking orders.
+  events: [
+    {
+      id: 'thanksgiving',
+      name: 'Thanksgiving',
+      date: '2026-11-26',
+      orderBy: '2026-11-20', // orders close, or sooner if we sell out
+      cancelBy: '2026-11-20', // full refund until then
+      handoff: '2026-11-24', // every pickup and delivery happens this day, in the evening
+      handoffName: 'Tuesday evening',
+      delivery: 'between 4 and 7 pm', // DRAFT times for Chef Aaron to confirm
+      pickup: 'from 5 to 8 pm',
+      soldOut: false,
+    },
+    {
+      id: 'christmas',
+      name: 'Christmas',
+      date: '2026-12-25',
+      orderBy: '2026-12-18',
+      cancelBy: '2026-12-18',
+      handoff: '2026-12-24',
+      handoffName: 'Christmas Eve',
+      delivery: 'by 11 am',
+      pickup: 'by 1 pm',
+      closedOnTheDay: true, // "We're closed on Christmas Day."
+      soldOut: false,
+    },
+  ],
 
   // Pay by card on the order page, through Stripe Checkout. Needs the Stripe
   // secret key in Netlify (see README). Until it's there, or if this is false,

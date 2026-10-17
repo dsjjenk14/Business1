@@ -9,7 +9,7 @@
 // A course can have a `note` too, and a course can be a note with no dishes.
 //
 // Events, Weddings and Meal prep are the modern (2026) menu: Aaron J's own
-// dishes plus new ones built on them. Holidays is the Christmas 2026 menu
+// dishes plus new ones built on them. Holidays is the Thanksgiving and Christmas 2026 menu
 // (the packages from the printed Thanksgiving 2026 menu).
 
 export const menus = [
@@ -225,10 +225,10 @@ export const menus = [
   {
     id: 'holidays',
     title: 'Holidays',
-    heading: 'Christmas menu',
+    heading: 'Thanksgiving and Christmas menu',
     intro:
-      "Our Christmas 2026 menu. Packages, prices and delivery are on the Holiday Ordering page. The New Year's menu is coming.",
-    link: { href: 'holiday.html', label: 'Christmas packages and prices' },
+      "Our Thanksgiving and Christmas 2026 menu, the same for both. Packages, prices and delivery are on the Holiday Ordering page. The New Year's menu is coming.",
+    link: { href: 'holiday.html', label: 'Holiday packages and prices' },
     courses: [
       { title: 'Meats', dishes: ['ham', 'smoked-turkey', 'jerk-turkey', 'fried-turkey', 'short-ribs'] },
       {

@@ -1,4 +1,4 @@
-// Starts a Stripe Checkout payment for a holiday order (Christmas this season).
+// Starts a Stripe Checkout payment for a holiday order (Thanksgiving or Christmas this season).
 //
 // The order page sends the picks; this prices them again from holiday.mjs (so a
 // total can't be changed in the browser), creates a Checkout Session and returns
@@ -39,15 +39,16 @@ export default async function checkout(req) {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!holiday.cardPayments || !key) return json({ error: 'Card payments aren’t set up yet.' }, 503);
 
-  const T = holiday.event;
-  if (T.soldOut || todayEastern() > T.orderBy) return json({ error: `${T.name} orders are closed for ${holiday.year}.` }, 409);
-
   let body;
   try {
     body = await req.json();
   } catch {
     return json({ error: 'That order didn’t come through. Try again.' }, 400);
   }
+
+  const T = holiday.events.find((e) => e.id === body.order?.event);
+  if (!T) return json({ error: 'Which holiday is this order for?' }, 400);
+  if (T.soldOut || todayEastern() > T.orderBy) return json({ error: `${T.name} orders are closed for ${holiday.year}.` }, 409);
 
   let priced;
   try {
@@ -70,6 +71,7 @@ export default async function checkout(req) {
   const metadata = {
     name,
     phone,
+    holiday: `${T.name}, ${T.handoff}`,
     package: priced.package.name,
     meats: pick('meats'),
     sides: pick('sides'),

@@ -1037,12 +1037,13 @@ button { font: inherit; color: inherit; }
 .status[data-state='during'] .status-dot { background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
 
 .fact-row { list-style: none; display: grid; border-top: 1px solid var(--line); }
-.fact-row li { display: grid; gap: 6px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+.fact-row li { display: grid; align-content: start; gap: 6px; padding: 20px 0; border-bottom: 1px solid var(--line); }
 .fact-label { color: var(--muted); font-size: 0.875rem; font-weight: 500; }
 .big-date { font-family: var(--display); font-size: 2.75rem; font-weight: 500; line-height: 1; }
 .fact-sub { color: var(--muted); font-size: 0.9375rem; }
 @media (min-width: 900px) {
   .fact-row { grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--line); }
+  .fact-row-2 { grid-template-columns: repeat(2, 1fr); }
   .fact-row li { padding: 28px 32px; border-bottom: 0; }
   .fact-row li:first-child { padding-left: 0; }
   .fact-row li + li { border-left: 1px solid var(--line); }

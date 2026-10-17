@@ -24,7 +24,7 @@ export default function about() {
       ${eyebrow('The chef')}
       <h2 id="chef-title" class="h2">Chef Aaron Jenkins</h2>
       <p>Chef Aaron cooks the dishes people come home for, then dresses them for the occasion: oxtail braised in red wine and glazed in its jus, chicken lacquered in hot honey with pickled shallots, smoked gouda mac under a brown butter crumb.</p>
-      <p>Weddings, corporate breakfasts and executive lunches, milestone birthdays, church and family events, Christmas dinner and weekly meal prep, across DC, Maryland and Northern Virginia.</p>
+      <p>Weddings, corporate breakfasts and executive lunches, milestone birthdays, church and family events, Thanksgiving and Christmas dinners and weekly meal prep, across DC, Maryland and Northern Virginia.</p>
       <a class="btn" href="menus.html">See the menus</a>
     </div>
   </div>

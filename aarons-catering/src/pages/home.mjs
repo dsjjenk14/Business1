@@ -4,7 +4,7 @@ import { holiday } from '../content/holiday.mjs';
 import { instagramTiles } from '../content/photos.mjs';
 import { dish } from '../content/dishes.mjs';
 import { icon } from '../icons.mjs';
-import { esc, curly, img, eyebrow, parseDate, money } from '../lib.mjs';
+import { esc, curly, img, eyebrow, holidayDates, money } from '../lib.mjs';
 import { quoteForm, reviewsLine } from './contact.mjs';
 
 function hero() {
@@ -47,19 +47,22 @@ function quote() {
 }
 
 function holidayBlock() {
-  const t = holiday.event;
-  const d = parseDate(t.orderBy);
   const from = Math.min(...holiday.packages.map((p) => p.price));
   return `<section class="section section-tight holiday-promo" data-holiday-only hidden aria-labelledby="holiday-promo-title">
   <div class="container holiday-promo-inner">
     <div>
-      ${eyebrow(`${t.name} ${holiday.year}`)}
+      ${eyebrow(`${holiday.events.map((e) => e.name).join(' and ')} ${holiday.year}`)}
       <h2 id="holiday-promo-title" class="h2">Turkey, ham and every side</h2>
-      <p class="muted">Delivered by ${t.deliverBy} or picked up by ${t.pickupBy} on ${t.handoffName}. Orders close ${d.weekday}, ${d.month} ${d.day}, or sooner if we sell out.</p>
+      ${holiday.events
+        .map((e) => {
+          const d = holidayDates(e);
+          return `<p class="muted" data-open-until="${e.orderBy}"><strong>${e.name}:</strong> ${e.handoffName}, ${d.handoffOn.month} ${d.handoffOn.day}. Order by ${d.orderByText}.</p>`;
+        })
+        .join('')}
     </div>
     <div class="holiday-promo-cta">
       <p class="from"><span class="from-label">Packages from</span> <span class="price">${money(from)}</span></p>
-      <a class="btn" href="order.html">Order ${t.name}</a>
+      <a class="btn" href="order.html">Order now</a>
       <a class="text-link" href="holiday.html">See the menu ${icon('arrow', 'icon icon-sm')}</a>
     </div>
   </div>
