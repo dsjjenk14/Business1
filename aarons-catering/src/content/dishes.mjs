@@ -827,10 +827,10 @@ export const dishes = {
     ingredients: ['jasmine rice', 'coconut milk', 'fresh thyme', 'scallion', 'salt'],
     allergens: [],
   },
-  'sweet-plantains': {
-    name: 'Sweet plantains',
-    description: 'Ripe plantains fried until the edges caramelize.',
-    ingredients: ['ripe plantains', 'canola oil for frying', 'salt'],
+  'mango-slaw': {
+    name: 'Mango slaw',
+    description: 'Crisp cabbage and ripe mango with red onion, cilantro and a squeeze of lime.',
+    ingredients: ['green and red cabbage', 'ripe mango', 'red onion', 'cilantro', 'lime juice', 'olive oil', 'salt'],
     allergens: [],
   },
   festival: {

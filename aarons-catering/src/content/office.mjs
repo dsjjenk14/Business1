@@ -74,7 +74,7 @@ export const officePackages = [
 // worked out from the dishes, counting every choice.
 export const officeBoxes = [
   { name: 'The Hot Honey', dishes: ['hot-honey-chicken', 'gouda-mac', 'caesar-salad', 'cornbread-madeleines'] },
-  { name: 'The Islander', dishes: ['jerk-chicken', 'coconut-rice', 'sweet-plantains', 'festival'] },
+  { name: 'The Islander', dishes: ['jerk-chicken', 'coconut-rice', 'mango-slaw', 'festival'] },
   { name: 'The Classic', dishes: ['baked-chicken', 'garlic-mashed', ['green-beans', 'garden-salad', 'sweet-potato-pave'], 'cornbread-madeleines'] },
   { name: 'The Executive', premium: 8, dishes: ['short-ribs', 'garlic-mashed', 'garden-salad', 'cornbread-madeleines'] },
   { name: 'The Sandwich', tag: 'Sandwich', dishes: [['hot-honey-sandwich', 'shrimp-poboy', 'chicken-salad-croissant'], ['garden-salad', 'caesar-salad'], 'fruit-cups'] },
