@@ -77,7 +77,7 @@ export const officeBoxes = [
   { name: 'The Islander', dishes: ['jerk-chicken', 'coconut-rice', 'mango-slaw', 'festival'] },
   { name: 'The Classic', dishes: ['baked-chicken', 'garlic-mashed', ['green-beans', 'garden-salad', 'sweet-potato-pave'], 'cornbread-madeleines'] },
   { name: 'The Executive', premium: 8, dishes: ['short-ribs', 'garlic-mashed', 'garden-salad', 'cornbread-madeleines'] },
-  { name: 'The Garden', tag: 'Vegetarian', dishes: ['cauliflower-steak', 'truffle-grits', 'garden-salad', 'cornbread-madeleines'] },
+  { name: 'The Garden', tag: 'Vegetarian', dishes: [['mushroom-etouffee', 'truffle-grits'], 'garden-salad', 'cornbread-madeleines'], note: 'The étouffée is vegan.' },
   { name: 'The Sandwich', tag: 'Sandwich', dishes: [['hot-honey-sandwich', 'shrimp-poboy', 'chicken-salad-croissant'], ['garden-salad', 'caesar-salad'], 'fruit-cups'] },
   { name: 'The Bowl', tag: 'Bowl', dishes: [['jerk-bowl', 'veggie-bowl'], 'fruit-cups', 'cornbread-madeleines'] },
   { name: 'The Coastal', tag: 'Salad', premium: 5, dishes: ['caesar-salad', 'blackened-salmon', 'cornbread-madeleines'] },
@@ -172,9 +172,9 @@ export const officeMenus = [
         dishes: ['jerk-bowl', 'veggie-bowl'],
       },
       {
-        title: 'Vegetarian',
-        note: 'Every meat-free dish is marked Vegetarian.',
-        dishes: ['cauliflower-steak', 'truffle-grits'],
+        title: 'Vegetarian and vegan',
+        note: 'Every meat-free dish is marked Vegetarian or Vegan. The roasted vegetable bowl is vegan too.',
+        dishes: ['mushroom-etouffee', 'truffle-grits'],
       },
       {
         title: 'Premium entrées',

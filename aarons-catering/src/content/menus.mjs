@@ -52,7 +52,7 @@ export const menus = [
         note: 'Plated, or carved and served from the buffet.',
         dishes: [
           'braised-oxtail',
-          'cauliflower-steak',
+          'mushroom-etouffee',
           'truffle-grits',
           {
             dish: 'short-ribs',
@@ -93,11 +93,6 @@ export const menus = [
           'waffle-toppings',
           'fruit-cups',
         ],
-      },
-      {
-        title: 'Reserve',
-        note: 'Our most indulgent dishes, by request.',
-        dishes: ['lobster-mac', 'truffle-potatoes'],
       },
       {
         title: 'Sides',
@@ -165,7 +160,7 @@ export const menus = [
         dishes: [
           { dish: 'short-ribs', name: 'Red wine braised short ribs', description: 'Bone-in short rib braised in red wine with thyme until spoon-tender, plated in its own glossy jus.' },
           { dish: 'braised-oxtail', name: 'Red wine braised oxtail' },
-          'cauliflower-steak',
+          'mushroom-etouffee',
           { dish: 'surf-and-turf', name: 'Surf and turf', description: 'Seared sirloin, sliced and fanned beside garlic butter shrimp on the same plate.' },
           { dish: 'blackened-salmon', name: 'Blackened salmon, lemon butter' },
           { dish: 'hot-honey-chicken', name: 'Hot honey fried chicken' },
@@ -176,8 +171,6 @@ export const menus = [
       {
         title: 'Accompaniments',
         dishes: [
-          { dish: 'lobster-mac', note: 'Reserve. By request.' },
-          'truffle-potatoes',
           'truffle-grits',
           { dish: 'garlic-mashed', name: 'Roasted garlic whipped potatoes, red wine gravy', description: 'Whipped with butter, cream and roasted garlic.' },
           { dish: 'gouda-mac', description: 'Smoked gouda and white cheddar under a brown butter crumb, baked and served in individual cast-iron cocottes.' },

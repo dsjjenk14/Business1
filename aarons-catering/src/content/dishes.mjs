@@ -822,6 +822,7 @@ export const dishes = {
     ],
     allergens: [],
     vegetarian: true,
+    vegan: true,
   },
 
   // ---------- Caribbean plate (The Islander) ----------
@@ -844,13 +845,28 @@ export const dishes = {
     allergens: ['wheat', 'dairy'],
   },
 
-  // ---------- Vegetarian and Reserve ----------
-  'cauliflower-steak': {
-    name: 'Blackened cauliflower steak',
-    description: 'A thick-cut cauliflower steak roasted in a dark Cajun crust, finished with lemon herb butter and fresh parsley.',
-    ingredients: ['cauliflower', CAJUN, 'olive oil', 'lemon herb butter (butter, lemon zest and juice, garlic, parsley)', 'flaky salt'],
-    allergens: ['dairy'],
+  // ---------- Vegetarian and vegan ----------
+  'mushroom-etouffee': {
+    name: 'Wild mushroom étouffée',
+    description: 'A dark, nutty roux simmered with the Cajun trinity and roasted wild mushrooms, spooned over jasmine rice and finished with scallion. Entirely plant-based.',
+    ingredients: [
+      'dark roux (all-purpose wheat flour, canola oil)',
+      'roasted wild mushrooms (cremini, shiitake, maitake, olive oil, garlic, thyme)',
+      'onion',
+      'celery',
+      'green bell pepper',
+      'garlic',
+      'crushed tomatoes',
+      'vegetable stock (water, onion, carrot, celery, thyme)',
+      CAJUN,
+      'bay leaf',
+      'jasmine rice',
+      'scallion',
+      'parsley',
+    ],
+    allergens: ['wheat'],
     vegetarian: true,
+    vegan: true,
   },
   'truffle-grits': {
     name: 'Wild mushroom and black truffle grits',
@@ -867,31 +883,6 @@ export const dishes = {
       'kosher salt',
       'black pepper',
     ],
-    allergens: ['dairy'],
-    vegetarian: true,
-  },
-  'lobster-mac': {
-    name: 'Lobster mac and cheese',
-    description: 'Butter-poached lobster folded through cavatappi in gruyère and white cheddar, under a brown butter crumb.',
-    ingredients: [
-      'cavatappi pasta (durum wheat semolina)',
-      'butter-poached lobster',
-      'gruyère',
-      'sharp white cheddar',
-      'whole milk',
-      'heavy cream',
-      'butter',
-      'all-purpose wheat flour',
-      'brown butter breadcrumbs (breadcrumbs, butter)',
-      'chives',
-      'kosher salt',
-    ],
-    allergens: ['shellfish', 'wheat', 'dairy'],
-  },
-  'truffle-potatoes': {
-    name: 'Black truffle whipped potatoes',
-    description: 'Yukon gold potatoes whipped with cultured butter and cream, finished with shaved black truffle.',
-    ingredients: ['Yukon gold potatoes', 'cultured butter', 'heavy cream', 'roasted garlic', 'shaved black truffle', 'kosher salt', 'white pepper'],
     allergens: ['dairy'],
     vegetarian: true,
   },

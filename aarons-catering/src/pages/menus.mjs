@@ -23,7 +23,7 @@ export function allergenLine(d) {
   const text = d.allergens.length
     ? d.allergens.map((a) => ALLERGEN_LABELS[a] ?? a).join(', ')
     : 'None in the recipe. See the allergy note.';
-  const spicy = (d.spicy ? ' <span class="spicy">Spicy</span>' : '') + (d.vegetarian ? ' <span class="spicy veg">Vegetarian</span>' : '');
+  const spicy = (d.spicy ? ' <span class="spicy">Spicy</span>' : '') + (d.vegan ? ' <span class="spicy veg">Vegan</span>' : d.vegetarian ? ' <span class="spicy veg">Vegetarian</span>' : '');
   const note = d.note ? `<p class="dish-note">${esc(d.note)}</p>` : '';
   return `<p class="allergens"><span class="label">Allergens:</span> ${esc(text)}${spicy}</p>${note}`;
 }
