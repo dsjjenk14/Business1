@@ -1,5 +1,7 @@
 # LIVÉRA art
 
+`PROMPT_PACK.md` has ready-to-paste image prompts for the art still missing: the residents made in the creator, babies and children, pets, items, buildings, the bus and icons. It ends with a prompt for adding the finished images to the repo.
+
 ## Character reference sheets (`reference/characters/`)
 
 The approved look of each founding character. Modelers, costume and hair artists should
