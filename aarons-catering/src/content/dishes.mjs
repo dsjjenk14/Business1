@@ -631,23 +631,22 @@ export const dishes = {
     allergens: ['dairy', 'wheat'],
     spicy: true,
   },
-  'cornbread-muffins': {
-    name: 'Jalapeño cheddar cornbread muffins',
-    description: 'Petite cornbread muffins with sharp cheddar and a little jalapeño, with whipped honey butter.',
+  'sweet-potato-biscuits': {
+    name: 'Sweet potato biscuits',
+    description: 'Flaky sweet potato biscuits, split warm, with whipped cinnamon honey butter.',
     ingredients: [
-      'yellow cornmeal',
+      'roasted sweet potato',
       'all-purpose wheat flour',
       'buttermilk',
-      'eggs',
-      'butter',
-      'sugar',
+      'cold butter',
+      'brown sugar',
       'baking powder',
+      'baking soda',
       'salt',
-      'sharp cheddar',
-      'jalapeños',
-      'honey butter (butter, honey)',
+      'cinnamon',
+      'whipped cinnamon honey butter (butter, honey, cinnamon, flaky salt)',
     ],
-    allergens: ['wheat', 'dairy', 'eggs'],
+    allergens: ['wheat', 'dairy'],
   },
 
   // ---------- Office breakfast ----------

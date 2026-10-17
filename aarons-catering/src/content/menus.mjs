@@ -104,7 +104,7 @@ export const menus = [
           { dish: 'green-beans', name: 'Green beans with smoked turkey', note: 'Made with smoked turkey. Pork available.' },
           { dish: 'garlic-mashed', name: 'Roasted garlic mashed potatoes, red wine gravy' },
           { dish: 'cabbage', name: 'Buttered cabbage' },
-          'cornbread-muffins',
+          'sweet-potato-biscuits',
         ],
       },
       {
@@ -172,7 +172,7 @@ export const menus = [
           { dish: 'collards', name: 'Braised collard greens', description: 'Slow-cooked with smoked turkey. Pork available.' },
           'brown-butter-yams',
           { dish: 'green-beans', name: 'Green beans with smoked turkey', description: 'Fresh green beans with smoked turkey, garlic and butter. Pork available.' },
-          'cornbread-muffins',
+          'sweet-potato-biscuits',
         ],
       },
       {
