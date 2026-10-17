@@ -436,6 +436,7 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
   // } m08:pets
 
   // m08:details ops { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+  if (op == "laundry") return world_.doLaundry(me);
   // } m08:details
   if (op == "message") {
     auto id = world_.sendMessage(me, str(req, "to"), str(req, "text"));

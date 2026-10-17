@@ -6,7 +6,7 @@
       "name": "Suds & Spin Laundromat",
       "type": "laundromat",
       "district": "Founders Way",
-      "description": "Twelve washers, eight dryers, a change machine and a bench that has heard everything.",
+      "description": "Twelve washers, eight dryers, a change machine and a bench that has heard everything. A wash and dry is $8.",
       "door": [330, 550],
       "hours": [6, 23],
       "revenue_account": "org:suds_spin",

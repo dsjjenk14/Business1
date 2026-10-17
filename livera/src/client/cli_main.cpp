@@ -476,7 +476,10 @@ const char* kHelpPets = "";
 // } m08:pets
 
 // m08:details help {
-const char* kHelpDetails = "";
+const char* kHelpDetails = R"(Little things:
+  laundry                   wash your clothes, at home or at Suds & Spin (a fee); dirty or ruined clothes cost you style and hygiene
+  phone weather             today's weather and tomorrow's forecast (it changes at 06:00); rain and snow hurt without an umbrella
+  give PERSON birthday_cake on their birthday it means a lot more than a gift)";
 // } m08:details
 
 
@@ -665,6 +668,8 @@ bool runCommand(Client& c, const std::string& input) {
     // } m08:pets
 
     // m08:details commands { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+  } else if (cmd == "laundry") {
+    req = {{"op", "laundry"}};
     // } m08:details
   } else if (cmd == "skip") {
     req = {{"op", "dev_advance"}, {"minutes", std::stoll(arg())}};

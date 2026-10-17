@@ -235,10 +235,7 @@ void World::stepBodyMinute(CharacterState& c) {
   if (c.career.shiftStartedAt && c.needs.count("bladder") && c.needs["bladder"] < 40) c.needs["bladder"] = 40;
   if (c.needs.count("bladder") && c.needs["bladder"] <= 0) {
     c.needs["bladder"] = kStatMax;
-    c.needs["hygiene"] = clampd(c.needs["hygiene"] - L.accidentHygieneLoss, kStatMin, kStatMax);
-    c.emotions["embarrassment"] = clampd(c.emotions["embarrassment"] + L.accidentEmbarrassment, kStatMin, kStatMax);
-    notify(c.id, "health", "You couldn't make it to a bathroom in time.");
-    emit(presentWith(c), "incident", Json{{"character", c.id}, {"kind", "bathroom_accident"}});
+    wetYourself(c);
   }
 }
 
@@ -364,6 +361,7 @@ void World::checkBirthday(CharacterState& c) {
   const std::string before = lifeStageOf(c.id);
   c.lastBirthdayAge = age;
   notify(c.id, "life", "Happy birthday! You're " + std::to_string(age) + ".");
+  onBirthday(c, age);
   Memory m;
   m.id = nextId("mem");
   m.owner = c.id;

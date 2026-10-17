@@ -90,6 +90,34 @@ struct PregnancyState {
 // } m08:pets
 
 // m08:details state { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+// Clothes, drinks: the small things a character carries around.
+struct DetailsCharacterState {
+  std::map<std::string, double> wornHours;  // clothing item -> hours worn since its last wash
+  std::vector<std::string> soiled;          // clothing ruined until washed
+  std::vector<GameMinutes> drinks;          // recent alcoholic drinks, for the morning after
+};
+
+struct WeatherDay {
+  std::string kind;
+  double tempC = 0;
+};
+
+// Something people saw and keep telling their friends about.
+struct Rumor {
+  CharacterId about;
+  std::string what;                 // "wet himself at The Copper Tap"
+  GameMinutes at = 0;
+  GameMinutes until = 0;            // witnesses stop spreading it after this
+  std::vector<CharacterId> tellers; // the witnesses
+  std::vector<CharacterId> knows;   // everyone who knows: witnesses and those they told
+};
+
+struct DetailsWorldState {
+  std::int64_t weatherDay = -1;  // the game day `today` is for; -1 = not rolled yet
+  WeatherDay today;
+  WeatherDay tomorrow;
+  std::vector<Rumor> rumors;
+};
 // } m08:details
 
 struct CharacterState {
@@ -152,6 +180,7 @@ struct CharacterState {
   // } m08:pets
 
   // m08:details character { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+  DetailsCharacterState detail;
   // } m08:details
   // Session state (not saved):
   std::map<std::string, GameMinutes> activityReadyAt;  // "location/activity" -> minute
@@ -304,6 +333,7 @@ struct WorldState {
   // } m08:pets
 
   // m08:details world { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+  DetailsWorldState details;
   // } m08:details
 };
 
@@ -437,6 +467,11 @@ class World {
   // } m08:pets
 
   // m08:details commands { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
+  // Wash all your clothes: at home (it takes some energy) or at the laundromat (it costs a wash).
+  Result<Json> doLaundry(const CharacterId& actor);
+  const WeatherDay& weatherToday() const { return state_.details.today; }
+  bool soiledOutfit(const CharacterState& c) const;
+  bool dirtyOutfit(const CharacterState& c) const;
   // } m08:details
   std::string relationshipStatus(const CharacterId& a, const CharacterId& b) const;
   bool isFamily(const CharacterId& a, const CharacterId& b) const;
@@ -563,6 +598,17 @@ class World {
   // m08:details helpers { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
   void stepDetailsHourly();  // called once a game hour from stepHourly (Life.cpp)
   Json phoneWeather(const CharacterState& c) const;
+  // Hooks the rest of the world calls (each is one line where it happens).
+  void wetYourself(CharacterState& c);                          // Life.cpp: bladder hit 0
+  double detailsReceptivity(const CharacterState& actor) const; // World::interact
+  void onDrink(CharacterState& c, const std::string& substance); // Substances.cpp
+  void onBirthday(CharacterState& c, int age);                   // Life.cpp checkBirthday
+  void onGift(CharacterState& giver, CharacterState& receiver, const std::string& item, Json& out);  // Items.cpp giveItem
+  bool clothingCountsForStyle(const CharacterState& c, const std::string& item) const;  // Items.cpp styleOf
+  std::string clothesCondition(const CharacterState& c, const std::string& item) const;  // Items.cpp phoneItems
+  void rollWeather(bool newDay);
+  WeatherDay rollWeatherDay(std::int64_t dayIndex);
+  bool isBirthdayToday(const CharacterState& c) const;
   // } m08:details
   // Fame.cpp
   void addFame(CharacterState& c, double amount);

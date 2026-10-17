@@ -1,0 +1,24 @@
+{
+  "$comment": "M0.8 details (docs/m08/details.md): wetting yourself in public, and a hangover.",
+  "conditions": [
+    {
+      "id": "humiliated",
+      "name": "humiliated",
+      "kind": "mental",
+      "hours": [60, 84],
+      "needs_per_hour": {"social": -1},
+      "emotions_per_hour": {"embarrassment": 3, "confidence": -1, "happiness": -0.5},
+      "performance_penalty": 0.1
+    },
+    {
+      "id": "hungover",
+      "name": "a hangover",
+      "kind": "illness",
+      "hours": [5, 6],
+      "needs_per_hour": {"energy": -2, "comfort": -2, "hunger": -1},
+      "emotions_per_hour": {"happiness": -1, "stress": 1},
+      "performance_penalty": 0.2,
+      "treated_by": ["painkillers"]
+    }
+  ]
+}

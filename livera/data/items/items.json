@@ -118,7 +118,8 @@
       "usable": true,
       "consumable": true,
       "cooldown_minutes": 240,
-      "needs": {"comfort": 20}
+      "needs": {"comfort": 20},
+      "shortens": {"hungover": 3}
     },
     {
       "id": "antidepressants",

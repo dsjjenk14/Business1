@@ -1202,7 +1202,8 @@
         },
         {"id": "flowers", "label": "Bouquet of flowers", "price_cents": 2200, "emotions": {"happiness": 4}},
         {"id": "condoms", "label": "Condoms (3)", "price_cents": 1200, "item": "condoms", "quantity": 3},
-        {"id": "pregnancy_test", "label": "Pregnancy test", "price_cents": 1500, "item": "pregnancy_test"}
+        {"id": "pregnancy_test", "label": "Pregnancy test", "price_cents": 1500, "item": "pregnancy_test"},
+        {"id": "birthday_cake", "label": "Birthday cake", "price_cents": 3500, "item": "birthday_cake"}
       ],
       "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
     },
@@ -1497,7 +1498,8 @@
           "price_cents": 8500,
           "item": "sunglasses",
           "emotions": {"happiness": 2}
-        }
+        },
+        {"id": "umbrella", "label": "Umbrella", "price_cents": 2500, "item": "umbrella"}
       ]
     },
     {
