@@ -141,6 +141,7 @@ export const gallery = [
   ['gallery-10.jpg', 900, 1200, 'Fried plantains and sweet potatoes with red pepper'],
   ['gallery-11.jpg', 680, 1200, 'Candied yams in a pan'],
   ['gallery-12.jpg', 692, 1200, 'A pan of fried chicken and waffles topped with strawberries'],
+  ['gallery-14.jpg', 900, 1200, 'A pan of seasoned rice pilaf with shredded carrot, finished with fresh parsley'],
 ]
   .map(([file, w, h, alt]) => ({ file, w, h, alt, shot: 'Aaron J’s photo.', source: 'photo' }))
   .concat([
