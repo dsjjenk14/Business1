@@ -108,7 +108,7 @@ out (needs the gossip system), moving in together beyond visiting rights, buying
 reporting and blocking players (required before a public server), voice, and anything
 visual (M1).
 
-## M0.8 — Family, home, work and the town, at the product owner's request 🔶 in progress
+## M0.8 — Family, home, work and the town, at the product owner's request ✅ done
 
 - **Who can conceive:** female and male characters (`sex`), asked in the creator; only a
   woman and a man together can start a pregnancy, and she carries it (D-031).
@@ -117,11 +117,34 @@ visual (M1).
 - **Children:** daycare (Little Sprouts) and school (Founders School, K-12) with grades and a
   diploma; supervision and child services; care routines at home; nannies hired and paid by
   families; daycare and school-teaching careers (D-033).
-- 146 tests, sanitizer-clean.
-
-**Still to come in M0.8:** buying houses and condos together and moving in; work decisions
-during shifts; coins bought with real money; phones and LivPay; sports, date spots, pets,
-medicine; wetting yourself as a very big deal; small details.
+- **Homes:** eight houses and condos for sale on Willow Lane; buy alone or with a partner
+  (down payment split, mortgage split, one covers the other), real mortgages from Livéra
+  Savings Bank (monthly with the rent, missed payments, late fees, foreclosure); move in
+  together (lease ends, rent split, both have a key); move out, move back, sell (mortgage
+  paid off, the rest split); children and the nanny's key follow the family; phone `homes`.
+- **Work decisions:** on shift, up to three job decisions a day from the career's bank (186
+  across all 30 careers; Dominique's are hiring calls). Good calls raise performance and add
+  promotion hours, so attentive players are promoted sooner; idling pays and counts as
+  before. Phone app `work`, ops `work_tasks` / `work_answer`, CLI `tasks` / `decide`.
+- **Coins, phones and LivPay:** a premium currency in its own zero-sum ledger, credited once
+  per server-verified store receipt (real store billing not connected yet: refused honestly;
+  test payments on dev servers and with `--test-payments`); a cosmetic coin shop enforced by
+  validation; a phone for every adult with models, battery, charging, cases and switching; a
+  dead phone blocks apps and texts; LivPay tap-to-pay in shops and on the bus and bank-to-bank
+  transfers with limits.
+- **Leisure:** date spots (Lumière Bistro, the Starlight Cinema, Willow Lake Park with
+  rowboats, picnics, the boardwalk and stargazing after dark); doing them with your partner
+  counts as a date, once per place per day. A town league (soccer at Riverside Field,
+  basketball at Riverside Court) played by the server each week from the teams' rosters and
+  the members who turn up; practice builds `athletics`; standings, results and rosters in the
+  `sports` app; coaching and restaurant jobs at the clubhouse and Lumière.
+- **Pets and medicine:** adopt a dog, cat or rabbit at Paws & Whiskers; feed, play, cuddle,
+  groom and walk them; the vet at Founders Animal Hospital; animal control for neglect. Over-the-
+  counter and prescription medicine with daily limits, prescriptions from checkups, overdoses.
+- **Little details:** wetting yourself is a public, lasting humiliation (witnesses, gossip, a
+  partner's reaction, ruined clothes, the paper for the famous); laundry at home or Suds & Spin;
+  daily weather with forecasts and umbrellas; birthday notices and cakes; hangovers.
+- 238 tests, sanitizer-clean. Each feature's protocol ops, CLI commands and what is not done: `docs/m08/`.
 
 ## M1 — Unreal client shell (spec Phases 1 + 3) ⬜ — next
 

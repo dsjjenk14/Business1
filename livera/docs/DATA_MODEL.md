@@ -142,6 +142,7 @@ Schema version is `PRAGMA user_version`; migrations are an append-only list in
 | `songs` | id, owner, body JSON — v2 |
 | `properties.upkeep` | cleanliness and trash JSON — v3 |
 | `meta.rng` | the random stream's state — v3 (meta is key/value, no migration needed) |
+| `world_parts` | key, body JSON: one row per feature's world state (`homes`, `work`, `wallet`, `leisure`, `pets`, `details`; `src/core/WorldParts.cpp`) — v4 |
 | `characters.state` additions | `body.calendar` (true once ages follow the calendar), `childhood{childcare, school_grade_sum, school_days, school_bonus_today, unsupervised_hours_today, childcare_payer, childcare_paid_day}`, `nanny_for` — M0.8, JSON fields only, no migration needed |
 
 Session state is not saved: who is online, move targets, activity cooldowns. Open shifts
@@ -153,3 +154,136 @@ Content added after a world was saved joins it on load (`World`'s constructor): 
 organisations open their ledger accounts and get their opening balance from the outside
 economy, new properties appear unlet, new founding characters move in, and stats, bodies,
 degrees and fame missing from older character blobs start from their definitions.
+
+## M0.8 content and save data
+
+Each feature also has a reference page in `docs/m08/` (protocol ops, CLI, what is not done).
+
+### Homes (`docs/m08/homes.md`)
+
+Content sections (in `data/world/homes_places.json`):
+
+| Section | Shape (abridged) | Notes |
+|---|---|---|
+| `properties` | gains `for_sale` (bool) | A home for sale needs `market_value_cents`, `rent_monthly_cents` 0, no `tier`, an enterable `residents` location, and can't be any character's starting home. |
+| `homes` | `lender, min_down_payment, annual_rate, term_months, missed_payments_to_foreclose, late_fee_cents, max_payment_share_of_pay, work_hours_per_month, reserve_months, residents_per_bedroom` | Exactly one when any home is for sale. `lender` must be an org account. Months are game months. |
+| `org_accounts` | `org:willow_lane_homes` (developer, $250,000), `org:livera_savings_bank` (lender, $10,000,000) | Funded from `sys:economy` like every org. |
+
+Runtime state:
+
+| Record | Key fields |
+|---|---|
+| `PropertyState` | gains `residents[]` (adults who live there), `owners[]` (who bought it), `mortgage` {lender, principal, balance, payment, annual rate, term months, months left, missed payments, arrears, started at}. `tenant` = the lease holder; for an owned home, an owner who lives there (else the first owner). `owner_account` = the seller while on the market, the first owner's bank once bought. |
+| `PendingRequest` | gains `subject` (the home to buy or sell together); kinds `buy_home`, `move_in`, `sell_home` |
+| `createdCharacters[...].homeProperty` | now changes: a child's home follows their parents (saved in the existing `created_characters` def JSON) |
+
+Save format: world part `homes` (table `world_parts`, schema v4; no migration):
+`{"properties": {"<property id>": {"residents": [...], "owners": [...], "mortgage": {"lender",
+"principal_cents", "balance_cents", "payment_cents", "annual_rate", "term_months",
+"months_left", "missed_payments", "arrears_cents", "started_at"}}}}`. Only homes with
+residents, owners or a mortgage are written. A save without the part (older saves, new
+worlds) loads with each lease holder as the only resident. The `properties` table keeps
+owner account and tenant as before. Homes keeps nothing per character (no character key).
+
+### Work decisions (`docs/m08/work.md`)
+
+Content (`data/careers/work_tasks.json`):
+
+| Section | Shape (abridged) | Notes |
+|---|---|---|
+| `work_tasks` | `[{career, tasks[] {id, prompt, options[] {label, detail?, score, why}}}]` | M0.8. Career ids must exist; task ids unique across all careers; 3–4 options with distinct labels; scores in [0, 1] with exactly one scoring 1 (the best call); every option has a `why`. A career may have any number of decisions, including none. May appear in several files (they add up). |
+| `work_decisions` | `per_day, performance_best, performance_worst, bonus_hours_per_point` | M0.8. At most one; defaults 3, +6, −4, 1.5. `per_day` 1–10; `performance_best ≥ performance_worst`; bonus ≥ 0. |
+
+State (character JSON, key `work`; no world part, no migration; a save without it loads with
+no decisions made):
+
+| Field | Meaning |
+|---|---|
+| `work.day`, `work.career`, `work.tasks[]` | The game day (day index) and career today's decisions were drawn for, in the order shown. |
+| `work.answers[] {task, option, score, performance_change, bonus_hours, at, day, reported}` | Today's answers (and, until it ends, the current shift's). `option` is the index in the bank, not the shown order. `reported`: already in a shift report (missing in older saves: false; every answer of an off-shift character is settled to true on load). |
+| `work.drawn {task: n}` | How many days each decision has come up, so the days cycle through the bank. |
+| `work.nudged_day` | The day the phone last reminded them. |
+| `work.bonus {career, level, hours}` | Decision hours earned toward the current title (shown in the phone). |
+| `work.answered_total`, `work.best_total` | Lifetime counts. |
+
+The world part `work` is an empty object (no world-wide state).
+
+### Phones, coins and LivPay (`docs/m08/wallet.md`)
+
+Content sections (new):
+
+| Section | Shape (abridged) | Notes |
+|---|---|---|
+| `coin_packs` | `[{product_id, label, coins, price_usd_cents}]` | data/economy/coins.json. `product_id` is the store product id. Coins and price must be positive; ids unique. At most one section. |
+| `coin_shop` | `[{item, coin_price}]` | data/economy/coins.json. `item` must exist and be cosmetic; validation refuses anything that beats the best dollar item in its slot (or category, without a slot), and a coin phone that outlasts or out-charges the dollar phones. |
+| `livpay` | `{per_transfer_limit_cents, daily_limit_cents, daily_transfers, max_note_length}` | data/economy/coins.json. Daily limit ≥ per-transfer limit. |
+| `phones` | `{basic_model, low_battery_percent, charge_at_types[], models[] {item, battery_hours, charge_hours}}` | data/items/phones.json. `basic_model` is issued to every adult; every item of category `phone` needs a model; every `charge_at_types` entry must be some location's type. No section = a world without phones (nothing is gated). |
+| `items` | new categories `phone` and `phone_case` | `use` on either fits it (Wallet.cpp). |
+
+Runtime state:
+
+| Record | Key fields |
+|---|---|
+| `CharacterState` | gains `phone` {model (item id), battery 0–100, phoneCase} and `spareBatteries` {model: [battery of each used spare]} (a spare with no entry is new in its box) |
+| `WorldState` | gains `coins` (a `Ledger`: `coins:<character>`, `sys:coin_store`) and `coinReceipts` {receipt id: {receipt, character, product, coins, price_usd_cents, at, test, tx}} |
+| `LedgerTransaction` | new kinds: `livpay`, `livpay_purchase`, `livpay_fare` (dollars); `coin_purchase`, `coin_purchase_test`, `coin_shop` (coins) |
+
+Save keys (no new SQL; world part `wallet` in `world_parts`, character key `wallet`):
+
+| Key | Contents |
+|---|---|
+| world part `wallet` | `{coins: {accounts: [{id, owner, kind, balance, allow_negative}], transactions: [{id, at, from, to, amount, kind, memo}], next_tx}, receipts: [{receipt, character, product, coins, price_usd_cents, at, test, tx}]}` |
+| character `wallet` | `{phone: {model, battery, case}, spare_batteries: {model: [battery, ...]}}` |
+
+A save without these loads as: everyone 18+ gets a full basic phone, an empty coin ledger with
+its issuer, no receipts. A phone model removed from content falls back to the basic model.
+
+### Dates, the park and the town league (`docs/m08/leisure.md`)
+
+Content (`data/leisure/sports.json`):
+
+| Section | Fields | Notes |
+|---|---|---|
+| `leisure` | `league_account, clubhouse, league_fee_cents, skill, coach_careers[], coached_practice_bonus, luck, results_kept, player{base, skill_weight, energy_need, min_energy_factor}, match{player_needs{}, player_calories, skill_gain, fame_win, fame_draw, fame_loss, win_emotions{}, draw_emotions{}, loss_emotions{}, spectator_emotions{}, spectator_needs{}}, date{statuses[], relationship{}, emotions{}, importance, impact}, date_spots[] {place, offer \| activity, memory}, activity_hours[] {place, activity, hours[from, to]}, practice[] {place, activity, skills{}}, sports[] {id, name, venue, match_day, match_hour, duration_minutes, lineup, scoring{model: goals\|points, per_team, sensitivity, noise, max, draws, overtime_fraction}, points{win, draw, loss}}, teams[] {id, name, sport, strength}` | M0.8. Validated: accounts, places, offers and activities exist; stat names are declared; venues are outdoor places; every sport has two or more teams; two sports at one venue can't overlap. |
+| `simulation.skills` | gains `athletics` | |
+| `locations` (leisure_places.json) | Willow Lake Park gains `revenue_account: org:willow_lake_boathouse`, offers and activities; Lumière, the Starlight, the field, the court and the clubhouse gain offers/activities | New org account `org:willow_lake_boathouse`. No new location fields. |
+
+Runtime state:
+
+| Record | Fields |
+|---|---|
+| `CharacterState` | gains `leisureTeams[]` (team ids, one per sport), `leisureMatchesPlayed`, `leisureMatchesWon` |
+| `WorldState` | gains `leisureStandings` (team → played, won, drawn, lost, scored, conceded, points), `leisureMatches[]` (id, sport, home, away, kickoff, ends at, home/away lineup, home/away strength, finished, home/away score, overtime; in play plus the latest results), `leisureDates` (`"a\|b\|place"` → game day of the last date there) |
+
+Save format (no new SQL; schema v4 world parts):
+
+| Where | Key | Contents |
+|---|---|---|
+| character JSON | `leisure` | `{teams[], matches_played, matches_won}`; missing = no teams |
+| `world_parts` row | `leisure` | `{standings{team: {played, won, drawn, lost, for, against, points}}, matches[] {id, sport, home, away, kickoff, ends_at, home_lineup[], away_lineup[], home_strength, away_strength, finished, home_score, away_score, overtime}, dates{"a\|b\|place": day}}`; missing = empty table, no matches, no dates |
+
+Teams removed from content since a save are dropped from characters on load; matches whose
+sport or teams are gone are dropped at the next hourly step.
+
+### Pets and medicine (`docs/m08/pets.md`)
+
+| Section | Fields | Notes |
+|---|---|---|
+| `pets` | `shelter, vet, food_item, needs[], adopted_needs{}, listings_per_week, weekly_intake, max_pets_per_home, initial_bond, max_name_length, adoption_vaccine_days, routine_target, warn_below, neglect_hunger_hours, neglect_below, bond_loss_per_neglected_hour, company{min_bond, emotions_per_hour}, adoption_emotions{}, walk_radius_m, sickness{chance_per_hour, low_need_below, low_need_multiplier, vaccinated_multiplier, needs_per_hour}, taken_away_emotions{}, species[] {id, adoption_fee_cents, needs_per_hour, stages[] {id, min_age_months, needs_multiplier, sick_multiplier}, names, breeds}, actions[] {id, label, species?, where, uses_item?, cooldown_minutes, pet_needs, your_needs, your_emotions, bond, calories_burned?}, illnesses[] {id, name, species?}, vet_services[] {id, label, price_cents}` | data/society/pets.json |
+| `medicine` | `dose_window_hours, overdose_health_loss, emergency_after_extra_doses, emergency_below_health, hospital, emergency_bill_cents, stabilised_health, medicines[] {item, daily_limit, overdose_health_loss?, prescription? {for[], fills, valid_days}, dangerous_with? {substance, within_minutes, needs, emotions, emergency}}` | data/items/medicine.json |
+
+Save: world part `pets` (every pet: id, name, species, breed, owner, home, born at, needs,
+bond, illness and whether it's known, vaccinated until, adopted at, starving since, warnings,
+stage, taken from, cooldowns, and the shelter's state); character key `pets` (prescriptions:
+medicine, condition, fills left, written at, expiry, written by; doses within the window).
+
+### Little details (`docs/m08/details.md`)
+
+| Section | Fields | Notes |
+|---|---|---|
+| `details` | `accident{condition, emotions, importance, impact, witness{importance, impact, relationship, partner_relationship, emotions}, gossip{hours, chance_per_hour, min_friendship, relationship, importance, impact}, news{min_fame, fame_loss, respect}, receptivity{humiliated, soiled, dirty}}, laundry{dirty_after_hours, dirty_hygiene_per_hour, soiled_hygiene_cap, home_needs, home_trash, laundromat, laundromat_price_cents, laundromat_needs}, weather{umbrella, forecast_hour, kinds[] {id, label, warn?, umbrella_halves?, outdoors_needs_per_hour?, outdoors_emotions_per_hour?}, seasons[] {months, temp_c[min,max], chances{kind: p}}}, birthdays{min_friendship, cake, cake_emotions, giver_emotions, friendship, importance, impact}, hangover{substance, drinks, within_hours, condition, check_hour}` | data/society/details.json; each season's chances sum to 1 and the seasons cover all twelve months |
+
+Save: world part `details` (`weather_day`, `today`/`tomorrow` `{kind, temp_c}`, `rumors[]
+{about, what, at, until, tellers, knows}`); character key `details` (`worn_hours{item: h}`,
+`soiled[]`, `drinks[]` game minutes). Older saves load with no weather (rolled at the next
+hour), no rumours and clean clothes.

@@ -87,6 +87,15 @@ accident near you), `gift`,
 (someone you can hear said something), `performance` (someone performed where you are;
 carries the full song so the client can play it), `kicked`.
 
+M0.8 ops, each with its arguments and refusals in its feature page: homes (`buy_home`,
+`move_out`, `move_home`, `sell_home`, and `request` kinds `buy_home`, `move_in`, `sell_home`;
+`docs/m08/homes.md`), work (`work_tasks`, `work_answer`; `docs/m08/work.md`), wallet
+(`buy_coins`, `buy_with_coins`, `switch_phone`, `livpay_send`, `buy` with `method: "phone"`,
+`ride` with `pay_with`; `docs/m08/wallet.md`), leisure (`join_team`, `leave_team`;
+`docs/m08/leisure.md`), pets (`adopt`, `pet`, `vet`; `docs/m08/pets.md`) and details
+(`laundry`; `docs/m08/details.md`). New phone apps: `homes`, `work`, `wallet`, `store`,
+`sports`, `pets`, `weather`.
+
 The Unreal client will use UE replication and RPCs instead (ARCHITECTURE.md, "Engine
 integration"); each RPC maps to the same `World` command, so this table stays the list of
 what a client can ask for.

@@ -663,6 +663,7 @@ TEST_CASE("homes: selling pays off the mortgage and splits the rest") {
   w = withBank(w, {{"dominique", 6000000}});
   walkTo(w, "dominique", "lakeview_1a");
   REQUIRE(w.buyHome("dominique", "lakeview_1a"));  // $260,000: $26,000 down, $234,000 borrowed
+  walkInto(w, "dominique", "lakeview_1a");         // at home, where her phone charges
   toNextMonth(w);                                  // one payment made
   const Cents owed = prop(w, "lakeview_1a").mortgage->balanceCents;
   CHECK(owed == 23400000 + 117000 - 140295);

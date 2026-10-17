@@ -55,9 +55,10 @@ class [[nodiscard]] Result {
 
   bool ok() const { return value_.has_value(); }
   explicit operator bool() const { return ok(); }
-  const T& value() const& { return *value_; }
-  T& value() & { return *value_; }
-  T&& value() && { return std::move(*value_); }
+  // Reading the value of an error throws (std::bad_optional_access) rather than reading garbage.
+  const T& value() const& { return value_.value(); }
+  T& value() & { return value_.value(); }
+  T&& value() && { return std::move(value_.value()); }
   const Error& error() const { return error_; }
 
  private:

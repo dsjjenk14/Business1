@@ -248,3 +248,171 @@ slider full of numbers nobody feels strongly about.
 the ER, rehab, abortion care). A doctor or nurse on shift where it's bought earns a share
 from their employer, and the patient recovers a little more.
 **Why:** The clinic works with nobody playing a doctor, and playing one matters.
+
+## D-035 — Homes are bought with real mortgages, and a home belongs to everyone who lives there
+**Decision:** Eight new homes on Willow Lane (four 3-bedroom houses, $420,000–$520,000; four
+2-bedroom Lakeview condos, $260,000–$320,000) are marked `for_sale` and sold at their market
+value, first by their developer (Willow Lane Homes). A buyer pays at least the minimum down
+payment (10%) and one lender, Livéra Savings Bank, pays the seller the rest as a mortgage
+with one product in data (6% a year, 360 game months, standard amortization). The bank lends
+only if your share of all your mortgage payments stays under 40% of your monthly pay (your
+career level's hourly rate x 160 hours), or your savings left after the down payment cover
+12 months of them; the refusal says which numbers fell short. Payments come out with the rent
+on the first of the month. A payment that can't be made is owed as arrears plus a $50 late
+fee; three behind and the bank forecloses: it owns the home, lists it again, and everyone who
+lived there has to leave and is told why. Selling goes to the outside market at market value:
+the mortgage is paid off first and the owners split the rest. Partners (dating, engaged or
+married) buy together through an ask (`request kind=buy_home`): the down payment and every
+monthly payment are split evenly, each must qualify for their half, and if one can't pay
+their half the other covers it if they can. A home has a list of residents (adults) and of
+owners; `tenant` stays as the lease holder (or an owner who lives there) for older code.
+Partners move in together with an ask (`request kind=move_in`): a renter's lease ends and that
+home is free for newcomers, an owner keeps what they own, and rent is split evenly between
+residents. Children move with the parent they live with; the nanny's key follows the family.
+**Why:** The product owner wants partners to share a home, and a home is the biggest money
+decision a character makes, so it has to be real money: every cent is a `Ledger::transfer`
+(down payments to the seller, the loan from the bank to the seller, payments to the bank,
+sales paid by `sys:economy`), nothing is created, and missing payments has the consequence it
+has in life. The 40%-of-pay-or-a-year-of-savings rule is the simplest lending rule that can
+be explained in one sentence of a refusal. Rentals stay rentals; there is no landlord play.
+
+## D-036 — Work decisions speed up promotion; they never replace the shift
+**Decision:** On shift, up to `work_decisions.per_day` (3) decisions a day come up from the
+character's career bank. Answering is optional and once per decision per day. An answer
+changes performance immediately by `performance_worst + (performance_best -
+performance_worst) × score` (−4 to +6, clamped 0–100) and adds `score ×
+bonus_hours_per_point` (1.5) hours toward the next title. Promotion is still decided at
+`endShift` by the unchanged rule (`hours_at_level ≥ hours_to_promote` and `performance ≥
+min_performance`). A shift too short to be paid (`min_paid_minutes`) doesn't count toward
+promotion, and neither do the hours its decisions added: they are taken back when it ends,
+and the reply says so. What the calls did to performance stands. Unanswered decisions lapse
+at midnight with no penalty.
+**Why:** The product owner wanted attentive players promoted faster and idle ones left
+exactly where they were. Crediting hours (not promotions) keeps one rule for promotion.
+Without the short-shift rule, clocking in for a minute a day to answer three questions would
+earn up to 4.5 promotion hours a day without working, which is the opposite of "when you go
+to work". At the defaults a full 8-hour shift with three best calls is worth 12.5 hours
+instead of 8: about a third faster.
+
+## D-037 — Work decision scores stay on the server; the day's draw is a pure function
+**Decision:** The server never sends an option's score or explanation before it is
+answered: the list carries the prompt, the labels and optional details, in an order
+shuffled per character and day. After an answer the reply (and the list, and the phone)
+says whether it was the best call, why the chosen option was or wasn't, and which option
+was best and why. The day's draw and the option order are a hash of (character, game day,
+task), not the world's random stream: the same all day, the same after a restart, and
+opening the phone never changes anyone's dice. Among the career's decisions, the ones that
+have come up least often go first, so the days work through the whole bank before
+repeating, and the day's set is never the same as the previous work day's when the bank has
+more to give.
+**Why:** A score in the reply would let a client pick the best option every time; the
+point is the player's judgment. A pure draw makes the phone (a read-only view) and the
+command agree without saving anything until the player actually looks.
+
+## D-038 — Coins are their own currency, verified by the server, and buy looks, not an edge
+**Decision:** Coins live in a second zero-sum `Ledger` (`WorldState::coins`), apart from
+dollars: accounts `coins:<character>` and the issuer `sys:coin_store`, the only account
+allowed below zero (it holds minus every coin in circulation). Coins come only from coin packs
+bought with real money. The client never says it paid: it sends a store receipt with
+`buy_coins`, the server's payment verifier checks it, and only then does
+`World::creditCoins` credit the pack, exactly once per receipt id (every credited receipt is
+kept forever in the world save; a repeat is refused with `duplicate_receipt`, for any
+character). Real App Store / Google Play verification isn't connected, so a production server
+refuses every `buy_coins` with `payments_unavailable` and says why; dev servers (`--dev`) and
+servers started with `--test-payments` use a test verifier that accepts receipts starting
+`test-`, records them as test purchases and charges nothing. Coins never turn into dollars and
+can't be sent to another player. The coin shop sells only cosmetic and status items, and
+content validation enforces it: a coin item can't be usable, consumable, unlock anything,
+change needs, be medicine or a drug, and can't beat (in style, feel-good emotion or, for a
+phone, battery life and charge time) the best thing dollars buy in the same slot or category.
+**Why:** Real money must never be trusted from a client (rule 1), and a receipt that could be
+replayed would print coins. A separate ledger keeps the dollar economy honest: nothing bought
+with real money can enter wages, rent or prices, so there's no pay-to-win and no laundering
+real money into the town economy (or coins between accounts, which is how stolen cards and
+gold-selling work in other games). Saying "payments unavailable" is the honest state today
+(rule 6): the store integrations need the stores' server APIs and credentials, which is
+platform work for the M1 client.
+
+## D-039 — Every adult carries a phone, and its battery matters
+**Decision:** Phones are items (category `phone`) with a model in `phones.models`: hours a full
+battery lasts online away from a charger, and hours from dead to full. Every adult has one in
+hand (`CharacterState::phone`): the basic model is issued to anyone 18 or over who has none, on
+load, on arrival and on their 18th birthday. Once a game hour the phone in your hand drains
+while you're online and away from a charger, and charges in a home you're welcome in, at your
+workplace while on shift, in a study session, at places with public outlets (`charge_at_types`:
+the café, Circuit Electronics, the university, Common Ground) and while you're logged out (your
+routine plugs it in). At 0% it's dead: every phone app and texting refuse with `phone_dead`
+("Your phone is dead. Charge it at home or at work."), as do LivPay and the coin shop. Cash and
+card still work, and others can still text you. Switching phones (`use` a phone, or
+`switch_phone`) puts the old one in your inventory with its charge remembered; a phone still
+in its box is full.
+**Why:** A phone that can die makes it a thing you look after, like hunger, without making a
+normal day hard: the basic Lyra One lasts 40 hours away from a charger (a long day out uses
+about 40%), and a low-battery warning comes at 20%. Better phones are a real reason to spend
+dollars (60 and 80 hours). The coin-only Gold Edition is exactly as good as the Pro, by rule.
+
+## D-040 — LivPay pays from your bank, with limits
+**Decision:** LivPay is your phone paying from your bank account. Tap to pay: `buy` with
+`method: "phone"` (ledger kind `livpay_purchase`) and `ride` with `pay_with: "phone"` (kind
+`livpay_fare`). Send money: `livpay_send` moves dollars bank to bank, anywhere in town, to
+anyone who has a phone (online or not), with a note; kind `livpay`; the recipient is notified
+with the note. Limits from data: $2,500 a transfer, $5,000 and 20 transfers a game day (counted
+from the ledger, so they survive restarts), notes up to 140 characters. All LivPay needs a
+working phone.
+**Why:** It's the "Apple Pay like system" the product owner asked for, built on the one ledger
+so it can't create money. Limits make a stolen session or a scam cost something bounded. And
+because LivPay pays from the bank, a pickpocket (who only ever takes cash) gets nothing from it.
+
+## D-041 — Dates count, and the town league plays itself
+**Decision:** A date is not a new command. Some offers and activities at date spots are listed
+in data as date activities; doing one while your partner (dating, engaged or married; never an
+ex, a stranger or family) is online and at the same place gives both of you a romance bonus,
+happiness and a shared memory ("Dinner at Lumière with Dax"), once per couple per place per
+game day. Sports are a town league the server runs: each team has a baseline strength (its
+townsfolk roster), players join in person, and at the scheduled kickoff each side's strength
+is that baseline plus the members standing at the venue (by athletics and energy) plus a
+little luck. The score follows from the strengths (Poisson goals for soccer; points around an
+expected total for basketball, which goes to overtime instead of drawing). Results go to the
+members, the players and whoever is watching; the table is kept in the world.
+**Why:** Players already do these things (buy dinner, walk in the park); the date is what
+happens when they do them together, so it needs no ask-and-answer and no new verbs. A league
+that only ran when enough players showed up would never run in a small town, so the town
+fields its own teams and players change the result by turning up. Results have to be the
+server's (rule 1), deterministic from the saved random stream, and testable with chance
+turned off in data.
+
+## D-042 — Pets live at home and depend on the household; medicine has limits and prescriptions
+**Decision:** A pet is adopted in person at Paws & Whiskers (a fee), lives at the adopter's home,
+and anyone who lives there can care for it. Its needs (hunger, fun, hygiene, health) run down
+by the hour; an offline owner's routine keeps it fed and fine, the same rule as for children,
+unless the owner has stopped coping. A pet starved for a day, or with its health gone, is taken
+back to the shelter by animal control, and the household is told why; the shelter won't give it
+back to them. Pets fall ill now and then; the vet diagnoses, vaccinates and treats, for a fee,
+and vets on shift earn a share. Pets age on the calendar (puppy, adult, senior) but do not die
+in M0.8. The shelter's animals are generated from data and the week number alone, so every
+player sees the same animals. Medicine is items with a daily dose limit; prescription medicine
+needs a prescription that a doctor writes when a checkup diagnoses a condition it treats, with
+a number of fills and an expiry. Going over the limit hurts and, past a point, is an ER visit;
+a sleep aid with alcohol in your system is an emergency.
+**Why:** Pets and medicine should ask something of the player (feeding, a vet bill, reading the
+label) without becoming chores nobody can keep up with; the offline routine and generous
+cooldowns keep both fair to people who don't play every day.
+
+## D-043 — Wetting yourself is public, lasting and costly; small details are real systems
+**Decision:** When your bladder runs out you wet yourself (as before), but now it is a big
+event: hygiene drops to 0, a strong burst of embarrassment, stress and lost confidence, and a
+"humiliated" condition for 60–84 game hours that drains your social life and makes social moves
+land worse (receptivity × 0.6). The clothes you had on are ruined until washed (they count for
+no style and cap your hygiene at 50). Everyone there sees it: each witness remembers it and
+loses respect and attraction for you (a partner loses twice the attraction), and for a day each
+witness may tell close friends (friendship 50+) who weren't there, who think less of you too.
+Someone famous (fame 60+) also loses fame, and the Livéra Ledger runs it. Alone, it is still
+humiliating, but nobody knows. Around it: clothes get dirty after 16 hours worn and need
+washing (at home for some energy, or $8 at Suds & Spin); the weather is rolled each day from the
+season and changes at 06:00 to the previous day's forecast, and rain, storms and snow wear you
+down outdoors without an umbrella; friends are told on your birthday and a cake on the day means
+much more than a gift; three or more drinks in the 20 hours before 06:00 mean a hangover.
+**Why:** The owner wanted the accident to matter far more than in The Sims. Making it social
+(witnesses, gossip, a partner's reaction, the paper) and lasting (days of humiliation, ruined
+clothes) makes it a real event in other people's stories, not a status icon. The other details
+are small, data-driven and tested, and each touches what people already do.
