@@ -11,8 +11,8 @@ export default function about() {
 
   const content = `<section class="page-head" aria-labelledby="page-title">
   <div class="container">
-    ${eyebrow('About Aaron J’s')}
-    <h1 id="page-title" class="h1">Heritage cooking, <em>beautifully served</em></h1>
+    ${eyebrow('Our story')}
+    <h1 id="page-title" class="h1">About Aaron J’s</h1>
     <p class="lede">Aaron J’s Catering is Chef Aaron Jenkins and heritage Southern cooking, brought to weddings, boardrooms and holiday dinners with fine-dining polish. ${esc(site.motto)}.</p>
   </div>
 </section>

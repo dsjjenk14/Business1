@@ -33,7 +33,7 @@ function quote() {
   <div class="container home-quote-grid">
     <div class="home-quote-intro">
       ${eyebrow('Request a quote')}
-      <h2 id="quote-title" class="h2">Begin with <em>a date</em></h2>
+      <h2 id="quote-title" class="h2">Tell us about your event</h2>
       <p class="lede">The day, the headcount and the occasion. It takes about a minute, and we reply within one business day with a proposed menu and a price.</p>
       ${reviewsLine()}
       <div class="quick-contact">
@@ -88,7 +88,7 @@ function menuSection() {
     <div class="section-head section-head-row">
       <div>
         ${eyebrow('The menu')}
-        <h2 id="menu-title" class="h2">The classics, <em>impeccably dressed</em></h2>
+        <h2 id="menu-title" class="h2">${esc(site.motto.split(', ')[0])}, <em>${esc(site.motto.split(', ')[1])}</em></h2>
       </div>
       <a class="text-link" href="menus.html">Every menu ${icon('arrow', 'icon icon-sm')}</a>
     </div>
@@ -108,13 +108,13 @@ function approach() {
   const points = [
     ['Heritage', 'Recipes with roots: smoked turkey in the greens, brown butter in the yams, chicken brined in buttermilk before it meets the fryer.'],
     ['Craft', 'Plated with intention, from passed small plates to individual dessert jars, so every dish looks the way it tastes.'],
-    ['Hospitality', 'Where every day is Sunday: generous, unhurried and on time, set out the way your occasion calls for.'],
+    ['Hospitality', 'Generous, unhurried and on time, set out the way your occasion calls for.'],
   ];
   return `<section class="section section-dark" aria-labelledby="approach-title">
   <div class="container">
     <div class="section-head">
-      ${eyebrow('The Aaron J’s standard')}
-      <h2 id="approach-title" class="h2">Heritage, <em>with polish</em></h2>
+      ${eyebrow('Our approach')}
+      <h2 id="approach-title" class="h2">How we cook</h2>
     </div>
     <ol class="approach" role="list">${points
       .map(([t, text], i) => `<li><span class="step-num">${String(i + 1).padStart(2, '0')}</span><h3 class="approach-title">${t}</h3><p>${esc(curly(text))}</p></li>`)

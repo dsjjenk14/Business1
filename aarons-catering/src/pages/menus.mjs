@@ -125,7 +125,7 @@ export default function menusPage() {
   <div class="page-hero-media">${img('page-menus', { eager: true })}</div>
   <div class="container page-hero-content">
     ${eyebrow('The collection')}
-    <h1 id="page-title" class="h1">The <em>menus</em></h1>
+    <h1 id="page-title" class="h1">Menus</h1>
     <p class="lede">Pick a menu below. ${site.priceGuide ? `${esc(site.priceGuide)} ` : ''}Pricing depends on guest count, service style and location.</p>
   </div>
 </section>

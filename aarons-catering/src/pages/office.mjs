@@ -92,7 +92,7 @@ export default function office() {
   const content = `<section class="page-head" aria-labelledby="page-title">
   <div class="container">
     ${eyebrow('Corporate dining')}
-    <h1 id="page-title" class="h1">The working lunch, <em>reconsidered</em></h1>
+    <h1 id="page-title" class="h1">Corporate catering</h1>
     <p class="lede">Chef-attended breakfasts, executive lunch boxes and meeting bites for offices across DC, Maryland and Northern Virginia. Priced per person, delivered and set up on time.</p>
     <div class="hero-actions">
       <a class="btn" href="#office-quote">Request office catering</a>

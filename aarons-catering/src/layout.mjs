@@ -106,7 +106,7 @@ function footer() {
   <div class="container footer-grid">
     <div class="footer-brand">
       <a href="index.html">${logo('logo logo-footer')}</a>
-      <p>${esc(site.motto)}. Soul food catering for Washington DC, Maryland and Northern Virginia.</p>
+      <p>${esc(site.tagline)}. Catering for Washington DC, Maryland and Northern Virginia.</p>
     </div>
     <div class="footer-contact">
       <h2 class="footer-heading">Talk to us</h2>

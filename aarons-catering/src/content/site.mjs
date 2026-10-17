@@ -3,8 +3,9 @@
 export const site = {
   name: "Aaron J's Catering",
   chef: 'Chef Aaron Jenkins',
+  // The only two lines the site uses as mottos. Nothing else.
   tagline: 'Sunday best, every day',
-  motto: 'Where every day is Sunday', // from the logo
+  motto: 'The classics, impeccably dressed',
   url: 'https://aaronjscatering.com', // used for canonical links, the sitemap and link previews
 
   phone: { display: '571-271-1810', href: 'tel:+15712711810', intl: '+1-571-271-1810' },
