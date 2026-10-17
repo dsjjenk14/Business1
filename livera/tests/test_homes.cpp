@@ -371,6 +371,8 @@ TEST_CASE("homes: the bank lends only what it has, and the last payment clears t
     CHECK(broke.state().properties.at("willow_lane_2").owners.empty());
   }
   REQUIRE(w.buyHome("dominique", "willow_lane_2"));
+  // She moves in and waits at home, where her phone charges (a month outdoors would run it flat).
+  walkInto(w, "dominique", "willow_lane_2");
   // Years later, one payment is left.
   {
     WorldState s = w.state();
