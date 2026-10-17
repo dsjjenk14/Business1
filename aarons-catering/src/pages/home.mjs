@@ -38,19 +38,19 @@ function quote() {
 }
 
 function holidayBlock() {
-  const t = holiday.thanksgiving;
+  const t = holiday.event;
   const d = parseDate(t.orderBy);
   const from = Math.min(...holiday.packages.map((p) => p.price));
   return `<section class="section section-tight holiday-promo" data-holiday-only hidden aria-labelledby="holiday-promo-title">
   <div class="container holiday-promo-inner">
     <div>
-      ${eyebrow(`Thanksgiving ${holiday.year}`)}
+      ${eyebrow(`${t.name} ${holiday.year}`)}
       <h2 id="holiday-promo-title" class="h2">Turkey, ham and every side</h2>
       <p class="muted">Orders close ${d.weekday}, ${d.month} ${d.day}, or sooner if we sell out.</p>
     </div>
     <div class="holiday-promo-cta">
       <p class="from"><span class="from-label">Packages from</span> <span class="price">${money(from)}</span></p>
-      <a class="btn" href="order.html">Order Thanksgiving</a>
+      <a class="btn" href="order.html">Order ${t.name}</a>
       <a class="text-link" href="holiday.html">See the menu ${icon('arrow', 'icon icon-sm')}</a>
     </div>
   </div>

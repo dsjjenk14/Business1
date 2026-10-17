@@ -1,4 +1,4 @@
-// The Thanksgiving order: what can be picked and what it costs, from holiday.mjs.
+// The holiday order: what can be picked and what it costs, from holiday.mjs.
 // The order page uses it to draw the choices, and the checkout function uses it
 // to price an order from scratch, so a total can't be changed in the browser.
 import { holiday } from './content/holiday.mjs';

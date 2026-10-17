@@ -1174,7 +1174,7 @@ button { font: inherit; color: inherit; }
 .aside-block p { color: var(--muted); }
 @media (min-width: 960px) { .contact-aside { position: sticky; top: calc(var(--header-h) + 32px); } }
 
-/* ---------- Thanksgiving order page ---------- */
+/* ---------- Holiday order page ---------- */
 
 .hero-order { margin-top: 28px; }
 .order-grid { display: grid; gap: 40px; }

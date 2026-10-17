@@ -17,7 +17,7 @@ function sentence(list) {
   return list.length < 2 ? list.join('') : `${list.slice(0, -1).join(', ')} and ${list[list.length - 1]}`;
 }
 
-const T = holiday.thanksgiving;
+const T = holiday.event;
 const day = parseDate(T.date);
 const by = parseDate(T.orderBy);
 const handoff = parseDate(T.handoff);
@@ -78,7 +78,7 @@ function steps() {
     ['Pick your package', `Choose your meats, sides and dessert from the menu. ${sentence(holiday.requestByDeadline)} must be requested by ${by.weekday}, ${by.month} ${by.day}.`],
     ['Order online', `<a href="order.html">Order on this site</a> or call <a href="${site.phone.href}">${site.phone.display}</a>. Orders close ${by.weekday}, ${by.month} ${by.day}, or sooner if we sell out.`],
     ['Pay to confirm', `Payment in full is due when you order. Your order isn't confirmed until it's paid. Cancel by ${cancel.month} ${cancel.day} for a full refund. After that the food is already bought and prepped, so orders are final.`],
-    ['Pickup or delivery', `Everything goes out ${handoff.weekday}, ${handoff.month} ${handoff.day}, the day before Thanksgiving. You get a 30-minute window when you order.`],
+    ['Pickup or delivery', `Everything goes out ${handoff.weekday}, ${handoff.month} ${handoff.day}, ${T.handoffName}. Deliveries arrive by ${T.deliverBy}, and pickup is until ${T.pickupBy}.`],
   ];
   return list
     .map(
@@ -94,7 +94,7 @@ function jsonLd() {
   return {
     '@context': 'https://schema.org',
     '@type': 'OfferCatalog',
-    name: `Thanksgiving ${holiday.year} catering`,
+    name: `${T.name} ${holiday.year} catering`,
     url: `${site.url}/holiday.html`,
     itemListElement: holiday.packages.map((p) => ({
       '@type': 'Offer',
@@ -117,13 +117,13 @@ export default function holidayPage() {
   const content = `<section class="page-hero" aria-labelledby="page-title">
   <div class="page-hero-media">${img('page-holiday', { eager: true })}</div>
   <div class="container page-hero-content">
-    ${eyebrow(`Thanksgiving ${y}`)}
-    <h1 id="page-title" class="h1">Thanksgiving catering</h1>
-    <p class="lede">${day.weekday}, ${day.month} ${day.day}. Smoked, fried or jerk turkey, glazed ham, short ribs and ${WORDS[holiday.sides.length] ?? holiday.sides.length} sides. Pickup or delivery across the DMV on ${handoff.weekday}, ${handoff.month} ${handoff.day}.</p>
+    ${eyebrow(`${T.name} ${y}`)}
+    <h1 id="page-title" class="h1">${T.name} catering</h1>
+    <p class="lede">${day.weekday}, ${day.month} ${day.day}. Smoked, fried or jerk turkey, glazed ham, short ribs and ${WORDS[holiday.sides.length] ?? holiday.sides.length} sides. Delivered across the DMV by ${T.deliverBy}, or pick up by ${T.pickupBy}, on ${T.handoffName}, ${handoff.weekday}, ${handoff.month} ${handoff.day}.</p>
     <p class="status" data-holiday-status hidden
        data-before="Orders open ${opens.month} ${opens.day}."
        data-during="Orders close ${by.weekday}, ${by.month} ${by.day}, or sooner if we sell out."
-       data-after="Thanksgiving orders are closed for ${y}.">
+       data-after="${T.name} orders are closed for ${y}.">
       <span class="status-dot" aria-hidden="true"></span><span class="status-text">Orders close ${by.weekday}, ${by.month} ${by.day}</span>
     </p>
     <a class="btn btn-lg hero-order" href="order.html">Order now</a>
@@ -134,8 +134,8 @@ export default function holidayPage() {
   <div class="container">
     <ul class="fact-row" role="list">
       <li><span class="fact-label">Orders close</span><span class="big-date">${by.mon} ${by.day}</span><span class="fact-sub">${by.weekday}, or sooner if we sell out</span></li>
-      <li><span class="fact-label">Pickup and delivery</span><span class="big-date">${handoff.mon} ${handoff.day}</span><span class="fact-sub">${handoff.weekday}, in a 30-minute window</span></li>
-      <li><span class="fact-label">Thanksgiving</span><span class="big-date">${day.mon} ${day.day}</span><span class="fact-sub">We take a limited number of orders</span></li>
+      <li><span class="fact-label">Pickup and delivery</span><span class="big-date">${handoff.mon} ${handoff.day}</span><span class="fact-sub">${handoff.weekday}. Delivery by ${T.deliverBy}, pickup by ${T.pickupBy}</span></li>
+      <li><span class="fact-label">${T.name}</span><span class="big-date">${day.mon} ${day.day}</span><span class="fact-sub">We take a limited number of orders</span></li>
     </ul>
     <nav class="jump-links" aria-label="On this page">
       <a href="#packages">Packages</a><a href="#meats">Meats</a><a href="#sides">Sides</a><a href="#add-ons">Add-ons</a><a href="#order">How to order</a><a href="#allergies">Allergies</a>
@@ -240,9 +240,9 @@ export default function holidayPage() {
 <section class="section section-dark section-tight" aria-labelledby="next-title">
   <div class="container next-holidays">
     <div>
-      ${eyebrow('After Thanksgiving')}
+      ${eyebrow(`After ${T.name}`)}
       <h2 id="next-title" class="h2">${esc(curly(sentence(holiday.next)))}</h2>
-      <p class="lede">Those menus are coming. If you're planning a holiday party or want to be first on the list, tell us now.</p>
+      <p class="lede">${holiday.next.length > 1 ? 'Those menus are' : 'That menu is'} coming. If you're planning a holiday party or want to be first on the list, tell us now.</p>
     </div>
     <a class="btn btn-ghost" href="contact.html?event=holiday">Get in touch</a>
   </div>
@@ -250,8 +250,8 @@ export default function holidayPage() {
 
 <section class="section cta" aria-labelledby="cta-title">
   <div class="container cta-inner">
-    <h2 id="cta-title" class="h1">Order Thanksgiving</h2>
-    <p class="lede">We take a limited number of Thanksgiving orders. Pickup or delivery on ${handoff.weekday}, ${handoff.month} ${handoff.day}.</p>
+    <h2 id="cta-title" class="h1">Order ${T.name}</h2>
+    <p class="lede">We take a limited number of ${T.name} orders. Delivery by ${T.deliverBy} or pickup by ${T.pickupBy} on ${handoff.weekday}, ${handoff.month} ${handoff.day}.</p>
     <a class="btn btn-lg" href="order.html">Order now</a>
     <p class="cta-alt">Or call <a href="${site.phone.href}">${site.phone.display}</a></p>
   </div>
@@ -259,9 +259,8 @@ export default function holidayPage() {
 
   return page({
     slug: 'holiday',
-    title: 'Thanksgiving Catering in Northern Virginia | Holiday Ordering | Aaron J’s Catering',
-    description:
-      'Thanksgiving catering in Northern Virginia, DC and Maryland. Smoked, fried or jerk turkey, glazed ham, short ribs and sides, from $80. Pickup or delivery.',
+    title: `${T.name} Catering in Northern Virginia | Holiday Ordering | Aaron J’s Catering`,
+    description: `${T.name} catering in Northern Virginia, DC and Maryland. Smoked, fried or jerk turkey, glazed ham, short ribs and sides, from $80. Pickup or delivery.`,
     preload: ['page-holiday'],
     jsonld: [jsonLd()],
     content,

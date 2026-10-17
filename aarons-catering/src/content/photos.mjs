@@ -20,7 +20,7 @@ export const photos = {
     file: 'hero.jpg',
     w: 1024,
     h: 1536,
-    alt: 'A Thanksgiving spread: glazed ham with pineapple and cherries, roast turkey, mac and cheese, collard greens, candied yams, stuffing, mashed potatoes, green beans, cranberry sauce, rolls, cornbread and sweet potato pie',
+    alt: 'A holiday spread: glazed ham with pineapple and cherries, roast turkey, mac and cheese, collard greens, candied yams, stuffing, mashed potatoes, green beans, cranberry sauce, rolls, cornbread and sweet potato pie',
     shot: 'Main photo at the top of the home page. Made with an AI image generator.',
     where: 'Home page, top',
     focus: '50% 8%', // keeps the top of the ham in view when computers crop the photo

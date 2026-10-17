@@ -74,7 +74,7 @@
   if (params.has('today')) store('aj-today', /^\d{4}-\d{2}-\d{2}$/.test(params.get('today')) ? params.get('today') : null);
 
   var bar = $('[data-holiday-bar]');
-  var thanksgivingOpen = false; // taking Thanksgiving orders right now (the order page uses this)
+  var holidayOrdersOpen = false; // taking holiday orders right now (the order page uses this)
   if (bar) {
     var today = store('aj-today') || todayEastern();
     var override = store('aj-holiday');
@@ -91,7 +91,7 @@
       var ordersOpen = msg && msg !== all[all.length - 1];
       if (msg) {
         msg.classList.add('is-active');
-        // After Thanksgiving closes, the link asks about the next holidays instead of "Order".
+        // After orders close, the link asks about the next holidays instead of "Order".
         var barLink = $('[data-holiday-bar-link]', bar);
         if (barLink && msg.getAttribute('data-link')) {
           barLink.href = msg.getAttribute('data-link');
@@ -103,7 +103,7 @@
       $$('[data-holiday-link]').forEach(function (el) { el.classList.add('is-season'); });
     }
 
-    thanksgivingOpen = override === 'on' || (state === 'during' && !!ordersOpen);
+    holidayOrdersOpen = override === 'on' || (state === 'during' && !!ordersOpen);
 
     var status = $('[data-holiday-status]');
     if (status) {
@@ -387,12 +387,12 @@
     });
   }
 
-  /* ---------- Thanksgiving order ----------
+  /* ---------- Holiday order (Christmas this season) ----------
      Package, picks, add-ons and pickup or delivery, with a running total.
      The order is sent to the chef's inbox the same way as the quote form. */
 
   var order = $('[data-order-form]');
-  if (order && !thanksgivingOpen) {
+  if (order && !holidayOrdersOpen) {
     order.hidden = true;
     $('[data-orders-closed]').hidden = false;
   } else if (order) {
@@ -582,7 +582,7 @@
     var sendMail = function (pairs, paid) {
       var data = new FormData();
       pairs.forEach(function (p) {
-        data.append(p[0], p[0] === '_subject' ? 'Thanksgiving order' + (paid ? ', paid' : '') + ': ' + p[1] : p[1]);
+        data.append(p[0], p[0] === '_subject' ? order.getAttribute('data-event') + ' order' + (paid ? ', paid' : '') + ': ' + p[1] : p[1]);
       });
       return fetch(order.getAttribute('data-endpoint'), { method: 'POST', headers: { Accept: 'application/json' }, body: data })
         .then(function (res) { return res.json().catch(function () { return {}; }).then(function (body) { return { ok: res.ok, body: body }; }); })
@@ -674,7 +674,7 @@
           .then(function () { showDone(info, false); })
           .catch(function () {
             orderMailto.href = 'mailto:' + orderMailto.getAttribute('href').replace(/^mailto:/, '').split('?')[0] +
-              '?subject=' + encodeURIComponent('Thanksgiving order: ' + mail[0][1]) +
+              '?subject=' + encodeURIComponent(order.getAttribute('data-event') + ' order: ' + mail[0][1]) +
               '&body=' + encodeURIComponent(asText() + '\nTotal: ' + dollars(total) + '\n\n' + name + '\n' + val('o-email') + '\n' + val('o-phone') +
                 (delivering ? '\n' + address : '') + (val('o-notes') ? '\n\n' + val('o-notes') : ''));
             orderFailed.hidden = false;

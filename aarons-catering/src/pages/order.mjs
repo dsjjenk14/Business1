@@ -1,15 +1,15 @@
-// Thanksgiving ordering: pick a package, the meats, sides and dessert, add-ons,
+// Holiday ordering (Christmas this season): pick a package, the meats, sides and dessert, add-ons,
 // and pickup or delivery, with a running total. site.js does the counting, then
 // sends the order to Stripe to pay by card (netlify/functions/checkout.mjs) and
 // emails it to the chef (FormSubmit, like the quote form).
 import { page } from '../layout.mjs';
 import { site } from '../content/site.mjs';
 import { holiday } from '../content/holiday.mjs';
-import { packages, meats, sides, desserts, breads, areas, dinnerDelivery, addOns as addOnList } from '../thanksgiving-order.mjs';
+import { packages, meats, sides, desserts, breads, areas, dinnerDelivery, addOns as addOnList } from '../holiday-order.mjs';
 import { icon } from '../icons.mjs';
 import { esc, curly, eyebrow, parseDate, money } from '../lib.mjs';
 
-const T = holiday.thanksgiving;
+const T = holiday.event;
 const by = parseDate(T.orderBy);
 const handoff = parseDate(T.handoff);
 const cancel = parseDate(T.cancelBy);
@@ -86,8 +86,8 @@ function field({ id, label, optional = false, input }) {
 }
 
 function orderForm() {
-  return `<form class="order-form quote-form" action="${site.form.action}" method="POST" data-order-form data-endpoint="${site.form.ajax}" data-day="${handoffText}"${cards ? ' data-checkout="/api/checkout"' : ''}>
-    <input type="hidden" name="_subject" value="Thanksgiving order from the website">
+  return `<form class="order-form quote-form" action="${site.form.action}" method="POST" data-order-form data-endpoint="${site.form.ajax}" data-day="${handoffText}" data-event="${T.name}"${cards ? ' data-checkout="/api/checkout"' : ''}>
+    <input type="hidden" name="_subject" value="${T.name} order from the website">
     <input type="hidden" name="_template" value="table">
     <input type="hidden" name="_captcha" value="false">
     <input type="hidden" name="_next" value="${site.url}/thanks.html">
@@ -119,20 +119,20 @@ function orderForm() {
 
         <fieldset class="order-step" data-required="Pickup or delivery">
           <legend class="order-legend">Pickup or delivery</legend>
-          <p class="order-hint">Everything goes out ${handoffText}, the day before Thanksgiving. We’ll confirm a 30-minute window with you.</p>
+          <p class="order-hint">Everything goes out ${handoffText}, ${T.handoffName}. Deliveries arrive by ${T.deliverBy}. Pickup is until ${T.pickupBy}.</p>
           <div class="choice-grid choice-grid-2">
             <label class="choice">
               <input type="radio" name="Pickup or delivery" value="Pickup">
               <span class="choice-body">
                 <span class="choice-head"><span class="choice-name">Pickup</span><span class="price">Free</span></span>
-                <span class="choice-text">In Fairfax, Virginia. We send the address once your order is placed.</span>
+                <span class="choice-text">In Fairfax, Virginia, by ${T.pickupBy}. We send the address once your order is placed.</span>
               </span>
             </label>
             <label class="choice">
               <input type="radio" name="Pickup or delivery" value="Delivery">
               <span class="choice-body">
                 <span class="choice-head"><span class="choice-name">Delivery</span><span class="price">From ${money(Math.min(...areas.map((a) => a.price)))}</span></span>
-                <span class="choice-text">Northern Virginia, DC and Maryland.</span>
+                <span class="choice-text">Northern Virginia, DC and Maryland. Arrives by ${T.deliverBy}.</span>
               </span>
             </label>
           </div>
@@ -154,7 +154,7 @@ function orderForm() {
             </div>
           </div>
 
-          ${field({ id: 'o-time', label: 'Preferred time', optional: true, input: '<input id="o-time" name="Preferred time" type="text" placeholder="For example, after 2 pm">' })}
+          ${field({ id: 'o-time', label: 'Preferred time', optional: true, input: '<input id="o-time" name="Preferred time" type="text" placeholder="For example, 10 am">' })}
         </fieldset>
 
         <fieldset class="order-step">
@@ -173,7 +173,7 @@ function orderForm() {
         <ul class="summary-lines" role="list" data-summary-lines><li class="summary-empty">Choose a package to start.</li></ul>
         <p class="summary-total"><span>Total</span><span class="price" data-total>${money(0)}</span></p>
         <ul class="summary-notes" role="list">
-          <li>Pickup or delivery ${handoffText}.</li>
+          <li>${handoffText}: delivery by ${T.deliverBy}, pickup by ${T.pickupBy}.</li>
           <li>${cards ? 'You pay by card on the next step, on Stripe’s secure checkout.' : 'Paid in full to confirm.'} Cancel by ${cancel.month} ${cancel.day} for a full refund.</li>
         </ul>
         <p class="field-error" data-order-error hidden role="alert"></p>
@@ -195,7 +195,7 @@ function orderForm() {
     <p class="lede">Thanks<span data-first-name></span>. <span data-paid-note hidden>Your payment of <strong data-done-total></strong> went through, and Stripe is emailing you a receipt.</span><span data-unpaid-note>Your total is <strong data-done-total></strong>.</span></p>
     <p data-unpaid-note>We’ll be in touch within one business day to confirm your order and take payment. Your order is confirmed once it’s paid.</p>
     <ul class="summary-lines" role="list" data-done-lines></ul>
-    <p>Pickup or delivery is ${handoffText}. We’ll confirm a 30-minute window with you. Questions? Call <a href="${site.phone.href}">${site.phone.display}</a>.</p>
+    <p>Pickup or delivery is ${handoffText}, ${T.handoffName}: delivery by ${T.deliverBy}, pickup by ${T.pickupBy}. We’ll confirm a time with you. Questions? Call <a href="${site.phone.href}">${site.phone.display}</a>.</p>
   </div>
 
   <div class="form-failed" data-form-failed hidden role="alert">
@@ -205,7 +205,7 @@ function orderForm() {
 }
 
 function closed(soldOut) {
-  const title = soldOut ? `We’re sold out for Thanksgiving ${holiday.year}` : `Thanksgiving orders are closed for ${holiday.year}`;
+  const title = soldOut ? `We’re sold out for ${T.name} ${holiday.year}` : `${T.name} orders are closed for ${holiday.year}`;
   return `<div class="order-closed" data-orders-closed${soldOut ? '' : ' hidden'}>
     <h2 class="h2">${title}</h2>
     <p class="lede">Thank you for thinking of us. Planning ${esc(curly(holiday.next.join(' or ')))}? Tell us and we’ll get back to you.</p>
@@ -217,9 +217,9 @@ export default function orderPage() {
   const soldOut = T.soldOut;
   const content = `<section class="page-head" aria-labelledby="page-title">
   <div class="container">
-    ${eyebrow(`Thanksgiving ${holiday.year}`)}
-    <h1 id="page-title" class="h1">Order Thanksgiving</h1>
-    <p class="lede">Pickup or delivery on ${handoffText}, the day before Thanksgiving. Orders close ${by.weekday}, ${by.month} ${by.day}, or sooner if we sell out. <a href="holiday.html">See the full menu</a></p>
+    ${eyebrow(`${T.name} ${holiday.year}`)}
+    <h1 id="page-title" class="h1">Order ${T.name}</h1>
+    <p class="lede">Delivery by ${T.deliverBy} or pickup by ${T.pickupBy} on ${T.handoffName}, ${handoffText}. Orders close ${by.weekday}, ${by.month} ${by.day}, or sooner if we sell out. <a href="holiday.html">See the full menu</a></p>
   </div>
 </section>
 
@@ -231,8 +231,8 @@ export default function orderPage() {
 
   return page({
     slug: 'order',
-    title: `Order Thanksgiving ${holiday.year} | Aaron J’s Catering`,
-    description: `Order Thanksgiving dinner from Aaron J’s Catering: turkey, ham, short ribs and sides from ${money(Math.min(...holiday.packages.map((p) => p.price)))}. Pickup or delivery ${handoff.month} ${handoff.day} across the DMV.`,
+    title: `Order ${T.name} ${holiday.year} | Aaron J’s Catering`,
+    description: `Order ${T.name} dinner from Aaron J’s Catering: turkey, ham, short ribs and sides from ${money(Math.min(...holiday.packages.map((p) => p.price)))}. Pickup or delivery ${handoff.month} ${handoff.day} across the DMV.`,
     content,
   });
 }

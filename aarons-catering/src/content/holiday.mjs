@@ -1,4 +1,5 @@
-// Holiday ordering: the Aaron J's Thanksgiving 2026 menu, as printed.
+// Holiday ordering: the Aaron J's Christmas 2026 menu (the same packages and
+// prices as the printed Thanksgiving 2026 menu).
 // Update this file each season (dates are YYYY-MM-DD). Weekday names are worked
 // out from the dates at build time, so they can't be wrong.
 
@@ -9,13 +10,17 @@ export const holiday = {
   // dates (inclusive, Eastern time). Preview any time with ?holiday=on.
   season: { opens: '2026-10-01', closes: '2027-01-01' },
 
-  // The holiday with a menu this season.
-  thanksgiving: {
-    name: 'Thanksgiving',
-    date: '2026-11-26',
-    orderBy: '2026-11-20', // orders close, or sooner if we sell out
-    cancelBy: '2026-11-20', // full refund until then
-    handoff: '2026-11-25', // every pickup and delivery happens this day
+  // The holiday with a menu this season. Its name is used across the site
+  // ("Christmas orders close Dec 18", "Order Christmas", the order emails).
+  event: {
+    name: 'Christmas',
+    date: '2026-12-25',
+    orderBy: '2026-12-18', // orders close, or sooner if we sell out
+    cancelBy: '2026-12-18', // full refund until then
+    handoff: '2026-12-24', // every pickup and delivery happens this day (Christmas Eve)
+    handoffName: 'Christmas Eve',
+    deliverBy: '11 am', // deliveries arrive by then
+    pickupBy: '1 pm', // pickups until then
     // Sold out early? Set this to true and the order page stops taking orders.
     soldOut: false,
   },
@@ -26,7 +31,7 @@ export const holiday = {
   cardPayments: true,
 
   // No menu yet. Shown as "coming" with a way to get in touch.
-  next: ['Christmas', "New Year's"],
+  next: ["New Year's"],
 
   packages: [
     {
