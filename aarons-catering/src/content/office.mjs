@@ -77,9 +77,11 @@ export const officeBoxes = [
   { name: 'The Islander', dishes: ['jerk-chicken', 'sweet-potato-pave', 'garden-salad', 'cornbread-madeleines'] },
   { name: 'The Classic', dishes: ['baked-chicken', 'garlic-mashed', ['green-beans', 'garden-salad', 'sweet-potato-pave'], 'cornbread-madeleines'] },
   { name: 'The Executive', premium: 8, dishes: ['short-ribs', 'garlic-mashed', 'garden-salad', 'cornbread-madeleines'] },
-  { name: 'The Coastal', salad: true, premium: 5, dishes: ['caesar-salad', 'blackened-salmon', 'cornbread-madeleines'] },
-  { name: 'The Cobb', salad: true, dishes: ['cobb-salad', 'cornbread-madeleines'] },
-  { name: 'The Caesar', salad: true, dishes: ['caesar-salad', 'baked-chicken', 'cornbread-madeleines'] },
+  { name: 'The Sandwich', tag: 'Sandwich', dishes: [['hot-honey-sandwich', 'shrimp-poboy', 'chicken-salad-croissant'], ['garden-salad', 'caesar-salad'], 'fruit-cups'] },
+  { name: 'The Bowl', tag: 'Bowl', dishes: [['jerk-bowl', 'veggie-bowl'], 'fruit-cups', 'cornbread-madeleines'] },
+  { name: 'The Coastal', tag: 'Salad', premium: 5, dishes: ['caesar-salad', 'blackened-salmon', 'cornbread-madeleines'] },
+  { name: 'The Cobb', tag: 'Salad', dishes: ['cobb-salad', 'cornbread-madeleines'] },
+  { name: 'The Caesar', tag: 'Salad', dishes: ['caesar-salad', 'baked-chicken', 'cornbread-madeleines'] },
 ];
 
 // Extras, per person.

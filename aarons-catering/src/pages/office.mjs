@@ -69,7 +69,14 @@ const NAMES_HERE = {
   'caesar-salad': 'Caesar salad',
   'garden-salad': 'Garden salad',
   'cornbread-madeleines': 'Brown butter cornbread madeleine',
+  'hot-honey-sandwich': 'Hot honey chicken sandwich',
+  'chicken-salad-croissant': 'Southern chicken salad croissant',
+  'jerk-bowl': 'Jerk chicken bowl',
+  'veggie-bowl': 'Roasted vegetable and black-eyed pea bowl',
+  'fruit-cups': 'Fresh fruit cup',
 };
+// Names that keep their capital letter in "Choice of ..." (proper nouns).
+const KEEP_CAPS = /^(Caesar|Cajun|Southern|Cobb)\b/;
 
 // The signature boxes: what's in each, and every allergen in any part of it.
 function boxCards() {
@@ -79,14 +86,17 @@ function boxCards() {
       const label = (d) => curly(NAMES_HERE[d.id] ?? d.name);
       const lines = b.dishes.map((part) => {
         if (!Array.isArray(part)) return label(dish(part));
-        const names = part.map((id) => label(dish(id)).toLowerCase());
+        const names = part.map((id) => {
+          const n = label(dish(id));
+          return KEEP_CAPS.test(n) ? n : n.charAt(0).toLowerCase() + n.slice(1);
+        });
         return `Choice of ${names.slice(0, -1).join(', ')} or ${names[names.length - 1]}`;
       });
       const allergens = [...new Set(b.dishes.flat().flatMap((id) => dish(id).allergens))];
       return `<li class="box-card">
         <div class="box-head">
           <h4 class="box-name">${esc(b.name)}</h4>
-          <span class="box-tag">${[b.salad ? 'Salad' : '', b.premium ? `+${money(b.premium)}` : ''].filter(Boolean).join(' · ')}</span>
+          <span class="box-tag">${[b.tag ?? '', b.premium ? `+${money(b.premium)}` : ''].filter(Boolean).join(' · ')}</span>
         </div>
         <ul class="box-parts" role="list">${lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul>
         <p class="allergens"><span class="label">Allergens:</span> ${allergens.length ? allergens.map((a) => ALLERGEN_NAMES[a] ?? a).join(', ') : 'None in the recipes. See the allergy note.'}</p>
@@ -125,7 +135,7 @@ export default function office() {
     ${packageCards()}
     <div class="office-group" id="boxes">
       <h3 class="course-title">Executive lunch boxes</h3>
-      <p class="muted office-group-intro">One per guest, packed and labeled by name: four hot plates and three composed salads. Mix boxes in a single order.</p>
+      <p class="muted office-group-intro">One per guest, packed and labeled by name: four hot plates, a sandwich box, a bowl box and three composed salads. Mix boxes in a single order.</p>
       <ul class="box-grid" role="list">${boxCards()}</ul>
     </div>
     <div class="office-group">
