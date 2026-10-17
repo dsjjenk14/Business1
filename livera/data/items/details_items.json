@@ -1,0 +1,16 @@
+{
+  "$comment": "M0.8 details (docs/m08/details.md): an umbrella for the rain and a birthday cake to give.",
+  "items": [
+    {"id": "umbrella", "label": "Umbrella", "category": "accessory", "style": 1},
+    {
+      "id": "birthday_cake",
+      "label": "Birthday cake",
+      "category": "food",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 60,
+      "needs": {"hunger": 20},
+      "emotions": {"happiness": 5}
+    }
+  ]
+}

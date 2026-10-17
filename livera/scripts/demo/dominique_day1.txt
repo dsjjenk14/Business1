@@ -1,0 +1,32 @@
+# Dominique's first morning in Livéra. Run by scripts/demo_slice.sh.
+register dom livera-demo-1
+login dom livera-demo-1
+characters
+play dominique
+phone bank
+do shower
+exit
+walk heritage_coffee
+enter heritage_coffee
+buy latte card
+# Dax and Sol are still walking over from Maple Court; Sol plays the open mic.
+wait 30
+look
+say Welcome to Livéra, Sol! That was beautiful.
+tip sol-rivera 5
+talk dax deep_talk
+msg dax Good seeing you. Let's get lunch when the gym opens.
+exit
+walk meridian_talent
+enter meridian_talent
+work start
+# Eight hours at the desk (dev server time skip).
+skip 480
+work end
+phone career
+exit
+walk lexington_1204
+enter lexington_1204
+phone bank
+phone city
+quit

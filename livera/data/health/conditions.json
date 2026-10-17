@@ -1,0 +1,151 @@
+{
+  "$comment": "Conditions characters can have. Chances are per game hour. treated_by names care services or items. Sexually transmitted infections have fictional names.",
+  "conditions": [
+    {
+      "id": "common_cold",
+      "name": "a cold",
+      "kind": "illness",
+      "hours": [48, 120],
+      "needs_per_hour": {"energy": -1, "comfort": -1},
+      "performance_penalty": 0.15,
+      "catch": {
+        "hourly_chance": 0.0005,
+        "risk_need": "health",
+        "risk_below": 50,
+        "risk_multiplier": 3,
+        "contagion_per_hour": 0.02
+      },
+      "treated_by": ["treatment", "cold_medicine"]
+    },
+    {
+      "id": "flu",
+      "name": "the flu",
+      "kind": "illness",
+      "hours": [96, 168],
+      "needs_per_hour": {"energy": -2, "health": -0.5, "comfort": -1.5, "hunger": -1},
+      "performance_penalty": 0.35,
+      "catch": {
+        "hourly_chance": 0.0001,
+        "risk_need": "hygiene",
+        "risk_below": 30,
+        "risk_multiplier": 4,
+        "contagion_per_hour": 0.03
+      },
+      "treated_by": ["treatment"]
+    },
+    {
+      "id": "food_poisoning",
+      "name": "food poisoning",
+      "kind": "illness",
+      "hours": [12, 36],
+      "needs_per_hour": {"comfort": -3, "energy": -1.5, "health": -0.5, "bladder": -5},
+      "performance_penalty": 0.4,
+      "catch": {"hourly_chance": 5e-05, "dirty_home": true, "risk_multiplier": 40},
+      "treated_by": ["treatment"]
+    },
+    {
+      "id": "toothache",
+      "name": "a toothache",
+      "kind": "dental",
+      "hours": [0, 0],
+      "needs_per_hour": {"comfort": -2},
+      "emotions_per_hour": {"stress": 1},
+      "performance_penalty": 0.1,
+      "catch": {"hourly_chance": 0.0001, "risk_need": "dental", "risk_below": 15, "risk_multiplier": 300},
+      "treated_by": ["dental_care"]
+    },
+    {
+      "id": "depression",
+      "name": "depression",
+      "kind": "mental",
+      "hours": [0, 0],
+      "needs_per_hour": {"social": -1, "recreation": -1, "energy": -1},
+      "emotions_per_hour": {"sadness": 2, "happiness": -2, "loneliness": 1},
+      "performance_penalty": 0.3,
+      "treated_by": ["therapy_session", "antidepressants"]
+    },
+    {
+      "id": "alcohol_dependence",
+      "name": "alcohol dependence",
+      "kind": "addiction",
+      "hours": [0, 0],
+      "needs_per_hour": {"comfort": -1},
+      "emotions_per_hour": {"stress": 1},
+      "performance_penalty": 0.15,
+      "treated_by": ["rehab"]
+    },
+    {
+      "id": "glint_addiction",
+      "name": "a Glint addiction",
+      "kind": "addiction",
+      "hours": [0, 0],
+      "needs_per_hour": {"energy": -1.5},
+      "emotions_per_hour": {"stress": 2, "sadness": 1},
+      "performance_penalty": 0.3,
+      "treated_by": ["rehab"]
+    },
+    {
+      "id": "haze_dependence",
+      "name": "Haze dependence",
+      "kind": "addiction",
+      "hours": [0, 0],
+      "needs_per_hour": {"recreation": -1},
+      "emotions_per_hour": {"stress": 1},
+      "performance_penalty": 0.1,
+      "treated_by": ["rehab"]
+    },
+    {
+      "id": "velvet_addiction",
+      "name": "a Velvet addiction",
+      "kind": "addiction",
+      "hours": [0, 0],
+      "needs_per_hour": {"comfort": -2, "health": -0.3},
+      "emotions_per_hour": {"stress": 2, "sadness": 2},
+      "performance_penalty": 0.4,
+      "treated_by": ["rehab"]
+    },
+    {
+      "id": "crimson_bloom",
+      "name": "Crimson Bloom",
+      "kind": "sti",
+      "hours": [0, 0],
+      "needs_per_hour": {"comfort": -1},
+      "emotions_per_hour": {"embarrassment": 0.5},
+      "performance_penalty": 0.05,
+      "catch": {"sexual_transmission": 0.3},
+      "treated_by": ["treatment"]
+    },
+    {
+      "id": "ashen_itch",
+      "name": "Ashen Itch",
+      "kind": "sti",
+      "hours": [0, 0],
+      "needs_per_hour": {"comfort": -1.5},
+      "performance_penalty": 0.05,
+      "catch": {"sexual_transmission": 0.4},
+      "treated_by": ["treatment"]
+    },
+    {
+      "id": "silent_lace",
+      "name": "Silent Lace",
+      "kind": "sti",
+      "hours": [0, 0],
+      "needs_per_hour": {"health": -0.1},
+      "symptomatic": false,
+      "catch": {"sexual_transmission": 0.25},
+      "treated_by": ["treatment"]
+    },
+    {
+      "id": "hollow_fever",
+      "name": "Hollow Fever",
+      "kind": "sti",
+      "hours": [0, 0],
+      "needs_per_hour": {"energy": -1, "health": -0.2},
+      "symptomatic": false,
+      "curable": false,
+      "performance_penalty": 0.15,
+      "catch": {"sexual_transmission": 0.2},
+      "treated_by": ["treatment"]
+    }
+  ]
+}

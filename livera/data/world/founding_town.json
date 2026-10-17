@@ -1,0 +1,1876 @@
+{
+  "$comment": "The founding town. Coordinates are meters; 'door' is where the building meets the street. Locations with construction_project stay closed until that project completes.",
+  "locations": [
+    {
+      "id": "lexington_1204",
+      "name": "The Lexington, Apt 1204",
+      "type": "apartment",
+      "district": "Downtown",
+      "description": "A corner one-bedroom on the twelfth floor of the town's first luxury tower. Floor-to-ceiling windows over the construction cranes.",
+      "door": [430, 470],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Nap on the sofa",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "emotions": {"happiness": 2},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "watch_tv",
+          "label": "Watch TV",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20, "comfort": 5}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "maple_court_3b",
+      "name": "Maple Court, Unit 3B",
+      "type": "apartment",
+      "district": "Maple Court",
+      "description": "A starter apartment in the first finished block of Maple Court. Thin walls, good light, and the smell of fresh paint.",
+      "door": [300, 520],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "maple_court_2a",
+      "name": "Maple Court, Unit 2A",
+      "type": "apartment",
+      "district": "Maple Court",
+      "description": "A starter one-bedroom in Maple Court's first finished block. Bare walls, good light, room to make it yours.",
+      "door": [300, 520],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "maple_court_2b",
+      "name": "Maple Court, Unit 2B",
+      "type": "apartment",
+      "district": "Maple Court",
+      "description": "A starter one-bedroom in Maple Court's first finished block. Bare walls, good light, room to make it yours.",
+      "door": [300, 520],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "maple_court_4a",
+      "name": "Maple Court, Unit 4A",
+      "type": "apartment",
+      "district": "Maple Court",
+      "description": "A starter one-bedroom in Maple Court's first finished block. Bare walls, good light, room to make it yours.",
+      "door": [300, 520],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "maple_court_4c",
+      "name": "Maple Court, Unit 4C",
+      "type": "apartment",
+      "district": "Maple Court",
+      "description": "A starter one-bedroom in Maple Court's first finished block. Bare walls, good light, room to make it yours.",
+      "door": [300, 520],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "lexington_0807",
+      "name": "The Lexington, Apt 0807",
+      "type": "apartment",
+      "district": "Downtown",
+      "description": "A one-bedroom in the town's first luxury tower, with a view of the cranes.",
+      "door": [430, 470],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Nap on the sofa",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "emotions": {"happiness": 2},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "watch_tv",
+          "label": "Watch TV",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20, "comfort": 5}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "lexington_1502",
+      "name": "The Lexington, Apt 1502",
+      "type": "apartment",
+      "district": "Downtown",
+      "description": "A one-bedroom in the town's first luxury tower, with a view of the cranes.",
+      "door": [430, 470],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Nap on the sofa",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "emotions": {"happiness": 2},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "watch_tv",
+          "label": "Watch TV",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20, "comfort": 5}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "james_wellness",
+      "name": "James Wellness",
+      "type": "wellness_studio",
+      "district": "Downtown",
+      "description": "Harper James's therapy and wellness studio: warm lamps, deep leather chairs, a yoga room upstairs.",
+      "door": [380, 455],
+      "hours": [7, 20],
+      "revenue_account": "org:james_wellness",
+      "offers": [
+        {
+          "id": "therapy_session",
+          "label": "Therapy session (50 min)",
+          "price_cents": 9500,
+          "needs": {"comfort": 10},
+          "emotions": {"stress": -15, "happiness": 4, "loneliness": -5},
+          "condition_recovery": {"depression": 25}
+        },
+        {
+          "id": "yoga_class",
+          "label": "Drop-in yoga class",
+          "price_cents": 2500,
+          "needs": {"health": 3, "recreation": 10, "energy": -5},
+          "emotions": {"stress": -6},
+          "calories_burned": 200
+        },
+        {
+          "id": "herbal_tea",
+          "label": "Herbal tea",
+          "price_cents": 450,
+          "needs": {"comfort": 5, "bladder": -10},
+          "calories": 5
+        }
+      ],
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "low_end_studios",
+      "name": "Low End Studios",
+      "type": "recording_studio",
+      "district": "Riverside",
+      "description": "Andre Campbell's recording studio: a vintage console, a wall of synths, and a couch that has heard every demo in town. Listening sessions most nights.",
+      "door": [720, 520],
+      "hours": [12, 3],
+      "revenue_account": "org:low_end_studios",
+      "stage": true,
+      "offers": [
+        {
+          "id": "studio_hour",
+          "label": "An hour of studio time",
+          "price_cents": 6000,
+          "needs": {"recreation": 15},
+          "emotions": {"excitement": 6}
+        }
+      ],
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "ellis_atelier",
+      "name": "Ellis Atelier",
+      "type": "boutique",
+      "district": "Downtown",
+      "description": "Naomi Ellis's atelier and showroom: mood boards, black-and-white lookbooks, and one rail of finished pieces.",
+      "door": [560, 420],
+      "hours": [10, 19],
+      "revenue_account": "org:ellis_atelier",
+      "offers": [
+        {
+          "id": "silk_scarf",
+          "label": "Silk scarf (Ellis)",
+          "price_cents": 9500,
+          "emotions": {"confidence": 4, "happiness": 2},
+          "item": "silk_scarf"
+        },
+        {
+          "id": "tailored_blazer",
+          "label": "Tailored blazer (Ellis)",
+          "price_cents": 48000,
+          "emotions": {"confidence": 8, "happiness": 3},
+          "item": "tailored_blazer"
+        }
+      ],
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "whitaker_capital",
+      "name": "Whitaker Capital",
+      "type": "office",
+      "district": "Civic Row",
+      "description": "The consortium's Livéra office: glass, walnut, and a model of the city as it will look in ten years.",
+      "door": [590, 330],
+      "access": "staff",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "common_ground",
+      "name": "Common Ground Community Center",
+      "type": "community_center",
+      "district": "Maple Court",
+      "description": "Maya Bennett's nonprofit: a community center for the people building Livéra. Free dinners, tutoring, a legal clinic on Thursdays.",
+      "door": [270, 470],
+      "hours": [8, 21],
+      "activities": [
+        {
+          "id": "volunteer",
+          "label": "Volunteer for a shift",
+          "cooldown_minutes": 180,
+          "needs": {"social": 15, "energy": -5},
+          "emotions": {"happiness": 6, "loneliness": -6}
+        },
+        {
+          "id": "community_dinner",
+          "label": "Eat at the community dinner",
+          "cooldown_minutes": 240,
+          "needs": {"hunger": 30, "social": 10}
+        },
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}
+      ]
+    },
+    {
+      "id": "parallax_labs",
+      "name": "Parallax Labs",
+      "type": "tech_office",
+      "district": "Downtown",
+      "description": "Julian Park's startup, building AI that plans cities, with Livéra as its first customer. Standing desks, a whiteboard wall, cold brew on tap.",
+      "door": [540, 345],
+      "access": "staff",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "livera_ledger",
+      "name": "The Livéra Ledger",
+      "type": "newsroom",
+      "district": "Civic Row",
+      "description": "The town's newspaper: four desks, a police scanner, and Leila Rahal's corkboard of red string.",
+      "door": [610, 285],
+      "access": "staff",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "baptiste_events",
+      "name": "Baptiste & Co. Events",
+      "type": "event_agency",
+      "district": "Downtown",
+      "description": "Aaliyah Baptiste's event agency: swatches, seating charts, and the guest list for every opening in town.",
+      "door": [505, 455],
+      "access": "staff",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "lumen_creative",
+      "name": "Lumen Creative",
+      "type": "creative_agency",
+      "district": "Downtown",
+      "description": "The agency branding Livéra itself. Sienna Brooks runs the creative floor.",
+      "door": [575, 375],
+      "access": "staff",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "lexington_1801",
+      "name": "The Lexington, Apt 1801",
+      "type": "apartment",
+      "district": "Downtown",
+      "description": "A corner one-bedroom with a dress form by the window and fabric swatches on every surface.",
+      "door": [430, 470],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Nap on the sofa",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "emotions": {"happiness": 2},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "watch_tv",
+          "label": "Watch TV",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20, "comfort": 5}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "lexington_ph1",
+      "name": "The Lexington, Penthouse",
+      "type": "apartment",
+      "district": "Downtown",
+      "description": "The top floor: three bedrooms, a terrace over the river, and very little furniture yet.",
+      "door": [430, 470],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Nap on the sofa",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "emotions": {"happiness": 2},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "watch_tv",
+          "label": "Watch TV",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20, "comfort": 5}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "lexington_0904",
+      "name": "The Lexington, Apt 0904",
+      "type": "apartment",
+      "district": "Downtown",
+      "description": "Fresh flowers every Monday, a closet sorted by colour, and a calendar booked solid.",
+      "door": [430, 470],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Nap on the sofa",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "emotions": {"happiness": 2},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "watch_tv",
+          "label": "Watch TV",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20, "comfort": 5}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "maple_court_1a",
+      "name": "Maple Court, Unit 1A",
+      "type": "apartment",
+      "district": "Maple Court",
+      "description": "A ground-floor one-bedroom, two blocks from Common Ground. The door is never locked for long.",
+      "door": [300, 520],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "riverside_lofts_2",
+      "name": "Riverside Lofts, Unit 2",
+      "type": "apartment",
+      "district": "Riverside",
+      "description": "An open loft with a keyboard in the kitchen and a view of where ÉCLAT is going up.",
+      "door": [740, 560],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Crash on the couch",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 5}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "record_demo",
+          "label": "Mess around on the keys",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20},
+          "emotions": {"happiness": 3}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "riverside_lofts_3",
+      "name": "Riverside Lofts, Unit 3",
+      "type": "apartment",
+      "district": "Riverside",
+      "description": "A loft of concrete, linen and one perfect lamp.",
+      "door": [740, 560],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Crash on the couch",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 5}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "record_demo",
+          "label": "Mess around on the keys",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20},
+          "emotions": {"happiness": 3}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "riverside_lofts_5",
+      "name": "Riverside Lofts, Unit 5",
+      "type": "apartment",
+      "district": "Riverside",
+      "description": "A loft with three monitors, a pull-up bar and an unopened box of plates.",
+      "door": [740, 560],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Crash on the couch",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 5}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "record_demo",
+          "label": "Mess around on the keys",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20},
+          "emotions": {"happiness": 3}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "founders_row_3",
+      "name": "3 Founders Row",
+      "type": "townhouse",
+      "district": "Founders Row",
+      "description": "A brick townhouse full of plants, books and mismatched armchairs.",
+      "door": [335, 400],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a bath",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 10}
+        },
+        {
+          "id": "nap",
+          "label": "Nap in the reading chair",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook dinner",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 40},
+          "emotions": {"happiness": 3},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "read",
+          "label": "Read by the window",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 15, "comfort": 8},
+          "emotions": {"stress": -4}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "founders_row_7",
+      "name": "7 Founders Row",
+      "type": "townhouse",
+      "district": "Founders Row",
+      "description": "A narrow townhouse with blackout curtains and a desk buried in files.",
+      "door": [355, 400],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a bath",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 10}
+        },
+        {
+          "id": "nap",
+          "label": "Nap in the reading chair",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook dinner",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 40},
+          "emotions": {"happiness": 3},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "read",
+          "label": "Read by the window",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 15, "comfort": 8},
+          "emotions": {"stress": -4}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "heritage_coffee",
+      "name": "Heritage Coffee Co.",
+      "type": "coffee_shop",
+      "district": "Downtown",
+      "description": "Exposed brick, a long communal table, and the only espresso machine in town. Everyone ends up here. Open mic any time the café is open.",
+      "door": [470, 430],
+      "hours": [6, 20],
+      "revenue_account": "org:heritage_coffee",
+      "offers": [
+        {
+          "id": "drip",
+          "label": "Drip coffee",
+          "price_cents": 300,
+          "needs": {"energy": 10, "bladder": -10},
+          "calories": 60
+        },
+        {
+          "id": "latte",
+          "label": "Oat milk latte",
+          "price_cents": 575,
+          "needs": {"energy": 15, "bladder": -10},
+          "emotions": {"happiness": 3},
+          "calories": 190
+        },
+        {
+          "id": "croissant",
+          "label": "Almond croissant",
+          "price_cents": 450,
+          "needs": {"hunger": 15},
+          "calories": 450
+        },
+        {
+          "id": "breakfast_sandwich",
+          "label": "Breakfast sandwich",
+          "price_cents": 895,
+          "needs": {"hunger": 30},
+          "calories": 550
+        }
+      ],
+      "stage": true,
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "greenleaf_market",
+      "name": "Greenleaf Market",
+      "type": "grocery",
+      "district": "Downtown",
+      "description": "The town's grocery store, still half-stocked while the distribution road is being paved.",
+      "door": [540, 470],
+      "hours": [7, 22],
+      "revenue_account": "org:greenleaf_market",
+      "offers": [
+        {
+          "id": "ready_meal",
+          "label": "Ready-made meal",
+          "price_cents": 1250,
+          "needs": {"hunger": 40},
+          "calories": 650
+        },
+        {
+          "id": "fresh_juice",
+          "label": "Cold-pressed juice",
+          "price_cents": 700,
+          "needs": {"hunger": 10, "health": 2, "bladder": -10},
+          "calories": 120
+        },
+        {"id": "flowers", "label": "Bouquet of flowers", "price_cents": 2200, "emotions": {"happiness": 4}},
+        {"id": "condoms", "label": "Condoms (3)", "price_cents": 1200, "item": "condoms", "quantity": 3},
+        {"id": "pregnancy_test", "label": "Pregnancy test", "price_cents": 1500, "item": "pregnancy_test"},
+        {
+          "id": "pet_food",
+          "label": "Pet food (5 meals)",
+          "price_cents": 1500,
+          "item": "pet_food",
+          "quantity": 5
+        },
+        {"id": "birthday_cake", "label": "Birthday cake", "price_cents": 3500, "item": "birthday_cake"}
+      ],
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "meridian_talent",
+      "name": "Meridian Talent Partners",
+      "type": "office",
+      "district": "Downtown",
+      "description": "A recruiting firm's new Livéra office, hiring for every employer that's moving to town.",
+      "door": [510, 380],
+      "access": "staff",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "forge_site_office",
+      "name": "Forge Builders Site Office",
+      "type": "construction_office",
+      "district": "South Works",
+      "description": "Two stacked trailers, a plan table, and a whiteboard of every build in town.",
+      "door": [480, 610],
+      "access": "staff",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "riverdale_clinic",
+      "name": "Riverdale Clinic",
+      "type": "clinic",
+      "district": "Downtown",
+      "description": "A walk-in clinic that will become Riverdale Medical Center once the town grows.",
+      "door": [600, 400],
+      "hours": [8, 18],
+      "revenue_account": "org:riverdale_health",
+      "offers": [
+        {
+          "id": "checkup",
+          "label": "Checkup with a doctor",
+          "price_cents": 4500,
+          "needs": {"health": 20},
+          "emotions": {"stress": -3},
+          "service": "checkup"
+        },
+        {
+          "id": "treatment",
+          "label": "Treatment for what the doctor found",
+          "price_cents": 12000,
+          "needs": {"health": 10},
+          "service": "treatment"
+        },
+        {
+          "id": "dental_care",
+          "label": "Dental cleaning and fillings",
+          "price_cents": 9000,
+          "needs": {"comfort": -5},
+          "service": "dental_care"
+        },
+        {"id": "sti_test", "label": "STI test", "price_cents": 8000, "service": "sti_test"},
+        {
+          "id": "prenatal",
+          "label": "Prenatal visit",
+          "price_cents": 12000,
+          "service": "prenatal",
+          "emotions": {"stress": -5}
+        },
+        {"id": "abortion", "label": "Abortion care (private)", "price_cents": 60000, "service": "abortion"}
+      ],
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "greater_hope",
+      "name": "Greater Hope Missionary Baptist Church",
+      "type": "church",
+      "district": "Maple Court",
+      "description": "The first congregation in Livéra. Sunday service, a choir, and a kitchen that feeds whoever shows up.",
+      "door": [250, 430],
+      "hours": [7, 21],
+      "revenue_account": "org:greater_hope",
+      "offers": [{"id": "offering", "label": "Give an offering", "price_cents": 2000, "emotions": {"happiness": 4}}],
+      "activities": [
+        {
+          "id": "service",
+          "label": "Sit in on a service",
+          "cooldown_minutes": 180,
+          "needs": {"social": 20},
+          "emotions": {"happiness": 6, "stress": -6, "loneliness": -6}
+        },
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}
+      ],
+      "stage": true,
+      "weddings": true
+    },
+    {
+      "id": "founders_park",
+      "name": "Founders Park",
+      "type": "park",
+      "district": "Downtown",
+      "description": "A small green with new saplings, a fountain that isn't switched on yet, and a view of the river.",
+      "door": [400, 350],
+      "enterable": false,
+      "outdoor_radius_m": 40,
+      "activities": [
+        {
+          "id": "jog",
+          "label": "Go for a jog",
+          "cooldown_minutes": 120,
+          "needs": {"recreation": 20, "health": 3, "energy": -10, "hygiene": -15},
+          "calories_burned": 300
+        },
+        {
+          "id": "people_watch",
+          "label": "Sit and people-watch",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 10, "comfort": 5}
+        }
+      ],
+      "stage": true
+    },
+    {
+      "id": "police_station",
+      "name": "Livéra Police Station",
+      "type": "civic",
+      "district": "Civic Row",
+      "description": "Livéra Police Department: a front desk, three holding cells, and the academy classroom in back.",
+      "door": [650, 300],
+      "enterable": true,
+      "access": "staff",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "fire_station",
+      "name": "Station 1 Fire & Rescue",
+      "type": "civic",
+      "district": "Civic Row",
+      "description": "Landmark only for now: civic services arrive in a later milestone (see docs/ROADMAP.md).",
+      "door": [700, 300],
+      "enterable": false,
+      "outdoor_radius_m": 15
+    },
+    {
+      "id": "founders_way_site",
+      "name": "Founders Way (unpaved)",
+      "type": "construction_site",
+      "district": "South Works",
+      "description": "The dirt road that will become the town's main boulevard. Graders and a paving crew.",
+      "door": [450, 560],
+      "enterable": false,
+      "outdoor_radius_m": 50
+    },
+    {
+      "id": "maple_court_ii_site",
+      "name": "Maple Court Phase II site",
+      "type": "construction_site",
+      "district": "Maple Court",
+      "description": "Framing for 120 new apartments. Cranes, lumber stacks, and a temporary fence.",
+      "door": [220, 600],
+      "enterable": false,
+      "outdoor_radius_m": 50
+    },
+    {
+      "id": "body_balance_site",
+      "name": "Body & Balance (construction)",
+      "type": "construction_site",
+      "district": "Downtown",
+      "description": "A gym going up next to the park.",
+      "door": [360, 300],
+      "enterable": false,
+      "outdoor_radius_m": 30
+    },
+    {
+      "id": "eclat_site",
+      "name": "Parcel 7 (future nightlife)",
+      "type": "construction_site",
+      "district": "Riverside",
+      "description": "An empty riverside parcel waiting for Founders Way to be paved before work can start.",
+      "door": [760, 480],
+      "enterable": false,
+      "outdoor_radius_m": 40
+    },
+    {
+      "id": "maple_court_ii",
+      "name": "Maple Court Phase II",
+      "type": "apartment_building",
+      "district": "Maple Court",
+      "description": "120 new apartments. Leasing opens with the economy milestone.",
+      "door": [220, 600],
+      "enterable": false,
+      "outdoor_radius_m": 20,
+      "construction_project": "maple_court_ii"
+    },
+    {
+      "id": "body_balance",
+      "name": "Body & Balance",
+      "type": "gym",
+      "district": "Downtown",
+      "description": "Free weights, a spin room, and a smoothie bar.",
+      "door": [360, 300],
+      "hours": [5, 23],
+      "revenue_account": "org:body_balance",
+      "construction_project": "body_balance",
+      "offers": [
+        {
+          "id": "day_pass",
+          "label": "Day pass and a workout",
+          "price_cents": 1500,
+          "needs": {"recreation": 15, "health": 4, "energy": -10},
+          "emotions": {"confidence": 3},
+          "calories_burned": 400
+        },
+        {
+          "id": "smoothie",
+          "label": "Protein smoothie",
+          "price_cents": 900,
+          "needs": {"hunger": 20, "bladder": -10},
+          "calories": 320
+        }
+      ],
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "eclat",
+      "name": "ÉCLAT",
+      "type": "nightclub",
+      "district": "Riverside",
+      "description": "Velvet rope, a riverside terrace, and the loudest sound system for two hundred miles.",
+      "door": [760, 480],
+      "hours": [21, 3],
+      "revenue_account": "org:eclat_hospitality",
+      "construction_project": "eclat",
+      "offers": [
+        {
+          "id": "cover",
+          "label": "Cover charge",
+          "price_cents": 2500,
+          "needs": {"recreation": 25, "social": 15},
+          "emotions": {"excitement": 10}
+        },
+        {
+          "id": "cocktail",
+          "label": "Signature cocktail",
+          "price_cents": 1800,
+          "needs": {"recreation": 8, "bladder": -10},
+          "emotions": {"happiness": 3},
+          "calories": 220,
+          "substance": "alcohol"
+        }
+      ],
+      "stage": true,
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "thread_co",
+      "name": "Thread & Co.",
+      "type": "clothing_store",
+      "district": "Founders Way",
+      "description": "Racks of everyday clothes, a mirror wall, and a sale bin by the door.",
+      "door": [600, 550],
+      "hours": [9, 21],
+      "revenue_account": "org:thread_co",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}],
+      "offers": [
+        {
+          "id": "everyday_outfit",
+          "label": "Everyday outfit",
+          "price_cents": 4500,
+          "item": "everyday_outfit",
+          "emotions": {"happiness": 2}
+        },
+        {
+          "id": "streetwear_set",
+          "label": "Streetwear set",
+          "price_cents": 12000,
+          "item": "streetwear_set",
+          "emotions": {"happiness": 3}
+        },
+        {
+          "id": "workwear_suit",
+          "label": "Tailored workwear suit",
+          "price_cents": 32000,
+          "item": "workwear_suit",
+          "emotions": {"happiness": 3}
+        },
+        {
+          "id": "evening_outfit",
+          "label": "Evening outfit",
+          "price_cents": 18000,
+          "item": "evening_outfit",
+          "emotions": {"happiness": 4}
+        },
+        {"id": "gym_clothes", "label": "Gym clothes", "price_cents": 6000, "item": "gym_clothes"},
+        {
+          "id": "sunglasses",
+          "label": "Sunglasses",
+          "price_cents": 8500,
+          "item": "sunglasses",
+          "emotions": {"happiness": 2}
+        },
+        {"id": "umbrella", "label": "Umbrella", "price_cents": 2500, "item": "umbrella"}
+      ]
+    },
+    {
+      "id": "circuit_electronics",
+      "name": "Circuit Electronics",
+      "type": "electronics_store",
+      "district": "Founders Way",
+      "description": "Demo laptops chained to white tables, a wall of headphones, and a guy who really wants to talk about specs.",
+      "door": [640, 550],
+      "hours": [10, 20],
+      "revenue_account": "org:circuit_electronics",
+      "offers": [
+        {
+          "id": "laptop",
+          "label": "Laptop",
+          "price_cents": 129900,
+          "item": "laptop",
+          "emotions": {"happiness": 5}
+        },
+        {
+          "id": "headphones",
+          "label": "Wireless headphones",
+          "price_cents": 19900,
+          "item": "headphones",
+          "emotions": {"happiness": 3}
+        },
+        {
+          "id": "smartwatch",
+          "label": "Smartwatch",
+          "price_cents": 29900,
+          "item": "smartwatch",
+          "emotions": {"happiness": 3}
+        },
+        {"id": "lyra_one", "label": "Lyra One phone", "price_cents": 19900, "item": "lyra_one"},
+        {
+          "id": "lyra_air",
+          "label": "Lyra Air phone",
+          "price_cents": 49900,
+          "item": "lyra_air",
+          "emotions": {"happiness": 4}
+        },
+        {
+          "id": "lyra_pro",
+          "label": "Lyra Pro phone",
+          "price_cents": 109900,
+          "item": "lyra_pro",
+          "emotions": {"happiness": 6}
+        },
+        {"id": "case_clear", "label": "Clear phone case", "price_cents": 1999, "item": "case_clear"}
+      ]
+    },
+    {
+      "id": "riverdale_pharmacy",
+      "name": "Riverdale Pharmacy",
+      "type": "pharmacy",
+      "district": "Founders Way",
+      "description": "Fluorescent aisles, a prescription counter in the back, and a pharmacist who remembers everyone's name.",
+      "door": [680, 550],
+      "hours": [8, 22],
+      "revenue_account": "org:riverdale_pharmacy",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}],
+      "offers": [
+        {
+          "id": "cold_medicine",
+          "label": "Cold & flu relief",
+          "price_cents": 1200,
+          "item": "cold_medicine",
+          "quantity": 3
+        },
+        {
+          "id": "painkillers",
+          "label": "Painkillers",
+          "price_cents": 900,
+          "item": "painkillers",
+          "quantity": 6
+        },
+        {
+          "id": "allergy_relief",
+          "label": "Allergy relief (10)",
+          "price_cents": 1100,
+          "item": "allergy_relief",
+          "quantity": 10
+        },
+        {
+          "id": "antacid",
+          "label": "Antacid tablets (12)",
+          "price_cents": 800,
+          "item": "antacid",
+          "quantity": 12
+        },
+        {"id": "sleep_aid", "label": "Sleep aid (8)", "price_cents": 1300, "item": "sleep_aid", "quantity": 8},
+        {
+          "id": "vitamins",
+          "label": "Daily vitamins (30)",
+          "price_cents": 1600,
+          "item": "vitamins",
+          "quantity": 30
+        },
+        {
+          "id": "antidepressants",
+          "label": "Antidepressants (prescription)",
+          "price_cents": 3500,
+          "item": "antidepressants",
+          "quantity": 30
+        },
+        {
+          "id": "antibiotics",
+          "label": "Antibiotics (prescription, 6 doses)",
+          "price_cents": 2400,
+          "item": "antibiotics",
+          "quantity": 6
+        },
+        {
+          "id": "antivirals",
+          "label": "Antivirals (prescription, 4 doses)",
+          "price_cents": 4500,
+          "item": "antivirals",
+          "quantity": 4
+        },
+        {"id": "condoms", "label": "Condoms (3)", "price_cents": 1200, "item": "condoms", "quantity": 3},
+        {"id": "pregnancy_test", "label": "Pregnancy test", "price_cents": 1500, "item": "pregnancy_test"}
+      ]
+    },
+    {
+      "id": "lustre_jewelers",
+      "name": "Lustre Jewelers",
+      "type": "jeweler",
+      "district": "Downtown",
+      "description": "Glass cases, soft lighting, and a velvet tray brought out only when they think you're serious.",
+      "door": [650, 470],
+      "hours": [10, 19],
+      "revenue_account": "org:lustre_jewelers",
+      "offers": [
+        {
+          "id": "gold_watch",
+          "label": "Gold watch",
+          "price_cents": 150000,
+          "item": "gold_watch",
+          "emotions": {"happiness": 5}
+        },
+        {
+          "id": "designer_bag",
+          "label": "Designer bag",
+          "price_cents": 85000,
+          "item": "designer_bag",
+          "emotions": {"happiness": 5}
+        },
+        {
+          "id": "engagement_ring",
+          "label": "Engagement ring",
+          "price_cents": 250000,
+          "item": "engagement_ring",
+          "emotions": {"excitement": 5}
+        }
+      ]
+    },
+    {
+      "id": "fade_glow",
+      "name": "Fade & Glow Salon",
+      "type": "salon",
+      "district": "Founders Way",
+      "description": "Three barber chairs, two stylists, a nail station, and a playlist nobody is allowed to change.",
+      "door": [360, 550],
+      "hours": [9, 19],
+      "revenue_account": "org:fade_glow",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}],
+      "offers": [
+        {
+          "id": "haircut",
+          "label": "Haircut and style",
+          "price_cents": 4500,
+          "needs": {"grooming": 60},
+          "emotions": {"confidence": 6}
+        },
+        {
+          "id": "shave",
+          "label": "Hot towel shave or beard trim",
+          "price_cents": 2500,
+          "needs": {"grooming": 30, "comfort": 5}
+        },
+        {
+          "id": "manicure",
+          "label": "Manicure",
+          "price_cents": 3500,
+          "needs": {"grooming": 20, "comfort": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "facial",
+          "label": "Facial",
+          "price_cents": 6000,
+          "needs": {"grooming": 25, "comfort": 10},
+          "emotions": {"stress": -5}
+        }
+      ]
+    },
+    {
+      "id": "livera_university",
+      "name": "Livéra University",
+      "type": "university",
+      "district": "Riverside",
+      "description": "A new campus on the river: one finished lecture hall, a library that smells of fresh paint, and a law clinic upstairs.",
+      "door": [740, 400],
+      "hours": [7, 22],
+      "revenue_account": "org:livera_university",
+      "activities": [
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {
+          "id": "library",
+          "label": "Read in the library",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 8, "comfort": 3},
+          "emotions": {"stress": -2}
+        }
+      ],
+      "offers": [
+        {
+          "id": "campus_coffee",
+          "label": "Campus coffee",
+          "price_cents": 250,
+          "needs": {"energy": 10, "bladder": -10},
+          "calories": 50
+        }
+      ]
+    },
+    {
+      "id": "livera_general",
+      "name": "Livéra General Hospital",
+      "type": "hospital",
+      "district": "Riverside",
+      "description": "Emergency room open around the clock, a maternity ward, and a parking lot still mostly gravel.",
+      "door": [680, 400],
+      "revenue_account": "org:livera_general",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}],
+      "offers": [
+        {
+          "id": "checkup",
+          "label": "Checkup with a doctor",
+          "price_cents": 6500,
+          "needs": {"health": 15},
+          "service": "checkup"
+        },
+        {
+          "id": "treatment",
+          "label": "Treatment for what the doctor found",
+          "price_cents": 15000,
+          "needs": {"health": 10},
+          "service": "treatment"
+        },
+        {
+          "id": "emergency_care",
+          "label": "Emergency room visit",
+          "price_cents": 45000,
+          "needs": {"health": 30},
+          "service": "emergency"
+        },
+        {
+          "id": "rehab",
+          "label": "Addiction treatment program",
+          "price_cents": 250000,
+          "needs": {"health": 10},
+          "emotions": {"stress": -10},
+          "service": "rehab"
+        },
+        {"id": "sti_test", "label": "STI test", "price_cents": 8000, "service": "sti_test"},
+        {
+          "id": "prenatal",
+          "label": "Prenatal visit",
+          "price_cents": 12000,
+          "service": "prenatal",
+          "emotions": {"stress": -5}
+        },
+        {"id": "abortion", "label": "Abortion care (private)", "price_cents": 60000, "service": "abortion"}
+      ]
+    },
+    {
+      "id": "hale_partners",
+      "name": "Hale & Partners",
+      "type": "law_firm",
+      "district": "Downtown",
+      "access": "staff",
+      "description": "Livéra's first law firm: glass conference room, a library of statute books nobody reads, and a partner who bills in six-minute increments.",
+      "door": [660, 440],
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "copper_tap",
+      "name": "The Copper Tap",
+      "type": "bar",
+      "district": "Founders Way",
+      "description": "A long copper bar, a dartboard nobody hits, and a corner stage for whoever's brave enough.",
+      "door": [420, 540],
+      "hours": [16, 2],
+      "stage": true,
+      "revenue_account": "org:copper_tap",
+      "activities": [
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {
+          "id": "darts",
+          "label": "Throw darts",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 12, "social": 5}
+        }
+      ],
+      "offers": [
+        {"id": "beer", "label": "Draft beer", "price_cents": 700, "substance": "alcohol", "calories": 150},
+        {"id": "wine", "label": "Glass of wine", "price_cents": 1100, "substance": "alcohol", "calories": 125},
+        {
+          "id": "cocktail",
+          "label": "House cocktail",
+          "price_cents": 1400,
+          "substance": "alcohol",
+          "calories": 220
+        },
+        {
+          "id": "bar_snacks",
+          "label": "Bar snacks",
+          "price_cents": 900,
+          "needs": {"hunger": 20},
+          "calories": 500
+        },
+        {"id": "soda", "label": "Soda", "price_cents": 300, "needs": {"bladder": -10}, "calories": 150}
+      ]
+    },
+    {
+      "id": "the_underpass",
+      "name": "The Underpass",
+      "type": "street_corner",
+      "district": "Forge yard",
+      "description": "Under the half-built overpass by the Forge yard. After dark, someone is always there selling something.",
+      "door": [520, 625],
+      "enterable": false,
+      "outdoor_radius_m": 15,
+      "hours": [20, 4],
+      "revenue_account": "org:street_trade",
+      "offers": [
+        {"id": "glint", "label": "Glint", "price_cents": 4000, "item": "glint", "illegal": true},
+        {"id": "haze", "label": "Haze", "price_cents": 2500, "item": "haze", "illegal": true},
+        {"id": "velvet", "label": "Velvet", "price_cents": 6000, "item": "velvet", "illegal": true}
+      ]
+    },
+    {
+      "id": "founders_school",
+      "name": "Founders School",
+      "type": "school",
+      "district": "Downtown",
+      "description": "Kindergarten through twelfth grade in one long brick building, with a gym that doubles as the auditorium.",
+      "door": [500, 290],
+      "hours": [7, 16],
+      "open_days": [0, 1, 2, 3, 4],
+      "revenue_account": "org:founders_school",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
+      "id": "little_sprouts",
+      "name": "Little Sprouts Daycare",
+      "type": "daycare",
+      "district": "Downtown",
+      "description": "A bright daycare for babies and toddlers. The office upstairs also places nannies with families.",
+      "door": [300, 335],
+      "hours": [7, 18],
+      "open_days": [0, 1, 2, 3, 4],
+      "revenue_account": "org:little_sprouts",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    }
+  ]
+}

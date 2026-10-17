@@ -1,0 +1,17 @@
+{
+  "$comment": "M0.8 details: the laundromat. Owned by the details feature (docs/m08/details.md).",
+  "locations": [
+    {
+      "id": "suds_spin",
+      "name": "Suds & Spin Laundromat",
+      "type": "laundromat",
+      "district": "Founders Way",
+      "description": "Twelve washers, eight dryers, a change machine and a bench that has heard everything. A wash and dry is $8.",
+      "door": [330, 550],
+      "hours": [6, 23],
+      "revenue_account": "org:suds_spin",
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    }
+  ],
+  "org_accounts": [{"id": "org:suds_spin", "name": "Suds & Spin Laundromat", "opening_balance_cents": 800000}]
+}

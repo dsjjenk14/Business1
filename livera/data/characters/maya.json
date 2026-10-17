@@ -1,0 +1,141 @@
+{
+  "characters": [
+    {
+      "id": "maya",
+      "first_name": "Maya",
+      "last_name": "Bennett",
+      "pronouns": "she/her",
+      "gender": "woman",
+      "age": 28,
+      "playable": true,
+      "personality": {
+        "ambition": 75,
+        "sociability": 72,
+        "empathy": 90,
+        "patience": 65,
+        "confidence": 68,
+        "risk_tolerance": 50,
+        "competitiveness": 45,
+        "impulsiveness": 30
+      },
+      "values": {
+        "family": 80,
+        "career": 65,
+        "wealth": 25,
+        "loyalty": 85,
+        "freedom": 60,
+        "status": 20,
+        "community": 98,
+        "romance": 55,
+        "creativity": 60
+      },
+      "traits": ["compassionate", "determined", "principled"],
+      "interests": ["volunteering", "faith", "dance", "cooking", "reading", "music"],
+      "career": {"id": "nonprofit", "level": 3},
+      "degrees": ["high_school", "bachelors"],
+      "fame": 10,
+      "finances": {"cash_cents": 8000, "bank_cents": 640000},
+      "home": {"property": "maple_court_1a", "tenure": "rent"},
+      "spawn_location": "maple_court_1a",
+      "relationships": [
+        {
+          "to": "graham",
+          "history": "His fund is her largest donor. She needs the money and hates where it comes from.",
+          "dimensions": {"familiarity": 26, "respect": 30, "trust": 15, "conflict": 22}
+        },
+        {
+          "to": "harper",
+          "history": "Harper volunteers every Tuesday and listens better than anyone she has ever met.",
+          "dimensions": {"familiarity": 55, "friendship": 60, "trust": 55, "respect": 62}
+        },
+        {
+          "to": "leila",
+          "history": "Maya tells Leila what the construction crews tell her. Leila checks all of it.",
+          "dimensions": {"familiarity": 35, "friendship": 36, "trust": 42, "respect": 48}
+        }
+      ],
+      "memories": [
+        {
+          "type": "community",
+          "participants": ["maya"],
+          "importance": 75,
+          "emotional_impact": 55,
+          "days_ago": 60,
+          "info": "Served the first Common Ground dinner to forty construction workers and their kids."
+        },
+        {
+          "type": "conflict",
+          "participants": ["maya", "graham"],
+          "importance": 55,
+          "emotional_impact": 10,
+          "days_ago": 25,
+          "info": "Called Graham's land plan 'a slow eviction' in front of the council.",
+          "about": "graham",
+          "public": true
+        }
+      ],
+      "profile": {
+        "tagline": "Building the town around the people who build it.",
+        "why_livera": "family",
+        "ethnicity": "Indian and Black American",
+        "card": {
+          "occupation": "Nonprofit Founder",
+          "height_cm": 167,
+          "build": "Curvy athletic",
+          "skin_tone": "Medium golden-brown"
+        },
+        "appearance": {
+          "height_cm": 167,
+          "build": "curvy athletic",
+          "skin": "medium golden-brown, warm radiant complexion",
+          "face": "large, expressive eyes, full lips, soft angular features",
+          "hair": "long, voluminous defined curls",
+          "style": "rust satin button-down, cream high-waisted wide-leg trousers, gold bangles, gold coin pendant, gold hoops, cognac structured bag, tan pumps",
+          "silhouette": "flowing curls over a tailored, warm-toned outfit",
+          "key_features": [
+            "Large, expressive eyes",
+            "Full lips",
+            "Long, defined curls",
+            "Soft, angular features",
+            "Warm, radiant complexion"
+          ],
+          "visual_reference": "art/reference/characters/maya.jpg"
+        },
+        "family_background": "Her mother, a Punjabi nurse, and her father, a union electrician from Baltimore, met on a hospital renovation. Her brother is on one of Livéra's construction crews.",
+        "education": "B.A. Public Policy, Howard University",
+        "goals": [
+          "Keep Maple Court affordable",
+          "Open a second Common Ground in South Works",
+          "Get her brother's crew a safety contract"
+        ],
+        "ambitions": ["A seat on the city council when Livéra has one"],
+        "social_preferences": "Big tables, loud kitchens, everyone welcome.",
+        "secrets": [
+          {
+            "id": "maya_donor",
+            "truth": "Whitaker Capital's donation came with conditions she hasn't disclosed to her own board.",
+            "known_by": ["graham"]
+          }
+        ],
+        "schedule": {
+          "weekdays": [{"time": "08:00", "activity": "Common Ground"}, {"time": "18:00", "activity": "Community dinner"}],
+          "sunday": [{"time": "10:00", "activity": "Greater Hope service"}]
+        },
+        "starting_inventory": ["phone", "clipboard", "Common Ground keys", "gold bangles"],
+        "social_media": {
+          "handle": "@mayabuildscommunity",
+          "followers": 8700,
+          "bio": "Common Ground founder. Housing is a human right."
+        },
+        "reputation": {"professional": 60, "social": 68, "public": 38},
+        "life_history": [
+          "Organized tenants in D.C. after college.",
+          "Founded Common Ground at twenty-six.",
+          "Followed her brother's crew to Livéra and opened the center in a month."
+        ],
+        "archetype": "The Idealist"
+      },
+      "sex": "female"
+    }
+  ]
+}

@@ -1,0 +1,424 @@
+{
+  "$comment": "M0.8 homes: houses and condos for sale, the developer that built them, the bank that lends against them, and the mortgage terms. Owned by the homes feature (docs/m08/homes.md).",
+  "locations": [
+    {
+      "id": "willow_lane_2",
+      "name": "2 Willow Lane",
+      "type": "house",
+      "district": "Willow Lane",
+      "description": "A detached family house with a porch and a back yard, a short walk from the lake.",
+      "door": [170, 650],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook dinner",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 40},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 100}},
+        {
+          "id": "clean_home",
+          "label": "Clean the house",
+          "cooldown_minutes": 240,
+          "needs": {"energy": -10},
+          "home_effects": {"cleanliness": 40}
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 60,
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "willow_lane_4",
+      "name": "4 Willow Lane",
+      "type": "house",
+      "district": "Willow Lane",
+      "description": "A detached family house with a porch and a back yard, a short walk from the lake.",
+      "door": [200, 650],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook dinner",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 40},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 100}},
+        {
+          "id": "clean_home",
+          "label": "Clean the house",
+          "cooldown_minutes": 240,
+          "needs": {"energy": -10},
+          "home_effects": {"cleanliness": 40}
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 60,
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "willow_lane_6",
+      "name": "6 Willow Lane",
+      "type": "house",
+      "district": "Willow Lane",
+      "description": "A detached family house with a porch and a back yard, a short walk from the lake.",
+      "door": [170, 690],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook dinner",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 40},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 100}},
+        {
+          "id": "clean_home",
+          "label": "Clean the house",
+          "cooldown_minutes": 240,
+          "needs": {"energy": -10},
+          "home_effects": {"cleanliness": 40}
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 60,
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "willow_lane_8",
+      "name": "8 Willow Lane",
+      "type": "house",
+      "district": "Willow Lane",
+      "description": "A detached family house with a porch and a back yard, a short walk from the lake.",
+      "door": [200, 690],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook dinner",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 40},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 100}},
+        {
+          "id": "clean_home",
+          "label": "Clean the house",
+          "cooldown_minutes": 240,
+          "needs": {"energy": -10},
+          "home_effects": {"cleanliness": 40}
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 60,
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "lakeview_1a",
+      "name": "Lakeview Condos, Unit 1A",
+      "type": "condo",
+      "district": "Willow Lane",
+      "description": "A new two-bedroom condo with a balcony over Willow Lake.",
+      "door": [380, 700],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook dinner",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 40},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 100}},
+        {
+          "id": "clean_home",
+          "label": "Clean the house",
+          "cooldown_minutes": 240,
+          "needs": {"energy": -10},
+          "home_effects": {"cleanliness": 40}
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 60,
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "lakeview_2b",
+      "name": "Lakeview Condos, Unit 2B",
+      "type": "condo",
+      "district": "Willow Lane",
+      "description": "A new two-bedroom condo with a balcony over Willow Lake.",
+      "door": [380, 700],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook dinner",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 40},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 100}},
+        {
+          "id": "clean_home",
+          "label": "Clean the house",
+          "cooldown_minutes": 240,
+          "needs": {"energy": -10},
+          "home_effects": {"cleanliness": 40}
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 60,
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "lakeview_3a",
+      "name": "Lakeview Condos, Unit 3A",
+      "type": "condo",
+      "district": "Willow Lane",
+      "description": "A new two-bedroom condo with a balcony over Willow Lake.",
+      "door": [380, 700],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook dinner",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 40},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 100}},
+        {
+          "id": "clean_home",
+          "label": "Clean the house",
+          "cooldown_minutes": 240,
+          "needs": {"energy": -10},
+          "home_effects": {"cleanliness": 40}
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 60,
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "lakeview_4c",
+      "name": "Lakeview Condos, Unit 4C",
+      "type": "condo",
+      "district": "Willow Lane",
+      "description": "A new two-bedroom condo with a balcony over Willow Lake.",
+      "door": [380, 700],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook dinner",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 40},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 100}},
+        {
+          "id": "clean_home",
+          "label": "Clean the house",
+          "cooldown_minutes": 240,
+          "needs": {"energy": -10},
+          "home_effects": {"cleanliness": 40}
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 60,
+          "home_effects": {"trash": -100}
+        }
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "id": "willow_lane_2",
+      "location": "willow_lane_2",
+      "type": "house",
+      "owner_account": "org:willow_lane_homes",
+      "for_sale": true,
+      "market_value_cents": 42000000,
+      "bedrooms": 3,
+      "amenities": ["back_yard", "porch", "garage", "in_unit_laundry"]
+    },
+    {
+      "id": "willow_lane_4",
+      "location": "willow_lane_4",
+      "type": "house",
+      "owner_account": "org:willow_lane_homes",
+      "for_sale": true,
+      "market_value_cents": 44500000,
+      "bedrooms": 3,
+      "amenities": ["back_yard", "porch", "garage", "in_unit_laundry"]
+    },
+    {
+      "id": "willow_lane_6",
+      "location": "willow_lane_6",
+      "type": "house",
+      "owner_account": "org:willow_lane_homes",
+      "for_sale": true,
+      "market_value_cents": 47500000,
+      "bedrooms": 3,
+      "amenities": ["back_yard", "porch", "garage", "in_unit_laundry"]
+    },
+    {
+      "id": "willow_lane_8",
+      "location": "willow_lane_8",
+      "type": "house",
+      "owner_account": "org:willow_lane_homes",
+      "for_sale": true,
+      "market_value_cents": 52000000,
+      "bedrooms": 3,
+      "amenities": ["back_yard", "porch", "garage", "in_unit_laundry"]
+    },
+    {
+      "id": "lakeview_1a",
+      "location": "lakeview_1a",
+      "type": "condo",
+      "owner_account": "org:willow_lane_homes",
+      "for_sale": true,
+      "market_value_cents": 26000000,
+      "bedrooms": 2,
+      "amenities": ["balcony", "lake_view", "in_unit_laundry", "parking"]
+    },
+    {
+      "id": "lakeview_2b",
+      "location": "lakeview_2b",
+      "type": "condo",
+      "owner_account": "org:willow_lane_homes",
+      "for_sale": true,
+      "market_value_cents": 27500000,
+      "bedrooms": 2,
+      "amenities": ["balcony", "lake_view", "in_unit_laundry", "parking"]
+    },
+    {
+      "id": "lakeview_3a",
+      "location": "lakeview_3a",
+      "type": "condo",
+      "owner_account": "org:willow_lane_homes",
+      "for_sale": true,
+      "market_value_cents": 29500000,
+      "bedrooms": 2,
+      "amenities": ["balcony", "lake_view", "in_unit_laundry", "parking"]
+    },
+    {
+      "id": "lakeview_4c",
+      "location": "lakeview_4c",
+      "type": "condo",
+      "owner_account": "org:willow_lane_homes",
+      "for_sale": true,
+      "market_value_cents": 32000000,
+      "bedrooms": 2,
+      "amenities": ["balcony", "lake_view", "in_unit_laundry", "parking"]
+    }
+  ],
+  "org_accounts": [
+    {"id": "org:willow_lane_homes", "name": "Willow Lane Homes", "opening_balance_cents": 25000000},
+    {"id": "org:livera_savings_bank", "name": "Livéra Savings Bank", "opening_balance_cents": 1000000000}
+  ],
+  "homes": {
+    "$comment": "One mortgage product. Months are game months (28 days). The bank lends if your share of the payments is under max_payment_share_of_pay of your monthly pay (career level hourly x work_hours_per_month), or your savings after the down payment cover reserve_months of payments.",
+    "lender": "org:livera_savings_bank",
+    "min_down_payment": 0.1,
+    "annual_rate": 0.06,
+    "term_months": 360,
+    "missed_payments_to_foreclose": 3,
+    "late_fee_cents": 5000,
+    "max_payment_share_of_pay": 0.4,
+    "work_hours_per_month": 160,
+    "reserve_months": 12,
+    "residents_per_bedroom": 2
+  }
+}

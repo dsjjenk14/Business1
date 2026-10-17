@@ -1,0 +1,143 @@
+{
+  "characters": [
+    {
+      "id": "sienna",
+      "first_name": "Sienna",
+      "last_name": "Brooks",
+      "pronouns": "she/her",
+      "gender": "woman",
+      "age": 27,
+      "playable": true,
+      "personality": {
+        "ambition": 82,
+        "sociability": 50,
+        "empathy": 55,
+        "patience": 70,
+        "confidence": 70,
+        "risk_tolerance": 55,
+        "competitiveness": 85,
+        "impulsiveness": 30
+      },
+      "values": {
+        "family": 60,
+        "career": 88,
+        "wealth": 60,
+        "loyalty": 55,
+        "freedom": 85,
+        "status": 75,
+        "community": 40,
+        "romance": 50,
+        "creativity": 92
+      },
+      "traits": ["observant", "independent", "quietly_competitive"],
+      "interests": ["fashion", "art", "photography", "film", "music", "nightlife"],
+      "career": {"id": "creative_direction", "level": 2},
+      "degrees": ["high_school", "bachelors"],
+      "fame": 15,
+      "finances": {"cash_cents": 18000, "bank_cents": 1750000},
+      "home": {"property": "riverside_lofts_3", "tenure": "rent"},
+      "spawn_location": "riverside_lofts_3",
+      "relationships": [
+        {
+          "to": "naomi",
+          "history": "Cousins who shared a bedroom and a sketchbook. Naomi got the label; Sienna got the eye.",
+          "dimensions": {"familiarity": 92, "friendship": 50, "loyalty": 56, "trust": 44, "jealousy": 30}
+        },
+        {
+          "to": "aaliyah",
+          "history": "She makes Aaliyah's events look like magazine covers. Aaliyah makes sure everyone knows who did it.",
+          "dimensions": {"familiarity": 46, "friendship": 40, "respect": 54, "trust": 36}
+        },
+        {
+          "to": "andre",
+          "history": "She art-directed his last cover. He keeps finding reasons to send her things.",
+          "dimensions": {"familiarity": 22, "respect": 32, "friendship": 12, "physical_attraction": 18}
+        }
+      ],
+      "memories": [
+        {
+          "type": "family",
+          "participants": ["sienna", "naomi"],
+          "importance": 50,
+          "emotional_impact": -5,
+          "days_ago": 4000,
+          "info": "Wore Naomi's first dress to prom. Everyone asked who made it; nobody asked who styled it.",
+          "about": "naomi"
+        },
+        {
+          "type": "career",
+          "participants": ["sienna"],
+          "importance": 70,
+          "emotional_impact": 50,
+          "days_ago": 150,
+          "info": "Pitched the Livéra brand to the consortium. They bought it on the spot."
+        }
+      ],
+      "profile": {
+        "tagline": "Decides what's beautiful in Livéra. Rarely says so out loud.",
+        "why_livera": "career_advancement",
+        "ethnicity": "Black and Asian American",
+        "card": {
+          "occupation": "Creative Director",
+          "height_cm": 170,
+          "build": "Slender athletic",
+          "skin_tone": "Light caramel"
+        },
+        "appearance": {
+          "height_cm": 170,
+          "build": "slender athletic",
+          "skin": "light caramel",
+          "eyes": "almond-shaped, dark",
+          "face": "defined cheekbones, delicate nose, glossy lips",
+          "hair": "long, glossy dark hair with curtain bangs",
+          "style": "burgundy leather moto jacket, black tank, charcoal high-waisted trousers, black belt, black ankle boots, black quilted bag, stacked ear piercings",
+          "silhouette": "cropped leather jacket, long straight hair",
+          "key_features": [
+            "Almond-shaped dark eyes",
+            "Defined cheekbones",
+            "Delicate nose",
+            "Glossy dark hair with curtain bangs",
+            "Sleek, angular, fashion-forward style"
+          ],
+          "visual_reference": "art/reference/characters/sienna.jpg"
+        },
+        "family_background": "Daughter of a Korean-American photographer and a Black jazz drummer from Philadelphia. Naomi's mother is her mother's older sister.",
+        "education": "B.F.A. Graphic Design, RISD",
+        "goals": [
+          "Make Lumen Creative the agency that defines Livéra",
+          "Step out of Naomi's shadow",
+          "Find out if Andre is serious"
+        ],
+        "ambitions": ["Her own agency, her own name on the door"],
+        "social_preferences": "Watches a room before she joins it. Always knows who left with whom.",
+        "secrets": [
+          {
+            "id": "sienna_unfiltered",
+            "truth": "She runs @livera.unfiltered, the anonymous account that posts the town's gossip.",
+            "known_by": []
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "09:30", "activity": "Lumen Creative"},
+            {"time": "20:00", "activity": "Gallery openings, shoots, ÉCLAT when it opens"}
+          ]
+        },
+        "starting_inventory": ["phone", "film camera", "burgundy leather jacket", "black quilted bag", "a second phone"],
+        "social_media": {
+          "handle": "@siennabrooks.studio",
+          "followers": 27400,
+          "bio": "Creative director. Lumen. Taste is a decision."
+        },
+        "reputation": {"professional": 68, "social": 55, "public": 34},
+        "life_history": [
+          "Art director at a Los Angeles agency at twenty-four.",
+          "Rebranded two record labels and a hotel group.",
+          "Pitched the Livéra city brand and moved here to build it."
+        ],
+        "archetype": "The Tastemaker"
+      },
+      "sex": "female"
+    }
+  ]
+}

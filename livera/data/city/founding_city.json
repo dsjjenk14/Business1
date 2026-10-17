@@ -1,0 +1,57 @@
+{
+  "$comment": "City growth. Population numbers are abstract (statistical) residents, not rendered NPCs. Crews work only on work_days (0=Monday) between work_hours. worker_hours_required / crew_size = hours on site.",
+  "city_initial": {"population": 12400, "housing_units": 4300, "jobs": 5200, "businesses": 38, "paved_road_km": 3},
+  "city_stages": [
+    {"stage": 1, "name": "Founding Town", "min_population": 0},
+    {"stage": 2, "name": "Growing Town", "min_population": 25000},
+    {"stage": 3, "name": "Emerging City", "min_population": 75000},
+    {"stage": 4, "name": "Major City", "min_population": 250000},
+    {"stage": 5, "name": "Metropolis", "min_population": 1000000}
+  ],
+  "construction_projects": [
+    {
+      "id": "founders_way",
+      "name": "Founders Way paving",
+      "site": "founders_way_site",
+      "worker_hours_required": 540,
+      "crew_size": 12,
+      "work_hours": [7, 16],
+      "work_days": [0, 1, 2, 3, 4, 5],
+      "city_effects": {"paved_road_km": 2.5, "jobs": 15}
+    },
+    {
+      "id": "body_balance",
+      "name": "Body & Balance gym",
+      "site": "body_balance_site",
+      "opens_location": "body_balance",
+      "worker_hours_required": 720,
+      "crew_size": 10,
+      "work_hours": [7, 16],
+      "work_days": [0, 1, 2, 3, 4],
+      "city_effects": {"businesses": 1, "jobs": 18, "population": 60}
+    },
+    {
+      "id": "maple_court_ii",
+      "name": "Maple Court Phase II",
+      "site": "maple_court_ii_site",
+      "opens_location": "maple_court_ii",
+      "worker_hours_required": 2700,
+      "crew_size": 20,
+      "work_hours": [7, 16],
+      "work_days": [0, 1, 2, 3, 4, 5],
+      "city_effects": {"population": 340, "housing_units": 120}
+    },
+    {
+      "id": "eclat",
+      "name": "ÉCLAT nightclub",
+      "site": "eclat_site",
+      "opens_location": "eclat",
+      "starts_after": "founders_way",
+      "worker_hours_required": 1350,
+      "crew_size": 15,
+      "work_hours": [7, 16],
+      "work_days": [0, 1, 2, 3, 4, 5],
+      "city_effects": {"businesses": 1, "jobs": 40, "population": 30}
+    }
+  ]
+}

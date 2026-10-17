@@ -1,0 +1,145 @@
+{
+  "characters": [
+    {
+      "id": "graham",
+      "first_name": "Graham",
+      "last_name": "Whitaker",
+      "pronouns": "he/him",
+      "gender": "man",
+      "age": 35,
+      "playable": true,
+      "personality": {
+        "ambition": 88,
+        "sociability": 60,
+        "empathy": 40,
+        "patience": 90,
+        "confidence": 90,
+        "risk_tolerance": 65,
+        "competitiveness": 80,
+        "impulsiveness": 15
+      },
+      "values": {
+        "family": 50,
+        "career": 85,
+        "wealth": 95,
+        "loyalty": 55,
+        "freedom": 60,
+        "status": 85,
+        "community": 30,
+        "romance": 45,
+        "creativity": 35
+      },
+      "traits": ["patient", "analytical", "self_assured"],
+      "interests": ["real_estate", "networking", "travel", "fitness", "reading"],
+      "career": {"id": "private_equity", "level": 3},
+      "degrees": ["high_school", "bachelors", "masters"],
+      "fame": 25,
+      "finances": {"cash_cents": 50000, "bank_cents": 285000000},
+      "home": {"property": "lexington_ph1", "tenure": "rent"},
+      "spawn_location": "lexington_ph1",
+      "relationships": [
+        {
+          "to": "dominique",
+          "history": "Meridian finds his portfolio companies their executives. She's the best recruiter he's worked with, and she knows it.",
+          "dimensions": {"familiarity": 30, "respect": 56, "trust": 30, "romantic_attraction": 15}
+        },
+        {
+          "to": "julian",
+          "history": "Whitaker Capital led Parallax's seed round. Graham likes Julian; he likes Julian's cap table more.",
+          "dimensions": {"familiarity": 48, "respect": 40, "trust": 28}
+        },
+        {
+          "to": "naomi",
+          "history": "He funded her label because she's the most talented person in town. He wrote the contract because she's also the most stubborn.",
+          "dimensions": {"familiarity": 35, "respect": 58, "physical_attraction": 30, "trust": 35}
+        },
+        {
+          "to": "maya",
+          "history": "His fund is Common Ground's largest donor. She thanks him in public and argues with him in private.",
+          "dimensions": {"familiarity": 26, "respect": 34, "conflict": 12}
+        },
+        {
+          "to": "leila",
+          "history": "The reporter who asks good questions at council meetings. He doesn't know how good yet.",
+          "dimensions": {"familiarity": 12, "respect": 28, "trust": 10}
+        }
+      ],
+      "memories": [
+        {
+          "type": "business",
+          "participants": ["graham"],
+          "importance": 85,
+          "emotional_impact": 50,
+          "days_ago": 400,
+          "info": "Closed the consortium deal that chartered Livéra."
+        },
+        {
+          "type": "business",
+          "participants": ["graham", "maya"],
+          "importance": 55,
+          "emotional_impact": -25,
+          "days_ago": 25,
+          "info": "Maya called his land plan 'a slow eviction' in front of the council.",
+          "about": "maya"
+        }
+      ],
+      "profile": {
+        "tagline": "Owns a piece of everything. Wants the rest.",
+        "why_livera": "real_estate_investment",
+        "ethnicity": "White American",
+        "card": {"occupation": "Private Equity Investor", "height_cm": 188, "build": "Athletic", "skin_tone": "Fair"},
+        "appearance": {
+          "height_cm": 188,
+          "build": "athletic",
+          "skin": "fair",
+          "eyes": "blue-gray",
+          "face": "strong, defined features, light stubble, a level, appraising look",
+          "hair": "dark blond, swept back with loose waves",
+          "style": "navy merino V-neck over a light-blue collar, charcoal trousers, brown leather belt, brown oxfords, leather-strap watch, sleeves pushed up",
+          "silhouette": "tall and squared-off; classic tailoring, never a tie",
+          "key_features": [
+            "Blue-gray eyes",
+            "Dark blond hair",
+            "Strong, defined features",
+            "Light stubble",
+            "Classic, refined style"
+          ],
+          "visual_reference": "art/reference/characters/graham.jpg"
+        },
+        "family_background": "Third generation of a Connecticut family that made its money in shipping and lost most of it. He made it back.",
+        "education": "B.A. Economics, Dartmouth; M.B.A., Wharton",
+        "goals": [
+          "Return the consortium's money twice over",
+          "Get Founders Way rezoned for towers",
+          "Never be the poorest Whitaker again"
+        ],
+        "ambitions": ["Livéra's skyline, with his name on half of it"],
+        "social_preferences": "Quiet dinners where business happens; never stays late.",
+        "secrets": [
+          {
+            "id": "graham_pressure",
+            "truth": "His investors want out early. He's under pressure to flip Livéra assets fast, starting with Maple Court.",
+            "known_by": []
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "06:00", "activity": "Run along the river"},
+            {"time": "07:30", "activity": "Whitaker Capital"},
+            {"time": "20:00", "activity": "Dinner meetings"}
+          ]
+        },
+        "starting_inventory": ["phone", "leather-strap watch", "term sheets", "Lexington penthouse key"],
+        "social_media": {"handle": "@gwhitaker", "followers": 3900, "bio": "Building what's next."},
+        "reputation": {"professional": 78, "social": 50, "public": 40},
+        "life_history": [
+          "Eight years at a Boston private equity firm.",
+          "Raised his own fund at thirty-two.",
+          "Led the consortium that chartered Livéra."
+        ],
+        "archetype": "The Investor"
+      },
+      "sex": "male"
+    }
+  ]
+}

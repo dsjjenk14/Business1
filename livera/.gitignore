@@ -1,0 +1,6 @@
+build/
+build-*/
+*.db
+*.db-wal
+*.db-shm
+art/_incoming/

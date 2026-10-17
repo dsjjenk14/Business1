@@ -1,0 +1,138 @@
+{
+  "characters": [
+    {
+      "id": "leila",
+      "first_name": "Leila",
+      "last_name": "Rahal",
+      "pronouns": "she/her",
+      "gender": "woman",
+      "age": 33,
+      "playable": true,
+      "personality": {
+        "ambition": 78,
+        "sociability": 55,
+        "empathy": 60,
+        "patience": 70,
+        "confidence": 80,
+        "risk_tolerance": 88,
+        "competitiveness": 65,
+        "impulsiveness": 40
+      },
+      "values": {
+        "family": 60,
+        "career": 88,
+        "wealth": 35,
+        "loyalty": 70,
+        "freedom": 85,
+        "status": 40,
+        "community": 75,
+        "romance": 45,
+        "creativity": 60
+      },
+      "traits": ["curious", "skeptical", "fearless"],
+      "interests": ["reading", "film", "travel", "photography", "nightlife"],
+      "career": {"id": "journalism", "level": 2},
+      "degrees": ["high_school", "bachelors"],
+      "fame": 15,
+      "finances": {"cash_cents": 20000, "bank_cents": 1120000},
+      "home": {"property": "founders_row_7", "tenure": "rent"},
+      "spawn_location": "founders_row_7",
+      "relationships": [
+        {
+          "to": "dominique",
+          "history": "Dominique knows who's coming to town before anyone. Leila would love to know too.",
+          "dimensions": {"familiarity": 18, "respect": 36, "friendship": 14}
+        },
+        {
+          "to": "graham",
+          "history": "Leila is investigating where the Founders' Grant money really went. All roads lead to Whitaker Capital.",
+          "dimensions": {"familiarity": 20, "respect": 30, "trust": 2, "conflict": 18}
+        },
+        {
+          "to": "maya",
+          "history": "Her best source on the ground. Leila checks everything Maya tells her and is usually glad she did.",
+          "dimensions": {"familiarity": 35, "friendship": 38, "trust": 46, "respect": 52}
+        },
+        {
+          "to": "harper",
+          "history": "College roommate, oldest friend, and the only person allowed to tell her to stop working.",
+          "dimensions": {"familiarity": 82, "friendship": 64, "trust": 60, "loyalty": 62}
+        }
+      ],
+      "memories": [
+        {
+          "type": "investigation",
+          "participants": ["leila", "graham"],
+          "importance": 70,
+          "emotional_impact": 20,
+          "days_ago": 14,
+          "info": "Found two Founders' Grant payments that went to a company with no employees.",
+          "about": "graham"
+        },
+        {
+          "type": "friendship",
+          "participants": ["leila", "harper"],
+          "importance": 55,
+          "emotional_impact": 35,
+          "days_ago": 120,
+          "info": "Talked Harper into moving to Livéra over a bottle of wine.",
+          "about": "harper"
+        }
+      ],
+      "profile": {
+        "tagline": "Knows what happened. Finding out who knows.",
+        "why_livera": "career_advancement",
+        "ethnicity": "Lebanese American",
+        "card": {"occupation": "Investigative Journalist", "height_cm": 169, "build": "Slender", "skin_tone": "Olive"},
+        "appearance": {
+          "height_cm": 169,
+          "build": "slender",
+          "skin": "olive",
+          "eyes": "deep brown, almond-shaped",
+          "face": "prominent brows, defined cheekbones, a skeptical half-smile",
+          "hair": "shoulder-length espresso waves",
+          "style": "camel trench coat, black square-neck midi dress with a slit, black belt, black pointed ankle boots, oxblood top-handle bag, gold signet ring, gold hoops",
+          "silhouette": "long trench coat over black, collar up",
+          "key_features": [
+            "Prominent brows",
+            "Deep brown almond-shaped eyes",
+            "Defined cheekbones",
+            "Shoulder-length espresso waves",
+            "Understated, elegant style"
+          ],
+          "visual_reference": "art/reference/characters/leila.jpg"
+        },
+        "family_background": "Grew up in Dearborn, Michigan, in her parents' bakery. Her grandfather ran a newspaper in Beirut.",
+        "education": "B.A. Journalism, Northwestern University (Medill)",
+        "goals": [
+          "Break the Founders' Grant story",
+          "Make the Ledger a real newspaper",
+          "Find out who's posting as @livera.unfiltered"
+        ],
+        "ambitions": ["A Pulitzer, earned in a town nobody had heard of"],
+        "social_preferences": "Listens more than she talks; remembers everything.",
+        "secrets": [{"id": "leila_source", "truth": "She has a source inside Whitaker Capital.", "known_by": []}],
+        "schedule": {
+          "weekdays": [
+            {"time": "09:00", "activity": "The Livéra Ledger"},
+            {"time": "19:00", "activity": "Council meetings, or Heritage Coffee with a notebook"}
+          ]
+        },
+        "starting_inventory": ["phone", "notebook", "voice recorder", "press pass", "oxblood bag"],
+        "social_media": {
+          "handle": "@leilarahal",
+          "followers": 15800,
+          "bio": "Reporter, The Livéra Ledger. Tips welcome. Encrypted preferred."
+        },
+        "reputation": {"professional": 72, "social": 44, "public": 46},
+        "life_history": [
+          "Covered city hall in Chicago for six years.",
+          "Her series on a housing fraud got two officials indicted.",
+          "Took over the Ledger when its founder retired the week Livéra was chartered."
+        ],
+        "archetype": "The Insider"
+      },
+      "sex": "female"
+    }
+  ]
+}

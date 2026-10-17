@@ -1,0 +1,74 @@
+{
+  "$comment": "Phones and coin-shop items. Every adult carries a phone (the basic model is issued to anyone who has none). battery_hours is how long a full battery lasts online and away from a charger; charge_hours is dead to full. Phones charge at home, at work on shift, in a study session, offline (your routine plugs it in), and at the location types in charge_at_types. Better models are sold at Circuit Electronics; the gold edition is coin-only and no better than the Pro. Cases are cosmetic.",
+  "items": [
+    {"id": "lyra_one", "label": "Lyra One", "category": "phone"},
+    {"id": "lyra_air", "label": "Lyra Air", "category": "phone", "emotions": {"happiness": 3}},
+    {
+      "id": "lyra_pro",
+      "label": "Lyra Pro",
+      "category": "phone",
+      "emotions": {"happiness": 4, "confidence": 2}
+    },
+    {
+      "id": "lyra_pro_gold",
+      "label": "Lyra Pro Gold Edition",
+      "category": "phone",
+      "emotions": {"happiness": 4, "confidence": 2}
+    },
+    {"id": "case_clear", "label": "Clear phone case", "category": "phone_case"},
+    {"id": "case_marble", "label": "Marble phone case", "category": "phone_case"},
+    {"id": "case_glitter", "label": "Glitter phone case", "category": "phone_case"},
+    {"id": "case_gold_leaf", "label": "Gold-leaf phone case", "category": "phone_case"},
+    {
+      "id": "atelier_nuit_gown",
+      "label": "Atelier Nuit couture gown",
+      "category": "clothing",
+      "slot": "outfit",
+      "style": 25,
+      "emotions": {"confidence": 6, "excitement": 3}
+    },
+    {
+      "id": "midnight_couture_suit",
+      "label": "Midnight couture suit",
+      "category": "clothing",
+      "slot": "outfit",
+      "style": 25,
+      "emotions": {"confidence": 8}
+    },
+    {
+      "id": "velour_tracksuit",
+      "label": "Velour designer tracksuit",
+      "category": "clothing",
+      "slot": "outfit",
+      "style": 12,
+      "emotions": {"confidence": 4}
+    },
+    {
+      "id": "riviera_sunglasses",
+      "label": "Riviera designer sunglasses",
+      "category": "accessory",
+      "slot": "accessory",
+      "style": 12,
+      "emotions": {"confidence": 4}
+    },
+    {
+      "id": "meridian_chronograph",
+      "label": "Meridian luxury chronograph",
+      "category": "jewelry",
+      "slot": "accessory",
+      "style": 18,
+      "emotions": {"confidence": 6}
+    }
+  ],
+  "phones": {
+    "basic_model": "lyra_one",
+    "low_battery_percent": 20,
+    "charge_at_types": ["coffee_shop", "electronics_store", "university", "community_center"],
+    "models": [
+      {"item": "lyra_one", "battery_hours": 40, "charge_hours": 3},
+      {"item": "lyra_air", "battery_hours": 60, "charge_hours": 2.5},
+      {"item": "lyra_pro", "battery_hours": 80, "charge_hours": 2},
+      {"item": "lyra_pro_gold", "battery_hours": 80, "charge_hours": 2}
+    ]
+  }
+}

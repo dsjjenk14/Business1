@@ -1,0 +1,26 @@
+# LIVÉRA simulation core and server (livera/). Independent of the I'm In app checks.
+name: LIVÉRA
+
+on:
+  push:
+    paths: ["livera/**", ".github/workflows/livera.yml"]
+  pull_request:
+    paths: ["livera/**", ".github/workflows/livera.yml"]
+
+jobs:
+  build-and-test:
+    name: Build, test, sanitizers, demo slice
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: livera
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y ninja-build libsqlite3-dev libssl-dev
+      - run: cmake -S . -B build -G Ninja
+      - run: cmake --build build
+      - run: ./build/livera_tests
+      - run: cmake -S . -B build-asan -G Ninja -DLIVERA_SANITIZE=ON -DCMAKE_BUILD_TYPE=Debug
+      - run: cmake --build build-asan
+      - run: ./build-asan/livera_tests
+      - run: scripts/demo_slice.sh build

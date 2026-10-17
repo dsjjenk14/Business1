@@ -1,0 +1,89 @@
+{
+  "$comment": "Degrees, programs and what the character creator's education answers mean. Study hours are game hours spent in study sessions.",
+  "education": {
+    "degrees": [
+      {"id": "high_school", "name": "High school diploma"},
+      {"id": "bachelors", "name": "Bachelor's degree"},
+      {"id": "masters", "name": "Master's degree"},
+      {"id": "jd", "name": "Juris Doctor (law degree)"},
+      {"id": "md", "name": "Doctor of Medicine"},
+      {"id": "bsn", "name": "Bachelor of Science in Nursing"},
+      {"id": "doctorate", "name": "Doctorate"},
+      {"id": "police_academy", "name": "Police Academy certificate"}
+    ],
+    "programs": [
+      {
+        "id": "bachelors",
+        "name": "Livéra University: Bachelor's program",
+        "degree": "bachelors",
+        "hours_required": 400,
+        "tuition_per_hour_cents": 4000,
+        "min_grade": 55,
+        "campuses": ["livera_university"],
+        "online": true,
+        "need_cost_per_hour": {"energy": -3, "recreation": -2},
+        "tuition_account": "org:livera_university",
+        "requires_degree": "high_school"
+      },
+      {
+        "id": "law_school",
+        "name": "Livéra University School of Law",
+        "degree": "jd",
+        "requires_degree": "bachelors",
+        "hours_required": 300,
+        "tuition_per_hour_cents": 9500,
+        "min_grade": 62,
+        "campuses": ["livera_university"],
+        "need_cost_per_hour": {"energy": -4, "recreation": -2},
+        "tuition_account": "org:livera_university"
+      },
+      {
+        "id": "medical_school",
+        "name": "Livéra University School of Medicine",
+        "degree": "md",
+        "requires_degree": "bachelors",
+        "hours_required": 500,
+        "tuition_per_hour_cents": 11000,
+        "min_grade": 65,
+        "campuses": ["livera_university", "livera_general"],
+        "need_cost_per_hour": {"energy": -5, "comfort": -1},
+        "tuition_account": "org:livera_university"
+      },
+      {
+        "id": "nursing_school",
+        "name": "Livéra University School of Nursing",
+        "degree": "bsn",
+        "hours_required": 300,
+        "tuition_per_hour_cents": 4500,
+        "min_grade": 58,
+        "campuses": ["livera_university", "livera_general"],
+        "online": true,
+        "need_cost_per_hour": {"energy": -4},
+        "tuition_account": "org:livera_university"
+      },
+      {
+        "id": "police_academy",
+        "name": "Livéra Police Academy",
+        "degree": "police_academy",
+        "requires_clean_record": true,
+        "hours_required": 120,
+        "tuition_per_hour_cents": 0,
+        "min_grade": 55,
+        "campuses": ["police_station"],
+        "need_cost_per_hour": {"energy": -5, "hygiene": -2},
+        "tuition_account": "org:livera_pd"
+      }
+    ],
+    "creator_education": {
+      "bachelor's degree": ["high_school", "bachelors"],
+      "master's degree": ["high_school", "bachelors", "masters"],
+      "law degree": ["high_school", "bachelors", "jd"],
+      "medical degree": ["high_school", "bachelors", "md"],
+      "doctorate": ["high_school", "bachelors", "masters", "doctorate"],
+      "high school": ["high_school"],
+      "trade school": ["high_school"],
+      "some college": ["high_school"],
+      "associate degree": ["high_school"]
+    }
+  }
+}
