@@ -61,7 +61,7 @@ function packageCards() {
 }
 
 const ALLERGEN_NAMES = { dairy: 'Dairy', eggs: 'Eggs', wheat: 'Wheat', shellfish: 'Shellfish', fish: 'Fish', 'tree nuts': 'Tree nuts', peanuts: 'Peanuts', soy: 'Soy', sesame: 'Sesame', mustard: 'Mustard' };
-const NAMES_HERE = { 'baked-chicken': 'Herb roasted chicken', 'garlic-mashed': 'Roasted garlic mashed potatoes', 'short-ribs': 'Red wine braised short rib', 'caesar-salad': 'Caesar salad' };
+const NAMES_HERE = { 'baked-chicken': 'Herb roasted chicken', 'garlic-mashed': 'Roasted garlic mashed potatoes', 'short-ribs': 'Red wine braised short rib', 'caesar-salad': 'Caesar salad', 'garden-salad': 'Garden salad', 'cornbread-muffins': 'Jalapeño cheddar cornbread muffin' };
 
 // The signature boxes: what's in each, and every allergen in any part of it.
 function boxCards() {
@@ -72,7 +72,7 @@ function boxCards() {
       return `<li class="box-card">
         <div class="box-head">
           <h4 class="box-name">${esc(b.name)}</h4>
-          ${b.premium ? `<span class="box-tag">+${money(b.premium)}</span>` : ''}
+          <span class="box-tag">${[b.salad ? 'Salad' : '', b.premium ? `+${money(b.premium)}` : ''].filter(Boolean).join(' · ')}</span>
         </div>
         <ul class="box-parts" role="list">${parts.map((d) => `<li>${esc(curly(NAMES_HERE[d.id] ?? d.name))}</li>`).join('')}</ul>
         <p class="allergens"><span class="label">Allergens:</span> ${allergens.length ? allergens.map((a) => ALLERGEN_NAMES[a] ?? a).join(', ') : 'None in the recipes. See the allergy note.'}</p>
@@ -111,7 +111,7 @@ export default function office() {
     ${packageCards()}
     <div class="office-group" id="boxes">
       <h3 class="course-title">Executive lunch boxes</h3>
-      <p class="muted office-group-intro">One per guest, packed and labeled by name. Mix boxes in a single order.</p>
+      <p class="muted office-group-intro">One per guest, packed and labeled by name: four hot plates and three composed salads. Mix boxes in a single order.</p>
       <ul class="box-grid" role="list">${boxCards()}</ul>
     </div>
     <div class="office-group">

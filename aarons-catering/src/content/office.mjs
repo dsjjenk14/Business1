@@ -72,12 +72,13 @@ export const officePackages = [
 // (dish ids). Premium boxes add to the box price. Allergens are worked out
 // from the dishes.
 export const officeBoxes = [
-  { name: 'The Hot Honey', dishes: ['hot-honey-chicken', 'gouda-mac', 'green-beans', 'cornbread-muffins'] },
-  { name: 'The Islander', dishes: ['jerk-chicken', 'brown-butter-yams', 'collards', 'cornbread-muffins'] },
+  { name: 'The Hot Honey', dishes: ['hot-honey-chicken', 'gouda-mac', 'caesar-salad', 'cornbread-muffins'] },
+  { name: 'The Islander', dishes: ['jerk-chicken', 'brown-butter-yams', 'garden-salad', 'cornbread-muffins'] },
   { name: 'The Classic', dishes: ['baked-chicken', 'garlic-mashed', 'green-beans', 'cornbread-muffins'] },
-  { name: 'The Coastal', premium: 5, dishes: ['blackened-salmon', 'garlic-mashed', 'green-beans', 'cornbread-muffins'] },
-  { name: 'The Executive', premium: 5, dishes: ['short-ribs', 'garlic-mashed', 'collards', 'cornbread-muffins'] },
-  { name: 'The Caesar', dishes: ['caesar-salad', 'baked-chicken', 'cornbread-muffins'] },
+  { name: 'The Executive', premium: 5, dishes: ['short-ribs', 'garlic-mashed', 'garden-salad', 'cornbread-muffins'] },
+  { name: 'The Coastal', salad: true, premium: 5, dishes: ['caesar-salad', 'blackened-salmon', 'cornbread-muffins'] },
+  { name: 'The Cobb', salad: true, dishes: ['cobb-salad', 'cornbread-muffins'] },
+  { name: 'The Caesar', salad: true, dishes: ['caesar-salad', 'baked-chicken', 'cornbread-muffins'] },
 ];
 
 // Extras, per person.
@@ -162,7 +163,6 @@ export const officeMenus = [
           { dish: 'garlic-mashed', name: 'Roasted garlic mashed potatoes', description: 'Whipped with butter, cream and roasted garlic, under red wine gravy.' },
           'brown-butter-yams',
           { dish: 'green-beans', name: 'Green beans with smoked turkey' },
-          { dish: 'collards', name: 'Slow-braised collard greens' },
         ],
       },
       {
