@@ -99,6 +99,7 @@ function boxCards() {
           <span class="box-tag">${[b.tag ?? '', b.premium ? `+${money(b.premium)}` : ''].filter(Boolean).join(' · ')}</span>
         </div>
         <ul class="box-parts" role="list">${lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul>
+        ${b.note ? `<p class="box-note">${esc(curly(b.note))}</p>` : ''}
         <p class="allergens"><span class="label">Allergens:</span> ${allergens.length ? allergens.map((a) => ALLERGEN_NAMES[a] ?? a).join(', ') : 'None in the recipes. See the allergy note.'}</p>
       </li>`;
     })
@@ -135,7 +136,7 @@ export default function office() {
     ${packageCards()}
     <div class="office-group" id="boxes">
       <h3 class="course-title">Executive lunch boxes</h3>
-      <p class="muted office-group-intro">One per guest, packed and labeled by name: four hot plates, a sandwich box, a bowl box and three composed salads. Mix boxes in a single order.</p>
+      <p class="muted office-group-intro">One per guest, packed and labeled by name: four hot plates, a vegetarian plate, a sandwich box, a bowl box and two composed salads. Mix boxes in a single order.</p>
       <ul class="box-grid" role="list">${boxCards()}</ul>
     </div>
     <div class="office-group">

@@ -777,6 +777,7 @@ button { font: inherit; color: inherit; }
 .box-parts { list-style: none; display: grid; gap: 6px; padding-top: 12px; border-top: 1px solid var(--line); }
 .box-parts li { display: flex; gap: 10px; font-size: 0.9375rem; }
 .box-parts li::before { content: ''; flex: none; width: 5px; height: 5px; margin-top: 0.6em; border-radius: 50%; background: var(--accent); }
+.box-note { font-size: 0.875rem; color: var(--muted); font-style: italic; }
 .office-addons { list-style: none; display: grid; gap: 0 32px; border-top: 1px solid var(--line); }
 @media (min-width: 720px) { .office-addons { grid-template-columns: 1fr 1fr; } }
 .office-addons li { display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
@@ -1009,6 +1010,7 @@ button { font: inherit; color: inherit; }
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
+.spicy.veg { border-color: var(--accent); color: var(--accent); }
 .dish-note { margin-top: 6px; color: var(--muted); font-size: 0.8125rem; font-style: italic; }
 
 @media (min-width: 900px) {

@@ -350,6 +350,7 @@ export const dishes = {
       'Italian vinaigrette (olive oil, red wine vinegar, garlic, oregano)',
     ],
     allergens: ['wheat', 'dairy', 'eggs'],
+    vegetarian: true,
   },
   'caesar-salad': {
     name: 'Caesar salad',
@@ -543,6 +544,7 @@ export const dishes = {
       'black pepper',
     ],
     allergens: ['wheat', 'dairy'],
+    vegetarian: true,
   },
   'banana-pudding': {
     name: 'Banana pudding jars',
@@ -674,6 +676,7 @@ export const dishes = {
     description: 'Candied yams in a French form: paper-thin sweet potato layered with brown butter and cream, baked, pressed and cut into neat squares.',
     ingredients: ['sweet potatoes', 'heavy cream', 'brown butter', 'brown sugar', 'fresh thyme', 'cinnamon', 'nutmeg', 'kosher salt'],
     allergens: ['dairy'],
+    vegetarian: true,
   },
 
   // ---------- Christmas additions ----------
@@ -818,6 +821,7 @@ export const dishes = {
       'lemon vinaigrette (olive oil, lemon juice, red wine vinegar, garlic, oregano, salt, black pepper)',
     ],
     allergens: [],
+    vegetarian: true,
   },
 
   // ---------- Caribbean plate (The Islander) ----------
@@ -838,6 +842,58 @@ export const dishes = {
     description: 'Jamaican fried cornmeal dumplings, crisp outside, soft and lightly sweet inside.',
     ingredients: ['yellow cornmeal', 'all-purpose wheat flour', 'sugar', 'baking powder', 'salt', 'whole milk', 'vanilla', 'canola oil for frying'],
     allergens: ['wheat', 'dairy'],
+  },
+
+  // ---------- Vegetarian and Reserve ----------
+  'cauliflower-steak': {
+    name: 'Blackened cauliflower steak',
+    description: 'A thick-cut cauliflower steak roasted in a dark Cajun crust, finished with lemon herb butter and fresh parsley.',
+    ingredients: ['cauliflower', CAJUN, 'olive oil', 'lemon herb butter (butter, lemon zest and juice, garlic, parsley)', 'flaky salt'],
+    allergens: ['dairy'],
+    vegetarian: true,
+  },
+  'truffle-grits': {
+    name: 'Wild mushroom and black truffle grits',
+    description: 'Stone-ground white cheddar grits under roasted wild mushrooms, shaved black truffle and chives.',
+    ingredients: [
+      'stone-ground white grits',
+      'vegetable stock (water, onion, carrot, celery, thyme)',
+      'white cheddar',
+      'heavy cream',
+      'butter',
+      'roasted wild mushrooms (cremini, shiitake, maitake, olive oil, garlic, thyme)',
+      'shaved black truffle',
+      'chives',
+      'kosher salt',
+      'black pepper',
+    ],
+    allergens: ['dairy'],
+    vegetarian: true,
+  },
+  'lobster-mac': {
+    name: 'Lobster mac and cheese',
+    description: 'Butter-poached lobster folded through cavatappi in gruyère and white cheddar, under a brown butter crumb.',
+    ingredients: [
+      'cavatappi pasta (durum wheat semolina)',
+      'butter-poached lobster',
+      'gruyère',
+      'sharp white cheddar',
+      'whole milk',
+      'heavy cream',
+      'butter',
+      'all-purpose wheat flour',
+      'brown butter breadcrumbs (breadcrumbs, butter)',
+      'chives',
+      'kosher salt',
+    ],
+    allergens: ['shellfish', 'wheat', 'dairy'],
+  },
+  'truffle-potatoes': {
+    name: 'Black truffle whipped potatoes',
+    description: 'Yukon gold potatoes whipped with cultured butter and cream, finished with shaved black truffle.',
+    ingredients: ['Yukon gold potatoes', 'cultured butter', 'heavy cream', 'roasted garlic', 'shaved black truffle', 'kosher salt', 'white pepper'],
+    allergens: ['dairy'],
+    vegetarian: true,
   },
 
   // ---------- Office breakfast ----------
