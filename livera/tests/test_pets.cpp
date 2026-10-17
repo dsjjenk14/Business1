@@ -356,6 +356,31 @@ TEST_CASE("pets: starved for a day, the pet goes back to the shelter, and not to
   CHECK(p->takenFrom.empty());
 }
 
+TEST_CASE("pets: left to waste away, the pet is taken too; the household is warned first") {
+  // Hunger holds steady here; it's the pet's health that gives out.
+  auto db = quietContent([](Json& doc, const std::string& file) {
+    if (file != "pets.json") return;
+    for (auto& s : doc["pets"]["species"]) s["needs_per_hour"] = Json{{"health", -8}};
+  });
+  World w = morningWorld(db);
+  const std::string dog = adopt(w, "dominique", "dog");
+  walkInto(w, "dominique", "lexington_1204");
+  int hours = 0;
+  while (!w.pet(dog)->owner.empty() && hours < 48) {
+    w.advanceMinutes(60);
+    ++hours;
+    if (!w.pet(dog)->owner.empty()) CHECK(w.pet(dog)->needs.at("hunger") > 0);
+  }
+  const PetState* p = w.pet(dog);
+  CHECK(p->owner.empty());
+  CHECK(p->takenFrom == "dominique");
+  CHECK(!p->healthWarned);
+  CHECK(notified(w, "dominique", p->name + " is very weak"));
+  CHECK(notified(w, "dominique", "too ill for too long"));
+  CHECK(!notified(w, "dominique", "is starving"));
+  CHECK(remembers(w, "dominique", "lost_pet"));
+}
+
 TEST_CASE("pets: pets fall ill now and then; the vet diagnoses, vaccinates and treats, for a fee") {
   auto db = quietContent([](Json& doc, const std::string& file) {
     if (file != "pets.json") return;
@@ -674,6 +699,28 @@ TEST_CASE("pets and medicine: saved and loaded with the world; older saves load 
   CHECK(after.prescriptions.at(0).writtenBy == "Riverdale Clinic");
   CHECK(after.medicineDoses == before.medicineDoses);
   CHECK(after.medicineDoses.at("antibiotics").size() == 1);
+  // Every field of a pet survives the world part, the ones left at defaults above too.
+  PetState odd = a;
+  odd.illness = "kennel_cough";
+  odd.illnessKnown = true;
+  odd.adoptedAt = 77;
+  odd.starvingSince = 123;
+  odd.hungerWarned = true;
+  odd.healthWarned = true;
+  odd.takenFrom = "dax";
+  WorldState full;
+  full.pets[odd.id] = odd;
+  WorldState back;
+  petsPartFromJson(back, petsPartToJson(full));
+  REQUIRE(back.pets.count(odd.id));
+  const PetState& r = back.pets.at(odd.id);
+  CHECK(r.illness == "kennel_cough");
+  CHECK(r.illnessKnown);
+  CHECK(r.adoptedAt == 77);
+  CHECK(r.starvingSince == 123);
+  CHECK(r.hungerWarned);
+  CHECK(r.healthWarned);
+  CHECK(r.takenFrom == "dax");
 
   // The loaded world carries on: the dog still knows it was just fed.
   World again(db, s);

@@ -545,6 +545,7 @@ Result<Json> World::adoptPet(const CharacterId& actor, const std::string& petId,
   p.takenFrom.clear();
   p.starvingSince = -1;
   p.hungerWarned = false;
+  p.healthWarned = false;
   p.readyAt.clear();
   p.stage = petStageOf(p);
   if (P.adoptionVaccineDays > 0)
@@ -809,9 +810,19 @@ void World::stepPet(PetState& p) {
   } else {
     p.starvingSince = -1;
   }
-  if (need(p.needs, "health") <= 0) {
+  const double health = need(p.needs, "health");
+  if (health <= 0) {
     petToShelter(p, "they were left too ill for too long", true);
     return;
+  }
+  if (health < P.warnBelow && !p.healthWarned) {
+    p.healthWarned = true;
+    const LocationDef* vet = content_->location(P.vet);
+    for (const auto& id : household)
+      notify(id, "pets", p.name + " is very weak. Take them to " + (vet ? vet->name : std::string("the vet")) +
+                             " before animal control has to step in.");
+  } else if (health >= P.warnBelow) {
+    p.healthWarned = false;
   }
 
   // Neglect wears on the bond.
@@ -882,6 +893,7 @@ void World::petToShelter(PetState& p, const std::string& why, bool neglect) {
   p.bond.clear();
   p.starvingSince = -1;
   p.hungerWarned = false;
+  p.healthWarned = false;
   p.readyAt.clear();
 }
 
@@ -1116,6 +1128,7 @@ Json petToJson(const PetState& p) {
               {"adopted_at", p.adoptedAt},
               {"starving_since", p.starvingSince},
               {"hunger_warned", p.hungerWarned},
+              {"health_warned", p.healthWarned},
               {"stage", p.stage},
               {"taken_from", p.takenFrom},
               {"ready_at", p.readyAt}};
@@ -1138,6 +1151,7 @@ PetState petFromJson(const Json& j) {
   p.adoptedAt = j.value("adopted_at", GameMinutes{-1});
   p.starvingSince = j.value("starving_since", GameMinutes{-1});
   p.hungerWarned = j.value("hunger_warned", false);
+  p.healthWarned = j.value("health_warned", false);
   p.stage = j.value("stage", "");
   p.takenFrom = j.value("taken_from", "");
   p.readyAt = j.value("ready_at", std::map<std::string, GameMinutes>{});

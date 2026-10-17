@@ -105,6 +105,7 @@ struct PetState {
   GameMinutes adoptedAt = -1;
   GameMinutes starvingSince = -1;  // hunger at 0 since then
   bool hungerWarned = false;
+  bool healthWarned = false;    // the household was told it's very weak
   std::string stage;            // last life stage the household was told about
   CharacterId takenFrom;        // animal control took it from them; the shelter won't give it back
   std::map<std::string, GameMinutes> readyAt;  // care action -> next minute it helps again
