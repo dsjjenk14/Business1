@@ -91,14 +91,14 @@ export const photos = {
     source: 'photo',
   },
   'page-holiday': {
-    file: 'page-holiday.jpg',
-    w: 2400,
-    h: 1120,
-    alt: 'A holiday buffet line on a red tablecloth: lemon salmon, chicken and sides in chafing dishes',
-    shot: 'Holiday buffet line.',
+    file: 'hero.jpg', // the same holiday spread as the home page
+    w: 1024,
+    h: 1536,
+    alt: 'A holiday spread: glazed ham with pineapple and cherries, roast turkey, mac and cheese, collard greens, candied yams, stuffing, mashed potatoes, green beans, cranberry sauce, rolls, cornbread and sweet potato pie',
+    shot: 'The holiday spread from the home page.',
     where: 'Holiday page, top banner',
-    focus: '25% 50%', // cropped to the buffet line; on phones aim at the salmon
-    source: 'photo',
+    focus: '50% 30%', // ham and turkey in view when the banner crops the photo
+    source: 'generated',
   },
 };
 

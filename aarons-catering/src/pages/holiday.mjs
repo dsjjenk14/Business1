@@ -119,7 +119,7 @@ export default function holidayPage() {
   <div class="container page-hero-content">
     ${eyebrow(`${T.name} ${y}`)}
     <h1 id="page-title" class="h1">${T.name} catering</h1>
-    <p class="lede">${day.weekday}, ${day.month} ${day.day}. Smoked, fried or jerk turkey, glazed ham, short ribs and ${WORDS[holiday.sides.length] ?? holiday.sides.length} sides. Delivered across the DMV by ${T.deliverBy}, or pick up by ${T.pickupBy}, on ${T.handoffName}, ${handoff.weekday}, ${handoff.month} ${handoff.day}.</p>
+    <p class="lede">Smoked, fried or jerk turkey, glazed ham, short ribs and ${WORDS[holiday.sides.length] ?? holiday.sides.length} sides, ready for ${T.name} dinner. Delivered across the DMV by ${T.deliverBy}, or pick up by ${T.pickupBy}, on ${T.handoffName}, ${handoff.weekday}, ${handoff.month} ${handoff.day}. We’re closed on ${T.name} Day.</p>
     <p class="status" data-holiday-status hidden
        data-before="Orders open ${opens.month} ${opens.day}."
        data-during="Orders close ${by.weekday}, ${by.month} ${by.day}, or sooner if we sell out."
@@ -135,7 +135,7 @@ export default function holidayPage() {
     <ul class="fact-row" role="list">
       <li><span class="fact-label">Orders close</span><span class="big-date">${by.mon} ${by.day}</span><span class="fact-sub">${by.weekday}, or sooner if we sell out</span></li>
       <li><span class="fact-label">Pickup and delivery</span><span class="big-date">${handoff.mon} ${handoff.day}</span><span class="fact-sub">${handoff.weekday}. Delivery by ${T.deliverBy}, pickup by ${T.pickupBy}</span></li>
-      <li><span class="fact-label">${T.name}</span><span class="big-date">${day.mon} ${day.day}</span><span class="fact-sub">We take a limited number of orders</span></li>
+      <li><span class="fact-label">${T.name} Day</span><span class="big-date">${day.mon} ${day.day}</span><span class="fact-sub">We’re closed. Everything goes out ${T.handoffName}.</span></li>
     </ul>
     <nav class="jump-links" aria-label="On this page">
       <a href="#packages">Packages</a><a href="#meats">Meats</a><a href="#sides">Sides</a><a href="#add-ons">Add-ons</a><a href="#order">How to order</a><a href="#allergies">Allergies</a>
