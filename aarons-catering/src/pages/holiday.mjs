@@ -125,7 +125,7 @@ export default function holidayPage() {
   <div class="container page-hero-content">
     ${eyebrow(`Holidays ${y}`)}
     <h1 id="page-title" class="h1">${names} catering</h1>
-    <p class="lede">Smoked, fried or jerk turkey, glazed ham, short ribs and ${WORDS[holiday.sides.length] ?? holiday.sides.length} sides, ready for your holiday table and delivered across the DMV or picked up. ${events.map((e) => `${e.name} goes out ${e.handoffName}, ${e.handoffOn.month} ${e.handoffOn.day}.`).join(' ')}${events.filter((e) => e.closedOnTheDay).map((e) => ` We’re closed on ${e.name} Day.`).join('')}</p>
+    <p class="lede">Smoked, fried or jerk turkey, glazed ham, short ribs and ${WORDS[holiday.sides.length] ?? holiday.sides.length} sides, ready for your holiday table and delivered across the DMV or picked up. ${events.map((e) => `${e.name} goes out ${e.handoffName}, ${e.handoffDates}.`).join(' ')}${events.filter((e) => e.closedOnTheDay).map((e) => ` We’re closed on ${e.name} Day.`).join('')}</p>
     <p class="status" data-holiday-status hidden
        data-before="Orders open ${opens.month} ${opens.day}."
        data-during="${esc(sentence(events.map((e) => `${e.name} orders close ${e.orderByText}`)))}."
@@ -141,7 +141,7 @@ export default function holidayPage() {
     <ul class="fact-row fact-row-${events.length}" role="list">${events
       .map(
         (e) => `
-      <li><span class="fact-label">${esc(e.name)} pickup and delivery</span><span class="big-date">${e.handoffOn.mon} ${e.handoffOn.day}</span><span class="fact-sub">${esc(curly(`${cap(e.handoffName)}. ${cap(e.times)}.`))} Order by ${e.by.mon} ${e.by.day}.</span></li>`,
+      <li><span class="fact-label">${esc(e.name)} pickup and delivery</span><span class="big-date">${e.handoffShort}</span><span class="fact-sub">${esc(curly(`${cap(e.handoffName)}. ${cap(e.times)}.`))} Order by ${e.by.mon} ${e.by.day}.</span></li>`,
       )
       .join('')}
     </ul>
@@ -277,7 +277,7 @@ export default function holidayPage() {
 <section class="section cta" aria-labelledby="cta-title">
   <div class="container cta-inner">
     <h2 id="cta-title" class="h1">Order ${esc(events.map((e) => e.name).join(' or '))}</h2>
-    <p class="lede">We take a limited number of orders for each holiday. ${events.map((e) => `${e.name}: ${e.times}, ${e.handoffDay}.`).join(' ')}</p>
+    <p class="lede">We take a limited number of orders for each holiday. ${events.map((e) => `${e.name} goes out ${e.handoffName}, ${e.handoffDates}: ${e.times}.`).join(' ')}</p>
     <a class="btn btn-lg" href="order.html">Order now</a>
     <p class="cta-alt">Or call <a href="${site.phone.href}">${site.phone.display}</a></p>
   </div>

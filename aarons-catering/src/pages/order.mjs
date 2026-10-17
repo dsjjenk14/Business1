@@ -52,7 +52,7 @@ function holidayChoices() {
       (e) => `<label class="choice">
         <input type="radio" name="Holiday" value="${esc(e.name)}" data-id="${e.id}" data-day="${esc(e.handoffDay)}" data-closes="${e.orderBy}"${e.soldOut ? ' disabled' : ''}>
         <span class="choice-body">
-          <span class="choice-head"><span class="choice-name">${esc(e.name)}</span><span class="price">${e.handoffOn.mon} ${e.handoffOn.day}</span></span>
+          <span class="choice-head"><span class="choice-name">${esc(e.name)}</span><span class="price">${e.handoffShort}</span></span>
           <span class="choice-text">${esc(cap(e.handoffName))}. ${esc(cap(e.times))}.</span>
           <span class="choice-meta" data-closed-label="Orders closed">${e.soldOut ? 'Sold out' : `Order by ${e.by.mon} ${e.by.day}`}</span>
         </span>
@@ -156,7 +156,7 @@ function orderForm() {
               <input type="radio" name="Pickup or delivery" value="Delivery">
               <span class="choice-body">
                 <span class="choice-head"><span class="choice-name">Delivery</span><span class="price">From ${money(Math.min(...areas.map((a) => a.price)))}</span></span>
-                <span class="choice-text">Northern Virginia, DC and Maryland. Arrives ${per((e) => e.delivery)}.</span>
+                <span class="choice-text">Northern Virginia, DC and Maryland. Delivery ${per((e) => e.delivery)}.</span>
               </span>
             </label>
           </div>
@@ -243,7 +243,7 @@ export default function orderPage() {
   <div class="container">
     ${eyebrow(`Holidays ${holiday.year}`)}
     <h1 id="page-title" class="h1">Order ${events.map((e) => e.name).join(' or ')}</h1>
-    <p class="lede">${events.map((e) => `${e.name} goes out ${e.handoffName}, ${e.handoffOn.month} ${e.handoffOn.day}, and orders close ${e.by.month} ${e.by.day}.`).join(' ')} We may close sooner if we sell out. <a href="holiday.html">See the full menu</a></p>
+    <p class="lede">${events.map((e) => `${e.name} goes out ${e.handoffName}, ${e.handoffDates}, and orders close ${e.by.month} ${e.by.day}.`).join(' ')} We may close sooner if we sell out. <a href="holiday.html">See the full menu</a></p>
   </div>
 </section>
 

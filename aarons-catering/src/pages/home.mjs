@@ -56,7 +56,7 @@ function holidayBlock() {
       ${holiday.events
         .map((e) => {
           const d = holidayDates(e);
-          return `<p class="muted" data-open-until="${e.orderBy}"><strong>${e.name}:</strong> ${e.handoffName}, ${d.handoffOn.month} ${d.handoffOn.day}. Order by ${d.orderByText}.</p>`;
+          return `<p class="muted" data-open-until="${e.orderBy}"><strong>${e.name}:</strong> ${e.handoffName}, ${d.handoffDates}. Order by ${d.orderByText}.</p>`;
         })
         .join('')}
     </div>

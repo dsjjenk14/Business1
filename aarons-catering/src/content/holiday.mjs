@@ -22,10 +22,11 @@ export const holiday = {
       date: '2026-11-26',
       orderBy: '2026-11-20', // orders close, or sooner if we sell out
       cancelBy: '2026-11-20', // full refund until then
-      handoff: '2026-11-24', // every pickup and delivery happens this day, in the evening
-      handoffName: 'Tuesday evening',
-      delivery: 'between 4 and 7 pm', // DRAFT times for Chef Aaron to confirm
-      pickup: 'from 5 to 8 pm',
+      handoff: '2026-11-24', // pickup and delivery start Tuesday evening...
+      lastDay: '2026-11-25', // ...and run until Wednesday
+      handoffName: 'Tuesday evening through Wednesday',
+      delivery: 'until 1 pm Wednesday', // last drop-off
+      pickup: 'until 3 pm Wednesday', // last pickup
       soldOut: false,
     },
     {
@@ -34,7 +35,7 @@ export const holiday = {
       date: '2026-12-25',
       orderBy: '2026-12-18',
       cancelBy: '2026-12-18',
-      handoff: '2026-12-24',
+      handoff: '2026-12-24', // every pickup and delivery happens this day
       handoffName: 'Christmas Eve',
       delivery: 'by 11 am',
       pickup: 'by 1 pm',

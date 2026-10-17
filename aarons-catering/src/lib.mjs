@@ -33,13 +33,17 @@ export function parseDate(iso) {
 export function holidayDates(e) {
   const by = parseDate(e.orderBy);
   const handoff = parseDate(e.handoff);
+  // Pickup and delivery over two days (same month): handoff is the first, lastDay the last.
+  const end = e.lastDay ? parseDate(e.lastDay) : null;
   return {
     by,
     handoffOn: handoff,
     cancel: parseDate(e.cancelBy),
     day: parseDate(e.date),
     orderByText: `${by.weekday}, ${by.month} ${by.day}`, // "Friday, November 20"
-    handoffDay: `${handoff.weekday}, ${handoff.month} ${handoff.day}`, // "Tuesday, November 24"
+    handoffDay: `${handoff.weekday}, ${handoff.month} ${handoff.day}${end ? ` to ${end.weekday}, ${end.month} ${end.day}` : ''}`, // "Thursday, December 24"
+    handoffDates: `${handoff.month} ${handoff.day}${end ? ` and ${end.day}` : ''}`, // "November 24 and 25"
+    handoffShort: `${handoff.mon} ${handoff.day}${end ? `–${end.day}` : ''}`, // "Nov 24–25"
     times: `delivery ${e.delivery}, pickup ${e.pickup}`, // "delivery by 11 am, pickup by 1 pm"
   };
 }
