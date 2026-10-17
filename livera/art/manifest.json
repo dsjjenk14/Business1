@@ -1,5 +1,5 @@
 {
-  "$comment": "Art for things that live in a save rather than in data/: residents made in the character creator (by character id) and named pets (by owner id and name), plus pictures of places, the bus, the city and concept posters. Paths are relative to the livera folder. tests/test_cast.cpp checks that every path exists, that no resident here is a founding character (their art is linked from data/characters), and that place and stop ids are real. Facts on the cards were checked against the game's data; anything the card gets wrong is listed under notes so nobody mistakes it for the game's state.",
+  "$comment": "Art for things that live in a save rather than in data/: residents made in the character creator (by character id) and named pets (by owner id and name), plus pictures of places, the bus, the city and concept posters. Paths are relative to the livera folder. tests/test_cast.cpp checks that every path exists, that no resident here is a founding character (their art is linked from data/characters), that each pet key is owner:name with a real species, and that place and stop ids are the game's. Facts on the cards were checked against the game's data; anything the card gets wrong is listed under notes so nobody mistakes it for the game's state.",
   "residents": {
     "sol-rivera": {
       "name": "Sol Rivera",
@@ -16,7 +16,8 @@
       "avatar": "art/avatars/theo-grant.jpg",
       "card_as_of": "Day 28 of the town-preview recording",
       "notes": [
-        "Card occupation is Shift Supervisor, Greenleaf Market; from Day 29 of the recording he works the front desk at Body & Balance."
+        "Card occupation is Shift Supervisor, Greenleaf Market; from Day 29 of the recording he works the front desk at Body & Balance.",
+        "The shop sign behind him in the WORK LOOK panel is partly hidden and may be garbled; the card itself names Greenleaf Market correctly."
       ]
     },
     "rosa-delgado": {
@@ -25,7 +26,9 @@
       "sheet": "art/reference/residents/rosa-delgado.jpg",
       "avatar": "art/avatars/rosa-delgado.jpg",
       "card_as_of": "Day 28 of the town-preview recording",
-      "notes": []
+      "notes": [
+        "The square smartwatch on a black band resembles a well-known real product; the data says only 'watch'."
+      ]
     },
     "kai-morgan": {
       "name": "Kai Morgan",
@@ -34,7 +37,8 @@
       "avatar": "art/avatars/kai-morgan.jpg",
       "card_as_of": "Day 28 of the town-preview recording",
       "notes": [
-        "The red-and-white high-top sneakers resemble a well-known real design; regenerate the turnaround with plain shoes before any commercial use."
+        "The red-and-white high-top sneakers resemble a well-known real design; regenerate the turnaround with plain shoes before any commercial use.",
+        "The BAR SHIFT LOOK panel shows the Copper Tap barback job he left on Day 25; by Day 28 he works at Low End Studios."
       ]
     }
   },
@@ -47,7 +51,7 @@
       "face": "art/pets/named/aaliyah_bramble_face.jpg",
       "notes": [
         "Card says adult, 3 years; the game had Bramble at about 2 years 3 months when adopted on Day 22.",
-        "Card gives a sex and weight; the game records neither for pets."
+        "The card's sex, weight, coat and eye colour are the artist's choices: the game records none of them for pets. Keep them fixed from now on."
       ]
     },
     "rosa-delgado:Rocky": {
@@ -58,7 +62,7 @@
       "face": "art/pets/named/rosa-delgado_rocky_face.jpg",
       "notes": [
         "Card says adult, 5 years; the game had Rocky at 6 years 11 months when adopted on Day 28, so he becomes a senior a month later.",
-        "Card gives a sex and weight; the game records neither for pets."
+        "The card's sex, weight, coat and eye colour are the artist's choices: the game records none of them for pets. Keep them fixed from now on."
       ]
     },
     "harper:Pepper": {
@@ -68,9 +72,11 @@
       "sheet": "art/pets/named/harper_pepper.jpg",
       "face": "art/pets/named/harper_pepper_face.jpg",
       "notes": [
-        "Card home is 3 Founders Row; Harper and Pepper move to 8 Willow Lane on Day 32 of the recording."
+        "Card home is 3 Founders Row; Harper and Pepper move to 8 Willow Lane on Day 32 of the recording.",
+        "The PUPPY and SENIOR panels are the artist's guesses; the game has only ever had Pepper as an adult."
       ]
-    }
+    },
+    "$comment": "Shadow, Leila's Maine Coon mix cat, has no art yet."
   },
   "places": {
     "body_balance": "art/places/body_balance.jpg"
@@ -88,7 +94,7 @@
       "stop_lexington_ave": "art/transit/stops/stop_lexington_ave.jpg"
     },
     "notes": [
-      "The stop shelters are crops of the bus collage's bottom row, numbered 1-7 in route order; they are small (about 306x191) and carry no stop names.",
+      "The stop shelters are the first seven panels of the bus collage's bottom row (badges 1-7), in route order; they are small (about 300x190) and carry no stop names.",
       "The side view is a crop on a grey studio background, not a transparent sprite."
     ]
   },

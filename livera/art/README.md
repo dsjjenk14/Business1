@@ -52,7 +52,9 @@ characters should read as interchangeable.
 
 Residents made in the character creator and named pets exist only in a save, so their art is
 listed in `manifest.json` (decision D-044) rather than in `data/characters`. The test
-"art: the manifest links to files that exist and to real ids" keeps every path and id true.
+"art: the manifest links to files that exist and to real ids" checks that every path exists, that no
+founder is listed as a created resident, that pet keys are `owner:name` with a real species, and that
+place and stop ids are the game's.
 Each entry has `notes` for anything the picture gets wrong about the game, such as a pet's age
 on its card; read them before using a card as fact.
 
@@ -60,12 +62,12 @@ on its card; read them before using a card as fact.
 |---|---|
 | `reference/residents/<id>.jpg` | Model sheets for created residents: Sol Rivera (The Free Spirit), Theo Grant (The Fresh Start), Rosa Delgado (The Guardian), Kai Morgan (The Upstart). |
 | `avatars/<id>.jpg` | Square head-and-shoulders crops from those sheets (native 450 px, not upscaled); the town preview uses them. |
-| `pets/named/<owner>_<pet>.jpg` and `_face.jpg` | Sheets and square face crops for Bramble (Aaliyah's rabbit), Rocky (Rosa's beagle) and Pepper (Harper's terrier mix). |
+| `pets/named/<owner>_<pet>.jpg` and `_face.jpg` | Sheets and square face crops (450–500 px) for Bramble (Aaliyah's rabbit), Rocky (Rosa's beagle) and Pepper (Harper's terrier mix). Shadow, Leila's cat, has no art yet. |
 | `places/<location_id>.jpg` | Building exteriors: Body & Balance so far. |
-| `transit/` | The Line 1 bus collage, a side view (grey background, not a transparent sprite) and small shelter crops per stop in `stops/<stop_id>.jpg`. |
+| `transit/` | The Line 1 bus collage, a side view (grey background, not a transparent sprite) and a small shelter crop per stop in `stops/<stop_id>.jpg`, in route order. |
 | `city/` | Panoramas: `stage_1.jpg` (Founding Town), `stage_5.jpg` (Metropolis) and `construction.jpg` (a building site). Stages 2–4 are missing. |
 | `concept/` | Posters whose districts and street layout are **not** the game's. Concept only; never a map. |
-| `_incoming/` | Where new images land before they are checked. Not committed. |
+| `_incoming/` | Where new images land before they are checked. Not committed; move the masters out once the JPEGs are made. |
 
 Sheets are JPEG copies at quality 90 with no metadata; keep the masters outside the repository.
 Card titles for created residents are proposals from `PROMPT_PACK.md`, not data.

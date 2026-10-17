@@ -423,7 +423,8 @@ in `data/characters`, so their art cannot be linked from data the way the founde
 `art/manifest.json` lists it instead: residents by character id (sheet, avatar, card title),
 pets by owner id and name, plus pictures of places, the bus and stops, the city stages and
 concept posters, each keyed by the game's own ids. A test checks that every path exists, that no
-founder is listed there, and that place and stop ids are real. Each entry carries `notes` for
+founder is listed there, that pet keys are `owner:name` with a real species, and that place and
+stop ids are the game's. Each entry carries `notes` for
 anything the picture gets wrong about the game (a pet's age on its card, a job that changed),
 so the art never claims a state the game doesn't have. `art/concept/` holds posters whose
 districts and layout are not the game's; they are labelled as concept and never used as a map.
