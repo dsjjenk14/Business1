@@ -173,20 +173,27 @@ TEST_CASE("art: the manifest links to files that exist and to real ids") {
     CHECK(std::filesystem::exists(root / p));
   }
   const auto content = realContent();
+  const auto isEntry = [](const std::string& key) { return key != "notes" && key.rfind("$", 0) != 0; };
   for (const auto& [id, r] : m["residents"].items()) {
+    if (!isEntry(id)) continue;
     CHECK(content->character(id) == nullptr);  // founders link their art from data/characters
     CHECK(r.contains("sheet"));
     CHECK(r.contains("avatar"));
   }
   for (const auto& [key, p] : m["pets"].items()) {
+    if (!isEntry(key)) continue;
     const auto colon = key.find(':');
     REQUIRE(colon != std::string::npos);
     CHECK(p["owner"] == key.substr(0, colon));
     CHECK(content->petSpecies(p["species"].get<std::string>()) != nullptr);
   }
-  for (const auto& [id, p] : m["places"].items()) CHECK(content->location(id) != nullptr);
+  for (const auto& [id, p] : m["places"].items()) {
+    if (isEntry(id)) CHECK(content->location(id) != nullptr);
+  }
   std::set<std::string> stops;
   for (const auto& line : content->transit().lines)
     for (const auto& s : line.stops) stops.insert(s.id);
-  for (const auto& [id, p] : m["transit"]["stops"].items()) CHECK(stops.count(id) == 1);
+  for (const auto& [id, p] : m["transit"]["stops"].items()) {
+    if (isEntry(id)) CHECK(stops.count(id) == 1);
+  }
 }
