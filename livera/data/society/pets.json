@@ -7,6 +7,7 @@
     "needs": ["hunger", "fun", "hygiene", "health"],
     "adopted_needs": {"hunger": 80, "fun": 70, "hygiene": 80, "health": 90},
     "listings_per_week": 4,
+    "weekly_intake": 12,
     "max_pets_per_home": 3,
     "initial_bond": 10,
     "max_name_length": 24,
@@ -20,10 +21,10 @@
     "adoption_emotions": {"happiness": 10, "loneliness": -10},
     "walk_radius_m": 250,
     "sickness": {
-      "chance_per_hour": 0.002,
+      "chance_per_hour": 0.003,
       "low_need_below": 25,
       "low_need_multiplier": 3,
-      "vaccinated_multiplier": 0.3,
+      "vaccinated_multiplier": 0.5,
       "needs_per_hour": {"health": -1, "fun": -1}
     },
     "taken_away_emotions": {"sadness": 30, "loneliness": 15, "happiness": -15},

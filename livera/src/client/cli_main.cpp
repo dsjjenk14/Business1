@@ -473,7 +473,7 @@ const char* kHelpLeisure = "";
 
 // m08:pets help {
 const char* kHelpPets = R"(Pets and medicine:
-  adopt ANIMAL [NAME...]    adopt at Paws & Whiskers, 10:00-18:00 (phone pets lists the animals); NAME renames them
+  adopt ANIMAL [NAME...]    adopt at Paws & Whiskers while it's open (phone pets lists the animals); NAME renames them
   pet PET ACTION            feed (uses pet food), play, cuddle, groom at home; walk a dog outdoors near home
   vet PET SERVICE           checkup, vaccines or treatment at Founders Animal Hospital
   phone pets                your pets (needs, bond, age, sick or not), the shelter's animals, the vet

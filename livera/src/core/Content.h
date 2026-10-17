@@ -625,7 +625,8 @@ struct PetConfig {
   std::string foodItem;
   std::vector<std::string> needs;  // a pet's own needs: hunger, fun, hygiene, health
   StatMap adoptedNeeds;            // how an animal leaves the shelter
-  int listingsPerWeek = 4;
+  int listingsPerWeek = 4;          // animals on show at a time
+  int weeklyIntake = 12;            // animals the shelter takes in a week; the next one takes an adopted one's place
   int maxPetsPerHome = 3;
   double initialBond = 10;
   int maxNameLength = 24;

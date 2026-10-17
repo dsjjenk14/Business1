@@ -148,9 +148,11 @@ TEST_CASE("pets: adopting is in person at the shelter, in its hours, with the fe
   CHECK(p->bond.at("dominique") > 0);
   CHECK(p->vaccinatedUntil > w.now());  // the fee covers shots
   CHECK(remembers(w, "dominique", "adopted_pet"));
-  // That animal is spoken for; the others can be asked for by name.
+  // That animal is spoken for, and the next of the week's intake takes its place on show.
   CHECK(code(w.adoptPet("dominique", dog, "", "card")) == "unknown_pet");
-  CHECK(w.shelterListings().size() == 3);
+  CHECK(w.shelterListings().size() == 4);
+  for (const auto& a : w.shelterListings()) CHECK(a.at("id") != dog);
+  // Ask for one by name, in any case.
   std::string catName;
   for (const auto& a : w.shelterListings()) {
     if (a.at("species") == "cat") catName = a.at("name").get<std::string>();

@@ -92,6 +92,7 @@ Status ContentDatabase::ingestPets(const std::string& source, const std::string&
       P.needs = readStrings(body, "needs");
       P.adoptedNeeds = readStats(body, "adopted_needs");
       P.listingsPerWeek = body.value("listings_per_week", P.listingsPerWeek);
+      P.weeklyIntake = body.value("weekly_intake", P.weeklyIntake);
       P.maxPetsPerHome = body.value("max_pets_per_home", P.maxPetsPerHome);
       P.initialBond = body.value("initial_bond", P.initialBond);
       P.maxNameLength = body.value("max_name_length", P.maxNameLength);
@@ -228,7 +229,7 @@ Status ContentDatabase::validatePets() const {
     if (auto s = checkKeys(P.takenAwayEmotions, emotions, "pets.taken_away_emotions"); !s) return s;
     if (auto s = checkKeys(P.companyEmotionsPerHour, emotions, "pets.company.emotions_per_hour"); !s) return s;
     if (auto s = checkKeys(P.adoptionEmotions, emotions, "pets.adoption_emotions"); !s) return s;
-    if (P.listingsPerWeek < 0 || P.maxPetsPerHome < 1 || P.maxNameLength < 1 || P.neglectHungerHours < 1 ||
+    if (P.listingsPerWeek < 0 || P.weeklyIntake < P.listingsPerWeek || P.maxPetsPerHome < 1 || P.maxNameLength < 1 || P.neglectHungerHours < 1 ||
         P.adoptionVaccineDays < 0)
       return fail("content_invalid", "pets: bad limits");
     for (double p : {P.sickChancePerHour, P.sickVaccinatedMultiplier}) {
@@ -400,7 +401,7 @@ std::vector<PetState> World::shelterAnimals(std::int64_t week) const {
   for (const auto& [id, s] : P.species) kinds.push_back(&s);
   const GameMinutes weekStart = week * kMinutesPerWeek;
   std::vector<std::string> taken;
-  for (int slot = 0; slot < P.listingsPerWeek; ++slot) {
+  for (int slot = 0; slot < P.weeklyIntake; ++slot) {
     const std::uint64_t h = mix(static_cast<std::uint64_t>(week) * 7919u + static_cast<std::uint64_t>(slot) + 1);
     // Species rotate through the slots, so every week has some of each.
     const PetSpeciesDef& s = *kinds[static_cast<std::size_t>(week + slot) % kinds.size()];
@@ -423,11 +424,19 @@ std::vector<PetState> World::shelterAnimals(std::int64_t week) const {
   return out;
 }
 
+// On show: the first few of the week's intake nobody has adopted yet.
+std::vector<PetState> World::shelterOnShow() const {
+  std::vector<PetState> out;
+  for (auto& p : shelterAnimals(weekOf(state_.now))) {
+    if (static_cast<int>(out.size()) >= content_->pets().listingsPerWeek) break;
+    if (!state_.adoptedListings.count(p.id)) out.push_back(std::move(p));
+  }
+  return out;
+}
+
 Json World::shelterListings() const {
   Json out = Json::array();
-  for (const auto& p : shelterAnimals(weekOf(state_.now))) {
-    if (!state_.adoptedListings.count(p.id)) out.push_back(petView(p, ""));
-  }
+  for (const auto& p : shelterOnShow()) out.push_back(petView(p, ""));
   for (const auto& [id, p] : state_.pets) {
     if (p.owner.empty()) out.push_back(petView(p, ""));
   }
@@ -484,8 +493,7 @@ Result<Json> World::adoptPet(const CharacterId& actor, const std::string& petId,
   if (c.inside != shelter->id) return fail("wrong_place", "adopt in person at " + shelter->name);
   if (!isLocationOpen(*shelter)) return fail("closed", shelter->name + " is closed");
 
-  // The animal: one of this week's listings, or one brought back to the shelter. By id or name.
-  const std::int64_t week = weekOf(state_.now);
+  // The animal: one on show this week, or one brought back to the shelter. By id or name.
   const std::string wanted = lower(trim(petId));
   std::optional<PetState> listing;
   PetState* returned = nullptr;
@@ -493,8 +501,8 @@ Result<Json> World::adoptPet(const CharacterId& actor, const std::string& petId,
     if (p.owner.empty() && (id == petId || lower(p.name) == wanted)) returned = &p;
   }
   if (!returned) {
-    for (auto& p : shelterAnimals(week)) {
-      if (!listing && !state_.adoptedListings.count(p.id) && (p.id == petId || lower(p.name) == wanted)) listing = p;
+    for (auto& p : shelterOnShow()) {
+      if (!listing && (p.id == petId || lower(p.name) == wanted)) listing = p;
     }
   }
   if (!returned && !listing) return fail("unknown_pet", "the shelter has no animal by that name or id (phone pets lists them)");
@@ -527,7 +535,6 @@ Result<Json> World::adoptPet(const CharacterId& actor, const std::string& petId,
   if (!returned) {
     p.id = nextId("pet");
     state_.adoptedListings[animal.id] = actor;
-    state_.shelterWeek = week;
   }
   if (!newName.empty()) p.name = newName;
   p.owner = actor;

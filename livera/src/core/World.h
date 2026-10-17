@@ -481,7 +481,7 @@ class World {
   Result<Json> vetVisit(const CharacterId& actor, const std::string& pet, const std::string& service,
                         const std::string& paymentMethod);
   const PetState* pet(const std::string& id) const;
-  // The animals the shelter has right now: this week's listings not yet adopted, and pets brought back.
+  // The animals the shelter has right now: a few of this week's intake, and pets brought back.
   Json shelterListings() const;
   int petAgeMonths(const PetState& p) const;
   std::string petStageOf(const PetState& p) const;
@@ -612,7 +612,8 @@ class World {
   // m08:pets helpers { Pets and medicine (Pets.cpp)
   void stepPetsHourly();  // called once a game hour from stepHourly (Life.cpp)
   Json phonePets(const CharacterState& c) const;
-  std::vector<PetState> shelterAnimals(std::int64_t week) const;  // the week's generated listings
+  std::vector<PetState> shelterAnimals(std::int64_t week) const;  // the week's intake, generated from data
+  std::vector<PetState> shelterOnShow() const;                     // the first few of it not yet adopted
   void stepPet(PetState& p);
   void petToShelter(PetState& p, const std::string& why, bool neglect);
   std::vector<CharacterId> householdOf(const PetState& p) const;  // everyone living with the pet
