@@ -22,6 +22,13 @@ const names = sentence(events.map((e) => e.name));
 const last = events[events.length - 1];
 const cap = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
+// Aaron J's own holiday photos, each with the dish it shows.
+const tablePhotos = [
+  { photo: 'holiday-ham', dish: 'ham', text: 'Glazed with brown sugar, honey and pineapple juice, dressed with pineapple rings and cherries.' },
+  { photo: 'holiday-green-beans', dish: 'green-beans', text: 'Cooked down low with smoked turkey, onion and garlic.' },
+  { photo: 'holiday-yams', dish: 'yams', text: 'Baked in butter, brown sugar and warm spices until the syrup turns glossy.' },
+];
+
 function packages() {
   return holiday.packages
     .map(
@@ -141,6 +148,24 @@ export default function holidayPage() {
     <nav class="jump-links" aria-label="On this page">
       <a href="#packages">Packages</a><a href="#meats">Meats</a><a href="#sides">Sides</a><a href="#add-ons">Add-ons</a><a href="#order">How to order</a><a href="#allergies">Allergies</a>
     </nav>
+  </div>
+</section>
+
+<section class="section section-tight" aria-labelledby="table-title">
+  <div class="container">
+    <div class="section-head">
+      ${eyebrow(events.map((e) => e.name).join(' and '))}
+      <h2 id="table-title" class="h2">From our holiday table</h2>
+    </div>
+    <ul class="dish-row dish-row-3" role="list">${tablePhotos
+      .map(
+        (p) => `<li class="dish-card">
+        <div class="dish-photo">${img(p.photo)}</div>
+        <h3 class="dish-name">${esc(curly(dish(p.dish).name))}</h3>
+        <p class="dish-text">${esc(p.text)}</p>
+      </li>`,
+      )
+      .join('')}</ul>
   </div>
 </section>
 

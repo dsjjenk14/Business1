@@ -100,6 +100,33 @@ export const photos = {
     focus: '50% 30%', // ham and turkey in view when the banner crops the photo
     source: 'generated',
   },
+  'holiday-ham': {
+    file: 'holiday-ham.jpg',
+    w: 1200,
+    h: 1500,
+    alt: 'Spiral-cut glazed ham with pineapple rings and cherries, topped with parsley and a marigold, rosemary alongside',
+    shot: 'Glazed ham, from the holiday table.',
+    where: 'Holiday page, photo row',
+    source: 'photo',
+  },
+  'holiday-green-beans': {
+    file: 'holiday-green-beans.jpg',
+    w: 1200,
+    h: 1500,
+    alt: 'A full pan of green beans cooked down with smoked meat, red pepper and lima beans, finished with an orange marigold',
+    shot: 'Green beans, from the holiday table.',
+    where: 'Holiday page, photo row',
+    source: 'photo',
+  },
+  'holiday-yams': {
+    file: 'holiday-yams.jpg',
+    w: 1200,
+    h: 1500,
+    alt: 'A pan of candied yams glossy with cinnamon syrup, finished with a yellow marigold',
+    shot: 'Candied yams, from the holiday table.',
+    where: 'Holiday page, photo row',
+    source: 'photo',
+  },
 };
 
 export const gallery = [

@@ -688,6 +688,10 @@ button { font: inherit; color: inherit; }
 .dish-text { color: var(--muted); font-size: 0.875rem; line-height: 1.5; }
 
 @media (min-width: 900px) { .dish-row { grid-template-columns: repeat(4, 1fr); gap: 28px; } }
+/* Three photos: swipe through on phones, a row of three on wider screens. */
+.dish-row-3 { padding-inline: 0; grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 74%; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; }
+.dish-row-3 > li { scroll-snap-align: start; }
+@media (min-width: 900px) { .dish-row-3 { grid-auto-flow: row; grid-template-columns: repeat(3, 1fr); overflow: visible; } }
 
 /* ---------- Instagram ---------- */
 
