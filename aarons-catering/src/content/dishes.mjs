@@ -821,10 +821,10 @@ export const dishes = {
   },
 
   // ---------- Caribbean plate (The Islander) ----------
-  'rice-and-peas': {
-    name: 'Rice and peas',
-    description: 'Long-grain rice cooked in coconut milk with red kidney beans, thyme, scallion and allspice.',
-    ingredients: ['long-grain rice', 'red kidney beans', 'coconut milk', 'scallion', 'fresh thyme', 'garlic', 'allspice', 'whole scotch bonnet pepper', 'salt'],
+  'coconut-rice': {
+    name: 'Coconut rice',
+    description: 'Jasmine rice steamed in coconut milk with a little thyme and scallion.',
+    ingredients: ['jasmine rice', 'coconut milk', 'fresh thyme', 'scallion', 'salt'],
     allergens: [],
   },
   'sweet-plantains': {
