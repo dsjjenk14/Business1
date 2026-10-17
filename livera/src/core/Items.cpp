@@ -87,6 +87,7 @@ Result<Json> World::useItem(const CharacterId& actor, const std::string& item) {
   for (const auto& [k, v] : def->needEffects) needs[k] = std::round(c.needs[k]);
   Json out{{"item", item}, {"label", def->label}, {"needs", needs}, {"left", c.inventory.count(item) ? c.inventory[item] : 0}};
   if (!effect.is_null()) out["effect"] = effect;
+  if (Json dose = takeMedicineDose(c, *def); !dose.is_null()) out["dose"] = dose;  // m08:pets: daily dose limits (Pets.cpp)
   return out;
 }
 

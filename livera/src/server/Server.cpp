@@ -484,6 +484,9 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
   // } m08:leisure
 
   // m08:pets ops { Pets and medicine (Pets.cpp)
+  if (op == "adopt") return world_.adoptPet(me, str(req, "pet"), str(req, "name"), req.value("method", std::string("card")));
+  if (op == "pet") return world_.careForPet(me, str(req, "pet"), str(req, "action"));
+  if (op == "vet") return world_.vetVisit(me, str(req, "pet"), str(req, "service"), req.value("method", std::string("card")));
   // } m08:pets
 
   // m08:details ops { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
