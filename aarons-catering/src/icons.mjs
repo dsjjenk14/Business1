@@ -10,6 +10,7 @@ const paths = {
   menu: '<path d="M3 8h18M3 16h18"/>',
   close: '<path d="M6 6l12 12M18 6 6 18"/>',
   arrow: '<path d="M4 12h16M14 6l6 6-6 6"/>',
+  check: '<path d="M20 6 9 17l-5-5"/>',
   'chevron-left': '<path d="m15 18-6-6 6-6"/>',
   'chevron-right': '<path d="m9 18 6-6-6-6"/>',
   pin: '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',

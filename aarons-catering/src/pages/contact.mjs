@@ -57,24 +57,8 @@ function field({ id, label, hint, required = true, input }) {
 // `office` asks for the company, start time and office address instead.
 export function quoteForm({ compact = false, office = false } = {}) {
   const types = office ? OFFICE_TYPES : EVENT_TYPES;
-  const main = [
-    office
-      ? field({ id: 'f-company', label: 'Company', input: (d) => `<input id="f-company" name="Company" type="text" autocomplete="organization" required${d}>` })
-      : '',
-    field({ id: 'f-name', label: 'Your name', input: (d) => `<input id="f-name" name="Name" type="text" autocomplete="name" required${d}>` }),
-    `<div class="field-row">
-      ${field({
-        id: 'f-email',
-        label: 'Email',
-        input: (d) => `<input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required${d}>`,
-      })}
-      ${field({
-        id: 'f-phone',
-        label: 'Phone',
-        input: (d) =>
-          `<input id="f-phone" name="Phone" type="tel" autocomplete="tel" inputmode="tel" pattern="[0-9\\(\\)+.\\s\\-]{10,}" required${d}>`,
-      })}
-    </div>`,
+  // Step 1: the event. Step 2: who's asking. Without JavaScript both show at once.
+  const eventFields = [
     field({
       id: 'f-type',
       label: office ? 'Package' : 'Type of event',
@@ -92,6 +76,25 @@ export function quoteForm({ compact = false, office = false } = {}) {
       })}
     </div>`,
     office ? '<p class="estimate" data-estimate aria-live="polite" hidden></p>' : '',
+  ].join('\n');
+  const contactFields = [
+    office
+      ? field({ id: 'f-company', label: 'Company', input: (d) => `<input id="f-company" name="Company" type="text" autocomplete="organization" required${d}>` })
+      : '',
+    field({ id: 'f-name', label: 'Your name', input: (d) => `<input id="f-name" name="Name" type="text" autocomplete="name" required${d}>` }),
+    `<div class="field-row">
+      ${field({
+        id: 'f-email',
+        label: 'Email',
+        input: (d) => `<input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required${d}>`,
+      })}
+      ${field({
+        id: 'f-phone',
+        label: 'Phone',
+        input: (d) =>
+          `<input id="f-phone" name="Phone" type="tel" autocomplete="tel" inputmode="tel" pattern="[0-9\\(\\)+.\\s\\-]{10,}" required${d}>`,
+      })}
+    </div>`,
   ].join('\n');
   const officeRow = `<div class="field-row field-row-tight">
       ${field({
@@ -134,14 +137,12 @@ export function quoteForm({ compact = false, office = false } = {}) {
       input: (d) => `<textarea id="f-message" name="Message" rows="4" placeholder="${office ? 'Menu picks, allergies, parking or building access' : 'Menu ideas, allergies, timing'}"${d}></textarea>`,
     }),
   ].join('\n');
-  const fields = compact
-    ? `${main}
-        <details class="form-more">
+  const more = compact
+    ? `<details class="form-more">
           <summary>Add location, budget or notes</summary>
           <div class="form-more-fields">${extras}</div>
         </details>`
-    : `${main}\n${extras}`;
-
+    : extras;
   return `<div class="form-wrap">
       <form class="quote-form" action="${site.form.action}" method="POST" data-quote-form data-endpoint="${site.form.ajax}">
         <input type="hidden" name="_subject" value="New quote request from the website">
@@ -149,9 +150,19 @@ export function quoteForm({ compact = false, office = false } = {}) {
         <input type="hidden" name="_captcha" value="false">
         <input type="hidden" name="_next" value="${site.url}/thanks.html">
         <div class="hp" aria-hidden="true"><label>Leave this empty <input type="text" name="_honey" tabindex="-1" autocomplete="off"></label></div>
-        ${fields}
-        <button class="btn btn-lg btn-block" type="submit" data-submit>Send request</button>
-        <p class="form-fine">We only use your details to reply about your event.</p>
+        <fieldset class="form-step" data-step>
+          <legend class="form-step-label"><span class="form-step-num">Step 1 of 2</span> ${office ? 'Your order' : 'Your event'}</legend>
+          ${eventFields}
+          <button class="btn btn-lg btn-block" type="button" data-next>Continue</button>
+        </fieldset>
+        <fieldset class="form-step" data-step>
+          <legend class="form-step-label"><span class="form-step-num">Step 2 of 2</span> Where we send the quote</legend>
+          <p class="form-recap" data-recap hidden><span data-recap-text></span> <button class="text-link" type="button" data-back>Edit</button></p>
+          ${contactFields}
+          ${more}
+          <button class="btn btn-lg btn-block" type="submit" data-submit>Send request</button>
+          <p class="form-fine">We reply within one business day and only use your details to answer you.</p>
+        </fieldset>
       </form>
 
       <div class="form-done" data-form-done hidden tabindex="-1">

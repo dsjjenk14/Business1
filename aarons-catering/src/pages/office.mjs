@@ -21,7 +21,7 @@ function panel(m) {
     </div>`,
     )
     .join('');
-  return `<section class="menu-panel office-panel" id="${m.id}" aria-labelledby="title-${m.id}">
+  return `<section class="menu-panel office-panel" id="${m.id}" aria-labelledby="title-${m.id}" data-menu-panel>
   <header class="menu-head">
     ${eyebrow(m.eyebrow)}
     <h2 class="h2" id="title-${m.id}">${esc(m.title)}</h2>
@@ -155,6 +155,12 @@ export default function office() {
     <ul class="office-terms" role="list">${terms}</ul>
   </div>
 </section>
+
+<div class="menu-tabs-wrap" data-menu-tabs>
+  <div class="container"><nav class="menu-tabs" aria-label="Office menus">${officeMenus
+    .map((m) => `<a href="#${m.id}" id="tab-${m.id}" data-menu-tab="${m.id}">${esc(m.eyebrow === 'Meetings' ? 'Meeting bites' : m.eyebrow)}</a>`)
+    .join('')}</nav></div>
+</div>
 
 <div class="container menus">
 <div class="allergy-note" id="allergies" role="note">

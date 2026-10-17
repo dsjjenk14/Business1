@@ -21,7 +21,7 @@ export const site = {
 
   // A price range for the Menus page, so people know roughly what to expect.
   // Example: 'Most events run $25 to $45 per guest.' Empty = not shown.
-  priceGuide: '',
+  priceGuide: 'Most events run $38 to $55 per guest, and weddings start at $75.', // DRAFT, from the plan book
 
   // Google reviews, shown next to the quote forms once there are some.
   // Example: { rating: 4.9, count: 37, url: 'https://g.page/r/...' }. null = not shown.
@@ -50,12 +50,15 @@ export const nav = [
 // "Signatures" on the home page: the elevated dishes, by id from dishes.mjs.
 export const newDishes = ['chicken-caviar', 'oxtail-biscuits', 'cornbread-madeleines', 'braised-oxtail', 'hot-honey-chicken', 'sweet-potato-pave', 'blackened-salmon', 'gouda-mac', 'sweet-potato-tartlets', 'banana-pudding'];
 
-// The ways in, on the home page under the hero.
-export const paths = [
-  { title: 'Weddings', text: 'From the first passed bite to the last dance, plated, family-style or stations.', href: 'menus.html#weddings' },
-  { title: 'Private events', text: 'Milestone birthdays, showers, reunions and dinners at home.', href: 'menus.html#catering' },
-  { title: 'Corporate', text: 'Chef-attended breakfasts and executive lunch boxes, priced per person.', href: 'office.html' },
-  { title: 'Meal prep', text: 'A week of chef-prepared meals, built around you.', href: 'menus.html#meal-prep' },
+// The ways in, on the home page under the hero: a photo, who it's for and a
+// starting price. Corporate and Holidays read their prices from office.mjs and
+// holiday.mjs. The Weddings and Private events prices are DRAFTS from the plan
+// book for Chef Aaron to confirm; set `price: ''` to hide one.
+export const occasions = [
+  { title: 'Weddings', photo: 'chef-aaron', price: 'From $75 per guest', text: 'Cocktail hour to late-night bites: plated, family style or stations.', href: 'menus.html#weddings' },
+  { title: 'Private events', photo: 'dish-chicken-and-waffles', price: 'From $38 per guest', text: 'Milestone birthdays, showers, reunions, church events and dinners at home.', href: 'menus.html#catering' },
+  { title: 'Corporate', photo: 'page-menus', price: 'office', text: 'Chef-attended breakfasts, executive lunch boxes and meeting bites.', href: 'office.html' },
+  { title: 'Holidays', photo: 'holiday-ham', price: 'holiday', text: 'Thanksgiving and Christmas dinner, ordered and paid for online.', href: 'holiday.html' },
 ];
 
 export const signatureDishes = [

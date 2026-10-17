@@ -188,7 +188,12 @@
       // The course was hidden when the browser tried to scroll to it.
       requestAnimationFrame(function () { document.getElementById(location.hash.slice(1)).scrollIntoView(); });
     }
-    window.addEventListener('hashchange', fromHash);
+    // A link to a menu on the same page ("See the menu"): open that tab and bring it into view.
+    window.addEventListener('hashchange', function () {
+      if (fromHash() !== 'menu') return;
+      var top = tabsWrap.getBoundingClientRect().top + window.scrollY - header.offsetHeight;
+      window.scrollTo({ top: top });
+    });
 
     tablist.addEventListener('click', function (e) {
       var tab = e.target.closest('[data-menu-tab]');
@@ -345,6 +350,41 @@
       f.addEventListener('input', function () { if (f.getAttribute('aria-invalid')) showError(f); });
     });
 
+    // Two steps: the event first, then where to send the quote. Each step is
+    // checked before the next shows; without JavaScript both show at once.
+    var steps = $$('[data-step]', form);
+    var recap = $('[data-recap]', form);
+    var goStep = function (n, focus) {
+      steps.forEach(function (st, i) { st.hidden = i !== n; });
+      if (n === 1 && recap) {
+        var opt = $('#f-type', form).selectedOptions[0];
+        var when = $('#f-date', form).value;
+        var day = when;
+        try { day = new Date(when + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); } catch (err) { /* keep ISO */ }
+        var people = $('#f-guests', form).value;
+        $('[data-recap-text]', recap).textContent = [opt ? opt.value.replace(/ \(.*\)$/, '') : '', day, people + (form.querySelector('#f-company') ? ' people' : ' guests')].join(' · ');
+        recap.hidden = false;
+      }
+      if (focus) {
+        var first = $('input:not([type=hidden]), select', steps[n]);
+        if (first) first.focus();
+      }
+    };
+    var stepOf = function (f) {
+      for (var i = 0; i < steps.length; i++) if (steps[i].contains(f)) return i;
+      return 0;
+    };
+    if (steps.length > 1) {
+      form.classList.add('is-stepped');
+      goStep(0);
+      $('[data-next]', form).addEventListener('click', function () {
+        var bad = fields.filter(function (f) { return stepOf(f) === 0; }).filter(function (f) { return !showError(f); });
+        if (bad.length) { bad[0].focus(); return; }
+        goStep(1, true);
+      });
+      $('[data-back]', form).addEventListener('click', function () { goStep(0, true); });
+    }
+
     var done = $('[data-form-done]');
     var failed = $('[data-form-failed]');
     var submit = $('[data-submit]', form);
@@ -368,6 +408,7 @@
         if (!showError(f) && !firstBad) firstBad = f;
       });
       if (firstBad) {
+        if (steps.length > 1) goStep(stepOf(firstBad));
         firstBad.focus();
         return;
       }
@@ -803,6 +844,29 @@
       render();
       $('[data-order-canceled]').hidden = false;
     }
+  }
+
+  /* ---------- Phone action bar ----------
+     Shows once the visitor scrolls past the first screen, and steps aside
+     while a form or the footer is on screen. */
+
+  var mobileBar = $('[data-mobile-bar]');
+  if (mobileBar) {
+    mobileBar.hidden = false;
+    var onScreen = [];
+    var placeBar = function () { mobileBar.classList.toggle('is-on', window.scrollY > window.innerHeight * 0.6 && !onScreen.length); };
+    if ('IntersectionObserver' in window) {
+      var watch = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          onScreen = onScreen.filter(function (el) { return el !== en.target; });
+          if (en.isIntersecting) onScreen.push(en.target);
+        });
+        placeBar();
+      });
+      $$('.form-wrap, .site-footer, .order-form').forEach(function (el) { watch.observe(el); });
+    }
+    window.addEventListener('scroll', placeBar, { passive: true });
+    placeBar();
   }
 
   /* ---------- Gentle fade-in as sections scroll into view ---------- */

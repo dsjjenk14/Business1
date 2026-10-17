@@ -151,6 +151,17 @@ function footer() {
  * @param {boolean} [o.noindex]
  * @param {string} [o.base]    <base href>, for the 404 page which can be served from any path
  */
+// On phones, Call and Get a quote stay in reach of the thumb once the visitor
+// scrolls. Not on the pages that are already a form.
+const QUOTE_TARGET = { index: '#quote', office: '#office-quote' };
+function mobileBar(slug) {
+  if (['contact', 'order', 'thanks', '404'].includes(slug)) return '';
+  return `<div class="mobile-bar" data-mobile-bar hidden>
+  <a class="btn btn-ghost" href="${site.phone.href}">${icon('phone')} Call</a>
+  <a class="btn" href="${QUOTE_TARGET[slug] ?? 'contact.html'}">Get a quote</a>
+</div>`;
+}
+
 export function page({ slug, title, description, content, bodyClass = '', preload = [], jsonld = [], noindex = false, base = '' }) {
   const path = slug === 'index' ? '/' : `/${slug}.html`;
   const url = `${site.url}${path}`;
@@ -195,7 +206,7 @@ ${preloads}
 <script src="${assets.js}" defer></script>
 ${data}
 </head>
-<body class="page-${slug}${bodyClass ? ` ${bodyClass}` : ''}">
+<body class="page-${slug}${mobileBar(slug) ? ' has-mobile-bar' : ''}${bodyClass ? ` ${bodyClass}` : ''}">
 ${sprite()}
 <a class="skip-link" href="#main">Skip to content</a>
 ${holidayBar()}
@@ -204,6 +215,7 @@ ${header(slug)}
 ${content}
 </main>
 ${footer()}
+${mobileBar(slug)}
 </body>
 </html>
 `;

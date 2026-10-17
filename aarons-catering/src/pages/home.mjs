@@ -1,10 +1,11 @@
 import { page } from '../layout.mjs';
-import { site, signatureDishes, newDishes, paths } from '../content/site.mjs';
+import { site, signatureDishes, newDishes, occasions } from '../content/site.mjs';
 import { holiday } from '../content/holiday.mjs';
+import { officePackages, officeTerms } from '../content/office.mjs';
 import { instagramTiles } from '../content/photos.mjs';
 import { dish } from '../content/dishes.mjs';
 import { icon } from '../icons.mjs';
-import { esc, curly, img, eyebrow, holidayDates, money } from '../lib.mjs';
+import { esc, curly, img, eyebrow, holidayDates, parseDate, money } from '../lib.mjs';
 import { quoteForm, reviewsLine } from './contact.mjs';
 
 function hero() {
@@ -13,19 +14,46 @@ function hero() {
   <div class="container hero-content">
     <p class="hero-kicker">Aaron J's Catering</p>
     <h1 id="hero-title" class="hero-title">Sunday best, <em>every day.</em></h1>
-    <p class="hero-lede">Southern cooking from Chef Aaron Jenkins, finished with fine-dining polish: oxtail braised in red wine, chicken lacquered in hot honey, smoked gouda mac under a brown butter crumb. Weddings, corporate dining, holidays and private events across DC, Maryland and Northern Virginia.</p>
+    <p class="hero-lede">Southern cooking from Chef Aaron Jenkins, finished with fine-dining polish: oxtail braised in red wine, chicken lacquered in hot honey, smoked gouda mac under a brown butter crumb. For weddings, offices, holidays and private events across DC, Maryland and Northern Virginia.</p>
     <div class="hero-actions">
-      <a class="btn btn-lg" href="#quote">Plan your event</a>
-      <a class="btn btn-lg btn-ghost" href="menus.html">See the menu</a>
+      <a class="btn btn-lg" href="#quote">Get a quote</a>
+      <a class="btn btn-lg btn-ghost" href="menus.html">See the menus</a>
     </div>
+    <ul class="hero-proof" role="list">
+      <li>${icon('check', 'icon icon-sm')} A menu and a price within one business day</li>
+      <li>${icon('check', 'icon icon-sm')} Allergens listed on every dish</li>
+    </ul>
   </div>
 </section>
+${occasionCards()}`;
+}
 
-<nav class="paths dark" aria-label="What we cater">
-  <ul class="container paths-list" role="list">${paths
-    .map((p) => `<li><a class="path" href="${p.href}"><span class="path-title">${esc(p.title)} ${icon('arrow', 'icon icon-sm')}</span><span class="path-text">${esc(curly(p.text))}</span></a></li>`)
-    .join('')}</ul>
-</nav>`;
+// What we cater, each with a photo and a starting price.
+function occasionCards() {
+  const priceOf = (o) =>
+    o.price === 'office'
+      ? `From ${money(Math.min(...officePackages.map((p) => p.price)))} per person`
+      : o.price === 'holiday'
+        ? `Packages from ${money(Math.min(...holiday.packages.map((p) => p.price)))}`
+        : o.price;
+  return `<section class="occasions dark" aria-labelledby="occasions-title">
+  <div class="container">
+    <h2 id="occasions-title" class="visually-hidden">What we cater</h2>
+    <ul class="occasion-grid" role="list">${occasions
+      .map(
+        (o) => `<li><a class="occasion" href="${o.href}">
+        <span class="occasion-photo">${img(o.photo)}</span>
+        <span class="occasion-body">
+          <span class="occasion-title">${esc(o.title)} ${icon('arrow', 'icon icon-sm')}</span>
+          ${priceOf(o) ? `<span class="occasion-price">${esc(priceOf(o))}</span>` : ''}
+          <span class="occasion-text">${esc(curly(o.text))}</span>
+        </span>
+      </a></li>`,
+      )
+      .join('')}</ul>
+    <p class="occasion-more">Also cooking weekly meal prep, built around your goals. <a class="text-link" href="menus.html#meal-prep">See meal prep ${icon('arrow', 'icon icon-sm')}</a></p>
+  </div>
+</section>`;
 }
 
 function quote() {
@@ -34,7 +62,12 @@ function quote() {
     <div class="home-quote-intro">
       ${eyebrow('Request a quote')}
       <h2 id="quote-title" class="h2">Tell us about your event</h2>
-      <p class="lede">The day, the headcount and the occasion. It takes about a minute, and we reply within one business day with a proposed menu and a price.</p>
+      <p class="lede">Two short steps, about a minute.</p>
+      <ol class="how-steps" role="list">
+        <li><span class="step-num">1</span><div><h3 class="how-title">Tell us the day</h3><p>The occasion, the date and roughly how many guests.</p></div></li>
+        <li><span class="step-num">2</span><div><h3 class="how-title">Get a menu and a price</h3><p>Within one business day, a proposed menu and a written quote, per person.</p></div></li>
+        <li><span class="step-num">3</span><div><h3 class="how-title">We cook, deliver and set up</h3><p>Dropped off and set out, or served by our staff, the way your event calls for.</p></div></li>
+      </ol>
       ${reviewsLine()}
       <div class="quick-contact">
         <a class="btn btn-ghost" href="${site.phone.href}">${icon('phone')} Call us</a>
@@ -109,21 +142,67 @@ function menuSection() {
 
 function approach() {
   const points = [
-    ['Roots', 'Recipes that start at the Sunday table: smoked turkey in the greens, brown butter in the sweet potatoes, chicken brined in buttermilk before it meets the fryer.'],
-    ['Craft', 'Plated with intention, from passed small plates to individual dessert jars, so every dish looks the way it tastes.'],
-    ['Hospitality', 'Generous, unhurried and on time, set out the way your occasion calls for.'],
+    ['A clear price', 'Per-person pricing, and a written menu and quote within one business day. Office packages and holiday dinners show their prices up front.'],
+    ['Every guest looked after', 'Ingredients and allergens on every dish, with vegetarian and vegan dishes marked on the event, wedding and office menus.'],
+    ['Presentation that photographs', 'Mac and cheese in individual cast-iron cocottes, greens in petite crocks, shrimp and grits in tasting spoons, desserts in jars and tartlets.'],
+    ['On time and set up', 'We arrive ahead of time and set everything out. Office orders come with plates, napkins and serving utensils.'],
   ];
   return `<section class="section section-dark" aria-labelledby="approach-title">
   <div class="container">
     <div class="section-head">
-      ${eyebrow('Our approach')}
-      <h2 id="approach-title" class="h2">How we cook</h2>
+      ${eyebrow('Why Aaron J’s')}
+      <h2 id="approach-title" class="h2">What you can count on</h2>
     </div>
-    <ol class="approach" role="list">${points
+    <ol class="approach approach-4" role="list">${points
       .map(([t, text], i) => `<li><span class="step-num">${String(i + 1).padStart(2, '0')}</span><h3 class="approach-title">${t}</h3><p>${esc(curly(text))}</p></li>`)
       .join('')}</ol>
   </div>
 </section>`;
+}
+
+// Questions people ask before they book. Dates and minimums come from the
+// holiday and office files, so they stay right when those change.
+function faqItems() {
+  const minOffice = Math.min(...officePackages.map((p) => p.min));
+  const chef = officePackages.find((p) => p.id === 'chef-breakfast');
+  const notice = officeTerms.find(([t]) => t === 'Order ahead');
+  const closes = holiday.events
+    .map((e) => {
+      const d = parseDate(e.orderBy);
+      return `${e.name} orders close ${d.month} ${d.day}`;
+    })
+    .join(' and ');
+  return [
+    ['How far ahead should we book?', `For weddings and large events, as soon as you have a date, since weekends go first. ${notice ? notice[1] : ''} ${closes}, or sooner if we sell out.`],
+    ['Where do you cater?', 'Washington, DC, Maryland and Northern Virginia. Delivery is priced on your quote, and holiday delivery fees are listed on the Holiday page.'],
+    ['Can you work around allergies and diets?', 'Every dish on our menus lists its ingredients and allergens, and vegetarian and vegan dishes are marked. Ours is a working kitchen that handles shellfish, dairy, eggs, wheat and nuts, so we can’t promise any dish is free of an allergen. Tell us about allergies when you order.'],
+    ['Is there a minimum?', `Office packages start at ${minOffice} people${chef ? ` (${chef.min} for the chef-attended breakfast)` : ''}. Holiday packages start with Dinner for Two. For events, tell us your headcount and we’ll suggest the right service style.`],
+    ['Do you bring staff and set up?', 'Office orders arrive ahead of time and are set out with plates, napkins and serving utensils. For events and weddings, your quote covers the service you choose, from drop-off to a plated dinner with servers.'],
+    ['How do we pay?', 'Holiday orders are paid by card when you order online. For events and office catering, payment details come with your quote.'],
+  ];
+}
+
+function faq() {
+  return `<section class="section" aria-labelledby="faq-title" id="faq">
+  <div class="container faq-grid">
+    <div class="section-head">
+      ${eyebrow('Before you book')}
+      <h2 id="faq-title" class="h2">Questions, answered</h2>
+      <p class="muted">Anything else? Call <a href="${site.phone.href}">${site.phone.display}</a>.</p>
+    </div>
+    <div class="faq">${faqItems()
+      .map(([q, a]) => `<details class="faq-item"><summary>${esc(q)}</summary><p>${esc(curly(a.replace(/\s+/g, ' ').trim()))}</p></details>`)
+      .join('')}</div>
+  </div>
+</section>`;
+}
+
+function faqJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqItems().map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: curly(a.replace(/\s+/g, ' ').trim()) } })),
+  };
 }
 
 function instagram() {
@@ -155,6 +234,7 @@ export default function home() {
       'Elevated Southern and soul food catering from Chef Aaron Jenkins: weddings, corporate breakfasts and lunches, holidays and private events across the DMV.',
     bodyClass: 'has-hero',
     preload: ['hero'],
-    content: [hero(), quote(), holidayBlock(), menuSection(), approach(), instagram()].join('\n'),
+    jsonld: [faqJsonLd()],
+    content: [hero(), quote(), holidayBlock(), menuSection(), approach(), faq(), instagram()].join('\n'),
   });
 }
