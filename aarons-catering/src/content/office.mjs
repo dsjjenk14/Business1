@@ -16,7 +16,7 @@ export const officePackages = [
     name: 'Chef-attended breakfast',
     price: 26,
     min: 20,
-    text: 'Cooked to order in your office: an omelette station, mini waffles with a dressed toppings bar, bacon and turkey sausage.',
+    text: 'Cooked to order in your office: an omelette station, mini waffles with a dressed toppings bar, bacon, turkey sausage and fresh fruit cups.',
     menu: 'breakfast',
     popular: true,
   },
@@ -26,7 +26,7 @@ export const officePackages = [
     name: 'Breakfast spread',
     price: 18,
     min: 12,
-    text: 'Delivered hot and set out: mini waffles with the toppings bar, petite quiche, bacon and turkey sausage.',
+    text: 'Delivered hot and set out: mini waffles with the toppings bar, petite quiche, bacon, turkey sausage and fresh fruit cups.',
     menu: 'breakfast',
   },
   {
@@ -124,6 +124,11 @@ export const officeMenus = [
         dishes: ['mini-waffles', 'waffle-toppings'],
       },
       { title: 'Breakfast meats', dishes: ['bacon', 'turkey-sausage'] },
+      {
+        title: 'Fresh fruit',
+        note: 'With every breakfast.',
+        dishes: ['fruit-cups'],
+      },
       {
         title: 'Add to the spread',
         dishes: [

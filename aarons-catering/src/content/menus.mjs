@@ -89,6 +89,7 @@ export const menus = [
           { dish: 'mini-quiche', name: 'Petite quiche', description: 'Spinach and cheddar, or ham and Swiss, in an all-butter crust.' },
           'mini-waffles',
           'waffle-toppings',
+          'fruit-cups',
         ],
       },
       {

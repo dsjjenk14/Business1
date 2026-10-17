@@ -718,6 +718,12 @@ export const dishes = {
   },
 
   // ---------- Office breakfast ----------
+  'fruit-cups': {
+    name: 'Fresh fruit cups',
+    description: 'Individual cups of berries, pineapple, melon and grapes, finished with fresh mint.',
+    ingredients: ['strawberries', 'blueberries', 'pineapple', 'cantaloupe', 'honeydew', 'grapes', 'fresh mint'],
+    allergens: [],
+  },
   'mini-waffles': {
     name: 'Mini waffles',
     description: 'Buttermilk mini waffles, made fresh on site.',
