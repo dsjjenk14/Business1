@@ -501,7 +501,7 @@ export const dishes = {
   // ---------- Modern menu (2026) ----------
   'braised-oxtail': {
     name: 'Red wine braised oxtail',
-    description: 'Oxtail browned hard, then braised low with red wine, thyme and allspice until it falls from the bone.',
+    description: 'Oxtail braised low in red wine with thyme and allspice until it falls from the bone, glazed in its own jus and finished with scallion.',
     ingredients: [
       'oxtail',
       'red wine',
@@ -522,8 +522,8 @@ export const dishes = {
   },
   'blackened-salmon': {
     name: 'Blackened salmon',
-    description: 'Salmon in a dark Cajun crust, finished with lemon butter and herbs.',
-    ingredients: ['salmon fillets', CAJUN, 'butter', 'lemon', 'garlic', 'parsley', 'kosher salt'],
+    description: 'Salmon in a dark Cajun crust with lemon beurre blanc and soft herbs.',
+    ingredients: ['salmon fillets', CAJUN, 'lemon beurre blanc (butter, white wine, shallots, lemon juice)', 'garlic', 'parsley', 'chives', 'kosher salt'],
     allergens: ['fish', 'dairy'],
   },
   'gouda-mac': {
@@ -559,24 +559,9 @@ export const dishes = {
     ],
     allergens: ['dairy', 'tree nuts'],
   },
-  'fried-green-tomatoes': {
-    name: 'Fried green tomatoes',
-    description: 'Cornmeal-crusted green tomatoes with a spoon of pimento cheese.',
-    ingredients: [
-      'green tomatoes',
-      'yellow cornmeal',
-      'all-purpose wheat flour',
-      'buttermilk',
-      'eggs',
-      'canola oil for frying',
-      'kosher salt',
-      'pimento cheese (sharp cheddar, cream cheese, ' + MAYO + ', pimentos, cayenne)',
-    ],
-    allergens: ['wheat', 'dairy', 'eggs'],
-  },
   'banana-pudding': {
     name: 'Banana pudding jars',
-    description: 'Vanilla custard, fresh bananas and vanilla wafers, layered in jars and topped with whipped cream.',
+    description: 'Vanilla custard, ripe banana and wafer crumble, layered in individual jars under vanilla chantilly.',
     ingredients: [
       'bananas',
       'vanilla custard (whole milk, egg yolks, sugar, cornstarch, vanilla, butter)',
@@ -587,7 +572,7 @@ export const dishes = {
   },
   'peach-cobbler': {
     name: 'Peach cobbler',
-    description: 'Baked peaches with cinnamon and nutmeg under a brown butter crumble.',
+    description: 'Spiced peaches under a brown butter crumble, served warm.',
     ingredients: [
       'peaches',
       'sugar',
@@ -604,7 +589,7 @@ export const dishes = {
   // ---------- Office lunch ----------
   'jerk-chicken': {
     name: 'Jerk chicken',
-    description: 'Chicken thighs marinated overnight in scotch bonnet, allspice, thyme, scallion, ginger and lime, then roasted until charred at the edges.',
+    description: 'Chicken thigh marinated overnight in scotch bonnet, allspice, thyme and ginger, roasted until lacquered and charred, with charred lime and scallion.',
     ingredients: [
       'boneless chicken thighs',
       'scotch bonnet peppers',
@@ -626,7 +611,7 @@ export const dishes = {
   },
   'hot-honey-chicken': {
     name: 'Hot honey fried chicken',
-    description: 'Buttermilk fried chicken, brushed with honey heated with chili flakes and a splash of vinegar.',
+    description: 'Buttermilk-brined chicken thigh, fried crisp and lacquered in chili hot honey, with pickled shallots and chives.',
     ingredients: [
       'boneless chicken thighs',
       'buttermilk',
@@ -640,13 +625,15 @@ export const dishes = {
       'cayenne pepper',
       'canola oil for frying',
       'hot honey (honey, red pepper flakes, apple cider vinegar)',
+      'pickled shallots (shallots, red wine vinegar, sugar, salt)',
+      'chives',
     ],
     allergens: ['dairy', 'wheat'],
     spicy: true,
   },
   'cornbread-muffins': {
     name: 'Jalapeño cheddar cornbread muffins',
-    description: 'Small cornbread muffins with sharp cheddar and a little jalapeño, served with whipped honey butter.',
+    description: 'Petite cornbread muffins with sharp cheddar and a little jalapeño, with whipped honey butter.',
     ingredients: [
       'yellow cornmeal',
       'all-purpose wheat flour',
@@ -672,10 +659,9 @@ export const dishes = {
   },
   'waffle-toppings': {
     name: 'Build-your-own toppings bar',
-    description: 'Strawberries, blueberries, sliced bananas, whipped cream, maple syrup, butter, chocolate chips, toasted pecans and powdered sugar.',
+    description: 'Macerated berries, sliced banana, vanilla chantilly, maple syrup, whipped butter, chocolate chips, toasted pecans and powdered sugar.',
     ingredients: [
-      'strawberries',
-      'blueberries',
+      'macerated berries (strawberries, blueberries, sugar)',
       'bananas',
       'whipped cream (heavy cream, sugar, vanilla extract)',
       'maple syrup',

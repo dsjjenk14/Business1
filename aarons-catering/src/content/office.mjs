@@ -13,48 +13,48 @@ export const officePackages = [
   {
     id: 'chef-breakfast',
     group: 'Breakfast',
-    name: 'Chef’s breakfast',
+    name: 'Chef-attended breakfast',
     price: 26,
     min: 20,
-    text: 'Cooked in your office: made-to-order omelettes, mini waffles with the toppings bar, bacon and turkey sausage.',
+    text: 'Cooked to order in your office: an omelette station, mini waffles with a dressed toppings bar, bacon and turkey sausage.',
     menu: 'breakfast',
     popular: true,
   },
   {
     id: 'breakfast-buffet',
     group: 'Breakfast',
-    name: 'Breakfast buffet',
+    name: 'Breakfast spread',
     price: 18,
     min: 12,
-    text: 'Delivered hot: mini waffles with the toppings bar, handmade mini quiche, bacon and turkey sausage.',
+    text: 'Delivered hot and set out: mini waffles with the toppings bar, petite quiche, bacon and turkey sausage.',
     menu: 'breakfast',
   },
   {
     id: 'boxed-lunch',
     group: 'Lunch',
-    name: 'Boxed lunch',
+    name: 'Executive lunch box',
     price: 19,
     min: 10,
-    text: 'One entrée, two sides and a cornbread muffin, boxed and labeled for each person.',
+    text: 'A signature box for each guest: entrée, two sides and a cornbread muffin, packed and labeled by name.',
     menu: 'lunch',
   },
   {
     id: 'lunch-buffet',
     group: 'Lunch',
-    name: 'Lunch buffet',
+    name: 'Executive lunch buffet',
     price: 26,
     min: 15,
-    text: 'Two entrées, two sides, a salad and cornbread muffins, set up hot.',
+    text: 'Two entrées, two sides, a composed salad and cornbread muffins, set up hot in chafers.',
     menu: 'lunch',
     popular: true,
   },
   {
     id: 'salad-lunch',
     group: 'Lunch',
-    name: 'Salad lunch',
+    name: 'Composed salad lunch',
     price: 16,
     min: 10,
-    text: 'A chicken Caesar or Cobb for each person, with a cornbread muffin.',
+    text: 'A Caesar with herb roasted chicken or a Cobb for each guest, with a cornbread muffin.',
     menu: 'lunch',
   },
   {
@@ -63,23 +63,35 @@ export const officePackages = [
     name: 'Meeting bites',
     price: 14,
     min: 15,
-    text: 'Pick three bites, set out on platters for a meeting, client visit or celebration.',
+    text: 'Three small plates, displayed for a client meeting, board meeting or celebration.',
     menu: 'meetings',
   },
 ];
 
+// The executive lunch boxes: one per guest, each a set entrée and sides
+// (dish ids). Premium boxes add to the box price. Allergens are worked out
+// from the dishes.
+export const officeBoxes = [
+  { name: 'The Hot Honey', dishes: ['hot-honey-chicken', 'gouda-mac', 'green-beans', 'cornbread-muffins'] },
+  { name: 'The Islander', dishes: ['jerk-chicken', 'brown-butter-yams', 'collards', 'cornbread-muffins'] },
+  { name: 'The Classic', dishes: ['baked-chicken', 'garlic-mashed', 'green-beans', 'cornbread-muffins'] },
+  { name: 'The Coastal', premium: 5, dishes: ['blackened-salmon', 'garlic-mashed', 'green-beans', 'cornbread-muffins'] },
+  { name: 'The Executive', premium: 5, dishes: ['short-ribs', 'garlic-mashed', 'collards', 'cornbread-muffins'] },
+  { name: 'The Caesar', dishes: ['caesar-salad', 'baked-chicken', 'cornbread-muffins'] },
+];
+
 // Extras, per person.
 export const officeAddOns = [
-  { name: 'Premium entrée', price: 5, text: 'Lemon herb salmon, red wine braised short ribs or Cajun shrimp and grits.' },
-  { name: 'Salmon on a salad', price: 4, text: 'Instead of chicken.' },
-  { name: 'Homemade dessert', price: 5, text: 'Pound cake, vanilla cake or sweet potato pie.' },
+  { name: 'Premium entrée', price: 5, text: 'Blackened salmon, red wine braised short rib or Cajun shrimp and grits.' },
+  { name: 'Blackened salmon on a salad', price: 4, text: 'Instead of chicken.' },
+  { name: 'Dessert', price: 5, text: 'Banana pudding jars, peach cobbler, sweet potato pie or pound cake.' },
   { name: 'Meeting bites with lunch', price: 8, text: 'Add two bites to any lunch.' },
 ];
 
 // How ordering works, in short. Draft terms for Chef Aaron to confirm.
 export const officeTerms = [
   ['Per-person pricing', 'One price per person, so the total is easy to budget. Delivery and tax are added on the quote.'],
-  ['Order ahead', 'Two business days’ notice for most orders, a week for the chef’s breakfast.'],
+  ['Order ahead', 'Two business days’ notice for most orders, a week for the chef-attended breakfast.'],
   ['Delivered and set up', 'We arrive ahead of time, set up, and bring plates, napkins and serving utensils.'],
   ['Allergens listed', 'Every dish below lists its allergens. Tell us about allergies when you order.'],
   ['Standing orders', 'A weekly team lunch or a monthly breakfast, on the same day each time.'],
@@ -89,12 +101,12 @@ export const officeMenus = [
   {
     id: 'breakfast',
     eyebrow: 'Breakfast',
-    title: 'Breakfast menu',
-    intro: 'The chef’s breakfast is cooked in your office as your team arrives. The breakfast buffet comes hot and ready.',
+    title: 'Executive breakfast',
+    intro: 'The chef-attended breakfast is cooked to order in your office as your team arrives. The breakfast spread arrives hot and set out.',
     courses: [
       {
         title: 'Omelette station',
-        note: 'Chef’s breakfast. Made to order, the way each person likes it.',
+        note: 'Chef-attended. Made to order, one at a time.',
         dishes: [
           {
             dish: 'omelettes',
@@ -105,14 +117,14 @@ export const officeMenus = [
       },
       {
         title: 'Mini waffle bar',
-        note: 'Fresh mini waffles and a bar of toppings to build your own.',
+        note: 'Mini waffles off the iron, with a dressed bar of toppings.',
         dishes: ['mini-waffles', 'waffle-toppings'],
       },
       { title: 'Breakfast meats', dishes: ['bacon', 'turkey-sausage'] },
       {
         title: 'Add to the spread',
         dishes: [
-          'mini-quiche',
+          { dish: 'mini-quiche', name: 'Petite quiche' },
           {
             dish: 'chicken-and-waffles',
             name: 'Chicken and waffle bites',
@@ -126,39 +138,43 @@ export const officeMenus = [
   {
     id: 'lunch',
     eyebrow: 'Lunch',
-    title: 'Lunch menu',
-    intro: 'Bold, Southern and Caribbean flavors that still travel well and eat neatly at a desk or a conference table.',
+    title: 'Executive lunch',
+    intro:
+      'Restaurant-quality lunches that travel well and eat neatly at a desk or a boardroom table. Choose a signature box above, or build a buffet from the menu below.',
     courses: [
-      { title: 'Entrées', dishes: ['jerk-chicken', 'hot-honey-chicken', { dish: 'baked-chicken', name: 'Herb grilled chicken' }] },
+      {
+        title: 'Entrées',
+        dishes: ['hot-honey-chicken', 'jerk-chicken', { dish: 'baked-chicken', name: 'Herb roasted chicken', description: 'Bone-in chicken with garlic, lemon, rosemary and paprika.' }],
+      },
       {
         title: 'Premium entrées',
         note: 'Add $5 per person.',
         dishes: [
-          { dish: 'lemon-salmon', name: 'Lemon herb salmon' },
-          { dish: 'short-ribs', name: 'Red wine braised short ribs', description: 'Bone-in short ribs braised in red wine with thyme until they fall apart.' },
+          'blackened-salmon',
+          { dish: 'short-ribs', name: 'Red wine braised short rib', description: 'Bone-in short rib braised in red wine with thyme until it falls apart, in its own glossy jus.' },
           { dish: 'shrimp-and-grits', name: 'Cajun shrimp and grits' },
         ],
       },
       {
         title: 'Sides',
         dishes: [
-          { dish: 'mac', name: 'Smoked mac and cheese', description: 'Sharp cheddar, Colby Jack and cream cheese, finished in the smoker.' },
-          { dish: 'garlic-mashed', name: 'Garlic mashed potatoes', description: 'Whipped with butter, cream and roasted garlic, under red wine gravy.' },
+          'gouda-mac',
+          { dish: 'garlic-mashed', name: 'Roasted garlic mashed potatoes', description: 'Whipped with butter, cream and roasted garlic, under red wine gravy.' },
           'brown-butter-yams',
-          'green-beans',
-          'collards',
+          { dish: 'green-beans', name: 'Green beans with smoked turkey' },
+          { dish: 'collards', name: 'Slow-braised collard greens' },
         ],
       },
       {
-        title: 'Salads',
+        title: 'Composed salads',
         dishes: [
-          { dish: 'caesar-salad', name: 'Chicken Caesar', note: 'Topped with herb grilled chicken, or salmon for $4 more.' },
-          'cobb-salad',
-          'garden-salad',
+          { dish: 'caesar-salad', name: 'Caesar', note: 'Topped with herb roasted chicken, or blackened salmon for $4 more.' },
+          { dish: 'cobb-salad', name: 'Cobb' },
+          { dish: 'garden-salad', name: 'Garden' },
         ],
       },
       { title: 'With every lunch', dishes: ['cornbread-muffins'] },
-      { title: 'Dessert', note: 'Add $5 per person.', dishes: ['pound-cake', 'vanilla-cake', 'sweet-potato-pie'] },
+      { title: 'Dessert', note: 'Add $5 per person. Individual jars or petite slices.', dishes: ['banana-pudding', 'peach-cobbler', 'sweet-potato-pie', 'pound-cake'] },
     ],
   },
   {
@@ -180,7 +196,7 @@ export const officeMenus = [
             name: 'Chicken and waffle bites',
             description: 'Bite-size fried chicken on a mini waffle with a drizzle of syrup and a sliver of strawberry.',
           },
-          'mini-quiche',
+          { dish: 'mini-quiche', name: 'Petite quiche' },
         ],
       },
     ],

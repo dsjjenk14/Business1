@@ -2,7 +2,8 @@
 // meetings, and a request form for companies. Menus come from content/office.mjs.
 import { page } from '../layout.mjs';
 import { site } from '../content/site.mjs';
-import { officeMenus, officePackages, officeAddOns, officeTerms } from '../content/office.mjs';
+import { officeMenus, officePackages, officeAddOns, officeTerms, officeBoxes } from '../content/office.mjs';
+import { dish } from '../content/dishes.mjs';
 import { icon } from '../icons.mjs';
 import { esc, curly, eyebrow, money } from '../lib.mjs';
 import { menuDish } from './menus.mjs';
@@ -59,6 +60,27 @@ function packageCards() {
     .join('');
 }
 
+const ALLERGEN_NAMES = { dairy: 'Dairy', eggs: 'Eggs', wheat: 'Wheat', shellfish: 'Shellfish', fish: 'Fish', 'tree nuts': 'Tree nuts', peanuts: 'Peanuts', soy: 'Soy', sesame: 'Sesame', mustard: 'Mustard' };
+const NAMES_HERE = { 'baked-chicken': 'Herb roasted chicken', 'garlic-mashed': 'Roasted garlic mashed potatoes', 'short-ribs': 'Red wine braised short rib', 'caesar-salad': 'Caesar salad' };
+
+// The signature boxes: what's in each, and every allergen in any part of it.
+function boxCards() {
+  return officeBoxes
+    .map((b) => {
+      const parts = b.dishes.map((id) => dish(id));
+      const allergens = [...new Set(parts.flatMap((d) => d.allergens))];
+      return `<li class="box-card">
+        <div class="box-head">
+          <h4 class="box-name">${esc(b.name)}</h4>
+          ${b.premium ? `<span class="box-tag">+${money(b.premium)}</span>` : ''}
+        </div>
+        <ul class="box-parts" role="list">${parts.map((d) => `<li>${esc(curly(NAMES_HERE[d.id] ?? d.name))}</li>`).join('')}</ul>
+        <p class="allergens"><span class="label">Allergens:</span> ${allergens.length ? allergens.map((a) => ALLERGEN_NAMES[a] ?? a).join(', ') : 'None in the recipes. See the allergy note.'}</p>
+      </li>`;
+    })
+    .join('');
+}
+
 export default function office() {
   const addOns = officeAddOns
     .map((a) => `<li><span class="office-addon-name">${esc(a.name)}</span><span class="price">+${money(a.price)}<span class="per">per person</span></span><span class="office-addon-text">${esc(curly(a.text))}</span></li>`)
@@ -69,9 +91,9 @@ export default function office() {
 
   const content = `<section class="page-head" aria-labelledby="page-title">
   <div class="container">
-    ${eyebrow('Office catering')}
-    <h1 id="page-title" class="h1">Catering for the workday</h1>
-    <p class="lede">Breakfast cooked in your office, boxed or buffet lunches, and bites for meetings, across DC, Maryland and Northern Virginia. Simple per-person pricing, delivered and set up on time.</p>
+    ${eyebrow('Corporate dining')}
+    <h1 id="page-title" class="h1">The working lunch, <em>reconsidered</em></h1>
+    <p class="lede">Chef-attended breakfasts, executive lunch boxes and meeting bites for offices across DC, Maryland and Northern Virginia. Priced per person, delivered and set up on time.</p>
     <div class="hero-actions">
       <a class="btn" href="#office-quote">Request office catering</a>
       <a class="btn btn-ghost" href="${site.phone.href}">${icon('phone')} Call ${site.phone.display}</a>
@@ -87,6 +109,11 @@ export default function office() {
       <p class="lede">Before delivery and tax. Pick a package, choose from the menus below, and we’ll send a quote within one business day.</p>
     </div>
     ${packageCards()}
+    <div class="office-group" id="boxes">
+      <h3 class="course-title">Executive lunch boxes</h3>
+      <p class="muted office-group-intro">One per guest, packed and labeled by name. Mix boxes in a single order.</p>
+      <ul class="box-grid" role="list">${boxCards()}</ul>
+    </div>
     <div class="office-group">
       <h3 class="course-title">Extras</h3>
       <ul class="office-addons" role="list">${addOns}</ul>

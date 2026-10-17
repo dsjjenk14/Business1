@@ -124,7 +124,7 @@ export default function menusPage() {
   const content = `<section class="page-hero page-hero-short" aria-labelledby="page-title">
   <div class="page-hero-media">${img('page-menus', { eager: true })}</div>
   <div class="container page-hero-content">
-    ${eyebrow('Modern soul food')}
+    ${eyebrow('The collection')}
     <h1 id="page-title" class="h1">The <em>menus</em></h1>
     <p class="lede">Pick a menu below. ${site.priceGuide ? `${esc(site.priceGuide)} ` : ''}Pricing depends on guest count, service style and location.</p>
   </div>

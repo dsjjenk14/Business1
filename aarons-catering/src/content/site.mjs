@@ -3,7 +3,7 @@
 export const site = {
   name: "Aaron J's Catering",
   chef: 'Chef Aaron Jenkins',
-  tagline: 'Soul food, made modern',
+  tagline: 'Sunday best, every day',
   motto: 'Where every day is Sunday', // from the logo
   url: 'https://aaronjscatering.com', // used for canonical links, the sitemap and link previews
 
@@ -46,15 +46,15 @@ export const nav = [
   { href: 'contact.html', label: 'Contact' },
 ];
 
-// "New on the menu" on the home page: the modern dishes, by id from dishes.mjs.
-export const newDishes = ['hot-honey-chicken', 'jerk-chicken', 'braised-oxtail', 'blackened-salmon', 'gouda-mac', 'brown-butter-yams', 'fried-green-tomatoes', 'banana-pudding'];
+// "Signatures" on the home page: the elevated dishes, by id from dishes.mjs.
+export const newDishes = ['braised-oxtail', 'hot-honey-chicken', 'blackened-salmon', 'jerk-chicken', 'gouda-mac', 'brown-butter-yams', 'banana-pudding', 'peach-cobbler'];
 
 // The ways in, on the home page under the hero.
 export const paths = [
-  { title: 'Weddings', text: 'Cocktail hour to late-night bites, plated, family-style or stations.', href: 'menus.html#weddings' },
-  { title: 'Events', text: 'Birthdays, showers, reunions, church and family events.', href: 'menus.html#catering' },
-  { title: 'Office', text: 'Breakfast cooked in your office and lunches priced per person.', href: 'office.html' },
-  { title: 'Meal prep', text: 'A week of meals, built around you.', href: 'menus.html#meal-prep' },
+  { title: 'Weddings', text: 'From the first passed bite to the last dance, plated, family-style or stations.', href: 'menus.html#weddings' },
+  { title: 'Private events', text: 'Milestone birthdays, showers, reunions and dinners at home.', href: 'menus.html#catering' },
+  { title: 'Corporate', text: 'Chef-attended breakfasts and executive lunch boxes, priced per person.', href: 'office.html' },
+  { title: 'Meal prep', text: 'A week of chef-prepared meals, built around you.', href: 'menus.html#meal-prep' },
 ];
 
 export const signatureDishes = [

@@ -766,6 +766,17 @@ button { font: inherit; color: inherit; }
 .office-packages .package-note { flex: 1; }
 .price .per { margin-left: 6px; color: var(--muted); font-family: var(--body); font-size: 0.8125rem; font-weight: 500; }
 .package-links { display: grid; justify-items: center; gap: 10px; }
+.office-group-intro { margin: -8px 0 20px; }
+.box-grid { list-style: none; display: grid; gap: 14px; }
+@media (min-width: 640px) { .box-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1080px) { .box-grid { grid-template-columns: repeat(3, 1fr); } }
+.box-card { display: grid; align-content: start; gap: 12px; padding: 22px; border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--ink-1); }
+.box-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.box-name { font-family: var(--display); font-size: 1.5rem; font-weight: 450; letter-spacing: -0.01em; }
+.box-tag { color: var(--gold); font-family: var(--display); font-size: 1.0625rem; }
+.box-parts { list-style: none; display: grid; gap: 6px; padding-top: 12px; border-top: 1px solid var(--line); }
+.box-parts li { display: flex; gap: 10px; font-size: 0.9375rem; }
+.box-parts li::before { content: ''; flex: none; width: 5px; height: 5px; margin-top: 0.6em; border-radius: 50%; background: var(--accent); }
 .office-addons { list-style: none; display: grid; gap: 0 32px; border-top: 1px solid var(--line); }
 @media (min-width: 720px) { .office-addons { grid-template-columns: 1fr 1fr; } }
 .office-addons li { display: grid; grid-template-columns: 1fr auto; gap: 2px 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }

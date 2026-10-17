@@ -12,8 +12,8 @@ export default function about() {
   const content = `<section class="page-head" aria-labelledby="page-title">
   <div class="container">
     ${eyebrow('About Aaron J’s')}
-    <h1 id="page-title" class="h1">Soul food, <em>carried forward</em></h1>
-    <p class="lede">Aaron J’s Catering is Chef Aaron Jenkins and the soul food people grew up on, cooked the way we eat now: generous, full of flavor and set out beautifully. ${esc(site.motto)}.</p>
+    <h1 id="page-title" class="h1">Heritage cooking, <em>beautifully served</em></h1>
+    <p class="lede">Aaron J’s Catering is Chef Aaron Jenkins and heritage Southern cooking, brought to weddings, boardrooms and holiday dinners with fine-dining polish. ${esc(site.motto)}.</p>
   </div>
 </section>
 
@@ -23,8 +23,8 @@ export default function about() {
     <div class="feature-body">
       ${eyebrow('The chef')}
       <h2 id="chef-title" class="h2">Chef Aaron Jenkins</h2>
-      <p>Chef Aaron cooks the classics, then carries them forward: oxtail braised in red wine, fried chicken brushed with hot honey, mac and cheese with smoked gouda, candied yams in brown butter.</p>
-      <p>The classics stay on the menu, and the new dishes earn their place next to them. Weddings, office breakfasts and lunches, birthdays, church and family events, Christmas dinner and weekly meal prep, across DC, Maryland and Northern Virginia.</p>
+      <p>Chef Aaron cooks the dishes people come home for, then dresses them for the occasion: oxtail braised in red wine and glazed in its jus, chicken lacquered in hot honey with pickled shallots, smoked gouda mac under a brown butter crumb.</p>
+      <p>Weddings, corporate breakfasts and executive lunches, milestone birthdays, church and family events, Christmas dinner and weekly meal prep, across DC, Maryland and Northern Virginia.</p>
       <a class="btn" href="menus.html">See the menus</a>
     </div>
   </div>

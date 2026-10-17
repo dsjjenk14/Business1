@@ -12,8 +12,8 @@ function hero() {
   <div class="hero-media">${img('hero', { eager: true })}</div>
   <div class="container hero-content">
     <p class="hero-kicker">Aaron J's Catering</p>
-    <h1 id="hero-title" class="hero-title">Soul food, <em>made modern.</em></h1>
-    <p class="hero-lede">Chef Aaron Jenkins cooks the dishes you grew up on with today’s flavors: smoked, glazed, hot-honeyed and jerk-spiced. Weddings, offices, holidays and private events across DC, Maryland and Northern Virginia.</p>
+    <h1 id="hero-title" class="hero-title">Sunday best, <em>every day.</em></h1>
+    <p class="hero-lede">Heritage Southern cooking from Chef Aaron Jenkins, finished with fine-dining polish: oxtail braised in red wine, chicken lacquered in hot honey, smoked gouda mac under a brown butter crumb. Weddings, corporate dining, holidays and private events across DC, Maryland and Northern Virginia.</p>
     <div class="hero-actions">
       <a class="btn btn-lg" href="#quote">Plan your event</a>
       <a class="btn btn-lg btn-ghost" href="menus.html">See the menu</a>
@@ -33,8 +33,8 @@ function quote() {
   <div class="container home-quote-grid">
     <div class="home-quote-intro">
       ${eyebrow('Request a quote')}
-      <h2 id="quote-title" class="h2">Tell us about <em>your event</em></h2>
-      <p class="lede">The date, the headcount and what you’re celebrating. It takes about a minute, and we reply within one business day with a menu and a price.</p>
+      <h2 id="quote-title" class="h2">Begin with <em>a date</em></h2>
+      <p class="lede">The day, the headcount and the occasion. It takes about a minute, and we reply within one business day with a proposed menu and a price.</p>
       ${reviewsLine()}
       <div class="quick-contact">
         <a class="btn btn-ghost" href="${site.phone.href}">${icon('phone')} Call us</a>
@@ -88,15 +88,15 @@ function menuSection() {
     <div class="section-head section-head-row">
       <div>
         ${eyebrow('The menu')}
-        <h2 id="menu-title" class="h2">Rooted in Sunday dinner. <em>Cooked for right now.</em></h2>
+        <h2 id="menu-title" class="h2">The classics, <em>impeccably dressed</em></h2>
       </div>
       <a class="text-link" href="menus.html">Every menu ${icon('arrow', 'icon icon-sm')}</a>
     </div>
     <ul class="dish-row" role="list">${photos}</ul>
     <div class="new-dishes">
       <div class="new-dishes-head">
-        <h3 class="course-title">New on the menu</h3>
-        <p class="muted">Smoke, spice and brown butter, with the classics close by. Every dish lists its ingredients and allergens on the <a href="menus.html">Menus page</a>.</p>
+        <h3 class="course-title">Signatures</h3>
+        <p class="muted">Braised, lacquered and finished at the pass. Every dish lists its ingredients and allergens on the <a href="menus.html">Menus page</a>.</p>
       </div>
       <ul class="new-dish-list" role="list">${list}</ul>
     </div>
@@ -106,15 +106,15 @@ function menuSection() {
 
 function approach() {
   const points = [
-    ['Rooted', 'Recipes that start where Sunday dinner started: smoked turkey in the greens, real butter in the yams, chicken soaked in buttermilk before it hits the fryer.'],
-    ['Modern', 'Today’s flavors and today’s service: hot honey and jerk spice, small plates and stations, boxed lunches for the office.'],
-    ['Generous', 'Where every day is Sunday. Plenty for everyone, set out the way your event needs it.'],
+    ['Heritage', 'Recipes with roots: smoked turkey in the greens, brown butter in the yams, chicken brined in buttermilk before it meets the fryer.'],
+    ['Craft', 'Plated with intention, from passed small plates to individual dessert jars, so every dish looks the way it tastes.'],
+    ['Hospitality', 'Where every day is Sunday: generous, unhurried and on time, set out the way your occasion calls for.'],
   ];
   return `<section class="section section-dark" aria-labelledby="approach-title">
   <div class="container">
     <div class="section-head">
-      ${eyebrow('How we cook')}
-      <h2 id="approach-title" class="h2">Soul food, <em>carried forward</em></h2>
+      ${eyebrow('The Aaron J’s standard')}
+      <h2 id="approach-title" class="h2">Heritage, <em>with polish</em></h2>
     </div>
     <ol class="approach" role="list">${points
       .map(([t, text], i) => `<li><span class="step-num">${String(i + 1).padStart(2, '0')}</span><h3 class="approach-title">${t}</h3><p>${esc(curly(text))}</p></li>`)
@@ -147,9 +147,9 @@ function instagram() {
 export default function home() {
   return page({
     slug: 'index',
-    title: 'Aaron J’s Catering | Modern Soul Food Catering in DC, Maryland and Northern Virginia',
+    title: 'Aaron J’s Catering | Elevated Soul Food Catering in DC, Maryland and Northern Virginia',
     description:
-      'Modern soul food catering from Chef Aaron Jenkins: weddings, office breakfast and lunch, holidays and private events in DC, Maryland and Northern Virginia.',
+      'Elevated Southern and soul food catering from Chef Aaron Jenkins: weddings, corporate breakfasts and lunches, holidays and private events across the DMV.',
     bodyClass: 'has-hero',
     preload: ['hero'],
     content: [hero(), quote(), holidayBlock(), menuSection(), approach(), instagram()].join('\n'),
