@@ -684,6 +684,7 @@ button { font: inherit; color: inherit; }
 .dish-row-3 { padding-inline: 0; grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 74%; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; }
 .dish-row-3 > li { scroll-snap-align: start; }
 @media (min-width: 900px) { .dish-row-3 { grid-auto-flow: row; grid-template-columns: repeat(3, 1fr); overflow: visible; } }
+@media (min-width: 1100px) { .dish-row-3 { grid-template-columns: repeat(var(--cols, 3), 1fr); gap: 24px; } }
 
 /* ---------- Instagram ---------- */
 

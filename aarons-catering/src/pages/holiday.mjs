@@ -24,8 +24,10 @@ const cap = (text) => text.charAt(0).toUpperCase() + text.slice(1);
 
 // Aaron J's own holiday photos, each with the dish it shows.
 const tablePhotos = [
+  { photo: 'holiday-turkey', name: 'Whole turkey', text: 'Smoked, fried or jerk: a half in any package, or a whole bird as an add-on.' },
   { photo: 'holiday-ham', dish: 'ham', text: 'Glazed with brown sugar, honey and pineapple juice, dressed with pineapple rings and cherries.' },
-  { photo: 'holiday-green-beans', dish: 'green-beans', text: 'Cooked down low with smoked turkey, onion and garlic.' },
+  { photo: 'holiday-collards', dish: 'collards', name: 'Collard greens', text: 'Slow-braised with smoked turkey, onion and garlic.' },
+  { photo: 'holiday-green-beans', dish: 'green-beans', name: 'Green beans', text: 'Cooked down low with smoked turkey, onion and garlic.' },
   { photo: 'holiday-yams', dish: 'yams', text: 'Baked in butter, brown sugar and warm spices until the syrup turns glossy.' },
 ];
 
@@ -157,11 +159,11 @@ export default function holidayPage() {
       ${eyebrow(events.map((e) => e.name).join(' and '))}
       <h2 id="table-title" class="h2">From our holiday table</h2>
     </div>
-    <ul class="dish-row dish-row-3" role="list">${tablePhotos
+    <ul class="dish-row dish-row-3" style="--cols: ${tablePhotos.length}" role="list">${tablePhotos
       .map(
         (p) => `<li class="dish-card">
         <div class="dish-photo">${img(p.photo)}</div>
-        <h3 class="dish-name">${esc(curly(dish(p.dish).name))}</h3>
+        <h3 class="dish-name">${esc(curly(p.name ?? dish(p.dish).name))}</h3>
         <p class="dish-text">${esc(p.text)}</p>
       </li>`,
       )

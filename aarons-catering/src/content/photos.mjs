@@ -109,6 +109,24 @@ export const photos = {
     where: 'Holiday page, photo row',
     source: 'photo',
   },
+  'holiday-turkey': {
+    file: 'holiday-turkey.jpg',
+    w: 1200,
+    h: 1500,
+    alt: 'A whole turkey, deep golden brown, on a bed of green leaf lettuce',
+    shot: 'Whole turkey, from the holiday table.',
+    where: 'Holiday page, photo row',
+    source: 'photo',
+  },
+  'holiday-collards': {
+    file: 'holiday-collards.jpg',
+    w: 1200,
+    h: 1500,
+    alt: 'A full pan of collard greens with pulled smoked turkey, onion and peppers',
+    shot: 'Collard greens, from the holiday table.',
+    where: 'Holiday page, photo row',
+    source: 'photo',
+  },
   'holiday-green-beans': {
     file: 'holiday-green-beans.jpg',
     w: 1200,
@@ -142,6 +160,8 @@ export const gallery = [
   ['gallery-11.jpg', 680, 1200, 'Candied yams in a pan'],
   ['gallery-12.jpg', 692, 1200, 'A pan of fried chicken and waffles topped with strawberries'],
   ['gallery-14.jpg', 900, 1200, 'A pan of seasoned rice pilaf with shredded carrot, finished with fresh parsley'],
+  ['gallery-15.jpg', 900, 1200, 'A whole turkey, deep golden brown, on a bed of green leaf lettuce'],
+  ['gallery-16.jpg', 900, 1200, 'A full pan of collard greens with pulled smoked turkey, onion and peppers'],
 ]
   .map(([file, w, h, alt]) => ({ file, w, h, alt, shot: 'Aaron J’s photo.', source: 'photo' }))
   .concat([
