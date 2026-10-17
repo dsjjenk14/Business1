@@ -176,6 +176,7 @@ TEST_CASE("pets: no home, no pet; and a home has room for only so many") {
   WorldState s = World::createNew(db).state();
   for (auto& [pid, p] : s.properties) {
     if (p.tenant == "dax") p.tenant.clear();
+    std::erase(p.residents, "dax");
   }
   World w(db, s);
   REQUIRE(w.connect("dominique"));
@@ -607,7 +608,8 @@ TEST_CASE("medicine: more than the daily limit is an overdose; keep going and it
   CHECK(w.character("dominique")->needs.at("health") >= 30);
   CHECK(notified(w, "dominique", "rushed to"));
   CHECK(remembers(w, "dominique", "overdose"));
-  // A day on, the count starts over.
+  // A day on (at home, where her phone charges), the count starts over.
+  walkInto(w, "dominique", "lexington_1204");
   w.advanceMinutes(kMinutesPerDay);
   CHECK(w.openPhoneApp("dominique", "health").value().at("medicine_today").empty());
   w.advanceMinutes(60);
