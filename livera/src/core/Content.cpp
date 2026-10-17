@@ -393,6 +393,7 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           d.emotionsPerHour = readStats(j, "emotions_per_hour");
           d.performancePenalty = j.value("performance_penalty", 0.0);
           d.symptomatic = j.value("symptomatic", true);
+          d.onset = j.value("onset", "");
           d.curable = j.value("curable", true);
           if (j.contains("catch")) {
             const Json& c = j.at("catch");

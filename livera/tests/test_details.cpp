@@ -189,6 +189,8 @@ TEST_CASE("details: alone, it's still awful, but nobody knows") {
   REQUIRE(w.connect("dominique"));
   waitForAccident(w, "dominique", 4 * 60);
   CHECK(notified(w, "dominique", "at least nobody saw"));
+  CHECK(notified(w, "dominique", "You're humiliated."));
+  CHECK(!notified(w, "dominique", "You have humiliated"));
   CHECK(w.hasCondition("dominique", "humiliated"));
   CHECK(w.state().details.rumors.empty());
   for (const char* id : {"dax", "julian", "aaliyah"}) CHECK(!remembers(w, id, "saw_accident"));

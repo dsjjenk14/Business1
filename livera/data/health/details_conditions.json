@@ -4,6 +4,7 @@
     {
       "id": "humiliated",
       "name": "humiliated",
+      "onset": "You're humiliated. It will take days to stop replaying it.",
       "kind": "mental",
       "hours": [60, 84],
       "needs_per_hour": {"social": -1},

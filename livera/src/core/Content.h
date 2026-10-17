@@ -262,6 +262,7 @@ struct ConditionDef {
   StatMap emotionsPerHour;
   double performancePenalty = 0;  // fraction taken off work performance while ill
   bool symptomatic = true;    // you can tell you have it; otherwise only a test finds it
+  std::string onset;          // what you're told when it starts; empty = "You have <name>."
   bool curable = true;        // false = a treatment manages it but it never goes away
   // How you catch it.
   double hourlyChance = 0;

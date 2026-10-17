@@ -117,7 +117,7 @@ void World::addCondition(CharacterState& c, const std::string& condition, bool d
     k.until = state_.now + static_cast<GameMinutes>(hours * 60);
   }
   c.conditions.push_back(k);
-  if (def->symptomatic) notify(c.id, "health", "You have " + def->name + ".");
+  if (def->symptomatic) notify(c.id, "health", def->onset.empty() ? "You have " + def->name + "." : def->onset);
 }
 
 Status World::devAddCondition(const CharacterId& id, const std::string& condition) {
