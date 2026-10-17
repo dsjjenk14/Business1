@@ -48,7 +48,7 @@ export const nav = [
 ];
 
 // "Signatures" on the home page: the elevated dishes, by id from dishes.mjs.
-export const newDishes = ['chicken-caviar', 'cornbread-madeleines', 'braised-oxtail', 'hot-honey-chicken', 'sweet-potato-pave', 'blackened-salmon', 'gouda-mac', 'sweet-potato-tartlets'];
+export const newDishes = ['chicken-caviar', 'oxtail-biscuits', 'cornbread-madeleines', 'braised-oxtail', 'hot-honey-chicken', 'sweet-potato-pave', 'blackened-salmon', 'gouda-mac', 'sweet-potato-tartlets', 'banana-pudding'];
 
 // The ways in, on the home page under the hero.
 export const paths = [

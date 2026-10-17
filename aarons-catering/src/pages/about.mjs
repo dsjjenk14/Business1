@@ -13,7 +13,7 @@ export default function about() {
   <div class="container">
     ${eyebrow('Our story')}
     <h1 id="page-title" class="h1">About Aaron J’s</h1>
-    <p class="lede">Aaron J’s Catering is Chef Aaron Jenkins and heritage Southern cooking, brought to weddings, boardrooms and holiday dinners with fine-dining polish. ${esc(site.motto)}.</p>
+    <p class="lede">Aaron J’s Catering is Chef Aaron Jenkins: Southern cooking brought to weddings, boardrooms and holiday dinners with fine-dining polish. ${esc(site.motto)}.</p>
   </div>
 </section>
 

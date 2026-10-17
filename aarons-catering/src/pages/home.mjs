@@ -13,7 +13,7 @@ function hero() {
   <div class="container hero-content">
     <p class="hero-kicker">Aaron J's Catering</p>
     <h1 id="hero-title" class="hero-title">Sunday best, <em>every day.</em></h1>
-    <p class="hero-lede">Heritage Southern cooking from Chef Aaron Jenkins, finished with fine-dining polish: oxtail braised in red wine, chicken lacquered in hot honey, smoked gouda mac under a brown butter crumb. Weddings, corporate dining, holidays and private events across DC, Maryland and Northern Virginia.</p>
+    <p class="hero-lede">Southern cooking from Chef Aaron Jenkins, finished with fine-dining polish: oxtail braised in red wine, chicken lacquered in hot honey, smoked gouda mac under a brown butter crumb. Weddings, corporate dining, holidays and private events across DC, Maryland and Northern Virginia.</p>
     <div class="hero-actions">
       <a class="btn btn-lg" href="#quote">Plan your event</a>
       <a class="btn btn-lg btn-ghost" href="menus.html">See the menu</a>
@@ -106,7 +106,7 @@ function menuSection() {
 
 function approach() {
   const points = [
-    ['Heritage', 'Recipes with roots: smoked turkey in the greens, brown butter in the yams, chicken brined in buttermilk before it meets the fryer.'],
+    ['Roots', 'Recipes that start at the Sunday table: smoked turkey in the greens, brown butter in the sweet potatoes, chicken brined in buttermilk before it meets the fryer.'],
     ['Craft', 'Plated with intention, from passed small plates to individual dessert jars, so every dish looks the way it tastes.'],
     ['Hospitality', 'Generous, unhurried and on time, set out the way your occasion calls for.'],
   ];

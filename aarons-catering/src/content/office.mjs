@@ -189,6 +189,7 @@ export const officeMenus = [
         title: 'Bites',
         dishes: [
           'chicken-caviar',
+          { dish: 'oxtail-biscuits', name: 'Braised oxtail on buttermilk biscuits', description: 'Slow-braised oxtail tucked into petite buttermilk biscuits.' },
           'smoked-wings',
           'crab-shrimp-eggrolls',
           'shrimp-kebabs',

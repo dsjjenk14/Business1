@@ -18,7 +18,7 @@ export const menus = [
     title: 'Events',
     heading: 'The menu',
     intro:
-      'Heritage Southern cooking, finished with fine-dining polish. Every dish can be plated, sent out family-style on platters or set as a chef’s station, for milestone birthdays, showers, reunions, church and family events and dinners at home.',
+      'Southern cooking, finished with fine-dining polish. Every dish can be plated, sent out family-style on platters or set as a chef’s station, for milestone birthdays, showers, reunions, church and family events and dinners at home.',
     courses: [
       {
         title: 'Small plates',
@@ -95,7 +95,7 @@ export const menus = [
         title: 'Sides',
         dishes: [
           { dish: 'gouda-mac', description: 'Smoked gouda and white cheddar under a brown butter crumb, baked and served in individual cast-iron cocottes.' },
-          { dish: 'mac', name: 'Heirloom baked mac and cheese', description: 'Sharp cheddar, Colby Jack and cream cheese, baked until the edges caramelize.' },
+          { dish: 'mac', name: 'Classic baked mac and cheese', description: 'Sharp cheddar, Colby Jack and cream cheese, baked until the edges caramelize.' },
           'sweet-potato-pave',
           { dish: 'collards', name: 'Slow-braised collard greens', description: 'Braised low with smoked turkey, served in petite crocks in their own pot likker.', note: 'Pork available.' },
           { dish: 'green-beans', name: 'Green beans with smoked turkey', note: 'Pork available.' },

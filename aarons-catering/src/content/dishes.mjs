@@ -233,8 +233,8 @@ export const dishes = {
 
   // ---------- Appetizers (from the Aaron J's menu flyer; ingredients are drafts) ----------
   'oxtail-biscuits': {
-    name: 'Oxtail-stuffed biscuits',
-    description: 'Buttermilk biscuits filled with tender braised oxtail.',
+    name: 'Braised oxtail biscuits',
+    description: 'Petite buttermilk biscuits, split warm and filled with slow-braised oxtail.',
     ingredients: [
       'buttermilk biscuits (all-purpose wheat flour, butter, buttermilk, baking powder, salt)',
       'beef oxtails',
