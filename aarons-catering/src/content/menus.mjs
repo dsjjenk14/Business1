@@ -24,9 +24,8 @@ export const menus = [
         title: 'Small plates',
         note: 'Passed on trays or displayed as guests arrive.',
         dishes: [
-          'grit-cakes',
-          'mac-croquettes',
-          'collard-dumplings',
+          'chicken-caviar',
+          { dish: 'shrimp-grits', name: 'Shrimp and grits spoons', description: 'A seared shrimp on white cheddar stone-ground grits, served in a tasting spoon.' },
           {
             dish: 'chicken-and-waffles',
             name: 'Chicken and waffle bites',
@@ -95,12 +94,12 @@ export const menus = [
       {
         title: 'Sides',
         dishes: [
-          'gouda-mac',
+          { dish: 'gouda-mac', description: 'Smoked gouda and white cheddar under a brown butter crumb, baked and served in individual cast-iron cocottes.' },
           { dish: 'mac', name: 'Heirloom baked mac and cheese', description: 'Sharp cheddar, Colby Jack and cream cheese, baked until the edges caramelize.' },
           'sweet-potato-pave',
-          { dish: 'collards', name: 'Slow-braised collard greens', note: 'Made with smoked turkey. Pork available.' },
-          { dish: 'green-beans', name: 'Haricots verts with smoked turkey', note: 'Pork available.' },
-          { dish: 'garlic-mashed', name: 'Roasted garlic pommes purée, red wine gravy' },
+          { dish: 'collards', name: 'Slow-braised collard greens', description: 'Braised low with smoked turkey, served in petite crocks in their own pot likker.', note: 'Pork available.' },
+          { dish: 'green-beans', name: 'Green beans with smoked turkey', note: 'Pork available.' },
+          { dish: 'garlic-mashed', name: 'Roasted garlic whipped potatoes, red wine gravy' },
           { dish: 'cabbage', name: 'Buttered cabbage' },
           'cornbread-madeleines',
         ],
@@ -116,7 +115,7 @@ export const menus = [
       {
         title: 'Desserts',
         note: 'Individual jars and petite portions, or a full dessert table.',
-        dishes: ['banana-pudding', 'peach-cobbler', 'sweet-potato-brulee', 'pound-cake'],
+        dishes: ['sweet-potato-tartlets', 'peach-cobbler', 'banana-pudding', 'pound-cake'],
       },
     ],
   },
@@ -140,8 +139,7 @@ export const menus = [
           { dish: 'crab-mushrooms', name: 'Crab-stuffed mushrooms', description: 'Mushroom caps filled with lump crab and Parmesan, baked golden.' },
           { dish: 'shrimp-kebabs', name: 'Grilled shrimp skewers', description: 'Seasoned shrimp with peppers and red onion, finished with lemon.' },
           { dish: 'mini-quiche', name: 'Handmade petite quiche', description: 'Spinach and cheddar, or ham and Swiss, in a buttery crust.' },
-          'mac-croquettes',
-          'collard-dumplings',
+          'chicken-caviar',
         ],
       },
       {
@@ -167,11 +165,11 @@ export const menus = [
       {
         title: 'Accompaniments',
         dishes: [
-          { dish: 'garlic-mashed', name: 'Roasted garlic pommes purée, red wine gravy', description: 'Whipped with butter, cream and roasted garlic.' },
-          'gouda-mac',
-          { dish: 'collards', name: 'Braised collard greens', description: 'Slow-cooked with smoked turkey. Pork available.' },
+          { dish: 'garlic-mashed', name: 'Roasted garlic whipped potatoes, red wine gravy', description: 'Whipped with butter, cream and roasted garlic.' },
+          { dish: 'gouda-mac', description: 'Smoked gouda and white cheddar under a brown butter crumb, baked and served in individual cast-iron cocottes.' },
+          { dish: 'collards', name: 'Slow-braised collard greens', description: 'Braised low with smoked turkey, served in petite crocks in their own pot likker. Pork available.' },
           'sweet-potato-pave',
-          { dish: 'green-beans', name: 'Haricots verts with smoked turkey', description: 'Fresh green beans with smoked turkey, garlic and butter. Pork available.' },
+          { dish: 'green-beans', name: 'Green beans with smoked turkey', description: 'Fresh green beans with smoked turkey, garlic and butter. Pork available.' },
           'cornbread-madeleines',
         ],
       },
@@ -188,7 +186,7 @@ export const menus = [
           { dish: 'hot-honey-chicken', name: 'Hot honey chicken bites', description: 'Crispy boneless chicken bites brushed with hot honey.' },
         ],
       },
-      { title: 'Desserts', note: 'A dessert table, or a petite dessert at each place.', dishes: ['sweet-potato-brulee', 'peach-cobbler', 'banana-pudding'] },
+      { title: 'Desserts', note: 'A dessert table, or a petite dessert at each place.', dishes: ['sweet-potato-tartlets', 'peach-cobbler', 'banana-pudding'] },
     ],
   },
   {

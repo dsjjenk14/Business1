@@ -63,8 +63,8 @@ function packageCards() {
 const ALLERGEN_NAMES = { dairy: 'Dairy', eggs: 'Eggs', wheat: 'Wheat', shellfish: 'Shellfish', fish: 'Fish', 'tree nuts': 'Tree nuts', peanuts: 'Peanuts', soy: 'Soy', sesame: 'Sesame', mustard: 'Mustard' };
 const NAMES_HERE = {
   'baked-chicken': 'Herb roasted chicken',
-  'garlic-mashed': 'Roasted garlic pommes purée',
-  'green-beans': 'Haricots verts with smoked turkey',
+  'garlic-mashed': 'Roasted garlic whipped potatoes',
+  'green-beans': 'Green beans',
   'short-ribs': 'Red wine braised short rib',
   'caesar-salad': 'Caesar salad',
   'garden-salad': 'Garden salad',
@@ -75,14 +75,20 @@ const NAMES_HERE = {
 function boxCards() {
   return officeBoxes
     .map((b) => {
-      const parts = b.dishes.map((id) => dish(id));
-      const allergens = [...new Set(parts.flatMap((d) => d.allergens))];
+      // A nested list is a choice of one: list the options, count all their allergens.
+      const label = (d) => curly(NAMES_HERE[d.id] ?? d.name);
+      const lines = b.dishes.map((part) => {
+        if (!Array.isArray(part)) return label(dish(part));
+        const names = part.map((id) => label(dish(id)).toLowerCase());
+        return `Choice of ${names.slice(0, -1).join(', ')} or ${names[names.length - 1]}`;
+      });
+      const allergens = [...new Set(b.dishes.flat().flatMap((id) => dish(id).allergens))];
       return `<li class="box-card">
         <div class="box-head">
           <h4 class="box-name">${esc(b.name)}</h4>
           <span class="box-tag">${[b.salad ? 'Salad' : '', b.premium ? `+${money(b.premium)}` : ''].filter(Boolean).join(' · ')}</span>
         </div>
-        <ul class="box-parts" role="list">${parts.map((d) => `<li>${esc(curly(NAMES_HERE[d.id] ?? d.name))}</li>`).join('')}</ul>
+        <ul class="box-parts" role="list">${lines.map((l) => `<li>${esc(l)}</li>`).join('')}</ul>
         <p class="allergens"><span class="label">Allergens:</span> ${allergens.length ? allergens.map((a) => ALLERGEN_NAMES[a] ?? a).join(', ') : 'None in the recipes. See the allergy note.'}</p>
       </li>`;
     })

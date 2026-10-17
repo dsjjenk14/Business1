@@ -69,12 +69,13 @@ export const officePackages = [
 ];
 
 // The executive lunch boxes: one per guest, each a set entrée and sides
-// (dish ids). Premium boxes add to the box price. Allergens are worked out
-// from the dishes.
+// (dish ids). A list inside the list is a choice ("green beans, garden salad
+// or sweet potato pavé"). Premium boxes add to the box price. Allergens are
+// worked out from the dishes, counting every choice.
 export const officeBoxes = [
   { name: 'The Hot Honey', dishes: ['hot-honey-chicken', 'gouda-mac', 'caesar-salad', 'cornbread-madeleines'] },
   { name: 'The Islander', dishes: ['jerk-chicken', 'sweet-potato-pave', 'garden-salad', 'cornbread-madeleines'] },
-  { name: 'The Classic', dishes: ['baked-chicken', 'garlic-mashed', 'green-beans', 'cornbread-madeleines'] },
+  { name: 'The Classic', dishes: ['baked-chicken', 'garlic-mashed', ['green-beans', 'garden-salad', 'sweet-potato-pave'], 'cornbread-madeleines'] },
   { name: 'The Executive', premium: 8, dishes: ['short-ribs', 'garlic-mashed', 'garden-salad', 'cornbread-madeleines'] },
   { name: 'The Coastal', salad: true, premium: 5, dishes: ['caesar-salad', 'blackened-salmon', 'cornbread-madeleines'] },
   { name: 'The Cobb', salad: true, dishes: ['cobb-salad', 'cornbread-madeleines'] },
@@ -86,7 +87,7 @@ export const officeAddOns = [
   { name: 'Premium entrée', price: 5, text: 'Blackened salmon or Cajun shrimp and grits.' },
   { name: 'Red wine braised short rib', price: 8, text: 'As the entrée on a buffet.' },
   { name: 'Blackened salmon on a salad', price: 4, text: 'Instead of chicken.' },
-  { name: 'Dessert', price: 5, text: 'Sweet potato crème brûlée, peach cobbler tartlets or banana pudding jars.' },
+  { name: 'Dessert', price: 5, text: 'Sweet potato pie tartlets, peach cobbler tartlets or banana pudding jars.' },
   { name: 'Meeting bites with lunch', price: 8, text: 'Add two bites to any lunch.' },
 ];
 
@@ -161,9 +162,9 @@ export const officeMenus = [
         title: 'Sides',
         dishes: [
           'gouda-mac',
-          { dish: 'garlic-mashed', name: 'Roasted garlic pommes purée', description: 'Whipped with butter, cream and roasted garlic, under red wine gravy.' },
+          { dish: 'garlic-mashed', name: 'Roasted garlic whipped potatoes', description: 'Whipped with butter, cream and roasted garlic, under red wine gravy.' },
           'sweet-potato-pave',
-          { dish: 'green-beans', name: 'Haricots verts with smoked turkey' },
+          { dish: 'green-beans', name: 'Green beans' },
         ],
       },
       {
@@ -175,7 +176,7 @@ export const officeMenus = [
         ],
       },
       { title: 'With every lunch', dishes: ['cornbread-madeleines'] },
-      { title: 'Dessert', note: 'Add $5 per person. Individual jars, tartlets and ramekins.', dishes: ['sweet-potato-brulee', 'peach-cobbler', 'banana-pudding'] },
+      { title: 'Dessert', note: 'Add $5 per person. Individual jars, tartlets and ramekins.', dishes: ['sweet-potato-tartlets', 'peach-cobbler', 'banana-pudding'] },
     ],
   },
   {
@@ -187,6 +188,7 @@ export const officeMenus = [
       {
         title: 'Bites',
         dishes: [
+          'chicken-caviar',
           'smoked-wings',
           'crab-shrimp-eggrolls',
           'shrimp-kebabs',
