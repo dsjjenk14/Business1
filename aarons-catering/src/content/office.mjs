@@ -75,7 +75,7 @@ export const officeBoxes = [
   { name: 'The Hot Honey', dishes: ['hot-honey-chicken', 'gouda-mac', 'caesar-salad', 'sweet-potato-biscuits'] },
   { name: 'The Islander', dishes: ['jerk-chicken', 'brown-butter-yams', 'garden-salad', 'sweet-potato-biscuits'] },
   { name: 'The Classic', dishes: ['baked-chicken', 'garlic-mashed', 'green-beans', 'sweet-potato-biscuits'] },
-  { name: 'The Executive', premium: 5, dishes: ['short-ribs', 'garlic-mashed', 'garden-salad', 'sweet-potato-biscuits'] },
+  { name: 'The Executive', premium: 8, dishes: ['short-ribs', 'garlic-mashed', 'garden-salad', 'sweet-potato-biscuits'] },
   { name: 'The Coastal', salad: true, premium: 5, dishes: ['caesar-salad', 'blackened-salmon', 'sweet-potato-biscuits'] },
   { name: 'The Cobb', salad: true, dishes: ['cobb-salad', 'sweet-potato-biscuits'] },
   { name: 'The Caesar', salad: true, dishes: ['caesar-salad', 'baked-chicken', 'sweet-potato-biscuits'] },
