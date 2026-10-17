@@ -35,7 +35,7 @@ export const officePackages = [
     name: 'Executive lunch box',
     price: 19,
     min: 10,
-    text: 'A signature box for each guest: entrée, two sides and a sweet potato biscuit, packed and labeled by name.',
+    text: 'A signature box for each guest: entrée, two sides and a brown butter cornbread madeleine, packed and labeled by name.',
     menu: 'lunch',
   },
   {
@@ -44,7 +44,7 @@ export const officePackages = [
     name: 'Executive lunch buffet',
     price: 26,
     min: 15,
-    text: 'Two entrées, two sides, a composed salad and sweet potato biscuits, set up hot in chafers.',
+    text: 'Two entrées, two sides, a composed salad and brown butter cornbread madeleines, set up hot in chafers.',
     menu: 'lunch',
     popular: true,
   },
@@ -54,7 +54,7 @@ export const officePackages = [
     name: 'Composed salad lunch',
     price: 16,
     min: 10,
-    text: 'A Caesar with herb roasted chicken or a Cobb for each guest, with a sweet potato biscuit.',
+    text: 'A Caesar with herb roasted chicken or a Cobb for each guest, with a brown butter cornbread madeleine.',
     menu: 'lunch',
   },
   {
@@ -72,20 +72,21 @@ export const officePackages = [
 // (dish ids). Premium boxes add to the box price. Allergens are worked out
 // from the dishes.
 export const officeBoxes = [
-  { name: 'The Hot Honey', dishes: ['hot-honey-chicken', 'gouda-mac', 'caesar-salad', 'sweet-potato-biscuits'] },
-  { name: 'The Islander', dishes: ['jerk-chicken', 'brown-butter-yams', 'garden-salad', 'sweet-potato-biscuits'] },
-  { name: 'The Classic', dishes: ['baked-chicken', 'garlic-mashed', 'green-beans', 'sweet-potato-biscuits'] },
-  { name: 'The Executive', premium: 8, dishes: ['short-ribs', 'garlic-mashed', 'garden-salad', 'sweet-potato-biscuits'] },
-  { name: 'The Coastal', salad: true, premium: 5, dishes: ['caesar-salad', 'blackened-salmon', 'sweet-potato-biscuits'] },
-  { name: 'The Cobb', salad: true, dishes: ['cobb-salad', 'sweet-potato-biscuits'] },
-  { name: 'The Caesar', salad: true, dishes: ['caesar-salad', 'baked-chicken', 'sweet-potato-biscuits'] },
+  { name: 'The Hot Honey', dishes: ['hot-honey-chicken', 'gouda-mac', 'caesar-salad', 'cornbread-madeleines'] },
+  { name: 'The Islander', dishes: ['jerk-chicken', 'sweet-potato-pave', 'garden-salad', 'cornbread-madeleines'] },
+  { name: 'The Classic', dishes: ['baked-chicken', 'garlic-mashed', 'green-beans', 'cornbread-madeleines'] },
+  { name: 'The Executive', premium: 8, dishes: ['short-ribs', 'garlic-mashed', 'garden-salad', 'cornbread-madeleines'] },
+  { name: 'The Coastal', salad: true, premium: 5, dishes: ['caesar-salad', 'blackened-salmon', 'cornbread-madeleines'] },
+  { name: 'The Cobb', salad: true, dishes: ['cobb-salad', 'cornbread-madeleines'] },
+  { name: 'The Caesar', salad: true, dishes: ['caesar-salad', 'baked-chicken', 'cornbread-madeleines'] },
 ];
 
 // Extras, per person.
 export const officeAddOns = [
-  { name: 'Premium entrée', price: 5, text: 'Blackened salmon, red wine braised short rib or Cajun shrimp and grits.' },
+  { name: 'Premium entrée', price: 5, text: 'Blackened salmon or Cajun shrimp and grits.' },
+  { name: 'Red wine braised short rib', price: 8, text: 'As the entrée on a buffet.' },
   { name: 'Blackened salmon on a salad', price: 4, text: 'Instead of chicken.' },
-  { name: 'Dessert', price: 5, text: 'Banana pudding jars, peach cobbler, sweet potato pie or pound cake.' },
+  { name: 'Dessert', price: 5, text: 'Sweet potato crème brûlée, peach cobbler tartlets or banana pudding jars.' },
   { name: 'Meeting bites with lunch', price: 8, text: 'Add two bites to any lunch.' },
 ];
 
@@ -149,20 +150,20 @@ export const officeMenus = [
       },
       {
         title: 'Premium entrées',
-        note: 'Add $5 per person.',
+        note: 'Salmon or shrimp and grits add $5 per person; the short rib adds $8.',
         dishes: [
-          'blackened-salmon',
-          { dish: 'short-ribs', name: 'Red wine braised short rib', description: 'Bone-in short rib braised in red wine with thyme until it falls apart, in its own glossy jus.' },
-          { dish: 'shrimp-and-grits', name: 'Cajun shrimp and grits' },
+          { dish: 'blackened-salmon', note: 'Add $5 per person.' },
+          { dish: 'short-ribs', name: 'Red wine braised short rib', description: 'Bone-in short rib braised in red wine with thyme until it falls apart, in its own glossy jus.', note: 'Add $8 per person.' },
+          { dish: 'shrimp-and-grits', name: 'Cajun shrimp and grits', note: 'Add $5 per person.' },
         ],
       },
       {
         title: 'Sides',
         dishes: [
           'gouda-mac',
-          { dish: 'garlic-mashed', name: 'Roasted garlic mashed potatoes', description: 'Whipped with butter, cream and roasted garlic, under red wine gravy.' },
-          'brown-butter-yams',
-          { dish: 'green-beans', name: 'Green beans with smoked turkey' },
+          { dish: 'garlic-mashed', name: 'Roasted garlic pommes purée', description: 'Whipped with butter, cream and roasted garlic, under red wine gravy.' },
+          'sweet-potato-pave',
+          { dish: 'green-beans', name: 'Haricots verts with smoked turkey' },
         ],
       },
       {
@@ -173,8 +174,8 @@ export const officeMenus = [
           { dish: 'garden-salad', name: 'Garden' },
         ],
       },
-      { title: 'With every lunch', dishes: ['sweet-potato-biscuits'] },
-      { title: 'Dessert', note: 'Add $5 per person. Individual jars or petite slices.', dishes: ['banana-pudding', 'peach-cobbler', 'sweet-potato-pie', 'pound-cake'] },
+      { title: 'With every lunch', dishes: ['cornbread-madeleines'] },
+      { title: 'Dessert', note: 'Add $5 per person. Individual jars, tartlets and ramekins.', dishes: ['sweet-potato-brulee', 'peach-cobbler', 'banana-pudding'] },
     ],
   },
   {

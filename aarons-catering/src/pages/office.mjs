@@ -61,7 +61,15 @@ function packageCards() {
 }
 
 const ALLERGEN_NAMES = { dairy: 'Dairy', eggs: 'Eggs', wheat: 'Wheat', shellfish: 'Shellfish', fish: 'Fish', 'tree nuts': 'Tree nuts', peanuts: 'Peanuts', soy: 'Soy', sesame: 'Sesame', mustard: 'Mustard' };
-const NAMES_HERE = { 'baked-chicken': 'Herb roasted chicken', 'garlic-mashed': 'Roasted garlic mashed potatoes', 'short-ribs': 'Red wine braised short rib', 'caesar-salad': 'Caesar salad', 'garden-salad': 'Garden salad', 'sweet-potato-biscuits': 'Sweet potato biscuit, cinnamon honey butter' };
+const NAMES_HERE = {
+  'baked-chicken': 'Herb roasted chicken',
+  'garlic-mashed': 'Roasted garlic pommes purée',
+  'green-beans': 'Haricots verts with smoked turkey',
+  'short-ribs': 'Red wine braised short rib',
+  'caesar-salad': 'Caesar salad',
+  'garden-salad': 'Garden salad',
+  'cornbread-madeleines': 'Brown butter cornbread madeleine',
+};
 
 // The signature boxes: what's in each, and every allergen in any part of it.
 function boxCards() {
