@@ -758,13 +758,11 @@ export const dishes = {
   },
   'chicken-salad-croissant': {
     name: 'Southern chicken salad croissant',
-    description: 'Roasted chicken salad with red grapes, toasted pecans, celery and herbs on a butter croissant.',
+    description: 'Roasted chicken salad with celery, fresh dill and parsley and a squeeze of lemon on a butter croissant.',
     ingredients: [
       'roasted chicken',
       MAYO,
       'celery',
-      'red grapes',
-      'toasted pecans',
       'fresh dill and parsley',
       'lemon juice',
       'kosher salt',
@@ -772,7 +770,7 @@ export const dishes = {
       'butter croissant (wheat flour, butter, milk, eggs, sugar, yeast, salt)',
       'green leaf lettuce',
     ],
-    allergens: ['eggs', 'tree nuts', 'wheat', 'dairy'],
+    allergens: ['eggs', 'wheat', 'dairy'],
   },
   'cajun-pasta': {
     name: 'Cajun chicken pasta',
