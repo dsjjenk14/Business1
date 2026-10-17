@@ -144,7 +144,7 @@ export const officeMenus = [
         dishes: [
           { dish: 'mac', name: 'Smoked mac and cheese', description: 'Sharp cheddar, Colby Jack and cream cheese, finished in the smoker.' },
           { dish: 'garlic-mashed', name: 'Garlic mashed potatoes', description: 'Whipped with butter, cream and roasted garlic, under red wine gravy.' },
-          'yams',
+          'brown-butter-yams',
           'green-beans',
           'collards',
         ],

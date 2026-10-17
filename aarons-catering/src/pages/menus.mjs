@@ -124,8 +124,8 @@ export default function menusPage() {
   const content = `<section class="page-hero page-hero-short" aria-labelledby="page-title">
   <div class="page-hero-media">${img('page-menus', { eager: true })}</div>
   <div class="container page-hero-content">
-    ${eyebrow('Catering menus')}
-    <h1 id="page-title" class="h1">Our menus</h1>
+    ${eyebrow('Modern soul food')}
+    <h1 id="page-title" class="h1">The <em>menus</em></h1>
     <p class="lede">Pick a menu below. ${site.priceGuide ? `${esc(site.priceGuide)} ` : ''}Pricing depends on guest count, service style and location.</p>
   </div>
 </section>
@@ -145,7 +145,7 @@ ${menus.map(panel).join('\n')}
 <section class="section cta cta-compact" aria-labelledby="cta-title">
   <div class="container cta-inner">
     <h2 id="cta-title" class="h2">Don't see it on the menu? Ask.</h2>
-    <a class="btn btn-lg" href="index.html#quote">Request a Quote</a>
+    <a class="btn btn-lg" href="index.html#quote">Request a quote</a>
   </div>
 </section>`;
 

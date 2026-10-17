@@ -41,7 +41,7 @@ export default function galleryPage() {
 <section class="section cta cta-compact" aria-labelledby="cta-title">
   <div class="container cta-inner">
     <h2 id="cta-title" class="h2">Want this at your event?</h2>
-    <a class="btn btn-lg" href="contact.html">Request a Quote</a>
+    <a class="btn btn-lg" href="contact.html">Request a quote</a>
   </div>
 </section>`;
 

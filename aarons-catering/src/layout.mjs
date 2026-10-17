@@ -81,7 +81,7 @@ function header(slug) {
     <nav class="site-nav" id="site-nav" aria-label="Main">
       <ul class="nav-links">${links}</ul>
       <div class="nav-extra">
-        <a class="btn btn-block" href="contact.html">Request a Quote</a>
+        <a class="btn btn-block" href="contact.html">Request a quote</a>
         <ul class="contact-list">
           <li><a href="${site.phone.href}">${icon('phone')}<span>${site.phone.display}</span></a></li>
           <li><a href="mailto:${site.email}">${icon('mail')}<span>${site.email}</span></a></li>
@@ -91,7 +91,7 @@ function header(slug) {
     </nav>
     <div class="header-actions">
       <a class="header-call" href="${site.phone.href}" aria-label="Call ${site.phone.display}">${icon('phone')}<span>${site.phone.display}</span></a>
-      <a class="btn btn-sm header-quote" href="contact.html">Request a Quote</a>
+      <a class="btn btn-sm header-quote" href="contact.html">Request a quote</a>
       <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
         <span class="visually-hidden">Menu</span>${icon('menu', 'icon icon-open')}${icon('close', 'icon icon-close')}
       </button>
@@ -183,7 +183,7 @@ ${noindex ? '<meta name="robots" content="noindex">' : `<link rel="canonical" hr
 <link rel="icon" href="images/icon-192.png" sizes="192x192" type="image/png">
 <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
-<link rel="preload" href="fonts/playfair-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/jakarta-latin.woff2" as="font" type="font/woff2" crossorigin>
 ${preloads}
 <link rel="stylesheet" href="${assets.css}">

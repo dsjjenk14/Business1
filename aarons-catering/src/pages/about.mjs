@@ -11,9 +11,9 @@ export default function about() {
 
   const content = `<section class="page-head" aria-labelledby="page-title">
   <div class="container">
-    ${eyebrow('About')}
-    <h1 id="page-title" class="h1">Aaron J's Catering</h1>
-    <p class="lede">${esc(site.motto)}.</p>
+    ${eyebrow('About Aaron J’s')}
+    <h1 id="page-title" class="h1">Soul food, <em>carried forward</em></h1>
+    <p class="lede">Aaron J’s Catering is Chef Aaron Jenkins and the soul food people grew up on, cooked the way we eat now: generous, full of flavor and set out beautifully. ${esc(site.motto)}.</p>
   </div>
 </section>
 
@@ -23,8 +23,8 @@ export default function about() {
     <div class="feature-body">
       ${eyebrow('The chef')}
       <h2 id="chef-title" class="h2">Chef Aaron Jenkins</h2>
-      <p>Soul food and comfort food for weddings, corporate events, birthdays, church and family events, holidays and meal prep.</p>
-      <p>Fried chicken and waffles, glazed ham, mac and cheese, collard greens, candied yams, Cajun seafood and more, for DC, Maryland and Northern Virginia.</p>
+      <p>Chef Aaron cooks the classics, then carries them forward: oxtail braised in red wine, fried chicken brushed with hot honey, mac and cheese with smoked gouda, candied yams in brown butter.</p>
+      <p>The classics stay on the menu, and the new dishes earn their place next to them. Weddings, office breakfasts and lunches, birthdays, church and family events, Christmas dinner and weekly meal prep, across DC, Maryland and Northern Virginia.</p>
       <a class="btn" href="menus.html">See the menus</a>
     </div>
   </div>
@@ -49,7 +49,7 @@ export default function about() {
 <section class="section cta cta-compact" aria-labelledby="cta-title">
   <div class="container cta-inner">
     <h2 id="cta-title" class="h2">Let's talk about your event</h2>
-    <a class="btn btn-lg" href="index.html#quote">Request a Quote</a>
+    <a class="btn btn-lg" href="index.html#quote">Request a quote</a>
     <p class="cta-alt">Or call <a href="${site.phone.href}">${site.phone.display}</a></p>
   </div>
 </section>`;

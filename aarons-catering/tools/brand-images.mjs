@@ -29,24 +29,24 @@ const data = (file, type) => `data:${type};base64,${readFileSync(join(root, 'sit
 const logo = data('images/logo.png', 'image/png');
 const chef = data('images/chef-aaron.jpg', 'image/jpeg');
 const fonts = `
-@font-face { font-family: Playfair; font-weight: 400 700; src: url(${data('fonts/playfair-latin.woff2', 'font/woff2')}) format('woff2'); }
+@font-face { font-family: Fraunces; font-weight: 300 700; src: url(${data('fonts/fraunces-latin.woff2', 'font/woff2')}) format('woff2'); }
 @font-face { font-family: Jakarta; font-weight: 400 700; src: url(${data('fonts/jakarta-latin.woff2', 'font/woff2')}) format('woff2'); }
 html, body { margin: 0; }`;
 
 const shareHtml = `<!doctype html><html><head><style>${fonts}
-body { width: 1200px; height: 630px; overflow: hidden; background: #0B0B0C; position: relative; font-family: Jakarta; }
+body { width: 1200px; height: 630px; overflow: hidden; background: #13100F; position: relative; font-family: Jakarta; }
 .photo { position: absolute; right: 0; top: 0; width: 820px; height: 630px; background: url(${chef}) 100% 25% / cover no-repeat; }
-.photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #0B0B0C 0%, rgba(11,11,12,.94) 14%, rgba(11,11,12,.8) 26%, rgba(11,11,12,.55) 38%, rgba(11,11,12,.25) 50%, rgba(11,11,12,.08) 60%, rgba(11,11,12,0) 70%); }
+.photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, #13100F 0%, rgba(19,16,15,.94) 14%, rgba(19,16,15,.8) 26%, rgba(19,16,15,.55) 38%, rgba(19,16,15,.25) 50%, rgba(19,16,15,.08) 60%, rgba(19,16,15,0) 70%); }
 .left { position: absolute; left: 64px; top: 0; bottom: 0; width: 500px; display: flex; flex-direction: column; justify-content: center; }
 .left img { height: 250px; width: auto; align-self: flex-start; margin-bottom: 28px; filter: drop-shadow(0 10px 30px rgba(0,0,0,.5)); }
-h1 { margin: 0; font-family: Playfair; font-weight: 600; font-size: 52px; line-height: 1.08; letter-spacing: -.01em; color: #F7F5F2; }
-p { margin: 20px 0 0; font-size: 15px; font-weight: 600; letter-spacing: .26em; text-transform: uppercase; color: #C9A66B; }
+h1 { margin: 0; font-family: Fraunces; font-weight: 450; font-size: 52px; line-height: 1.08; letter-spacing: -.01em; color: #F6EFE4; }
+p { margin: 20px 0 0; font-size: 15px; font-weight: 600; letter-spacing: .26em; text-transform: uppercase; color: #D6A062; }
 </style></head><body><div class="photo"></div><div class="left">
 <img src="${logo}" alt=""><h1>${site.tagline}</h1><p>Soul food catering &middot; DC &middot; MD &middot; VA</p></div></body></html>`;
 
 const iconHtml = (s) => `<!doctype html><html><head><style>
 html, body { margin: 0; }
-body { width: ${s}px; height: ${s}px; display: flex; align-items: center; justify-content: center; background: #0B0B0C; }
+body { width: ${s}px; height: ${s}px; display: flex; align-items: center; justify-content: center; background: #13100F; }
 img { height: ${Math.round(s * 0.9)}px; width: auto; }
 </style></head><body><img src="${logo}" alt=""></body></html>`;
 

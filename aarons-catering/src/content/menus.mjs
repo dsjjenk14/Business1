@@ -8,42 +8,78 @@
 // `note` shows as a highlighted line under the intro; `styles` as small tags.
 // A course can have a `note` too, and a course can be a note with no dishes.
 //
-// Every menu except Holidays uses only the foods on Aaron J's own flyers and
-// menus. Holidays is the Christmas 2026 menu (the printed Thanksgiving 2026 menu).
+// Events, Weddings and Meal prep are the modern (2026) menu: Aaron J's own
+// dishes plus new ones built on them. Holidays is the Christmas 2026 menu
+// (the packages from the printed Thanksgiving 2026 menu).
 
 export const menus = [
   {
     id: 'catering',
-    title: 'All events',
-    heading: 'Catering menu',
+    title: 'Events',
+    heading: 'The menu',
     intro:
-      'Customized menus for every occasion: corporate events, company picnics, private parties, church and family events, brunches and special-occasion dinners. Mix and match anything below.',
+      'Soul food, made modern. The dishes you grew up on, cooked with smoke, spice and a little restraint, for birthdays, showers, reunions, church and family events and dinners at home. Mix and match anything below.',
     courses: [
       {
-        title: 'Appetizers',
-        dishes: ['oxtail-biscuits', 'shrimp-kebabs', 'smoked-wings', 'fried-pickles', 'crab-mushrooms', 'crab-shrimp-eggrolls', 'bacon-scallops'],
+        title: 'Small plates',
+        note: 'Passed, or set out while guests arrive.',
+        dishes: [
+          {
+            dish: 'chicken-and-waffles',
+            name: 'Chicken and waffle bites',
+            description: 'Bite-size fried chicken on a mini waffle with a drizzle of syrup and a sliver of strawberry.',
+          },
+          'shrimp-grits',
+          'fried-green-tomatoes',
+          { dish: 'oxtail-biscuits', name: 'Oxtail biscuits', description: 'Buttermilk biscuits filled with slow-braised oxtail.' },
+          'crab-shrimp-eggrolls',
+          'bacon-scallops',
+          'crab-mushrooms',
+          { dish: 'shrimp-kebabs', name: 'Grilled shrimp skewers' },
+          'smoked-wings',
+        ],
       },
-      { title: 'Entrées', dishes: ['baked-chicken', 'turkey-wings', 'fried-chicken', 'short-ribs'] },
       {
-        title: 'Seafood',
-        dishes: ['surf-and-turf', 'lemon-salmon', 'fried-fish', 'cajun-seafood'],
-        note: 'Ask about our other shrimp dishes.',
+        title: 'Mains',
+        dishes: [
+          'hot-honey-chicken',
+          'jerk-chicken',
+          'braised-oxtail',
+          { dish: 'short-ribs', name: 'Red wine braised short ribs' },
+          'blackened-salmon',
+          { dish: 'fried-chicken', name: 'Buttermilk fried chicken' },
+          { dish: 'baked-chicken', name: 'Herb roasted chicken' },
+        ],
       },
-      { title: 'Brunch', dishes: ['shrimp-and-grits', 'chicken-and-waffles', 'omelettes', 'mini-quiche'] },
+      {
+        title: 'From the sea',
+        dishes: [{ dish: 'shrimp-and-grits', name: 'Cajun shrimp and grits' }, 'cajun-seafood', 'surf-and-turf'],
+      },
+      {
+        title: 'Brunch',
+        dishes: [
+          'chicken-and-waffles',
+          { dish: 'omelettes', name: 'Made-to-order omelettes' },
+          'mini-quiche',
+          'mini-waffles',
+          'waffle-toppings',
+        ],
+      },
       {
         title: 'Sides',
         dishes: [
-          { dish: 'green-beans', note: 'Made with smoked turkey. Pork available.' },
+          'gouda-mac',
+          { dish: 'mac', name: 'Classic baked mac and cheese', description: 'Sharp cheddar, Colby Jack and cream cheese, baked until the top browns.' },
+          'brown-butter-yams',
           { dish: 'collards', note: 'Made with smoked turkey. Pork available.' },
-          'yams',
-          { dish: 'mac', name: 'Macaroni and cheese', description: 'Baked or smoked, with sharp cheddar, Colby Jack and cream cheese.' },
+          { dish: 'green-beans', note: 'Made with smoked turkey. Pork available.' },
           'garlic-mashed',
           'cabbage',
-          'cornbread',
+          'cornbread-muffins',
         ],
       },
-      { title: 'Salads', dishes: ['garden-salad', 'caesar-salad', 'cobb-salad'], note: 'Ask about our variety of summer salads.' },
-      { title: 'Desserts', note: 'Ask us about our homemade desserts.' },
+      { title: 'Salads', dishes: ['caesar-salad', 'cobb-salad', 'garden-salad'] },
+      { title: 'Desserts', dishes: ['banana-pudding', 'peach-cobbler', 'sweet-potato-pie', 'pound-cake'] },
     ],
   },
   {
@@ -80,8 +116,10 @@ export const menus = [
         title: 'Entrées',
         dishes: [
           { dish: 'short-ribs', name: 'Red wine braised short ribs', description: 'Bone-in short ribs braised in red wine with thyme. Beautiful with the garlic mashed potatoes.' },
+          { dish: 'braised-oxtail', name: 'Red wine braised oxtail' },
           { dish: 'surf-and-turf', name: 'Surf and turf', description: 'Seared sirloin and garlic butter shrimp, plated together.' },
-          { dish: 'lemon-salmon', name: 'Lemon herb salmon', description: 'Roasted salmon with lemon, garlic, dill and a touch of butter.' },
+          { dish: 'blackened-salmon', name: 'Blackened salmon, lemon butter' },
+          { dish: 'hot-honey-chicken', name: 'Hot honey fried chicken' },
           { dish: 'fried-chicken', name: 'Buttermilk fried chicken', description: 'Southern fried chicken, marinated in buttermilk and fried golden.' },
           { dish: 'baked-chicken', name: 'Herb grilled chicken', description: 'Bone-in chicken with garlic, lemon and rosemary, grilled or roasted.' },
         ],
@@ -90,11 +128,11 @@ export const menus = [
         title: 'Accompaniments',
         dishes: [
           { dish: 'garlic-mashed', name: 'Garlic mashed potatoes, red wine gravy', description: 'Whipped with butter, cream and roasted garlic.' },
-          { dish: 'mac', name: 'Baked or smoked mac and cheese', description: 'Sharp cheddar, Colby Jack and cream cheese.' },
+          'gouda-mac',
           { dish: 'collards', name: 'Braised collard greens', description: 'Slow-cooked with smoked turkey. Pork available.' },
-          { dish: 'yams', name: 'Candied yams', description: 'Glazed with butter, brown sugar, cinnamon and orange.' },
+          'brown-butter-yams',
           { dish: 'green-beans', name: 'Green beans with smoked turkey', description: 'Fresh green beans with smoked turkey, garlic and butter. Pork available.' },
-          { dish: 'cornbread', name: 'Buttermilk cornbread', description: 'Golden cornbread made with buttermilk.' },
+          'cornbread-muffins',
         ],
       },
       {
@@ -107,10 +145,10 @@ export const menus = [
         dishes: [
           { dish: 'smoked-wings', name: 'Smoked wings', description: 'Lemon pepper, buffalo (hot or mild) or garlic Parmesan.' },
           { dish: 'crab-shrimp-eggrolls', name: 'Crab and shrimp egg rolls', description: 'Crisp and golden, with sweet chili sauce.' },
-          { dish: 'fried-pickles', name: 'Fried pickles', description: 'Cornmeal-crusted pickle chips with ranch.' },
+          { dish: 'hot-honey-chicken', name: 'Hot honey chicken bites', description: 'Crispy boneless chicken bites brushed with hot honey.' },
         ],
       },
-      { title: 'Desserts', note: 'Ask us about our homemade desserts.' },
+      { title: 'Desserts', note: 'A dessert table, or individual jars at each place.', dishes: ['banana-pudding', 'peach-cobbler', 'sweet-potato-pie'] },
     ],
   },
   {
@@ -121,16 +159,19 @@ export const menus = [
       'Personalized meals for the week. Choose your proteins, sides and salads, tell us about any dietary needs or goals, and we’ll put together a plan and a price.',
     note: 'Every meal prep plan is built around you. Swap anything, and ask about portion sizes.',
     courses: [
-      { title: 'Proteins', dishes: ['baked-chicken', 'lemon-salmon', 'short-ribs', 'turkey-wings', 'shrimp-kebabs'] },
+      {
+        title: 'Proteins',
+        dishes: ['jerk-chicken', { dish: 'baked-chicken', name: 'Herb roasted chicken' }, 'blackened-salmon', 'short-ribs', { dish: 'shrimp-kebabs', name: 'Grilled shrimp skewers' }],
+      },
       {
         title: 'Sides',
         dishes: [
           { dish: 'green-beans', note: 'Made with smoked turkey. Pork available.' },
           { dish: 'collards', note: 'Made with smoked turkey. Pork available.' },
-          'yams',
+          'brown-butter-yams',
           'garlic-mashed',
           'cabbage',
-          { dish: 'mac', name: 'Macaroni and cheese', description: 'Baked or smoked, with sharp cheddar, Colby Jack and cream cheese.' },
+          'gouda-mac',
         ],
       },
       { title: 'Salads', dishes: ['garden-salad', 'caesar-salad', 'cobb-salad'] },
