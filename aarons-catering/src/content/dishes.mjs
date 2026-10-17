@@ -820,6 +820,26 @@ export const dishes = {
     allergens: [],
   },
 
+  // ---------- Caribbean plate (The Islander) ----------
+  'rice-and-peas': {
+    name: 'Rice and peas',
+    description: 'Long-grain rice cooked in coconut milk with red kidney beans, thyme, scallion and allspice.',
+    ingredients: ['long-grain rice', 'red kidney beans', 'coconut milk', 'scallion', 'fresh thyme', 'garlic', 'allspice', 'whole scotch bonnet pepper', 'salt'],
+    allergens: [],
+  },
+  'sweet-plantains': {
+    name: 'Sweet plantains',
+    description: 'Ripe plantains fried until the edges caramelize.',
+    ingredients: ['ripe plantains', 'canola oil for frying', 'salt'],
+    allergens: [],
+  },
+  festival: {
+    name: 'Festival',
+    description: 'Jamaican fried cornmeal dumplings, crisp outside, soft and lightly sweet inside.',
+    ingredients: ['yellow cornmeal', 'all-purpose wheat flour', 'sugar', 'baking powder', 'salt', 'whole milk', 'vanilla', 'canola oil for frying'],
+    allergens: ['wheat', 'dairy'],
+  },
+
   // ---------- Office breakfast ----------
   'fruit-cups': {
     name: 'Fresh fruit cups',
