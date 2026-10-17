@@ -152,7 +152,22 @@ export const officeMenus = [
     courses: [
       {
         title: 'Entrées',
-        dishes: ['hot-honey-chicken', 'jerk-chicken', { dish: 'baked-chicken', name: 'Herb roasted chicken', description: 'Bone-in chicken with garlic, lemon, rosemary and paprika.' }],
+        dishes: [
+          'hot-honey-chicken',
+          'jerk-chicken',
+          { dish: 'baked-chicken', name: 'Herb roasted chicken', description: 'Bone-in chicken with garlic, lemon, rosemary and paprika.' },
+          'cajun-pasta',
+          { dish: 'jambalaya', name: 'Jambalaya rice' },
+        ],
+      },
+      {
+        title: 'Sandwiches',
+        note: 'Wrapped and labeled, with a side.',
+        dishes: ['hot-honey-sandwich', 'shrimp-poboy', 'chicken-salad-croissant'],
+      },
+      {
+        title: 'Bowls',
+        dishes: ['jerk-bowl', 'veggie-bowl'],
       },
       {
         title: 'Premium entrées',
@@ -194,7 +209,6 @@ export const officeMenus = [
         title: 'Bites',
         dishes: [
           'chicken-caviar',
-          { dish: 'oxtail-biscuits', name: 'Braised oxtail on buttermilk biscuits', description: 'Slow-braised oxtail tucked into petite buttermilk biscuits.' },
           'smoked-wings',
           'crab-shrimp-eggrolls',
           'shrimp-kebabs',
