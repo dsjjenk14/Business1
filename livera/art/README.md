@@ -58,7 +58,7 @@ on its card; read them before using a card as fact.
 
 | Folder | What it holds |
 |---|---|
-| `reference/residents/<id>.jpg` | Model sheets for created residents: Rosa Delgado (The Guardian), Kai Morgan (The Upstart), Theo Grant (The Fresh Start). Sol Rivera has no sheet yet. |
+| `reference/residents/<id>.jpg` | Model sheets for created residents: Sol Rivera (The Free Spirit), Theo Grant (The Fresh Start), Rosa Delgado (The Guardian), Kai Morgan (The Upstart). |
 | `avatars/<id>.jpg` | Square head-and-shoulders crops from those sheets (native 450 px, not upscaled); the town preview uses them. |
 | `pets/named/<owner>_<pet>.jpg` and `_face.jpg` | Sheets and square face crops for Bramble (Aaliyah's rabbit), Rocky (Rosa's beagle) and Pepper (Harper's terrier mix). |
 | `places/<location_id>.jpg` | Building exteriors: Body & Balance so far. |
