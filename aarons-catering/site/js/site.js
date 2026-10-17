@@ -281,6 +281,7 @@
     }
 
     var messages = {
+      'f-company': { valueMissing: 'Add your company name.' },
       'f-name': { valueMissing: 'Add your name so we know who we’re writing back to.' },
       'f-email': { valueMissing: 'Add an email so we can send the quote.', typeMismatch: 'That email doesn’t look right. Check for a typo.' },
       'f-phone': { valueMissing: 'Add a phone number. We call about most events.', patternMismatch: 'That number looks short. Include the area code.' },
@@ -355,7 +356,10 @@
       try {
         pretty = new Date(when + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
       } catch (err) { /* keep ISO */ }
-      data.set('_subject', 'Quote request: ' + data.get('Event type') + ', ' + data.get('Guests') + ' guests, ' + pretty + ' (' + name + ')');
+      var company = String(data.get('Company') || '').trim();
+      data.set('_subject', company
+        ? 'Office catering: ' + data.get('Event type') + ', ' + data.get('Guests') + ' people, ' + pretty + ' (' + company + ', ' + name + ')'
+        : 'Quote request: ' + data.get('Event type') + ', ' + data.get('Guests') + ' guests, ' + pretty + ' (' + name + ')');
 
       submit.disabled = true;
       submit.textContent = 'Sending…';

@@ -678,6 +678,30 @@ button { font: inherit; color: inherit; }
 .cta-alt { margin-top: 20px; color: var(--muted); }
 .cta-compact { padding-block: calc(var(--section) * 0.75); }
 
+/* ---------- Office catering page ---------- */
+
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.office-formats { list-style: none; display: grid; gap: 12px; margin-top: 40px; }
+@media (min-width: 640px) { .office-formats { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1080px) { .office-formats { grid-template-columns: repeat(4, 1fr); } }
+.office-format {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  height: 100%;
+  padding: 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  background: var(--ink-1);
+  text-decoration: none;
+  transition: border-color 0.2s;
+}
+.office-format:hover { border-color: var(--accent); }
+.office-format-title { font-family: var(--display); font-size: 1.25rem; font-weight: 500; line-height: 1.2; }
+.office-format-text { color: var(--muted); font-size: 0.9375rem; }
+.js .office-panel + .office-panel { border-top: 1px solid var(--line); }
+#office-quote { scroll-margin-top: var(--header-h); }
+
 /* ---------- Jump links (Holiday page, long menus) ---------- */
 
 .jump-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }

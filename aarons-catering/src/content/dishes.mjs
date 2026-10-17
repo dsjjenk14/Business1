@@ -16,6 +16,7 @@ const MAYO = 'mayonnaise (canola oil, egg yolks, distilled vinegar, lemon juice,
 const HOT_SAUCE = 'hot sauce (aged cayenne peppers, distilled vinegar, salt, garlic)';
 const CHICKEN_STOCK = 'chicken stock (chicken bones, water, onion, carrot, celery)';
 const CAJUN = 'Cajun seasoning (paprika, garlic, onion, cayenne, oregano, thyme, black pepper, salt)';
+const TURKEY_SAUSAGE = 'turkey sausage (turkey, salt, sage, black pepper, red pepper)';
 const PIE_CRUST = 'all-butter crust (all-purpose wheat flour, butter, ice water, sugar, salt)';
 
 export const dishes = {
@@ -449,7 +450,7 @@ export const dishes = {
       'spinach',
       'tomatoes',
       'mushrooms',
-      'turkey sausage (turkey, salt, sage, black pepper, red pepper)',
+      TURKEY_SAUSAGE,
       'ham (pork, water, salt, sugar, sodium nitrite)',
       'kosher salt',
       'black pepper',
@@ -495,6 +496,42 @@ export const dishes = {
       'scallions',
     ],
     allergens: ['shellfish', 'dairy'],
+  },
+
+  // ---------- Office breakfast ----------
+  'mini-waffles': {
+    name: 'Mini waffles',
+    description: 'Buttermilk mini waffles, made fresh on site.',
+    ingredients: ['all-purpose wheat flour', 'buttermilk', 'eggs', 'butter', 'sugar', 'baking powder', 'baking soda', 'vanilla extract', 'salt'],
+    allergens: ['wheat', 'dairy', 'eggs'],
+  },
+  'waffle-toppings': {
+    name: 'Build-your-own toppings bar',
+    description: 'Strawberries, blueberries, sliced bananas, whipped cream, maple syrup, butter, chocolate chips, toasted pecans and powdered sugar.',
+    ingredients: [
+      'strawberries',
+      'blueberries',
+      'bananas',
+      'whipped cream (heavy cream, sugar, vanilla extract)',
+      'maple syrup',
+      'butter',
+      'semisweet chocolate chips (sugar, chocolate, cocoa butter, milkfat, soy lecithin, vanilla)',
+      'toasted pecans',
+      'powdered sugar (sugar, cornstarch)',
+    ],
+    allergens: ['dairy', 'soy', 'tree nuts'],
+  },
+  bacon: {
+    name: 'Crispy bacon',
+    description: 'Thick-cut bacon, cooked crisp.',
+    ingredients: ['pork bacon (pork belly, water, salt, sugar, sodium phosphate, sodium nitrite)'],
+    allergens: [],
+  },
+  'turkey-sausage': {
+    name: 'Turkey sausage',
+    description: 'Seasoned turkey sausage links with sage and a little red pepper.',
+    ingredients: [TURKEY_SAUSAGE],
+    allergens: [],
   },
 
   // ---------- Sides ----------

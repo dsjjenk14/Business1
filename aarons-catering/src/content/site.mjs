@@ -39,6 +39,7 @@ export const site = {
 
 export const nav = [
   { href: 'menus.html', label: 'Menus' },
+  { href: 'office.html', label: 'Office' },
   { href: 'holiday.html', label: 'Holiday', holiday: true },
   { href: 'about.html', label: 'About' },
   { href: 'gallery.html', label: 'Gallery' },
@@ -48,6 +49,7 @@ export const nav = [
 // "What we cater" on the home page, shown as pills.
 export const events = [
   { title: 'Weddings', href: 'menus.html#weddings' },
+  { title: 'Office breakfast and lunch', href: 'office.html' },
   { title: 'Corporate events', href: 'menus.html#catering' },
   { title: 'Private parties', href: 'menus.html#catering' },
   { title: 'Church and family events', href: 'menus.html#catering' },

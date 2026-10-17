@@ -15,6 +15,16 @@ const EVENT_TYPES = [
   ['other', 'Something else'],
 ];
 
+// What an office can ask for, on the Office catering page.
+export const OFFICE_TYPES = [
+  ['office-breakfast', 'Breakfast made in our office'],
+  ['office-lunch', 'Lunch buffet'],
+  ['office-boxed', 'Boxed lunches'],
+  ['office-meeting', 'Meeting bites'],
+  ['office-standing', 'A standing weekly or monthly order'],
+  ['other', 'Something else'],
+];
+
 const BUDGETS = ['Not sure yet', 'Under $1,000', '$1,000 to $2,500', '$2,500 to $5,000', '$5,000 to $10,000', 'Over $10,000'];
 
 // Shown after a request is sent, on the page and on thanks.html.
@@ -42,11 +52,16 @@ function field({ id, label, hint, required = true, input }) {
   </div>`;
 }
 
-// The quote request form. Used on the home page and the Contact page
-// (one per page: the field ids are fixed). `compact` folds the optional
-// fields behind an "Add details" toggle, for the home page.
-export function quoteForm({ compact = false } = {}) {
+// The quote request form. Used on the home page, the Contact page and the
+// Office catering page (one per page: the field ids are fixed). `compact` folds
+// the optional fields behind an "Add details" toggle, for the home page.
+// `office` asks for the company, start time and office address instead.
+export function quoteForm({ compact = false, office = false } = {}) {
+  const types = office ? OFFICE_TYPES : EVENT_TYPES;
   const main = [
+    office
+      ? field({ id: 'f-company', label: 'Company', input: (d) => `<input id="f-company" name="Company" type="text" autocomplete="organization" required${d}>` })
+      : '',
     field({ id: 'f-name', label: 'Your name', input: (d) => `<input id="f-name" name="Name" type="text" autocomplete="name" required${d}>` }),
     `<div class="field-row">
       ${field({
@@ -63,23 +78,39 @@ export function quoteForm({ compact = false } = {}) {
     </div>`,
     field({
       id: 'f-type',
-      label: 'Type of event',
+      label: office ? 'What do you need' : 'Type of event',
       input: (d) => `<select id="f-type" name="Event type" required${d}>
         <option value="">Choose one</option>
-        ${EVENT_TYPES.map(([v, l]) => `<option value="${esc(l)}" data-key="${v}">${esc(l)}</option>`).join('')}
+        ${types.map(([v, l]) => `<option value="${esc(l)}" data-key="${v}">${esc(l)}</option>`).join('')}
       </select>`,
     }),
     `<div class="field-row field-row-tight">
-      ${field({ id: 'f-date', label: 'Event date', input: (d) => `<input id="f-date" name="Event date" type="date" required${d}>` })}
+      ${field({ id: 'f-date', label: office ? 'Date' : 'Event date', input: (d) => `<input id="f-date" name="Event date" type="date" required${d}>` })}
       ${field({
         id: 'f-guests',
-        label: 'Guests',
+        label: office ? 'Headcount' : 'Guests',
         input: (d) => `<input id="f-guests" name="Guests" type="number" inputmode="numeric" min="1" max="5000" step="1" required${d}>`,
       })}
     </div>`,
   ].join('\n');
+  const officeRow = `<div class="field-row field-row-tight">
+      ${field({
+        id: 'f-time',
+        label: 'Start time',
+        required: false,
+        input: (d) => `<input id="f-time" name="Start time" type="time"${d}>`,
+      })}
+      ${field({
+        id: 'f-location',
+        label: 'Address',
+        required: false,
+        input: (d) => `<input id="f-location" name="Location" type="text" autocomplete="street-address"${d}>`,
+      })}
+    </div>`;
   const extras = [
-    `<div class="field-row field-row-tight">
+    office
+      ? officeRow
+      : `<div class="field-row field-row-tight">
       ${field({
         id: 'f-location',
         label: 'Location',
@@ -100,7 +131,7 @@ export function quoteForm({ compact = false } = {}) {
       id: 'f-message',
       label: 'Anything else',
       required: false,
-      input: (d) => `<textarea id="f-message" name="Message" rows="4" placeholder="Menu ideas, allergies, timing"${d}></textarea>`,
+      input: (d) => `<textarea id="f-message" name="Message" rows="4" placeholder="${office ? 'Menu picks, allergies, parking or building access' : 'Menu ideas, allergies, timing'}"${d}></textarea>`,
     }),
   ].join('\n');
   const fields = compact
