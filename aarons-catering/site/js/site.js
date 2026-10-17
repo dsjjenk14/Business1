@@ -280,6 +280,24 @@
       if (option) option.selected = true;
     }
 
+    // Office catering: an estimate from the package price and headcount.
+    var estimate = $('[data-estimate]', form);
+    var showEstimate = function () {
+      if (!estimate) return;
+      var opt = $('#f-type', form).selectedOptions[0];
+      var price = opt ? Number(opt.getAttribute('data-price')) : 0;
+      var people = parseInt($('#f-guests', form).value, 10);
+      if (!price || !(people > 0)) { estimate.hidden = true; return; }
+      var min = Number(opt.getAttribute('data-min'));
+      estimate.textContent = 'About $' + (price * Math.max(people, min)).toLocaleString('en-US') + ' before delivery and tax' +
+        (people < min ? ', at the ' + min + '-person minimum.' : '.');
+      estimate.hidden = false;
+    };
+    if (estimate) {
+      form.addEventListener('change', showEstimate);
+      form.addEventListener('input', showEstimate);
+    }
+
     var messages = {
       'f-company': { valueMissing: 'Add your company name.' },
       'f-name': { valueMissing: 'Add your name so we know who we’re writing back to.' },
@@ -357,6 +375,7 @@
         pretty = new Date(when + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
       } catch (err) { /* keep ISO */ }
       var company = String(data.get('Company') || '').trim();
+      if (estimate && !estimate.hidden) data.set('Estimate', estimate.textContent);
       data.set('_subject', company
         ? 'Office catering: ' + data.get('Event type') + ', ' + data.get('Guests') + ' people, ' + pretty + ' (' + company + ', ' + name + ')'
         : 'Quote request: ' + data.get('Event type') + ', ' + data.get('Guests') + ' guests, ' + pretty + ' (' + name + ')');

@@ -1,7 +1,8 @@
 import { page } from '../layout.mjs';
 import { site } from '../content/site.mjs';
 import { icon } from '../icons.mjs';
-import { esc, eyebrow } from '../lib.mjs';
+import { esc, eyebrow, money } from '../lib.mjs';
+import { officePackages } from '../content/office.mjs';
 
 const EVENT_TYPES = [
   ['wedding', 'Wedding'],
@@ -15,12 +16,10 @@ const EVENT_TYPES = [
   ['other', 'Something else'],
 ];
 
-// What an office can ask for, on the Office catering page.
-export const OFFICE_TYPES = [
-  ['office-breakfast', 'Breakfast made in our office'],
-  ['office-lunch', 'Lunch buffet'],
-  ['office-boxed', 'Boxed lunches'],
-  ['office-meeting', 'Meeting bites'],
+// What an office can ask for, on the Office catering page: the packages (with
+// price and minimum, for the estimate) and two open choices.
+const OFFICE_TYPES = [
+  ...officePackages.map((p) => [p.id, `${p.name} (${money(p.price)} per person)`, p.price, p.min]),
   ['office-standing', 'A standing weekly or monthly order'],
   ['other', 'Something else'],
 ];
@@ -78,10 +77,10 @@ export function quoteForm({ compact = false, office = false } = {}) {
     </div>`,
     field({
       id: 'f-type',
-      label: office ? 'What do you need' : 'Type of event',
+      label: office ? 'Package' : 'Type of event',
       input: (d) => `<select id="f-type" name="Event type" required${d}>
         <option value="">Choose one</option>
-        ${types.map(([v, l]) => `<option value="${esc(l)}" data-key="${v}">${esc(l)}</option>`).join('')}
+        ${types.map(([v, l, price, min]) => `<option value="${esc(l)}" data-key="${v}"${price ? ` data-price="${price}" data-min="${min}"` : ''}>${esc(l)}</option>`).join('')}
       </select>`,
     }),
     `<div class="field-row field-row-tight">
@@ -92,6 +91,7 @@ export function quoteForm({ compact = false, office = false } = {}) {
         input: (d) => `<input id="f-guests" name="Guests" type="number" inputmode="numeric" min="1" max="5000" step="1" required${d}>`,
       })}
     </div>`,
+    office ? '<p class="estimate" data-estimate aria-live="polite" hidden></p>' : '',
   ].join('\n');
   const officeRow = `<div class="field-row field-row-tight">
       ${field({
