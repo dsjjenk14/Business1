@@ -95,6 +95,8 @@ export const holiday = {
     { dish: 'yams' },
     { dish: 'mashed-potatoes-gravy' },
     { dish: 'stuffing' },
+    { dish: 'cornbread-dressing' },
+    { dish: 'jambalaya' },
     { dish: 'au-gratin' },
     { dish: 'green-beans' },
     { dish: 'seafood-salad', extra: 25 },

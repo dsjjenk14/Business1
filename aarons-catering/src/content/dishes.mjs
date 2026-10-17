@@ -676,6 +676,47 @@ export const dishes = {
     allergens: ['dairy'],
   },
 
+  // ---------- Christmas additions ----------
+  'cornbread-dressing': {
+    name: 'Cornbread dressing',
+    description: 'All scratch cornbread with sage, onion, celery and bell pepper, baked soft enough to spoon, with a golden top.',
+    ingredients: [
+      'scratch cornbread (yellow cornmeal, all-purpose wheat flour, buttermilk, eggs, butter, baking powder, salt)',
+      'yellow onion',
+      'celery',
+      'green bell pepper',
+      'fresh sage',
+      'thyme',
+      CHICKEN_STOCK,
+      'eggs',
+      'butter',
+      'black pepper',
+      'kosher salt',
+    ],
+    allergens: ['wheat', 'dairy', 'eggs'],
+  },
+  jambalaya: {
+    name: 'Jambalaya',
+    description: 'Long-grain rice cooked down with andouille sausage, chicken, peppers, onion, celery and tomato in Cajun spice.',
+    ingredients: [
+      'long-grain white rice',
+      'andouille sausage (pork, garlic, paprika, cayenne, black pepper, salt)',
+      'boneless chicken thighs',
+      'yellow onion',
+      'green bell pepper',
+      'celery',
+      'garlic',
+      'crushed tomatoes',
+      CHICKEN_STOCK,
+      CAJUN,
+      'bay leaf',
+      'thyme',
+      'scallions',
+      'canola oil',
+    ],
+    allergens: [],
+  },
+
   // ---------- Office breakfast ----------
   'mini-waffles': {
     name: 'Mini waffles',

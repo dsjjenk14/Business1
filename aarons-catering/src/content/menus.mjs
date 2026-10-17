@@ -97,6 +97,8 @@ export const menus = [
           { dish: 'gouda-mac', description: 'Smoked gouda and white cheddar under a brown butter crumb, baked and served in individual cast-iron cocottes.' },
           { dish: 'mac', name: 'Classic baked mac and cheese', description: 'Sharp cheddar, Colby Jack and cream cheese, baked until the edges caramelize.' },
           'sweet-potato-pave',
+          'cornbread-dressing',
+          'jambalaya',
           { dish: 'collards', name: 'Slow-braised collard greens', description: 'Braised low with smoked turkey, served in petite crocks in their own pot likker.', note: 'Pork available.' },
           { dish: 'green-beans', name: 'Green beans with smoked turkey', note: 'Pork available.' },
           { dish: 'garlic-mashed', name: 'Roasted garlic whipped potatoes, red wine gravy' },
@@ -226,7 +228,7 @@ export const menus = [
       { title: 'Meats', dishes: ['ham', 'smoked-turkey', 'jerk-turkey', 'fried-turkey', 'short-ribs'] },
       {
         title: 'Sides',
-        dishes: ['mac', 'collards', 'cabbage', 'yams', 'mashed-potatoes-gravy', 'stuffing', 'au-gratin', 'green-beans', 'seafood-salad'],
+        dishes: ['mac', 'collards', 'cabbage', 'yams', 'mashed-potatoes-gravy', 'stuffing', 'cornbread-dressing', 'jambalaya', 'au-gratin', 'green-beans', 'seafood-salad'],
       },
       { title: 'Included', dishes: ['cornbread', 'rolls', 'cranberry'] },
       { title: 'Add-ons and desserts', dishes: ['crab-stuffed-shrimp', 'sweet-potato-pie', 'pound-cake', 'vanilla-cake'] },
