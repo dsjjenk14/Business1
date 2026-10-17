@@ -416,3 +416,18 @@ much more than a gift; three or more drinks in the 20 hours before 06:00 mean a 
 (witnesses, gossip, a partner's reaction, the paper) and lasting (days of humiliation, ruined
 clothes) makes it a real event in other people's stories, not a status icon. The other details
 are small, data-driven and tested, and each touches what people already do.
+
+## D-044 — Art for what lives in a save is listed in art/manifest.json
+**Decision:** Residents made in the character creator and named pets exist only in a save, not
+in `data/characters`, so their art cannot be linked from data the way the founders' sheets are.
+`art/manifest.json` lists it instead: residents by character id (sheet, avatar, card title),
+pets by owner id and name, plus pictures of places, the bus and stops, the city stages and
+concept posters, each keyed by the game's own ids. A test checks that every path exists, that no
+founder is listed there, and that place and stop ids are real. Each entry carries `notes` for
+anything the picture gets wrong about the game (a pet's age on its card, a job that changed),
+so the art never claims a state the game doesn't have. `art/concept/` holds posters whose
+districts and layout are not the game's; they are labelled as concept and never used as a map.
+`art/_incoming/` is where new images land before they are checked, and it is not committed.
+**Why:** Content is data, and the server never serves images, so a manifest beside the art is
+the smallest honest link: nothing in `src/core` changes, the test keeps the links true, and the
+"never pretend" rule is kept by writing down what each card gets wrong instead of hiding it.

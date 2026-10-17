@@ -1,0 +1,83 @@
+{
+  "$comment": "Art for things that live in a save rather than in data/: residents made in the character creator (by character id) and named pets (by owner id and name), plus pictures of places, the bus, the city and concept posters. Paths are relative to the livera folder. tests/test_cast.cpp checks that every path exists, that no resident here is a founding character (their art is linked from data/characters), and that place and stop ids are real. Facts on the cards were checked against the game's data; anything the card gets wrong is listed under notes so nobody mistakes it for the game's state.",
+  "residents": {
+    "rosa-delgado": {
+      "name": "Rosa Delgado",
+      "card_title": "The Guardian",
+      "sheet": "art/reference/residents/rosa-delgado.jpg",
+      "avatar": "art/avatars/rosa-delgado.jpg",
+      "card_as_of": "Day 28 of the town-preview recording",
+      "notes": []
+    },
+    "kai-morgan": {
+      "name": "Kai Morgan",
+      "card_title": "The Upstart",
+      "sheet": "art/reference/residents/kai-morgan.jpg",
+      "avatar": "art/avatars/kai-morgan.jpg",
+      "card_as_of": "Day 28 of the town-preview recording",
+      "notes": ["The red-and-white high-top sneakers resemble a well-known real design; regenerate the turnaround with plain shoes before any commercial use."]
+    },
+    "theo-grant": {
+      "name": "Theo Grant",
+      "card_title": "The Fresh Start",
+      "sheet": "art/reference/residents/theo-grant.jpg",
+      "avatar": "art/avatars/theo-grant.jpg",
+      "card_as_of": "Day 28 of the town-preview recording",
+      "notes": ["Card occupation is Shift Supervisor, Greenleaf Market; from Day 29 of the recording he works the front desk at Body & Balance."]
+    }
+  },
+  "pets": {
+    "aaliyah:Bramble": {
+      "owner": "aaliyah",
+      "species": "rabbit",
+      "breed": "Dutch",
+      "sheet": "art/pets/named/aaliyah_bramble.jpg",
+      "face": "art/pets/named/aaliyah_bramble_face.jpg",
+      "notes": ["Card says adult, 3 years; the game had Bramble at about 2 years 3 months when adopted on Day 22.", "Card gives a sex and weight; the game records neither for pets."]
+    },
+    "rosa-delgado:Rocky": {
+      "owner": "rosa-delgado",
+      "species": "dog",
+      "breed": "Beagle",
+      "sheet": "art/pets/named/rosa-delgado_rocky.jpg",
+      "face": "art/pets/named/rosa-delgado_rocky_face.jpg",
+      "notes": ["Card says adult, 5 years; the game had Rocky at 6 years 11 months when adopted on Day 28, so he becomes a senior a month later.", "Card gives a sex and weight; the game records neither for pets."]
+    },
+    "harper:Pepper": {
+      "owner": "harper",
+      "species": "dog",
+      "breed": "Terrier mix",
+      "sheet": "art/pets/named/harper_pepper.jpg",
+      "face": "art/pets/named/harper_pepper_face.jpg",
+      "notes": ["Card home is 3 Founders Row; Harper and Pepper move to 8 Willow Lane on Day 32 of the recording."]
+    }
+  },
+  "places": {
+    "body_balance": "art/places/body_balance.jpg"
+  },
+  "transit": {
+    "bus_line_1": "art/transit/bus_line_1.jpg",
+    "bus_line_1_side": "art/transit/bus_line_1_side.jpg",
+    "stops": {
+      "stop_riverside": "art/transit/stops/stop_riverside.jpg",
+      "stop_founders_main": "art/transit/stops/stop_founders_main.jpg",
+      "stop_maple_court": "art/transit/stops/stop_maple_court.jpg",
+      "stop_church_street": "art/transit/stops/stop_church_street.jpg",
+      "stop_founders_park": "art/transit/stops/stop_founders_park.jpg",
+      "stop_civic_row": "art/transit/stops/stop_civic_row.jpg",
+      "stop_lexington_ave": "art/transit/stops/stop_lexington_ave.jpg"
+    },
+    "notes": ["The stop shelters are crops of the bus collage's bottom row, numbered 1-7 in route order; they are small (about 306x191) and carry no stop names.", "The side view is a crop on a grey studio background, not a transparent sprite."]
+  },
+  "city": {
+    "stage_1": "art/city/stage_1.jpg",
+    "stage_5": "art/city/stage_5.jpg",
+    "construction": "art/city/construction.jpg",
+    "notes": ["Stages 2, 3 and 4 have no panorama yet. construction.jpg is a building site, not a city stage."]
+  },
+  "concept": {
+    "founding_town_poster": "art/concept/founding_town_poster.jpg",
+    "town_map_poster": "art/concept/town_map_poster.jpg",
+    "notes": ["Concept posters only. Their districts (Riverfront, The Ridge, The Nine, The Meadows...), 'Riverview Park' and the street layout are not the game's; the real places and bus stops are in data/world and data/transit."]
+  }
+}

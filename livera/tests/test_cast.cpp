@@ -2,6 +2,8 @@
 // reference art, and actually be able to live in the town (home, job, ties).
 
 #include <filesystem>
+#include <fstream>
+#include <functional>
 #include <set>
 
 #include "TestSupport.h"
@@ -141,4 +143,50 @@ TEST_CASE("cast: Dominique's life stages follow her reference sheet (19, 24, 29)
   bool heirloom = false;
   for (const Memory* m : w.memoriesOf("dominique")) heirloom |= m->type == "heirloom";
   CHECK(heirloom);
+}
+
+// Art for what lives in a save (created residents, named pets) and for places is listed in
+// art/manifest.json (D-044). Every path must exist, nobody listed as a resident may be a founder,
+// and place and stop ids must be the game's own.
+TEST_CASE("art: the manifest links to files that exist and to real ids") {
+  const auto root = std::filesystem::path(LIVERA_DATA_DIR).parent_path();
+  std::ifstream in(root / "art" / "manifest.json");
+  REQUIRE(in.good());
+  const Json m = Json::parse(in);
+  std::vector<std::string> paths;
+  std::function<void(const Json&)> collect = [&](const Json& j) {
+    if (j.is_string()) {
+      const std::string s = j.get<std::string>();
+      if (s.rfind("art/", 0) == 0) paths.push_back(s);
+    } else if (j.is_object()) {
+      for (const auto& [k, v] : j.items()) {
+        if (k != "notes" && k != "$comment") collect(v);
+      }
+    } else if (j.is_array()) {
+      for (const auto& v : j) collect(v);
+    }
+  };
+  collect(m);
+  CHECK(paths.size() >= 20);
+  for (const auto& p : paths) {
+    if (!std::filesystem::exists(root / p)) std::fprintf(stderr, "    art missing: %s\n", p.c_str());
+    CHECK(std::filesystem::exists(root / p));
+  }
+  const auto content = realContent();
+  for (const auto& [id, r] : m["residents"].items()) {
+    CHECK(content->character(id) == nullptr);  // founders link their art from data/characters
+    CHECK(r.contains("sheet"));
+    CHECK(r.contains("avatar"));
+  }
+  for (const auto& [key, p] : m["pets"].items()) {
+    const auto colon = key.find(':');
+    REQUIRE(colon != std::string::npos);
+    CHECK(p["owner"] == key.substr(0, colon));
+    CHECK(content->petSpecies(p["species"].get<std::string>()) != nullptr);
+  }
+  for (const auto& [id, p] : m["places"].items()) CHECK(content->location(id) != nullptr);
+  std::set<std::string> stops;
+  for (const auto& line : content->transit().lines)
+    for (const auto& s : line.stops) stops.insert(s.id);
+  for (const auto& [id, p] : m["transit"]["stops"].items()) CHECK(stops.count(id) == 1);
 }
