@@ -35,7 +35,7 @@ Covers spec Phase 0, plus the server-side halves of Phases 2–5 that the slice 
 | 14 | See the world continue changing | ✅ construction, openings, city stats |
 | 15–18 | Save, disconnect, reconnect, state preserved | ✅ including a full server restart |
 
-Every ⚠️ is the same gap: **there is no 3D client yet.** That is M1.
+Every ⚠️ is the same gap: **there was no game client.** M1 is the web client (D-045).
 
 ## M0.5 — Make your own character, talk, make music ✅
 
@@ -146,29 +146,45 @@ visual (M1).
   daily weather with forecasts and umbrellas; birthday notices and cakes; hangovers.
 - 238 tests, sanitizer-clean. Each feature's protocol ops, CLI commands and what is not done: `docs/m08/`.
 
-## M1 — Unreal client shell (spec Phases 1 + 3) ⬜ — next
+## M1 — Playable web client and live multiplayer (D-045) ⚠️ — in progress
 
-Needs: an Unreal Engine 5 install (Windows or Linux build machine) and a decision on the
-UE version. **This can't be built in the cloud container this milestone was made in.**
+The owner's choices (October 2026): a 2.5D web client grown from the town preview, the clock
+kept at 1 game minute per real second, the owner and a few invited friends playing on phones, a
+rented VPS with a domain, and proximity voice as soon as possible. Plan and estimates:
+`docs/proposals/web_client.md`; voice: `docs/proposals/voice.md`.
 
-M1 now also covers: the character creator as a UI with a live 3D preview (the server API
-is done), proximity **voice** chat using the engine's voice service with the same hearing
-ranges as text, and in-world playback of songs (instruments from the song's note data).
+**Phase 0 — a link you open and play** (status in the table is kept honest as work lands)
 
-- UE5 C++ project; `LiveraSim` module wrapping `livera_core`; dedicated server target.
-- GameMode owns the `World`; server RPCs call `World` commands; replicated character
-  state; client prediction for movement with server validation.
-- Greybox founding town generated from `founding_town.json` (doors, footprints, roads,
-  construction sites with placeholder crews), third-person camera, day/night from
-  `daylightLevel`.
-- Interact prompts at doors, offers and activities; save/load through `livera_persistence`.
-- Exit criteria: two players on a UE dedicated server do the M0 slice in 3D.
+| Step | Status |
+|---|---|
+| Decision D-045; ROADMAP, ARCHITECTURE and the core-dependency rule updated | ✅ |
+| Server: positions and motion of people in sight (`look.people`, the `people` stream), sight range in data (never below shout range), speaker position on speech, `whispering` for onlookers, public rules/transit/interactions in `map`, `re` on every reply, protocol `livera/1` | ⬜ |
+| Server: session tokens and `resume`, login throttling, admin commands to add accounts and release a character, human-only player cap (16) | ⬜ |
+| Server: scripted characters labelled (`bot_` accounts), never claiming, giving way to humans | ⬜ |
+| WebSocket gateway (`web/gateway`) | ⬜ |
+| Web client (`web/client`): log in, pick or create a character, tap to walk, enter and act, bus, whisper/say/shout with bubbles and a range ring, people cards, phone apps; phone-first layout; Playwright tests | ⬜ |
+| Labelled town director (`scripts/town_director.py`) | ⬜ |
+| Deploy scripts for an Ubuntu VPS (`deploy/`: Caddy HTTPS, systemd, backups, firewall) | ⬜ |
+| Running on the owner's VPS | ⬜ needs the owner to rent it and paste one command |
+
+**Next: voice v1** right after Phase 0, designed in `docs/proposals/voice.md`: server-decided
+hearing with the same whisper/say/shout ranges, a push-to-talk button, a mic indicator, and the
+moderation it needs first (mute, block, report, admin kick).
+
+**Phase 1 — feels real (about 4–6 weeks):** real streets and pathfinding, shared buses on a
+timetable, residents on autopilot when nobody plays them, drawn bodies from the creator fields,
+babies with an appearance and visible children, driving v1, rooms indoors so whisper and shout
+differ inside, add-to-home-screen.
+
+**Phase 2 — richer visuals:** a three.js 3D view in the same client, interiors, animation, and
+an optional app-store wrapper. The character creator gets a live preview there, and songs play
+in the world from their note data.
 
 ## M2 — Dominique, complete (spec Phase 2) ⬜
 
-- Character art pipeline: the approved artwork as reference, a first in-engine model
-  for Dominique, her wardrobe and silhouette.
-- Phone UI (UMG) over the existing phone views.
+- Character art pipeline: the approved artwork as reference, her drawn body in the 2.5D
+  client and later a 3D model for Dominique, her wardrobe and silhouette.
+- Full phone UI in the web client over the existing phone views.
 - Schedule-driven autonomy while she's not being played (her routine in `profile.schedule`).
 - Her apartment interior with usable objects instead of abstract activities.
 
@@ -197,5 +213,6 @@ selling property, mortgages, roommates, transaction history UI.
 | M12 | 13 Generations | Life stages, children, inheritance |
 | M13 | 14 Polish | Animation, UI, audio, VFX, performance, accessibility, onboarding |
 
-Before any server is reachable from outside a developer machine: transport encryption,
-token sessions and login throttling (MULTIPLAYER.md).
+Before any server is reachable from outside a developer machine: transport encryption (Caddy in
+front of the gateway), token sessions and login throttling (MULTIPLAYER.md), and before voice or
+any public server: moderation (mute, block, report, admin kick).

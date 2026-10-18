@@ -52,8 +52,8 @@ calling work done. Warnings are errors.
 - C++20, 2-space indent, 120 columns. `PascalCase` types, `camelCase` functions/variables,
   `kConstant` constants, trailing `_` for members.
 - Comments explain *why*, not what. Match the surrounding density.
-- `src/core` must not depend on sockets, SQLite, OpenSSL or any engine. It is the part an
-  Unreal module will link.
+- `src/core` must not depend on sockets, SQLite, OpenSSL or any engine. It is the part any
+  later engine client or WebAssembly build would link (D-045).
 - Prefer small free functions and plain structs over class hierarchies.
 
 ## Workflow for a milestone

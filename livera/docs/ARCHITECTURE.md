@@ -6,19 +6,22 @@ This is the single authoritative architecture. Changes to it are recorded in
 ## The shape of the system
 
 ```
-                ┌───────────────────────────────────────────────────────┐
-                │                 Dedicated server process              │
- client ──TCP──▶│  Server (src/server)                                  │
- (intent only)  │   sessions · auth · rate limit · protocol dispatch    │
-                │        │ commands                 ▲ WorldEvents        │
-                │        ▼                          │                    │
-                │  World (src/core)  ── the only owner of game state ── │
-                │   validate → mutate WorldState → emit events          │
-                │        │ reads                                          │
-                │  ContentDatabase (src/core) ◀── data/**/*.json         │
-                │        │                                                │
-                │  SqliteStore (src/persistence) ◀─▶ world.db            │
-                └───────────────────────────────────────────────────────┘
+ browser (web/client)                    VPS, behind Caddy (HTTPS, wss://)
+ 2.5D canvas · phone UI ──wss──▶ gateway (web/gateway, Node) ──TCP, loopback──┐
+ (intent only)                   a pipe: one WebSocket = one TCP session      │
+                ┌─────────────────────────────────────────────────────────────▼─┐
+                │                 Dedicated server process                      │
+ tools, bots ─TCP▶│  Server (src/server)                                        │
+ (director, CLI)│   sessions · auth · tokens · rate limit · protocol dispatch   │
+                │        │ commands                 ▲ WorldEvents                │
+                │        ▼                          │                            │
+                │  World (src/core)  ── the only owner of game state ──         │
+                │   validate → mutate WorldState → emit events                  │
+                │        │ reads                                                 │
+                │  ContentDatabase (src/core) ◀── data/**/*.json                 │
+                │        │                                                       │
+                │  SqliteStore (src/persistence) ◀─▶ world.db                    │
+                └───────────────────────────────────────────────────────────────┘
 ```
 
 ### Layers
@@ -30,7 +33,8 @@ This is the single authoritative architecture. Changes to it are recorded in
 | **Ledger** (`core/Ledger.*`) | Accounts and the transaction log. Atomic transfers; zero-sum invariant. | Allow any other way to change a balance. |
 | **Persistence** (`persistence/`) | Saving and loading `WorldState`; accounts and character claims; schema migrations. | Contain game rules. |
 | **Server** (`server/`, `net/`) | Connections, authentication, authorization (who is playing what), rate limiting, the protocol, autosave cadence, routing events to clients. | Decide game outcomes. It only calls `World`. |
-| **Client** (`client/` today; Unreal later) | Presentation and input. Sends intent. | Be trusted with anything. |
+| **Client** (`web/client` for players; `client/` CLI and `scripts/town_director.py` for tools) | Presentation and input. Sends intent. Predicts straight-line motion only to draw it. | Be trusted with anything. |
+| **Gateway** (`web/gateway`) | Turning each browser WebSocket into one TCP session with the server. | Hold game logic or state. It is a pipe. |
 
 ### The authority boundary
 
@@ -62,33 +66,36 @@ One thread owns the World, the store and every socket (`Server::run`). There are
 locks because nothing is shared. At 2–8 players this is simpler and faster than
 anything concurrent. Scaling path: see "Scaling" below.
 
-## Engine integration (the plan for the 3D game)
+## The game client (D-045)
 
-The game client and in-world presentation will be **Unreal Engine 5** (C++ + Blueprints).
-The simulation core stays engine-agnostic and is linked into Unreal as a module:
+The first game client is a 2.5D web client in `web/`, grown from the town preview. It runs in
+any phone or desktop browser and speaks the same newline-JSON protocol (`livera/1`) as every
+other client, one JSON object per WebSocket message:
 
 ```
-Unreal project
-  Source/LiveraSim/        ← wraps livera_core (this repo's src/core) as a UE module
-  Source/LiveraGame/       ← GameMode, PlayerController, Character, UI (phone) etc.
-  Dedicated server build   ← GameMode owns a World; RPCs call World commands;
-                             replicated properties mirror the views World produces
+web/client/   plain ES modules, no build step
+  transport.js   WebSocket, request/reply by id, reconnect with a session token
+  state.js       live model: people from look + the `people` stream, straight-line prediction
+  render2d.js    isometric canvas (layout.js holds the sketched street layout)
+  ui.js · phone.js · creator.js · main.js
+web/gateway/  Node + ws: WebSocket ⇄ TCP, nothing else
 ```
 
-- **Server RPCs map 1:1 to World commands.** `ServerEnter(LocationId)` calls
-  `World::enter`, nothing more. The rule logic is never duplicated in Blueprints.
-- **Movement:** today the server moves characters along straight lines at walking speed.
-  In Unreal, the CharacterMovementComponent does client prediction with server
-  reconciliation; `World` keeps the authoritative logical position (which building you're
-  in, whether you're at a door) and validates positions reported by the UE server against
-  max speed. NavMesh pathing replaces straight lines.
-- **The development protocol** (newline JSON over TCP) remains useful for headless bots,
-  load tests and tools, and as the reference for which commands exist.
-- **Persistence and backend** stay outside Unreal: the UE dedicated server uses
-  `livera_persistence` (SQLite now, a database service later).
-
-This is why the core has no engine dependency and why the slice was built headless first:
-every rule is testable in CI in seconds, without an Unreal install.
+- **Commands map 1:1 to World commands.** The client sends intent (`move`, `enter`, `buy`,
+  `say`...); the server checks every rule. Nothing the client says about positions or outcomes
+  is trusted.
+- **Movement** stays server-moved along straight lines (D-013). The server tells each player
+  what changes in their sight with the `people` event (a start, a stop, a turn, a door, a forced
+  move); between events the client extrapolates the line. Sight range is data and is never less
+  than shout range, so you can always see who you hear.
+- **What a player sees is still decided by `World`** (D-012): other people only within sight
+  outdoors or in the same building, never their needs, money or feelings.
+- **A 3D view later** (three.js) replaces `render2d.js` behind the same transport and state.
+  Because `src/core` has no engine dependency, an engine client (Unreal, Godot) or a WebAssembly
+  offline build stays possible without changing the rules.
+- **Hosting:** one small VPS runs the server, the gateway and the labelled town director behind
+  Caddy, which terminates HTTPS and serves the client (`deploy/`). Server and gateway talk over
+  loopback only.
 
 ## Scaling (later, not now)
 

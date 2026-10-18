@@ -1,6 +1,6 @@
 # Proposal: a playable LIVÉRA without Unreal
 
-**Status: proposal, not decided.** Nothing here changes the architecture until the owner approves it and a `docs/DECISIONS.md` entry is written (the report suggests D-044). Until then `docs/ARCHITECTURE.md` and `docs/ROADMAP.md` stand.
+**Status: accepted as D-045 (October 2026).** The owner chose the 2.5D web client, kept the clock at 1 game minute per real second, wants to play with a few invited friends on phones, will rent the server, and wants proximity voice as soon as possible (`docs/proposals/voice.md`). `docs/ARCHITECTURE.md` and `docs/ROADMAP.md` now follow this report; where they differ, they win.
 
 This report came from a research pass in October 2026. Three independent approaches were compared, and a judge checked their claims against the code:
 - a web 2.5D client grown from the town preview;

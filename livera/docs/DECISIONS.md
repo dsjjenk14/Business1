@@ -432,3 +432,22 @@ districts and layout are not the game's; they are labelled as concept and never 
 **Why:** Content is data, and the server never serves images, so a manifest beside the art is
 the smallest honest link: nothing in `src/core` changes, the test keeps the links true, and the
 "never pretend" rule is kept by writing down what each card gets wrong instead of hiding it.
+
+## D-045 — The first game client is a 2.5D web client; the JSON protocol is the game protocol
+**Decision:** M1 is a playable web client in `web/`, grown from the town preview: an isometric
+2.5D canvas in any phone or desktop browser, talking to the C++ server through a small WebSocket
+gateway. The newline-JSON protocol (renamed `livera/1`) is the game protocol, not a dev-only one.
+Movement stays server-moved along straight lines; the client only predicts those lines to draw
+them smoothly. The clock stays at 1 game minute per real second (D-015). Proximity voice is
+planned for the web client right after Phase 0 (`docs/proposals/voice.md`), with the server
+deciding who hears whom by the same whisper/say/shout ranges as text. A three.js 3D view can
+later replace the 2D renderer inside the same client, behind the same transport and state.
+Unreal is no longer the M1 client.
+**Supersedes:** the engine half of D-002 (the core stays engine-agnostic, so an engine client is
+still possible later), D-003, the "replaced by UE replication" note on D-004, the "UE client-side
+prediction" note on D-013, and the "voice with the engine" half of D-019.
+**Why:** The owner chose it (October 2026) after a three-way comparison
+(`docs/proposals/web_client.md`): Unreal can't be built or tested in the cloud container this
+project is made in, while a web client can be built, screenshot-tested with Playwright and played
+on a phone within days. About 60% of what makes the town feel alive (seeing people move, buses,
+a busy town) is server work every client needs, so the server changes come first.
