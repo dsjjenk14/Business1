@@ -89,7 +89,15 @@
     }
   },
   "places": {
-    "body_balance": "art/places/body_balance.jpg",
+    "body_balance": {
+      "sprite": "art/places/body_balance.webp",
+      "photo": "art/places/body_balance.jpg",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The finished gym, drawn when the project 'Body & Balance gym' completes. The rooftop lounge is the picture's own (the prompt asked for a rooftop planter); weights, bikes and treadmills match the data's free weights and spin room.",
+        "body_balance.jpg, the earlier photograph the prompt was drawn from, is kept as `photo`."
+      ]
+    },
     "baptiste_events": {
       "sprite": "art/places/baptiste_events.webp",
       "notes": [
@@ -221,16 +229,18 @@
     },
     "common_ground": {
       "sprite": "art/places/common_ground.webp",
+      "alternate": "art/places/common_ground_alt.webp",
       "notes": [
         "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
-        "The friendly brick front, the noticeboard and the big warm windows are as asked; the benches outside are the picture's own. The posters on the noticeboard are illegible decoration, not real notices."
+        "The first version (no sign on the front) is kept as the alternate. The posters on the noticeboard are illegible decoration, not real notices; the benches and the bookshelves inside are the picture's own."
       ]
     },
     "suds_spin": {
       "sprite": "art/places/suds_spin.webp",
+      "alternate": "art/places/suds_spin_alt.webp",
       "notes": [
         "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
-        "Washers, stacked dryers and one bench, as asked. The number of machines in the picture is not the data's twelve washers and eight dryers."
+        "The first version is kept as the alternate. Washers, stacked dryers and one bench, as asked; the number of machines is not the data's twelve washers and eight dryers."
       ]
     },
     "starlight_cinema": {
@@ -242,9 +252,194 @@
     },
     "copper_tap": {
       "sprite": "art/places/copper_tap.webp",
+      "alternate": "art/places/copper_tap_alt.webp",
       "notes": [
         "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
-        "The long copper bar, the dartboard and the corner stage with a guitar match the data. The railed terrace with tables out front is the picture's own."
+        "The first version is kept as the alternate. The long copper bar, the dartboard and the corner stage with a guitar match the data; the railed terraces with tables are the picture's own."
+      ]
+    },
+    "eclat": {
+      "sprite": "art/places/eclat.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The finished nightclub (it opens when its project completes): the velvet rope and the riverside terrace are as asked. The lounge seating on the terrace and the bollards on the quay are the picture's own; the sound system is not shown."
+      ]
+    },
+    "willow_lake_park": {
+      "sprite": "art/places/willow_lake_park.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Willows, the boardwalk, the boathouse with rowboats and the picnic lawns match the data. The lake's shape and the brick-and-stone gate are the picture's own; the client draws parks as ground and does not place this sprite yet."
+      ]
+    },
+    "founders_row_3": {
+      "sprite": "art/places/founders_row_3.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Plants on the stoop and books in the bay window match the data's plants, books and armchairs."
+      ]
+    },
+    "founders_row_7": {
+      "sprite": "art/places/founders_row_7.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A narrow brick townhouse with the curtains drawn, as asked; the desk buried in files is inside and not shown."
+      ]
+    },
+    "willow_lane_2": {
+      "sprite": "art/places/willow_lane_2.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The four Willow Lane houses share one description; this one carries the number 2. The fenced back yard with a table is the data's back yard."
+      ]
+    },
+    "willow_lane_4": {
+      "sprite": "art/places/willow_lane_4.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The twin of 2 Willow Lane with the number 4. 6 and 8 Willow Lane have no picture yet."
+      ]
+    },
+    "forge_site_office": {
+      "sprite": "art/places/forge_site_office.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Two stacked site trailers behind a temporary fence with plans on the table upstairs, as asked. The concrete barriers and cones are the picture's own."
+      ]
+    },
+    "riverside_field": {
+      "sprite": "art/places/riverside_field.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The floodlit grass pitch and the small grandstand match the data. The prompt asked for four floodlight masts; three are visible. The river is not in the picture."
+      ]
+    },
+    "riverside_court": {
+      "sprite": "art/places/riverside_court.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The two hoops with new nets match the data; the bleachers look new rather than old."
+      ]
+    },
+    "riverside_clubhouse": {
+      "sprite": "art/places/riverside_clubhouse.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Locker rooms through the ground-floor glass and the league office upstairs match the data; the trophy shelf upstairs is empty, as the data says."
+      ]
+    },
+    "low_end_studios": {
+      "sprite": "art/places/low_end_studios.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A brick studio with the mixing console and a wall of synths through the windows, as in the data. The prompt asked for a converted warehouse with a small sign; the picture's sign is large."
+      ]
+    },
+    "livera_general": {
+      "sprite": "art/places/livera_general.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The hospital block and the mostly-gravel parking lot match the data. The prompt asked for a lit EMERGENCY entrance; the picture has none, and the gold cross on the glass stair tower is the picture's own hospital mark."
+      ]
+    },
+    "greater_hope": {
+      "sprite": "art/places/greater_hope.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A brick church with a white steeple and open double doors, as asked. The gold crosses are the picture's own; the choir and the kitchen are inside and not shown."
+      ]
+    },
+    "body_balance_site": {
+      "sprite": "art/places/body_balance_site.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A construction site the client folds into the building going up on it; the sprite is the bare site and `framed` is the same lot once work shows above ground (art direction: the game only says the project is active and how far along it is).",
+        "A dug foundation with rebar, a site hut and a skip, no workers, as asked. The framed stage has no picture yet."
+      ]
+    },
+    "maple_court_ii_site": {
+      "sprite": "art/places/maple_court_ii_site.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A construction site the client folds into the building going up on it; the sprite is the bare site and `framed` is the same lot once work shows above ground (art direction: the game only says the project is active and how far along it is).",
+        "Lumber stacks, a site hut and the first slab with column stubs, as asked. The two tower cranes are the picture's own (the data's description mentions cranes); the client also draws its own crane marker over active projects. The framed stage has no picture yet."
+      ]
+    },
+    "eclat_site": {
+      "sprite": "art/places/eclat_site.webp",
+      "framed": "art/places/eclat_site_framed.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A construction site the client folds into the building going up on it; the sprite is the bare site and `framed` is the same lot once work shows above ground (art direction: the game only says the project is active and how far along it is).",
+        "Parcel 7 by the river: weeds, surveyor's stakes, a site hut and pallets, no workers. The prompt's leaning site board is missing. In the game the parcel waits for Founders Way to be paved before work starts."
+      ]
+    },
+    "founders_way_site": {
+      "framed": "art/places/founders_way_site_framed.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A construction site the client folds into the building going up on it; the sprite is the bare site and `framed` is the same lot once work shows above ground (art direction: the game only says the project is active and how far along it is).",
+        "Founders Way: only the later stage has a picture: half freshly paved with a cream centre line, half gravel, the paver at the join, a dump truck, a grader and a roller, with cones. The machines' cabs are empty; the green fences and lamps are the picture's own. The bare stage (dirt road with the machines parked) has no picture yet."
+      ]
+    }
+  },
+  "unit_buildings": {
+    "notes": [
+      "Buildings whose units are the game's places: the client draws units that share a door as one building, named by its id prefix (GROUP_SHAPE in web/client/layout.js). `units` lists the unit place ids the picture stands for."
+    ],
+    "lexington": {
+      "sprite": "art/places/lexington.webp",
+      "units": [
+        "lexington_1204",
+        "lexington_0807",
+        "lexington_1502",
+        "lexington_1801",
+        "lexington_ph1",
+        "lexington_0904"
+      ],
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A slim glass tower on a cream stone base with a lit lobby, the tallest thing in town, as asked. It has about sixteen floors above a two-storey base; the unit numbers (up to 1801 and a penthouse) imply nineteen."
+      ]
+    },
+    "maple_court": {
+      "sprite": "art/places/maple_court.webp",
+      "units": [
+        "maple_court_3b",
+        "maple_court_2a",
+        "maple_court_2b",
+        "maple_court_4a",
+        "maple_court_4c",
+        "maple_court_1a"
+      ],
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Four storeys of brick and render with small balconies and a single street door, as asked (units 1A to 4C)."
+      ]
+    },
+    "riverside_lofts": {
+      "sprite": "art/places/riverside_lofts.webp",
+      "units": [
+        "riverside_lofts_2",
+        "riverside_lofts_3",
+        "riverside_lofts_5"
+      ],
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A converted brick warehouse with black steel windows and a roll-up door beside the entrance. The prompt asked for three tall loft storeys; the picture has two and a rooftop terrace (the data gives no floor count)."
+      ]
+    },
+    "lakeview": {
+      "sprite": "art/places/lakeview.webp",
+      "units": [
+        "lakeview_1a",
+        "lakeview_2b",
+        "lakeview_3a",
+        "lakeview_4c"
+      ],
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A low-rise condo block with balconies, four storeys for units 1A to 4C. The lake is not in the picture."
       ]
     }
   },

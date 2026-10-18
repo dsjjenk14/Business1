@@ -92,8 +92,8 @@ HONESTY_NOTES = """\
 - Construction sites get two prompts, the bare site and the framed stage, because the client
   draws a rising frame and a crane while a project is active. Nothing in the data says what a
   half-built building looks like; the framed stage is art direction.
-- `art/places/body_balance.jpg` already exists as a photograph. Its sprite is still listed here
-  because the map needs the isometric one.
+- `art/places/body_balance.jpg` is an earlier photograph of the gym; the map uses the isometric
+  sprite drawn from it (`body_balance.webp`), and the manifest keeps the photograph as its `photo`.
 - When a generated picture gets a fact wrong, say so in `art/manifest.json` under `notes`, as the
   other art does. Nobody should mistake a picture for the game's state.
 """

@@ -190,6 +190,17 @@ TEST_CASE("art: the manifest links to files that exist and to real ids") {
   for (const auto& [id, p] : m["places"].items()) {
     if (isEntry(id)) CHECK(content->location(id) != nullptr);
   }
+  // A unit building is the client's grouping, not a place: what must be real is every unit it stands for.
+  for (const auto& [id, b] : m["unit_buildings"].items()) {
+    if (!isEntry(id)) continue;
+    REQUIRE(b.contains("units"));
+    CHECK(!b["units"].empty());
+    for (const auto& u : b["units"]) {
+      const std::string unit = u.get<std::string>();
+      CHECK(unit.rfind(id, 0) == 0);
+      CHECK(content->location(unit) != nullptr);
+    }
+  }
   for (const auto& [id, p] : m["items"].items()) {
     if (isEntry(id)) CHECK(content->item(id) != nullptr);
   }

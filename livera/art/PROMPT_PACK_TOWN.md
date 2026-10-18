@@ -61,8 +61,8 @@ Every prompt below repeats this in brief, so you can paste any single prompt on 
 - Construction sites get two prompts, the bare site and the framed stage, because the client
   draws a rising frame and a crane while a project is active. Nothing in the data says what a
   half-built building looks like; the framed stage is art direction.
-- `art/places/body_balance.jpg` already exists as a photograph. Its sprite is still listed here
-  because the map needs the isometric one.
+- `art/places/body_balance.jpg` is an earlier photograph of the gym; the map uses the isometric
+  sprite drawn from it (`body_balance.webp`), and the manifest keeps the photograph as its `photo`.
 - When a generated picture gets a fact wrong, say so in `art/manifest.json` under `notes`, as the
   other art does. Nobody should mistake a picture for the game's state.
 
@@ -827,9 +827,9 @@ Common Ground Community Center: a community center in the Maple Court district. 
 Size 1536×1024, transparent background. Save as art/places/common_ground.png
 ```
 
-#### Greater Hope Missionary Baptist Church
+#### Greater Hope Missionary Baptist Church (in the game)
 
-Save as `art/places/greater_hope.png` · 1024×1024 · sign: GREATER HOPE
+Save as `art/places/greater_hope.png` · 1024×1024 · sign: GREATER HOPE · filed as `art/places/greater_hope.webp`
 
 Facts from the data:
 
@@ -856,9 +856,9 @@ Size 1024×1024, transparent background. Save as art/places/greater_hope.png
 
 ### Riverside
 
-#### Livéra General Hospital
+#### Livéra General Hospital (in the game)
 
-Save as `art/places/livera_general.png` · 1536×1024 · sign: GENERAL HOSPITAL
+Save as `art/places/livera_general.png` · 1536×1024 · sign: GENERAL HOSPITAL · filed as `art/places/livera_general.webp`
 
 Facts from the data:
 
@@ -906,9 +906,9 @@ Livéra University: an university in the Riverside district. The game describes 
 Size 1536×1024, transparent background. Save as art/places/livera_university.png
 ```
 
-#### Low End Studios
+#### Low End Studios (in the game)
 
-Save as `art/places/low_end_studios.png` · 1024×1024 · sign: LOW END
+Save as `art/places/low_end_studios.png` · 1024×1024 · sign: LOW END · filed as `art/places/low_end_studios.webp`
 
 Facts from the data:
 
@@ -932,9 +932,9 @@ Low End Studios: a recording studio in the Riverside district. The game describe
 Size 1024×1024, transparent background. Save as art/places/low_end_studios.png
 ```
 
-#### Riverside Clubhouse
+#### Riverside Clubhouse (in the game)
 
-Save as `art/places/riverside_clubhouse.png` · 1024×1024 · sign: RIVERSIDE CLUBHOUSE
+Save as `art/places/riverside_clubhouse.png` · 1024×1024 · sign: RIVERSIDE CLUBHOUSE · filed as `art/places/riverside_clubhouse.webp`
 
 Facts from the data:
 
@@ -957,9 +957,9 @@ Riverside Clubhouse: a clubhouse in the Riverside district. The game describes i
 Size 1024×1024, transparent background. Save as art/places/riverside_clubhouse.png
 ```
 
-#### Riverside Court
+#### Riverside Court (in the game)
 
-Save as `art/places/riverside_court.png` · 1024×1024 · sign: RIVERSIDE COURT
+Save as `art/places/riverside_court.png` · 1024×1024 · sign: RIVERSIDE COURT · filed as `art/places/riverside_court.webp`
 
 Facts from the data:
 
@@ -982,9 +982,9 @@ Riverside Court: a basketball court in the Riverside district. The game describe
 Size 1024×1024, transparent background. Save as art/places/riverside_court.png
 ```
 
-#### Riverside Field
+#### Riverside Field (in the game)
 
-Save as `art/places/riverside_field.png` · 1536×1024 · sign: RIVERSIDE FIELD
+Save as `art/places/riverside_field.png` · 1536×1024 · sign: RIVERSIDE FIELD · filed as `art/places/riverside_field.webp`
 
 Facts from the data:
 
@@ -1009,9 +1009,9 @@ Size 1536×1024, transparent background. Save as art/places/riverside_field.png
 
 ### South Works
 
-#### Forge Builders Site Office
+#### Forge Builders Site Office (in the game)
 
-Save as `art/places/forge_site_office.png` · 1024×1024 · sign: FORGE BUILDERS
+Save as `art/places/forge_site_office.png` · 1024×1024 · sign: FORGE BUILDERS · filed as `art/places/forge_site_office.webp`
 
 Facts from the data:
 
@@ -1036,9 +1036,9 @@ Size 1024×1024, transparent background. Save as art/places/forge_site_office.pn
 
 ### Willow Lane
 
-#### Willow Lake Park
+#### Willow Lake Park (in the game)
 
-Save as `art/places/willow_lake_park.png` · 1024×1024 · sign: WILLOW LAKE
+Save as `art/places/willow_lake_park.png` · 1024×1024 · sign: WILLOW LAKE · filed as `art/places/willow_lake_park.webp`
 
 Facts from the data:
 
@@ -1067,9 +1067,9 @@ Size 1024×1024, transparent background. Save as art/places/willow_lake_park.png
 
 ### Downtown
 
-#### The Lexington (6 units)
+#### The Lexington (6 units) (in the game)
 
-Save as `art/places/lexington.png` · 1024×1536 · sign: LEXINGTON
+Save as `art/places/lexington.png` · 1024×1536 · sign: LEXINGTON · filed as `art/places/lexington.webp`
 
 Facts from the data:
 
@@ -1096,9 +1096,9 @@ Size 1024×1536, transparent background. Save as art/places/lexington.png
 
 ### Founders Row
 
-#### 3 Founders Row
+#### 3 Founders Row (in the game)
 
-Save as `art/places/founders_row_3.png` · 1024×1024 · sign: 3
+Save as `art/places/founders_row_3.png` · 1024×1024 · sign: 3 · filed as `art/places/founders_row_3.webp`
 
 Facts from the data:
 
@@ -1121,9 +1121,9 @@ LIVÉRA town sprite. Isometric 2:1 (30°) view from the south-west, warm golden-
 Size 1024×1024, transparent background. Save as art/places/founders_row_3.png
 ```
 
-#### 7 Founders Row
+#### 7 Founders Row (in the game)
 
-Save as `art/places/founders_row_7.png` · 1024×1024 · sign: 7
+Save as `art/places/founders_row_7.png` · 1024×1024 · sign: 7 · filed as `art/places/founders_row_7.webp`
 
 Facts from the data:
 
@@ -1148,9 +1148,9 @@ Size 1024×1024, transparent background. Save as art/places/founders_row_7.png
 
 ### Maple Court
 
-#### Maple Court (6 units)
+#### Maple Court (6 units) (in the game)
 
-Save as `art/places/maple_court.png` · 1536×1024 · sign: MAPLE COURT
+Save as `art/places/maple_court.png` · 1536×1024 · sign: MAPLE COURT · filed as `art/places/maple_court.webp`
 
 Facts from the data:
 
@@ -1175,9 +1175,9 @@ Size 1536×1024, transparent background. Save as art/places/maple_court.png
 
 ### Riverside
 
-#### Riverside Lofts (3 units)
+#### Riverside Lofts (3 units) (in the game)
 
-Save as `art/places/riverside_lofts.png` · 1536×1024 · sign: RIVERSIDE LOFTS
+Save as `art/places/riverside_lofts.png` · 1536×1024 · sign: RIVERSIDE LOFTS · filed as `art/places/riverside_lofts.webp`
 
 Facts from the data:
 
@@ -1202,9 +1202,9 @@ Size 1536×1024, transparent background. Save as art/places/riverside_lofts.png
 
 ### Willow Lane
 
-#### 2 Willow Lane
+#### 2 Willow Lane (in the game)
 
-Save as `art/places/willow_lane_2.png` · 1024×1024 · sign: 2
+Save as `art/places/willow_lane_2.png` · 1024×1024 · sign: 2 · filed as `art/places/willow_lane_2.webp`
 
 Facts from the data:
 
@@ -1228,9 +1228,9 @@ LIVÉRA town sprite. Isometric 2:1 (30°) view from the south-west, warm golden-
 Size 1024×1024, transparent background. Save as art/places/willow_lane_2.png
 ```
 
-#### 4 Willow Lane
+#### 4 Willow Lane (in the game)
 
-Save as `art/places/willow_lane_4.png` · 1024×1024 · sign: 4
+Save as `art/places/willow_lane_4.png` · 1024×1024 · sign: 4 · filed as `art/places/willow_lane_4.webp`
 
 Facts from the data:
 
@@ -1306,9 +1306,9 @@ LIVÉRA town sprite. Isometric 2:1 (30°) view from the south-west, warm golden-
 Size 1024×1024, transparent background. Save as art/places/willow_lane_8.png
 ```
 
-#### Lakeview Condos (4 units)
+#### Lakeview Condos (4 units) (in the game)
 
-Save as `art/places/lakeview.png` · 1536×1024 · sign: LAKEVIEW CONDOS
+Save as `art/places/lakeview.png` · 1536×1024 · sign: LAKEVIEW CONDOS · filed as `art/places/lakeview.webp`
 
 Facts from the data:
 
@@ -1334,9 +1334,9 @@ Size 1536×1024, transparent background. Save as art/places/lakeview.png
 
 ### Downtown
 
-#### Body & Balance
+#### Body & Balance (in the game)
 
-Save as `art/places/body_balance.png` · 1024×1024 · sign: BODY & BALANCE
+Save as `art/places/body_balance.png` · 1024×1024 · sign: BODY & BALANCE · filed as `art/places/body_balance.webp`
 
 Facts from the data:
 
@@ -1390,9 +1390,9 @@ Size 1536×1024, transparent background. Save as art/places/maple_court_ii.png
 
 ### Riverside
 
-#### ÉCLAT
+#### ÉCLAT (in the game)
 
-Save as `art/places/eclat.png` · 1024×1024 · sign: ÉCLAT
+Save as `art/places/eclat.png` · 1024×1024 · sign: ÉCLAT · filed as `art/places/eclat.webp`
 
 Facts from the data:
 
@@ -1421,9 +1421,9 @@ Size 1024×1024, transparent background. Save as art/places/eclat.png
 
 ### Downtown
 
-#### Body & Balance (construction) — bare site
+#### Body & Balance (construction) — bare site (in the game)
 
-Save as `art/places/body_balance_site.png` · 1024×1024 · no sign
+Save as `art/places/body_balance_site.png` · 1024×1024 · no sign · filed as `art/places/body_balance_site.webp`
 
 Facts from the data:
 
@@ -1475,9 +1475,9 @@ Size 1024×1024, transparent background. Save as art/places/body_balance_site_fr
 
 ### Maple Court
 
-#### Maple Court Phase II site — bare site
+#### Maple Court Phase II site — bare site (in the game)
 
-Save as `art/places/maple_court_ii_site.png` · 1024×1024 · no sign
+Save as `art/places/maple_court_ii_site.png` · 1024×1024 · no sign · filed as `art/places/maple_court_ii_site.webp`
 
 Facts from the data:
 
@@ -1529,9 +1529,9 @@ Size 1024×1024, transparent background. Save as art/places/maple_court_ii_site_
 
 ### Riverside
 
-#### Parcel 7 (future nightlife) — bare site
+#### Parcel 7 (future nightlife) — bare site (in the game)
 
-Save as `art/places/eclat_site.png` · 1024×1024 · no sign
+Save as `art/places/eclat_site.png` · 1024×1024 · no sign · filed as `art/places/eclat_site.webp`
 
 Facts from the data:
 
@@ -1555,9 +1555,9 @@ Parcel 7 (future nightlife): a construction site in the Riverside district, wher
 Size 1024×1024, transparent background. Save as art/places/eclat_site.png
 ```
 
-#### Parcel 7 (future nightlife) — framed stage
+#### Parcel 7 (future nightlife) — framed stage (in the game)
 
-Save as `art/places/eclat_site_framed.png` · 1024×1024 · no sign
+Save as `art/places/eclat_site_framed.png` · 1024×1024 · no sign · filed as `art/places/eclat_site_framed.webp`
 
 Facts from the data:
 
@@ -1609,9 +1609,9 @@ Founders Way (unpaved): a construction site in the South Works district, where F
 Size 1536×1024, transparent background. Save as art/places/founders_way_site.png
 ```
 
-#### Founders Way (unpaved) — framed stage
+#### Founders Way (unpaved) — framed stage (in the game)
 
-Save as `art/places/founders_way_site_framed.png` · 1536×1024 · no sign
+Save as `art/places/founders_way_site_framed.png` · 1536×1024 · no sign · filed as `art/places/founders_way_site_framed.webp`
 
 Facts from the data:
 
