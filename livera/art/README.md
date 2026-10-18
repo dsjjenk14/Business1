@@ -64,9 +64,10 @@ on its card; read them before using a card as fact.
 | `avatars/<id>.jpg` | Square head-and-shoulders crops from those sheets (native 450 px, not upscaled); the town preview uses them. |
 | `pets/named/<owner>_<pet>.jpg` and `_face.jpg` | Sheets and square face crops (450–500 px) for Bramble (Aaliyah's rabbit), Rocky (Rosa's beagle) and Pepper (Harper's terrier mix). Shadow, Leila's cat, has no art yet. |
 | `places/<location_id>.jpg` | Building exteriors: Body & Balance so far. |
-| `transit/` | The Line 1 bus collage, a side view (grey background, not a transparent sprite) and a small shelter crop per stop in `stops/<stop_id>.jpg`, in route order. |
+| `items/<item_id>.png` or `.jpg` | Product pictures: wireless headphones, the laptop, and the three Lyra phones. The phones' screens are decoration, not the game's phone UI. |
+| `transit/` | The Line 1 bus collage, a side view, the Livéra Transit mark, a transit card (branding only), a stylised route diagram, and a shelter per stop in `stops/<stop_id>.jpg` (six small crops from the collage; Lexington Ave & River Rd has a full picture). |
 | `city/` | Panoramas: `stage_1.jpg` (Founding Town), `stage_5.jpg` (Metropolis) and `construction.jpg` (a building site). Stages 2–4 are missing. |
-| `concept/` | Posters whose districts and street layout are **not** the game's. Concept only; never a map. |
+| `concept/` | Posters whose districts and street layout are **not** the game's, two unassigned interiors and a laptop product set. Concept only; never a map. |
 | `_incoming/` | Where new images land before they are checked. Not committed; move the masters out once the JPEGs are made. |
 
 Sheets are JPEG copies at quality 90 with no metadata; keep the masters outside the repository.

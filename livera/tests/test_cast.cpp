@@ -190,6 +190,9 @@ TEST_CASE("art: the manifest links to files that exist and to real ids") {
   for (const auto& [id, p] : m["places"].items()) {
     if (isEntry(id)) CHECK(content->location(id) != nullptr);
   }
+  for (const auto& [id, p] : m["items"].items()) {
+    if (isEntry(id)) CHECK(content->item(id) != nullptr);
+  }
   std::set<std::string> stops;
   for (const auto& line : content->transit().lines)
     for (const auto& s : line.stops) stops.insert(s.id);

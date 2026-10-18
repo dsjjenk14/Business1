@@ -94,9 +94,14 @@
       "stop_lexington_ave": "art/transit/stops/stop_lexington_ave.jpg"
     },
     "notes": [
-      "The stop shelters are the first seven panels of the bus collage's bottom row (badges 1-7), in route order; they are small (about 300x190) and carry no stop names.",
+      "Six stop shelters are the first six panels of the bus collage's bottom row (badges 1-6), in route order, small (about 300x190) and unnamed; Lexington Ave & River Rd has its own full shelter picture whose route list names all seven real stops.",
+      "The route diagram names the seven real stops in order and the real $2.75 fare; its geography (the river, the loop's shape, a 'Rivéra River') is stylised and not the game's coordinates.",
+      "The transit card is branding only: fares in the game are paid by card, cash or LivPay, and there is no transit-card item.",
       "The side view is a crop on a grey studio background, not a transparent sprite."
-    ]
+    ],
+    "livera_transit_mark": "art/transit/livera_transit_mark.png",
+    "transit_card": "art/transit/transit_card.png",
+    "route_line_1": "art/transit/route_line_1.jpg"
   },
   "city": {
     "stage_1": "art/city/stage_1.jpg",
@@ -110,7 +115,24 @@
     "founding_town_poster": "art/concept/founding_town_poster.jpg",
     "town_map_poster": "art/concept/town_map_poster.jpg",
     "notes": [
-      "Concept posters only. Their districts (Riverfront, The Ridge, The Nine, The Meadows...), 'Riverview Park' and the street layout are not the game's; the real places and bus stops are in data/world and data/transit."
+      "Concept posters only. Their districts (Riverfront, The Ridge, The Nine, The Meadows...), 'Riverview Park' and the street layout are not the game's; the real places and bus stops are in data/world and data/transit.",
+      "The moonlit salon and the gold mirror wall are unassigned interiors: no place in the data has been given them.",
+      "The laptop set (laptop, mouse, sleeve) is a product mock-up; only the laptop is an item."
+    ],
+    "interior_moonlit_salon": "art/concept/interior_moonlit_salon.jpg",
+    "texture_gold_mirror_wall": "art/concept/texture_gold_mirror_wall.jpg",
+    "laptop_set": "art/concept/laptop_set.png"
+  },
+  "items": {
+    "$comment": "Product pictures keyed by item id (data/items). PNGs are transparent; the phones came on white and are JPEG.",
+    "headphones": "art/items/headphones.png",
+    "laptop": "art/items/laptop.png",
+    "lyra_one": "art/items/lyra_one.jpg",
+    "lyra_air": "art/items/lyra_air.jpg",
+    "lyra_pro": "art/items/lyra_pro.jpg",
+    "notes": [
+      "The phones show an invented Livéra home screen with Messages, Transit, Pay and so on; the game's phone has 26 apps with other names, so the screens are decoration, not the real UI.",
+      "The headphones and phones carry a lyre mark: the Lyra brand is the game's own."
     ]
   }
 }
