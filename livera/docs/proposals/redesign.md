@@ -7,7 +7,8 @@ decision. It is built from four reviews of the October 2026 build (the golden-ho
 46 building pictures):
 
 - a casual phone player (three sessions, about 29 minutes),
-- a systems-and-social desktop player,
+- a systems-and-social desktop player (37 minutes of game clock over three game days, a custom
+  character and a founder, every phone app, a shift, the university, Line 1, a date ask),
 - a UX designer and engineer (119 screenshots at four sizes, with mockups),
 - a game developer (a full work day played, plus headless runs of the core over many game days).
 
@@ -88,6 +89,21 @@ Real screens for Work (R1.1), Calendar, Contacts, Jobs (with Apply), Homes (with
 afford), Sports (join the league team), Messages (pick a contact, not a typed id). Apps grouped
 under Everyday, Life, Ambition and Town.
 
+**R1.6b Every verb where it happens.** The server already has join a team, adopt, buy a home,
+wear and use, apply, perform and record; the client never sends them. Each goes where a player
+looks for it: Join at Riverside Clubhouse and Court, Adopt at Paws & Whiskers, Buy on a house for
+sale (with the price and what you can afford), Wear and Use in an Items screen, Apply at the
+employer's door and in Jobs, Perform on a stage. Anything not yet wired says so plainly in the
+app instead of pointing at a place with no button. The coin store is hidden in single-player.
+
+**R1.6c Needs you can manage.** Need chips sorted by urgency with numbers, a warning with the
+nearest fix before an accident (below 20, then below 10), effects and cooldowns on activity
+buttons, and feelings coloured by whether they are good for you (high embarrassment is not gold).
+
+**R1.6d Fixes the reviews hit:** "Go inside" at the door drops its refusal silently; Transit's
+"Ride from here" boards at the far stop and walks you the wrong way; duplicate welcome toasts; the
+weather label stale after midnight; the person card's "met" state lagging an interaction.
+
 **R1.7 A first morning.** Three lines of "how it works" on the town screen; a checklist that ticks
 itself from real game state (step outside, have breakfast, get to work, start your shift, make a
 work call, say hello); three one-time coach marks. The creator gets a quick start (name, why you
@@ -121,6 +137,11 @@ wage, with a share of promotion hours and no decisions (amends "their routine do
 shifts"; SIMULATION's tier 3 already promises the routine). The live server gains
 `--pause-when-empty`: the owner chooses whether the town runs on with nobody in it.
 
+**R2.6 Jobs that match your story.** The creator lets a high-school graduate start as a machine
+learning engineer at $50 an hour; the creator's career list follows the same entry requirements
+as `apply`. Careers keep no schedule or attendance yet; that stays a known gap until shifts have
+a routine (R2.4 gives away-time its routine first).
+
 **R2.5 A social single-player town.** Autopilot founders greet a person they meet (once per pair
 per game day), sometimes start a chat when they know you, and answer asks by data rules from
 compatibility and friendship (never intimacy). Still labelled "played by a script".
@@ -141,7 +162,10 @@ run showing a once-a-day player stays solvent.
 with Contributor access; honest about the host's tab and the host holding everyone's state.
 **R3.2 Things to do together** with rules that exist: league night (basketball is five a side,
 Wednesdays 18:00), open mic with tips, the community dinner, darts. **R3.3 Hangouts:** the date
-bonus extended to friends who spend time at the same place.
+bonus extended to friends who spend time at the same place. **R3.4 Seeing each other:** a friends
+list with who is online, Messages from your contacts and a group chat, alerts when a friend
+arrives nearby, and a public town board (league standings, the music chart, fame, weddings,
+promotions: only what is already public).
 
 ## Not now, and why
 
