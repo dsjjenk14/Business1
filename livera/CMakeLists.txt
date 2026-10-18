@@ -111,8 +111,10 @@ if(LIVERA_WASM)
   set_target_properties(livera_solo PROPERTIES OUTPUT_NAME livera_solo SUFFIX .js)
   set(LIVERA_WASM_ENVIRONMENT "web,node" CACHE STRING "Emscripten -sENVIRONMENT (node is for web/tests/solo_smoke.mjs)")
   # One ES module with the wasm inlined (no MIME-type trouble on static hosts) and data/ embedded at /data.
+  # The wasm is inlined as base64, not Emscripten's raw-byte string: the file stays plain ASCII text, which
+  # hosts that refuse control characters in a .js file (the Claude artifact publisher) accept.
   target_link_options(livera_solo PRIVATE
-    -sSINGLE_FILE=1 -sMODULARIZE=1 -sEXPORT_ES6=1 -sEXPORT_NAME=createLivera -sALLOW_MEMORY_GROWTH=1
+    -sSINGLE_FILE=1 -sSINGLE_FILE_BINARY_ENCODE=0 -sMODULARIZE=1 -sEXPORT_ES6=1 -sEXPORT_NAME=createLivera -sALLOW_MEMORY_GROWTH=1
     "-sENVIRONMENT=${LIVERA_WASM_ENVIRONMENT}"
     "-sEXPORTED_FUNCTIONS=_solo_new,_solo_load,_solo_save,_solo_rules,_solo_characters,_solo_create_character,_solo_play,_solo_leave,_solo_request,_solo_tick,_solo_autopilot_start,_solo_autopilot_stop,_solo_autopilot_status,_malloc,_free"
     "-sEXPORTED_RUNTIME_METHODS=ccall,cwrap,UTF8ToString,stringToUTF8,lengthBytesUTF8"

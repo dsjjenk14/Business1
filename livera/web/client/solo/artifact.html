@@ -1,0 +1,62 @@
+<title>Livéra Solo</title>
+<!-- The single-player page as published to a Claude artifact. The artifact wraps this file in its own
+     <html>/<head>/<body>, so it has no document skeleton, and it sits at the root of the published
+     files: css/, faces/, the client modules and solo/ are published beside it at the same relative
+     paths as in web/client (see livera/web/README.md, "Single-player build"). Same markup as
+     solo/index.html. -->
+<meta name="description" content="LIVÉRA, single-player: the town runs in your browser and the other founders live on autopilot. 2.5D web preview.">
+<link rel="stylesheet" href="css/app.css">
+<script>
+  // Before the modules run: boot the single-player game (main.js checks this), and tell it the
+  // viewer blocks downloads, so it offers no Export.
+  document.body.dataset.boot = "solo";
+  window.LIVERA_IN_ARTIFACT = true;
+</script>
+<script type="module" src="solo/solo.js"></script>
+<div id="app">
+  <canvas id="town" aria-label="The town of Livéra, seen from above. Tap the ground to walk, a building to go there, a person to see them, a bus stop to ride."></canvas>
+
+  <div id="hud" hidden>
+    <div class="topbar">
+      <button type="button" class="chip" id="clock" aria-label="Time and weather"><span class="big" id="clock-time">--:--</span><span class="small" id="clock-sub"></span></button>
+      <button type="button" class="chip" id="money" aria-label="Money: open the bank app"><span class="big" id="money-bank">$—</span><span class="small" id="money-cash"></span></button>
+      <button type="button" class="iconbtn" id="phone-btn" aria-label="Phone"><span aria-hidden="true">&#9783;&#xFE0E;</span></button>
+      <button type="button" class="iconbtn" id="menu-btn" aria-label="Menu"><span aria-hidden="true">&#8801;</span></button>
+    </div>
+    <div class="needs" id="needs" aria-label="Your lowest needs"></div>
+    <p class="sketch-note" id="sketch-note"></p>
+    <p class="sketch-note" id="solo-note"></p>
+    <div id="conn" hidden></div>
+  </div>
+
+  <div id="mapctl" hidden>
+    <button type="button" class="iconbtn" id="z-in" aria-label="Zoom in">+</button>
+    <button type="button" class="iconbtn" id="z-out" aria-label="Zoom out">&minus;</button>
+    <button type="button" class="iconbtn" id="z-fit" aria-label="See the whole town"><span aria-hidden="true">&#9638;&#xFE0E;</span></button>
+    <button type="button" class="iconbtn on" id="z-me" aria-label="Follow me" aria-pressed="true"><span aria-hidden="true">&#9678;&#xFE0E;</span></button>
+  </div>
+
+  <div id="feed" aria-live="polite"></div>
+
+  <section id="sheet" hidden aria-live="polite"></section>
+
+  <form id="chatbar" hidden autocomplete="off">
+    <div class="row">
+      <div class="seg" role="group" aria-label="How loud">
+        <button type="button" data-volume="whisper" aria-pressed="false">Whisper</button>
+        <button type="button" data-volume="say" aria-pressed="true">Say</button>
+        <button type="button" data-volume="shout" aria-pressed="false">Shout</button>
+      </div>
+      <span class="range-note" id="range-note"></span>
+      <button type="button" class="iconbtn" id="log-btn" aria-label="Everything you heard"><span aria-hidden="true">&#9776;&#xFE0E;</span></button>
+    </div>
+    <div class="targets" id="whisper-targets" hidden></div>
+    <div class="row">
+      <input type="text" id="chat-input" class="input" maxlength="300" placeholder="Say something" aria-label="Message" enterkeyhint="send">
+      <button type="submit" class="btn primary" id="chat-send">Send</button>
+    </div>
+  </form>
+
+  <div id="phone" hidden></div>
+  <div id="screen" class="screen"><div class="screen-inner"><div class="wordmark">Livéra</div><h1>Livéra</h1><p class="hint" role="status">Loading the town into your browser…</p></div></div>
+</div>

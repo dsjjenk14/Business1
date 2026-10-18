@@ -110,6 +110,15 @@ module in its place (used while the page was developed), and the test's summary 
 | `client/solo/transport_local.js` | The `transport.js` interface (`request(op, args)` → `{ok, data}` or `{ok: false, error}`, `welcome` / `event` / `status` listeners) over the wasm module: `characters` → `solo_characters`, `create_character` → `solo_create_character`, `play` → `solo_play` (then `solo_autopilot_start()`), `logout` → `solo_leave`, `hello` / `ping` answered locally, `creator_options` → `solo_request` with a fallback to `solo_creator_options`, everything else → `solo_request` (the server's own dispatch, `src/protocol/WorldOps.cpp`). A 10 Hz timer calls `solo_tick` with the real seconds elapsed (at most 1 s a step) and feeds the returned events to the same handlers as the live client. Hidden tab: the clock stops; no catch-up. |
 | `client/solo/save.js` | One save slot: IndexedDB (`livera-solo`), falling back to localStorage when IndexedDB is missing or refuses; export as a JSON download; import from a file. The record is `{format: "livera-solo-save/1", saved_at, character, character_name, state}` where `state` is exactly what `solo_save()` wrote (its own `format` field); the core validates it on load. |
 | `tests/solo_e2e.js`, `tests/run_solo_e2e.sh` | The end-to-end tests below; the runner serves `web/client` with a plain static server on `LIVERA_SOLO_PORT` (18950). |
+| `client/solo/artifact.html` | The same page as published to a Claude artifact: no document skeleton (the artifact adds one), sets `data-boot="solo"` and `LIVERA_IN_ARTIFACT` before the modules run, and sits at the root of the published files. That viewer blocks downloads, so the page offers no Export there; saves stay in that browser, and Import still works. |
+
+**Publishing it as an artifact.** Lay the files out as the page expects, the page at the root
+and everything else at its `web/client` path: `css/app.css`, the client modules (`main.js`,
+`transport.js`, `state.js`, `render2d.js`, `ui.js`, `phone.js`, `creator.js`, `dom.js`,
+`layout.js`), `faces/` with its `manifest.json`, and `solo/solo.js`, `solo/transport_local.js`,
+`solo/save.js`, `solo/livera_solo.js`. The module is built with the wasm inlined as base64
+(`-sSINGLE_FILE_BINARY_ENCODE=0` in `CMakeLists.txt`), so every published file is plain text
+without control characters, which the artifact publisher requires.
 
 The seam in the shared code is small: `main.js` exports `Game`, its constructor takes an
 optional `transport`, and it boots the live game only when `<body>` has no `data-boot="solo"`.

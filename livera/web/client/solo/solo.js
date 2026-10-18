@@ -18,6 +18,9 @@ import { SKETCH_NOTICE } from "../layout.js";
 export const SOLO_NOTICE = "Single-player: the town runs in your browser. Nobody else can join this save.";
 export const PAUSE_NOTICE = "The town pauses while this tab is closed.";
 const AUTOSAVE_MS = 30000;
+// Set by artifact.html, the page published as a Claude artifact: that viewer blocks downloads, so
+// the page offers no Export there (import from a file still works).
+const IN_ARTIFACT = !!globalThis.LIVERA_IN_ARTIFACT;
 
 const ago = (when, now = Date.now()) => {
   const ms = Math.max(0, now - new Date(when).getTime());
@@ -75,7 +78,8 @@ class SoloGame extends Game {
     this.ui.showScreen(el("div", { class: "screen-inner" }, el("div", { class: "wordmark" }, "Livéra"), el("h1", null, "No town to load"),
       el("p", null, "The single-player build of the game core (solo/livera_solo.js) didn't load, so there is nothing to play here."),
       el("p", { class: "err", role: "alert" }, reason || ""),
-      el("p", { class: "hint" }, "Build it with scripts/build_wasm.sh (it writes web/client/solo/livera_solo.js), then reload. The multiplayer client at ../ needs a server instead."),
+      el("p", { class: "hint" }, IN_ARTIFACT ? "This viewer may not allow WebAssembly. The same page runs from the repository in any browser: see livera/web/README.md, \"Single-player build\"."
+        : "Build it with scripts/build_wasm.sh (it writes web/client/solo/livera_solo.js), then reload. The multiplayer client at ../ needs a server instead."),
       el("button", { type: "button", class: "btn primary block", onclick: () => location.reload() }, "Try again")));
   }
 
@@ -94,14 +98,15 @@ class SoloGame extends Game {
       body.append(el("div", { class: "card" }, el("div", { class: "eyebrow" }, "Your town"),
         el("p", null, `Saved ${ago(rec.saved_at)}${rec.character_name ? `, playing ${rec.character_name}` : ""}.`),
         el("button", { type: "button", class: "btn primary block", id: "solo-continue", onclick: () => this.continueTown(err) }, "Continue"),
-        el("button", { type: "button", class: "btn block", id: "solo-export", onclick: () => { try { this.ui.toast(`Saved to ${exportRecord(rec)}`); } catch (e) { err.textContent = `Couldn't export: ${e.message}`; } } }, "Export this save as a file")));
+        IN_ARTIFACT ? null : el("button", { type: "button", class: "btn block", id: "solo-export", onclick: () => { try { this.ui.toast(`Saved to ${exportRecord(rec)}`); } catch (e) { err.textContent = `Couldn't export: ${e.message}`; } } }, "Export this save as a file")));
       body.append(this.startOverButton(err));
       body.append(el("p", { class: "hint" }, "One save per browser. Start over deletes it; importing a file replaces it."));
     } else {
       body.append(el("button", { type: "button", class: "btn primary block", id: "solo-new", onclick: () => this.newTown(err) }, "New town"));
     }
     body.append(importBtn, fileInput);
-    const storage = storageProblem ? `Nothing can be saved in this browser: ${storageProblem}. You can still play, and export the save as a file from the menu.`
+    const storage = storageProblem ? `Nothing can be saved in this browser: ${storageProblem}. You can still play${IN_ARTIFACT ? "" : ", and export the save as a file from the menu"}.`
+      : IN_ARTIFACT ? `Saves stay in this browser on this device (${this.slot.backend === "localstorage" ? "localStorage" : "IndexedDB"}).`
       : `Saves stay in this browser (${this.slot.backend === "localstorage" ? "localStorage" : "IndexedDB"}); export a file to move one to another device.`;
     this.ui.showScreen(el("div", { class: "screen-inner" },
       el("div", { class: "wordmark" }, "Livéra"), el("h1", null, "Your own town"),
@@ -249,7 +254,7 @@ class SoloGame extends Game {
     ui.openSheet("menu", "menu", ui.head("Livéra · single-player", "Menu"), [
       el("p", { class: "hint" }, `Playing ${this.world.selfName || "nobody yet"}. ${saved} · autosaves every 30 s and when you leave the tab.`),
       el("button", { type: "button", class: "btn primary block", id: "solo-save", onclick: () => this.save("manual") }, "Save now"),
-      el("button", { type: "button", class: "btn block", id: "solo-export", onclick: () => this.exportNow() }, "Export the save as a file"),
+      IN_ARTIFACT ? null : el("button", { type: "button", class: "btn block", id: "solo-export", onclick: () => this.exportNow() }, "Export the save as a file"),
       el("button", { type: "button", class: "btn block", onclick: () => { this.renderer.followMe(); ui.closeSheet(); } }, "Follow me"),
       el("button", { type: "button", class: "btn block", onclick: () => { this.renderer.fitTown(); ui.closeSheet(); } }, "See the whole town"),
       el("button", { type: "button", class: "btn block", onclick: () => ui.sheetNeeds() }, "Needs and feelings"),

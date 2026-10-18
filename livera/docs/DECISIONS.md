@@ -558,3 +558,19 @@ like everyone else.
 it on rolls differently from one without. Script sessions (`bot_`) can't borrow a character the
 autopilot has (`character_in_use`); with `--autopilot` on, the Python director has nobody to
 play, which is fine: they are alternatives, not partners.
+
+## D-054 — Single-player runs the real core in the browser
+**Decision:** The single-player game is the same C++ core compiled to WebAssembly
+(`src/wasm/solo.cpp`, `scripts/build_wasm.sh`), driven by the same web client through a local
+transport (`web/client/solo/`). In-world ops go through the dispatch the server uses
+(`src/protocol/WorldOps.cpp`), so replies and error codes are identical. The world is saved as
+JSON in the browser (`worldStateToJson`, `"format": 1`, with the random stream as a decimal string
+so JavaScript can't round it). The other founders run on the core's autopilot (D-053). The clock
+stops while the tab is hidden and never catches up. The module inlines its wasm as base64 so it
+is one plain-text file any static host, including a Claude artifact, can serve.
+**Why:** The owner asked for a game where they are the only player and everyone else is played by
+the game. Running the real core keeps one set of rules for single-player and multiplayer; a
+second, simplified simulation would drift and would be a pretend version of the game. Saving in
+the browser means no server and no account, at the cost that a save lives on one device unless
+it is exported to a file.
+
