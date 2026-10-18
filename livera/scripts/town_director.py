@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """LIVERA town director: plays founding characters nobody has claimed, as labelled scripts.
 
-Spec: docs/MULTIPLAYER.md ("Scripted characters") and the Phase 0 contract, section 4.
+Spec: docs/MULTIPLAYER.md ("Scripted characters") and deploy/README.md.
 Python 3 standard library only.
 
 Each character gets its own TCP connection and its own script account, bot_<character id>
@@ -784,20 +784,17 @@ class Bot(threading.Thread):
         return (y, mo, d), weekday, hh * 60 + mm
 
     def login(self):
-        if self.d.register_dev:
-            ok, r = self.req("register", username=self.username, password=self.password)
-            if ok:
-                self.log("register", f"made dev account {self.username} (--register-dev)")
-            elif r.get("code") != "username_taken":
-                self.log("register", f"{r.get('code')}: {r.get('message')} (script accounts are made with "
-                                     "livera_server --add-account)", logging.WARNING)
+        # Script accounts can't be registered (the server refuses bot_ names in `register`, dev
+        # servers too): the operator makes them with livera_server --add-account.
         ok, r = self.req("login", username=self.username, password=self.password)
         if ok:
             self.logged_in = True
             return True
         code = r.get("code")
         wait = {"bad_credentials": 600, "login_throttled": 660}.get(code, 120)
-        self.log("login", f"{self.username} can't log in: {code} ({r.get('message')}); trying again in "
+        hint = (f"; make the account with livera_server --db FILE --add-account {self.username} and put its "
+                "password in --password-file" if code == "bad_credentials" else "")
+        self.log("login", f"{self.username} can't log in: {code} ({r.get('message')}){hint}; trying again in "
                           f"{wait / 60:.0f} min", logging.ERROR)
         self.conn.pump(jittered(wait), ("kicked",))
         return False
@@ -1391,7 +1388,6 @@ def password_for(cid, file_vars):
 class Director:
     def __init__(self, args):
         self.host, self.port = args.host, args.port
-        self.register_dev = args.register_dev
         self.bus_min_distance = args.bus_min_distance
         self.content = Content(args.data)
         self.matcher = Matcher(self.content)
@@ -1408,8 +1404,6 @@ def main(argv=None):
     ap.add_argument("--characters", default="",
                     help="comma-separated character ids to play (default: every playable founder)")
     ap.add_argument("--password-file", help="KEY=VALUE file with LIVERA_BOT_PASSWORD_<ID> or LIVERA_BOT_PASSWORD")
-    ap.add_argument("--register-dev", action="store_true",
-                    help="dev servers only: register the bot_ accounts with the register op first")
     ap.add_argument("--once-seconds", type=float, default=0,
                     help="run this many real seconds, leave the world cleanly and exit (tests)")
     ap.add_argument("--bus-min-distance", type=float, default=250,

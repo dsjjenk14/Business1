@@ -1,8 +1,8 @@
 // The phone: every app the server has, as a home screen of cards. Bank, messages, map,
-// transit and career have their own screens; the other apps show the server's answer as
-// readable cards (every field it sends, labelled), so nothing is hidden or invented.
+// transit, career and romance have their own screens; the other apps show the server's answer
+// as readable cards (every field it sends, labelled), so nothing is hidden or invented.
 
-import { el, replace, money, avatar, firstName, titleCase } from "./dom.js";
+import { el, replace, money, avatar, firstName, titleCase, withoutCliHint } from "./dom.js";
 import { typeName } from "./layout.js";
 import { dist } from "./state.js";
 
@@ -58,8 +58,35 @@ export class Phone {
     if (this.app !== id) return;
     if (!r.ok) { replace(body, el("p", { class: "err", role: "alert" }, r.error.message)); return; }
     const d = r.data;
-    const render = { bank: () => this.bank(d), messages: () => this.messages(d), map: () => this.map(d), transit: () => this.transit(d), career: () => this.career(d) }[id];
+    const render = { bank: () => this.bank(d), messages: () => this.messages(d), map: () => this.map(d), transit: () => this.transit(d), career: () => this.career(d),
+      romance: () => this.romance(d), notifications: () => this.notifications(d) }[id];
     replace(body, render ? render() : generic(d));
+  }
+
+  // New messages while Messages is open: update the threads in place instead of rebuilding the
+  // screen, so a half-typed message, the focused field and the phone's keyboard all stay.
+  async refreshMessages() {
+    if (this.app !== "messages") return;
+    const r = await this.game.phone("messages");
+    const body = this.root.querySelector(".phone-inner > .stack");
+    if (this.app !== "messages" || !r.ok || !body) return;
+    const fresh = this.messages(r.data);
+    const compose = body.querySelector("form.card:not([data-thread])");
+    if (!compose) { replace(body, fresh); return; }
+    const cards = fresh.filter(n => n.dataset && n.dataset.thread);
+    let prev = compose;
+    for (const card of cards) {
+      const mine = [...body.querySelectorAll("[data-thread]")].find(n => n.dataset.thread === card.dataset.thread);
+      if (mine) {
+        // Same thread: swap in the new bubbles; its reply field (and anything typed) is untouched.
+        replace(mine.querySelector(".thread"), [...card.querySelector(".thread").childNodes]);
+        prev = mine;
+      } else {
+        prev.after(card);   // a new sender: a new card, without moving the ones already there
+        prev = card;
+      }
+    }
+    if (cards.length) for (const hint of body.querySelectorAll(":scope > p.hint")) hint.remove();
   }
 
   bank(d) {
@@ -91,7 +118,7 @@ export class Phone {
       if (!r.ok) { errNode.textContent = r.error.message; return; }
       input.value = ""; errNode.textContent = ""; after();
     };
-    out.push(el("form", { class: "card", onsubmit: e => { e.preventDefault(); send(to.value.trim().toLowerCase(), text, err, () => this.openApp("messages")); } },
+    out.push(el("form", { class: "card", onsubmit: e => { e.preventDefault(); send(to.value.trim().toLowerCase(), text, err, () => this.refreshMessages()); } },
       el("div", { class: "eyebrow" }, "New message"), to, text, err, el("button", { type: "submit", class: "btn primary" }, "Send")));
     if (!ids.length) out.push(el("p", { class: "hint" }, "No messages yet."));
     for (const other of ids) {
@@ -101,7 +128,7 @@ export class Phone {
       out.push(el("div", { class: "card", dataset: { thread: other } },
         el("div", { class: "row" }, avatar(other, w.nameOf(other)), el("h3", { class: "grow" }, w.nameOf(other))),
         el("div", { class: "thread" }, msgs.slice(-30).map(m => el("div", { class: `msg${m.from === me ? " me" : ""}` }, m.body, el("span", { class: "when" }, m.when || "")))),
-        el("form", { class: "row", onsubmit: e => { e.preventDefault(); send(other, reply, rerr, () => this.openApp("messages")); } },
+        el("form", { class: "row", onsubmit: e => { e.preventDefault(); send(other, reply, rerr, () => this.refreshMessages()); } },
           el("div", { class: "grow" }, reply), el("button", { type: "submit", class: "btn" }, "Send")), rerr));
     }
     return out;
@@ -140,7 +167,7 @@ export class Phone {
   }
 
   career(d) {
-    if (!d.career) return [el("p", { class: "hint" }, "No career yet. The jobs app lists openings.")];
+    if (!d.career) return [el("p", { class: "hint" }, "No career yet. The jobs app lists openings; applying isn't in the web client yet.")];
     this.world.career = d;
     const pct = d.hours_to_promote ? Math.min(100, (d.hours_at_level / d.hours_to_promote) * 100) : 0;
     return [el("div", { class: "card" },
@@ -155,6 +182,39 @@ export class Phone {
       el("div", { class: "bars" }, el("span", null, "Promotion"), el("div", { class: "bar" }, el("span", { style: { width: `${pct}%` } })), el("span", null, `${Math.round(pct)}%`)),
       el("p", { class: "hint" }, "Start and end shifts inside your workplace (its scene card has the buttons)."),
       el("div", { class: "eyebrow" }, "The ladder"), el("ol", null, (d.ladder || []).map((t, i) => el("li", { style: i === d.level ? { color: "var(--gold)", fontWeight: "600" } : null }, t))))];
+  }
+
+  // Asks still waiting for your answer can be answered here too (an ask's sheet can be closed or
+  // replaced by another sheet); everything else the app sends is shown as labelled fields.
+  romance(d) {
+    const asks = Array.isArray(d.waiting_for_your_answer) ? d.waiting_for_your_answer.filter(q => q && q.id) : [];
+    const rest = { ...d };
+    delete rest.waiting_for_your_answer;
+    const answer = async (q, accept, err) => {
+      const r = await this.game.respond(q.id, accept);
+      if (!r.ok && r.error.code !== "unknown_request") { err.textContent = r.error.message; return; }
+      const sheet = this.ui.sheet;
+      if (sheet && sheet.kind === "request" && sheet.id === q.id) this.ui.closeSheet();
+      if (this.app === "romance") this.openApp("romance");
+    };
+    return [
+      el("div", { class: "card" }, el("div", { class: "eyebrow" }, "Waiting for your answer"),
+        asks.length ? el("ul", { class: "list" }, asks.map(q => {
+          const err = el("p", { class: "err", role: "alert" });
+          return el("li", { dataset: { ask: q.id } },
+            el("div", { class: "offer-head" }, el("span", null, q.name || this.world.nameOf(q.from)), el("span", { class: "hint" }, titleCase(q.kind))),
+            el("div", { class: "row" },
+              el("button", { type: "button", class: "btn primary grow", onclick: () => answer(q, true, err) }, "Accept"),
+              el("button", { type: "button", class: "btn grow", onclick: () => answer(q, false, err) }, "Decline")),
+            err);
+        })) : el("p", { class: "hint" }, "No asks waiting.")),
+      generic(rest),
+    ];
+  }
+
+  notifications(d) {
+    const list = Array.isArray(d.notifications) ? d.notifications : [];
+    return generic({ ...d, notifications: list.map(n => (n && typeof n === "object" ? { ...n, text: withoutCliHint(n.text) } : n)) });
   }
 }
 

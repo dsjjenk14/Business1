@@ -7,7 +7,8 @@
 # Steps: pull the branch into /opt/livera/src; back up the database; then run that commit's
 # setup.sh with the settings saved at install time, which builds, runs the tests (and stops,
 # keeping the running version, if they fail), installs npm packages, installs the new release
-# and restarts the services. Players are disconnected for a few seconds and reconnect.
+# and restarts the services. Players are disconnected for a few seconds and must log in again
+# with their password (sessions live in the server's memory and don't survive a restart).
 set -Eeuo pipefail
 
 CONF=/etc/livera/deploy.conf
@@ -22,7 +23,7 @@ for a in "$@"; do
   case "$a" in
     --rebuild) REBUILD=(--rebuild) ;;
     -h | --help)
-      sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'
+      awk 'NR == 1 {next} !/^#/ {exit} {sub(/^# ?/, ""); print}' "$0"
       exit 0
       ;;
     *) die "unknown option: $a" ;;

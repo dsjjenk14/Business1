@@ -115,8 +115,14 @@ empty. They walk to work, take the bus, buy coffee and go home at night. They ar
 "played by a script", they never chat, and they say no to every ask. **People always win:** when
 you pick a founder the script is playing, you take them over at once and the script lets go.
 
-To turn the scripted founders off: `systemctl disable --now livera-director`
-(on again: `systemctl enable --now livera-director`).
+To turn the scripted founders off (see "Changing a setting" in step 9):
+
+```
+bash /opt/livera/current/deploy/setup.sh --skip-fetch --no-director
+```
+
+On again: the same command with `--director`. Updates remember the choice. Don't use
+`systemctl disable livera-director` for this: the next update or install turns the founders back on.
 
 ## 7. Updating
 
@@ -125,8 +131,9 @@ livera-update
 ```
 
 It downloads the newest version, backs up the database, builds, **runs all the tests**, and only
-then switches to the new version (a few seconds of disconnection). If the tests fail, nothing
-changes and the old version keeps running. Your world, accounts and characters are kept.
+then switches to the new version (a few seconds of disconnection, after which everyone logs in
+again with their password). If the tests fail, nothing changes and the old version keeps running.
+Your world, accounts and characters are kept.
 
 Ubuntu installs its own security updates automatically every day.
 
@@ -142,12 +149,15 @@ Ubuntu installs its own security updates automatically every day.
 To restore a backup (this replaces the current world):
 
 ```
-systemctl stop livera-director livera-gateway livera-server
+systemctl stop livera-gateway livera-server
 gunzip -c /var/lib/livera/backups/world-YYYYMMDD-HHMMSS.db.gz > /var/lib/livera/world.db
 rm -f /var/lib/livera/world.db-wal /var/lib/livera/world.db-shm
 chown livera:livera /var/lib/livera/world.db
-systemctl start livera-server livera-gateway livera-director
+systemctl start livera-server livera-gateway
+systemctl try-restart livera-director
 ```
+
+(`try-restart` restarts the scripted founders only if they are on.)
 
 ## 9. Handy commands
 
@@ -155,12 +165,46 @@ systemctl start livera-server livera-gateway livera-director
 |---|---|
 | see if everything runs | `systemctl status livera-server livera-gateway livera-director caddy` |
 | watch the logs | `journalctl -u livera-server -u livera-director -f` (Ctrl+C to stop) |
-| restart the game | `systemctl restart livera-server livera-gateway livera-director` |
+| restart the game | `systemctl restart livera-server livera-gateway && systemctl try-restart livera-director` |
 | free a character someone claimed | `sudo -u livera /opt/livera/current/bin/livera_server --db /var/lib/livera/world.db --release-character dax` |
-| change the player limit | run the install command again with `--max-players 24` |
-| go back to the previous version | `ls /opt/livera/releases`, then `ln -sfn /opt/livera/releases/OLDER /opt/livera/current && systemctl restart livera-server livera-gateway livera-director` |
+| change the player limit | `bash /opt/livera/current/deploy/setup.sh --skip-fetch --max-players 24` |
+| move to your own domain later | add its A record (step 3), then `bash /opt/livera/current/deploy/setup.sh --skip-fetch --domain play.yourname.com --email you@example.com` |
+| go back to the previous version | see "Going back to the previous version" below |
+
+**Changing a setting:** run `bash /opt/livera/current/deploy/setup.sh --skip-fetch` with the
+options you want to change (`--max-players`, `--domain`, `--email`, `--no-director`, `--director`;
+`--help` lists them all). It doesn't fetch a new version of the game, keeps every setting you
+leave out, and restarts the game if a setting changed, so players log in again. Running the
+install command again with the same options does the same after fetching the newest version.
 
 Running the install command again is always safe: it keeps your world, accounts and settings.
+
+### Going back to the previous version
+
+If an update went wrong, put the world back as it was just before that update and run the
+older version again. **Anything played since that update is lost.**
+
+```
+readlink /opt/livera/current                  # the version running now
+ls -t /opt/livera/releases                    # newest first: OLDER is the one before it
+ls -t /var/lib/livera/backups/*-pre-update.db.gz | head -n 1   # the backup made just before that update
+systemctl stop livera-gateway livera-server
+gunzip -c /var/lib/livera/backups/world-YYYYMMDD-HHMMSS-pre-update.db.gz > /var/lib/livera/world.db
+rm -f /var/lib/livera/world.db-wal /var/lib/livera/world.db-shm
+chown livera:livera /var/lib/livera/world.db
+ln -sfn /opt/livera/releases/OLDER /opt/livera/current
+install -m 0644 /opt/livera/current/deploy/systemd/livera-* /etc/systemd/system/
+systemctl daemon-reload
+systemctl start livera-server livera-gateway
+systemctl try-restart livera-director
+```
+
+The backup is restored even when the update looked harmless: an update may change the save
+format, and an older version can't open a world saved by a newer one. If the log
+(`journalctl -u livera-server -n 20`) says **"save was written by a newer server"**, that is what
+happened, and the pre-update backup must be restored as above. Pointing the link back at the
+newer release (`ln -sfn /opt/livera/releases/NEWER /opt/livera/current`, then
+`systemctl restart livera-server livera-gateway`) brings the game back in the meantime.
 
 ## 10. What's where
 
@@ -215,7 +259,9 @@ the Caddyfile with `caddy validate`; and a full dry run of the install in an iso
 the system parts imitated (package installs, firewall and systemd were stand-ins; the build, the
 tests, the release, accounts, the game server, the gateway and the town director really ran): a
 fresh install, a second run that changed nothing, an update, an update whose tests fail (nothing
-changed), adding players and backups. Not checked: real package downloads (the Node.js and Caddy
+changed), adding players and backups, re-runs that change the domain and the player limit (the
+running gateway and server take the new setting), and turning the scripted founders off, through
+an update, and on again. Not checked: real package downloads (the Node.js and Caddy
 repositories couldn't be reached from the development machine), real systemd (including its
 security settings), the real firewall, getting a real HTTPS certificate, the swap file step and
 the 2 GB memory limit during the build.

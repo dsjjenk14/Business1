@@ -144,7 +144,8 @@ Result<Json> World::request(const CharacterId& actor, const std::string& kind, c
   state_.requests.push_back(q);
   notify(target, kind == "buy_home" || kind == "move_in" || kind == "sell_home" ? "home" : "romance",
          ask + " (answer with request id " + q.id + ")");
-  emit({target}, "request", Json{{"id", q.id}, {"kind", kind}, {"from", actor}, {"text", ask}});
+  emit({target}, "request", Json{{"id", q.id}, {"kind", kind}, {"from", actor}, {"text", ask},
+                                 {"expires_in_minutes", content_->romance().requestMinutes}});
   return Json{{"request", q.id}, {"kind", kind}, {"waiting_for", target}};
 }
 

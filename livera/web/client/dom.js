@@ -39,6 +39,9 @@ export const money = c => {
 };
 export const titleCase = s => String(s || "").replace(/_/g, " ").replace(/^\w/, c => c.toUpperCase());
 export const firstName = name => String(name || "").split(" ")[0];
+// Notifications end with a hint for the terminal client ("(answer with request id ask-27)"); here
+// asks are answered with buttons, so the hint is dropped.
+export const withoutCliHint = text => String(text ?? "").replace(/\s*\(answer with request id [^)]*\)\s*$/, "");
 export const initials = name => String(name || "?").split(/\s+/).filter(Boolean).map(w => w[0]).join("").slice(0, 2).toUpperCase();
 
 // Faces: client/faces/<character id>.jpg for the founding cast. The manifest says which exist,

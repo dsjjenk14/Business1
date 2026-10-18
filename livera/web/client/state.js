@@ -50,6 +50,7 @@ export class World {
     this.streaming = false;      // has the server sent a `people` event? (newer protocol)
     this.positionsInLook = false;
     this.career = null;
+    this.school = null;          // the school app's answer: enrolled program, programs and campuses
     this.names = new Map();      // id -> name, from everything we've been told
     this.listeners = new Set();
   }

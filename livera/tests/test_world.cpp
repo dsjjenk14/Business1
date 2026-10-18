@@ -639,6 +639,128 @@ TEST_CASE("people: who is gone, and why: inside, outside, logged off, out of sig
   CHECK(about(changesFor(tick(w, 50), "dominique"), "dax").empty());
 }
 
+TEST_CASE("people: through a front door several homes share, onlookers see someone go in, not which flat") {
+  World w = onlineWorld();
+  REQUIRE(w.connect("naomi"));  // in 1801, up the same Lexington stairs as Dominique's 1204
+  REQUIRE(w.exitBuilding("dominique"));
+  REQUIRE(w.exitBuilding("naomi"));
+  REQUIRE(w.character("naomi")->position == w.character("dominique")->position);
+  REQUIRE(about(changesFor(tick(w), "dominique"), "naomi").size() == 1);
+  REQUIRE(w.enter("naomi", "lexington_1801"));
+  const auto naomi = about(changesFor(tick(w), "dominique"), "naomi");
+  REQUIRE(naomi.size() == 1);
+  CHECK(naomi[0]["state"] == "gone");
+  CHECK(naomi[0]["reason"] == "went_inside");
+  CHECK(!naomi[0].contains("location"));
+}
+
+namespace {
+
+// The target a `people` entry (or `look` person) gave, as a point.
+Vec2 targetOf(const Json& p) { return {p["target"][0].get<double>(), p["target"][1].get<double>()}; }
+
+// How far `p` is off the straight line from `a` through `b`.
+double offLine(Vec2 a, Vec2 b, Vec2 p) {
+  return std::abs((b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x)) / distance(a, b);
+}
+
+}  // namespace
+
+TEST_CASE("people: someone else's far destination shows only to the edge of your sight") {
+  World w = onlineWorld();
+  REQUIRE(w.connect("naomi"));
+  REQUIRE(w.exitBuilding("dominique"));
+  REQUIRE(w.exitBuilding("naomi"));
+  (void)tick(w);
+  const double sight = realContent()->sim().sightRangeMeters;
+  const Vec2 door = realContent()->location("willow_lane_6")->door;  // a house 340 m away
+  const Vec2 dom = w.character("dominique")->position;
+  REQUIRE(distance(dom, door) > 2 * sight);
+  const Vec2 from = w.character("naomi")->position;
+  REQUIRE(w.moveTo("naomi", door));
+  auto evs = tick(w);
+  const auto self = about(changesFor(evs, "naomi"), "naomi");
+  REQUIRE(self.size() == 1);
+  CHECK(targetOf(self[0]) == door);  // she knows where she's going
+  CHECK(targetOf(w.look("naomi").value()["you"]) == door);
+  auto seen = about(changesFor(evs, "dominique"), "naomi");
+  REQUIRE(seen.size() == 1);
+  CHECK(seen[0]["moving"] == true);
+  const Vec2 cut = targetOf(seen[0]);
+  CHECK(cut != door);
+  CHECK(distance(dom, cut) > sight);         // past where Dominique can see her...
+  CHECK(distance(dom, cut) < sight + 30);    // ...but nowhere near the house
+  CHECK(offLine(from, door, cut) < 0.5);     // on her way, which Dominique can see
+  CHECK(distance(cut, door) < distance(from, door));
+  const Json people = w.look("dominique").value()["people"];
+  REQUIRE(people.size() == 1);
+  CHECK(distance(targetOf(people[0]), cut) < 1);
+  // She walks out of sight before she'd reach that point: the cut is never re-sent to a viewer standing still.
+  evs = tickUntil(w, [&] { return apart(w, "dominique", "naomi") > sight + 1; });
+  seen = about(changesFor(evs, "dominique"), "naomi");
+  REQUIRE(seen.size() == 1);
+  CHECK(seen[0]["state"] == "gone");
+  CHECK(seen[0]["reason"] == "out_of_sight");
+}
+
+TEST_CASE("people: walking alongside someone, their cut-off target moves ahead before they could reach it") {
+  World w = onlineWorld();
+  REQUIRE(w.connect("naomi"));
+  REQUIRE(w.exitBuilding("dominique"));
+  REQUIRE(w.exitBuilding("naomi"));
+  (void)tick(w);
+  const double sight = realContent()->sim().sightRangeMeters;
+  const Vec2 door = realContent()->location("willow_lane_6")->door;
+  REQUIRE(w.moveTo("naomi", door));
+  REQUIRE(w.moveTo("dominique", door));
+  int ticks = 0;
+  std::vector<Json> told;
+  Json last;
+  while (!stopped(w, "naomi") && ticks < 5000) {
+    for (const auto& c : about(changesFor(tick(w), "dominique"), "naomi")) {
+      told.push_back(c);
+      last = c;
+    }
+    ++ticks;
+    REQUIRE(last.is_object());
+    REQUIRE(last["state"] == "here");  // together the whole way
+    if (!last["moving"].get<bool>()) continue;
+    // What Dominique's client predicts is never wrong while Naomi is in sight: the point it walks her to is either
+    // her real destination or out of Dominique's sight and still ahead of her.
+    const Vec2 t = targetOf(last);
+    if (distance(t, door) < 0.1) continue;
+    CHECK(distance(t, w.character("dominique")->position) > sight);
+    CHECK(distance(w.character("naomi")->position, door) > distance(t, door));
+  }
+  REQUIRE(stopped(w, "naomi"));
+  CHECK(told.size() > 3);            // re-cut as they went...
+  CHECK(told.size() * 20 < static_cast<std::size_t>(ticks));  // ...but not every tick
+  // Once the house is in reach of sight, the real door is what she's walking to.
+  CHECK(distance(targetOf(told[told.size() - 2]), door) < 0.1);
+  CHECK(told.back()["moving"] == false);
+}
+
+TEST_CASE("people: the stop a bus rider gets off at is hidden when it's out of sight") {
+  World w = onlineWorld();
+  REQUIRE(w.exitBuilding("dominique"));
+  REQUIRE(w.exitBuilding("dax"));
+  REQUIRE(w.moveTo("dominique", {290, 535}));
+  REQUIRE(w.moveTo("dax", {300, 535}));  // the Maple Court stop
+  (void)tickUntil(w, [&] { return stopped(w, "dominique") && stopped(w, "dax"); });
+  (void)tick(w);
+  const Vec2 riverside{760, 575};
+  REQUIRE(w.ride("dax", "stop_riverside", true, "card"));
+  const auto evs = tick(w);
+  const auto dax = about(changesFor(evs, "dominique"), "dax");
+  REQUIRE(dax.size() == 1);
+  CHECK(dax[0]["mode"] == "bus");
+  const Vec2 cut = targetOf(dax[0]);
+  CHECK(distance(cut, riverside) > 250);
+  CHECK(distance(w.character("dominique")->position, cut) > realContent()->sim().sightRangeMeters);
+  CHECK(targetOf(about(changesFor(evs, "dax"), "dax")[0]) == riverside);
+  CHECK(targetOf(w.look("dax").value()["you"]) == riverside);
+}
+
 TEST_CASE("people: a forced move to jail is news to the prisoner and to the onlookers") {
   auto db = patchedContent([](Json& doc, const std::string& file) {
     if (file != "crimes.json") return;

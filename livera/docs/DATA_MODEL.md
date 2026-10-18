@@ -16,7 +16,7 @@ unknown stat names and dangling references fail the load with the file and id na
 
 | Section | Shape (abridged) | Notes |
 |---|---|---|
-| `simulation` | `skills[]`, `hearing_range_m`, `shout_range_m`, `whisper_range_m`, `max_speech_length`, `minutes_per_real_second`, `start_minute`, `walk_speed_mps`, `entry_radius_m`, `world_bounds`, `needs[] {id, decay_per_hour, initial}`, `emotions[]`, `emotion_baselines{}`, `personality_traits[]`, `values[]`, `relationship_dimensions[]`, `offline_need_target`, `memory_importance_threshold`, `max_message_length` | Exactly one. **Declares every stat name** used anywhere else. |
+| `simulation` | `skills[]`, `hearing_range_m`, `shout_range_m`, `whisper_range_m`, `sight_range_m` (outdoor sight; the load fails if it is below `shout_range_m`), `max_speech_length`, `minutes_per_real_second`, `start_minute`, `walk_speed_mps`, `entry_radius_m`, `world_bounds`, `needs[] {id, decay_per_hour, initial}`, `emotions[]`, `emotion_baselines{}`, `personality_traits[]`, `values[]`, `relationship_dimensions[]`, `offline_need_target`, `memory_importance_threshold`, `max_message_length` | Exactly one. **Declares every stat name** used anywhere else. |
 | `locations` | `id, name, type, district, description, door [x,y], enterable, access (public/residents/staff), hours [open, close], offers[], activities[], outdoor_radius_m, revenue_account, construction_project, stage` | `hours` may wrap midnight (`[21, 3]`). A location with `construction_project` is closed until it completes. |
 | offer | `id, label, price_cents, needs{}, emotions{}` | Bought with `buy`; money goes to `revenue_account`. |
 | activity | `id, label, cooldown_minutes, needs{}, emotions{}` | Free; `do` in the client. |

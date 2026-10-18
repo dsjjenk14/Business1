@@ -501,7 +501,9 @@ struct WorldEvent {
 struct SeenPerson {
   LocationId inside;
   Vec2 position;
-  std::optional<Vec2> target;  // only while actually travelling (outdoors with a move target)
+  std::optional<Vec2> target;  // only while actually travelling (outdoors with a move target); for someone
+                               // else, cut short where they would leave the viewer's sight (World::seenBy)
+  std::optional<Vec2> trueTarget;  // where they are really going: a new destination is news even if `target` isn't
   double speedMps = 0;         // 0 when still
   bool bus = false;            // riding (moveSpeedMps > 0)
   bool scripted = false;
@@ -736,6 +738,8 @@ class World {
   // are outdoors, or in the same building; never anyone else.
   bool inSight(const CharacterState& viewer, const CharacterState& other) const;
   SeenPerson seenNow(const CharacterState& c) const;
+  // seenNow as `viewer` may know it: someone else's destination only as far as the viewer can see.
+  SeenPerson seenBy(const CharacterState& viewer, const CharacterState& other) const;
   Json personJson(const CharacterState& viewer, const CharacterState& other) const;
   void emitPeopleChanges();
   CharacterState* mutableCharacter(const CharacterId& id);

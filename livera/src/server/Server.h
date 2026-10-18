@@ -98,6 +98,7 @@ class Server {
   std::uint16_t port_ = 0;
   std::map<int, Session> sessions_;
   int nextSessionId_ = 1;
+  double acceptPausedUntil_ = -1;  // monotonic seconds; set while out of file descriptors (acceptClients)
   SessionTokens tokens_;
   LoginThrottle loginThrottle_;
   std::chrono::steady_clock::time_point started_;

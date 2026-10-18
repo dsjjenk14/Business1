@@ -18,6 +18,10 @@ constexpr double kLandmarkRange = 120;    // buildings and sites listed by `look
 // Standing still, someone who shifts further than this was moved (jail, the ER, shown out of a home):
 // the onlookers' clients are told. Smaller drifts are rounding, not news.
 constexpr double kStillMoveThreshold = 0.5;
+// Someone else's far destination is cut where their path leaves the viewer's sight, plus this margin: about what a bus
+// covers in one capped tick (Server::tick), so the client is told they've gone before its prediction would stop them
+// short, and a viewer on the move isn't sent a new cut every tick.
+constexpr double kSightCutMarginMeters = 25;
 
 Json point(Vec2 p) { return Json::array({std::round(p.x * 10) / 10, std::round(p.y * 10) / 10}); }
 
@@ -34,6 +38,37 @@ Json motionJson(const SeenPerson& m) {
 
 bool sameTarget(const std::optional<Vec2>& a, const std::optional<Vec2>& b) {
   return a.has_value() == b.has_value() && (!a || *a == *b);
+}
+
+// Where the straight path from `from` (inside the circle) toward `to` (outside it) crosses the circle.
+Vec2 leaveCircle(Vec2 centre, double radius, Vec2 from, Vec2 to) {
+  const double dx = to.x - from.x, dy = to.y - from.y;
+  const double fx = from.x - centre.x, fy = from.y - centre.y;
+  const double a = dx * dx + dy * dy;
+  if (a == 0) return from;
+  const double b = 2 * (fx * dx + fy * dy);
+  const double c = fx * fx + fy * fy - radius * radius;
+  const double s = (-b + std::sqrt(std::max(0.0, b * b - 4 * a * c))) / (2 * a);
+  return {from.x + clampd(s, 0, 1) * dx, from.y + clampd(s, 0, 1) * dy};
+}
+
+// A cut target the viewer was told stands while the walker must leave sight before reaching it. Once the viewer can
+// see that spot, or the walker gets there, it no longer says where they stop and is cut again from where both are now.
+bool cutTargetStale(const SeenPerson& was, Vec2 walker, Vec2 viewer, double sight) {
+  if (!was.target || !was.trueTarget || *was.target == *was.trueTarget) return false;
+  return distance(viewer, *was.target) <= sight ||
+         distance(walker, *was.trueTarget) <= distance(*was.target, *was.trueTarget);
+}
+
+// Whether `id`'s door leads only there. Several flats share a building's front door, and someone watching that door
+// sees a person go into the building, not which flat.
+bool ownDoor(const ContentDatabase& db, const LocationId& id) {
+  const LocationDef* loc = db.location(id);
+  if (!loc) return false;
+  for (const auto& [otherId, other] : db.locations()) {
+    if (otherId != id && other.enterable && other.door == loc->door) return false;
+  }
+  return true;
 }
 
 Json roundedStats(const StatMap& m) {
@@ -186,11 +221,22 @@ SeenPerson World::seenNow(const CharacterState& c) const {
   m.position = c.position;
   // Only outdoors does a move target move anyone (advanceRealTime), so only then is it motion.
   if (c.moveTarget && c.inside.empty()) {
-    m.target = c.moveTarget;
+    m.target = m.trueTarget = c.moveTarget;
     m.speedMps = c.moveSpeedMps > 0 ? c.moveSpeedMps : content_->sim().walkSpeedMetersPerSecond;
   }
   m.bus = c.moveSpeedMps > 0;
   m.scripted = isScripted(c.id);
+  return m;
+}
+
+SeenPerson World::seenBy(const CharacterState& viewer, const CharacterState& other) const {
+  SeenPerson m = seenNow(other);
+  if (other.id == viewer.id || !m.target) return m;
+  // A character sees which way someone is heading, not where they'll stop once out of sight: a far door or the stop a
+  // bus rider gets off at stays theirs.
+  const double reach = content_->sim().sightRangeMeters + kSightCutMarginMeters;
+  if (distance(viewer.position, *m.target) > reach)
+    m.target = leaveCircle(viewer.position, reach, m.position, *m.target);
   return m;
 }
 
@@ -202,7 +248,7 @@ Json World::personJson(const CharacterState& viewer, const CharacterState& other
          {"name", od ? od->fullName() : other.id},
          {"known", self || (rel && rel->firstMetAt >= 0)},
          {"scripted", isScripted(other.id)}};
-  p.update(motionJson(seenNow(other)));
+  p.update(motionJson(seenBy(viewer, other)));
   return p;
 }
 
@@ -212,6 +258,7 @@ void World::emitPeopleChanges() {
     const CharacterState* v = character(kv.first);
     return !v || !v->online;
   });
+  const double sight = content_->sim().sightRangeMeters;
   for (const auto& [viewerId, viewer] : state_.characters) {
     if (!viewer.online) continue;
     auto& seen = seen_[viewerId];
@@ -225,14 +272,16 @@ void World::emitPeopleChanges() {
       visibleIds.insert(id);
     }
     for (const CharacterState* o : visible) {
-      const SeenPerson now = seenNow(*o);
+      const SeenPerson now = seenBy(viewer, *o);
       auto it = seen.find(o->id);
       bool changed = it == seen.end();
       if (!changed) {
+        // Real destinations are compared: a cut target shifts whenever the viewer moves, and that alone isn't news.
         const SeenPerson& was = it->second;
-        changed = now.inside != was.inside || !sameTarget(now.target, was.target) || now.speedMps != was.speedMps ||
-                  now.bus != was.bus || now.scripted != was.scripted ||
-                  (!now.target && distance(now.position, was.position) > kStillMoveThreshold);
+        changed = now.inside != was.inside || !sameTarget(now.trueTarget, was.trueTarget) ||
+                  now.speedMps != was.speedMps || now.bus != was.bus || now.scripted != was.scripted ||
+                  (!now.target && distance(now.position, was.position) > kStillMoveThreshold) ||
+                  cutTargetStale(was, now.position, viewer.position, sight);
       }
       if (!changed) continue;
       Json entry = personJson(viewer, *o);
@@ -253,11 +302,11 @@ void World::emitPeopleChanges() {
         gone["reason"] = "left_world";
       } else if (o->inside == was.inside) {
         gone["reason"] = "out_of_sight";  // they're where they were; one of you walked or stepped out of view
-      } else if (viewer.inside.empty() && was.inside.empty() &&
-                 distance(viewer.position, o->position) <= content_->sim().sightRangeMeters) {
-        // Entering puts you at the door, and the viewer can see that door: they watched them go in.
+      } else if (viewer.inside.empty() && was.inside.empty() && distance(viewer.position, o->position) <= sight) {
+        // Entering puts you at the door, and the viewer can see that door: they watched them go in. Through a door
+        // several homes share, that's all they saw.
         gone["reason"] = "went_inside";
-        gone["location"] = o->inside;
+        if (ownDoor(*content_, o->inside)) gone["location"] = o->inside;
       } else if (!viewer.inside.empty() && was.inside == viewer.inside && o->inside.empty()) {
         gone["reason"] = "went_outside";
       } else {

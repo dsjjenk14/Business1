@@ -19,6 +19,9 @@ constexpr const char* kProtocol = "livera/1";
 constexpr std::size_t kMaxOutboxBytes = 1 << 20;
 constexpr int kMaxViolations = 50;
 constexpr GameMinutes kMaxDevAdvance = 60 * kMinutesPerDay;
+// Out of file descriptors, accept() fails but the connection stays queued and the listener stays readable, so polling
+// it again at once would spin a core. It is left out of the poll set this long, then tried again.
+constexpr double kAcceptBackoffSeconds = 0.5;
 
 void logLine(const std::string& msg) { std::fprintf(stderr, "[livera] %s\n", msg.c_str()); }
 
@@ -111,7 +114,8 @@ void Server::run(const std::atomic<bool>& stop) {
   while (!stop.load()) {
     std::vector<pollfd> fds;
     std::vector<int> ids;
-    fds.push_back(pollfd{listener_.get(), POLLIN, 0});
+    // A negative fd is skipped by poll(): while accepts are paused the listener can't wake the loop.
+    fds.push_back(pollfd{monotonicSeconds() < acceptPausedUntil_ ? -1 : listener_.get(), POLLIN, 0});
     ids.push_back(0);
     for (auto& [id, s] : sessions_) {
       short events = POLLIN;
@@ -170,7 +174,17 @@ void Server::tick(double realSeconds) {
 void Server::acceptClients() {
   for (;;) {
     const int fd = ::accept(listener_.get(), nullptr, nullptr);
-    if (fd < 0) return;
+    if (fd < 0) {
+      if (errno == EMFILE || errno == ENFILE || errno == ENOBUFS || errno == ENOMEM) {
+        if (acceptPausedUntil_ < 0) logLine("out of file descriptors: pausing new connections until some close");
+        acceptPausedUntil_ = monotonicSeconds() + kAcceptBackoffSeconds;
+      }
+      return;
+    }
+    if (acceptPausedUntil_ >= 0) {
+      logLine("accepting new connections again");
+      acceptPausedUntil_ = -1;
+    }
     Session s;
     s.id = nextSessionId_++;
     s.fd = net::Fd(fd);
@@ -293,6 +307,9 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
   }
   if (op == "login") {
     const std::string user = str(req, "username");
+    // A name `register` refuses is never an account: the same answer as a wrong password, without a store lookup or a
+    // throttle record, so made-up names (up to a line long) cost no memory.
+    if (!checkUsername(user)) return fail("bad_credentials", "wrong username or password");
     const double now = monotonicSeconds();
     // Checked before the password, so a locked name costs no hashing and a right guess doesn't get in.
     if (loginThrottle_.locked(user, now))
@@ -315,6 +332,16 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
     const auto user = tokens_.resolve(token, monotonicSeconds());
     if (!user) return fail("bad_token", "that session has ended; log in with your password");
     if (!s.username.empty()) return fail("already_logged_in", "already logged in");
+    // An automatic reconnect sends take_over:false: a phone that slept through `kicked` must not take the account
+    // back from the device that logged in since. The same token is the same device's half-open old connection,
+    // which is still replaced. Omitted (older clients) or true keeps "the newest login wins".
+    const auto takeOver = req.find("take_over");
+    if (takeOver != req.end() && takeOver->is_boolean() && !takeOver->get<bool>()) {
+      for (const auto& [id, other] : sessions_) {
+        if (id != s.id && other.username == *user && !other.closing && other.token != token)
+          return fail("in_use_elsewhere", "this account is playing on another device");
+      }
+    }
     return beginSession(s, *user, token);
   }
   if (s.username.empty()) return fail("not_logged_in", "log in first");

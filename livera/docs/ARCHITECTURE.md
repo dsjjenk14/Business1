@@ -63,8 +63,8 @@ recipients. The server drains events after each step and routes them to sessions
 ### Threading
 
 One thread owns the World, the store and every socket (`Server::run`). There are no
-locks because nothing is shared. At 2–8 players this is simpler and faster than
-anything concurrent. Scaling path: see "Scaling" below.
+locks because nothing is shared. At today's default caps (16 people, 16 scripts) this is
+simpler and faster than anything concurrent. Scaling path: see "Scaling" below.
 
 ## The game client (D-045)
 
@@ -99,7 +99,8 @@ web/gateway/  Node + ws: WebSocket ⇄ TCP, nothing else
 
 ## Scaling (later, not now)
 
-The target today is one world shard with 2–8 players. Known paths when that's outgrown:
+The target today is one world shard with up to 16 people plus up to 16 scripted sessions
+(`--max-players`, `--max-scripted`). Known paths when that's outgrown:
 1. Dirty tracking in the store (save only changed rows) instead of rewriting mutable tables.
 2. Spatial partitioning for `look`/presence (today they scan all characters).
 3. Tier-2 NPC simulation on a coarser tick, Tier-3 statistical population (already abstract).
@@ -123,6 +124,7 @@ The target today is one world shard with 2–8 players. Known paths when that's 
 | `src/persistence/PasswordHash.*` | PBKDF2-HMAC-SHA256. |
 | `src/net/Socket.*` | POSIX TCP + line framing with a size limit. |
 | `src/server/Server.*` | Loop, sessions, dispatch, autosave, event routing. |
+| `src/server/Auth.*` | Username and password rules, script-account (`bot_*`) naming, in-memory resume tokens, per-username login throttling. |
 | `src/server/RateLimiter.*` | Per-connection token bucket. |
 | `src/client/cli_main.cpp` | Headless dev client and script runner. |
 | `src/client/CreatorWizard.*` | Guided character creation on the terminal. |

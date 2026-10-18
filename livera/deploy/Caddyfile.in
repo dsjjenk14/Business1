@@ -25,9 +25,11 @@
 		Cross-Origin-Opener-Policy "same-origin"
 		# Voice is planned (docs/proposals/voice.md); allow the microphone for this site only when it ships.
 		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
-		# Same policy as web/client/index.html, plus wss:// to this host spelled out for browsers whose
-		# 'self' doesn't cover WebSockets. No inline scripts or styles: the client doesn't use any.
-		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self' wss://@SITE@; font-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+		# The same policy as the <meta> in web/client/index.html, plus frame-ancestors (which only
+		# works in a header). The browser enforces both policies and a request must pass each, so a
+		# source added only here is still blocked by the meta: change the two together.
+		# No inline scripts or styles: the client doesn't use any.
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
 		-Server
 	}
 }

@@ -19,6 +19,9 @@ ExecStart=/opt/livera/current/bin/livera_server --data /opt/livera/current/data 
 # SIGTERM makes the server save and leave cleanly.
 KillSignal=SIGTERM
 TimeoutStopSec=60
+# One descriptor per connection. The gateway caps connections in all (GATEWAY_MAX_CONNECTIONS, 256) and per
+# address; this only gives the server headroom above that cap, it is not a substitute for it.
+LimitNOFILE=65536
 Restart=on-failure
 RestartSec=5
 

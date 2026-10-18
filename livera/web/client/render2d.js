@@ -47,6 +47,7 @@ export class Renderer2D {
     this.onTap = null;
     this.lastNow = performance.now();
     this.placed = [];
+    this.bubbleRects = [];           // where speech bubbles were drawn last frame (for tests)
     this.attachInput();
     new ResizeObserver(() => this.resize()).observe(canvas);
     this.resize();
@@ -134,6 +135,9 @@ export class Renderer2D {
       pointers.delete(e.pointerId); cv.classList.remove("dragging");
       if (wasTap) { const r = cv.getBoundingClientRect(); this.tap(e.clientX - r.left, e.clientY - r.top); }
       if (pointers.size === 0) drag = null;
+      // A finger lifted mid-pinch: carry on from where the remaining finger is, not from where
+      // the last finger to touch down started (moved stays high, so lifting it isn't a tap).
+      else if (drag) { const [p] = pointers.values(); drag.x = p[0]; drag.y = p[1]; drag.dist = pointers.size >= 2 ? pinchDist() : 0; }
     };
     cv.addEventListener("pointerup", up);
     cv.addEventListener("pointercancel", up);
@@ -526,7 +530,10 @@ export class Renderer2D {
     } else if (wx.kind === "cloud") { ctx.fillStyle = "rgba(60,66,76,.10)"; ctx.fillRect(0, 0, cw, ch); }
   }
 
-  bubble(x, y, text, style) {
+  // (x, y): the top of the speaker's head; r: its radius. A bubble goes above the head, but not
+  // under the top bar: with no room there it goes below the speaker's name, if that fits on the
+  // visible map, else it stays just under the top bar.
+  bubble(x, y, text, style, r = 0, top = 6, bottom = this.ch - 6) {
     const ctx = this.ctx, cw = this.cw;
     ctx.font = `${style === "whisper" || style === "whispering" ? "italic " : ""}${style === "shout" ? 700 : 500} ${style === "shout" ? 14 : 12}px system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif`;
     const maxW = Math.min(220, cw * 0.6), words = String(text).split(" "), lines = [];
@@ -535,18 +542,32 @@ export class Renderer2D {
     lines.push(line);
     const shown = lines.slice(0, 4); if (lines.length > 4) shown[3] += " …";
     const w = Math.min(maxW, Math.max(...shown.map(l => ctx.measureText(l).width)) + 18), hh = shown.length * 15 + 12;
-    const bx = Math.max(6, Math.min(cw - w - 6, x - w / 2)), by = Math.max(6, y - hh - 10);
+    const bx = Math.max(6, Math.min(cw - w - 6, x - w / 2));
+    let by = y - hh - 10, below = false;
+    if (by < top) {
+      const under = y + 2 * r + 28;   // below the head and the name label under it (tail included)
+      if (r && under + hh <= bottom) { by = under; below = true; } else by = top;
+    }
     const dark = style === "whisper" || style === "whispering";
     ctx.fillStyle = dark ? "rgba(14,12,11,.88)" : "rgba(250,246,238,.97)";
     ctx.beginPath(); ctx.roundRect(bx, by, w, hh, 10); ctx.fill();
     if (dark) { ctx.setLineDash([4, 3]); ctx.strokeStyle = "#efe7dc"; ctx.lineWidth = 1; ctx.stroke(); ctx.setLineDash([]); }
     if (style === "shout") { ctx.strokeStyle = "#e09a9a"; ctx.lineWidth = 1.5; ctx.stroke(); }
-    ctx.beginPath(); ctx.moveTo(x - 5, by + hh); ctx.lineTo(x + 5, by + hh); ctx.lineTo(x, by + hh + 7); ctx.closePath(); ctx.fill();
+    const tx = Math.max(bx + 10, Math.min(bx + w - 10, x));
+    ctx.beginPath();
+    if (below) { ctx.moveTo(tx - 5, by); ctx.lineTo(tx + 5, by); ctx.lineTo(tx, by - 7); }
+    else { ctx.moveTo(tx - 5, by + hh); ctx.lineTo(tx + 5, by + hh); ctx.lineTo(tx, by + hh + 7); }
+    ctx.closePath(); ctx.fill();
+    this.bubbleRects.push({ x: bx, y: by, w, h: hh, below });
     ctx.fillStyle = dark ? "#efe7dc" : "#1c1814"; ctx.textAlign = "left"; ctx.textBaseline = "top";
     shown.forEach((l, i) => ctx.fillText(l, bx + 9, by + 6 + i * 15));
   }
   drawBubbles(people, now) {
     const pos = new Map(people.filter(p => p.screen).map(p => [p.id, p.screen]));
+    // Keep bubbles in the part of the map the top bar (and, on phones, the sheet) leaves visible.
+    const ins = this.getInsets ? this.getInsets() : { top: 0, bottom: 0 };
+    const top = Math.min(ins.top, this.ch * 0.5) + 6, bottom = this.ch - Math.min(ins.bottom, this.ch - top - 40) - 6;
+    this.bubbleRects = [];
     for (const b of this.world.liveBubbles(now)) {
       let x, y, r = 0;
       const sp = pos.get(b.who);
@@ -554,7 +575,7 @@ export class Renderer2D {
       else if (b.pos) [x, y] = this.P(b.pos[0], b.pos[1], 18);
       else continue;  // the speech log under the map shows it
       const text = b.kind === "whispering" ? `whispering to ${b.toName}` : b.text;
-      this.bubble(x, y - r, text, b.kind === "whispering" ? "whispering" : b.volume);
+      this.bubble(x, y - r, text, b.kind === "whispering" ? "whispering" : b.volume, r, top, bottom);
     }
   }
 }

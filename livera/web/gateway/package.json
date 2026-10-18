@@ -6,7 +6,8 @@
   "type": "module",
   "main": "gateway.mjs",
   "scripts": {
-    "start": "node gateway.mjs"
+    "start": "node gateway.mjs",
+    "test": "node test_gateway.mjs"
   },
   "engines": {
     "node": ">=18"

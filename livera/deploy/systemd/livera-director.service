@@ -2,7 +2,8 @@
 # (scripts/town_director.py, accounts bot_<character>). People always win: a player who picks a
 # character the director is playing takes it at once. Installed by deploy/setup.sh.
 # Passwords: /etc/livera/director.env (0600, owned by livera), made by setup.sh.
-# To stop it: systemctl disable --now livera-director
+# To turn it off for good: setup.sh --skip-fetch --no-director (on again: --director). The choice
+# is saved in /etc/livera/deploy.conf; a plain `systemctl disable` is undone by the next update.
 [Unit]
 Description=LIVERA town director (scripted founders)
 After=network.target livera-server.service

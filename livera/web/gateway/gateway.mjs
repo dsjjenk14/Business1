@@ -8,7 +8,8 @@
 //
 // Env: LIVERA_HOST (127.0.0.1), LIVERA_PORT (7777), GATEWAY_HOST (127.0.0.1), GATEWAY_PORT (8080),
 // ALLOWED_ORIGINS (comma list; empty = any, for dev), STATIC_DIR (optional: also serve the web
-// client over plain HTTP for local dev and tests; production serves it with Caddy).
+// client over plain HTTP for local dev and tests; production serves it with Caddy),
+// GATEWAY_MAX_CONNECTIONS (256: open WebSockets in all, each holding a game server connection).
 
 import http from "node:http";
 import net from "node:net";
@@ -28,6 +29,9 @@ const STATIC_DIR = process.env.STATIC_DIR ? path.resolve(process.env.STATIC_DIR)
 // answer without bothering the server.
 const MAX_MESSAGE_BYTES = 16 * 1024;
 const MAX_CONNECTIONS_PER_IP = 8;
+// Every WebSocket holds a file descriptor on the game server. Kept well below its descriptor limit, so no crowd of
+// addresses can use them all up and lock real players out of logging in.
+const MAX_CONNECTIONS = Math.max(1, Number(env("GATEWAY_MAX_CONNECTIONS", "256")) || 256);
 const PING_INTERVAL_MS = 25_000;
 // A server line can be bigger than a request (a map, a phone app). This only guards memory
 // against a runaway peer; the server itself caps each client's outbox at 1 MB.
@@ -53,9 +57,33 @@ function clientIp(req) {
   }
   return peer;
 }
+// The per-address count is kept per IPv4 address and per IPv6 /64: one home or phone network is handed a whole /64,
+// so counting single IPv6 addresses would let one network open billions of connections.
+function ipKey(ip) {
+  let a = String(ip || "").trim();
+  const mapped = /^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/i.exec(a);
+  if (mapped) return mapped[1];
+  if (net.isIPv4(a)) return a;
+  const zone = a.indexOf("%");
+  if (zone >= 0) a = a.slice(0, zone);
+  if (!net.isIPv6(a)) return a;
+  let groups = a.split(":");
+  const last = groups[groups.length - 1];
+  if (last.includes(".")) {  // an IPv4 tail (64:ff9b::1.2.3.4) is two hextets
+    const [b0, b1, b2, b3] = last.split(".").map(Number);
+    groups.splice(-1, 1, ((b0 << 8) | b1).toString(16), ((b2 << 8) | b3).toString(16));
+  }
+  const gap = groups.indexOf("");
+  if (gap >= 0) {  // expand "::" (it leaves one or two empty strings behind)
+    const head = groups.slice(0, gap), tail = groups.slice(gap).filter(g => g !== "");
+    groups = [...head, ...Array(Math.max(0, 8 - head.length - tail.length)).fill("0"), ...tail];
+  }
+  return groups.slice(0, 4).map(g => parseInt(g || "0", 16).toString(16)).join(":") + "::/64";
+}
 const perIp = new Map();
-const addIp = ip => perIp.set(ip, (perIp.get(ip) || 0) + 1);
-const dropIp = ip => { const n = (perIp.get(ip) || 1) - 1; if (n <= 0) perIp.delete(ip); else perIp.set(ip, n); };
+let total = 0, fullLogged = false;
+const addIp = ip => { total++; perIp.set(ip, (perIp.get(ip) || 0) + 1); };
+const dropIp = ip => { if (--total < MAX_CONNECTIONS) fullLogged = false; const n = (perIp.get(ip) || 1) - 1; if (n <= 0) perIp.delete(ip); else perIp.set(ip, n); };
 
 // ------------------------------------------------------------------ static files (dev and tests only)
 const TYPES = {
@@ -107,8 +135,13 @@ server.on("upgrade", (req, socket, head) => {
   if (p !== "/ws") { reject(socket, 404, "Not Found"); return; }
   const origin = req.headers.origin || "";
   if (ALLOWED_ORIGINS.length && !ALLOWED_ORIGINS.includes(origin)) { reject(socket, 403, "Forbidden"); return; }
-  const ip = clientIp(req);
+  const ip = ipKey(clientIp(req));
   if ((perIp.get(ip) || 0) >= MAX_CONNECTIONS_PER_IP) { reject(socket, 429, "Too Many Requests"); return; }
+  if (total >= MAX_CONNECTIONS) {
+    if (!fullLogged) { fullLogged = true; log(`full: ${total} connections open, refusing new ones`); }
+    reject(socket, 503, "Service Unavailable");
+    return;
+  }
   addIp(ip);
   let counted = true;
   const release = () => { if (counted) { counted = false; dropIp(ip); } };
@@ -208,7 +241,7 @@ const pinger = setInterval(() => {
 
 server.listen(GATEWAY_PORT, GATEWAY_HOST, () => {
   log(`listening on ${GATEWAY_HOST}:${server.address().port} -> game server ${LIVERA_HOST}:${LIVERA_PORT}` +
-      `${STATIC_DIR ? `, serving ${STATIC_DIR}` : ""}${ALLOWED_ORIGINS.length ? `, origins ${ALLOWED_ORIGINS.join(" ")}` : ", any origin (dev)"}`);
+      `, at most ${MAX_CONNECTIONS} connections${STATIC_DIR ? `, serving ${STATIC_DIR}` : ""}${ALLOWED_ORIGINS.length ? `, origins ${ALLOWED_ORIGINS.join(" ")}` : ", any origin (dev)"}`);
 });
 
 function shutdown() {

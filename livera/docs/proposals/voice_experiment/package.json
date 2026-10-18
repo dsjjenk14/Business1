@@ -1,0 +1,11 @@
+{
+  "name": "livera-voice-experiment",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Experiment 1 of docs/proposals/voice.md: peer-to-peer audio through a server-gated relay",
+  "license": "ISC",
+  "dependencies": {
+    "node-turn": "^0.0.6",
+    "ws": "^8.22.0"
+  }
+}

@@ -26,9 +26,10 @@ id livera >/dev/null 2>&1 || die "no livera user: has setup.sh finished?"
 
 # Read from the terminal even if stdin is a pipe.
 exec 3</dev/tty || die "needs a terminal to ask for the password"
-read -r -s -p "Password for $user (8-128 characters): " pass1 <&3
+# IFS= keeps leading and trailing spaces: the server stores the password exactly as typed.
+IFS= read -r -s -p "Password for $user (8-128 characters): " pass1 <&3
 echo
-read -r -s -p "Same password again: " pass2 <&3
+IFS= read -r -s -p "Same password again: " pass2 <&3
 echo
 exec 3<&-
 [[ "$pass1" == "$pass2" ]] || die "the two passwords are different; nothing changed"

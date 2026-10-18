@@ -31,7 +31,7 @@
 
 ## 1. What was tested in this container (October 2026)
 
-GitHub release downloads are blocked here. The npm registry and the Go module proxy work. Chromium 141 (headless) and Playwright 1.56 are installed. All scripts are in the session scratchpad (`phase0/voice/`), not in the repo. Every number below came from running them.
+GitHub release downloads are blocked here. The npm registry and the Go module proxy work. Chromium 141 (headless) and Playwright 1.56 are installed. The scripts are in `docs/proposals/voice_experiment/`, with how to run them; every number below came from running them. The voice-like WAV used for the bitrate numbers was not kept (that folder's README says what to use instead).
 
 ### Experiment 1: peer-to-peer audio through a server-gated relay (Option A)
 
@@ -170,7 +170,7 @@ No save-format change and no migration: voice state is session state, like the `
   - neither blocks the other (section 4);
   - they are `together(a, b, shout_range_m)`.
 - That is the loudest anyone can be heard, so a shout never waits for a call to be set up.
-- Linked people are always in sight, because `sight_range_m` ≥ `shout_range_m` (contract 1.1). The client always has their position from the `people` stream.
+- Linked people are always in sight, because `sight_range_m` ≥ `shout_range_m` (checked when content loads; MULTIPLAYER.md, "What a player can see"). The client always has their position from the `people` stream.
 - Each person gets at most `voice_max_peers` links, nearest first:
   - a new data value in `simulation.json`, default 8;
   - `ContentDatabase` checks that it is between 1 and 16.
@@ -368,7 +368,7 @@ The existing `whispering` event gains `"voice": true` when the whisper is spoken
 - `voice_signal` rate limiting carries `re`;
 - two sessions end to end: join, `voice_peers`, a relayed offer.
 
-**`web/` Playwright:** the experiment above, pointed at the real gateway and server:
+**`web/` Playwright:** the experiment above (`docs/proposals/voice_experiment/`), pointed at the real gateway and server:
 - three pages with fake microphones;
 - `bytesReceived` only within reach;
 - a forged signal is refused;
@@ -448,18 +448,16 @@ D-025 makes LIVÉRA adults-only with mature themes. ROADMAP already says moderat
 
 ---
 
-**Files checked:**
-- /home/user/Business1/livera/CLAUDE.md
-- /home/user/Business1/livera/docs/proposals/web_client.md
-- /home/user/Business1/livera/docs/DECISIONS.md (D-019, D-025, D-045)
-- /home/user/Business1/livera/docs/MULTIPLAYER.md
-- /home/user/Business1/livera/docs/ROADMAP.md
-- /home/user/Business1/livera/data/config/simulation.json
-- /home/user/Business1/livera/src/core/World.cpp (`say`, `together`, `presentWith`)
-- /home/user/Business1/livera/src/core/World.h
-- /home/user/Business1/livera/src/server/Server.h
-- /home/user/Business1/livera/src/server/Server.cpp
+**Sources read:**
+- `CLAUDE.md`
+- `docs/proposals/web_client.md`
+- `docs/DECISIONS.md` (D-019, D-025, D-045)
+- `docs/MULTIPLAYER.md`
+- `docs/ROADMAP.md`
+- `data/config/simulation.json`
+- `src/core/World.cpp` (`say`, `together`, `presentWith`)
+- `src/core/World.h`
+- `src/server/Server.h`
+- `src/server/Server.cpp`
 - LiveKit server v1.13.10 source: `pkg/rtc/subscriptionmanager.go`, `pkg/rtc/room.go`, `pkg/service/roommanager.go`, `pkg/service/roomservice.go`
 - `livekit-server-sdk` 2.19.1 and `@livekit/protocol` 1.51.0 type definitions
-
-Only this file was written in the repo.

@@ -3,13 +3,14 @@
 #include <openssl/rand.h>
 
 #include <algorithm>
+#include <iterator>
+#include <tuple>
 
 namespace livera {
 
 namespace {
 
 constexpr std::size_t kTokenBytes = 32;
-constexpr std::size_t kThrottleSweepAt = 4096;  // tracked usernames before stale records are swept
 
 }  // namespace
 
@@ -74,8 +75,14 @@ bool LoginThrottle::locked(const std::string& username, double now) const {
 }
 
 void LoginThrottle::failed(const std::string& username, double now) {
-  if (records_.size() >= kThrottleSweepAt) sweep(now);
-  Record& r = records_[username];
+  if (!checkUsername(username)) return;  // never an account, so nothing to protect: not worth memory
+  auto it = records_.find(username);
+  if (it == records_.end()) {
+    if (now - lastSweep_ >= window_) sweep(now);
+    if (records_.size() >= maxTracked_) forgetOne(now);
+    it = records_.emplace(username, Record{}).first;
+  }
+  Record& r = it->second;
   if (now < r.lockedUntil) return;  // already locked; guesses during a lock don't extend it
   while (!r.failures.empty() && now - r.failures.front() >= window_) r.failures.pop_front();
   r.failures.push_back(now);
@@ -86,10 +93,33 @@ void LoginThrottle::failed(const std::string& username, double now) {
 }
 
 void LoginThrottle::sweep(double now) {
+  lastSweep_ = now;
   std::erase_if(records_, [&](const auto& kv) {
     const Record& r = kv.second;
     return now >= r.lockedUntil && (r.failures.empty() || now - r.failures.back() >= window_);
   });
+}
+
+void LoginThrottle::forgetOne(double now) {
+  // Least protective first: unlocked before locked; among unlocked, fewest failures still in the window (a stale
+  // record has none), then the oldest last failure; among locked, the lock that ends soonest.
+  auto rank = [&](const Record& r) {
+    const bool isLocked = now < r.lockedUntil;
+    const auto recent =
+        std::count_if(r.failures.begin(), r.failures.end(), [&](double t) { return now - t < window_; });
+    const double last = r.failures.empty() ? -1e300 : r.failures.back();
+    return std::make_tuple(isLocked, isLocked ? r.lockedUntil : static_cast<double>(recent), last);
+  };
+  auto victim = records_.begin();
+  if (victim == records_.end()) return;
+  auto least = rank(victim->second);
+  for (auto it = std::next(victim); it != records_.end(); ++it) {
+    if (auto r = rank(it->second); r < least) {
+      least = r;
+      victim = it;
+    }
+  }
+  records_.erase(victim);
 }
 
 }  // namespace livera

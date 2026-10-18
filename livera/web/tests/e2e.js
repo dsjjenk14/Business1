@@ -12,6 +12,9 @@ const fs = require("fs");
 const path = require("path");
 
 const URL = process.env.LIVERA_URL || "http://127.0.0.1:18080/";
+const DOWN_URL = process.env.LIVERA_DOWN_URL || "";   // the client behind a gateway with no game server
+const TCP_PORT = Number(process.env.LIVERA_TCP_PORT);
+const PASSWORD = "correct horse 42";
 const SHOTS = process.env.LIVERA_SHOTS || path.join(__dirname, "shots");
 fs.mkdirSync(SHOTS, { recursive: true });
 const PHONE = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true };
@@ -50,6 +53,32 @@ function tcpBot(port) {
   });
   const req = (op, args = {}) => new Promise(res => { const n = ++id; waiting.set(n, res); sock.write(JSON.stringify({ id: n, op, ...args }) + "\n"); });
   return { req, close: () => sock.end(), ready: new Promise(r => sock.once("connect", r)) };
+}
+
+// A person on the raw protocol with a fresh account (what the terminal client does).
+async function tcpPlayer(username, character) {
+  const t = tcpBot(TCP_PORT);
+  await t.ready;
+  const reg = await t.req("register", { username, password: PASSWORD });
+  assert(reg.ok, "register failed: " + JSON.stringify(reg.error));
+  const l = await t.req("login", { username, password: PASSWORD });
+  assert(l.ok, "login failed: " + JSON.stringify(l.error));
+  if (character) { const p = await t.req("play", { character }); assert(p.ok, `play ${character} failed: ` + JSON.stringify(p.error)); }
+  return t;
+}
+
+// Does this server refuse `resume {take_over: false}` while the account is open on another device?
+async function serverKeepsOtherDevice() {
+  const user = `e2e_t_${RUN}`, a = tcpBot(TCP_PORT), b = tcpBot(TCP_PORT), c = tcpBot(TCP_PORT);
+  try {
+    await Promise.all([a.ready, b.ready, c.ready]);
+    await a.req("register", { username: user, password: PASSWORD });
+    const first = await a.req("login", { username: user, password: PASSWORD });
+    if (!first.ok || !first.data.token) return "this server has no session tokens";
+    await b.req("login", { username: user, password: PASSWORD });   // now open on b, with another token
+    const r = await c.req("resume", { token: first.data.token, take_over: false });
+    return r.ok ? "the server still lets `resume {take_over: false}` kick another device (it needs the in_use_elsewhere change)" : null;
+  } finally { a.close(); b.close(); c.close(); }
 }
 
 // ------------------------------------------------------------------ players
@@ -225,7 +254,28 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     await A.page.click(`#sheet [data-buy="${offer.id}"][data-method="card"]`);
     await feedHas(A, "Bought");
     await waitFor(A, want => window.__livera.world.money && window.__livera.world.money.bank_cents === want, before - price, 10000);
-    await exitBuilding(A);
+    try {
+      // Indoors a whisper still reaches only the one you pick; the chat bar must not say otherwise.
+      await A.page.click('#chatbar [data-volume="whisper"]');
+      const note = await A.page.textContent("#range-note");
+      await A.page.click('#chatbar [data-volume="say"]');
+      assert(!/everyone/.test(note), `with Whisper picked indoors the chat bar says "${note}"`);
+      assert((await A.page.textContent("#range-note")) === "everyone inside hears", "Say indoors should reach everyone inside");
+      // Closing the scene card inside leaves the pill with Exit (never a building you can't leave).
+      await closeSheet(A);
+      await A.page.waitForSelector('#sheet:not([hidden]) .mini-pill >> text="Exit"', { timeout: 3000 });
+    } finally {
+      // Leave either way, so a failure above doesn't strand A inside for the tests after this one.
+      // With no Exit on screen, the way back is the place card's "Go inside" (it reopens the scene).
+      if (!(await A.page.$("#exit-btn, #sheet:not([hidden]) .mini-pill"))) {
+        await A.page.click("#phone-btn");
+        await A.page.click('#phone [data-app="map"]');
+        await A.page.click('#phone li:has-text("Heritage Coffee") >> text="Show"');
+        await A.page.click('#sheet >> text="Go inside"');
+        await A.page.waitForSelector("#exit-btn");
+      }
+      await exitBuilding(A);
+    }
   });
 
   await test("walk back to a friend (building sheet → Walk here)", async () => {
@@ -237,10 +287,26 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
   await test("chat bar: say and shout reach a player nearby; the speaker sees who heard", async () => {
     await A.page.fill("#chat-input", "Hello from the phone");
     await A.page.click("#chat-send");
+    // Phone with a sheet open: the bubble stays below the top bar, and the feed shows one line.
+    await waitFor(A, () => window.__livera.bubbles().length > 0, null, 5000).catch(() => {});
+    const view = await W(A, () => {
+      const hud = document.getElementById("hud").getBoundingClientRect().bottom;
+      const lines = [...document.querySelectorAll("#feed .line")].filter(n => n.getBoundingClientRect().height > 0).length;
+      return { sheet: !document.getElementById("sheet").hidden, hud, bubbles: window.__livera.bubbles(), lines };
+    });
+    assert(view.sheet, "expected the Lexington card to be open on the phone");
+    assert(view.bubbles.length >= 1, "A's own line has no bubble on A's map");
+    assert(view.bubbles.every(b => b.y >= view.hud - 0.5), `a bubble is drawn under the top bar: ${JSON.stringify(view)}`);
     await feedHas(B, "Hello from the phone");
     await feedHas(A, "Heard by 1");
     const bubble = await W(B, () => window.__livera.world.bubbles.some(b => b.who === "aaliyah" && b.text === "Hello from the phone"));
     assert(bubble, "B has no bubble for A's line");
+    await B.page.fill("#chat-input", "Hello back from the desktop");
+    await B.page.click("#chat-send");
+    await feedHas(A, "Hello back from the desktop");
+    const feed = await W(A, () => { const all = [...document.querySelectorAll("#feed .line")]; return { all: all.length, shown: all.filter(n => n.getBoundingClientRect().height > 0).length }; });
+    assert(feed.all >= 2, `expected at least two feed lines on A, got ${feed.all}`);
+    assert(view.lines <= 1 && feed.shown <= 1, `with a sheet open the phone feed shows ${Math.max(view.lines, feed.shown)} lines`);
     await A.page.click('#chatbar [data-volume="shout"]');
     await A.page.fill("#chat-input", "Can you hear me now");
     await A.page.click("#chat-send");
@@ -253,6 +319,9 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
   await test("whisper offers only people within whisper range", async () => {
     await A.page.click('#chatbar [data-volume="whisper"]');
     await A.page.waitForSelector('#whisper-targets [data-person="dominique"]', { timeout: 8000 });
+    assert(/^only they hear/.test(await A.page.textContent("#range-note")), "the whisper range note is wrong outdoors");
+    const clipped = await W(A, () => { const s = document.querySelector("#chatbar .seg"); return s.scrollWidth - s.clientWidth; });
+    assert(clipped <= 0, `the longer whisper note squeezes the Whisper / Say / Shout switch by ${clipped}px`);
     await shot(A, "phone_07_whisper.png");
     await A.page.fill("#chat-input", "psst, over here");
     await A.page.click("#chat-send");
@@ -321,10 +390,45 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     await A.page.waitForSelector('#sheet[data-kind="person"]');
     await A.page.click('#sheet >> text="Ask on a date"');
     await B.page.waitForSelector('#sheet[data-kind="request"]', { timeout: 10000 });
+    await feedHas(B, "is asking you out");
+    const deadline = await W(B, () => /This ask passes at \w{3} \d\d:\d\d/.test(document.getElementById("sheet").textContent));
+    assert(deadline, "the ask sheet doesn't say when the ask passes (request.expires_in_minutes)");
+    const cliHint = await W(B, () => [...document.querySelectorAll("#feed .line")].some(n => /request id/.test(n.textContent)));
+    assert(!cliHint, "the terminal client's \"answer with request id\" hint reached the feed");
     await shot(B, "desktop_02_request.png");
     await B.page.click('#sheet >> text="Decline"');
-    await feedHas(A, "declined", 10000);
+    await feedHas(A, "said no", 10000);
     await closeSheet(A);
+  }, { skipIf: needNewer });
+
+  await test("an ask closed by mistake can be answered from the phone; one that passed closes", async () => {
+    const askDate = async () => {
+      await settle(A);
+      const face = await W(A, () => window.__livera.tapPoint("person", "dominique"));
+      assert(face, "Dominique isn't drawn on A's map");
+      await tap(A, face[0], face[1]);
+      await A.page.waitForSelector('#sheet[data-kind="person"]');
+      await A.page.click('#sheet >> text="Ask on a date"');
+      await B.page.waitForSelector('#sheet[data-kind="request"]', { timeout: 10000 });
+      await closeSheet(A);
+    };
+    await askDate();
+    await closeSheet(B);   // closed without answering
+    try {
+      await B.page.click("#phone-btn");
+      await B.page.click('#phone [data-app="romance"]');
+      await B.page.click('#phone [data-ask] >> text="Decline"', { timeout: 8000 });
+      await B.page.waitForSelector('#phone >> text="No asks waiting."', { timeout: 8000 });   // answered: the list refreshed
+    } finally {
+      const close = await B.page.$('#phone:not([hidden]) [aria-label="Close phone"]');
+      if (close) await close.click();
+    }
+    // Asks pass after the game's request_minutes (15 game minutes: 15 s at 1 minute per second).
+    await askDate();
+    await sleep(17000);
+    await B.page.click('#sheet[data-kind="request"] >> text="Accept"');
+    await feedHas(B, "that ask has passed");
+    await waitFor(B, () => document.getElementById("sheet").dataset.kind !== "request", null, 5000);
   }, { skipIf: needNewer });
 
   await test("onlookers see that someone whispers, never what", async () => {
@@ -439,6 +543,35 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     await A.page.click('#phone [aria-label="Close phone"]');
   });
 
+  await test("a message arriving while you type in Messages keeps your drafts and the focus", async () => {
+    const maya = await tcpPlayer(`e2e_m_${RUN}`, "maya");
+    try {
+      await A.page.click("#phone-btn");
+      await A.page.click('#phone [data-app="messages"]');
+      const reply = '#phone [data-thread="dominique"] input[aria-label="Reply"]';
+      await A.page.waitForSelector(reply);
+      await A.page.fill('#phone input[aria-label="To"]', "leila");
+      await A.page.fill('#phone input[aria-label="Message"]', "a long draft");
+      await A.page.fill(reply, "half a reply");
+      await A.page.focus(reply);
+      const m = await maya.req("message", { to: "aaliyah", text: "are you around?" });
+      assert(m.ok, "maya's message failed: " + JSON.stringify(m.error));
+      await A.page.waitForSelector('#phone [data-thread="maya"] >> text="are you around?"', { timeout: 8000 });
+      const after = await W(A, () => {
+        const v = sel => (document.querySelector(sel) || {}).value;
+        const f = document.activeElement;
+        return { to: v('#phone input[aria-label="To"]'), msg: v('#phone input[aria-label="Message"]'), reply: v('#phone [data-thread="dominique"] input[aria-label="Reply"]'),
+                 focus: f && f.closest("[data-thread]") ? f.closest("[data-thread]").dataset.thread + ":" + f.getAttribute("aria-label") : f && f.tagName };
+      });
+      assert(after.to === "leila" && after.msg === "a long draft" && after.reply === "half a reply", "drafts were wiped: " + JSON.stringify(after));
+      assert(after.focus === "dominique:Reply", "the field being typed in lost focus: " + after.focus);
+    } finally {
+      maya.close();
+      const close = await A.page.$('#phone:not([hidden]) [aria-label="Close phone"]');
+      if (close) await close.click();
+    }
+  });
+
   await test("phone layout: 44 px tap targets, 16 px inputs, no sideways scroll, nothing overlapping", async () => {
     const r = await W(A, () => {
       const vis = n => { const b = n.getBoundingClientRect(); const s = getComputedStyle(n); return b.width > 0 && b.height > 0 && s.visibility !== "hidden" && s.display !== "none"; };
@@ -455,6 +588,33 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     assert(r.scroll <= 0, `page scrolls sideways by ${r.scroll}px`);
     assert(r.overlap === 0, "top bar, map controls and chat bar overlap");
     await shot(A, "phone_13_map.png");
+  });
+
+  await test("phone: lifting one finger after a pinch doesn't make the map jump", async () => {
+    await closeSheet(A);
+    const free = await W(A, () => [[150, 400], [250, 400], [100, 400], [300, 400], [200, 380], [200, 400]].every(([x, y]) => document.elementFromPoint(x, y) === document.getElementById("town")));
+    assert(free, "the map isn't free to touch around y=400");
+    const cdp = await A.ctx.newCDPSession(A.page);
+    const touch = (type, pts) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: pts.map(([x, y, id]) => ({ x, y, id })) });
+    const proj = () => W(A, () => window.__livera.project(500, 500));
+    // A one-finger drag first turns follow-me off, so the camera holds still between the steps.
+    await touch("touchStart", [[200, 380, 1]]);
+    for (let k = 1; k <= 5; k++) await touch("touchMove", [[200, 380 + 4 * k, 1]]);
+    await touch("touchEnd", []);
+    await sleep(100);
+    await touch("touchStart", [[150, 400, 1]]);
+    await touch("touchStart", [[150, 400, 1], [250, 400, 2]]);
+    for (let k = 1; k <= 10; k++) await touch("touchMove", [[150 - 5 * k, 400, 1], [250 + 5 * k, 400, 2]]);
+    await touch("touchEnd", [[100, 400, 2]]);   // the second finger lifts; the first stays down
+    const before = await proj();
+    await touch("touchMove", [[102, 400, 1]]);
+    await sleep(50);
+    const after = await proj();
+    await touch("touchEnd", []);
+    await cdp.detach();
+    const jump = [after[0] - before[0], after[1] - before[1]];
+    assert(Math.abs(jump[0] - 2) < 1 && Math.abs(jump[1]) < 1, `moving the remaining finger 2 px moved the map by ${jump.map(v => v.toFixed(1))}`);
+    await A.page.click("#z-me");
   });
 
   await test("desktop layout at 1280x800", async () => {
@@ -496,6 +656,59 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     await shot(D, "phone_15_created_home.png");
   });
 
+  await test("a dropped connection keeps a half-filled login form and character creator", async () => {
+    const G = await newPlayer(browser, PHONE, "G (phone, half-filled forms)");
+    const dropAndReconnect = async () => {
+      const n = await W(G, () => window.__livera.welcomes());
+      await W(G, () => window.__livera.drop());
+      await waitFor(G, n => window.__livera.welcomes() > n, n, 15000);
+      await sleep(1000);   // the resume after the welcome
+    };
+    await G.page.goto(URL);
+    await G.page.waitForSelector("#login-user");
+    await waitFor(G, () => window.__livera.welcomes() >= 1);
+    await G.page.fill("#login-user", `e2e_g_${RUN}`);
+    await G.page.fill("#login-pass", PASSWORD);
+    await dropAndReconnect();
+    const login = await W(G, () => ({ u: (document.getElementById("login-user") || {}).value, p: (document.getElementById("login-pass") || {}).value }));
+    assert(login.u === `e2e_g_${RUN}` && login.p === PASSWORD, "the login form was wiped: " + JSON.stringify(login));
+    await G.page.click("#register-btn");
+    await G.page.waitForSelector("#create-btn");
+    await G.page.click("#create-btn");
+    await G.page.waitForSelector("form.creator");
+    await G.page.fill("form.creator fieldset:first-of-type input[type=text]", "Zelda");
+    await G.page.fill("form.creator textarea", "Typed on a phone, on a train");
+    await dropAndReconnect();
+    const form = await W(G, () => ({ phase: window.__livera.phase(), first: (document.querySelector("form.creator fieldset:first-of-type input[type=text]") || {}).value,
+                                     bg: (document.querySelector("form.creator textarea") || {}).value }));
+    assert(form.phase === "create" && form.first === "Zelda" && form.bg === "Typed on a phone, on a train", "the creator was wiped: " + JSON.stringify(form));
+  });
+
+  await test("study: a campus offers Enroll for the programs you can join, then Start / End studying", async () => {
+    const S = await newPlayer(browser, PHONE, "S (phone, Leila at the university)");
+    await register(S, `e2e_s_${RUN}`);
+    await pick(S, "leila");
+    await waitFor(S, () => !!window.__livera.world.school);
+    await S.page.waitForSelector("#exit-btn");
+    const atHome = await W(S, () => !!document.querySelector("#sheet [data-enroll]") || [...document.querySelectorAll("#sheet button")].some(b => /studying/.test(b.textContent)));
+    assert(!atHome, "study is offered at home");
+    await S.page.click("#exit-btn");
+    await waitFor(S, () => window.__livera.world.self.inside === "");
+    await S.page.click("#phone-btn");
+    await S.page.click('#phone [data-app="map"]');
+    await S.page.click('#phone li:has-text("Livéra University") >> text="Show"');
+    await S.page.click('#sheet >> text="Go inside"');
+    await waitFor(S, () => window.__livera.world.self.inside === "livera_university", null, 150000);
+    await S.page.waitForSelector('#sheet[data-kind="scene"] [data-enroll="law_school"]');
+    await S.page.click('#sheet [data-enroll="law_school"]');
+    await S.page.click('#sheet >> text="Start studying"', { timeout: 8000 });
+    await feedHas(S, "Studying.");
+    await S.page.waitForSelector("#sheet >> text=/studying now/", { timeout: 8000 });
+    await shot(S, "phone_18_studying.png");
+    await S.page.click('#sheet >> text="End studying"');
+    await feedHas(S, "Study session ended");
+  });
+
   await test("logging in on another device moves the session there, without a reconnect fight", async () => {
     const E = await newPlayer(browser, PHONE, "E (phone, A's account again)");
     await E.page.goto(URL);
@@ -510,6 +723,76 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     await sleep(4000);
     assert((await W(E, () => window.__livera.phase())) === "playing", "the first device took the session back");
   });
+
+  await test("a phone that slept through a login elsewhere doesn't take the session back when it wakes", async () => {
+    const F = await newPlayer(browser, PHONE, "F (phone that went to sleep)");
+    let asleep = false, wake = null;
+    await F.page.routeWebSocket(/\/ws$/, ws => {
+      const server = ws.connectToServer();
+      ws.onMessage(m => { if (!asleep) server.send(m); });
+      server.onMessage(m => { if (!asleep) ws.send(m); });
+      server.onClose(() => { if (!asleep) ws.close(); });
+      ws.onClose(() => server.close());
+      wake = () => ws.close({ code: 4000, reason: "network came back" });
+    });
+    await register(F, `e2e_f_${RUN}`);
+    await pick(F, "dax");
+    asleep = true;   // locked: its socket is dead, so it never hears it was replaced
+    const L = await newPlayer(browser, DESKTOP, "L (laptop, F's account)");
+    await L.page.goto(URL);
+    await L.page.waitForSelector("#login-user");
+    await L.page.fill("#login-user", `e2e_f_${RUN}`);
+    await L.page.fill("#login-pass", PASSWORD);
+    await L.page.click("#login-btn");
+    await waitFor(L, () => window.__livera.phase() === "playing" && window.__livera.world.selfId === "dax", null, 15000);
+    await sleep(1000);
+    asleep = false; wake();   // unlocked: the browser sees the dead socket and reconnects by itself
+    await waitFor(F, () => window.__livera.phase() === "kicked", null, 15000);
+    await F.page.waitForSelector('#screen >> text="Play here instead"');
+    await shot(F, "phone_17_slept_through.png");
+    await sleep(3000);
+    assert((await W(L, () => window.__livera.phase())) === "playing", "the phone took the session back from the laptop");
+    // Moving back is the player's choice.
+    await F.page.click('#screen >> text="Play here instead"');
+    await waitFor(F, () => window.__livera.phase() === "playing" && window.__livera.world.selfId === "dax", null, 15000);
+    await waitFor(L, () => window.__livera.phase() === "kicked", null, 10000);
+  }, { skipIf: async () => ((await newer(B)) ? serverKeepsOtherDevice() : "needs session tokens (the newer protocol)") });
+
+  await test("while the game server is down, reconnects back off instead of retrying every second", async () => {
+    const P = await newPlayer(browser, PHONE, "P (phone, server down)");
+    await P.page.addInitScript(() => {
+      window.__opens = 0;
+      const Base = window.WebSocket;
+      window.WebSocket = class extends Base { constructor(...a) { super(...a); window.__opens++; } };
+    });
+    await P.page.goto(DOWN_URL);
+    await P.page.waitForSelector("#screen >> text=/reach the game server/", { timeout: 10000 });
+    await sleep(10000);
+    const opens = await W(P, () => window.__opens);
+    await P.ctx.close();   // stop it retrying for the rest of the run
+    // 1, 2, 4, 8 s apart: about 4 tries in 10 s (retrying every second would be about 9).
+    assert(opens <= 5, `${opens} connection attempts in about 10 s`);
+  }, { skipIf: async () => (DOWN_URL ? null : "no second gateway (its game server port was in use)") });
+
+  // Last on purpose: it moves the game clock forward for everyone.
+  await test("open / closed follows the clock (the map refreshes as the hours turn)", async () => {
+    const clock = await tcpPlayer(`e2e_k_${RUN}`, null);
+    try {
+      await B.page.click("#phone-btn");
+      await B.page.click('#phone [data-app="map"]');
+      await B.page.click('#phone li:has-text("Heritage Coffee") >> text="Show"');
+      await B.page.waitForSelector('#sheet[data-kind="place"]');
+      const s = await W(B, () => ({ status: window.__livera.world.placeById.get("heritage_coffee").status, minute: window.__livera.world.minute() }));
+      const open = s.status === "open", want = open ? "closed" : "open";
+      const target = open ? 21 * 60 + 5 : 8 * 60 + 5;   // Heritage Coffee keeps 6:00–20:00 (data)
+      const minutes = Math.round((target - (s.minute % 1440) + 1440) % 1440) || 1440;
+      const adv = await clock.req("dev_advance", { minutes });
+      assert(adv.ok, "dev_advance failed: " + JSON.stringify(adv.error));
+      await waitFor(B, want => window.__livera.world.placeById.get("heritage_coffee").status === want, want, 20000);
+      await B.page.waitForSelector(`#sheet[data-kind="place"] .badge.${want}`, { timeout: 5000 });
+      await shot(B, "desktop_04_closed_now.png");
+    } finally { clock.close(); }
+  }, { skipIf: async () => ((await newer(B)) ? null : "needs the newer protocol") });
 
   await test("no console errors and no dialogs in any browser", async () => {
     const bad = players.flatMap(p => [...p.errors.map(e => `${p.label}: ${e}`), ...p.dialogs.map(d => `${p.label}: dialog ${d}`)]);

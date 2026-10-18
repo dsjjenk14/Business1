@@ -42,7 +42,9 @@ export class Transport {
     let ws;
     try { ws = new WebSocket(this.url); } catch (e) { this.scheduleReconnect(); return; }
     this.ws = ws;
-    ws.onopen = () => { this.retry = 0; this.everOpened = true; this.setStatus("open"); };
+    // The backoff restarts only at the server's `welcome`, not here: the gateway accepts the
+    // WebSocket before it knows the game server is up, so an open socket alone proves nothing.
+    ws.onopen = () => { this.everOpened = true; this.setStatus("open"); };
     ws.onmessage = ev => this.onLine(ev.data);
     ws.onclose = ev => {
       if (this.ws !== ws) return;
@@ -62,8 +64,8 @@ export class Transport {
     this.reconnectTimer = setTimeout(() => this.connect(), delay);
   }
 
-  // Stop reconnecting (kicked because the account logged in elsewhere: reconnecting would kick
-  // the other device back, forever).
+  // Stop reconnecting (kicked because the account logged in elsewhere, or a reconnect found it
+  // playing elsewhere: reconnecting would kick the other device back, forever).
   halt() { this.autoReconnect = false; clearTimeout(this.reconnectTimer); if (this.ws) this.ws.close(1000, "client stopped"); }
   resumeReconnecting() { this.autoReconnect = true; this.retry = 0; this.connect(); }
 
@@ -72,7 +74,7 @@ export class Transport {
     try { msg = JSON.parse(text); } catch { console.warn("ignored a line that isn't JSON"); return; }
     if (!msg || typeof msg !== "object") return;
     if (typeof msg.event === "string") {
-      if (msg.event === "welcome") { this.welcome = msg.data || {}; this.emit("welcome", this.welcome); }
+      if (msg.event === "welcome") { this.retry = 0; this.welcome = msg.data || {}; this.emit("welcome", this.welcome); }
       this.emit("event", msg);
       return;
     }
@@ -111,11 +113,13 @@ export class Transport {
     });
   }
 
-  // After the welcome: log back in with the stored token, if there is one.
-  async resume() {
+  // After the welcome: log back in with the stored token, if there is one. `takeOver` false asks
+  // the server not to kick a session the account has open on another device (it answers
+  // `in_use_elsewhere`); a server that doesn't know the flag ignores it and takes over as before.
+  async resume(takeOver = true) {
     const token = this.token;
     if (!token) return { ok: false, error: { code: "no_token", message: "" } };
-    const r = await this.request("resume", { token });
+    const r = await this.request("resume", { token, take_over: !!takeOver });
     if (r.ok) { if (r.data.token) this.saveToken(r.data.token); return r; }
     if (r.error.code === "bad_token" || r.error.code === "unknown_op" || r.error.code === "bad_request") this.clearToken();
     return r;

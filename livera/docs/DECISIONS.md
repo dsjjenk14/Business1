@@ -70,6 +70,8 @@ it), and an account plays one character.
 **Open question for the product owner:** Are the 16 founding characters meant to be
 claimed by players, or run by the simulation (with players mostly creating their own)?
 The spec calls them playable; this decision keeps both options open.
+**Amended by D-046:** founders nobody has claimed can be played by labelled scripts that write
+no claim, which answers part of the open question, and the operator can release a claim.
 
 ## D-011 — Simulation tiers: Active per-minute, Dormant convergent catch-up
 **Why:** Offline simulation must be cheap. A dormant character's needs converge toward a
@@ -451,3 +453,88 @@ prediction" note on D-013, and the "voice with the engine" half of D-019.
 project is made in, while a web client can be built, screenshot-tested with Playwright and played
 on a phone within days. About 60% of what makes the town feel alive (seeing people move, buses,
 a busy town) is server work every client needs, so the server changes come first.
+
+## D-046 — Script accounts never claim a character, and people always win
+**Decision:** Accounts named `bot_*` are scripts (the town director, `scripts/town_director.py`).
+Only the operator makes them (`livera_server --add-account`); `register` refuses the prefix. A
+script's `play` writes no claim and is refused with `character_claimed` if any account has claimed
+the character, or `character_in_use` if anyone is playing it; scripts can't `create_character`
+(`forbidden`). While a script plays a character, everyone who sees them gets `scripted: true` and
+`characters` shows `scripted_now` (kept in `World` memory, never saved). When a person plays a
+character a script is playing, the script gets `released` and leaves the world, and the person
+plays and claims it. The operator can free a claim with `livera_server --release-character ID`;
+whoever is playing that character keeps it until they leave. `--max-players` (default raised from
+8 to 16) counts people only; `--max-scripted` (default 16) caps scripts.
+**Amends:** D-010. One account still plays one character and a claim still belongs to one
+account, but founders nobody has claimed can now be run by scripts with no claim written.
+**Why:** The town shouldn't feel empty with three friends online, but a script must never pass as
+a person (rule 6) or keep a character from one. Writing no claim keeps the accounts table the only
+record of who owns whom.
+
+## D-047 — Resume tokens live in server memory only
+**Decision:** `login` returns a token (32 bytes from OpenSSL `RAND_bytes`, as 64 hex characters);
+`resume {token}` logs a connection in like `login`. Tokens expire 7 days after issue, at most 5 per
+account (oldest dropped), `logout` revokes the session's own, and a restart forgets them all. No
+save-format change.
+**Why:** Phones drop connections constantly; a token reconnects them without the browser ever
+storing the password, and keeping tokens in memory needs no migration and no table of secrets to
+protect.
+**Trade-off:** Every restart (each `livera-update`, a crash, a reboot) sends every player back to
+the password screen.
+**Revisit:** When that annoys players, or tokens need revoking from a settings screen: store hashed
+tokens with a migration.
+
+## D-048 — Login throttling is per username, in memory
+**Decision:** After 5 wrong passwords for one username within 10 minutes, every `login` for it is
+refused with `login_throttled` for 10 minutes, the right password included. The lock is checked
+before hashing; a success clears the count; `resume` is unaffected.
+**Why:** The server only sees the gateway's loopback connections, so it can't limit by IP;
+per-name limits stop guessing against the few real accounts.
+**Trade-off:** Anyone can lock a known name (including the predictable `bot_<character>` names)
+out of password login for 10 minutes at a time. A player who still has a token can `resume`.
+**Revisit:** Before any public server: per-IP limits (MULTIPLAYER.md, "Not yet").
+
+## D-049 — The VPS install: tested releases behind a `current` link
+**Decision:** `deploy/setup.sh` builds on the server and runs `livera_tests`; if they fail nothing
+is installed. Each commit goes to `/opt/livera/releases/<commit>` (the three newest kept) and
+`/opt/livera/current` points at the live one; systemd runs the server, the gateway and (unless
+turned off) the director from it. The server runs `--bind 127.0.0.1 --closed-registration`, never
+`--dev` or `--test-payments`; Caddy terminates HTTPS, serves the client and proxies `/ws` to the
+gateway; UFW allows SSH, 80/tcp, 443/tcp and 443/udp (HTTP/3). Accounts are made with
+`--add-account`. `backup.sh` keeps the newest 14 nightly SQLite `.backup` copies and the newest 5
+taken before updates.
+**Why:** A failed build or test can never half-update a running server, and going back to an
+older release is re-pointing a link.
+**Trade-off:** Re-pointing the link is not enough after an update that added a save migration:
+the older server refuses the newer schema (`storage_version`) and systemd keeps restarting it.
+Going back past such an update means restoring the backup taken just before it too, and losing
+what was played since.
+
+## D-050 — Scripted founders leave the world at night
+**Decision:** The town director logs each character out at bedtime (two hours after the last
+thing in their schedule, between 22:30 and 23:45) and back in at their wake time; offline life
+(D-011) covers the night. Its two habits that aren't data (coffee before some work days, an outing
+on free days) are logged as `[director habit]`.
+**Why:** Offline life already models a night at home; scripting sleep a second time would
+duplicate it and hold sessions for nothing.
+**Trade-off:** Players see scripted founders leave (`left_world`) in the evening.
+
+## D-051 — Sight range is data, 120 m, never below shout range
+**Decision:** `simulation.sight_range_m` (120) replaces the 40 m constant in `WorldViews.cpp`;
+`ContentDatabase` refuses content where it is below `shout_range_m`. Only online characters can be
+in sight: outdoors, other people outdoors within that range; inside, everyone in the same building
+at any distance; never anyone else. `look.people` and the per-viewer `people` stream carry their
+position and motion (MULTIPLAYER.md, "What a player can see").
+**Why:** Clients draw whoever they hear; a shout from someone out of sight would be a voice from
+nowhere.
+
+## D-052 — An automatic reconnect never takes the account back
+**Decision:** `resume` takes an optional `take_over` (default true). The web client sends false on
+its automatic reconnects and true when the page opens or the player taps "Play here instead".
+With false, if another connection holding a different token is logged in to the account, the
+reply is `in_use_elsewhere` and nobody is kicked; the same token's half-open old connection is
+still replaced.
+**Why:** A phone that slept through `kicked` would otherwise wake, resume and kick the laptop the
+player had moved to, and the two devices would take turns. Only the server knows whether another
+session is open.
+**Trade-off:** Older clients omit the flag and keep "the newest login wins".

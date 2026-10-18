@@ -106,6 +106,8 @@ autonomous choices (who to approach, who to avoid), feed gossip, and fade by imp
 
 `say`, `shout` and `whisper` reach whoever the server says can hear: the same building, or
 outdoors within `hearing_range_m` / `shout_range_m` / `whisper_range_m` (one listener).
+Who you can see is separate: outdoors, people within `sight_range_m`; inside, people in the same
+building (MULTIPLAYER.md, "What a player can see").
 Every line that someone hears gives the speaker and each listener +1 social. Free chat
 doesn't change relationship numbers: those move through interactions (chat, compliment,
 deep talk...) so the simulation stays predictable and can't be gamed by typing.

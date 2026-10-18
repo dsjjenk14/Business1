@@ -1,7 +1,15 @@
 // End-to-end: real server, real sockets, two players, then a server restart.
 // This is the founding vertical slice from docs/ROADMAP.md, driven over the wire.
 
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <netinet/in.h>
+#include <sys/resource.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
 #include <atomic>
+#include <ctime>
 #include <fstream>
 #include <chrono>
 #include <thread>
@@ -412,6 +420,11 @@ TEST_CASE("server: everyday life over the network: phone apps, things, school, t
   const std::string ask = dax.ok({{"op", "request"}, {"kind", "date"}, {"target", "dominique"}})["request"];
   dom.pump(0.2);
   CHECK(dom.sawEvent("request"));
+  for (const auto& e : dom.events) {
+    if (e.value("event", "") != "request") continue;
+    CHECK(e["data"]["id"] == ask);
+    CHECK(e["data"]["expires_in_minutes"] == 15);  // data/society/romance.json request_minutes, so a client can say when
+  }
   CHECK(dom.ok({{"op", "respond"}, {"request", ask}, {"accept", true}})["accepted"] == "date");
   dax.pump(0.2);
   CHECK(dax.sawEvent("answer"));
@@ -560,6 +573,41 @@ TEST_CASE("server: a token resumes a session; unknown and logged-out tokens don'
   CHECK(e.ok({{"op", "resume"}, {"token", tokens[1]}})["username"] == "dom");
 }
 
+TEST_CASE("server: an automatic reconnect (take_over false) never takes the account back from another device") {
+  RunningServer server(tempPath("take_over.db").string());
+  const Json password{{"op", "login"}, {"username", "dom"}, {"password", "dom-pass-123"}};
+  TestClient phone(server.port());
+  phone.ok({{"op", "register"}, {"username", "dom"}, {"password", "dom-pass-123"}});
+  const std::string phoneToken = phone.ok(password)["token"];
+  phone.ok({{"op", "play"}, {"character", "dominique"}});
+
+  // The same device's half-open old connection holds the same token: it is replaced as before.
+  TestClient phoneAgain(server.port());
+  CHECK(phoneAgain.ok({{"op", "resume"}, {"token", phoneToken}, {"take_over", false}})["username"] == "dom");
+  phone.pump(0.3);
+  CHECK(phone.sawEvent("kicked"));
+
+  // The laptop logs in with the password while the phone sleeps; the phone never hears `kicked`.
+  TestClient laptop(server.port());
+  const std::string laptopToken = laptop.ok(password)["token"];
+  CHECK(laptopToken != phoneToken);
+  laptop.ok({{"op", "play"}, {"character", "dominique"}});
+
+  // The phone wakes and reconnects on its own: refused, nobody kicked, and it isn't logged in.
+  TestClient woken(server.port());
+  CHECK(woken.refusal({{"op", "resume"}, {"token", phoneToken}, {"take_over", false}}) == "in_use_elsewhere");
+  CHECK(woken.refusal({{"op", "characters"}}) == "not_logged_in");
+  laptop.pump(0.3);
+  CHECK(!laptop.sawEvent("kicked"));
+  CHECK(laptop.ok({{"op", "look"}})["you"]["id"] == "dominique");
+
+  // "Play here instead" (or an older client that omits the flag) takes the session over, kicking the laptop.
+  CHECK(woken.ok({{"op", "resume"}, {"token", phoneToken}})["character"] == "dominique");
+  laptop.pump(0.3);
+  CHECK(laptop.sawEvent("kicked"));
+  woken.ok({{"op", "play"}, {"character", "dominique"}});
+}
+
 TEST_CASE("server: tokens expire") {
   RunningServer server(tempPath("token_expiry.db").string(), true,
                        [](ServerConfig& cfg) { cfg.tokenLifetimeSeconds = 1.0; });
@@ -602,7 +650,7 @@ TEST_CASE("server: login throttling and session tokens keep time correctly") {
   CHECK(t.tracked() == 0);
   LoginThrottle spray(5, 600, 600);
   for (int i = 0; i < 5000; ++i) spray.failed("u" + std::to_string(i), 0);
-  CHECK(spray.tracked() == 5000);
+  CHECK(spray.tracked() == LoginThrottle::kDefaultMaxTracked);  // made-up names can't grow memory without end
   spray.failed("late", 1000);  // everything older than the window is swept
   CHECK(spray.tracked() == 1);
 
@@ -626,6 +674,94 @@ TEST_CASE("server: login throttling and session tokens keep time correctly") {
   CHECK(checkUsername(std::string(25, 'a')).error().code == "invalid_username");
   CHECK(checkPassword("short").error().code == "invalid_password");
   CHECK(checkPassword("long enough"));
+}
+
+TEST_CASE("server: a flood of made-up usernames is bounded and pushes out its own records first") {
+  LoginThrottle t(5, 600, 600, /*maxTracked=*/100);
+  t.failed(std::string(10000, 'a'), 0);  // could never be an account
+  t.failed("Dom", 0);
+  t.failed("", 0);
+  CHECK(t.tracked() == 0);
+  for (int i = 0; i < 5; ++i) t.failed("dom", 1);  // locked
+  for (int i = 0; i < 4; ++i) t.failed("sam", 1);  // one more and he's locked too
+  for (int i = 0; i < 1000; ++i) t.failed("spray" + std::to_string(i), 2 + i * 0.1);
+  CHECK(t.tracked() == 100);
+  CHECK(t.locked("dom", 200));
+  t.failed("sam", 200);
+  CHECK(t.locked("sam", 200));
+  // Only once every record left is a lock does a newcomer take the place of the lock that ends soonest.
+  LoginThrottle full(1, 600, 600, 3);
+  for (const char* name : {"aaa", "bbb", "ccc", "ddd"}) full.failed(name, name[0] - 'a');
+  CHECK(full.tracked() == 3);
+  CHECK(!full.locked("aaa", 10));
+  CHECK(full.locked("bbb", 10));
+  CHECK(full.locked("ddd", 10));
+}
+
+TEST_CASE("server: logins for names that can't be accounts are refused alike and never throttled") {
+  RunningServer server(tempPath("throttle_names.db").string());
+  TestClient c(server.port());
+  c.ok({{"op", "register"}, {"username", "dom"}, {"password", "dom-pass-123"}});
+  for (const std::string& name : {std::string("Dom"), std::string(10000, 'd'), std::string("d")}) {
+    for (int i = 0; i < 7; ++i) CHECK(c.refusal({{"op", "login"}, {"username", name}, {"password", "guess-guess"}}) ==
+                                      "bad_credentials");
+  }
+  c.ok({{"op", "login"}, {"username", "dom"}, {"password", "dom-pass-123"}});
+}
+
+// Puts the descriptor limit back however a test ends; every later test needs it.
+struct FdLimitGuard {
+  rlimit was{};
+  FdLimitGuard() { REQUIRE(::getrlimit(RLIMIT_NOFILE, &was) == 0); }
+  ~FdLimitGuard() { (void)::setrlimit(RLIMIT_NOFILE, &was); }
+  FdLimitGuard(const FdLimitGuard&) = delete;
+  FdLimitGuard& operator=(const FdLimitGuard&) = delete;
+};
+
+TEST_CASE("server: out of file descriptors, the server waits instead of spinning, then takes the queued connection") {
+  RunningServer server(tempPath("emfile.db").string());
+  TestClient first(server.port());
+  first.ok({{"op", "ping"}});
+  sockaddr_in addr{};
+  addr.sin_family = AF_INET;
+  addr.sin_port = htons(server.port());
+  addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+  FdLimitGuard guard;
+  int highest = 0;
+  for (int fd = 0; fd < 65536 && static_cast<rlim_t>(fd) < guard.was.rlim_cur; ++fd) {
+    if (::fcntl(fd, F_GETFD) != -1) highest = fd;
+  }
+  rlimit low = guard.was;
+  low.rlim_cur = std::min<rlim_t>(guard.was.rlim_cur, static_cast<rlim_t>(highest) + 8);
+  REQUIRE(::setrlimit(RLIMIT_NOFILE, &low) == 0);
+  // Every descriptor the process may open is taken but one. The next client's socket takes that, so the server (in
+  // this same process) can't accept its connection, which waits in the listen queue.
+  std::vector<net::Fd> filler;
+  for (net::Fd fd(::dup(0)); fd.valid(); fd = net::Fd(::dup(0))) filler.push_back(std::move(fd));
+  REQUIRE(!filler.empty());
+  filler.pop_back();
+  net::Fd queued(::socket(AF_INET, SOCK_STREAM, 0));
+  REQUIRE(queued.valid());
+  REQUIRE(::connect(queued.get(), reinterpret_cast<const sockaddr*>(&addr), sizeof addr) == 0);
+
+  timespec cpu0{}, cpu1{};
+  ::clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &cpu0);
+  std::this_thread::sleep_for(std::chrono::milliseconds(800));
+  ::clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &cpu1);
+  const double busy =
+      static_cast<double>(cpu1.tv_sec - cpu0.tv_sec) + static_cast<double>(cpu1.tv_nsec - cpu0.tv_nsec) / 1e9;
+  CHECK(busy < 0.25);  // a loop that polls the readable listener over and over burns all 0.8 s
+  first.ok({{"op", "ping"}});  // sessions already open are served throughout
+
+  filler.clear();
+  REQUIRE(::setrlimit(RLIMIT_NOFILE, &guard.was) == 0);
+  // Descriptors free again: the queued connection is accepted and welcomed.
+  net::LineBuffer buf;
+  auto line = net::readLine(queued, buf, 3000);
+  REQUIRE(line);
+  REQUIRE(line.value());
+  CHECK(Json::parse(*line.value())["event"] == "welcome");
 }
 
 TEST_CASE("server: scripts are labelled, never claim, and always give way to a person") {

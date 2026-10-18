@@ -10,7 +10,7 @@ import { Renderer2D } from "./render2d.js";
 import { UI } from "./ui.js";
 import { Phone } from "./phone.js";
 import { buildCreator } from "./creator.js";
-import { el, avatar, loadFaceManifest, firstName, money, titleCase } from "./dom.js";
+import { el, avatar, loadFaceManifest, firstName, money, titleCase, withoutCliHint } from "./dom.js";
 import { SKETCH_NOTICE } from "./layout.js";
 
 const round1 = v => Math.round(v * 10) / 10;
@@ -27,6 +27,10 @@ class Game {
     this.wasPlaying = false;
     this.pending = null;       // a walk-then-act intent
     this.lastLook = 0; this.lookBusy = false; this.lastBank = 0; this.lastWeather = 0; this.lastCity = 0;
+    this.mapHour = null;       // the game hour the map's open/closed statuses are from
+    this.mapRetryAt = 0;
+    this.welcomes = 0;         // welcomes seen: the first is this page load, later ones are reconnects
+    this.takeOverNext = false; // "Play here instead": the next resume may kick the other device
   }
 
   async start() {
@@ -53,6 +57,7 @@ class Game {
       selfPos: () => this.world.selfPos(), streaming: () => this.world.streaming, scale: () => this.renderer.scale,
       look: () => this.transport.request("look"),
       drop: () => { if (this.transport.ws) this.transport.ws.close(); },   // simulate a dropped connection
+      welcomes: () => this.welcomes, bubbles: () => this.renderer.bubbleRects.map(b => ({ ...b })),
     });
   }
 
@@ -68,14 +73,30 @@ class Game {
   async onWelcome(d) {
     this.protocol = d.protocol || null;
     if (d.rules) this.world.setRules(d.rules);
-    const r = await this.transport.resume();
+    // Opening the page, or "Play here instead", may move the session here. A reconnect after a
+    // drop (a locked phone, a Wi-Fi handoff) must not: the player may have moved to another device.
+    const takeOver = this.welcomes++ === 0 || this.takeOverNext;
+    this.takeOverNext = false;
+    const r = await this.transport.resume(takeOver);
     if (r.ok) {
       this.username = r.data.username;
       this.ui.setConnection(null);
+      // Halfway through making a character: keep the form as typed (a character made just before
+      // the drop comes back in r.data.character, and then we play it).
+      if (!r.data.character && this.phase === "create") return;
       await this.afterLogin(r.data);
       return;
     }
     this.ui.setConnection(null);
+    if (r.error.code === "in_use_elsewhere") {
+      this.transport.halt();
+      if (this.phase === "playing") this.leaveGame();
+      this.phase = "kicked";
+      this.screenKicked("This account is playing on another device right now.");
+      return;
+    }
+    // Nobody was logged in and the login form is up: keep what's typed in it.
+    if (r.error.code === "no_token" && this.phase === "login" && document.getElementById("login-user")) return;
     if (this.phase === "playing") this.leaveGame();
     if (this.wasPlaying) this.screenLogin("The connection dropped and this server can't resume the session. Log in again.");
     else this.screenLogin();
@@ -120,13 +141,12 @@ class Game {
     this.world.people.clear();
     this.world.applyLook(look);
     this.lastLook = performance.now();
-    const m = await this.transport.request("map");
-    if (m.ok) this.world.setMap(m.data);
+    await this.refreshMap();
     if (!this.world.transit) {
       const t = await this.transport.request("phone", { app: "transit" });
       if (t.ok && Array.isArray(t.data.lines)) this.world.setTransit(t.data.lines);
     }
-    this.refreshBank(); this.refreshWeather(); this.refreshCity(); this.refreshCareer();
+    this.refreshBank(); this.refreshWeather(); this.refreshCity(); this.refreshCareer(); this.refreshSchool();
     if (this.world.self.inside) this.ui.sheetScene();
     this.ui.toast(`You're ${this.world.selfName}.`);
   }
@@ -226,7 +246,9 @@ class Game {
   screenKicked(reason) {
     this.ui.showScreen(el("div", { class: "screen-inner" }, el("div", { class: "wordmark" }, "Livéra"), el("h1", null, "Playing elsewhere"),
       el("p", null, reason || "This account logged in somewhere else."),
-      el("button", { type: "button", class: "btn primary block", onclick: () => { this.phase = "boot"; this.screenConnecting("Reconnecting…"); this.transport.resumeReconnecting(); } }, "Play here instead")));
+      el("button", { type: "button", class: "btn primary block", onclick: () => {
+        this.phase = "boot"; this.takeOverNext = true; this.screenConnecting("Reconnecting…"); this.transport.resumeReconnecting();
+      } }, "Play here instead")));
   }
 
   // ------------------------------------------------------------------ the world: events and polling
@@ -252,11 +274,13 @@ class Game {
       case "message":
         ui.toast(`Message from ${name(d.from)}: ${String(d.body ?? "")}`);
         this.phoneUI.unread++; this.setPhoneBadge(this.phoneUI.unread);
-        if (this.phoneUI.open && this.phoneUI.app === "messages") this.phoneUI.openApp("messages");
+        // Refresh the threads in place: what the player is typing stays, and so does the keyboard.
+        if (this.phoneUI.open && this.phoneUI.app === "messages") this.phoneUI.refreshMessages();
         return;
-      case "notification": ui.line("", String(d.text ?? ""), "note"); return;
-      case "request": ui.toast(`${name(d.from)} is asking you something.`); ui.sheetRequest(d); return;
-      case "answer": ui.toast(`Your ask (${String(d.kind || "").replace(/_/g, " ")}) was ${d.accepted ? "accepted" : "declined"}.`); return;
+      case "notification": ui.line("", withoutCliHint(d.text), "note"); return;
+      // An ask and its answer each come with a notification too (the feed line), so no toast here.
+      case "request": ui.sheetRequest(d); return;
+      case "answer": return;
       case "interaction": ui.line(name(d.from), String(d.label ?? d.interaction ?? ""), "note"); return;
       case "gift": ui.toast(`${name(d.from)} gave you ${String(d.label ?? d.item ?? "something")}.`); return;
       case "incident": ui.line("", `${name(d.character)}: ${titleCase(d.kind)}${d.crime ? ` (${d.crime})` : ""}`, "note"); return;
@@ -298,7 +322,27 @@ class Game {
     if (now - this.lastBank > 30000) this.refreshBank();
     if (now - this.lastWeather > 120000) this.refreshWeather();
     if (now - this.lastCity > 300000) this.refreshCity();
+    // Opening hours are whole hours, so statuses can only change with the hour (or a project
+    // finishing, also caught within the hour). The clock is predicted and can run up to ~1.5
+    // game minutes ahead of the server, so ask a few minutes after our own hour turns.
+    const minute = w.minute(now);
+    if (minute !== null && this.mapHour !== null && Math.floor((minute - 3) / 60) !== this.mapHour && now >= this.mapRetryAt) this.refreshMap();
     this.checkPending(now);
+  }
+
+  // The map: places with their open / closed / under construction status as of now.
+  async refreshMap() {
+    const minute = this.world.minute(), hourBefore = this.mapHour;
+    if (minute !== null) this.mapHour = Math.floor((minute - 3) / 60);
+    const sheet = this.ui.sheet, statusOf = id => { const b = this.world.buildingById.get(id) || this.world.buildingOfPlace.get(id) || this.world.placeById.get(id); return b ? b.status : null; };
+    const before = sheet && sheet.kind === "place" ? statusOf(sheet.id) : null;
+    const m = await this.transport.request("map");
+    if (!m.ok) { this.mapHour = hourBefore; this.mapRetryAt = performance.now() + 5000; return; }
+    this.world.setMap(m.data);
+    if (minute === null && this.world.minute() !== null) this.mapHour = Math.floor((this.world.minute() - 3) / 60);
+    // A place card that's open shows the new status right away.
+    const now = this.ui.sheet;
+    if (now && now === sheet && now.kind === "place" && statusOf(now.id) !== before) this.ui.sheetPlace(now.id);
   }
 
   async refreshLook() {
@@ -332,6 +376,17 @@ class Game {
   async refreshCareer() {
     const r = await this.transport.request("phone", { app: "career" });
     if (r.ok) this.world.career = r.data;
+  }
+  // What you're enrolled in and the programs (with their campuses): the scene card offers study
+  // only at your own program's campus, and enrolling where a program you can join is taught.
+  async refreshSchool() {
+    const r = await this.transport.request("phone", { app: "school" });
+    if (!r.ok) return;
+    this.world.school = r.data;
+    // A scene card already open at a campus gets its study part.
+    const here = this.world.here, sheet = this.ui.sheet;
+    const campus = here && (r.data.programs || []).some(p => Array.isArray(p.campuses) && p.campuses.includes(here.name));
+    if (campus && sheet && sheet.kind === "scene") this.ui.sheetScene();
   }
 
   // ------------------------------------------------------------------ taps on the map
@@ -447,6 +502,14 @@ class Game {
     const r = await this.req("study", { action });
     if (!this.ui.refusal(r)) return;
     this.ui.toast(action === "start" ? "Studying." : "Study session ended."); this.lastLook = 0;
+    this.refreshSchool();
+    if (action === "end") this.refreshBank();
+  }
+  async enroll(program) {
+    const r = await this.req("enroll", { program: program.id });
+    if (!this.ui.refusal(r, `Couldn't enroll in ${program.name}`)) return;
+    this.ui.toast(`Enrolled in ${r.data.program || program.name}.`);
+    this.refreshSchool();
   }
 
   async rideFrom(stop, to, pay, payWith) {
@@ -526,11 +589,12 @@ class Game {
     if (!this.ui.refusal(r)) return;
     this.ui.toast(`Asked ${firstName(this.world.nameOf(target))}. Waiting for an answer.`);
   }
+  // Returns the server's reply: callers close the ask on success, and on `unknown_request` (it passed).
   async respond(id, accept) {
     const r = await this.req("respond", { request: id, accept });
-    if (!this.ui.refusal(r)) return false;
+    if (!this.ui.refusal(r)) return r;
     this.ui.toast(accept ? "You said yes." : "You said no.");
-    return true;
+    return r;
   }
   phone(app) { return this.req("phone", { app }); }
   message(to, text) { return this.req("message", { to, text }); }

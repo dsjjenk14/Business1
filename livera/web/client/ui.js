@@ -59,7 +59,7 @@ export class UI {
     const sheet = $("sheet").hidden ? 0 : $("sheet").offsetHeight;
     return { top, bottom: narrow ? chat + sheet : 0 };
   }
-  showGame(on) { for (const id of ["hud", "mapctl", "chatbar"]) this.$(id).hidden = !on; if (!on) this.closeSheet(); }
+  showGame(on) { for (const id of ["hud", "mapctl", "chatbar"]) this.$(id).hidden = !on; if (!on) this.closeSheet(true); }
   syncFollow() { const b = this.$("z-me"); b.classList.toggle("on", this.renderer.follow); b.setAttribute("aria-pressed", String(this.renderer.follow)); }
   setConnection(text) { const c = this.$("conn"); c.hidden = !text; c.textContent = text || ""; }
 
@@ -76,9 +76,16 @@ export class UI {
     else if (w.moneyError) { $("money-bank").textContent = "$—"; $("money-cash").textContent = w.moneyError; }
     this.renderNeeds();
     if (this.volume === "whisper") this.renderTargets();
-    $("range-note").textContent = w.self && w.self.inside ? "everyone inside hears" : `reaches ${w.rangeFor(this.volume)} m`;
+    this.renderRangeNote();
     this.syncFollow();
     if (this.sheet && this.sheet.update) this.sheet.update(now);
+  }
+  // Who your words reach. A whisper reaches only the one you pick (others nearby see that you
+  // whisper, never what), indoors as well.
+  renderRangeNote() {
+    const w = this.world, inside = !!(w.self && w.self.inside);
+    this.$("range-note").textContent = this.volume === "whisper" ? (inside ? "only they hear" : `only they hear, within ${w.rangeFor("whisper")} m`)
+      : inside ? "everyone inside hears" : `reaches ${w.rangeFor(this.volume)} m`;
   }
   weatherText() {
     const wx = this.world.weather;
@@ -122,6 +129,7 @@ export class UI {
     this.$("whisper-targets").hidden = v !== "whisper";
     this.$("chat-input").placeholder = v === "whisper" ? "Whisper something" : v === "shout" ? "Shout something" : "Say something";
     if (v === "whisper") { this.targetsKey = ""; this.renderTargets(); } else this.whisperTo = null;
+    this.renderRangeNote();
     if (!quiet) this.renderer.setRing(v);
     if (document.activeElement === this.$("chat-input")) this.renderer.ringHold = v;
   }
@@ -173,7 +181,11 @@ export class UI {
     this.renderer.select(kind === "place" || kind === "person" || kind === "stop" ? { kind, id } : null);
     if (update) update(performance.now());
   }
-  closeSheet() {
+  // Inside a building, closing a sheet goes back to the scene pill, so Exit is always on screen.
+  // `force` really hides it (leaving the game, or once you're outside).
+  closeSheet(force = false) {
+    const w = this.world;
+    if (!force && w.self && w.self.inside && w.here) { this.miniScene(); return; }
     const sheet = this.$("sheet");
     sheet.hidden = true; clear(sheet); delete sheet.dataset.kind;
     this.sheet = null; this.renderer.select(null);
@@ -258,12 +270,26 @@ export class UI {
         el("button", { type: "button", class: "btn", onclick: () => this.game.work("start") }, "Start shift"),
         el("button", { type: "button", class: "btn", onclick: () => this.game.work("end") }, "End shift")));
     }
-    if (here.type === "university" || here.type === "school") {
+    // Study where the server would allow it: at a campus of the program you're enrolled in (the
+    // school app names programs and campuses, not ids). Not enrolled: the programs taught here.
+    const school = w.school, programs = school && Array.isArray(school.programs) ? school.programs : [];
+    const taughtHere = p => Array.isArray(p.campuses) && p.campuses.includes(here.name);
+    const enrolled = school && school.enrolled, mine = enrolled && programs.find(p => p.name === enrolled.program);
+    if (enrolled && ((mine && taughtHere(mine)) || enrolled.studying)) {
       body.push(el("div", { class: "eyebrow" }, "Study"));
+      body.push(el("p", { class: "hint" }, `${enrolled.program}: ${enrolled.hours ?? 0} of ${enrolled.hours_required ?? "?"} hours${enrolled.studying ? " · studying now" : ""}`));
       body.push(el("div", { class: "row" },
         el("button", { type: "button", class: "btn", onclick: () => this.game.study("start") }, "Start studying"),
         el("button", { type: "button", class: "btn", onclick: () => this.game.study("end") }, "End studying")));
-      body.push(el("p", { class: "hint" }, "You need to be enrolled; the school app on your phone lists programs."));
+    } else if (!enrolled && programs.some(taughtHere)) {
+      const open = programs.filter(p => taughtHere(p) && p.eligible && p.id);
+      body.push(el("div", { class: "eyebrow" }, "Study here"));
+      if (open.length) {
+        body.push(el("ul", { class: "list" }, open.map(p => el("li", null,
+          el("div", { class: "offer-head" }, el("span", null, p.name), el("span", { class: "price" }, `${money(p.tuition_per_hour_cents)}/hr`)),
+          el("div", { class: "hint" }, `${p.hours_required} hours of study; tuition is paid per hour studied.`),
+          el("button", { type: "button", class: "btn small", dataset: { enroll: p.id }, onclick: () => this.game.enroll(p) }, "Enroll")))));
+      } else body.push(el("p", { class: "hint" }, "No program taught here is open to you (the school app says what each one needs)."));
     }
     body.push(el("button", { type: "button", class: "btn primary block", id: "exit-btn", onclick: () => this.game.exit() }, "Exit"));
     const head = this.head(typeName(here.type), here.name);
@@ -278,6 +304,8 @@ export class UI {
     replace(sheet, el("div", { class: "mini-pill" },
       el("button", { type: "button", class: "btn grow", onclick: () => this.sheetScene() }, `Inside: ${w.here.name} ▴`),
       el("button", { type: "button", class: "btn", onclick: () => this.game.exit() }, "Exit")));
+    sheet.hidden = false; sheet.dataset.kind = "scene-mini";
+    this.renderer.select(null);
     sheet.classList.add("mini");
     document.getElementById("app").classList.remove("sheet-open");
     this.sheet = { kind: "scene-mini", id: w.here.id };
@@ -380,11 +408,21 @@ export class UI {
 
   sheetRequest(req) {
     const w = this.world, from = req.from;
+    // Answered, or passed (asks expire): close it, if it's still the sheet on screen.
+    const answer = async accept => {
+      const r = await this.game.respond(req.id, accept);
+      if ((r.ok || r.error.code === "unknown_request") && this.sheet && this.sheet.kind === "request" && this.sheet.id === req.id) this.closeSheet();
+    };
+    // The server says how long an ask stays open (older servers don't): shown on the game clock, like the top bar.
+    const m = w.minute();
+    const passes = Number.isFinite(req.expires_in_minutes) && m !== null
+      ? `This ask passes at ${stamp(Math.floor(m) + req.expires_in_minutes)} if you don't answer.` : "Asks pass after a little while.";
     const body = [
       el("div", { class: "row" }, avatar(from, w.nameOf(from), "mid"), el("p", { class: "grow" }, String(req.text || `${w.nameOf(from)} is asking: ${req.kind}`))),
       el("div", { class: "row" },
-        el("button", { type: "button", class: "btn primary grow", onclick: async () => { if (await this.game.respond(req.id, true)) this.closeSheet(); } }, "Accept"),
-        el("button", { type: "button", class: "btn grow", onclick: async () => { if (await this.game.respond(req.id, false)) this.closeSheet(); } }, "Decline")),
+        el("button", { type: "button", class: "btn primary grow", onclick: () => answer(true) }, "Accept"),
+        el("button", { type: "button", class: "btn grow", onclick: () => answer(false) }, "Decline")),
+      el("p", { class: "hint" }, `${passes} Closed this by mistake? The Romance app on your phone lists the asks still waiting for you.`),
     ];
     this.openSheet("request", req.id, this.head(`An ask · ${titleCase(req.kind)}`, w.nameOf(from)), body);
   }

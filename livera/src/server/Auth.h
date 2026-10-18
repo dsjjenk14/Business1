@@ -45,10 +45,15 @@ class SessionTokens {
 
 // Password guessing, per username: after `maxFailures` wrong passwords within `windowSeconds`, every
 // login for that name is refused for `lockSeconds`, right password or not. In memory only.
+// Anyone can send made-up usernames, so memory is bounded whatever arrives: only names checkUsername accepts are
+// tracked, and at most `maxTracked` of them. When full, the record that protects least is forgotten (a stale one,
+// then the unlocked one with the fewest recent failures, then the lock that ends soonest), so a flood of fresh names
+// pushes out its own records before a real account's count or lock.
 class LoginThrottle {
  public:
-  LoginThrottle(int maxFailures, double windowSeconds, double lockSeconds)
-      : maxFailures_(maxFailures), window_(windowSeconds), lock_(lockSeconds) {}
+  static constexpr std::size_t kDefaultMaxTracked = 4096;
+  LoginThrottle(int maxFailures, double windowSeconds, double lockSeconds, std::size_t maxTracked = kDefaultMaxTracked)
+      : maxFailures_(maxFailures), window_(windowSeconds), lock_(lockSeconds), maxTracked_(maxTracked) {}
   bool locked(const std::string& username, double now) const;
   void failed(const std::string& username, double now);
   void succeeded(const std::string& username) { records_.erase(username); }
@@ -59,10 +64,13 @@ class LoginThrottle {
     std::deque<double> failures;
     double lockedUntil = -1;
   };
-  void sweep(double now);  // bounds memory when someone sprays made-up usernames
+  void sweep(double now);       // drops stale records; at most once a window, so a spray costs no scan per guess
+  void forgetOne(double now);   // makes room when full
   int maxFailures_;
   double window_;
   double lock_;
+  std::size_t maxTracked_;
+  double lastSweep_ = -1e300;
   std::map<std::string, Record> records_;
 };
 

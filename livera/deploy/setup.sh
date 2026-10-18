@@ -21,7 +21,8 @@
 #   --repo URL           git repository (default: https://github.com/dsjjenk14/Business1.git)
 #   --ip ADDRESS         this server's public IPv4, if detection gets it wrong (only for sslip.io)
 #   --max-players N      people in the world at once (default 16)
-#   --no-director        don't run the town director (scripted founders)
+#   --no-director        don't run the town director (scripted founders); remembered by updates
+#   --director           run the town director again after --no-director
 #   --node-major N       Node.js major version from NodeSource (default 24, an LTS line)
 #   --skip-fetch         use /opt/livera/src as it is (update.sh has already pulled)
 #   --rebuild            build and test again even if this commit is already installed
@@ -52,7 +53,8 @@ on_error() {
   printf '\033[31msetup.sh stopped at line %s. Nothing after that step was changed; fix the problem and run it again (it is safe to re-run).\033[0m\n' "$1" >&2
 }
 
-usage() { sed -n '2,31p' "${BASH_SOURCE[0]:-$0}" 2>/dev/null | sed 's/^# \{0,1\}//' || true; }
+# The comment block at the top, up to the first line that isn't a comment.
+usage() { awk 'NR == 1 {next} !/^#/ {exit} {sub(/^# ?/, ""); print}' "${BASH_SOURCE[0]:-$0}" 2>/dev/null || true; }
 
 # Everything runs inside main, called on the last line: with `curl | bash` the whole script is
 # read before anything runs, so a cut-off download runs nothing and no command eats the script.
@@ -68,6 +70,7 @@ while [[ $# -gt 0 ]]; do
     --ip) IP=${2:?--ip needs a value}; shift 2 ;;
     --max-players) MAX_PLAYERS=${2:?--max-players needs a value}; shift 2 ;;
     --no-director) DIRECTOR=no; shift ;;
+    --director) DIRECTOR=yes; shift ;;
     --node-major) NODE_MAJOR=${2:?--node-major needs a value}; shift 2 ;;
     --skip-fetch) SKIP_FETCH=1; shift ;;
     --rebuild) REBUILD=1; shift ;;
@@ -277,10 +280,17 @@ say "Writing settings in $CONF"
   echo "# Written by setup.sh. LIVERA_MAX_SCRIPTED caps the town director's characters."
   echo "LIVERA_MAX_PLAYERS=$MAX_PLAYERS"
   echo "LIVERA_MAX_SCRIPTED=16"
-} >$CONF/server.env
-echo "ALLOWED_ORIGINS=$ORIGIN" >$CONF/gateway.env
-chmod 0640 $CONF/server.env $CONF/gateway.env
-chgrp livera $CONF/server.env $CONF/gateway.env
+} >$CONF/server.env.new
+echo "ALLOWED_ORIGINS=$ORIGIN" >$CONF/gateway.env.new
+# The server and gateway read these only when they start, so a changed setting (--max-players,
+# --domain, --ip) restarts them below even when the release is the same.
+settings_changed=0
+for f in $CONF/server.env $CONF/gateway.env; do
+  chmod 0640 "$f.new"
+  chgrp livera "$f.new"
+  cmp -s "$f.new" "$f" || settings_changed=1
+  mv -f "$f.new" "$f"
+done
 
 # ------------------------------------------------------------------------------------- services
 say "Installing the systemd services"
@@ -303,10 +313,12 @@ mv -Tf $PREFIX/current.new $PREFIX/current
 ln -sfn "$PREFIX/current/deploy/update.sh" /usr/local/sbin/livera-update
 ln -sfn "$PREFIX/current/deploy/add_player.sh" /usr/local/sbin/livera-add-player
 restart=0
-[[ "$previous" != "$(readlink -f $PREFIX/current)" || $units_changed -eq 1 || $REBUILD -eq 1 ]] && restart=1
+[[ "$previous" != "$(readlink -f $PREFIX/current)" || $units_changed -eq 1 || $REBUILD -eq 1 ||
+  $settings_changed -eq 1 ]] && restart=1
 systemctl enable livera-server livera-gateway livera-backup.timer >/dev/null 2>&1
 if [[ $restart -eq 1 ]]; then
   note "starting release $COMMIT${previous:+ (was $(basename "$previous"))}"
+  [[ $settings_changed -eq 1 && -n "$previous" ]] && note "restarting for the changed settings in $CONF"
   systemctl restart livera-server livera-gateway
 else
   systemctl start livera-server livera-gateway
@@ -354,7 +366,7 @@ if [[ "$DIRECTOR" == yes ]]; then
 else
   systemctl disable --now livera-director >/dev/null 2>&1 || true
 fi
-# Keep the three newest releases (rollback: point /opt/livera/current at an older one and restart).
+# Keep the three newest releases (rollback: deploy/README.md, "Going back to the previous version").
 current_release=$(readlink -f $PREFIX/current)
 find $PREFIX/releases -mindepth 1 -maxdepth 1 -type d ! -name '*.tmp' -printf '%T@ %p\n' | sort -rn | tail -n +4 |
   while read -r _ old; do if [[ "$old" != "$current_release" ]]; then rm -rf -- "$old"; fi; done

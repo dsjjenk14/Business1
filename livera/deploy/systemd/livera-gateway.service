@@ -15,6 +15,8 @@ Environment=LIVERA_HOST=127.0.0.1
 Environment=LIVERA_PORT=7777
 Environment=GATEWAY_HOST=127.0.0.1
 Environment=GATEWAY_PORT=8080
+# Open WebSockets in all (each holds one game server connection); at most 8 per address or IPv6 /64.
+Environment=GATEWAY_MAX_CONNECTIONS=256
 EnvironmentFile=/etc/livera/gateway.env
 WorkingDirectory=/opt/livera/current/web/gateway
 ExecStart=/usr/bin/env node /opt/livera/current/web/gateway/gateway.mjs

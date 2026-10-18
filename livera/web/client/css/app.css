@@ -113,12 +113,18 @@ button.chip { cursor: pointer; text-align: left; }
 .line.toast { background: rgba(243, 230, 207, .96); color: #1c1814; border-color: transparent; font-weight: 600; }
 .line.toast.bad { background: #4a201b; color: #ffe6dc; }
 .line.fade { opacity: 0; }
+/* A phone with a sheet open has only a strip of map left, and you stand in it: show just the
+   newest line there (the log keeps everything you heard). */
+@media (max-width: 899px) { #app.sheet-open #feed .line:not(:last-child) { display: none; } }
 
 /* ---------------------------------------------------------------- chat bar */
 #chatbar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 20; background: rgba(14, 12, 11, .94); border-top: 1px solid var(--line);
   padding: 8px var(--gut-r) calc(8px + var(--safe-b)) var(--gut-l); display: flex; flex-direction: column; gap: 6px; backdrop-filter: blur(6px); }
 #chatbar .row { flex-wrap: nowrap; }
 #chatbar .seg button { min-height: 44px; padding: 6px 12px; }
+/* The volume switch never shrinks (it would clip "Shout" on a phone); a long range note wraps instead. */
+#chatbar .seg { flex: 0 0 auto; }
+#chatbar .range-note { flex: 1 1 0; min-width: 0; white-space: normal; line-height: 1.25; }
 #chatbar input[type="text"] { flex: 1 1 auto; min-width: 0; }
 .targets { display: flex; gap: 6px; overflow-x: auto; align-items: center; font-size: 13px; color: var(--muted); min-height: 44px; scrollbar-width: none; }
 .target { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--panel-2); border-radius: 999px;

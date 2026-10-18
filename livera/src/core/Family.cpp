@@ -281,7 +281,8 @@ Result<Json> World::hireNanny(const CharacterId& parent, const CharacterId& nann
   PendingRequest q{nextId("ask"), "nanny", parent, nannyId, state_.now + content_->romance().requestMinutes, false};
   state_.requests.push_back(q);
   notify(nannyId, "career", ask + " (answer with request id " + q.id + ")");
-  emit({nannyId}, "request", Json{{"id", q.id}, {"kind", "nanny"}, {"from", parent}, {"text", ask}});
+  emit({nannyId}, "request", Json{{"id", q.id}, {"kind", "nanny"}, {"from", parent}, {"text", ask},
+                                  {"expires_in_minutes", content_->romance().requestMinutes}});
   return Json{{"request", q.id}, {"kind", "nanny"}, {"waiting_for", nannyId}};
 }
 

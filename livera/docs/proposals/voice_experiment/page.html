@@ -1,0 +1,122 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>voice experiment</title>
+<script type="module">
+const params = new URLSearchParams(location.search);
+const me = params.get('me');
+const pos = [Number(params.get('x') || 0), Number(params.get('y') || 0)];
+const relayOnly = params.get('relay') === '1';
+const iceServers = params.get('turn') ? [{ urls: params.get('turn'), username: 'u', credential: 'p' }] : [];
+const peers = new Map(); // character -> {pc, sender, analyser}
+const errors = [];
+let reach = [];
+let nextId = 1;
+const mic = await navigator.mediaDevices.getUserMedia({
+  audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+});
+const track = mic.getAudioTracks()[0];
+const audioCtx = new AudioContext();
+let helloDone = false;
+const ws = new WebSocket(`ws://${location.host}/ws`);
+const sendWs = (m) => ws.send(JSON.stringify({ id: nextId++, ...m }));
+
+function applyReach() {
+  // Honest sender: the track goes only on links the server says my voice reaches.
+  for (const [who, p] of peers) if (p.sender) p.sender.replaceTrack(reach.includes(who) ? track : null);
+}
+
+function makePeer(who, initiator) {
+  const pc = new RTCPeerConnection({ iceServers, iceTransportPolicy: relayOnly ? 'relay' : 'all' });
+  const p = { pc, sender: null, analyser: null };
+  // Only the offerer creates the transceiver; the answerer adopts the one the offer creates
+  // (a transceiver made with addTransceiver on the answerer would never be negotiated).
+  if (initiator) p.sender = pc.addTransceiver('audio', { direction: 'sendrecv' }).sender;
+  pc.onicecandidate = (e) => { if (e.candidate) sendWs({ op: 'voice_signal', to: who, kind: 'candidate', candidate: e.candidate.toJSON() }); };
+  pc.ontrack = (e) => {
+    const stream = e.streams[0] || new MediaStream([e.track]);
+    const a = new Audio(); a.srcObject = stream; a.play().catch((err) => errors.push('play:' + err.message));
+    // Distance falloff would sit here: source -> GainNode -> destination. We only measure.
+    const src = audioCtx.createMediaStreamSource(stream);
+    p.analyser = audioCtx.createAnalyser(); p.analyser.fftSize = 2048; src.connect(p.analyser);
+  };
+  peers.set(who, p);
+  applyReach();
+  if (initiator) (async () => {
+    await pc.setLocalDescription(await pc.createOffer());
+    sendWs({ op: 'voice_signal', to: who, kind: 'offer', sdp: pc.localDescription.sdp });
+  })();
+}
+
+async function handle(m) {
+  if (m.re === 1 && m.ok) helloDone = true;
+  if (m.re !== undefined && m.ok === false) errors.push(m.error.code);
+  if (m.event === 'voice_peers') {
+    for (const a of m.data.add || []) makePeer(a.character, a.initiator);
+    for (const r of m.data.remove || []) { const p = peers.get(r.character); if (p) { p.pc.close(); peers.delete(r.character); } }
+  } else if (m.event === 'voice_reach') {
+    reach = m.data.to; applyReach();
+  } else if (m.event === 'voice_signal') {
+    const d = m.data;
+    const p = peers.get(d.from);
+    if (!p) { errors.push('signal_from_unlinked:' + d.from); return; }
+    if (d.kind === 'offer') {
+      await p.pc.setRemoteDescription({ type: 'offer', sdp: d.sdp });
+      const tr = p.pc.getTransceivers()[0];
+      tr.direction = 'sendrecv';
+      p.sender = tr.sender;
+      applyReach();
+      await p.pc.setLocalDescription(await p.pc.createAnswer());
+      sendWs({ op: 'voice_signal', to: d.from, kind: 'answer', sdp: p.pc.localDescription.sdp });
+    } else if (d.kind === 'answer') {
+      await p.pc.setRemoteDescription({ type: 'answer', sdp: d.sdp });
+    } else if (d.kind === 'candidate') {
+      try { await p.pc.addIceCandidate(d.candidate); } catch (e) { errors.push('ice:' + e.message); }
+    }
+  }
+}
+// Handle messages strictly in order so a candidate never races ahead of its offer or answer.
+let chain = Promise.resolve();
+ws.onmessage = (ev) => { const m = JSON.parse(ev.data); chain = chain.then(() => handle(m)).catch((e) => errors.push('handle:' + e.message)); };
+ws.onopen = () => sendWs({ op: 'hello', me, pos });
+
+window.voice = {
+  ready: () => helloDone,
+  peers: () => [...peers.keys()],
+  errors: () => errors,
+  reach: () => reach,
+  ctxState: () => audioCtx.state,
+  // A modified client trying to get audio from someone it was never linked with.
+  forgeOffer: async (to) => {
+    const pc = new RTCPeerConnection();
+    pc.addTransceiver('audio', { direction: 'recvonly' });
+    await pc.setLocalDescription(await pc.createOffer());
+    sendWs({ op: 'voice_signal', to, kind: 'offer', sdp: pc.localDescription.sdp });
+  },
+  stats: async () => {
+    const out = {};
+    for (const [who, p] of peers) {
+      const s = { state: p.pc.connectionState, in: 0, hdrIn: 0, out: 0, wireIn: 0, energy: 0, peak: 0, codec: '', candidate: '' };
+      const rep = await p.pc.getStats();
+      rep.forEach((r) => {
+        if (r.type === 'inbound-rtp' && r.kind === 'audio') {
+          s.in = r.bytesReceived; s.hdrIn = r.headerBytesReceived || 0; s.packetsIn = r.packetsReceived; s.energy = r.totalAudioEnergy || 0;
+        }
+        if (r.type === 'outbound-rtp' && r.kind === 'audio') { s.out = r.bytesSent; s.packetsOut = r.packetsSent; }
+        if (r.type === 'transport') s.wireIn = r.bytesReceived;
+        if (r.type === 'codec' && r.mimeType && r.mimeType.startsWith('audio')) s.codec = `${r.mimeType} ${r.sdpFmtpLine || ''}`;
+        if (r.type === 'candidate-pair' && r.nominated && r.state === 'succeeded') {
+          const local = rep.get(r.localCandidateId); s.candidate = local ? `${local.candidateType}/${local.protocol}` : '?';
+        }
+      });
+      if (p.analyser) {
+        const buf = new Float32Array(p.analyser.fftSize);
+        let peak = 0;
+        for (let i = 0; i < 20; i++) { p.analyser.getFloatTimeDomainData(buf); for (const v of buf) peak = Math.max(peak, Math.abs(v)); await new Promise((r) => setTimeout(r, 50)); }
+        s.peak = Math.round(peak * 1000) / 1000;
+      }
+      out[who] = s;
+    }
+    return out;
+  },
+};
+</script>

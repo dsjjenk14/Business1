@@ -100,7 +100,7 @@ careers, moderation tools for chat (needed before any public server).
   consensual, adults-only intimacy that fades to black (D-025); pregnancy, miscarriage,
   abortion care, birth, babies who grow up and become playable at 18.
 - **Fame:** from performances, releases, weddings and headlines; celebrity tiers.
-- 136 tests, sanitizer-clean.
+- 136 tests when M0.7 was done, sanitizer-clean.
 
 **Not in M0.7:** children's care and childhood gameplay (babies live their routine), any
 autonomous NPC behavior (staff, dealers and inspectors are abstract), cheating being found
@@ -158,13 +158,13 @@ rented VPS with a domain, and proximity voice as soon as possible. Plan and esti
 | Step | Status |
 |---|---|
 | Decision D-045; ROADMAP, ARCHITECTURE and the core-dependency rule updated | ✅ |
-| Server: positions and motion of people in sight (`look.people`, the `people` stream), sight range in data (never below shout range), speaker position on speech, `whispering` for onlookers, public rules/transit/interactions in `map`, `re` on every reply, protocol `livera/1` | ⬜ |
-| Server: session tokens and `resume`, login throttling, admin commands to add accounts and release a character, human-only player cap (16) | ⬜ |
-| Server: scripted characters labelled (`bot_` accounts), never claiming, giving way to humans | ⬜ |
-| WebSocket gateway (`web/gateway`) | ⬜ |
-| Web client (`web/client`): log in, pick or create a character, tap to walk, enter and act, bus, whisper/say/shout with bubbles and a range ring, people cards, phone apps; phone-first layout; Playwright tests | ⬜ |
-| Labelled town director (`scripts/town_director.py`) | ⬜ |
-| Deploy scripts for an Ubuntu VPS (`deploy/`: Caddy HTTPS, systemd, backups, firewall) | ⬜ |
+| Server: positions and motion of people in sight (`look.people`, the `people` stream), sight range in data (never below shout range), speaker position on speech, `whispering` for onlookers, public rules/transit/interactions in `map`, `re` on every reply, protocol `livera/1` | ✅ |
+| Server: session tokens and `resume`, login throttling, admin commands to add accounts and release a character, human-only player cap (16) | ✅ |
+| Server: scripted characters labelled (`bot_` accounts), never claiming, giving way to humans | ✅ |
+| WebSocket gateway (`web/gateway`) | ✅ |
+| Web client (`web/client`): log in, pick or create a character, tap to walk, enter and act, bus, whisper/say/shout with bubbles and a range ring, people cards, phone apps; phone-first layout; Playwright tests | ⚠️ built; Playwright tests in Chromium at phone and desktop sizes; not yet tried on a real iPhone or Android phone (what the tests cover and what's missing: `web/README.md`) |
+| Labelled town director (`scripts/town_director.py`) | ✅ (`scripts/test_director.sh`) |
+| Deploy scripts for an Ubuntu VPS (`deploy/`: Caddy HTTPS, systemd, backups, firewall) | ⚠️ written and dry-run in a sandbox; not yet run on a real VPS |
 | Running on the owner's VPS | ⬜ needs the owner to rent it and paste one command |
 
 **Next: voice v1** right after Phase 0, designed in `docs/proposals/voice.md`: server-decided
@@ -213,6 +213,7 @@ selling property, mortgages, roommates, transaction history UI.
 | M12 | 13 Generations | Life stages, children, inheritance |
 | M13 | 14 Polish | Animation, UI, audio, VFX, performance, accessibility, onboarding |
 
-Before any server is reachable from outside a developer machine: transport encryption (Caddy in
-front of the gateway), token sessions and login throttling (MULTIPLAYER.md), and before voice or
-any public server: moderation (mute, block, report, admin kick).
+Built for the VPS: transport encryption (Caddy terminates HTTPS in front of the gateway), resume
+tokens and per-username login throttling (MULTIPLAYER.md). Still required before voice or any
+public server: moderation (mute, block, report, admin kick). Not built either: per-IP login
+throttling in the server (MULTIPLAYER.md, "Not yet").

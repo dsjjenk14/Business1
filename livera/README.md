@@ -3,18 +3,20 @@
 *Everyone has a life. You decide what yours becomes.*
 
 A persistent multiplayer life simulation set in a newly founded town that grows into a city.
-This folder holds the **authoritative simulation core, dedicated server, persistence, and a
-headless test client**: the foundation the 3D game client will be built on.
+This folder holds the **authoritative simulation core, dedicated server, persistence, a 2.5D web
+client (`web/`), a headless test client, a labelled town director and the VPS deploy scripts**.
 
-**What this is not (yet):** there is no 3D client, no graphics, and no Unreal project. You
-play the current build through a text client. See [What works today](#what-works-today).
+**What this is not (yet):** there is no 3D view and no Unreal project (D-045). You play in a phone
+or desktop browser through the 2.5D web client (street layout and building shapes are sketches;
+`web/README.md` says how to run it), or through the text client. See
+[What works today](#what-works-today).
 
 ## Quick start
 
 ```bash
 cd livera
 cmake -S . -B build -G Ninja && cmake --build build
-./build/livera_tests            # 136 tests
+./build/livera_tests            # every test; prints "N tests, 0 failed"
 scripts/demo_slice.sh           # three players live a morning (one makes their own character), then a restart
 ```
 
@@ -54,11 +56,11 @@ The founding vertical slice (docs/ROADMAP.md, M0), all server-authoritative and 
 
 | Step | Status |
 |---|---|
-| Launch, enter the founding town | ✅ server + text client (no 3D) |
+| Launch, enter the founding town | ✅ server + 2.5D web client or the text client; no 3D |
 | Create or select a character | ✅ full character creator (appearance, personality, origin, career...) or play one of the 11 founding characters |
-| Walk around | ✅ server-moved at walking speed, no teleporting; no rendering |
+| Walk around | ✅ server-moved at walking speed, no teleporting; drawn in the 2.5D web client |
 | Enter an apartment | ✅ residents only |
-| Use the phone | ✅ bank, messages, contacts, calendar, map, career, property, notifications, city (data, no UI) |
+| Use the phone | ✅ 26 apps as server views; a phone UI in the web client (some apps have their own screens, the rest show as cards; `web/README.md`) |
 | Meet and talk to another player | ✅ proximity chat (say, shout, whisper), 5 social interactions, phone texts |
 | Make music | ✅ compose on your phone, release to the town chart, perform live on stages, get tipped, export MIDI |
 | Build a relationship | ✅ directional, 11 dimensions, memories, grudges |
@@ -80,15 +82,19 @@ The founding vertical slice (docs/ROADMAP.md, M0), all server-authoritative and 
 The founding cast: 11 playable characters with reference art (`art/reference/characters/`),
 homes, careers, secrets and history with each other. See docs/GAME_DESIGN.md.
 
-Not built yet: the 3D client, voice chat,
+Not built yet: a 3D view, voice chat (designed in docs/proposals/voice.md),
 autonomous NPCs (construction crews, shop staff and dealers are abstract), gossip/secrets
 propagation (so cheating is never found out), social media, business ownership, buying
 property, the event engine, children's care and childhood gameplay, and player reporting
 and blocking (needed before any public server; see docs/DECISIONS.md D-025).
 
-**Security note:** the development protocol is plaintext TCP and binds to 127.0.0.1 by
-default. Passwords are hashed at rest (PBKDF2) but are not encrypted in transit. Do not
-expose a dev server to the internet. See docs/MULTIPLAYER.md.
+**Security note:** the game server speaks plaintext newline-JSON over TCP and binds to 127.0.0.1
+by default; never expose it directly. On the VPS (`deploy/`) browsers reach it only through Caddy
+(HTTPS, `wss://`) and the WebSocket gateway, registration is closed, logins are throttled per
+username, and the browser keeps a resume token instead of the password. A local or `--dev` setup
+has no TLS (the gateway serves plain HTTP), registration is open unless you pass
+`--closed-registration`, and `--dev` allows time skips and test payments: keep it on your own
+machine. See docs/MULTIPLAYER.md.
 
 ## Layout
 
@@ -101,5 +107,7 @@ expose a dev server to the internet. See docs/MULTIPLAYER.md.
 | `data/` | All game content as JSON: town, characters, careers, interactions, economy, city growth. |
 | `art/` | Character reference sheets (the approved look of each founding character). |
 | `tests/` | Unit tests and an end-to-end network test. |
-| `scripts/` | `demo_slice.sh` and its client scripts. |
+| `web/` | The 2.5D browser client (`web/client`), the WebSocket gateway (`web/gateway`) and their Playwright tests (`web/tests`). |
+| `deploy/` | One-command install on an Ubuntu VPS: Caddy, systemd, backups, firewall. |
+| `scripts/` | `demo_slice.sh` and its client scripts; `town_director.py` (labelled scripted founders) and its test `test_director.sh`. |
 | `docs/` | Architecture, design, data model, multiplayer, simulation, roadmap, decisions. |
