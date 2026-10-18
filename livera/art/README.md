@@ -72,3 +72,29 @@ on its card; read them before using a card as fact.
 
 Sheets are JPEG copies at quality 90 with no metadata; keep the masters outside the repository.
 Card titles for created residents are proposals from `PROMPT_PACK.md`, not data.
+
+## Town sprites for the map (`PROMPT_PACK_TOWN.md`, `prompts_town.html`)
+
+The isometric sprites the map needs are prompted from the game's data, not written by hand:
+`scripts/town_prompts.py` reads `data/world`, `data/transit`, `data/city` and `data/config` and
+writes `PROMPT_PACK_TOWN.md` (one prompt per place, bus stop, bus view, construction stage and
+ground tile, with the facts each was built from) and `prompts_town.html`, the same prompts as a
+phone page with a Copy button, the facts, the file name to save as and a "done" tick kept in that
+browser's localStorage. The page loads nothing from the network. Never edit the two files by hand:
+change the data or the script and rerun it.
+
+```bash
+python3 scripts/town_prompts.py          # regenerate both files after editing data/
+python3 scripts/town_prompts.py --check  # fails if a location, stop or line has no prompt, or the files are stale
+```
+
+Run the check next to `scripts/format_data.py` whenever `data/` changes; it is Python only and
+needs no build. Apartment and condo units that share a door get one prompt for the building,
+named by the id the sketch client groups them under (`lexington`, `maple_court`,
+`riverside_lofts`, `lakeview`). Construction sites get a bare-site and a framed prompt. Files go to
+`art/places/<location_id>.png`, `art/transit/stops/<stop_id>.png`, `art/transit/bus_line_1_<view>.png`
+and `art/tiles/<name>.png`, then into `manifest.json`. The same notes rule applies as for everything
+else in the manifest: when a generated picture gets a fact wrong (a misspelled sign, an extra
+storey, a lit "open" sign on a place that is still a building site), the entry's `notes` say so,
+and nobody treats the picture as the game's state. The prompts' art direction (what a building
+looks like beyond its data description) is marked as such in each prompt's facts.
