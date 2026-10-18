@@ -574,3 +574,15 @@ second, simplified simulation would drift and would be a pretend version of the 
 the browser means no server and no account, at the cost that a save lives on one device unless
 it is exported to a file.
 
+## D-055 — The Livéra look comes from the owner's reference art
+**Decision:** The town, its buildings and the game's screens follow `art/STYLE.md`, drawn from
+four pictures the owner chose as the inspiration: the Line 1 route poster, the transit card, the
+gold laptop's golden-hour river and the law-office interior. That means golden-hour light,
+ivory and sand stone, champagne gold, deep emerald, sage trees with warm lights, and a river with
+an arched stone bridge. The web client's palette and light follow it, and so does every map-sprite
+prompt (`scripts/town_prompts.py`). The bus livery is the poster's emerald and gold.
+**Why:** The owner said this is how the town and everything should look. Writing it down once
+keeps the client, the prompts and future art consistent. The one limit is honesty: the
+pictures' skylines are the future city, so the founding town never gains towers the data doesn't
+have, and people in reference art are not game characters unless the cast sheets say so.
+

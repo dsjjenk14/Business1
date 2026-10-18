@@ -127,11 +127,13 @@
     "notes": [
       "Concept posters only. Their districts (Riverfront, The Ridge, The Nine, The Meadows...), 'Riverview Park' and the street layout are not the game's; the real places and bus stops are in data/world and data/transit.",
       "The moonlit salon and the gold mirror wall are unassigned interiors: no place in the data has been given them.",
-      "The laptop set (laptop, mouse, sleeve) is a product mock-up; only the laptop is an item."
+      "The laptop set (laptop, mouse, sleeve) is a product mock-up; only the laptop is an item.",
+      "interior_law_office.jpg is a mood reference for interiors (black marble, gold, warm lamps, a dusk skyline through the window; art/STYLE.md). The two people in it are not game characters: no founder is a lawyer and nobody in the cast has this sheet. The book spines (CORPORATE LAW, BLACK WOMEN IN LAW...) are the picture's own text. The skyline outside is the future city of the concept posters, not the founding town."
     ],
     "interior_moonlit_salon": "art/concept/interior_moonlit_salon.jpg",
     "texture_gold_mirror_wall": "art/concept/texture_gold_mirror_wall.jpg",
-    "laptop_set": "art/concept/laptop_set.png"
+    "laptop_set": "art/concept/laptop_set.png",
+    "interior_law_office": "art/concept/interior_law_office.jpg"
   },
   "items": {
     "$comment": "Product pictures keyed by item id (data/items). PNGs are transparent; the phones came on white and are JPEG.",

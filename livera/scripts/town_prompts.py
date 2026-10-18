@@ -28,19 +28,20 @@ SELF = "scripts/town_prompts.py"
 
 # ----------------------------------------------------------------------------------------------
 # Style sheet. STYLE_SHORT is repeated at the top of every prompt so each one can be pasted alone.
-# The existing pictures (art/places/body_balance.jpg, art/transit/stops/*.jpg, art/city/stage_1.jpg,
-# art/transit/bus_line_1.jpg) are photoreal golden-hour shots: orange-pink dusk skies, wet pale
-# stone paving, black steel and glass, warm wood slats, red-brown brick, cream render, lit windows
-# and champagne-gold serif lettering. Sprites keep those materials and colours but change the
-# camera and the light, so that every piece fits the same map.
+# The look follows art/STYLE.md (the owner's reference art: the Line 1 route poster, the transit
+# card, the golden river on the laptop, the law-office interior): golden-hour light, ivory and sand
+# stone, champagne-gold trim and serif lettering, deep emerald accents, lush sage trees with warm
+# lights, lit amber windows. Sprites keep that light and palette but share one camera and drop the
+# sky, so that every piece fits the same map.
 # ----------------------------------------------------------------------------------------------
 STYLE_SHORT = (
-    "LIVÉRA town sprite. Isometric 2:1 (30°) view from the south-west, soft even midday light, "
-    "clean photoreal render, no outlines, no sky. Materials and colours from the Livéra art: warm "
-    "red-brown brick, cream stone and render, charcoal steel and glass, champagne-gold serif "
-    "lettering, dark-green planting, pale stone paving. Transparent background, no ground shadow "
-    "outside the footprint, no people, no cars, no text except the sign named below. Scale: a door "
-    "is 1 unit tall; a one-storey shop is about 3 units."
+    "LIVÉRA town sprite. Isometric 2:1 (30°) view from the south-west, warm golden-hour light from "
+    "the west with a soft champagne glow, warm amber light in the windows, clean photoreal render, no "
+    "outlines, no sky. The Livéra palette: ivory and sand stone, champagne-gold trim and serif "
+    "lettering, deep emerald green accents (awnings, doors, sign plates), warm brick only where named, "
+    "charcoal glass with thin gold edges, lush rounded sage-green trees with a few tiny warm lights, pale "
+    "cream paving. Transparent background, no ground shadow outside the footprint, no people, no cars, "
+    "no text except the sign named below. Scale: a door is 1 unit tall; a one-storey shop is about 3 units."
 )
 
 STYLE_SHEET = """\
@@ -49,13 +50,17 @@ Every prompt below repeats this in brief, so you can paste any single prompt on 
 - **View.** Isometric 2:1 (a 30° dimetric view), camera from the south-west, so the front and the
   left side of a building are visible. The same angle for every sprite, or they will not sit
   together on the map.
-- **Light.** Soft, even midday light with short shadows that stay inside the footprint. The
-  existing pictures are golden-hour photographs with orange-pink skies; the sprites keep their
-  materials and colours but drop the sky and the sunset, which cannot be shared between tiles.
-- **Palette (from the existing art).** Warm red-brown brick, cream stone and render, charcoal
-  steel and glass, warm wood slats, champagne-gold serif lettering, dark-green planting, pale
-  stone paving. The sketch client colours homes tan, shops terracotta, offices slate, civic
-  buildings cream and building sites brown; the sprites may lean the same way.
+- **Light.** Warm golden-hour light from the west, the same in every sprite: a soft champagne
+  glow on the stone, warm amber light in the windows, shadows soft and kept inside the footprint.
+  The sky itself is left out (it cannot be shared between tiles); the map draws the sky and moves
+  it through the day.
+- **Palette (art/STYLE.md, sampled from the owner's reference art).** Ivory and sand stone
+  (#f7ecd6, #f0dec2, #d9c9a9), champagne gold for trim and lettering (#dabb85), deep emerald for
+  awnings, doors and sign plates (#0b2b23), sage and olive planting (#939c87, #7a8161), warm brick
+  (#ad734e) only where a prompt names brick, charcoal glass with thin gold edges for towers and
+  offices, pale cream paving.
+- **Motifs.** The gold lotus mark on Livéra's own things (transit, civic signs where a prompt asks);
+  rounded lush trees with a few tiny warm lights; brass lamps; no neon except the nightclub.
 - **Sprite.** "Transparent background, no ground shadow outside the footprint": the image model
   supports transparency. One building per image. Nothing else in frame: no street, no neighbours,
   no sky.
@@ -187,20 +192,20 @@ TALL_IDS = {"lexington"}
 SIZE_SQUARE, SIZE_LONG, SIZE_TALL = "1024×1024", "1536×1024", "1024×1536"
 
 # Ground tiles. The lane markings and colours are the sketch client's (web/client/render2d.js):
-# charcoal asphalt with a single dashed cream centre line and no edge lines; gravel while a road
+# warm charcoal asphalt with a single dashed cream centre line and no edge lines; gravel while a road
 # is still being paved; olive ground, darker park green; a blue-grey river.
 TILES = [
     ("road_straight", "Road, straight",
-     "one straight two-way road running from the south-west edge to the north-east edge of the tile, charcoal asphalt, "
+     "one straight two-way road running from the south-west edge to the north-east edge of the tile, warm charcoal asphalt, "
      "a single dashed cream centre line, no edge lines, no kerb (the sidewalk is a separate tile)"),
     ("road_corner", "Road, corner",
-     "a road entering from the south-west edge and turning to leave by the south-east edge, charcoal asphalt, the dashed "
+     "a road entering from the south-west edge and turning to leave by the south-east edge, warm charcoal asphalt, the dashed "
      "cream centre line following the bend, no edge lines, no kerb"),
     ("road_t", "Road, T junction",
-     "a road running south-west to north-east with a second road joining from the south-east edge, charcoal asphalt, "
+     "a road running south-west to north-east with a second road joining from the south-east edge, warm charcoal asphalt, "
      "dashed cream centre lines that stop short of the junction, no edge lines, no kerb"),
     ("road_crossroad", "Road, crossroad",
-     "two roads crossing at the centre of the tile, charcoal asphalt, dashed cream centre lines that stop short of the "
+     "two roads crossing at the centre of the tile, warm charcoal asphalt, dashed cream centre lines that stop short of the "
      "crossing, no edge lines, no kerb, no stop lines or crosswalk"),
     ("road_gravel", "Road, unpaved",
      "one straight unpaved road running from the south-west edge to the north-east edge, packed tan gravel with tyre "
@@ -208,10 +213,14 @@ TILES = [
     ("sidewalk", "Sidewalk",
      "pale cream stone paving slabs in a regular grid, the pavers slightly uneven, a thin darker joint between them"),
     ("grass", "Grass",
-     "short olive-green grass with a little variation and a few lighter blades, nothing else"),
+     "short sage-green grass with a little variation and a few lighter blades in warm light, nothing else"),
     ("river_edge", "River edge",
      "the south-west half of the tile is pale stone paving ending in a low cream stone embankment with a thin black "
-     "iron railing, and the north-east half is slow blue-grey river water with faint ripples"),
+     "iron railing, and the north-east half is calm blue-teal river water with faint ripples catching gold light"),
+    ("bridge", "Arched stone bridge",
+     "an arched stone footbridge in cream stone with four round arches, a low balustrade topped with thin gold lamp posts, "
+     "spanning from the lower-left to the upper-right of the frame as if crossing a river, with no water drawn (the map draws "
+     "the river); like the bridge on the Livéra transit card and the golden river picture"),
     ("crane", "Tower crane",
      "a yellow-gold tower crane standing on a small concrete base, mast, jib, counter-jib and a hook on a thin cable; "
      "the crane fills the height of the frame, seen from the same south-west isometric angle"),
@@ -318,7 +327,7 @@ def hours_line(loc, sign):
         s += f", {days}"
     if loc["hours"][1] < loc["hours"][0] or loc["hours"][0] >= 16:
         lit = "so give it a sign that could light up, but draw" if sign else "but draw"
-        return f"{s}: a night place, {lit} it in the same midday light as everything else."
+        return f"{s}: a night place, {lit} it in the same golden-hour light as everything else."
     return s + "."
 
 
@@ -433,7 +442,7 @@ def build_prompts(locations, properties, transit, city, sim):
                  "tower crane standing over it, lumber stacks and a temporary fence; no workers. (The game only says the project is "
                  "active; what the frame looks like is art direction.)"
                  if lid != "founders_way_site" else
-                 "Draw the same road later: half of it freshly paved charcoal asphalt with a dashed cream centre line, the other half "
+                 "Draw the same road later: half of it freshly paved warm charcoal asphalt with a dashed cream centre line, the other half "
                  "still gravel, the paving machine at the join, cones; no crew."),
             ):
                 save_as = f"art/places/{lid}.png" if stage == "site" else f"art/places/{lid}_framed.png"
@@ -482,10 +491,12 @@ def build_prompts(locations, properties, transit, city, sim):
                             "prompt": finish(parts, SIZE_SQUARE, save_as), "facts": facts})
         bus_facts = [("Line", f"{line['name']} ({line['id']})"), ("Fare", f"${line['fare_cents'] / 100:.2f}"), ("Hours", fmt_hours(line["hours"])),
                      ("Speed", f"{line['speed_mps']} m/s (walking is {sim['walk_speed_mps']} m/s)"), ("Stops", " → ".join(s["name"] for s in stops) + " → back to the start"),
-                     ("Livery", "(art direction, from art/transit/bus_line_1.jpg) ivory and champagne body, black window band, slim gold stripe, "
-                                "LIVÉRA TRANSIT wordmark, gold 1 badge, destination sign 1 RIVERSIDE LOOP"), ("Source", "data/transit/transit.json")]
-        livery = ("Livery from the existing Livéra bus pictures: an ivory and champagne body, a black window band, a slim gold stripe low on "
-                  "the side, the words \"LIVÉRA TRANSIT\" in gold serif capitals, a gold \"1\" badge, no manufacturer badges and no other text.")
+                     ("Livery", "(art direction, from the route poster art/transit/route_line_1.jpg and art/STYLE.md) deep emerald body, black glass "
+                                "window band, champagne-gold trim and stripe, gold lotus mark, LIVÉRA TRANSIT wordmark, gold 1 badge, destination "
+                                "sign 1 RIVERSIDE LOOP"), ("Source", "data/transit/transit.json")]
+        livery = ("Livery from the Livéra route poster: a deep emerald body, a black glass window band, a champagne-gold stripe and trim, a "
+                  "small gold lotus mark, the words \"LIVÉRA TRANSIT\" in gold serif capitals, a gold \"1\" badge, no manufacturer badges and no "
+                  "other text.")
         views = [("front", "the front three-quarter view from the south-west, the destination sign over the windscreen reading \"1 RIVERSIDE LOOP\"", SIZE_SQUARE),
                  ("side", "the full left side, the bus facing left, both doors closed, the LIVÉRA TRANSIT wordmark along the side", SIZE_LONG),
                  ("rear", "the rear three-quarter view from the south-west, a small gold \"1\" on the back and the LIVÉRA TRANSIT wordmark", SIZE_SQUARE)]
@@ -499,10 +510,14 @@ def build_prompts(locations, properties, transit, city, sim):
 
     # Tiles.
     for tid, title, desc in TILES:
-        size = SIZE_TALL if tid == "crane" else SIZE_SQUARE
+        size = SIZE_TALL if tid == "crane" else SIZE_LONG if tid == "bridge" else SIZE_SQUARE
         if tid == "crane":
             parts = [f"Tower crane sprite for building sites. Draw {desc}.", "No text, no people, no building."]
             facts = [("Used by", "the sketch client draws a gold crane over every active construction project"), ("Colour", "#e0a23a (web/client/render2d.js)")]
+        elif tid == "bridge":
+            parts = [f"Bridge sprite. Draw {desc}.", "No text, no people, no cars."]
+            facts = [("Used by", "the sketch client draws an arched bridge over the river on the line of Lexington Avenue (web/client/layout.js)"),
+                     ("Honesty", "The bridge is part of the sketch, like the river: no data file has a bridge, and nobody can cross it in the game.")]
         else:
             parts = [f"Ground tile: {title.lower()}. One seamless isometric ground tile, a 2:1 diamond that touches all four edges of the frame, "
                      f"transparent outside the diamond, flat with no height. Draw {desc}.",

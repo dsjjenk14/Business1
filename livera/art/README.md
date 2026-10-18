@@ -2,6 +2,12 @@
 
 `PROMPT_PACK.md` has ready-to-paste image prompts for the art still missing: the residents made in the creator, babies and children, pets, items, buildings, the bus and icons. It ends with a prompt for adding the finished images to the repo.
 
+## The look (`STYLE.md`)
+
+`STYLE.md` sets the look everything follows, taken from the owner's four reference pictures:
+golden-hour light, ivory and sand stone, champagne gold, deep emerald, sage trees, a river with
+an arched bridge. It gives the palette, the light, the motifs and what the look must never add.
+
 ## Character reference sheets (`reference/characters/`)
 
 The approved look of each founding character. Modelers, costume and hair artists should
