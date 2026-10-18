@@ -1,0 +1,45 @@
+# LIVERA town director: plays founding characters nobody has claimed, as labelled scripts
+# (scripts/town_director.py, accounts bot_<character>). People always win: a player who picks a
+# character the director is playing takes it at once. Installed by deploy/setup.sh.
+# Passwords: /etc/livera/director.env (0600, owned by livera), made by setup.sh.
+# To stop it: systemctl disable --now livera-director
+[Unit]
+Description=LIVERA town director (scripted founders)
+After=network.target livera-server.service
+Wants=livera-server.service
+
+[Service]
+Type=simple
+User=livera
+Group=livera
+ExecStart=/usr/bin/python3 /opt/livera/current/scripts/town_director.py --host 127.0.0.1 --port 7777 --data /opt/livera/current/data --password-file /etc/livera/director.env
+Environment=PYTHONUNBUFFERED=1
+KillSignal=SIGTERM
+TimeoutStopSec=40
+Restart=on-failure
+RestartSec=10
+
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+CapabilityBoundingSet=
+AmbientCapabilities=
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

@@ -7,8 +7,8 @@
 
 #include "core/Types.h"
 
-// Thin POSIX TCP helpers for the development transport (newline-delimited JSON).
-// The production client will use Unreal's replication; see docs/MULTIPLAYER.md.
+// Thin POSIX TCP helpers for the livera/1 transport (newline-delimited JSON). Browsers reach the
+// same protocol through the WebSocket gateway in web/gateway/; see docs/MULTIPLAYER.md.
 namespace livera::net {
 
 inline constexpr std::size_t kMaxLineBytes = 16 * 1024;

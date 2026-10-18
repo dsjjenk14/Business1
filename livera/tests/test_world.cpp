@@ -459,3 +459,351 @@ TEST_CASE("look: shows people who are with you, not their private state") {
   CHECK(!people[0].contains("needs"));
   CHECK(look.value()["here"]["offers"].size() == 4);
 }
+
+// --- What you can see: look, the people stream, speech, the public rules -----------------
+
+namespace {
+
+// Every `people` change one character was told, oldest first. Each event has exactly one viewer.
+std::vector<Json> changesFor(const std::vector<WorldEvent>& events, const CharacterId& viewer) {
+  std::vector<Json> out;
+  for (const auto& e : events) {
+    if (e.type != "people") continue;
+    CHECK(e.recipients.size() == 1);
+    if (e.recipients.front() != viewer) continue;
+    for (const auto& c : e.data["changes"]) out.push_back(c);
+  }
+  return out;
+}
+
+std::vector<Json> about(const std::vector<Json>& changes, const CharacterId& who) {
+  std::vector<Json> out;
+  for (const auto& c : changes) {
+    if (c["character"] == who) out.push_back(c);
+  }
+  return out;
+}
+
+std::vector<WorldEvent> tick(World& w, int ticks = 1) {
+  std::vector<WorldEvent> all;
+  for (int i = 0; i < ticks; ++i) {
+    w.advanceRealTime(0.1);
+    for (auto& e : w.drainEvents()) all.push_back(std::move(e));
+  }
+  return all;
+}
+
+// Lets real time pass until `done` (or a long time), keeping every event.
+std::vector<WorldEvent> tickUntil(World& w, const std::function<bool()>& done) {
+  std::vector<WorldEvent> all;
+  for (int i = 0; i < 5000 && !done(); ++i) {
+    for (auto& e : tick(w)) all.push_back(std::move(e));
+  }
+  return all;
+}
+
+bool stopped(const World& w, const CharacterId& id) { return !w.character(id)->moveTarget; }
+
+double apart(const World& w, const CharacterId& a, const CharacterId& b) {
+  return distance(w.character(a)->position, w.character(b)->position);
+}
+
+}  // namespace
+
+TEST_CASE("people: on arrival you are told about yourself; then nothing until something changes") {
+  World w = onlineWorld();
+  const auto first = tick(w);
+  const auto dom = changesFor(first, "dominique");
+  REQUIRE(dom.size() == 1);  // Dax is home at Maple Court: not in sight
+  CHECK(dom[0]["character"] == "dominique");
+  CHECK(dom[0]["self"] == true);
+  CHECK(dom[0]["state"] == "here");
+  CHECK(dom[0]["inside"] == "lexington_1204");
+  CHECK(dom[0]["moving"] == false);
+  CHECK(dom[0]["target"].is_null());
+  CHECK(dom[0]["speed_mps"] == 0);
+  CHECK(dom[0]["mode"] == "walk");
+  CHECK(dom[0]["scripted"] == false);
+  CHECK(dom[0]["name"] == "Dominique Ashford");
+  CHECK(changesFor(tick(w, 10), "dominique").empty());
+  // Starting to walk is news, even to yourself.
+  REQUIRE(w.exitBuilding("dominique"));
+  REQUIRE(w.moveTo("dominique", {600, 470}));
+  const auto self = about(changesFor(tick(w), "dominique"), "dominique");
+  REQUIRE(self.size() == 1);
+  CHECK(self[0]["self"] == true);
+  CHECK(self[0]["inside"] == "");
+  CHECK(self[0]["moving"] == true);
+  CHECK(self[0]["target"] == Json::array({600.0, 470.0}));
+  CHECK(self[0]["speed_mps"] == realContent()->sim().walkSpeedMetersPerSecond);
+}
+
+TEST_CASE("people: someone walking into sight appears with their target; walking straight on is silent") {
+  World w = onlineWorld();
+  REQUIRE(w.exitBuilding("dominique"));  // Lexington's door
+  REQUIRE(w.exitBuilding("dax"));        // Maple Court's door, 139 m away
+  const double sight = realContent()->sim().sightRangeMeters;
+  REQUIRE(apart(w, "dominique", "dax") > sight);
+  CHECK(about(changesFor(tick(w), "dominique"), "dax").empty());
+  CHECK(w.look("dominique").value()["people"].empty());
+  REQUIRE(w.moveTo("dax", {450, 470}));
+  std::vector<Json> told;
+  std::vector<double> whenApart;
+  for (int i = 0; i < 1000 && !(i > 0 && stopped(w, "dax")); ++i) {
+    const auto evs = tick(w);
+    int events = 0;
+    for (const auto& e : evs) events += e.type == "people" && e.recipients.front() == "dominique";
+    CHECK(events <= 1);  // at most one people event per viewer per tick
+    for (const auto& c : about(changesFor(evs, "dominique"), "dax")) {
+      told.push_back(c);
+      whenApart.push_back(apart(w, "dominique", "dax"));
+    }
+  }
+  REQUIRE(told.size() == 2);  // came into sight, arrived: nothing in between
+  CHECK(told[0]["state"] == "here");
+  CHECK(told[0]["self"] == false);
+  CHECK(told[0]["known"] == true);
+  CHECK(told[0]["name"] == "Dax Hendrix");
+  CHECK(told[0]["moving"] == true);
+  CHECK(told[0]["target"] == Json::array({450.0, 470.0}));
+  CHECK(told[0]["speed_mps"] == 6.0);
+  CHECK(told[0]["mode"] == "walk");
+  CHECK(told[0]["inside"] == "");
+  CHECK(whenApart[0] <= sight);
+  CHECK(whenApart[0] > sight - 1);  // the tick they crossed into range, not later
+  const Vec2 at{told[0]["position"][0].get<double>(), told[0]["position"][1].get<double>()};
+  CHECK(distance(at, w.character("dominique")->position) <= sight + 0.1);
+  CHECK(told[1]["moving"] == false);
+  CHECK(told[1]["target"].is_null());
+  CHECK(told[1]["speed_mps"] == 0);
+  CHECK(told[1]["position"] == Json::array({450.0, 470.0}));
+  // What `look` shows matches the stream.
+  const Json people = w.look("dominique").value()["people"];
+  REQUIRE(people.size() == 1);
+  CHECK(people[0]["id"] == "dax");
+  CHECK(people[0]["position"] == Json::array({450.0, 470.0}));
+  CHECK(people[0]["distance_m"] == 20);
+  CHECK(people[0]["scripted"] == false);
+  CHECK(people[0]["mode"] == "walk");
+}
+
+TEST_CASE("people: who is gone, and why: inside, outside, logged off, out of sight") {
+  World w = onlineWorld();
+  REQUIRE(w.exitBuilding("dominique"));
+  walkTo(w, "dax", "heritage_coffee");  // 56 m from Dominique, in plain sight
+  (void)tick(w);
+  REQUIRE(w.enter("dax", "heritage_coffee"));
+  auto dax = about(changesFor(tick(w), "dominique"), "dax");
+  REQUIRE(dax.size() == 1);
+  CHECK(dax[0]["state"] == "gone");
+  CHECK(dax[0]["reason"] == "went_inside");
+  CHECK(dax[0]["location"] == "heritage_coffee");
+  // Walls work both ways: outdoors you don't see in, inside you don't see out.
+  CHECK(w.look("dominique").value()["people"].empty());
+  CHECK(w.look("dax").value()["people"].empty());
+
+  walkInto(w, "dominique", "heritage_coffee");
+  (void)w.drainEvents();
+  dax = about(changesFor(tick(w), "dominique"), "dax");
+  REQUIRE(dax.size() == 1);
+  CHECK(dax[0]["state"] == "here");
+  CHECK(dax[0]["inside"] == "heritage_coffee");
+  CHECK(w.look("dominique").value()["people"][0].count("distance_m") == 0);  // indoors: no distances
+
+  REQUIRE(w.exitBuilding("dax"));
+  dax = about(changesFor(tick(w), "dominique"), "dax");
+  REQUIRE(dax.size() == 1);
+  CHECK(dax[0]["reason"] == "went_outside");
+
+  REQUIRE(w.exitBuilding("dominique"));
+  REQUIRE(about(changesFor(tick(w), "dominique"), "dax").size() == 1);  // there he is, by the door
+  w.disconnect("dax");
+  dax = about(changesFor(tick(w), "dominique"), "dax");
+  REQUIRE(dax.size() == 1);
+  CHECK(dax[0]["reason"] == "left_world");
+
+  REQUIRE(w.connect("dax"));
+  auto evs = tick(w);
+  REQUIRE(about(changesFor(evs, "dominique"), "dax").size() == 1);
+  CHECK(about(changesFor(evs, "dax"), "dominique").size() == 1);  // back in the world: everyone in sight again
+  CHECK(about(changesFor(evs, "dax"), "dax").size() == 1);
+  REQUIRE(w.moveTo("dax", {900, 100}));
+  const double sight = realContent()->sim().sightRangeMeters;
+  evs = tickUntil(w, [&] { return apart(w, "dominique", "dax") > sight + 1; });
+  dax = about(changesFor(evs, "dominique"), "dax");
+  REQUIRE(dax.size() == 2);
+  CHECK(dax[0]["state"] == "here");  // set off
+  CHECK(dax[1]["state"] == "gone");
+  CHECK(dax[1]["reason"] == "out_of_sight");
+  // Never anyone out of sight: nothing more about him while he walks on.
+  CHECK(about(changesFor(tick(w, 50), "dominique"), "dax").empty());
+}
+
+TEST_CASE("people: a forced move to jail is news to the prisoner and to the onlookers") {
+  auto db = patchedContent([](Json& doc, const std::string& file) {
+    if (file != "crimes.json") return;
+    for (auto& c : doc["crime"]["crimes"]) {
+      if (c["id"] == "shoplifting") c["detection"] = 1.0;
+    }
+  });
+  World w = onlineWorld(db);
+  w.advanceMinutes(3 * 60);  // 10:00: Thread & Co. is open
+  walkInto(w, "dominique", "thread_co");
+  walkInto(w, "dax", "thread_co");
+  (void)w.drainEvents();
+  (void)tick(w);
+  auto r = w.steal("dax", "sunglasses");
+  REQUIRE(r);
+  REQUIRE(r.value()["caught"] == true);
+  REQUIRE(w.character("dax")->inside == "police_station");
+  const auto evs = tick(w);
+  const auto seen = about(changesFor(evs, "dominique"), "dax");
+  REQUIRE(seen.size() == 1);
+  CHECK(seen[0]["state"] == "gone");
+  CHECK(seen[0]["reason"] == "moved_away");  // taken away; where to isn't something she saw
+  CHECK(!seen[0].contains("location"));
+  const auto self = about(changesFor(evs, "dax"), "dax");
+  REQUIRE(self.size() == 1);
+  CHECK(self[0]["self"] == true);
+  CHECK(self[0]["inside"] == "police_station");
+  CHECK(self[0]["position"] == Json::array({650.0, 300.0}));
+}
+
+TEST_CASE("people: a bus rider shows as mode bus at the line's speed; you can't step off mid-ride") {
+  World w = onlineWorld();
+  REQUIRE(w.exitBuilding("dominique"));
+  REQUIRE(w.exitBuilding("dax"));
+  REQUIRE(w.moveTo("dominique", {380, 520}));
+  REQUIRE(w.moveTo("dax", {300, 535}));  // the Maple Court stop
+  (void)tickUntil(w, [&] { return stopped(w, "dominique") && stopped(w, "dax"); });
+  REQUIRE(w.ride("dax", "stop_founders_main", true, "card"));
+  auto evs = tick(w);
+  auto dax = about(changesFor(evs, "dominique"), "dax");
+  REQUIRE(dax.size() == 1);
+  CHECK(dax[0]["mode"] == "bus");
+  CHECK(dax[0]["speed_mps"] == 24.0);
+  CHECK(dax[0]["moving"] == true);
+  CHECK(dax[0]["target"] == Json::array({465.0, 575.0}));
+  const auto self = about(changesFor(evs, "dax"), "dax");
+  REQUIRE(self.size() == 1);
+  CHECK(self[0]["mode"] == "bus");
+  const Json you = w.look("dax").value()["you"];
+  CHECK(you["mode"] == "bus");
+  CHECK(you["speed_mps"] == 24.0);
+  CHECK(you["target"] == Json::array({465.0, 575.0}));
+  CHECK(w.enter("dax", "fade_glow").error().code == "riding");
+  evs = tickUntil(w, [&] { return stopped(w, "dax"); });
+  dax = about(changesFor(evs, "dominique"), "dax");
+  REQUIRE(dax.size() == 1);  // the stop is in her sight the whole way
+  CHECK(dax[0]["mode"] == "walk");
+  CHECK(dax[0]["moving"] == false);
+  CHECK(dax[0]["speed_mps"] == 0);
+}
+
+TEST_CASE("people: a character played by a script is labelled for everyone who sees them") {
+  World w = onlineWorld();
+  walkInto(w, "dominique", "heritage_coffee");
+  walkInto(w, "dax", "heritage_coffee");
+  (void)w.drainEvents();
+  (void)tick(w);
+  w.setScripted("dax", true);
+  CHECK(w.isScripted("dax"));
+  const auto evs = tick(w);
+  const auto dax = about(changesFor(evs, "dominique"), "dax");
+  REQUIRE(dax.size() == 1);
+  CHECK(dax[0]["scripted"] == true);
+  CHECK(about(changesFor(evs, "dax"), "dax")[0]["scripted"] == true);
+  CHECK(w.look("dominique").value()["people"][0]["scripted"] == true);
+  w.disconnect("dax");
+  CHECK(!w.isScripted("dax"));  // the label goes with the session
+}
+
+TEST_CASE("speech: hearers get where the speaker is, and how far outdoors") {
+  World w = onlineWorld();
+  REQUIRE(w.exitBuilding("dominique"));
+  REQUIRE(w.exitBuilding("dax"));
+  REQUIRE(w.moveTo("dominique", {400, 350}));
+  REQUIRE(w.moveTo("dax", {415, 350}));
+  (void)tickUntil(w, [&] { return stopped(w, "dominique") && stopped(w, "dax"); });
+  REQUIRE(w.say("dominique", "Over here", "say"));
+  int heard = 0;
+  for (const auto& e : w.drainEvents()) {
+    if (e.type != "speech") continue;
+    ++heard;
+    CHECK(e.recipients == std::vector<CharacterId>{"dax"});
+    CHECK(e.data["position"] == Json::array({400.0, 350.0}));
+    CHECK(e.data["distance_m"] == 15);
+  }
+  CHECK(heard == 1);
+  walkInto(w, "dominique", "heritage_coffee");
+  walkInto(w, "dax", "heritage_coffee");
+  (void)w.drainEvents();
+  REQUIRE(w.say("dax", "Inside voice", "say"));
+  for (const auto& e : w.drainEvents()) {
+    if (e.type != "speech") continue;
+    CHECK(e.data["position"] == Json::array({470.0, 430.0}));
+    CHECK(!e.data.contains("distance_m"));
+  }
+}
+
+TEST_CASE("speech: onlookers see a whisper happen, never what was said, and the listener isn't told twice") {
+  World w = World::createNew(realContent());
+  for (const char* id : {"dominique", "dax", "aaliyah"}) REQUIRE(w.connect(id));
+  for (const char* id : {"dominique", "dax", "aaliyah"}) walkInto(w, id, "heritage_coffee");
+  (void)w.drainEvents();
+  REQUIRE(w.say("dominique", "Don't tell anyone.", "whisper", "dax"));
+  int whispering = 0;
+  for (const auto& e : w.drainEvents()) {
+    if (e.type == "speech") CHECK(e.recipients == std::vector<CharacterId>{"dax"});
+    if (e.type != "whispering") continue;
+    ++whispering;
+    CHECK(e.recipients == std::vector<CharacterId>{"aaliyah"});
+    CHECK(e.data["from"] == "dominique");
+    CHECK(e.data["from_name"] == "Dominique Ashford");
+    CHECK(e.data["to"] == "dax");
+    CHECK(e.data["to_name"] == "Dax Hendrix");
+    CHECK(!e.data.contains("text"));
+    CHECK(e.data.dump().find("tell anyone") == std::string::npos);
+  }
+  CHECK(whispering == 1);
+  // Outdoors, only people within say range notice.
+  for (const char* id : {"dominique", "dax", "aaliyah"}) REQUIRE(w.exitBuilding(id));
+  REQUIRE(w.moveTo("aaliyah", {470, 460}));  // 30 m from the door: further than a say carries
+  (void)tickUntil(w, [&] { return stopped(w, "aaliyah"); });
+  REQUIRE(w.say("dominique", "Later.", "whisper", "dax"));
+  for (const auto& e : w.drainEvents()) CHECK(e.type != "whispering");
+}
+
+TEST_CASE("map: the public rules, transit lines and interactions come from data") {
+  World w = World::createNew(realContent());
+  const ContentDatabase& db = *realContent();
+  const Json m = w.mapView();
+  const Json& rules = m["rules"];
+  CHECK(rules == w.publicRules());
+  CHECK(rules["whisper_range_m"] == db.sim().whisperRangeMeters);
+  CHECK(rules["say_range_m"] == db.sim().hearingRangeMeters);
+  CHECK(rules["shout_range_m"] == db.sim().shoutRangeMeters);
+  CHECK(rules["sight_range_m"] == 120);
+  CHECK(rules["walk_speed_mps"] == db.sim().walkSpeedMetersPerSecond);
+  CHECK(rules["minutes_per_real_second"] == db.sim().minutesPerRealSecond);
+  CHECK(rules["entry_radius_m"] == db.sim().entryRadiusMeters);
+  CHECK(rules["boarding_radius_m"] == db.transit().boardingRadiusMeters);
+  CHECK(rules.size() == 8);
+  REQUIRE(m["transit"]["lines"].size() == db.transit().lines.size());
+  const Json& line = m["transit"]["lines"][0];
+  CHECK(line["id"] == "line_1");
+  CHECK(line["fare_cents"] == 275);
+  CHECK(line["speed_mps"] == 24.0);
+  CHECK(line["first_hour"] == 5);
+  CHECK(line["last_hour"] == 1);
+  CHECK(line["stops"].size() == db.transit().lines[0].stops.size());
+  CHECK(line["stops"][0]["at"] == Json::array({760.0, 575.0}));
+  REQUIRE(m["interactions"].size() == db.interactions().size());
+  for (const auto& i : m["interactions"]) {
+    const InteractionDef* def = db.interaction(i["id"].get<std::string>());
+    REQUIRE(def);
+    CHECK(i["label"] == def->label);
+    CHECK(i["range_m"] == def->rangeMeters);
+  }
+  CHECK(!m["places"].empty());
+}

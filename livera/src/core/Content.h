@@ -46,6 +46,9 @@ struct SimulationConfig {
   double shoutRangeMeters = 60;         // `shout` outdoors
   double whisperRangeMeters = 2;        // `whisper` outdoors
   int maxSpeechLength = 300;
+  // How far you can see other people outdoors. Never below the shout range: you must be able to see
+  // whoever you can hear (ContentDatabase refuses content that breaks this).
+  double sightRangeMeters = 120;
 };
 
 struct Offer {

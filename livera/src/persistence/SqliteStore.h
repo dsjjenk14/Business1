@@ -35,6 +35,9 @@ class SqliteStore {
   Status claimCharacter(const std::string& username, const CharacterId& character);
   std::optional<CharacterId> characterOf(const std::string& username) const;
   std::optional<std::string> claimedBy(const CharacterId& character) const;
+  // Frees a character for anyone to claim again (the --release-character admin command, which may run
+  // while the server is up). Returns the account that held it, or nothing if nobody did.
+  Result<std::optional<std::string>> releaseCharacter(const CharacterId& character);
 
  private:
   explicit SqliteStore(sqlite3* db) : db_(db) {}

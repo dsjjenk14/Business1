@@ -86,6 +86,7 @@ livera_target_options(livera_persistence)
 # --- Networking + dedicated server ------------------------------------------------
 add_library(livera_server_lib
   src/net/Socket.cpp
+  src/server/Auth.cpp
   src/server/RateLimiter.cpp
   src/server/Server.cpp)
 target_link_libraries(livera_server_lib PUBLIC livera_core livera_persistence Threads::Threads)

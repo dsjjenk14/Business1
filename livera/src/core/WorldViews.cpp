@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <set>
 
 #include "core/Clock.h"
 #include "core/Serialization.h"
@@ -13,8 +14,27 @@ namespace livera {
 
 namespace {
 
-constexpr double kSightRange = 40;        // other people outdoors
 constexpr double kLandmarkRange = 120;    // buildings and sites listed by `look`
+// Standing still, someone who shifts further than this was moved (jail, the ER, shown out of a home):
+// the onlookers' clients are told. Smaller drifts are rounding, not news.
+constexpr double kStillMoveThreshold = 0.5;
+
+Json point(Vec2 p) { return Json::array({std::round(p.x * 10) / 10, std::round(p.y * 10) / 10}); }
+
+// Where someone is and how they're moving, as a client predicts it: straight toward `target` at
+// `speed_mps` until the next update.
+Json motionJson(const SeenPerson& m) {
+  return Json{{"position", point(m.position)},
+              {"inside", m.inside},
+              {"moving", m.target.has_value()},
+              {"target", m.target ? point(*m.target) : Json()},
+              {"speed_mps", m.speedMps},
+              {"mode", m.bus ? "bus" : "walk"}};
+}
+
+bool sameTarget(const std::optional<Vec2>& a, const std::optional<Vec2>& b) {
+  return a.has_value() == b.has_value() && (!a || *a == *b);
+}
 
 Json roundedStats(const StatMap& m) {
   Json j = Json::object();
@@ -43,24 +63,21 @@ Result<Json> World::look(const CharacterId& actor) const {
   const ContentDatabase& db = *content_;
   const CharacterDef& def = *definition(actor);
 
-  Json you{{"id", actor},
-           {"name", def.fullName()},
-           {"position", {std::round(c->position.x * 10) / 10, std::round(c->position.y * 10) / 10}},
-           {"moving", c->moveTarget.has_value()},
-           {"inside", c->inside},
-           {"needs", roundedStats(c->needs)},
-           {"emotions", roundedStats(c->emotions)},
-           {"on_shift", c->career.shiftStartedAt.has_value()}};
+  Json you = motionJson(seenNow(*c));
+  you.erase("inside");  // set below, in its usual place
+  you.update(Json{{"id", actor},
+                  {"name", def.fullName()},
+                  {"inside", c->inside},
+                  {"needs", roundedStats(c->needs)},
+                  {"emotions", roundedStats(c->emotions)},
+                  {"on_shift", c->career.shiftStartedAt.has_value()}});
 
   Json people = Json::array();
   for (const auto& [id, o] : state_.characters) {
-    if (id == actor || !o.online) continue;
-    const bool visible = c->inside.empty() ? (o.inside.empty() && distance(c->position, o.position) <= kSightRange)
-                                           : o.inside == c->inside;
-    if (!visible) continue;
-    const CharacterDef* od = definition(id);
-    const RelationshipState* rel = relationship(actor, id);
-    Json p{{"id", id}, {"name", od ? od->fullName() : id}, {"known", rel && rel->firstMetAt >= 0}};
+    if (!inSight(*c, o)) continue;
+    Json p = personJson(*c, o);
+    p["id"] = p["character"];
+    p.erase("character");
     if (c->inside.empty()) p["distance_m"] = std::round(distance(c->position, o.position));
     people.push_back(p);
   }
@@ -117,8 +134,140 @@ Json World::mapView() const {
                           {"status", locationStatus(loc)}});
   }
   const SimulationConfig& sim = content_->sim();
+  Json lines = Json::array();
+  for (const auto& line : content_->transit().lines) {
+    Json stops = Json::array();
+    for (const auto& st : line.stops)
+      stops.push_back(Json{{"id", st.id}, {"name", st.name}, {"at", {st.at.x, st.at.y}}});
+    lines.push_back(Json{{"id", line.id},
+                         {"name", line.name},
+                         {"fare_cents", line.fareCents},
+                         {"speed_mps", line.speedMps},
+                         {"first_hour", line.firstHour},
+                         {"last_hour", line.lastHour},
+                         {"stops", stops}});
+  }
+  Json interactions = Json::array();
+  for (const auto& [id, i] : content_->interactions())
+    interactions.push_back(Json{{"id", id}, {"label", i.label}, {"range_m", i.rangeMeters}});
   return Json{{"bounds", {{"min", {sim.worldMin.x, sim.worldMin.y}}, {"max", {sim.worldMax.x, sim.worldMax.y}}}},
-              {"places", places}};
+              {"places", places},
+              {"rules", publicRules()},
+              {"transit", {{"lines", lines}}},
+              {"interactions", interactions}};
+}
+
+Json World::publicRules() const {
+  const SimulationConfig& sim = content_->sim();
+  return Json{{"whisper_range_m", sim.whisperRangeMeters},
+              {"say_range_m", sim.hearingRangeMeters},
+              {"shout_range_m", sim.shoutRangeMeters},
+              {"sight_range_m", sim.sightRangeMeters},
+              {"walk_speed_mps", sim.walkSpeedMetersPerSecond},
+              {"minutes_per_real_second", sim.minutesPerRealSecond},
+              {"entry_radius_m", sim.entryRadiusMeters},
+              {"boarding_radius_m", content_->transit().boardingRadiusMeters}};
+}
+
+// ---------------------------------------------------------------------------------
+// The people stream. Clients predict straight-line motion, so the server only speaks when a
+// prediction would go wrong: someone comes into or out of sight, starts, stops, turns, boards,
+// is labelled differently, or is moved while standing still.
+// ---------------------------------------------------------------------------------
+bool World::inSight(const CharacterState& viewer, const CharacterState& other) const {
+  if (other.id == viewer.id || !other.online) return false;
+  if (!viewer.inside.empty()) return other.inside == viewer.inside;
+  return other.inside.empty() && distance(viewer.position, other.position) <= content_->sim().sightRangeMeters;
+}
+
+SeenPerson World::seenNow(const CharacterState& c) const {
+  SeenPerson m;
+  m.inside = c.inside;
+  m.position = c.position;
+  // Only outdoors does a move target move anyone (advanceRealTime), so only then is it motion.
+  if (c.moveTarget && c.inside.empty()) {
+    m.target = c.moveTarget;
+    m.speedMps = c.moveSpeedMps > 0 ? c.moveSpeedMps : content_->sim().walkSpeedMetersPerSecond;
+  }
+  m.bus = c.moveSpeedMps > 0;
+  m.scripted = isScripted(c.id);
+  return m;
+}
+
+Json World::personJson(const CharacterState& viewer, const CharacterState& other) const {
+  const CharacterDef* od = definition(other.id);
+  const RelationshipState* rel = relationship(viewer.id, other.id);
+  const bool self = other.id == viewer.id;
+  Json p{{"character", other.id},
+         {"name", od ? od->fullName() : other.id},
+         {"known", self || (rel && rel->firstMetAt >= 0)},
+         {"scripted", isScripted(other.id)}};
+  p.update(motionJson(seenNow(other)));
+  return p;
+}
+
+void World::emitPeopleChanges() {
+  // Viewers who left are dropped in disconnect(); this catches any that went offline another way.
+  std::erase_if(seen_, [&](const auto& kv) {
+    const CharacterState* v = character(kv.first);
+    return !v || !v->online;
+  });
+  for (const auto& [viewerId, viewer] : state_.characters) {
+    if (!viewer.online) continue;
+    auto& seen = seen_[viewerId];
+    Json changes = Json::array();
+    // You first, then everyone in sight in id order, then whoever dropped out of sight.
+    std::vector<const CharacterState*> visible{&viewer};
+    std::set<CharacterId> visibleIds{viewerId};
+    for (const auto& [id, o] : state_.characters) {
+      if (!inSight(viewer, o)) continue;
+      visible.push_back(&o);
+      visibleIds.insert(id);
+    }
+    for (const CharacterState* o : visible) {
+      const SeenPerson now = seenNow(*o);
+      auto it = seen.find(o->id);
+      bool changed = it == seen.end();
+      if (!changed) {
+        const SeenPerson& was = it->second;
+        changed = now.inside != was.inside || !sameTarget(now.target, was.target) || now.speedMps != was.speedMps ||
+                  now.bus != was.bus || now.scripted != was.scripted ||
+                  (!now.target && distance(now.position, was.position) > kStillMoveThreshold);
+      }
+      if (!changed) continue;
+      Json entry = personJson(viewer, *o);
+      entry["self"] = o == &viewer;
+      entry["state"] = "here";
+      changes.push_back(std::move(entry));
+      seen[o->id] = now;
+    }
+    for (auto it = seen.begin(); it != seen.end();) {
+      if (visibleIds.count(it->first)) {
+        ++it;
+        continue;
+      }
+      const SeenPerson& was = it->second;
+      const CharacterState* o = character(it->first);
+      Json gone{{"character", it->first}, {"state", "gone"}};
+      if (!o || !o->online) {
+        gone["reason"] = "left_world";
+      } else if (o->inside == was.inside) {
+        gone["reason"] = "out_of_sight";  // they're where they were; one of you walked or stepped out of view
+      } else if (viewer.inside.empty() && was.inside.empty() &&
+                 distance(viewer.position, o->position) <= content_->sim().sightRangeMeters) {
+        // Entering puts you at the door, and the viewer can see that door: they watched them go in.
+        gone["reason"] = "went_inside";
+        gone["location"] = o->inside;
+      } else if (!viewer.inside.empty() && was.inside == viewer.inside && o->inside.empty()) {
+        gone["reason"] = "went_outside";
+      } else {
+        gone["reason"] = "moved_away";  // taken somewhere the viewer can't see (jail, the ER, a new home)
+      }
+      changes.push_back(std::move(gone));
+      it = seen.erase(it);
+    }
+    if (!changes.empty()) emit({viewerId}, "people", Json{{"changes", std::move(changes)}});
+  }
 }
 
 Json World::playableCharacters() const {

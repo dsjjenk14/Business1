@@ -133,6 +133,9 @@ Result<std::unique_ptr<SqliteStore>> SqliteStore::open(const std::string& path) 
     sqlite3_close(db);
     return fail("storage_error", "cannot open " + path + ": " + msg);
   }
+  // Admin commands open the same file while the server runs; wait out each other's short write
+  // transactions instead of failing with SQLITE_BUSY.
+  sqlite3_busy_timeout(db, 5000);
   std::unique_ptr<SqliteStore> store(new SqliteStore(db));
   if (Status s = store->exec("PRAGMA journal_mode=WAL; PRAGMA synchronous=FULL; PRAGMA foreign_keys=ON;"); !s)
     return s.error();
@@ -465,6 +468,15 @@ std::optional<std::string> SqliteStore::claimedBy(const CharacterId& character) 
   q.bind(1, character);
   if (q.step() != SQLITE_ROW) return std::nullopt;
   return q.text(0);
+}
+
+Result<std::optional<std::string>> SqliteStore::releaseCharacter(const CharacterId& character) {
+  const auto holder = claimedBy(character);
+  if (!holder) return std::optional<std::string>();
+  Stmt up(db_, "UPDATE accounts SET character_id = NULL WHERE character_id = ?");
+  up.bind(1, character);
+  if (up.step() != SQLITE_DONE) return dbError(db_, "release character");
+  return holder;
 }
 
 }  // namespace livera

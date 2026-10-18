@@ -11,6 +11,7 @@
 #include "core/World.h"
 #include "net/Socket.h"
 #include "persistence/SqliteStore.h"
+#include "server/Auth.h"
 #include "server/RateLimiter.h"
 
 namespace livera {
@@ -31,9 +32,15 @@ struct ServerConfig {
   bool testPayments = false;
   // } m08:wallet
   int passwordIterations = kDefaultPasswordIterations;
-  std::size_t maxPlayers = 8;
+  std::size_t maxPlayers = 16;    // people in the world; scripts don't count against it
+  std::size_t maxScripted = 16;   // script sessions (bot_* accounts) in the world
   double requestsPerSecond = 20;
   double requestBurst = 40;
+  double tokenLifetimeSeconds = 7 * 24 * 3600.0;  // resume tokens (in memory only)
+  std::size_t tokensPerUser = 5;
+  int loginMaxFailures = 5;           // wrong passwords for one username within the window...
+  double loginWindowSeconds = 600;
+  double loginLockSeconds = 600;      // ...lock that username's logins this long
 };
 
 // The dedicated, authoritative server. Single-threaded by design: one loop owns the
@@ -56,6 +63,7 @@ class Server {
     net::LineBuffer in;
     std::string out;
     std::string username;
+    std::string token;  // the resume token this session logged in with; logout revokes it
     CharacterId character;
     RateLimiter limiter{20, 40};
     RateLimiter chatLimiter{1, 5};  // speech and texts: a line a second, bursts of five
@@ -73,10 +81,15 @@ class Server {
   void tick(double realSeconds);
   void routeEvents();
   void send(Session& s, const Json& message);
+  // Logs a session in as `username` (password or token checked by the caller); another session for
+  // the same account is kicked.
+  Json beginSession(Session& s, const std::string& username, const std::string& token);
+  Result<Json> play(Session& s, const Json& req);
   void leaveWorld(Session& s);
   void closeSession(Session& s, const std::string& reason);
   double monotonicSeconds() const;
-  std::size_t playersInWorld() const;
+  std::size_t inWorld(bool scripts) const;  // sessions in the world: scripts, or people
+  Session* playing(const CharacterId& id, const Session& except);
 
   ServerConfig config_;
   std::unique_ptr<SqliteStore> store_;
@@ -85,6 +98,8 @@ class Server {
   std::uint16_t port_ = 0;
   std::map<int, Session> sessions_;
   int nextSessionId_ = 1;
+  SessionTokens tokens_;
+  LoginThrottle loginThrottle_;
   std::chrono::steady_clock::time_point started_;
 };
 

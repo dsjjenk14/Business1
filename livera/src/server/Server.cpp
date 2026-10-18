@@ -7,7 +7,6 @@
 #include <cerrno>
 #include <cmath>
 #include <cstdio>
-#include <regex>
 #include <vector>
 
 #include "core/Clock.h"
@@ -16,7 +15,7 @@ namespace livera {
 
 namespace {
 
-constexpr const char* kProtocol = "livera-dev/1";
+constexpr const char* kProtocol = "livera/1";
 constexpr std::size_t kMaxOutboxBytes = 1 << 20;
 constexpr int kMaxViolations = 50;
 constexpr GameMinutes kMaxDevAdvance = 60 * kMinutesPerDay;
@@ -84,6 +83,8 @@ Server::Server(ServerConfig config, std::unique_ptr<SqliteStore> store, World wo
       store_(std::move(store)),
       world_(std::move(world)),
       listener_(std::move(listener)),
+      tokens_(config_.tokenLifetimeSeconds, config_.tokensPerUser),
+      loginThrottle_(config_.loginMaxFailures, config_.loginWindowSeconds, config_.loginLockSeconds),
       started_(std::chrono::steady_clock::now()) {
   port_ = net::localPort(listener_);
   world_.setTestPayments(testPaymentsOn(config_));  // m08:wallet: the wallet app says whether coins can be bought
@@ -177,7 +178,8 @@ void Server::acceptClients() {
     if (!net::setNonBlocking(s.fd)) continue;
     const int id = s.id;
     sessions_.emplace(id, std::move(s));
-    send(sessions_.at(id), Json{{"event", "welcome"}, {"data", {{"protocol", kProtocol}}}});
+    send(sessions_.at(id),
+         Json{{"event", "welcome"}, {"data", {{"protocol", kProtocol}, {"rules", world_.publicRules()}}}});
   }
 }
 
@@ -229,27 +231,31 @@ void Server::send(Session& s, const Json& message) {
 }
 
 void Server::handleLine(Session& s, const std::string& line) {
+  // Parse first (it can't throw) so that every reply, refusals included, names the request it answers.
+  Json req = Json::parse(line, nullptr, /*allow_exceptions=*/false);
+  const Json re = req.is_object() && req.contains("id") ? req["id"] : Json();
   if (!s.limiter.allow(monotonicSeconds())) {
     if (++s.violations > kMaxViolations) {
       closeSession(s, "rate limit");
       return;
     }
-    send(s, Json{{"ok", false}, {"error", {{"code", "rate_limited"}, {"message", "slow down"}}}});
+    send(s, Json{{"re", re}, {"ok", false}, {"error", {{"code", "rate_limited"}, {"message", "slow down"}}}});
     return;
   }
-  Json req = Json::parse(line, nullptr, /*allow_exceptions=*/false);
   if (!req.is_object() || !req.contains("op") || !req["op"].is_string()) {
-    send(s, Json{{"ok", false}, {"error", {{"code", "bad_request"}, {"message", "expected {\"op\": ...}"}}}});
+    send(s, Json{{"re", re},
+                 {"ok", false},
+                 {"error", {{"code", "bad_request"}, {"message", "expected {\"op\": ...}"}}}});
     return;
   }
   const std::string opName = req["op"].get<std::string>();
   if ((opName == "say" || opName == "message") && !s.chatLimiter.allow(monotonicSeconds())) {
-    send(s, Json{{"re", req.value("id", Json())},
+    send(s, Json{{"re", re},
                  {"ok", false},
                  {"error", {{"code", "chat_rate_limited"}, {"message", "you're talking too fast"}}}});
     return;
   }
-  Json reply{{"re", req.value("id", Json())}};
+  Json reply{{"re", re}};
   Result<Json> result = fail("internal", "unhandled");
   try {
     result = dispatch(s, req["op"].get<std::string>(), req);
@@ -270,43 +276,61 @@ void Server::handleLine(Session& s, const std::string& line) {
 Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req) {
   // --- Ops available before login -------------------------------------------------
   if (op == "ping") return Json{{"pong", true}};
-  if (op == "hello") return Json{{"protocol", kProtocol}, {"world_time", formatDateTime(world_.now())}};
+  if (op == "hello")
+    return Json{{"protocol", kProtocol}, {"world_time", formatDateTime(world_.now())}, {"rules", world_.publicRules()}};
   if (op == "register") {
     if (!config_.openRegistration) return fail("registration_closed", "registration is closed");
     const std::string user = str(req, "username");
     const std::string pass = str(req, "password");
-    static const std::regex kUsername("^[a-z0-9_]{3,24}$");
-    if (!std::regex_match(user, kUsername))
-      return fail("invalid_username", "use 3-24 lowercase letters, digits or underscores");
-    if (pass.size() < 8 || pass.size() > 128) return fail("invalid_password", "use 8-128 characters");
+    if (Status st = checkUsername(user); !st) return st.error();
+    // Only the operator makes script accounts (--add-account), so a person is never labelled a script
+    // and a script never passes as a person.
+    if (isScriptAccount(user)) return fail("invalid_username", "names starting with bot_ are reserved for scripts");
+    if (Status st = checkPassword(pass); !st) return st.error();
     if (Status st = store_->createAccount(user, hashPassword(pass, config_.passwordIterations)); !st) return st.error();
     logLine("account created: " + user);
     return Json{{"username", user}};
   }
   if (op == "login") {
     const std::string user = str(req, "username");
+    const double now = monotonicSeconds();
+    // Checked before the password, so a locked name costs no hashing and a right guess doesn't get in.
+    if (loginThrottle_.locked(user, now))
+      return fail("login_throttled", "too many wrong passwords for this account; try again in " +
+                                         std::to_string(static_cast<int>(std::ceil(config_.loginLockSeconds / 60))) +
+                                         " minutes");
     const auto cred = store_->credential(user);
-    if (!cred || !verifyPassword(str(req, "password"), *cred)) return fail("bad_credentials", "wrong username or password");
-    if (!s.username.empty()) return fail("already_logged_in", "already logged in");
-    // A second login for the same account replaces the first connection.
-    for (auto& [id, other] : sessions_) {
-      if (id != s.id && other.username == user && !other.closing) {
-        send(other, Json{{"event", "kicked"}, {"data", {{"reason", "logged in elsewhere"}}}});
-        closeSession(other, "replaced by new login");
-      }
+    if (!cred || !verifyPassword(str(req, "password"), *cred)) {
+      loginThrottle_.failed(user, now);
+      return fail("bad_credentials", "wrong username or password");
     }
-    s.username = user;
-    const auto character = store_->characterOf(user);
-    return Json{{"username", user}, {"character", character ? Json(*character) : Json()}};
+    loginThrottle_.succeeded(user);
+    if (!s.username.empty()) return fail("already_logged_in", "already logged in");
+    auto token = tokens_.issue(user, now);
+    if (!token) return token.error();
+    return beginSession(s, user, token.value());
+  }
+  if (op == "resume") {
+    const std::string token = str(req, "token");
+    const auto user = tokens_.resolve(token, monotonicSeconds());
+    if (!user) return fail("bad_token", "that session has ended; log in with your password");
+    if (!s.username.empty()) return fail("already_logged_in", "already logged in");
+    return beginSession(s, *user, token);
   }
   if (s.username.empty()) return fail("not_logged_in", "log in first");
 
   // --- Ops for logged-in accounts ---------------------------------------------------
   if (op == "characters") {
+    const bool script = isScriptAccount(s.username);
     Json list = world_.playableCharacters();
     for (auto& c : list) {
-      const auto owner = store_->claimedBy(c["id"].get<std::string>());
-      c["available"] = !owner || *owner == s.username;
+      const std::string id = c["id"].get<std::string>();
+      const auto owner = store_->claimedBy(id);
+      const Session* other = playing(id, s);
+      // A person may take a character a script is playing; a script only one nobody has or plays.
+      c["available"] = script ? !owner && !other
+                              : (!owner || *owner == s.username) && !(other && !isScriptAccount(other->username));
+      c["scripted_now"] = world_.isScripted(id);
     }
     // Your own created character, if you have one. Other players' creations aren't listed.
     const auto mine = store_->characterOf(s.username);
@@ -316,7 +340,7 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
                             {"tagline", def->profile.value("tagline", "")}, {"created", true}, {"available", true}});
       }
     }
-    return Json{{"characters", list}, {"can_create", !mine.has_value()}};
+    return Json{{"characters", list}, {"can_create", !mine.has_value() && !script}};
   }
   if (op == "creator_options") return world_.creatorOptions();
   // Time skips are world-wide, so they don't need a character: skipping a night with everyone
@@ -334,6 +358,8 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
     return Json{{"ok", true}};
   }
   if (op == "create_character") {
+    // Making a character claims it, and scripts never claim.
+    if (isScriptAccount(s.username)) return fail("forbidden", "script accounts can't create characters");
     if (store_->characterOf(s.username)) return fail("already_has_character", "this account already has a character");
     if (!req.contains("character")) return fail("bad_request", "send your character sheet as \"character\"");
     auto id = world_.createCharacter(req["character"]);
@@ -345,22 +371,12 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
     const CharacterDef* def = world_.definition(id.value());
     return Json{{"id", id.value()}, {"name", def->fullName()}, {"home", world_.content().location(def->spawnLocation)->name}};
   }
-  if (op == "play") {
-    if (!s.character.empty()) return fail("already_playing", "already in the world");
-    std::string id = str(req, "character");
-    if (id.empty()) id = store_->characterOf(s.username).value_or("");
-    const CharacterDef* def = world_.definition(id);
-    if (!def || !def->playable) return fail("unknown_character", "that character can't be played");
-    if (playersInWorld() >= config_.maxPlayers) return fail("server_full", "the server is full");
-    if (Status st = store_->claimCharacter(s.username, id); !st) return st.error();
-    if (Status st = world_.connect(id); !st) return st.error();
-    s.character = id;
-    logLine(s.username + " entered the world as " + id);
-    return world_.look(id);
-  }
+  if (op == "play") return play(s, req);
   if (op == "logout") {
     // Leaves the world and ends the account session; the connection stays open.
     leaveWorld(s);
+    tokens_.revoke(s.token);
+    s.token.clear();
     s.username.clear();
     return Json{{"logged_out", true}};
   }
@@ -510,9 +526,61 @@ void Server::routeEvents() {
   }
 }
 
+Json Server::beginSession(Session& s, const std::string& username, const std::string& token) {
+  // A second login for the same account replaces the first connection.
+  for (auto& [id, other] : sessions_) {
+    if (id != s.id && other.username == username && !other.closing) {
+      send(other, Json{{"event", "kicked"}, {"data", {{"reason", "logged in elsewhere"}}}});
+      closeSession(other, "replaced by new login");
+    }
+  }
+  s.username = username;
+  s.token = token;
+  const auto character = store_->characterOf(username);
+  return Json{{"username", username}, {"character", character ? Json(*character) : Json()}, {"token", token}};
+}
+
+Result<Json> Server::play(Session& s, const Json& req) {
+  if (!s.character.empty()) return fail("already_playing", "already in the world");
+  const bool script = isScriptAccount(s.username);
+  std::string id = str(req, "character");
+  if (id.empty() && !script) id = store_->characterOf(s.username).value_or("");
+  const CharacterDef* def = world_.definition(id);
+  if (!def || !def->playable) return fail("unknown_character", "that character can't be played");
+  Session* current = playing(id, s);
+  if (script) {
+    // Scripts borrow characters nobody has: no claim is written, and any claim or player stops them.
+    if (store_->claimedBy(id)) return fail("character_claimed", "a player has claimed that character");
+    if (current) return fail("character_in_use", "someone is playing that character right now");
+    if (inWorld(true) >= config_.maxScripted) return fail("server_full", "the server is full");
+  } else {
+    if (current && !isScriptAccount(current->username)) {
+      const auto owner = store_->claimedBy(id);
+      if (owner && *owner != s.username) return fail("character_taken", "someone else is playing that character");
+      // The operator released the claim, but the player in the world keeps the character until they leave.
+      return fail("character_in_use", "someone is playing that character right now");
+    }
+    if (inWorld(false) >= config_.maxPlayers) return fail("server_full", "the server is full");
+    if (Status st = store_->claimCharacter(s.username, id); !st) return st.error();
+    if (current) {
+      // People always win over scripts. The script steps out (its connection and login stay open).
+      send(*current,
+           Json{{"event", "released"}, {"data", {{"character", id}, {"reason", "a player took this character"}}}});
+      logLine(current->username + " released " + id + " to " + s.username);
+      leaveWorld(*current);
+    }
+  }
+  if (Status st = world_.connect(id); !st) return st.error();
+  world_.setScripted(id, script);
+  s.character = id;
+  logLine(s.username + " entered the world as " + id + (script ? " (script)" : ""));
+  return world_.look(id);
+}
+
 void Server::leaveWorld(Session& s) {
   if (s.character.empty()) return;
   world_.disconnect(s.character);
+  world_.setScripted(s.character, false);
   logLine(s.username + " left the world (" + s.character + ")");
   s.character.clear();
   // Persist right away so a crash after logout never loses the session.
@@ -526,10 +594,19 @@ void Server::closeSession(Session& s, const std::string& reason) {
   if (!s.username.empty()) logLine("connection closed for " + s.username + ": " + reason);
 }
 
-std::size_t Server::playersInWorld() const {
+std::size_t Server::inWorld(bool scripts) const {
   std::size_t n = 0;
-  for (const auto& [id, s] : sessions_) n += (!s.character.empty() && !s.closing) ? 1 : 0;
+  for (const auto& [id, s] : sessions_) {
+    if (!s.character.empty() && !s.closing && isScriptAccount(s.username) == scripts) ++n;
+  }
   return n;
+}
+
+Server::Session* Server::playing(const CharacterId& id, const Session& except) {
+  for (auto& [sid, other] : sessions_) {
+    if (sid != except.id && !other.closing && other.character == id) return &other;
+  }
+  return nullptr;
 }
 
 }  // namespace livera

@@ -190,6 +190,7 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
         s.shoutRangeMeters = body.value("shout_range_m", s.shoutRangeMeters);
         s.whisperRangeMeters = body.value("whisper_range_m", s.whisperRangeMeters);
         s.maxSpeechLength = body.value("max_speech_length", s.maxSpeechLength);
+        s.sightRangeMeters = body.value("sight_range_m", s.sightRangeMeters);
       } else if (section == "locations") {
         for (const auto& j : body) {
           LocationDef l;
@@ -566,6 +567,9 @@ Status ContentDatabase::validate() const {
   if (!haveSim_) return fail("content_missing", "no 'simulation' section found");
   if (sim_.needs.empty()) return fail("content_invalid", "simulation.needs is empty");
   if (sim_.minutesPerRealSecond <= 0) return fail("content_invalid", "minutes_per_real_second must be > 0");
+  // A shout from someone you can't see would be a voice from nowhere: clients draw speakers from sight.
+  if (sim_.sightRangeMeters < sim_.shoutRangeMeters)
+    return fail("content_invalid", "sight_range_m must be at least shout_range_m");
 
   std::set<std::string> needs, emotions(sim_.emotions.begin(), sim_.emotions.end()),
       traits(sim_.personalityTraits.begin(), sim_.personalityTraits.end()), values(sim_.values.begin(), sim_.values.end()),

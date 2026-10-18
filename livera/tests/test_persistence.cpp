@@ -122,6 +122,26 @@ TEST_CASE("persistence: accounts and one-character-per-account claims") {
   CHECK(verifyPassword("password1", *store.credential("dom")));
 }
 
+TEST_CASE("persistence: the operator can release a claimed character, even with the server's store open") {
+  auto path = tempPath("release.db");
+  auto server = SqliteStore::open(path.string());  // the running server's connection
+  REQUIRE(server);
+  REQUIRE(server.value()->createAccount("dom", hashPassword("password1", 1000)));
+  REQUIRE(server.value()->claimCharacter("dom", "dominique"));
+  auto admin = SqliteStore::open(path.string());  // livera_server --release-character, at the same time
+  REQUIRE(admin);
+  auto released = admin.value()->releaseCharacter("dominique");
+  REQUIRE(released);
+  REQUIRE(released.value().has_value());
+  CHECK(*released.value() == "dom");
+  CHECK(!server.value()->claimedBy("dominique"));
+  CHECK(!server.value()->characterOf("dom"));
+  auto again = admin.value()->releaseCharacter("dominique");
+  REQUIRE(again);
+  CHECK(!again.value().has_value());  // nothing to release
+  CHECK(server.value()->claimCharacter("dom", "dax"));  // the account may pick someone else now
+}
+
 TEST_CASE("persistence: created characters, skills and songs survive a round trip") {
   auto path = tempPath("created.db");
   std::string songId;

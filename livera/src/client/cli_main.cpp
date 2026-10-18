@@ -75,6 +75,33 @@ void printEvent(const Client& c, const Json& ev) {
     std::printf("  [%s: %s]\n", d.value("character", "").c_str(), d.value("kind", "").c_str());
   } else if (type == "gift") {
     std::printf("  [%s gave you %s]\n", d.value("from", "").c_str(), d.value("label", "").c_str());
+  } else if (type == "people") {
+    // What changed among the people in sight. Your own entry repeats what `look` tells you, so it's skipped.
+    for (const auto& p : d.value("changes", Json::array())) {
+      if (p.value("self", false)) continue;
+      const std::string who = p.value("name", p.value("character", ""));
+      if (p.value("state", "") == "gone") {
+        std::printf("  [%s: %s%s]\n", p.value("character", "").c_str(), p.value("reason", "").c_str(),
+                    p.contains("location") ? (" " + p.value("location", "")).c_str() : "");
+        continue;
+      }
+      const char* script = p.value("scripted", false) ? " (played by a script)" : "";
+      if (p.value("moving", false) && p["target"].is_array()) {
+        std::printf("  [%s%s %s toward (%.0f, %.0f)]\n", who.c_str(), script,
+                    p.value("mode", "walk") == "bus" ? "riding the bus" : "walking", p["target"][0].get<double>(),
+                    p["target"][1].get<double>());
+      } else if (!p.value("inside", "").empty()) {
+        std::printf("  [%s%s is here]\n", who.c_str(), script);
+      } else {
+        std::printf("  [%s%s standing at (%.0f, %.0f)]\n", who.c_str(), script, p["position"][0].get<double>(),
+                    p["position"][1].get<double>());
+      }
+    }
+  } else if (type == "whispering") {
+    std::printf("  [%s whispers to %s]\n", d.value("from_name", "").c_str(), d.value("to_name", "").c_str());
+  } else if (type == "released") {
+    std::printf("  [you're no longer playing %s: %s]\n", d.value("character", "").c_str(),
+                d.value("reason", "").c_str());
   }
   else std::printf("  [%s] %s\n", type.c_str(), d.dump().c_str());
 }
@@ -115,7 +142,9 @@ void printLook(const Json& d) {
   std::printf("\n");
   if (!d["people"].empty()) {
     std::printf("  People here:");
-    for (const auto& p : d["people"]) std::printf(" %s (%s)", p.value("name", "").c_str(), p.value("id", "").c_str());
+    for (const auto& p : d["people"])
+      std::printf(" %s (%s%s)", p.value("name", "").c_str(), p.value("id", "").c_str(),
+                  p.value("scripted", false) ? ", played by a script" : "");
     std::printf("\n");
   }
 }
@@ -1017,9 +1046,11 @@ bool runCommand(Client& c, const std::string& input) {
                                                              : (" Your character: " + c.myCharacter + ". Type `play`.").c_str());
   } else if (op == "characters") {
     for (const auto& ch : d["characters"]) {
-      std::printf("  %-14s %s, %d (%s)%s%s\n", ch.value("id", "").c_str(), ch.value("name", "").c_str(), ch.value("age", 0),
-                  ch.value("pronouns", "").c_str(), ch.contains("career") ? (", " + ch.value("career", "")).c_str() : "",
-                  ch.value("available", false) ? "" : "  [taken]");
+      std::printf("  %-14s %s, %d (%s)%s%s%s\n", ch.value("id", "").c_str(), ch.value("name", "").c_str(),
+                  ch.value("age", 0), ch.value("pronouns", "").c_str(),
+                  ch.contains("career") ? (", " + ch.value("career", "")).c_str() : "",
+                  ch.value("available", false) ? "" : "  [taken]",
+                  ch.value("scripted_now", false) ? "  [played by a script]" : "");
       if (!ch.value("tagline", "").empty()) std::printf("                 %s\n", ch.value("tagline", "").c_str());
     }
     if (d.value("can_create", false)) std::printf("  ...or make your own: `create`\n");

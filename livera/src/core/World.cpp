@@ -286,6 +286,8 @@ void World::advanceRealTime(double seconds) {
   const auto whole = static_cast<GameMinutes>(state_.clockCarry);
   state_.clockCarry -= static_cast<double>(whole);
   advanceMinutes(whole);
+  // Last, so it catches every move this tick made, forced ones included (jail, the ER, being shown out).
+  emitPeopleChanges();
 }
 
 // Each step simulates the minute [now, now+1), then moves the clock. Things that happen
@@ -458,11 +460,21 @@ void World::disconnect(const CharacterId& id) {
   if (c->career.shiftStartedAt) (void)endShift(id);
   if (c->education.sessionStartedAt) (void)endStudy(id);
   c->moveTarget.reset();
+  c->moveSpeedMps = 0;  // or whoever plays next is stuck "on the bus" with nowhere to go
   emit(presentWith(*c), "presence", Json{{"character", id}, {"status", "left"}});
   c->online = false;
   c->lastSimulatedAt = state_.now;
   c->lastOnlineAt = state_.now;
+  seen_.erase(id);
+  scripted_.erase(id);
 }
+
+void World::setScripted(const CharacterId& id, bool scripted) {
+  if (scripted) scripted_.insert(id);
+  else scripted_.erase(id);
+}
+
+bool World::isScripted(const CharacterId& id) const { return scripted_.count(id) > 0; }
 
 // ---------------------------------------------------------------------------------
 // Commands
@@ -491,6 +503,8 @@ Status World::enter(const CharacterId& actor, const LocationId& locationId) {
   if (!loc) return fail("unknown_location", "no such place");
   if (!loc->enterable) return fail("not_enterable", loc->name + " is an outdoor space; walk there instead");
   if (!c.inside.empty()) return fail("inside_building", "leave " + c.inside + " first");
+  // Riding past a door isn't standing at it; stepping off mid-ride would also strand the bus speed.
+  if (c.moveSpeedMps > 0) return fail("riding", "you're on the bus; get off at your stop");
   if (distance(c.position, loc->door) > content_->sim().entryRadiusMeters)
     return fail("too_far", "you need to be at the entrance of " + loc->name);
   if (Status a = canAccess(actor, *loc); !a) return a;
@@ -909,9 +923,31 @@ Result<Json> World::say(const CharacterId& actor, const std::string& text, const
   }
 
   const CharacterDef* def = definition(actor);
-  Json line{{"from", actor}, {"name", def ? def->fullName() : actor}, {"text", clean}, {"volume", volume}};
+  Json line{{"from", actor},
+            {"name", def ? def->fullName() : actor},
+            {"text", clean},
+            {"volume", volume},
+            {"position", {std::round(c.position.x * 10) / 10, std::round(c.position.y * 10) / 10}}};
   if (volume == "whisper") line["to"] = whisperTo;
-  emit(hearers, "speech", line);
+  // One event per hearer: how far away the voice is differs for each of them.
+  for (const auto& h : hearers) {
+    Json heard = line;
+    const CharacterState* hs = character(h);
+    if (hs && c.inside.empty() && hs->inside.empty())
+      heard["distance_m"] = std::round(distance(c.position, hs->position));
+    emit({h}, "speech", std::move(heard));
+  }
+  if (volume == "whisper") {
+    // Onlookers see the leaning in, never the words: everyone who would have heard a `say`, except the two.
+    std::vector<CharacterId> onlookers;
+    for (const auto& id : presentWith(c, sim.hearingRangeMeters)) {
+      if (id != whisperTo) onlookers.push_back(id);
+    }
+    const CharacterDef* toDef = definition(whisperTo);
+    if (!onlookers.empty())
+      emit(onlookers, "whispering", Json{{"from", actor}, {"from_name", def ? def->fullName() : actor},
+                                         {"to", whisperTo}, {"to_name", toDef ? toDef->fullName() : whisperTo}});
+  }
   // Talking with people (not to an empty room) is social contact for everyone involved.
   if (!hearers.empty()) {
     applyNeeds(c, {{"social", 1}});

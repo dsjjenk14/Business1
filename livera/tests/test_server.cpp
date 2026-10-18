@@ -8,6 +8,8 @@
 
 #include "TestSupport.h"
 #include "net/Socket.h"
+#include "persistence/SqliteStore.h"
+#include "server/Auth.h"
 #include "server/Server.h"
 
 using namespace livera;
@@ -25,7 +27,7 @@ std::shared_ptr<const ContentDatabase> fastContent() {
 
 class RunningServer {
  public:
-  explicit RunningServer(const std::string& db, bool dev = true) {
+  explicit RunningServer(const std::string& db, bool dev = true, const std::function<void(ServerConfig&)>& tweak = {}) {
     ServerConfig cfg;
     cfg.port = 0;
     cfg.dbPath = db;
@@ -33,6 +35,7 @@ class RunningServer {
     cfg.devCommands = dev;
     cfg.passwordIterations = 1000;
     cfg.autosaveSeconds = 3600;
+    if (tweak) tweak(cfg);
     auto s = Server::create(cfg);
     if (!s) throw std::runtime_error("server failed: " + s.error().message);
     server_ = std::move(s).value();
@@ -106,6 +109,23 @@ class TestClient {
       if (e.value("event", "") == type) return true;
     }
     return false;
+  }
+
+  // The latest `people` change this client was told about one character (null if none).
+  Json lastSeen(const std::string& character) const {
+    Json last;
+    for (const auto& e : events) {
+      if (e.value("event", "") != "people") continue;
+      for (const auto& c : e["data"]["changes"]) {
+        if (c["character"] == character) last = c;
+      }
+    }
+    return last;
+  }
+
+  void login(const std::string& user, const std::string& pass, bool registerFirst = true) {
+    if (registerFirst) ok({{"op", "register"}, {"username", user}, {"password", pass}});
+    ok({{"op", "login"}, {"username", user}, {"password", pass}});
   }
 
   void walkTo(const std::string& place) {
@@ -398,4 +418,326 @@ TEST_CASE("server: everyday life over the network: phone apps, things, school, t
   CHECK(dax.ok({{"op", "phone"}, {"app", "romance"}})["relationships"][0]["status"] == "dating");
   CHECK(dax.refusal({{"op", "arrest"}, {"target", "dominique"}}) == "not_police");
   CHECK(dax.refusal({{"op", "name_baby"}, {"child", "dominique"}, {"name", "X"}}) == "unknown_character");
+}
+
+// --- Protocol livera/1: replies, rules, sessions, scripts and caps -----------------------
+
+namespace {
+
+// A bare connection, for lines a well-behaved client never sends (broken JSON, missing ops, floods).
+class RawClient {
+ public:
+  explicit RawClient(std::uint16_t port) {
+    auto fd = net::connectTcp("127.0.0.1", port);
+    if (!fd) throw std::runtime_error("connect failed");
+    fd_ = std::move(fd).value();
+  }
+  void send(const std::string& lines) { REQUIRE(net::sendAll(fd_, lines)); }
+  // Replies (events skipped), in arrival order, until `count` arrive or the time runs out.
+  std::vector<Json> replies(std::size_t count, double seconds = 5) {
+    std::vector<Json> out;
+    const auto deadline = std::chrono::steady_clock::now() + std::chrono::duration<double>(seconds);
+    while (out.size() < count && std::chrono::steady_clock::now() < deadline) {
+      auto line = net::readLine(fd_, buffer_, 100);
+      if (!line || !line.value()) continue;
+      Json m = Json::parse(*line.value());
+      if (!m.contains("event")) out.push_back(std::move(m));
+    }
+    return out;
+  }
+
+ private:
+  net::Fd fd_;
+  net::LineBuffer buffer_;
+};
+
+void makeAccount(const std::string& db, const std::string& user, const std::string& pass) {
+  auto store = SqliteStore::open(db);
+  REQUIRE(store);
+  REQUIRE(store.value()->createAccount(user, hashPassword(pass, 1000)));
+}
+
+Json listed(TestClient& c, const std::string& id) {
+  const Json all = c.ok({{"op", "characters"}})["characters"];  // a copy: ranging over a temporary's member dangles
+  for (const auto& ch : all) {
+    if (ch["id"] == id) return ch;
+  }
+  return Json();
+}
+
+}  // namespace
+
+TEST_CASE("server: every reply names its request, refusals included") {
+  RunningServer server(tempPath("re.db").string(), /*dev=*/false);
+  RawClient c(server.port());
+  c.send("{\"id\": 5}\nnot json at all\n{\"id\": \"abc\", \"op\": 7}\n[1, 2]\n{\"id\": 6, \"op\": \"ping\"}\n");
+  const auto r = c.replies(5);
+  REQUIRE(r.size() == 5);
+  CHECK(r[0]["re"] == 5);
+  CHECK(r[0]["error"]["code"] == "bad_request");
+  CHECK(r[1].contains("re"));
+  CHECK(r[1]["re"].is_null());  // nothing to name: it wasn't JSON
+  CHECK(r[1]["error"]["code"] == "bad_request");
+  CHECK(r[2]["re"] == "abc");
+  CHECK(r[2]["error"]["code"] == "bad_request");
+  CHECK(r[3]["re"].is_null());
+  CHECK(r[4]["re"] == 6);
+  CHECK(r[4]["ok"] == true);
+  // A flood on a fresh connection: the refusals say which request they refuse.
+  RawClient flood(server.port());
+  std::string burst;
+  for (int i = 0; i < 60; ++i) burst += Json{{"op", "ping"}, {"id", 100 + i}}.dump() + "\n";
+  flood.send(burst);
+  const auto answers = flood.replies(60);
+  REQUIRE(answers.size() == 60);
+  int refused = 0;
+  for (std::size_t i = 0; i < answers.size(); ++i) {
+    CHECK(answers[i]["re"] == 100 + static_cast<int>(i));  // in order, each with its own id
+    if (!answers[i].value("ok", false)) {
+      ++refused;
+      CHECK(answers[i]["error"]["code"] == "rate_limited");
+    }
+  }
+  CHECK(refused > 0);
+}
+
+TEST_CASE("server: welcome and hello carry the protocol name and the public rules") {
+  RunningServer server(tempPath("hello.db").string());
+  TestClient c(server.port());
+  const Json hello = c.ok({{"op", "hello"}});
+  CHECK(hello["protocol"] == "livera/1");
+  CHECK(hello["rules"]["sight_range_m"] == 120);
+  CHECK(hello["rules"]["say_range_m"] == 20);
+  CHECK(hello["rules"]["walk_speed_mps"] == 400.0);  // this test server's fast walking, from its data
+  REQUIRE(!c.events.empty());
+  CHECK(c.events[0]["event"] == "welcome");
+  CHECK(c.events[0]["data"]["protocol"] == "livera/1");
+  CHECK(c.events[0]["data"]["rules"] == hello["rules"]);
+  c.login("pat", "password123");
+  c.ok({{"op", "play"}, {"character", "dax"}});
+  const Json map = c.ok({{"op", "map"}});
+  CHECK(map["rules"] == hello["rules"]);
+  CHECK(!map["transit"]["lines"].empty());
+  CHECK(!map["interactions"].empty());
+}
+
+TEST_CASE("server: a token resumes a session; unknown and logged-out tokens don't") {
+  RunningServer server(tempPath("tokens.db").string());
+  TestClient a(server.port());
+  a.ok({{"op", "register"}, {"username", "dom"}, {"password", "dom-pass-123"}});
+  const Json in = a.ok({{"op", "login"}, {"username", "dom"}, {"password", "dom-pass-123"}});
+  const std::string token = in["token"];
+  CHECK(token.size() == 64);
+  CHECK(token.find_first_not_of("0123456789abcdef") == std::string::npos);
+  a.ok({{"op", "play"}, {"character", "dominique"}});
+
+  // The phone drops the connection; a new one picks up with the token, no password.
+  TestClient b(server.port());
+  CHECK(b.refusal({{"op", "resume"}, {"token", "not-a-token"}}) == "bad_token");
+  CHECK(b.refusal({{"op", "resume"}}) == "bad_token");
+  const Json back = b.ok({{"op", "resume"}, {"token", token}});
+  CHECK(back["username"] == "dom");
+  CHECK(back["character"] == "dominique");
+  CHECK(back["token"] == token);
+  a.pump(0.3);
+  CHECK(a.sawEvent("kicked"));  // one session per account, as with a password login
+  b.ok({{"op", "play"}, {"character", "dominique"}});
+  CHECK(b.refusal({{"op", "resume"}, {"token", token}}) == "already_logged_in");
+
+  // Logging out ends that token.
+  b.ok({{"op", "logout"}});
+  TestClient c(server.port());
+  CHECK(c.refusal({{"op", "resume"}, {"token", token}}) == "bad_token");
+
+  // At most five live tokens per account: a sixth login drops the oldest.
+  std::vector<std::string> tokens;
+  for (int i = 0; i < 6; ++i) {
+    TestClient d(server.port());
+    tokens.push_back(d.ok({{"op", "login"}, {"username", "dom"}, {"password", "dom-pass-123"}})["token"]);
+  }
+  TestClient e(server.port());
+  CHECK(e.refusal({{"op", "resume"}, {"token", tokens[0]}}) == "bad_token");
+  CHECK(e.ok({{"op", "resume"}, {"token", tokens[1]}})["username"] == "dom");
+}
+
+TEST_CASE("server: tokens expire") {
+  RunningServer server(tempPath("token_expiry.db").string(), true,
+                       [](ServerConfig& cfg) { cfg.tokenLifetimeSeconds = 1.0; });
+  TestClient a(server.port());
+  a.ok({{"op", "register"}, {"username", "dom"}, {"password", "dom-pass-123"}});
+  const std::string token = a.ok({{"op", "login"}, {"username", "dom"}, {"password", "dom-pass-123"}})["token"];
+  std::this_thread::sleep_for(std::chrono::milliseconds(1200));
+  TestClient b(server.port());
+  CHECK(b.refusal({{"op", "resume"}, {"token", token}}) == "bad_token");
+}
+
+TEST_CASE("server: wrong passwords lock a username's logins for a while, right password or not") {
+  RunningServer server(tempPath("throttle.db").string());
+  TestClient c(server.port());
+  c.ok({{"op", "register"}, {"username", "dom"}, {"password", "dom-pass-123"}});
+  c.ok({{"op", "register"}, {"username", "sam"}, {"password", "sam-pass-123"}});
+  const Json wrong{{"op", "login"}, {"username", "dom"}, {"password", "guess-guess"}};
+  const Json right{{"op", "login"}, {"username", "dom"}, {"password", "dom-pass-123"}};
+  for (int i = 0; i < 4; ++i) CHECK(c.refusal(wrong) == "bad_credentials");
+  c.ok(right);  // a success clears the count
+  c.ok({{"op", "logout"}});
+  for (int i = 0; i < 5; ++i) CHECK(c.refusal(wrong) == "bad_credentials");
+  CHECK(c.refusal(right) == "login_throttled");
+  CHECK(c.refusal(wrong) == "login_throttled");
+  c.ok({{"op", "login"}, {"username", "sam"}, {"password", "sam-pass-123"}});  // other accounts are untouched
+}
+
+TEST_CASE("server: login throttling and session tokens keep time correctly") {
+  LoginThrottle t(5, 600, 600);
+  for (int i = 0; i < 4; ++i) t.failed("dom", i);
+  CHECK(!t.locked("dom", 4));
+  for (int i = 0; i < 4; ++i) t.failed("dom", 700 + i);  // the first four fell out of the window
+  CHECK(!t.locked("dom", 704));
+  t.failed("dom", 704);
+  CHECK(t.locked("dom", 704));
+  CHECK(t.locked("dom", 704 + 599));
+  CHECK(!t.locked("dom", 704 + 600));
+  CHECK(!t.locked("sam", 704));
+  t.succeeded("dom");
+  CHECK(t.tracked() == 0);
+  LoginThrottle spray(5, 600, 600);
+  for (int i = 0; i < 5000; ++i) spray.failed("u" + std::to_string(i), 0);
+  CHECK(spray.tracked() == 5000);
+  spray.failed("late", 1000);  // everything older than the window is swept
+  CHECK(spray.tracked() == 1);
+
+  SessionTokens tokens(100, 5);
+  std::vector<std::string> mine;
+  for (int i = 0; i < 6; ++i) mine.push_back(tokens.issue("dom", i).value());
+  CHECK(!tokens.resolve(mine[0], 10));  // the oldest went when the sixth came
+  CHECK(*tokens.resolve(mine[1], 10) == "dom");
+  const std::string sam = tokens.issue("sam", 10).value();
+  CHECK(*tokens.resolve(sam, 109) == "sam");
+  CHECK(!tokens.resolve(mine[5], 105));  // 100 s after it was issued
+  tokens.revoke(sam);
+  CHECK(!tokens.resolve(sam, 10));
+  CHECK(mine[1] != mine[2]);
+
+  CHECK(checkUsername("bot_maya"));
+  CHECK(isScriptAccount("bot_maya"));
+  CHECK(!isScriptAccount("robot_maya"));
+  CHECK(checkUsername("ab").error().code == "invalid_username");
+  CHECK(checkUsername("Dom").error().code == "invalid_username");
+  CHECK(checkUsername(std::string(25, 'a')).error().code == "invalid_username");
+  CHECK(checkPassword("short").error().code == "invalid_password");
+  CHECK(checkPassword("long enough"));
+}
+
+TEST_CASE("server: scripts are labelled, never claim, and always give way to a person") {
+  const std::string db = tempPath("scripts.db").string();
+  makeAccount(db, "bot_dax", "bot-pass-123");
+  makeAccount(db, "bot_two", "bot-pass-123");
+  RunningServer server(db);
+  TestClient bot(server.port()), bot2(server.port()), dom(server.port()), sam(server.port());
+  CHECK(dom.refusal({{"op", "register"}, {"username", "bot_maya"}, {"password", "password123"}}) == "invalid_username");
+  bot.login("bot_dax", "bot-pass-123", /*registerFirst=*/false);
+  bot2.login("bot_two", "bot-pass-123", false);
+  CHECK(bot.ok({{"op", "characters"}})["can_create"] == false);
+  CHECK(bot.refusal({{"op", "create_character"}, {"character", Json::object()}}) == "forbidden");
+  CHECK(bot.refusal({{"op", "play"}}) == "unknown_character");  // a script has no character of its own
+  bot.ok({{"op", "play"}, {"character", "dax"}});
+  CHECK(bot2.refusal({{"op", "play"}, {"character", "dax"}}) == "character_in_use");
+  dom.login("dom", "dom-pass-123");
+  dom.ok({{"op", "play"}, {"character", "dominique"}});
+  CHECK(bot2.refusal({{"op", "play"}, {"character", "dominique"}}) == "character_claimed");
+
+  // Playing wrote no claim: Dax is still free for a person, and listed as played by a script.
+  Json dax = listed(dom, "dax");
+  CHECK(dax["available"] == true);
+  CHECK(dax["scripted_now"] == true);
+  CHECK(listed(dom, "dominique")["scripted_now"] == false);
+  CHECK(listed(bot2, "dax")["available"] == false);        // in use
+  CHECK(listed(bot2, "dominique")["available"] == false);  // claimed
+  CHECK(listed(bot2, "sienna")["available"] == true);
+
+  // Everyone who can see him is told a script is playing him.
+  for (TestClient* c : {&bot, &dom}) {
+    c->ok({{"op", "exit"}});
+    c->walkTo("heritage_coffee");
+    c->ok({{"op", "enter"}, {"location", "heritage_coffee"}});
+  }
+  const Json seen = dom.ok({{"op", "look"}})["people"];
+  REQUIRE(seen.size() == 1);
+  CHECK(seen[0]["id"] == "dax");
+  CHECK(seen[0]["scripted"] == true);
+  dom.pump(0.3);
+  CHECK(dom.lastSeen("dax")["scripted"] == true);
+
+  // A person takes the character: the script is released and steps out, still logged in.
+  sam.login("sam", "sam-pass-123");
+  const Json took = sam.ok({{"op", "play"}, {"character", "dax"}});
+  CHECK(took["you"]["inside"] == "heritage_coffee");
+  CHECK(took["people"][0]["id"] == "dominique");
+  bot.pump(0.3);
+  Json released;
+  for (const auto& e : bot.events) {
+    if (e.value("event", "") == "released") released = e["data"];
+  }
+  REQUIRE(released.is_object());
+  CHECK(released["character"] == "dax");
+  CHECK(released["reason"] == "a player took this character");
+  CHECK(bot.refusal({{"op", "look"}}) == "not_playing");
+  CHECK(bot.refusal({{"op", "play"}, {"character", "dax"}}) == "character_claimed");  // Sam's now
+  bot.ok({{"op", "play"}, {"character", "sienna"}});  // the script can carry on with someone free
+  dom.pump(0.3);
+  CHECK(dom.lastSeen("dax")["state"] == "here");
+  CHECK(dom.lastSeen("dax")["scripted"] == false);
+  dax = listed(dom, "dax");
+  CHECK(dax["available"] == false);
+  CHECK(dax["scripted_now"] == false);
+}
+
+TEST_CASE("server: the player cap counts people; scripts have their own") {
+  const std::string db = tempPath("caps.db").string();
+  makeAccount(db, "bot_one", "bot-pass-123");
+  makeAccount(db, "bot_two", "bot-pass-123");
+  RunningServer server(db, true, [](ServerConfig& cfg) {
+    cfg.maxPlayers = 1;
+    cfg.maxScripted = 1;
+  });
+  TestClient dom(server.port()), sam(server.port()), b1(server.port()), b2(server.port());
+  dom.login("dom", "dom-pass-123");
+  dom.ok({{"op", "play"}, {"character", "dominique"}});
+  b1.login("bot_one", "bot-pass-123", false);
+  b1.ok({{"op", "play"}, {"character", "dax"}});  // a script doesn't take a person's place
+  sam.login("sam", "sam-pass-123");
+  CHECK(sam.refusal({{"op", "play"}, {"character", "aaliyah"}}) == "server_full");
+  CHECK(sam.refusal({{"op", "play"}, {"character", "dax"}}) == "server_full");  // taking over still adds a person
+  b2.login("bot_two", "bot-pass-123", false);
+  CHECK(b2.refusal({{"op", "play"}, {"character", "aaliyah"}}) == "server_full");
+  dom.ok({{"op", "logout"}});
+  sam.ok({{"op", "play"}, {"character", "dax"}});
+  b1.pump(0.3);
+  CHECK(b1.sawEvent("released"));
+  b2.ok({{"op", "play"}, {"character", "aaliyah"}});  // the released script freed its slot
+}
+
+TEST_CASE("server: a claim released while its player is in the world doesn't hand the character over") {
+  const std::string db = tempPath("release_live.db").string();
+  RunningServer server(db);
+  TestClient dom(server.port()), sam(server.port());
+  dom.login("dom", "dom-pass-123");
+  dom.ok({{"op", "play"}, {"character", "dominique"}});
+  {
+    auto admin = SqliteStore::open(db);  // livera_server --release-character, while the server runs
+    REQUIRE(admin);
+    auto r = admin.value()->releaseCharacter("dominique");
+    REQUIRE(r);
+    REQUIRE(r.value().has_value());
+    CHECK(*r.value() == "dom");
+  }
+  sam.login("sam", "sam-pass-123");
+  CHECK(listed(sam, "dominique")["available"] == false);
+  CHECK(sam.refusal({{"op", "play"}, {"character", "dominique"}}) == "character_in_use");
+  dom.ok({{"op", "logout"}});
+  CHECK(listed(sam, "dominique")["available"] == true);
+  sam.ok({{"op", "play"}, {"character", "dominique"}});
+  TestClient again(server.port());
+  again.login("dom", "dom-pass-123", false);
+  CHECK(again.refusal({{"op", "play"}, {"character", "dominique"}}) == "character_taken");
 }

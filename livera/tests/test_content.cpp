@@ -72,3 +72,20 @@ TEST_CASE("content: a new career is a data change, not a code change") {
   REQUIRE(r);
   CHECK(r.value()->career("photography")->levels.at(1).title == "Photographer");
 }
+
+TEST_CASE("content: sight range comes from data and never falls below the shout range") {
+  CHECK(realContent()->sim().sightRangeMeters == 120);
+  Json sim = minimalSim();
+  auto defaults = ContentDatabase::loadFromDocuments({{"sim", sim}});
+  REQUIRE(defaults);
+  CHECK(defaults.value()->sim().sightRangeMeters == 120);  // not in the file: the default
+  sim["simulation"]["sight_range_m"] = 50;                  // the shout range is 60
+  auto r = ContentDatabase::loadFromDocuments({{"sim", sim}});
+  CHECK(!r);
+  CHECK(r.error().code == "content_invalid");
+  CHECK(r.error().message.find("sight_range_m") != std::string::npos);
+  sim["simulation"]["sight_range_m"] = 60;  // equal is fine: you can see everyone you can hear
+  auto ok = ContentDatabase::loadFromDocuments({{"sim", sim}});
+  REQUIRE(ok);
+  CHECK(ok.value()->sim().sightRangeMeters == 60);
+}

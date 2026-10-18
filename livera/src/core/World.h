@@ -3,6 +3,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -495,6 +496,17 @@ struct WorldEvent {
   Json data;
 };
 
+// What a viewer was last told about someone in sight, for the `people` stream (World::emitPeopleChanges).
+// Session state: never saved, rebuilt from nothing when a viewer connects.
+struct SeenPerson {
+  LocationId inside;
+  Vec2 position;
+  std::optional<Vec2> target;  // only while actually travelling (outdoors with a move target)
+  double speedMps = 0;         // 0 when still
+  bool bus = false;            // riding (moveSpeedMps > 0)
+  bool scripted = false;
+};
+
 LedgerAccountId bankAccountOf(const CharacterId& id);
 LedgerAccountId cashAccountOf(const CharacterId& id);
 
@@ -514,7 +526,8 @@ class World {
   GameMinutes now() const { return state_.now; }
 
   // --- Time -----------------------------------------------------------------------
-  // Real time drives movement and the clock (at the configured rate).
+  // Real time drives movement and the clock (at the configured rate). Each call ends by telling every
+  // online character what changed among the people they can see (the `people` event).
   void advanceRealTime(double seconds);
   // Steps the world minute by minute so rent, construction and needs all fire in order.
   void advanceMinutes(GameMinutes minutes);
@@ -522,6 +535,10 @@ class World {
   // --- Presence ---------------------------------------------------------------------
   Status connect(const CharacterId& id);  // brings a Dormant character back to Active
   void disconnect(const CharacterId& id);
+  // A script (an account named bot_*) is playing this character right now. Set by the server when a
+  // session enters the world and cleared when it leaves; shown to everyone who can see them. Not saved.
+  void setScripted(const CharacterId& id, bool scripted);
+  bool isScripted(const CharacterId& id) const;
 
   // --- Commands (the authority boundary) -------------------------------------------
   Status moveTo(const CharacterId& actor, Vec2 target);
@@ -694,7 +711,10 @@ class World {
 
   // --- Queries (WorldViews.cpp) ---------------------------------------------------
   Result<Json> look(const CharacterId& actor) const;
+  // The town plus the public rules, transit lines and interactions, so a client can draw ranges and
+  // predict motion without hard-coding numbers that live in data.
   Json mapView() const;
+  Json publicRules() const;
   Json playableCharacters() const;
 
   const CharacterState* character(const CharacterId& id) const;
@@ -712,6 +732,12 @@ class World {
   std::vector<WorldEvent> drainEvents();
 
  private:
+  // The people stream (WorldViews.cpp). Others are in sight outdoors within sight range when both
+  // are outdoors, or in the same building; never anyone else.
+  bool inSight(const CharacterState& viewer, const CharacterState& other) const;
+  SeenPerson seenNow(const CharacterState& c) const;
+  Json personJson(const CharacterState& viewer, const CharacterState& other) const;
+  void emitPeopleChanges();
   CharacterState* mutableCharacter(const CharacterId& id);
   Result<CharacterState*> activeCharacter(const CharacterId& id);
   std::string nextId(const char* prefix);
@@ -925,6 +951,9 @@ class World {
   std::shared_ptr<const ContentDatabase> content_;
   WorldState state_;
   std::vector<WorldEvent> events_;
+  // Session state, deliberately outside WorldState so it is never saved.
+  std::set<CharacterId> scripted_;
+  std::map<CharacterId, std::map<CharacterId, SeenPerson>> seen_;  // viewer -> person -> last told
 };
 
 std::string formatMoney(Cents cents);
