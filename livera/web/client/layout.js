@@ -2,7 +2,8 @@
 //
 // Only the door coordinates, names, types, districts, statuses and bus stops come from the
 // server (`map`). Everything in this file is drawn by hand for the 2.5D preview and is NOT game
-// data: building sizes by type, street lines, the river, the parks, trees and colours. The
+// data: building sizes by type, street lines, the river and its bridge, the parks, trees, the
+// light through the day and colours. The
 // page says so on screen ("street layout and building shapes are sketches"). When the town
 // layout moves into data/world (web_client.md, Phase 1), this file shrinks to colours.
 
@@ -10,28 +11,70 @@ export const SKETCH_NOTICE = "2.5D preview: street layout and building shapes ar
 
 // Building shapes by location type: [width, depth, height] in meters, and a palette key.
 export const SHAPES = {
-  tower: [32, 32, 96, "home"], apartments: [40, 26, 28, "home"], lofts: [36, 24, 30, "home"], townhouse: [14, 16, 15, "home"],
+  tower: [32, 32, 96, "glass"], apartments: [40, 26, 28, "home"], lofts: [36, 24, 30, "home"], townhouse: [14, 16, 15, "brick"],
   apartment_building: [40, 26, 28, "home"], coffee_shop: [20, 16, 9, "shop"], grocery: [30, 22, 9, "shop"], boutique: [16, 14, 11, "shop"],
   recording_studio: [22, 18, 10, "shop"], nightclub: [30, 24, 12, "shop"], gym: [26, 20, 10, "shop"], wellness_studio: [20, 18, 12, "shop"],
-  office: [24, 24, 40, "work"], tech_office: [24, 24, 22, "work"], newsroom: [18, 16, 12, "work"], event_agency: [18, 16, 12, "work"],
-  creative_agency: [20, 18, 18, "work"], construction_office: [16, 8, 6, "site"], clinic: [26, 20, 14, "civic"], church: [18, 28, 14, "civic"],
+  office: [24, 24, 40, "glass"], tech_office: [24, 24, 22, "glass"], newsroom: [18, 16, 12, "work"], event_agency: [18, 16, 12, "work"],
+  creative_agency: [20, 18, 18, "work"], construction_office: [16, 8, 6, "site"], clinic: [26, 20, 14, "civic"], church: [18, 28, 14, "brick"],
   civic: [22, 18, 10, "civic"], community_center: [28, 20, 10, "civic"],
   clothing_store: [24, 18, 10, "shop"], electronics_store: [24, 18, 9, "shop"], pharmacy: [22, 16, 8, "shop"], jeweler: [14, 12, 8, "shop"],
-  salon: [16, 14, 8, "shop"], bar: [22, 18, 9, "shop"], university: [44, 36, 22, "civic"], hospital: [44, 30, 30, "civic"],
-  law_firm: [22, 20, 26, "work"], street_corner: [30, 10, 7, "site"],
+  salon: [16, 14, 8, "shop"], bar: [22, 18, 9, "brick"], university: [44, 36, 22, "civic"], hospital: [44, 30, 30, "civic"],
+  law_firm: [22, 20, 26, "glass"], street_corner: [30, 10, 7, "site"],
   house: [14, 16, 8, "home"], condo: [34, 24, 22, "home"], restaurant: [22, 16, 9, "shop"], cinema: [30, 22, 12, "shop"],
   clubhouse: [20, 14, 8, "civic"], animal_shelter: [22, 16, 8, "civic"], vet: [20, 16, 9, "civic"], laundromat: [16, 12, 7, "shop"],
-  school: [44, 26, 12, "civic"], daycare: [22, 16, 7, "civic"],
+  school: [44, 26, 12, "brick"], daycare: [22, 16, 7, "civic"],
   sports_field: [60, 36, 0, "field"], sports_court: [30, 18, 0, "court"],
 };
+// The look follows the owner's reference art (the Line 1 route poster, the transit card): ivory and
+// sand stone, warm brick, charcoal glass with gold edges, champagne gold trim, sage lawns.
+// Each palette is [roof, east face, south face] in full daylight; the renderer tints it by the hour.
 export const PAL = {
-  home: ["#c9a46a", "#9c7c4c", "#7d613a"], shop: ["#b8735a", "#8f5544", "#6f4033"], work: ["#8b9aa8", "#677585", "#4f5b68"],
-  civic: ["#d7d2c6", "#aea89b", "#8d8779"], site: ["#9b7a4b", "#7a5f3a", "#5d482c"],
-  field: ["#4f8f4a", "#4f8f4a", "#4f8f4a"], court: ["#c27a4a", "#c27a4a", "#c27a4a"],
+  home: ["#fbf4e6", "#eadac0", "#d6c2a0"],      // ivory stone
+  shop: ["#f6e7cc", "#e3cba5", "#ccb189"],      // sand stone
+  work: ["#f1e6d1", "#dccbaa", "#c5ae88"],      // pale limestone (studios, agencies)
+  civic: ["#fdf8ef", "#ece2cf", "#d4c5a9"],     // white limestone
+  brick: ["#d6a07b", "#ad734e", "#884f2d"],     // warm brick
+  glass: ["#56625e", "#323d3b", "#252e2d"],     // charcoal glass, gold-edged (towers and offices)
+  site: ["#dcc6a0", "#c7ab80", "#a98e65"],
+  field: ["#aab48e", "#aab48e", "#aab48e"], court: ["#c98d66", "#c98d66", "#c98d66"],
 };
 // A few landmarks drawn bigger or in their own colours (by location id; sketch only).
 export const SPECIAL = { whitaker_capital: [28, 28, 58], meridian_talent: [24, 24, 42] };
-export const SPECIAL_COLORS = { lexington: ["#a9b6c2", "#7c8b99", "#5d6a77"], fire_station: ["#c0574a", "#97433a", "#73322c"] };
+export const SPECIAL_COLORS = { fire_station: ["#d98b72", "#b9614e", "#8f4535"] };
+// Palettes drawn with gold edges up every corner, not only along the roof.
+export const GOLD_EDGED = new Set(["glass"]);
+
+// Surfaces and accents in daylight (the renderer tints them by the hour, as the buildings).
+export const LOOK = {
+  gold: "#dabb85", goldLight: "#e8cf9c", goldDeep: "#b48a4c", emerald: "#0b2b23", emeraldDeep: "#051d17", emeraldMid: "#2e4636", ivory: "#f7ecd6",
+  ground: ["#f5e8cf", "#e6d0aa"],               // parchment: centre, edges
+  slab: ["#d9c29c", "#c3a77d"],                 // the map's cut edges (south, east)
+  lawn: ["#bcc09c", "#a6ad88"],                 // sage lawn: centre, rim
+  water: ["#93c0c3", "#6e9fa9"],                // soft blue-teal: near, far
+  waterGold: ["#9fa7bf", "#dcb3ad"],            // at golden hour it mirrors the sky: lavender-blue near, rose far
+  stone: ["#f2e6cf", "#dccaa8", "#c2aa83"],     // cream stone: top, face, shadow
+  road: "#8b857c", kerb: "#e6d6b9", dash: "#f7ecd6", gravel: "#cdb489",
+  tree: ["#6f7656", "#879072", "#a9ad8c"],      // olive shade, sage, sunlit
+  trunk: "#7a4d2e", roof: "#9a5f3d",            // house roofs: warm wood brown
+  glassDay: "#8fb1b5", glassGold: "#f3c993", glassNight: "#173030", lit: "#ffcf86",
+};
+
+// The light over the town by the hour: sky top, sky middle, horizon, the ambient colour every
+// surface is tinted toward and how strongly, and how golden the hour is (0..1). Day is warm
+// champagne; dawn and dusk are golden hour (peach horizon rising to rose and lavender); night is
+// deep emerald-navy. The renderer interpolates between the keys.
+export const LIGHT = [
+  [0, "#03111a", "#061c1d", "#0a2a24", "#061a22", 0.84, 0],
+  [4.7, "#03111a", "#061c1d", "#0a2a24", "#061a22", 0.84, 0],
+  [5.5, "#3a3a58", "#8c6f86", "#d99f86", "#5e4a66", 0.48, 0.55],
+  [6.3, "#d2b6b1", "#e2bda0", "#fce5ba", "#ffc070", 0.14, 1],
+  [7.6, "#e7d5ba", "#f0e0c4", "#f9eed8", "#fff0d4", 0.07, 0.12],
+  [16.9, "#e7d5ba", "#f0e0c4", "#f9eed8", "#fff0d4", 0.07, 0.12],
+  [18.5, "#d2b6b1", "#e2bda0", "#f7d3ac", "#ffc070", 0.15, 1],
+  [19.5, "#5e4d6a", "#a77a88", "#d79d83", "#76587a", 0.44, 0.6],
+  [20.3, "#03111a", "#061c1d", "#0a2a24", "#061a22", 0.84, 0],
+  [24, "#03111a", "#061c1d", "#0a2a24", "#061a22", 0.84, 0],
+];
 
 // Apartment and condo units that share a door are drawn as one building. The building's
 // shape is a sketch choice per id prefix; its name is the units' shared name ("Maple Court").
@@ -87,15 +130,46 @@ export const PARK_SHAPES = {
   founders_park: { rx: 42, ry: 40 },
   willow_lake_park: { rx: 44, ry: 36, lake: { rx: 24, ry: 18 }, boardwalk: [[-24, 10], [10, 10]] },
 };
-export const RIVER = { x0: 860, x1: 1000 };
+// The river along the east edge: water sunk below a cream stone embankment on the west bank.
+export const RIVER = { x0: 860, x1: 1000, depth: 10, promenade: 10 };
+// An arched stone bridge on the line of Lexington Avenue, from River Road to the map edge
+// (sketch decoration, like the river: no place, no stop, nothing to tap).
+export const BRIDGE = { y: 485, x0: 805, x1: 1000, width: 14, arches: 4, pier: 7, rise: 7.6 };
 
 export const TREES = [];
 {
   let seed = 7;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   for (let i = 0; i < 26; i++) { const a = rnd() * Math.PI * 2, r = 8 + rnd() * 30; TREES.push([400 + Math.cos(a) * r, 350 + Math.sin(a) * r * 0.9, 5 + rnd() * 4]); }
-  for (let i = 0; i < 14; i++) TREES.push([840 + rnd() * 10, 260 + i * 28, 6]);
+  // The river-bank rows, leaving the bridge's approach clear.
+  for (let i = 0; i < 14; i++) { const x = 840 + rnd() * 10, y = 260 + i * 28; if (Math.abs(y - 485) > 12) TREES.push([x, y, 6]); }
+  for (let i = 0; i < 16; i++) { const x = 822 + rnd() * 8, y = 250 + i * 28 + rnd() * 8; if (Math.abs(y - 485) > 14) TREES.push([x, y, 5 + rnd() * 2]); }
   for (let i = 0; i < 22; i++) { const a = rnd() * Math.PI * 2, r = 30 + rnd() * 12; TREES.push([290 + Math.cos(a) * r, 690 + Math.sin(a) * r * 0.8, 5 + rnd() * 3]); }
+}
+
+// Street trees, as on the route poster's tree-lined avenues: both sides of every road at a steady
+// spacing, except where they'd stand in a building, at a door, on a bus stop, in a park or on
+// another road. Computed from the server's places, so they follow the map.
+export function streetTrees(buildings, stops, parks) {
+  const out = [], spacing = 30, offset = 11;
+  const nearRoad = (x, y) => ROADS.some(r => r.pts.slice(1).some((b, i) => {
+    const a = r.pts[i], dx = b[0] - a[0], dy = b[1] - a[1], t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / (dx * dx + dy * dy || 1)));
+    return Math.hypot(x - a[0] - dx * t, y - a[1] - dy * t) < 8.5;
+  }));
+  const blocked = (x, y) => buildings.some(b => {
+    const f = footprint(b);
+    return (x > f.x0 - 5 && x < f.x1 + 5 && y > f.y0 - 5 && y < f.y1 + 7) || Math.hypot(x - b.door[0], y - b.door[1]) < 14;
+  }) || stops.some(s => Math.hypot(x - s.at[0], y - s.at[1]) < 14)
+    || parks.some(p => { const sh = PARK_SHAPES[p.id] || { rx: 30, ry: 28 }; return ((x - p.door[0]) / (sh.rx + 6)) ** 2 + ((y - p.door[1]) / (sh.ry + 6)) ** 2 < 1; })
+    || (x > RIVER.x0 - RIVER.promenade - 4) || Math.abs(y - BRIDGE.y) < BRIDGE.width && x > 790;
+  for (const r of ROADS) for (let i = 0; i + 1 < r.pts.length; i++) {
+    const [ax, ay] = r.pts[i], [bx, by] = r.pts[i + 1], len = Math.hypot(bx - ax, by - ay), ux = (bx - ax) / len, uy = (by - ay) / len;
+    for (let d = spacing / 2; d < len; d += spacing) for (const side of [-1, 1]) {
+      const x = ax + ux * d - uy * offset * side, y = ay + uy * d + ux * offset * side;
+      if (!nearRoad(x, y) && !blocked(x, y)) out.push([x, y, 4.6 + ((Math.round(x) * 7 + Math.round(y) * 13) % 10) / 10]);
+    }
+  }
+  return out;
 }
 
 // Plain-language type names for place cards.

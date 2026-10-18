@@ -115,8 +115,11 @@ module in its place (used while the page was developed), and the test's summary 
 **Publishing it as an artifact.** Lay the files out as the page expects, the page at the root
 and everything else at its `web/client` path: `css/app.css`, the client modules (`main.js`,
 `transport.js`, `state.js`, `render2d.js`, `ui.js`, `phone.js`, `creator.js`, `dom.js`,
-`layout.js`), `faces/` with its `manifest.json`, and `solo/solo.js`, `solo/transport_local.js`,
-`solo/save.js`, `solo/livera_solo.js`. The module is built with the wasm inlined as base64
+`layout.js`), `faces/` with its `manifest.json`, `sprites/` with its `manifest.json`, `fonts/`
+(three WOFF2 files and their licences), and `solo/solo.js`, `solo/transport_local.js`,
+`solo/save.js`, `solo/livera_solo.js`. Besides the faces, the fonts and sprites are binary files;
+a host that takes text files only can leave `fonts/` out (the page falls back to Georgia / Times
+New Roman) and publish an empty sprite manifest (`[]`: every building is drawn as a box). The module is built with the wasm inlined as base64
 (`-sSINGLE_FILE_BINARY_ENCODE=0` in `CMakeLists.txt`), so every published file is plain text
 without control characters, which the artifact publisher requires.
 
@@ -179,12 +182,48 @@ Screenshots go to `LIVERA_SHOTS`.
 | `client/transport.js` | WebSocket, request/reply by `id`, events, reconnect with backoff (reset only by the server's `welcome`), `resume` with the stored token. A reconnect resumes with `take_over: false`, so a device that dropped off never kicks the device the player moved to; opening the page or "Play here instead" sends `take_over: true`. |
 | `client/state.js` | The live world model: rules, map, transit, interactions, you, the people in sight with straight-line prediction, clock from `look.time.minute` and `rules.minutes_per_real_second`, money, weather, bubbles. |
 | `client/render2d.js` | The isometric canvas renderer forked from the preview (projection, buildings, cranes, weather, day/night, bubbles, voice ring, tap hit-testing, drag / pinch / wheel). Replaceable by a three.js renderer behind the same small interface. |
-| `client/layout.js` | **The sketch**: building sizes by type, roads, river, park outlines, trees, colours. |
+| `client/layout.js` | **The sketch**: building sizes by type, roads, river and bridge, park outlines, trees and street trees, the palette and the light by the hour (`LIGHT`). |
 | `client/ui.js` | Top bar, chat bar, feed and toasts, bottom sheets (place, scene inside, person, bus stop, ask, needs, log, menu). |
 | `client/phone.js` | The phone: all 26 apps as cards; bank, messages (updated in place as messages arrive), map, transit, career and romance (answer asks still waiting) screens; any other app shown as labelled fields. |
 | `client/creator.js` | Character creator form generated from `creator_options`. |
 | `client/dom.js` | `el()` (DOM building with text nodes only), money formatting, faces, safe localStorage. |
 | `client/faces/` | 160 px face crops by character id; `manifest.json` lists them so the page never requests a missing image. |
+| `client/sprites/` | The owner's building pictures for 14 places (Heritage Coffee, Greenleaf Market, Founders School, the police station, Station 1, …), drawn on the map in place of their boxes. They come from `art/places/` (made with the prompt pack in `scripts/town_prompts.py`) as map-size copies: 640 px wide, transparent WebP, cropped to their content. `manifest.json` lists them, so the page never requests one that isn't there; the box is drawn until a picture has loaded. |
+| `client/fonts/` | Cinzel and Cormorant Garamond (roman and italic), latin subset, self-hosted for the CSP's `font-src 'self'`; SIL Open Font License texts beside them. |
+
+## The look
+
+The client follows the owner's reference art (the Line 1 route poster, the transit card, the
+golden-hour river): a cream parchment town of ivory and sand stone, warm brick (bar, church,
+school, townhouses) and charcoal glass edged in gold (the Lexington, Whitaker Capital, Meridian
+and the other offices), champagne-gold trim along the roofs, sage lawns and rounded trees, a
+blue-teal river below a cream stone quay, and an arched stone bridge on Lexington Avenue's line.
+Line 1 is drawn as on the poster: a gold loop through the stops in their order on the line, with a
+numbered gold badge on each stop sign. The shuttle under a rider is emerald with a gold stripe and
+an ivory roof.
+
+The light follows the game clock (`LIGHT` in `layout.js`): warm champagne by day, golden hour at
+dawn and dusk (a peach horizon rising to rose and lavender, gold glints on the water, long
+shadows, sunlit faces), deep emerald-navy at night with lit windows, lamplight on the roads and
+the bridge, and a few warm lights in the trees. Glints, fairy lights and neon hold still under
+`prefers-reduced-motion`.
+
+The chrome is deep emerald with champagne-gold borders and ivory text; primary buttons are gold
+with emerald text. Type: Cinzel (letterspaced capitals) for the wordmark, eyebrows, badges and
+map labels; Cormorant Garamond for headings and name plates; the system sans for body text and
+numbers. The lotus mark is an inline SVG built with the DOM API (`lotus()` in `dom.js`), shown
+over the wordmark on the full-screen screens and in the menu sheet. The fonts are self-hosted in
+`client/fonts/` (OFL), so the live page's CSP is unchanged.
+
+Fourteen places are drawn with the owner's own pictures (`client/sprites/`, map-size copies of
+`art/places/`, made with the prompt pack) instead of a box: each sits on its lot about 1.15 times
+the width of its footprint, keeps its tap target, gets a gold outline of the lot when selected,
+and is darkened at night with its own lit windows and lamps laid back on top. Places without a
+picture keep the boxes above.
+
+None of this is game data: the bridge, the river, the street trees, the lawns and the light are
+part of the sketch, like the building shapes. No building, tower or skyline is drawn that isn't
+in the server's map.
 
 ## What is a sketch, and what is real
 
@@ -193,11 +232,12 @@ construction status (the map is fetched again each game hour, so statuses follow
 hours), bus stops and fares, everyone's position and movement, the clock, the
 weather, prices, balances, needs, speech, and every outcome.
 
-Sketch, drawn by hand in `layout.js`: building sizes and heights, street lines, the river, park
-outlines, trees and colours. The page says so on screen ("2.5D preview: street layout and
-building shapes are sketches"). Other labels on screen: "played by a script" on characters a
-`bot_` account plays, "single-rider shuttle" on the bus (shared buses come in Phase 1), and
-"placeholder landmark" on civic places the data marks as not enterable (the fire station).
+Sketch, drawn by hand in `layout.js`: building sizes and heights, street lines, the river and its
+bridge, park outlines, trees, the lawns and colours. The page says so on screen ("2.5D preview:
+street layout and building shapes are sketches"). Other labels on screen: "played by a script"
+on characters a `bot_` account plays, "single-rider shuttle" on the bus (shared buses come in
+Phase 1), and "placeholder landmark" on civic places the data marks as not enterable (the fire
+station).
 
 ## What works
 

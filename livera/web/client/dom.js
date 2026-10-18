@@ -30,6 +30,29 @@ function append(node, children) {
   }
 }
 
+// The LIVÉRA lotus, as on the transit card: five gold petals, strokes only. Built with the DOM
+// API like everything else (no markup strings).
+const SVG = "http://www.w3.org/2000/svg";
+const LOTUS_PETALS = [
+  "M32 5C25.5 13 24.5 26 32 39C39.5 26 38.5 13 32 5Z",                 // centre
+  "M32 39C22.5 34.5 16 25.5 16.5 13.5C24.5 17 30 26 32 39Z",            // inner left
+  "M32 39C41.5 34.5 48 25.5 47.5 13.5C39.5 17 34 26 32 39Z",            // inner right
+  "M32 39C21 40.5 9.5 35 3 25.5C13.5 23.5 25 29.5 32 39Z",              // outer left
+  "M32 39C43 40.5 54.5 35 61 25.5C50.5 23.5 39 29.5 32 39Z",            // outer right
+  "M21 44.5C28 46.5 36 46.5 43 44.5",                                    // the water line under it
+];
+export function lotus(label) {
+  const svg = document.createElementNS(SVG, "svg");
+  svg.setAttribute("viewBox", "0 0 64 48");
+  svg.setAttribute("class", "lotus");
+  if (label) { svg.setAttribute("role", "img"); svg.setAttribute("aria-label", label); } else svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("focusable", "false");
+  for (const d of LOTUS_PETALS) { const p = document.createElementNS(SVG, "path"); p.setAttribute("d", d); svg.appendChild(p); }
+  return svg;
+}
+// The wordmark on the full-screen screens: the lotus over "LIVÉRA", letterspaced (CSS capitals).
+export const wordmark = () => el("div", { class: "wordmark" }, lotus(), el("span", { class: "wordmark-text" }, "Livéra"));
+
 export function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); return node; }
 export function replace(node, ...children) { clear(node); append(node, children); return node; }
 
@@ -56,6 +79,17 @@ export async function loadFaceManifest() {
 export const hasFace = id => faceIds.has(id);
 // Ids come from the server; only ids listed in our own manifest ever become a URL.
 export const faceUrl = id => (faceIds.has(id) ? `faces/${encodeURIComponent(id)}.jpg` : null);
+
+// Building sprites: client/sprites/<place id>.webp, map-size copies of the owner's pictures in
+// art/places. Same rule as faces: only ids in the manifest are ever requested.
+const spriteIds = new Set();
+export async function loadSpriteManifest() {
+  try {
+    const r = await fetch("sprites/manifest.json", { cache: "no-cache" });
+    if (r.ok) for (const id of await r.json()) if (typeof id === "string") spriteIds.add(id);
+  } catch { /* no sprites: every building is drawn as a box */ }
+}
+export const spriteUrl = id => (spriteIds.has(id) ? `sprites/${encodeURIComponent(id)}.webp` : null);
 
 export function avatar(id, name, size = "") {
   const url = faceUrl(id);

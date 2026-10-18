@@ -6,7 +6,7 @@
 // sheet shows its answer or its refusal, word for word. Server text only reaches the page
 // through el() (text nodes), never as HTML.
 
-import { el, replace, clear, money, avatar, firstName, titleCase } from "./dom.js";
+import { el, replace, clear, money, avatar, firstName, titleCase, lotus } from "./dom.js";
 import { typeName, SKETCH_NOTICE } from "./layout.js";
 import { stamp } from "./render2d.js";
 import { dist } from "./state.js";
@@ -446,7 +446,7 @@ export class UI {
 
   sheetMenu() {
     const g = this.game;
-    this.openSheet("menu", "menu", this.head("Livéra", g.username ? `Signed in as ${g.username}` : "Menu"), [
+    this.openSheet("menu", "menu", [el("div", { class: "sheet-mark" }, lotus()), this.head("Livéra", g.username ? `Signed in as ${g.username}` : "Menu")], [
       el("p", { class: "hint" }, `Playing ${this.world.selfName || "nobody yet"}.`),
       el("button", { type: "button", class: "btn block", onclick: () => { this.renderer.followMe(); this.closeSheet(); } }, "Follow me"),
       el("button", { type: "button", class: "btn block", onclick: () => { this.renderer.fitTown(); this.closeSheet(); } }, "See the whole town"),

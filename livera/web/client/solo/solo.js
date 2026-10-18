@@ -12,7 +12,7 @@
 import { Game } from "../main.js";
 import { LocalTransport } from "./transport_local.js";
 import { SaveSlot, makeRecord, exportRecord, readRecordFile } from "./save.js";
-import { el, avatar } from "../dom.js";
+import { el, avatar, lotus, wordmark } from "../dom.js";
 import { SKETCH_NOTICE } from "../layout.js";
 
 export const SOLO_NOTICE = "Single-player: the town runs in your browser. Nobody else can join this save.";
@@ -75,7 +75,7 @@ class SoloGame extends Game {
 
   screenFailed(reason) {
     this.phase = "failed";
-    this.ui.showScreen(el("div", { class: "screen-inner" }, el("div", { class: "wordmark" }, "Livéra"), el("h1", null, "No town to load"),
+    this.ui.showScreen(el("div", { class: "screen-inner" }, wordmark(), el("h1", null, "No town to load"),
       el("p", null, "The single-player build of the game core (solo/livera_solo.js) didn't load, so there is nothing to play here."),
       el("p", { class: "err", role: "alert" }, reason || ""),
       el("p", { class: "hint" }, IN_ARTIFACT ? "This viewer may not allow WebAssembly. The same page runs from the repository in any browser: see livera/web/README.md, \"Single-player build\"."
@@ -109,7 +109,7 @@ class SoloGame extends Game {
       : IN_ARTIFACT ? `Saves stay in this browser on this device (${this.slot.backend === "localstorage" ? "localStorage" : "IndexedDB"}).`
       : `Saves stay in this browser (${this.slot.backend === "localstorage" ? "localStorage" : "IndexedDB"}); export a file to move one to another device.`;
     this.ui.showScreen(el("div", { class: "screen-inner" },
-      el("div", { class: "wordmark" }, "Livéra"), el("h1", null, "Your own town"),
+      wordmark(), el("h1", null, "Your own town"),
       el("p", { class: "hint" }, "A life sim that runs entirely in this tab: you play one resident, and the game's autopilot plays the other founders. " + SOLO_NOTICE + " " + PAUSE_NOTICE),
       err, body,
       el("p", { class: "hint" }, storage),
@@ -187,7 +187,7 @@ class SoloGame extends Game {
           c.scripted_now || c.played_by === "autopilot" ? el("span", { class: "badge script" }, "on autopilot right now") : null)));
     });
     this.ui.showScreen(el("div", { class: "screen-inner wide" },
-      el("div", { class: "wordmark" }, "Livéra"), el("h1", null, "Who are you?"),
+      wordmark(), el("h1", null, "Who are you?"),
       el("p", { class: "hint" }, "Pick a founding resident or make your own. Everyone you don't pick lives their day on autopilot; you can change who you play from the menu."),
       err, el("div", { class: "cast" }, cards),
       r.data.can_create ? el("button", { type: "button", class: "btn primary block", id: "create-btn", onclick: () => this.screenCreate() }, "Make your own character") : null,
@@ -251,7 +251,7 @@ class SoloGame extends Game {
           el("button", { type: "button", class: "btn grow", onclick: () => startOver.replaceChildren(askStartOver) }, "Keep playing")));
     } }, "Start over");
     startOver.append(askStartOver);
-    ui.openSheet("menu", "menu", ui.head("Livéra · single-player", "Menu"), [
+    ui.openSheet("menu", "menu", [el("div", { class: "sheet-mark" }, lotus()), ui.head("Livéra · single-player", "Menu")], [
       el("p", { class: "hint" }, `Playing ${this.world.selfName || "nobody yet"}. ${saved} · autosaves every 30 s and when you leave the tab.`),
       el("button", { type: "button", class: "btn primary block", id: "solo-save", onclick: () => this.save("manual") }, "Save now"),
       IN_ARTIFACT ? null : el("button", { type: "button", class: "btn block", id: "solo-export", onclick: () => this.exportNow() }, "Export the save as a file"),

@@ -10,7 +10,7 @@ import { Renderer2D } from "./render2d.js";
 import { UI } from "./ui.js";
 import { Phone } from "./phone.js";
 import { buildCreator } from "./creator.js";
-import { el, avatar, loadFaceManifest, firstName, money, titleCase, withoutCliHint } from "./dom.js";
+import { el, avatar, loadFaceManifest, loadSpriteManifest, firstName, money, titleCase, withoutCliHint, wordmark } from "./dom.js";
 import { SKETCH_NOTICE } from "./layout.js";
 
 const round1 = v => Math.round(v * 10) / 10;
@@ -42,7 +42,7 @@ export class Game {
     this.transport.on("welcome", d => this.onWelcome(d));
     this.transport.on("event", m => this.onEvent(m));
     this.transport.on("status", s => this.onStatus(s));
-    await loadFaceManifest();
+    await Promise.all([loadFaceManifest(), loadSpriteManifest()]);
     this.screenConnecting("Connecting to Livéra…");
     this.transport.connect();
     const loop = now => { this.renderer.frame(now); requestAnimationFrame(loop); };
@@ -168,7 +168,7 @@ export class Game {
 
   // ------------------------------------------------------------------ screens: connecting, login, pick, create
   screenConnecting(text) {
-    this.ui.showScreen(el("div", { class: "screen-inner" }, el("div", { class: "wordmark" }, "Livéra"), el("h1", null, "Livéra"), el("p", { class: "hint", role: "status" }, text)));
+    this.ui.showScreen(el("div", { class: "screen-inner" }, wordmark(), el("h1", null, "Livéra"), el("p", { class: "hint", role: "status" }, text)));
   }
 
   screenLogin(message) {
@@ -192,7 +192,7 @@ export class Game {
       el("button", { type: "submit", class: "btn primary block", id: "login-btn" }, "Log in"),
       el("button", { type: "button", class: "btn block", id: "register-btn", onclick: () => busy((u, p) => this.register(u, p)) }, "Create account"));
     this.ui.showScreen(el("div", { class: "screen-inner" },
-      el("div", { class: "wordmark" }, "Livéra"), el("h1", null, "Log in"),
+      wordmark(), el("h1", null, "Log in"),
       el("p", { class: "hint" }, "A persistent multiplayer life sim, played in your browser. " + SKETCH_NOTICE + "."),
       form,
       el("p", { class: "hint" }, "Usernames: 3–24 lowercase letters, digits or underscores. Passwords: 8–128 characters. Your password is never stored on this device; a session token keeps you logged in.")));
@@ -221,7 +221,7 @@ export class Game {
           c.scripted_now ? el("span", { class: "badge script" }, "played by a script right now") : null)));
     });
     this.ui.showScreen(el("div", { class: "screen-inner wide" },
-      el("div", { class: "wordmark" }, "Livéra"), el("h1", null, "Who are you?"),
+      wordmark(), el("h1", null, "Who are you?"),
       el("p", { class: "hint" }, "One account plays one character, for good. Pick a founding resident or make your own. If a script is playing someone right now, you take over: people always win."),
       err, el("div", { class: "cast" }, cards),
       r.data.can_create ? el("button", { type: "button", class: "btn primary block", id: "create-btn", onclick: () => this.screenCreate() }, "Make your own character") : null,
@@ -241,12 +241,12 @@ export class Game {
         return await this.play(c.data.id);
       },
     });
-    this.ui.showScreen(el("div", { class: "screen-inner" }, el("div", { class: "wordmark" }, "Livéra"), el("h1", null, "Make yourself"),
+    this.ui.showScreen(el("div", { class: "screen-inner" }, wordmark(), el("h1", null, "Make yourself"),
       el("p", { class: "hint" }, "Every choice here comes from the game's data, and the server checks the whole sheet."), form));
   }
 
   screenKicked(reason) {
-    this.ui.showScreen(el("div", { class: "screen-inner" }, el("div", { class: "wordmark" }, "Livéra"), el("h1", null, "Playing elsewhere"),
+    this.ui.showScreen(el("div", { class: "screen-inner" }, wordmark(), el("h1", null, "Playing elsewhere"),
       el("p", null, reason || "This account logged in somewhere else."),
       el("button", { type: "button", class: "btn primary block", onclick: () => {
         this.phase = "boot"; this.takeOverNext = true; this.screenConnecting("Reconnecting…"); this.transport.resumeReconnecting();
