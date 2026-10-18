@@ -22,6 +22,7 @@ import pathlib
 import re
 import sys
 
+sys.dont_write_bytecode = True  # importing town_prompts must not leave a __pycache__ in scripts/
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import town_prompts as tp  # noqa: E402  (shares the data loader, the page's CSS and JS, and the escaping)
 
