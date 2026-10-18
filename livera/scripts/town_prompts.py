@@ -567,7 +567,8 @@ def render_markdown(prompts, counts):
 
 CSS = """
 :root{color-scheme:light dark;--bg:#f6f1e8;--card:#fffdf8;--ink:#1f1a14;--muted:#6b6256;--line:#e3dbcc;--gold:#9a7a3a;--gold-ink:#1b150c;--done:#eef3e6;--pre:#f1ebdf}
-@media (prefers-color-scheme:dark){:root{--bg:#161412;--card:#201d19;--ink:#efe7dc;--muted:#a79d8f;--line:#3a342c;--gold:#cfae74;--gold-ink:#1b150c;--done:#1f261b;--pre:#161412}}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#161412;--card:#201d19;--ink:#efe7dc;--muted:#a79d8f;--line:#3a342c;--gold:#cfae74;--gold-ink:#1b150c;--done:#1f261b;--pre:#161412}}
+:root[data-theme="dark"]{--bg:#161412;--card:#201d19;--ink:#efe7dc;--muted:#a79d8f;--line:#3a342c;--gold:#cfae74;--gold-ink:#1b150c;--done:#1f261b;--pre:#161412}
 *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;overflow-x:hidden}
 .wrap{max-width:720px;margin:0 auto;padding:16px}
