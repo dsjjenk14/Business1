@@ -76,7 +76,17 @@
         "The PUPPY and SENIOR panels are the artist's guesses; the game has only ever had Pepper as an adult."
       ]
     },
-    "$comment": "Shadow, Leila's Maine Coon mix cat, has no art yet."
+    "leila:Shadow": {
+      "owner": "leila",
+      "species": "cat",
+      "breed": "Maine Coon mix",
+      "portrait": "art/pets/named/leila_shadow.jpg",
+      "face": "art/pets/named/leila_shadow_face.jpg",
+      "notes": [
+        "A single portrait, not a model sheet: there is no card and no turnaround, so nothing to check beyond the species. Leila adopted Shadow on Day 9 of the recording at 4 years 9 months; he lives at 7 Founders Row.",
+        "The desk, papers and skyline are the artist's; the long brown tabby coat and green eyes are the artist's choices too, since the game records none of them. Keep them fixed from now on."
+      ]
+    }
   },
   "places": {
     "body_balance": "art/places/body_balance.jpg"

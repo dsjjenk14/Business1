@@ -62,7 +62,7 @@ on its card; read them before using a card as fact.
 |---|---|
 | `reference/residents/<id>.jpg` | Model sheets for created residents: Sol Rivera (The Free Spirit), Theo Grant (The Fresh Start), Rosa Delgado (The Guardian), Kai Morgan (The Upstart). |
 | `avatars/<id>.jpg` | Square head-and-shoulders crops from those sheets (native 450 px, not upscaled); the town preview uses them. |
-| `pets/named/<owner>_<pet>.jpg` and `_face.jpg` | Sheets and square face crops (450–500 px) for Bramble (Aaliyah's rabbit), Rocky (Rosa's beagle) and Pepper (Harper's terrier mix). Shadow, Leila's cat, has no art yet. |
+| `pets/named/<owner>_<pet>.jpg` and `_face.jpg` | Sheets and square face crops (450–500 px) for Bramble (Aaliyah's rabbit), Rocky (Rosa's beagle) and Pepper (Harper's terrier mix); a single portrait and face crop for Shadow (Leila's Maine Coon mix), who has no sheet yet. |
 | `places/<location_id>.jpg` | Building exteriors: Body & Balance so far. |
 | `items/<item_id>.png` or `.jpg` | Product pictures: wireless headphones, the laptop, and the three Lyra phones. The phones' screens are decoration, not the game's phone UI. |
 | `transit/` | The Line 1 bus collage, a side view, the Livéra Transit mark, a transit card (branding only), a stylised route diagram, and a shelter per stop in `stops/<stop_id>.jpg` (six small crops from the collage; Lexington Ave & River Rd has a full picture). |
