@@ -15,10 +15,12 @@ import { SKETCH_NOTICE } from "./layout.js";
 
 const round1 = v => Math.round(v * 10) / 10;
 
-class Game {
-  constructor() {
+export class Game {
+  // `transport` (optional) replaces the WebSocket: the single-player page (solo/solo.js) passes
+  // one that runs the world in the browser and subclasses Game for its own screens.
+  constructor({ transport } = {}) {
     this.world = new World();
-    this.transport = new Transport();
+    this.transport = transport || new Transport();
     this.renderer = new Renderer2D(document.getElementById("town"), this.world);
     this.ui = new UI({ world: this.world, game: this, renderer: this.renderer });
     this.phoneUI = new Phone({ world: this.world, game: this, ui: this.ui });
@@ -650,5 +652,6 @@ class Game {
   }
 }
 
-const game = new Game();
-game.start();
+// The live page boots here; the single-player page (solo/index.html, data-boot="solo") imports
+// Game and boots its own subclass.
+if (document.body.dataset.boot !== "solo") new Game().start();

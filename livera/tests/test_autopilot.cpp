@@ -1,0 +1,238 @@
+// The autopilot (src/core/Autopilot): founders nobody plays live their day through World commands.
+// Everything here is checked through `look` and the autopilot's own counters, the way a client or
+// the server log would see it; the only private peeks are the ones other tests already take
+// (online, inside).
+
+#include <cstdlib>
+#include <cstdio>
+
+#include "TestSupport.h"
+#include "core/Autopilot.h"
+#include "core/Clock.h"
+
+using namespace livera;
+using namespace livera::test;
+
+namespace {
+
+struct Town {
+  World world;
+  Autopilot pilot;
+  std::vector<std::string> log;
+  explicit Town(std::shared_ptr<const ContentDatabase> db = realContent()) : world(World::createNew(std::move(db))) {
+    pilot.setLog([this](const std::string& line) {
+      log.push_back(line);
+      if (std::getenv("LIVERA_AUTOPILOT_LOG")) std::fprintf(stderr, "%s\n", line.c_str());
+    });
+  }
+  // Real time passes in half-second ticks, exactly as the server drives it: the world, then the autopilot.
+  void tick(double seconds = 0.5) {
+    world.advanceRealTime(seconds);
+    pilot.step(world, seconds);
+    pilot.observe(world.drainEvents());
+  }
+  // Ticks until `done` holds or `seconds` of real time have passed; true if it held.
+  bool runUntil(double seconds, const std::function<bool()>& done) {
+    for (double t = 0; t < seconds; t += 0.5) {
+      if (done()) return true;
+      tick();
+    }
+    return done();
+  }
+  Json you(const CharacterId& id) const {
+    auto r = world.look(id);
+    return r ? r.value()["you"] : Json();
+  }
+  int stat(const CharacterId& id, const char* key) const {
+    const Json st = pilot.status();
+    return st.contains(id) ? st[id]["stats"].value(key, 0) : -1;
+  }
+  bool logged(const std::string& needle, std::size_t from = 0) const {
+    for (std::size_t i = from; i < log.size(); ++i) {
+      if (log[i].find(needle) != std::string::npos) return true;
+    }
+    return false;
+  }
+  // Skips the clock to `hour`:`minute` today (or tomorrow if that has passed), as dev_advance would.
+  void skipTo(int hour, int minute) {
+    const GameMinutes target = (world.now() / kMinutesPerDay) * kMinutesPerDay + hour * 60 + minute;
+    const GameMinutes at = target > world.now() ? target : target + kMinutesPerDay;
+    world.advanceMinutes(at - world.now());
+  }
+};
+
+// Dominique's weekday, with her schedule's first line replaced so she heads for Heritage Coffee at 07:30 and a
+// coffee shop that opens at `opensAt`.
+std::shared_ptr<const ContentDatabase> coffeeContent(int opensAt) {
+  return patchedContent([&](Json& doc, const std::string& file) {
+    if (file == "dominique.json") {
+      doc["characters"][0]["profile"]["schedule"]["weekdays"] = Json::array(
+          {Json{{"time", "07:30"}, {"activity", "Coffee at Heritage Coffee"}},
+           Json{{"time", "09:00"}, {"activity", "Meridian Talent Partners"}}});
+    }
+    if (file == "founding_town.json") {
+      for (auto& loc : doc["locations"]) {
+        if (loc["id"] == "heritage_coffee") loc["hours"] = Json::array({opensAt, 20});
+      }
+    }
+  });
+}
+
+}  // namespace
+
+TEST_CASE("autopilot: a weekday morning: Dominique leaves home, reaches her workplace and starts a shift") {
+  Town t;
+  t.pilot.start(t.world, {"dominique"});
+  REQUIRE(t.pilot.runs("dominique"));
+  CHECK(t.world.isScripted("dominique"));
+  CHECK(t.world.playedBy("dominique") == "autopilot");
+  REQUIRE(t.world.look("dominique"));  // in the world at 07:00 on a Monday: her routine says awake
+  CHECK(t.you("dominique")["inside"] == "lexington_1204");
+  CHECK(t.logged("enters the world as Dominique"));
+
+  // Her 06:30 line is "Gym or a run in Founders Park": the gym is still being built, so the park.
+  CHECK(t.runUntil(90, [&] { return t.you("dominique")["inside"] == ""; }));
+  // Her 08:30 line names her workplace: she walks there, goes in and clocks on.
+  const bool working = t.runUntil(200, [&] { return t.you("dominique").value("on_shift", false); });
+  CHECK(working);
+  CHECK(t.logged("walks to Founders Park"));
+  CHECK(t.logged("Go for a jog"));
+  CHECK(t.you("dominique")["inside"] == "meridian_talent");
+  const DateTime now = toDateTime(t.world.now());
+  CHECK(now.hour >= 8);
+  CHECK(now.hour < 10);
+  CHECK(t.logged("starts a shift at Meridian Talent Partners"));
+  // No command floods: one command per character every two seconds at most, over the whole morning.
+  const int commands = t.stat("dominique", "commands");
+  CHECK(commands > 0);
+  CHECK(commands <= static_cast<int>((t.world.now() - 7 * 60) / 2) + 2);
+  CHECK(t.stat("dominique", "refusals") == 0);
+}
+
+TEST_CASE("autopilot: a closed shop is not entered: she waits at the door when it opens soon, else stays home") {
+  {
+    Town t(coffeeContent(8));  // opens at 08:00: she leaves for 07:30 and waits at the door
+    t.pilot.start(t.world, {"dominique"});
+    CHECK(t.runUntil(120, [&] { return t.logged("is closed; waits at the door"); }));
+    CHECK(t.you("dominique")["inside"] == "");
+    CHECK(toDateTime(t.world.now()).hour < 8);
+    const int entersBefore = t.stat("dominique", "enters");
+    CHECK(t.runUntil(40, [&] { return t.you("dominique")["inside"] == "heritage_coffee"; }));
+    const DateTime now = toDateTime(t.world.now());
+    CHECK(now.hour == 8);
+    CHECK(now.minute < 5);
+    CHECK(t.stat("dominique", "enters") == entersBefore + 1);
+    CHECK(t.stat("dominique", "refusals") < 6);  // a few tries at the door, each after a wait: no spin
+  }
+  {
+    Town t(coffeeContent(9));  // opens at 09:00, too long to wait: the visit is skipped and she stays home
+    t.pilot.start(t.world, {"dominique"});
+    CHECK(!t.runUntil(110, [&] { return t.you("dominique")["inside"] != "lexington_1204"; }));
+    CHECK(toDateTime(t.world.now()).hour == 8);
+    CHECK(t.logged("skips Heritage Coffee"));
+    CHECK(t.stat("dominique", "enters") == 0);
+    CHECK(t.stat("dominique", "walks") == 0);
+  }
+}
+
+TEST_CASE("autopilot: a refusal backs off: in a cell nothing is tried again within the backoff, then she re-plans") {
+  auto db = patchedContent([](Json& doc, const std::string& file) {
+    if (file == "crimes.json") {
+      for (auto& c : doc["crime"]["crimes"]) {
+        if (c["id"] == "shoplifting") c["detection"] = 1.0;
+      }
+    }
+  });
+  Town t(db);
+  t.pilot.start(t.world, {"dominique"});
+  // The world puts her in a cell: caught shoplifting at the coffee shop (the test drives her there itself).
+  walkInto(t.world, "dominique", "heritage_coffee");
+  auto caught = t.world.steal("dominique", "drip");
+  REQUIRE(caught);
+  REQUIRE(caught.value().value("caught", false));
+  CHECK(t.world.inJail("dominique"));
+  CHECK(t.you("dominique")["inside"] == "police_station");
+
+  CHECK(t.runUntil(30, [&] { return t.stat("dominique", "refusals") == 1; }));
+  const int commandsAtRefusal = t.stat("dominique", "commands");
+  CHECK(t.logged("waits to be let out"));
+  // Backoff: no second command within the next 15 real seconds (the jail wait is 21-39 s).
+  t.runUntil(15, [] { return false; });
+  CHECK(t.stat("dominique", "commands") == commandsAtRefusal);
+  CHECK(t.you("dominique")["inside"] == "police_station");
+
+  // Let out (a time skip past the sentence): she leaves the station and gets on with her day at work.
+  t.world.advanceMinutes(241);
+  CHECK(!t.world.inJail("dominique"));
+  CHECK(t.runUntil(120, [&] { return t.you("dominique")["inside"] != "police_station"; }));
+  CHECK(t.runUntil(200, [&] { return t.you("dominique").value("on_shift", false); }));
+  CHECK(t.you("dominique")["inside"] == "meridian_talent");
+}
+
+TEST_CASE("autopilot: bedtime leaves the world and the morning brings her back, labelled") {
+  Town t;
+  t.pilot.start(t.world, {"dominique"});
+  REQUIRE(t.runUntil(200, [&] { return t.you("dominique").value("on_shift", false); }));
+  t.skipTo(22, 35);  // past her bedtime (22:30): she clocks off, goes home, and leaves the world (D-050)
+  const std::size_t logMark = t.log.size();
+  CHECK(t.runUntil(150, [&] { return !t.world.look("dominique"); }));
+  CHECK(!t.world.character("dominique")->online);
+  CHECK(!t.world.isScripted("dominique"));
+  CHECK(t.logged("ends the shift", logMark));
+  CHECK(t.logged("goes to bed (at home)", logMark));
+  CHECK(t.pilot.runs("dominique"));  // still hers to play tomorrow
+  CHECK(t.pilot.status()["dominique"]["asleep"] == true);
+
+  t.skipTo(5, 40);  // her wake time is 05:30
+  CHECK(t.runUntil(40, [&] { return t.world.look("dominique").ok(); }));
+  CHECK(t.world.character("dominique")->online);
+  CHECK(t.world.playedBy("dominique") == "autopilot");
+  CHECK(t.you("dominique")["inside"] == "lexington_1204");
+  CHECK(toDateTime(t.world.now()).weekday == 1);  // Tuesday
+}
+
+TEST_CASE("autopilot: release stops the commands for that character and a person can connect") {
+  Town t;
+  t.pilot.start(t.world, {"dominique", "dax"});
+  CHECK(t.pilot.characters().size() == 2);
+  t.runUntil(10, [] { return false; });
+  t.pilot.release(t.world, "dominique");
+  CHECK(!t.pilot.runs("dominique"));
+  CHECK(t.pilot.runs("dax"));
+  CHECK(!t.world.isScripted("dominique"));
+  CHECK(t.world.character("dominique")->online);  // left where she stands, still in the world
+  CHECK(!t.pilot.status().contains("dominique"));
+  const std::size_t logMark = t.log.size();
+  t.runUntil(30, [] { return false; });
+  CHECK(!t.logged(" dominique ", logMark));  // not a word about her since: she's a person's now
+  CHECK(t.logged(" dax ", logMark));
+  CHECK(t.world.connect("dominique"));  // the person takes over
+  CHECK(t.world.look("dominique"));
+  t.pilot.release(t.world, "nobody");  // a no-op
+
+  t.pilot.stop(t.world);
+  CHECK(!t.pilot.runs("dax"));
+  CHECK(!t.world.character("dax")->online);
+  CHECK(!t.world.isScripted("dax"));
+  CHECK(t.world.character("dominique")->online);  // stop only touches its own
+}
+
+TEST_CASE("autopilot: asks addressed to it are declined, and it never takes someone already in the world") {
+  Town t;
+  REQUIRE(t.world.connect("dax"));  // a person is Dax
+  t.pilot.start(t.world, {"dominique", "dax"});
+  CHECK(t.pilot.runs("dominique"));
+  CHECK(!t.pilot.runs("dax"));
+  CHECK(!t.world.isScripted("dax"));
+  // Dominique's morning takes her to Founders Park; Dax (the test) meets her there and asks her out.
+  REQUIRE(t.runUntil(120, [&] { return t.logged("Go for a jog"); }));  // she's at the park's door now
+  walkTo(t.world, "dax", "founders_park");
+  (void)t.world.drainEvents();
+  auto ask = t.world.request("dax", "date", "dominique");
+  if (!ask) std::fprintf(stderr, "    ask refused: %s (%s)\n", ask.error().code.c_str(), ask.error().message.c_str());
+  REQUIRE(ask);
+  t.pilot.observe(t.world.drainEvents());
+  CHECK(t.runUntil(10, [&] { return t.stat("dominique", "asks_declined") == 1; }));
+  CHECK(t.logged("declines a 'date' ask from dax"));
+  CHECK(t.stat("dominique", "asks_declined") == 1);
+}

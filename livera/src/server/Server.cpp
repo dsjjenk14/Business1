@@ -10,8 +10,11 @@
 #include <vector>
 
 #include "core/Clock.h"
+#include "protocol/WorldOps.h"
 
 namespace livera {
+
+using protocol::str;
 
 namespace {
 
@@ -24,11 +27,6 @@ constexpr GameMinutes kMaxDevAdvance = 60 * kMinutesPerDay;
 constexpr double kAcceptBackoffSeconds = 0.5;
 
 void logLine(const std::string& msg) { std::fprintf(stderr, "[livera] %s\n", msg.c_str()); }
-
-std::string str(const Json& req, const char* key) {
-  auto it = req.find(key);
-  return it != req.end() && it->is_string() ? it->get<std::string>() : std::string();
-}
 
 // m08:wallet payments { Coins, phones and LivPay (Wallet.cpp)
 // The payment verifier: real money is verified here, never trusted from the client. The only
@@ -91,6 +89,17 @@ Server::Server(ServerConfig config, std::unique_ptr<SqliteStore> store, World wo
       started_(std::chrono::steady_clock::now()) {
   port_ = net::localPort(listener_);
   world_.setTestPayments(testPaymentsOn(config_));  // m08:wallet: the wallet app says whether coins can be bought
+  if (config_.autopilot) {
+    // Every playable founder no account has claimed lives their day on autopilot (D-053). They aren't
+    // sessions: they count toward neither cap, and a person's `play` takes them over at once.
+    autopilot_.setLog(logLine);
+    std::vector<CharacterId> ids;
+    for (const auto& [id, def] : world_.content().characters()) {
+      if (def.playable && !store_->claimedBy(id)) ids.push_back(id);
+    }
+    autopilot_.start(world_, ids);
+    logLine("autopilot: playing " + std::to_string(autopilot_.characters().size()) + " unclaimed founder(s)");
+  }
 }
 
 Server::~Server() = default;
@@ -160,6 +169,8 @@ void Server::run(const std::atomic<bool>& stop) {
   }
 
   logLine("shutting down");
+  stopping_ = true;
+  autopilot_.stop(world_);
   for (auto& [id, s] : sessions_) leaveWorld(s);
   routeEvents();
   sessions_.clear();
@@ -168,7 +179,11 @@ void Server::run(const std::atomic<bool>& stop) {
 
 void Server::tick(double realSeconds) {
   // Cap catch-up after a stall so one slow frame can't teleport everyone.
-  world_.advanceRealTime(std::min(realSeconds, 1.0));
+  const double seconds = std::min(realSeconds, 1.0);
+  // The autopilot acts first, so what it does is in this tick's people stream rather than the next one's: a
+  // player who sees an autopilot character in `look` has already been told about them.
+  autopilot_.step(world_, seconds);
+  world_.advanceRealTime(seconds);
 }
 
 void Server::acceptClients() {
@@ -358,6 +373,7 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
       c["available"] = script ? !owner && !other
                               : (!owner || *owner == s.username) && !(other && !isScriptAccount(other->username));
       c["scripted_now"] = world_.isScripted(id);
+      if (world_.isScripted(id)) c["played_by"] = world_.playedBy(id);
     }
     // Your own created character, if you have one. Other players' creations aren't listed.
     const auto mine = store_->characterOf(s.username);
@@ -411,102 +427,9 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
 
   // --- In-world ops: all validated by World -----------------------------------------
   const CharacterId& me = s.character;
-  if (op == "look") return world_.look(me);
-  if (op == "map") return world_.mapView();
-  if (op == "move") {
-    Vec2 target;
-    if (req.contains("location")) {
-      const LocationDef* loc = world_.content().location(str(req, "location"));
-      if (!loc) return fail("unknown_location", "no such place");
-      target = loc->door;
-    } else {
-      target = Vec2{req.at("x").get<double>(), req.at("y").get<double>()};
-    }
-    if (Status st = world_.moveTo(me, target); !st) return st.error();
-    const CharacterState* c = world_.character(me);
-    const double meters = distance(c->position, *c->moveTarget);
-    return Json{{"target", {c->moveTarget->x, c->moveTarget->y}},
-                {"eta_seconds", std::ceil(meters / world_.content().sim().walkSpeedMetersPerSecond)}};
-  }
-  if (op == "enter") {
-    if (Status st = world_.enter(me, str(req, "location")); !st) return st.error();
-    return world_.look(me);
-  }
-  if (op == "exit") return world_.exitBuilding(me);
-  if (op == "interact") return world_.interact(me, str(req, "interaction"), str(req, "target"));
-  if (op == "buy") return world_.buy(me, str(req, "offer"), req.value("method", std::string("card")));
-  if (op == "activity") return world_.useActivity(me, str(req, "activity"));
-  if (op == "say") return world_.say(me, str(req, "text"), req.value("volume", std::string("say")), str(req, "to"));
-  if (op == "tip") return world_.tip(me, str(req, "to"), req.at("cents").get<Cents>());
-  // "id" is reserved for request/reply matching, so songs are named by "song" / "song_id".
-  if (op == "song_save") {
-    if (!req.contains("song") || !req["song"].is_object()) return fail("bad_request", "send the song as \"song\"");
-    return world_.saveSong(me, req["song"], str(req, "song_id"));
-  }
-  if (op == "song_release") return world_.releaseSong(me, str(req, "song"));
-  if (op == "song") return world_.openSong(me, str(req, "song"));
-  if (op == "perform") return world_.perform(me, str(req, "song"));
-  if (op == "work") {
-    const std::string action = str(req, "action");
-    if (action == "start") {
-      if (Status st = world_.startShift(me); !st) return st.error();
-      return Json{{"on_shift", true}};
-    }
-    if (action == "end") return world_.endShift(me);
-    return fail("bad_request", "action must be start or end");
-  }
-  if (op == "phone") return world_.openPhoneApp(me, str(req, "app"));
-  if (op == "use") return world_.useItem(me, str(req, "item"));
-  if (op == "wear") return world_.wear(me, str(req, "item"));
-  if (op == "take_off") return world_.takeOff(me, str(req, "slot"));
-  if (op == "give") return world_.giveItem(me, str(req, "to"), str(req, "item"));
-  if (op == "ride")  // pay_with: card, cash or phone (LivPay)
-    return world_.ride(me, str(req, "to"), req.value("pay", true), req.value("pay_with", std::string("card")));
-  if (op == "enroll") return world_.enroll(me, str(req, "program"));
-  if (op == "study") {
-    const std::string action = str(req, "action");
-    if (action == "start") {
-      if (Status st = world_.startStudy(me); !st) return st.error();
-      return Json{{"studying", true}};
-    }
-    if (action == "end") return world_.endStudy(me);
-    return fail("bad_request", "action must be start or end");
-  }
-  if (op == "apply") return world_.applyForJob(me, str(req, "career"));
-  if (op == "steal") return world_.steal(me, str(req, "offer"));
-  if (op == "pickpocket") return world_.pickpocket(me, str(req, "target"));
-  if (op == "arrest") return world_.arrest(me, str(req, "target"));
-  if (op == "request")
-    return world_.request(me, str(req, "kind"), str(req, "target"), req.value("protection", false),
-                          str(req, "subject"));
-  if (op == "respond") return world_.respond(me, str(req, "request"), req.value("accept", false));
-  if (op == "end_relationship") return world_.endRelationship(me, str(req, "target"));
-  if (op == "name_baby") return world_.nameBaby(me, str(req, "child"), str(req, "name"));
-  if (op == "care") return world_.careFor(me, str(req, "child"), str(req, "action"));
-  if (op == "enroll_child") return world_.enrollChild(me, str(req, "child"), str(req, "where"));
-  if (op == "hire_nanny") return world_.hireNanny(me, str(req, "target"));
-  if (op == "dismiss_nanny") return world_.dismissNanny(me);
-  // m08:homes ops { Buying homes, mortgages, moving in together (Homes.cpp)
-  // Buying together, moving in together and selling a co-owned home are asks: request kind=buy_home|move_in|sell_home.
-  if (op == "buy_home") return world_.buyHome(me, str(req, "property"), req.value("down_payment_cents", Cents{0}));
-  if (op == "move_out") return world_.moveOut(me);
-  if (op == "move_home") return world_.moveHome(me, str(req, "property"));
-  if (op == "sell_home") return world_.sellHome(me, str(req, "property"));
-  // } m08:homes
-
-  // m08:work ops { Work decisions during shifts (WorkTasks.cpp)
-  if (op == "work_tasks") return world_.workTasks(me);
-  if (op == "work_answer") {
-    // `option` is the option's index in the order work_tasks sent; anything else is no option.
-    const auto it = req.find("option");
-    if (it == req.end() || !it->is_number_integer())
-      return fail("bad_request", "send the option's number as \"option\"");
-    const auto n = it->get<std::int64_t>();
-    return world_.answerWorkTask(me, str(req, "task"), n < 0 || n > 64 ? -1 : static_cast<int>(n));
-  }
-  // } m08:work
-
   // m08:wallet ops { Coins, phones and LivPay (Wallet.cpp)
+  // Buying coins verifies a store receipt with the server's payment config, so it answers here; every other
+  // in-world op is routed by the dispatch the single-player build shares (src/protocol/WorldOps.cpp).
   if (op == "buy_coins") {
     const std::string product = str(req, "product");
     const std::string receipt = str(req, "receipt");
@@ -516,35 +439,14 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
     if (credited) logLine(s.username + " bought " + product + (verified.value() ? " (test purchase)" : ""));
     return credited;
   }
-  if (op == "buy_with_coins") return world_.buyWithCoins(me, str(req, "item"));
-  if (op == "switch_phone") return world_.switchPhone(me, str(req, "item"));
-  if (op == "livpay_send") return world_.livpaySend(me, str(req, "to"), req.at("cents").get<Cents>(), str(req, "note"));
   // } m08:wallet
-
-  // m08:leisure ops { Sports, date spots and the lake park (Leisure.cpp)
-  if (op == "join_team") return world_.joinTeam(me, str(req, "team"));
-  if (op == "leave_team") return world_.leaveTeam(me, str(req, "team"));
-  // } m08:leisure
-
-  // m08:pets ops { Pets and medicine (Pets.cpp)
-  if (op == "adopt") return world_.adoptPet(me, str(req, "pet"), str(req, "name"), req.value("method", std::string("card")));
-  if (op == "pet") return world_.careForPet(me, str(req, "pet"), str(req, "action"));
-  if (op == "vet") return world_.vetVisit(me, str(req, "pet"), str(req, "service"), req.value("method", std::string("card")));
-  // } m08:pets
-
-  // m08:details ops { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
-  if (op == "laundry") return world_.doLaundry(me);
-  // } m08:details
-  if (op == "message") {
-    auto id = world_.sendMessage(me, str(req, "to"), str(req, "text"));
-    if (!id) return id.error();
-    return Json{{"id", id.value()}};
-  }
-  return fail("unknown_op", "unknown op '" + op + "'");
+  return protocol::dispatchWorldOp(world_, me, op, req);
 }
 
 void Server::routeEvents() {
-  for (auto& ev : world_.drainEvents()) {
+  const auto events = world_.drainEvents();
+  autopilot_.observe(events);  // asks addressed to its characters, which it declines
+  for (const auto& ev : events) {
     for (const auto& who : ev.recipients) {
       for (auto& [id, s] : sessions_) {
         if (s.character == who) send(s, Json{{"event", ev.type}, {"data", ev.data}});
@@ -578,7 +480,7 @@ Result<Json> Server::play(Session& s, const Json& req) {
   if (script) {
     // Scripts borrow characters nobody has: no claim is written, and any claim or player stops them.
     if (store_->claimedBy(id)) return fail("character_claimed", "a player has claimed that character");
-    if (current) return fail("character_in_use", "someone is playing that character right now");
+    if (current || autopilot_.runs(id)) return fail("character_in_use", "someone is playing that character right now");
     if (inWorld(true) >= config_.maxScripted) return fail("server_full", "the server is full");
   } else {
     if (current && !isScriptAccount(current->username)) {
@@ -596,6 +498,11 @@ Result<Json> Server::play(Session& s, const Json& req) {
       logLine(current->username + " released " + id + " to " + s.username);
       leaveWorld(*current);
     }
+    if (autopilot_.runs(id)) {
+      // People always win over the autopilot too: it drops the character where they stand, still in the world.
+      autopilot_.release(world_, id);
+      logLine("autopilot released " + id + " to " + s.username);
+    }
   }
   if (Status st = world_.connect(id); !st) return st.error();
   world_.setScripted(id, script);
@@ -609,6 +516,9 @@ void Server::leaveWorld(Session& s) {
   world_.disconnect(s.character);
   world_.setScripted(s.character, false);
   logLine(s.username + " left the world (" + s.character + ")");
+  // A founder nobody has claimed (a script's, or one the operator released) goes back on autopilot.
+  if (config_.autopilot && !stopping_ && world_.content().character(s.character) && !store_->claimedBy(s.character))
+    autopilot_.start(world_, {s.character});
   s.character.clear();
   // Persist right away so a crash after logout never loses the session.
   (void)save();

@@ -96,6 +96,15 @@ web/gateway/  Node + ws: WebSocket ⇄ TCP, nothing else
 - **Hosting:** one small VPS runs the server, the gateway and the labelled town director behind
   Caddy, which terminates HTTPS and serves the client (`deploy/`). Server and gateway talk over
   loopback only.
+- **Solo build.** `scripts/build_wasm.sh` (CMake option `LIVERA_WASM`, Emscripten) compiles
+  `livera_core`, `livera_protocol` and `src/wasm/solo.cpp` to one ES module,
+  `web/client/solo/livera_solo.js`, with `data/` embedded. The same `World` runs in the browser
+  tab, the same client draws it, and the founders the person doesn't play are driven by the
+  core's `Autopilot` (D-053). The page talks to it through `solo_*` functions that take and
+  return the protocol's JSON (requests through `src/protocol/WorldOps.cpp`, events from
+  `solo_tick`), so nothing is simulated twice. The save is the whole `WorldState` as one JSON
+  document (`worldStateToJson`, `"format": 1`), kept by the page; no SQLite, OpenSSL or sockets
+  are built. Nobody else can join a solo save; the page says so.
 
 ## Scaling (later, not now)
 
@@ -119,7 +128,9 @@ The target today is one world shard with up to 16 people plus up to 16 scripted 
 | `src/core/WorldViews.cpp` | What each character is allowed to see (`look`, phone apps). |
 | `src/core/CharacterCreator.cpp` | Character creator: validates a sheet against data, founds the resident. |
 | `src/core/Music.cpp` | Songs, releases, the town chart, live performance. |
-| `src/core/Serialization.*` | JSON encoding of state records for the save format. |
+| `src/core/Serialization.*` | JSON encoding of state records for the save format, and the whole world as one JSON document (the single-player save). |
+| `src/protocol/WorldOps.*` | The in-world op routing (`look`, `move`, `buy`...) shared by the server and the single-player build. |
+| `src/wasm/solo.cpp` | The single-player harness: the core, the dispatch and the autopilot as a WebAssembly module (`LIVERA_WASM`). |
 | `src/persistence/SqliteStore.*` | Schema, migrations, save/load, accounts, claims. |
 | `src/persistence/PasswordHash.*` | PBKDF2-HMAC-SHA256. |
 | `src/net/Socket.*` | POSIX TCP + line framing with a size limit. |

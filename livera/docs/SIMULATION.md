@@ -155,6 +155,49 @@ player has been away for `self_care_real_days` (21) is depressed instead: needs 
 `depressed_need_targets`, mood on `depressed_emotion_targets`, weight drifts down and the
 home goes untended. Coming back, depression is a condition like any other.
 
+## Autopilot
+
+Founders nobody is playing can live their day on the core's `Autopilot` (`src/core/Autopilot`,
+D-053): the server with `--autopilot` runs every playable founder no account has claimed, and
+the single-player build runs everyone the person isn't playing. It is the town director
+(`scripts/town_director.py`) ported into the core, and it plays by the same rules a client does:
+every step is a World command (`connect`, `moveTo`, `enter`, `ride`, `startShift`, `useActivity`,
+`buy`, `respond`, `disconnect`), every refusal is the world's, and it decides from what that
+character's own client would see (`look`, the career and property phone apps, the map's place
+status). It never touches `WorldState` directly and keeps its plan in memory only, so a loaded
+world re-plans.
+
+What it does, all from data:
+- wakes at home an hour before the first thing in `profile.schedule` (between 05:30 and 09:00),
+  and goes to bed two hours after the last (22:30–23:45) by leaving the world, as scripted
+  founders do (D-050); the offline routine covers the night, and it reconnects at wake time;
+- works the career's shifts at its workplace (`work start` on arrival, `work end` when the block
+  ends), up to the career's `max_shift_hours`;
+- matches each schedule line to places by name, activity or type ("Gym or a run in Founders
+  Park": the park while the gym is being built), respects opening hours (it waits at a door only
+  if the place opens within 45 minutes, otherwise it skips the visit) and never plans around a
+  place still under construction; a line that names no place is time at home, logged once;
+- walks, or rides the bus when the line runs and the trip is clearly quicker (over 250 m and at
+  least 10 s saved);
+- looks after the basics at home (the activity that raises the lowest need: bathroom, breakfast,
+  a shower, teeth), deals with an urgent need where it can (the nearest open place that helps),
+  and makes one everyday purchase a day (coffee or groceries, never over $15, never a service,
+  item, drink or anything illegal) when the world says it can afford it;
+- two habits are its own, not character data, and say so in the log: a coffee before some work
+  days, and an outing on a free day.
+
+What it never does: chat, message or interact with anyone; send an ask; accept one (every ask is
+declined with `respond accept=false`); answer work decisions (doing nothing still pays); pretend
+(every log line reports the world's reply); spin (a refusal backs off exponentially with jitter
+drawn from the world's saved random stream, and a character sends at most one command every two
+real seconds). In a cell it waits to be let out, then re-plans; the emergency room is just
+somewhere to leave. Humans win: the server releases a character the moment a person `play`s
+them, without disconnecting them.
+
+The label: everyone who can see an autopilot character gets `scripted: true` with
+`played_by: "autopilot"` (`look.people`, the `people` stream, `characters.scripted_now`); a
+`bot_` session's character carries `played_by: "script"`. Clients show "played by a script".
+
 ## Aging
 
 Age = (now − born at) / one calendar year (336 game days; D-032). Birthdays are

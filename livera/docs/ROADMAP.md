@@ -164,6 +164,7 @@ rented VPS with a domain, and proximity voice as soon as possible. Plan and esti
 | WebSocket gateway (`web/gateway`) | ✅ |
 | Web client (`web/client`): log in, pick or create a character, tap to walk, enter and act, bus, whisper/say/shout with bubbles and a range ring, people cards, phone apps; phone-first layout; Playwright tests | ⚠️ built; Playwright tests in Chromium at phone and desktop sizes; not yet tried on a real iPhone or Android phone (what the tests cover and what's missing: `web/README.md`) |
 | Labelled town director (`scripts/town_director.py`) | ✅ (`scripts/test_director.sh`) |
+| Autopilot residents: founders nobody plays live their day inside the core (`src/core/Autopilot`, D-053), labelled `played_by: "autopilot"`; server flag `--autopilot` | ✅ (`tests/test_autopilot.cpp`, `tests/test_server.cpp`) |
 | Deploy scripts for an Ubuntu VPS (`deploy/`: Caddy HTTPS, systemd, backups, firewall) | ⚠️ written and dry-run in a sandbox; not yet run on a real VPS |
 | Running on the owner's VPS | ⬜ needs the owner to rent it and paste one command |
 
@@ -172,7 +173,7 @@ hearing with the same whisper/say/shout ranges, a push-to-talk button, a mic ind
 moderation it needs first (mute, block, report, admin kick).
 
 **Phase 1 — feels real (about 4–6 weeks):** real streets and pathfinding, shared buses on a
-timetable, residents on autopilot when nobody plays them, drawn bodies from the creator fields,
+timetable, residents on autopilot when nobody plays them (✅ `--autopilot`, D-053), drawn bodies from the creator fields,
 babies with an appearance and visible children, driving v1, rooms indoors so whisper and shout
 differ inside, add-to-home-screen.
 

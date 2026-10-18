@@ -537,10 +537,15 @@ class World {
   // --- Presence ---------------------------------------------------------------------
   Status connect(const CharacterId& id);  // brings a Dormant character back to Active
   void disconnect(const CharacterId& id);
-  // A script (an account named bot_*) is playing this character right now. Set by the server when a
-  // session enters the world and cleared when it leaves; shown to everyone who can see them. Not saved.
-  void setScripted(const CharacterId& id, bool scripted);
+  // A script is playing this character right now: a bot_* account's session ("script") or the core's
+  // Autopilot ("autopilot"). Set by whoever drives them when they enter the world and cleared when they
+  // leave; shown to everyone who can see them as `scripted` plus `played_by`. Not saved.
+  void setScripted(const CharacterId& id, bool scripted, const std::string& playedBy = "script");
   bool isScripted(const CharacterId& id) const;
+  std::string playedBy(const CharacterId& id) const;  // "" when nobody scripted plays them
+  // Uniform [0, 1) from the world's saved random stream (so outcomes replay the same from a save).
+  // Public so the Autopilot can jitter its waits from the same stream instead of a second one.
+  double roll();
 
   // --- Commands (the authority boundary) -------------------------------------------
   Status moveTo(const CharacterId& actor, Vec2 target);
@@ -753,7 +758,6 @@ class World {
   void chargeRent();
   void catchUpDormant(CharacterState& c, GameMinutes elapsed);
   // Life.cpp
-  double roll();  // uniform [0, 1) from the world's saved random stream
   void initBody(CharacterState& c, const CharacterDef& def);
   void stepBodyMinute(CharacterState& c);
   void stepHourly();
@@ -956,7 +960,7 @@ class World {
   WorldState state_;
   std::vector<WorldEvent> events_;
   // Session state, deliberately outside WorldState so it is never saved.
-  std::set<CharacterId> scripted_;
+  std::map<CharacterId, std::string> scripted_;  // character -> who plays them ("script", "autopilot")
   std::map<CharacterId, std::map<CharacterId, SeenPerson>> seen_;  // viewer -> person -> last told
 };
 

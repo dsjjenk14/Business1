@@ -469,12 +469,17 @@ void World::disconnect(const CharacterId& id) {
   scripted_.erase(id);
 }
 
-void World::setScripted(const CharacterId& id, bool scripted) {
-  if (scripted) scripted_.insert(id);
+void World::setScripted(const CharacterId& id, bool scripted, const std::string& playedBy) {
+  if (scripted) scripted_[id] = playedBy;
   else scripted_.erase(id);
 }
 
 bool World::isScripted(const CharacterId& id) const { return scripted_.count(id) > 0; }
+
+std::string World::playedBy(const CharacterId& id) const {
+  auto it = scripted_.find(id);
+  return it == scripted_.end() ? std::string() : it->second;
+}
 
 // ---------------------------------------------------------------------------------
 // Commands

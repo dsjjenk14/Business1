@@ -877,3 +877,89 @@ TEST_CASE("server: a claim released while its player is in the world doesn't han
   again.login("dom", "dom-pass-123", false);
   CHECK(again.refusal({{"op", "play"}, {"character", "dominique"}}) == "character_taken");
 }
+
+TEST_CASE("server: --autopilot runs unclaimed founders, labelled played_by autopilot, and a person takes one over") {
+  const std::string db = tempPath("autopilot.db").string();
+  makeAccount(db, "bot_one", "bot-pass-123");
+  // Fast walking, and Dax's weekday starts with coffee at 07:00 so he turns up where a person can see him.
+  static auto content = patchedContent([](Json& doc, const std::string& file) {
+    if (file == "simulation.json") doc["simulation"]["walk_speed_mps"] = 400.0;
+    if (file == "dax.json")
+      doc["characters"][0]["profile"]["schedule"]["weekdays"] =
+          Json::array({Json{{"time", "07:00"}, {"activity", "Heritage Coffee"}}});
+  });
+  RunningServer server(db, true, [](ServerConfig& cfg) {
+    cfg.autopilot = true;
+    cfg.content = content;
+  });
+  TestClient dom(server.port()), sam(server.port()), bot(server.port());
+  dom.login("dom", "dom-pass-123");
+  // Every unclaimed founder is on autopilot from the start, and still free for a person to take.
+  Json dax = listed(dom, "dax");
+  CHECK(dax["scripted_now"] == true);
+  CHECK(dax["played_by"] == "autopilot");
+  CHECK(dax["available"] == true);
+  CHECK(listed(dom, "dominique")["played_by"] == "autopilot");
+
+  // Taking Dominique releases her from the autopilot before Dom connects; nobody else is labelled differently.
+  const Json took = dom.ok({{"op", "play"}, {"character", "dominique"}});
+  CHECK(took["you"]["id"] == "dominique");
+  CHECK(listed(dom, "dominique")["scripted_now"] == false);
+  CHECK(!listed(dom, "dominique").contains("played_by"));
+
+  // Dax walks to Heritage Coffee on his own; Dom gets there and sees him labelled.
+  dom.ok({{"op", "exit"}});
+  dom.walkTo("heritage_coffee");
+  dom.ok({{"op", "enter"}, {"location", "heritage_coffee"}});
+  Json seenDax;
+  for (int i = 0; i < 80 && seenDax.is_null(); ++i) {
+    const Json seen = dom.ok({{"op", "look"}});  // named: a temporary's ["people"] wouldn't outlive the loop
+    for (const auto& p : seen["people"]) {
+      if (p["id"] == "dax") seenDax = p;
+    }
+    if (seenDax.is_null()) dom.pump(0.25);
+  }
+  REQUIRE(seenDax.is_object());
+  CHECK(seenDax["scripted"] == true);
+  CHECK(seenDax["played_by"] == "autopilot");
+  CHECK(dom.lastSeen("dax")["played_by"] == "autopilot");  // the people stream says so too
+
+  // A script account can't borrow a character the autopilot has; a person can, at once.
+  bot.login("bot_one", "bot-pass-123", /*registerFirst=*/false);
+  CHECK(bot.refusal({{"op", "play"}, {"character", "dax"}}) == "character_in_use");
+  sam.login("sam", "sam-pass-123");
+  const Json sams = sam.ok({{"op", "play"}, {"character", "dax"}});
+  CHECK(sams["you"]["inside"] == "heritage_coffee");
+  CHECK(listed(dom, "dax")["scripted_now"] == false);
+  CHECK(listed(dom, "dax")["available"] == false);
+  Json nowDax;
+  const Json after = dom.ok({{"op", "look"}});
+  for (const auto& p : after["people"]) {
+    if (p["id"] == "dax") nowDax = p;
+  }
+  REQUIRE(nowDax.is_object());
+  CHECK(nowDax["scripted"] == false);
+  CHECK(!nowDax.contains("played_by"));
+  // The autopilot has let go: Dax stays where Sam found him.
+  sam.pump(4.0);
+  const Json still = sam.ok({{"op", "look"}})["you"];
+  CHECK(still["inside"] == "heritage_coffee");
+  CHECK(still["moving"] == false);
+  // Sam's claim stays after a logout, so Dax doesn't go back on autopilot: a claimed character is a person's.
+  sam.ok({{"op", "logout"}});
+  CHECK(listed(dom, "dax")["scripted_now"] == false);
+  CHECK(!listed(dom, "dax").contains("played_by"));
+  // Once the operator releases the claim and the player leaves, the autopilot takes the character back.
+  TestClient again(server.port());
+  again.login("sam", "sam-pass-123", /*registerFirst=*/false);
+  again.ok({{"op", "play"}, {"character", "dax"}});
+  {
+    auto admin = SqliteStore::open(db);  // livera_server --release-character dax, while the server runs
+    REQUIRE(admin);
+    REQUIRE(admin.value()->releaseCharacter("dax"));
+  }
+  CHECK(listed(dom, "dax")["scripted_now"] == false);  // Sam keeps playing until they leave
+  again.ok({{"op", "logout"}});
+  CHECK(listed(dom, "dax")["scripted_now"] == true);
+  CHECK(listed(dom, "dax")["played_by"] == "autopilot");
+}

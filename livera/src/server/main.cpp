@@ -2,7 +2,7 @@
 //
 //   livera_server --data ./data --db ./livera_world.db [--port 7777] [--bind 127.0.0.1]
 //                 [--autosave 30] [--max-players 16] [--max-scripted 16] [--dev] [--closed-registration]
-//                 [--test-payments]
+//                 [--test-payments] [--autopilot]
 //
 // Admin commands (run and exit; safe while a server is running on the same database):
 //   livera_server --db FILE --add-account USER        (password: first line of stdin)
@@ -29,11 +29,12 @@ void usage() {
   std::fprintf(stderr,
                "usage: livera_server --data DIR [--db FILE] [--port N] [--bind ADDR] [--autosave SECONDS]\n"
                "                     [--max-players N] [--max-scripted N] [--dev] [--closed-registration]\n"
-               "                     [--test-payments]\n"
+               "                     [--test-payments] [--autopilot]\n"
                "       livera_server --db FILE --add-account USER    (reads the password from stdin)\n"
                "       livera_server --db FILE --release-character ID\n"
                "  --dev  enables dev_advance (time skip). Never use on a public server.\n"
                "  --test-payments  accepts test coin purchases (receipts \"test-...\"; nothing is charged).\n"
+               "  --autopilot  founders no account has claimed live their day on the core's autopilot, labelled.\n"
                "  --max-players  people in the world at once (default 16); --max-scripted  scripts (default 16).\n"
                "  --add-account  makes an account (bot_ names are script accounts for the town director).\n"
                "  --release-character  frees a character from the account that claimed it.\n");
@@ -113,6 +114,7 @@ int main(int argc, char** argv) {
     else if (a == "--dev") cfg.devCommands = true;
     else if (a == "--closed-registration") cfg.openRegistration = false;
     else if (a == "--test-payments") cfg.testPayments = true;
+    else if (a == "--autopilot") cfg.autopilot = true;
     else if (a == "--add-account") addAccountUser = next();
     else if (a == "--release-character") releaseId = next();
     else {

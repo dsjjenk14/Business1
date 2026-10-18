@@ -8,6 +8,7 @@
 #include <optional>
 #include <string>
 
+#include "core/Autopilot.h"
 #include "core/World.h"
 #include "net/Socket.h"
 #include "persistence/SqliteStore.h"
@@ -26,6 +27,9 @@ struct ServerConfig {
   double autosaveSeconds = 30;
   bool openRegistration = true;       // dev servers let anyone create an account
   bool devCommands = false;           // enables dev_advance (time skip); never on in production
+  // Founders no account has claimed live their day on the core's Autopilot (D-053). They aren't sessions
+  // and count toward neither cap; a person's `play` takes one over at once.
+  bool autopilot = false;
   // m08:wallet config { Coins, phones and LivPay (Wallet.cpp)
   // Accept test coin purchases (receipts "test-..."; no money is charged). Dev servers always do.
   // Real store billing isn't connected, so without this every coin purchase is refused.
@@ -94,6 +98,8 @@ class Server {
   ServerConfig config_;
   std::unique_ptr<SqliteStore> store_;
   World world_;
+  Autopilot autopilot_;
+  bool stopping_ = false;  // shutting down: characters leaving the world don't go back on autopilot
   net::Fd listener_;
   std::uint16_t port_ = 0;
   std::map<int, Session> sessions_;

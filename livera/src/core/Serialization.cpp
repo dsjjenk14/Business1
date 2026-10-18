@@ -1,6 +1,9 @@
 #include "core/Serialization.h"
 
+#include <map>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 #include "core/Parts.h"
 
@@ -280,6 +283,145 @@ ConstructionStatus constructionStatusFromString(const std::string& s) {
   if (s == "active") return ConstructionStatus::Active;
   if (s == "complete") return ConstructionStatus::Complete;
   throw std::invalid_argument("unknown construction status " + s);
+}
+
+Json worldStateToJson(const WorldState& s) {
+  Json characters = Json::array();
+  for (const auto& [id, c] : s.characters) characters.push_back(toJson(c));
+  Json relationships = Json::array();
+  for (const auto& [key, r] : s.relationships) {
+    Json row = toJson(r);
+    row["from"] = key.first;
+    row["to"] = key.second;
+    relationships.push_back(std::move(row));
+  }
+  Json memories = Json::array();
+  for (const auto& m : s.memories) memories.push_back(toJson(m));
+  Json accounts = Json::array();
+  for (const auto& [id, a] : s.ledger.accounts())
+    accounts.push_back(Json{{"id", a.id}, {"owner_id", a.ownerId}, {"kind", a.kind}, {"balance_cents", a.balanceCents},
+                            {"allow_negative", a.allowNegative}});
+  Json transactions = Json::array();
+  for (const auto& t : s.ledger.transactions())
+    transactions.push_back(Json{{"id", t.id}, {"at", t.at}, {"from", t.from}, {"to", t.to},
+                                {"amount_cents", t.amountCents}, {"kind", t.kind}, {"memo", t.memo}});
+  Json messages = Json::array();
+  for (const auto& m : s.messages)
+    messages.push_back(Json{{"id", m.id}, {"from", m.from}, {"to", m.to}, {"at", m.at}, {"body", m.body}, {"read", m.read}});
+  Json notifications = Json::array();
+  for (const auto& n : s.notifications)
+    notifications.push_back(Json{{"id", n.id}, {"recipient", n.recipient}, {"at", n.at}, {"kind", n.kind},
+                                 {"text", n.text}, {"read", n.read}});
+  // Residents and owners of a property are in the homes part, as in the SQLite save.
+  Json properties = Json::array();
+  for (const auto& [id, p] : s.properties)
+    properties.push_back(Json{{"id", p.id}, {"owner_account", p.ownerAccount}, {"tenant_id", p.tenant},
+                              {"upkeep", {{"cleanliness", p.cleanliness}, {"trash", p.trash}}}});
+  Json construction = Json::array();
+  for (const auto& [id, c] : s.construction)
+    construction.push_back(Json{{"id", c.id}, {"status", toString(c.status)}, {"worker_hours_done", c.workerHoursDone},
+                                {"completed_at", c.completedAt}});
+  Json created = Json::array();
+  for (const auto& [id, def] : s.createdCharacters) created.push_back(toJson(def));
+  Json songs = Json::array();
+  for (const auto& [id, song] : s.songs) songs.push_back(toJson(song));
+  Json parts = Json::object();
+  for (const auto& [key, body] : worldPartsToJson(s)) parts[key] = body;
+  return Json{{"format", kWorldJsonFormat},
+              {"now", s.now},
+              {"clock_carry", s.clockCarry},
+              {"next_id", s.nextId},
+              {"next_tx", s.ledger.nextTxNumber()},
+              {"city_stage", s.city.stage},
+              // As text: the save passes through JavaScript, whose numbers hold 53 bits, not 64.
+              {"rng", std::to_string(s.rng)},
+              {"characters", characters},
+              {"relationships", relationships},
+              {"memories", memories},
+              {"ledger", {{"accounts", accounts}, {"transactions", transactions}}},
+              {"messages", messages},
+              {"notifications", notifications},
+              {"properties", properties},
+              {"construction", construction},
+              {"city_stats", s.city.stats},
+              {"created_characters", created},
+              {"songs", songs},
+              {"world_parts", parts}};
+}
+
+Result<WorldState> worldStateFromJson(const Json& j) {
+  if (!j.is_object() || !j.contains("format")) return fail("save_corrupt", "not a saved world");
+  if (!j["format"].is_number_integer() || j["format"].get<int>() != kWorldJsonFormat)
+    return fail("save_version", "this save was written by a different version of the game");
+  WorldState s;
+  try {
+    s.now = j.at("now").get<GameMinutes>();
+    s.clockCarry = j.at("clock_carry").get<double>();
+    s.nextId = j.at("next_id").get<std::uint64_t>();
+    s.city.stage = j.at("city_stage").get<int>();
+    if (const auto rng = j.find("rng"); rng != j.end())
+      s.rng = rng->is_string() ? std::stoull(rng->get<std::string>()) : rng->get<std::uint64_t>();
+    const auto nextTx = j.at("next_tx").get<std::uint64_t>();
+    for (const auto& c : j.at("characters")) {
+      CharacterState state = characterStateFromJson(c);
+      s.characters[state.id] = std::move(state);
+    }
+    for (const auto& r : j.at("relationships"))
+      s.relationships[{r.at("from").get<std::string>(), r.at("to").get<std::string>()}] = relationshipStateFromJson(r);
+    for (const auto& m : j.at("memories")) s.memories.push_back(memoryFromJson(m));
+    std::map<LedgerAccountId, LedgerAccount> accounts;
+    std::vector<LedgerTransaction> txs;
+    for (const auto& a : j.at("ledger").at("accounts")) {
+      LedgerAccount account{a.at("id").get<std::string>(), a.at("owner_id").get<std::string>(),
+                            a.at("kind").get<std::string>(), a.at("balance_cents").get<Cents>(),
+                            a.at("allow_negative").get<bool>()};
+      accounts[account.id] = std::move(account);
+    }
+    for (const auto& t : j.at("ledger").at("transactions"))
+      txs.push_back(LedgerTransaction{t.at("id").get<std::string>(), t.at("at").get<GameMinutes>(),
+                                      t.at("from").get<std::string>(), t.at("to").get<std::string>(),
+                                      t.at("amount_cents").get<Cents>(), t.at("kind").get<std::string>(),
+                                      t.at("memo").get<std::string>()});
+    s.ledger.restore(std::move(accounts), std::move(txs), nextTx);
+    if (s.ledger.sumOfBalances() != 0) return fail("ledger_unbalanced", "saved ledger does not balance");
+    for (const auto& m : j.value("messages", Json::array()))
+      s.messages.push_back(Message{m.at("id").get<std::string>(), m.at("from").get<std::string>(),
+                                   m.at("to").get<std::string>(), m.at("at").get<GameMinutes>(),
+                                   m.at("body").get<std::string>(), m.value("read", false)});
+    for (const auto& n : j.value("notifications", Json::array()))
+      s.notifications.push_back(Notification{n.at("id").get<std::string>(), n.at("recipient").get<std::string>(),
+                                             n.at("at").get<GameMinutes>(), n.at("kind").get<std::string>(),
+                                             n.at("text").get<std::string>(), n.value("read", false)});
+    for (const auto& p : j.at("properties")) {
+      PropertyState property{p.at("id").get<std::string>(), p.at("owner_account").get<std::string>(),
+                             p.at("tenant_id").get<std::string>()};
+      const Json upkeep = p.value("upkeep", Json::object());
+      property.cleanliness = upkeep.value("cleanliness", property.cleanliness);
+      property.trash = upkeep.value("trash", property.trash);
+      s.properties[property.id] = std::move(property);
+    }
+    for (const auto& c : j.at("construction"))
+      s.construction[c.at("id").get<std::string>()] =
+          ConstructionState{c.at("id").get<std::string>(), constructionStatusFromString(c.at("status").get<std::string>()),
+                            c.at("worker_hours_done").get<double>(), c.at("completed_at").get<GameMinutes>()};
+    s.city.stats = j.value("city_stats", StatMap{});
+    for (const auto& c : j.value("created_characters", Json::array())) {
+      auto def = ContentDatabase::parseCharacter(c);
+      if (!def) return fail("save_corrupt", "created character " + c.value("id", "?") + ": " + def.error().message);
+      s.createdCharacters[def.value().id] = std::move(def).value();
+    }
+    for (const auto& song : j.value("songs", Json::array())) {
+      Song parsed = songFromJson(song);
+      s.songs[parsed.id] = std::move(parsed);
+    }
+    std::map<std::string, Json> parts;
+    const Json partsJson = j.value("world_parts", Json::object());
+    for (const auto& [key, body] : partsJson.items()) parts[key] = body;
+    worldPartsFromJson(s, parts);
+  } catch (const std::exception& e) {
+    return fail("save_corrupt", std::string("saved world could not be read: ") + e.what());
+  }
+  return s;
 }
 
 }  // namespace livera

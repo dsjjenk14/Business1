@@ -325,7 +325,7 @@ export class UI {
     body.push(el("div", { class: "row" }, avatar(id, p.name, "big"), el("div", { class: "stack grow" },
       p.scripted ? el("span", { class: "badge script" }, "played by a script") : null,
       el("span", { class: "hint" }, p.known ? "You've met." : "You haven't met yet."), distText)));
-    if (p.scripted) body.push(el("p", { class: "hint" }, "A script chooses where this character goes and what they do; the server decides every outcome, as for everyone."));
+    if (p.scripted) body.push(el("p", { class: "hint" }, "A script chooses where this character goes and what they do; the game's rules decide every outcome, as for everyone."));
     body.push(el("div", { class: "eyebrow" }, "Talk"));
     if (w.interactions && w.interactions.length) {
       body.push(el("div", { class: "grid2" }, w.interactions.map(i => el("button", {
@@ -453,7 +453,7 @@ export class UI {
       el("button", { type: "button", class: "btn block", onclick: () => this.sheetNeeds() }, "Needs and feelings"),
       el("button", { type: "button", class: "btn danger block", onclick: () => g.logout() }, "Log out"),
       el("div", { class: "eyebrow" }, "What this is"),
-      el("p", { class: "hint" }, SKETCH_NOTICE + ". Door positions, names, prices, opening status, bus stops and everyone's movements come from the game server; the server decides every outcome."),
+      el("p", { class: "hint" }, SKETCH_NOTICE + ". Door positions, names, prices, opening status, bus stops and everyone's movements come from the game itself; its rules decide every outcome."),
       el("p", { class: "hint" }, "Characters marked “played by a script” are founding residents a labelled script plays while no player has them. The bus is a single-rider shuttle until shared buses exist."),
       el("p", { class: "hint" }, `Server protocol: ${g.protocol || "unknown"}.`),
     ]);

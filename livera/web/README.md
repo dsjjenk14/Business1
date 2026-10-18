@@ -74,6 +74,91 @@ Env: `LIVERA_SERVER` (default `livera/build/livera_server`), `LIVERA_E2E_DIR` (D
 default a new temp dir), `LIVERA_SHOTS` (screenshots), `LIVERA_E2E_PORT` / `GATEWAY_E2E_PORT`,
 `GATEWAY_DOWN_E2E_PORT` / `LIVERA_CLOSED_E2E_PORT` (the gateway with no game server behind it).
 
+## Single-player build
+
+`web/client/solo/` is a second entry point for the same client: the game core compiled to
+WebAssembly runs the whole town inside the browser tab, you play one resident, and the founders
+nobody plays are driven by the core's autopilot. No server, no accounts, no gateway. The page
+says so on screen: "Single-player: the town runs in your browser. Nobody else can join this
+save." and "The town pauses while this tab is closed."
+
+```
+browser tab:  web/client (same modules)  ──request(op)──▶  solo/transport_local.js  ──JSON──▶  solo/livera_solo.js (World + WorldOps + Autopilot, wasm)
+```
+
+### Build, run, test
+
+```bash
+cd livera
+scripts/build_wasm.sh                       # Emscripten build (src/wasm/solo.cpp); writes web/client/solo/livera_solo.js
+cd web/gateway && STATIC_DIR=../client node gateway.mjs    # or any static server for web/client
+# open http://127.0.0.1:8080/solo/
+web/tests/run_solo_e2e.sh                   # Playwright: phone (390x844) and desktop, against the built module
+```
+
+`livera_solo.js` is a single file (the wasm is inlined, `-sSINGLE_FILE=1`) so any static host
+serves it; the page's CSP adds `'wasm-unsafe-eval'` for it. Until the build exists,
+`run_solo_e2e.sh` refuses to run; `LIVERA_SOLO_MODULE=/path/to/standin.js` serves a stand-in
+module in its place (used while the page was developed), and the test's summary then says so.
+
+### Files
+
+| File | What it does |
+|---|---|
+| `client/solo/index.html` | The same shell as `client/index.html` (`<base href="../">` so css/ and faces/ resolve), booting `solo/solo.js`; `data-boot="solo"` tells `main.js` not to start the live game. |
+| `client/solo/solo.js` | `SoloGame extends Game` (`main.js`): the town screen (New town / Continue / Import a save file / Export / Start over with a confirm), its own picker (no accounts: "on autopilot right now" badges), a menu with Save now, Export, Change who you play, Start over and the honest labels; autosave every 30 s, when the tab is hidden and on `pagehide`. |
+| `client/solo/transport_local.js` | The `transport.js` interface (`request(op, args)` → `{ok, data}` or `{ok: false, error}`, `welcome` / `event` / `status` listeners) over the wasm module: `characters` → `solo_characters`, `create_character` → `solo_create_character`, `play` → `solo_play` (then `solo_autopilot_start()`), `logout` → `solo_leave`, `hello` / `ping` answered locally, `creator_options` → `solo_request` with a fallback to `solo_creator_options`, everything else → `solo_request` (the server's own dispatch, `src/protocol/WorldOps.cpp`). A 10 Hz timer calls `solo_tick` with the real seconds elapsed (at most 1 s a step) and feeds the returned events to the same handlers as the live client. Hidden tab: the clock stops; no catch-up. |
+| `client/solo/save.js` | One save slot: IndexedDB (`livera-solo`), falling back to localStorage when IndexedDB is missing or refuses; export as a JSON download; import from a file. The record is `{format: "livera-solo-save/1", saved_at, character, character_name, state}` where `state` is exactly what `solo_save()` wrote (its own `format` field); the core validates it on load. |
+| `tests/solo_e2e.js`, `tests/run_solo_e2e.sh` | The end-to-end tests below; the runner serves `web/client` with a plain static server on `LIVERA_SOLO_PORT` (18950). |
+
+The seam in the shared code is small: `main.js` exports `Game`, its constructor takes an
+optional `transport`, and it boots the live game only when `<body>` has no `data-boot="solo"`.
+Everything else (state, renderer, UI, phone, creator) is reused unchanged.
+
+### What is different from the live game
+
+- No login, no accounts, no session tokens, no reconnects: the town screen replaces the login
+  screen. One save per browser (plus export/import files); "Start over" deletes it after a confirm.
+- You can change who you play from the menu; the character you leave goes on autopilot.
+- Time only passes while the tab is visible and the game is being played. Hiding the tab saves
+  and pauses; coming back shows "The town paused while this tab was in the background."
+- Nobody else can ever be in your town. Speech works (say / shout / whisper, bubbles, "Heard by
+  N"), but the autopilot never answers, so "Nobody heard you" is the honest feedback when nobody
+  is near, and "Heard by N" means N autopilot residents were in range.
+- Same rules, same refusals: the module runs `World` and the server's op dispatch, so every
+  reply and error code is the one the server would give.
+
+### What the autopilot does, and doesn't
+
+The founders you don't play are run by `src/core/Autopilot` inside the core (contract B,
+`docs/SIMULATION.md`): they wake at home, walk (or ride) to work in their career's hours, keep
+their `profile.schedule`, look after their needs at home, buy a coffee or groceries, go home at
+bedtime. They show as "played by a script" (the server's label; the picker and the menu say
+"on autopilot") while the autopilot has them in the world, that is from their wake time to
+bedtime; a founder still asleep at this hour is offline, at home and unlabelled until they
+wake. They never chat, never send asks, decline every ask sent to them, and the autopilot's plan
+isn't saved (it re-plans on load). `window.__liveraSolo.autopilotStatus()` on the page shows
+what each one is up to.
+
+### Tests (`web/tests/run_solo_e2e.sh`)
+
+Chromium at 390x844 (touch) and 1280x800: the town screen has no login and shows both notices;
+New town → pick Dominique (she starts at home, the autopilot is running); the map draws; after
+exiting, scripted founders come into sight and one moves within 60 s of game time (the page's
+`__liveraSolo.advance(seconds)` fast-forwards if needed) and a scripted person's card says
+"played by a script"; tap the ground to walk (the core moves you); Heritage Coffee: Go inside,
+buy by card (the balance drops by the price); say something with `<img onerror>` in it ("Heard
+by N" or "Nobody heard you", nothing becomes HTML); Save now → reload → Continue names who you
+were playing, and the balance, the place and the position survived (checked in the client and
+with `look`); Export downloads a `livera-solo-save/1` record, Start over asks first and leaves no
+save, importing the file brings the same balance back; hiding the tab stops the ticks and saves,
+showing the tab resumes them; Change who you play: the picker marks exactly the founders the
+autopilot has in the world "on autopilot right now" (compared with `solo_autopilot_status`),
+and the one you left is marked after you switch; the phone (26 apps, bank,
+the map app's Show); 44 px tap targets, 16 px inputs, no sideways scroll, no overlap, the two
+HUD notes stay short; the creator makes a playable character; no console errors or dialogs.
+Screenshots go to `LIVERA_SHOTS`.
+
 ## Module map
 
 | File | What it does |

@@ -538,3 +538,23 @@ still replaced.
 player had moved to, and the two devices would take turns. Only the server knows whether another
 session is open.
 **Trade-off:** Older clients omit the flag and keep "the newest login wins".
+
+## D-053 — Founders nobody plays run on autopilot in the core, labelled
+**Decision:** `src/core/Autopilot` ports the town director's behaviour into the core: a day
+built from the career and `profile.schedule`, opening hours, bus or walk, needs at home, bed by
+leaving the world (D-050). It drives characters only through World commands and decides only
+from the views a client of that character gets, with its plan in memory (never saved). The
+server runs it with `--autopilot` for every playable founder no account has claimed, steps it
+from its tick, releases a character the instant a person `play`s them (before `World::connect`)
+and takes a founder back when their player leaves unclaimed. The single-player WebAssembly build
+uses the same class. Autopilot characters are labelled `scripted` with `played_by: "autopilot"`
+(a `bot_` session's: `played_by: "script"`); they are not sessions and count toward neither cap.
+**Why:** The owner wants a town that lives whether or not anyone else is online, in the browser
+alone too. The director already behaves well over the wire; putting the same behaviour inside
+the core means one simulation and one set of rules, no second process, no script accounts to
+provision, and no way for the autopilot to cheat since it goes through the authority boundary
+like everyone else.
+**Trade-off:** The autopilot draws its jitter from the world's random stream, so a world with
+it on rolls differently from one without. Script sessions (`bot_`) can't borrow a character the
+autopilot has (`character_in_use`); with `--autopilot` on, the Python director has nobody to
+play, which is fine: they are alternatives, not partners.

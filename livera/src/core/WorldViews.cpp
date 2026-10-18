@@ -248,6 +248,7 @@ Json World::personJson(const CharacterState& viewer, const CharacterState& other
          {"name", od ? od->fullName() : other.id},
          {"known", self || (rel && rel->firstMetAt >= 0)},
          {"scripted", isScripted(other.id)}};
+  if (isScripted(other.id)) p["played_by"] = playedBy(other.id);  // "script" (a bot_ account) or "autopilot"
   p.update(motionJson(seenBy(viewer, other)));
   return p;
 }

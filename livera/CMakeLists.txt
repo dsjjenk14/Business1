@@ -16,6 +16,18 @@ endif()
 
 option(LIVERA_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" ON)
 option(LIVERA_SANITIZE "Build with address + undefined-behaviour sanitizers" OFF)
+# The single-player build: the core and the shared op dispatch compiled to WebAssembly with Emscripten
+# (`emcmake cmake -S . -B build-wasm -DLIVERA_WASM=ON`, or scripts/build_wasm.sh). It has no SQLite,
+# OpenSSL, sockets, server, cli or tests: the browser save is JSON (core/Serialization.h).
+option(LIVERA_WASM "Build the single-player WebAssembly module (needs the Emscripten toolchain)" OFF)
+if(LIVERA_WASM AND NOT EMSCRIPTEN)
+  message(FATAL_ERROR "LIVERA_WASM needs the Emscripten toolchain: emcmake cmake -S . -B build-wasm -DLIVERA_WASM=ON")
+endif()
+if(LIVERA_WASM)
+  # -O2 and no DWARF: debug info would double the module that ships inside the page.
+  set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
+  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -DNDEBUG")
+endif()
 
 # --- Dependencies -------------------------------------------------------------
 find_package(nlohmann_json 3.11 QUIET)
@@ -27,9 +39,11 @@ if(NOT nlohmann_json_FOUND)
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
   FetchContent_MakeAvailable(nlohmann_json)
 endif()
-find_package(SQLite3 REQUIRED)
-find_package(OpenSSL REQUIRED)
-find_package(Threads REQUIRED)
+if(NOT LIVERA_WASM)
+  find_package(SQLite3 REQUIRED)
+  find_package(OpenSSL REQUIRED)
+  find_package(Threads REQUIRED)
+endif()
 
 function(livera_target_options target)
   if(MSVC)
@@ -42,6 +56,13 @@ function(livera_target_options target)
     if(LIVERA_SANITIZE)
       target_compile_options(${target} PRIVATE -fsanitize=address,undefined -fno-omit-frame-pointer)
       target_link_options(${target} PRIVATE -fsanitize=address,undefined)
+    endif()
+    if(LIVERA_WASM)
+      # Emscripten disables exceptions by default; the core throws (and catches) on bad arguments.
+      target_compile_options(${target} PRIVATE -fexceptions)
+      target_link_options(${target} PRIVATE -fexceptions)
+      # Emscripten's clang checks for unused constants, which GCC (the normal build) never does.
+      target_compile_options(${target} PRIVATE -Wno-unused-const-variable)
     endif()
   endif()
 endfunction()
@@ -70,12 +91,41 @@ add_library(livera_core
   src/core/Romance.cpp
   src/core/Substances.cpp
   src/core/Serialization.cpp
+  src/core/Autopilot.cpp
   src/core/World.cpp
   src/core/WorldViews.cpp)
 target_include_directories(livera_core PUBLIC src)
 target_link_libraries(livera_core PUBLIC nlohmann_json::nlohmann_json)
 livera_target_options(livera_core)
 
+# --- Protocol: the in-world op routing shared by the server and the single-player build ----
+add_library(livera_protocol src/protocol/WorldOps.cpp)
+target_link_libraries(livera_protocol PUBLIC livera_core)
+livera_target_options(livera_protocol)
+
+# --- Single-player WebAssembly module (LIVERA_WASM only) ---------------------------------
+if(LIVERA_WASM)
+  add_executable(livera_solo src/wasm/solo.cpp)
+  target_link_libraries(livera_solo PRIVATE livera_core livera_protocol)
+  livera_target_options(livera_solo)
+  set_target_properties(livera_solo PROPERTIES OUTPUT_NAME livera_solo SUFFIX .js)
+  set(LIVERA_WASM_ENVIRONMENT "web,node" CACHE STRING "Emscripten -sENVIRONMENT (node is for web/tests/solo_smoke.mjs)")
+  # One ES module with the wasm inlined (no MIME-type trouble on static hosts) and data/ embedded at /data.
+  target_link_options(livera_solo PRIVATE
+    -sSINGLE_FILE=1 -sMODULARIZE=1 -sEXPORT_ES6=1 -sEXPORT_NAME=createLivera -sALLOW_MEMORY_GROWTH=1
+    "-sENVIRONMENT=${LIVERA_WASM_ENVIRONMENT}"
+    "-sEXPORTED_FUNCTIONS=_solo_new,_solo_load,_solo_save,_solo_rules,_solo_characters,_solo_create_character,_solo_play,_solo_leave,_solo_request,_solo_tick,_solo_autopilot_start,_solo_autopilot_stop,_solo_autopilot_status,_malloc,_free"
+    "-sEXPORTED_RUNTIME_METHODS=ccall,cwrap,UTF8ToString,stringToUTF8,lengthBytesUTF8"
+    # ccall puts string arguments on the wasm stack; the wrappers in solo_post.js use the heap instead,
+    # and the stack is still larger than the default 64 KB for the core's own deep calls.
+    -sSTACK_SIZE=2MB
+    "SHELL:--post-js ${CMAKE_CURRENT_SOURCE_DIR}/src/wasm/solo_post.js"
+    "SHELL:--embed-file ${CMAKE_CURRENT_SOURCE_DIR}/data@/data")
+  set_property(TARGET livera_solo APPEND PROPERTY LINK_DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/data ${CMAKE_CURRENT_SOURCE_DIR}/src/wasm/solo_post.js)
+endif()
+
+if(NOT LIVERA_WASM)
 # --- Persistence + auth --------------------------------------------------------
 add_library(livera_persistence
   src/persistence/SqliteStore.cpp
@@ -89,7 +139,7 @@ add_library(livera_server_lib
   src/server/Auth.cpp
   src/server/RateLimiter.cpp
   src/server/Server.cpp)
-target_link_libraries(livera_server_lib PUBLIC livera_core livera_persistence Threads::Threads)
+target_link_libraries(livera_server_lib PUBLIC livera_core livera_protocol livera_persistence Threads::Threads)
 livera_target_options(livera_server_lib)
 
 add_executable(livera_server src/server/main.cpp)
@@ -126,8 +176,11 @@ add_executable(livera_tests
   tests/test_leisure.cpp
   tests/test_pets.cpp
   tests/test_details.cpp
+  tests/test_autopilot.cpp
+  tests/test_protocol.cpp
   src/client/MusicText.cpp)
 target_link_libraries(livera_tests PRIVATE livera_server_lib)
 target_compile_definitions(livera_tests PRIVATE LIVERA_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
 livera_target_options(livera_tests)
 add_test(NAME livera_tests COMMAND livera_tests)
+endif()  # NOT LIVERA_WASM

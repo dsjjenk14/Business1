@@ -31,6 +31,10 @@ WebSocket: a WebSocket text message is one request line and each server line is 
 Request: `{"id": 7, "op": "buy", "offer": "latte", "method": "card"}`. **`id` is reserved**
 for matching replies to requests; no op may use it as an argument (songs are named by
 `song` / `song_id`).
+In-world ops (everything after `play`, `buy_coins` aside) are dispatched by
+`src/protocol/WorldOps.cpp` for both the server and the single-player build
+(`src/wasm/solo.cpp`), so a solo town answers every request, refusal codes included, exactly
+like a live server; `buy_coins` stays in the server because only it can verify a store receipt.
 Reply: `{"re": 7, "ok": true, "data": {...}}` or `{"re": 7, "ok": false, "error": {"code": "insufficient_funds", "message": "not enough money"}}`.
 **Every reply carries `re`**: the request's `id` (any JSON value, echoed as sent), or `null`
 when the line had none or wasn't JSON. That includes `bad_request`, `rate_limited` and
@@ -43,7 +47,7 @@ Event (server push): `{"event": "message", "data": {"from": "dax", "body": "..."
 | `register` | – | `username` (3–24 of a-z, 0-9, _; not starting `bot_`), `password` (8–128) |
 | `login` | – | `username`, `password` → `{username, character, token}` (`character` may be null) |
 | `resume` | – | `token`, `take_over` (optional, default true) → `{username, character, token}` (the same token); `bad_token` if unknown, expired or logged out; `in_use_elsewhere` when `take_over` is false and another connection holding a different token is logged in to the account |
-| `characters` | login | – (founding characters, plus your own created one; `can_create`). Each entry has `available` and `scripted_now` (a script is playing them right now) |
+| `characters` | login | – (founding characters, plus your own created one; `can_create`). Each entry has `available` and `scripted_now` (a script is playing them right now; then also `played_by`: `"script"` or `"autopilot"`) |
 | `creator_options` | login | – (every choice the character creator offers) |
 | `create_character` | login, no character yet | `character`: the character sheet (see DATA_MODEL.md) |
 | `play` | login | `character` (optional: defaults to your own; scripts must name one) |
@@ -125,7 +129,8 @@ you can hear.
 
 `look.people` lists everyone in sight: `id`, `name`, `known`, `distance_m` (outdoors only),
 `position` [x, y] (0.1 m), `inside` (location id or ""), `moving`, `target` [x, y] or null,
-`speed_mps` (0 when still), `mode` (`walk`, or `bus` while riding), `scripted`. `look.you`
+`speed_mps` (0 when still), `mode` (`walk`, or `bus` while riding), `scripted` (and, when true,
+`played_by`: `"script"` for a `bot_` account's session, `"autopilot"` for the core's Autopilot). `look.you`
 carries the same motion fields for yourself.
 
 For someone else, `target` is where they stop when you can see that spot; otherwise it is a
@@ -187,10 +192,16 @@ operator makes them (`--add-account`); `register` refuses the prefix, so a perso
 labelled a script and a script never passes as a person.
 - A script's `play` writes **no claim**. It is refused with `character_claimed` if any account
   has claimed the character and `character_in_use` if anyone is playing it right now.
-- While a script plays a character, everyone who sees them gets `scripted: true` (in
-  `look.people` and the `people` stream), and `characters` shows `scripted_now: true`.
-  The flag lives in `World` memory (`World::setScripted`), set on `play`, cleared when the
-  session leaves the world.
+- While a script plays a character, everyone who sees them gets `scripted: true` and
+  `played_by: "script"` (in `look.people` and the `people` stream), and `characters` shows
+  `scripted_now: true` with the same `played_by`. The flag lives in `World` memory
+  (`World::setScripted`), set on `play`, cleared when the session leaves the world.
+- With `--autopilot`, founders no account has claimed are played by the core's `Autopilot`
+  (D-053, SIMULATION.md "Autopilot"): the same `scripted: true`, with `played_by: "autopilot"`.
+  They are not sessions (neither cap counts them). A script's `play` for one is refused with
+  `character_in_use`; a person's `play` releases them from the autopilot first (they stay where
+  they stand) and then plays and claims as usual. When a player leaves a founder nobody has
+  claimed (a script's session, or a claim the operator released), the autopilot takes them back.
 - **People always win.** When a person `play`s a character a script is playing, the script's
   session gets `{"event": "released", "data": {"character": "dax", "reason": "a player took
   this character"}}` and leaves the world (its connection and login stay open), then the

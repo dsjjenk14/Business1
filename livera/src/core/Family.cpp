@@ -18,8 +18,6 @@ constexpr double kStatMax = 100;
 constexpr double kCaredForTarget = 70;    // a looked-after child's needs settle here
 constexpr double kNeglectedTarget = 20;   // and an unattended child's fall toward this
 constexpr double kRoutineRatePerHour = 1.0 - 0.8824969;  // 1 - e^(-1/8): the same pace as an adult's routine
-constexpr double kAdultHeightCm = 172;
-constexpr double kNewbornHeightCm = 50;
 
 bool has(const std::vector<CharacterId>& v, const CharacterId& id) { return std::find(v.begin(), v.end(), id) != v.end(); }
 
