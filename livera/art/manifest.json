@@ -89,7 +89,101 @@
     }
   },
   "places": {
-    "body_balance": "art/places/body_balance.jpg"
+    "body_balance": "art/places/body_balance.jpg",
+    "baptiste_events": {
+      "sprite": "art/places/baptiste_events.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md."
+      ]
+    },
+    "ellis_atelier": {
+      "sprite": "art/places/ellis_atelier.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Several rails of black pieces where the data says one rail; harmless."
+      ]
+    },
+    "fire_station": {
+      "sprite": "art/places/fire_station.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "It looks like a working fire station with lit windows; in the game Station 1 is a placeholder landmark that nobody can enter, and the client says so. The crest and banners are invented, as the prompt asked."
+      ]
+    },
+    "founders_school": {
+      "sprite": "art/places/founders_school.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The arched hall at the east end reads as the gym that doubles as the auditorium, as the data says; the flag's sprig emblem is the picture's own."
+      ]
+    },
+    "greenleaf_market": {
+      "sprite": "art/places/greenleaf_market.webp",
+      "alternate": "art/places/greenleaf_market_alt.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The shelves look fully stocked; the game says the store is still half-stocked while the distribution road is paved. The alternate shows empty shelves (closer to the data) but has dark planters and less of the town's gold."
+      ]
+    },
+    "hale_partners": {
+      "sprite": "art/places/hale_partners.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md."
+      ]
+    },
+    "heritage_coffee": {
+      "sprite": "art/places/heritage_coffee.webp",
+      "alternate": "art/places/heritage_coffee_alt.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The alternate (brick corner with black planters) is also faithful; this one matches the rest of the set's gold and emerald."
+      ]
+    },
+    "james_wellness": {
+      "sprite": "art/places/james_wellness.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md."
+      ]
+    },
+    "little_sprouts": {
+      "sprite": "art/places/little_sprouts.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The play yard, slide and rainbow decals are the picture's; the data says only that it is a bright daycare for babies and toddlers."
+      ]
+    },
+    "livera_ledger": {
+      "sprite": "art/places/livera_ledger.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md."
+      ]
+    },
+    "lumen_creative": {
+      "sprite": "art/places/lumen_creative.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md."
+      ]
+    },
+    "lustre_jewelers": {
+      "sprite": "art/places/lustre_jewelers.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md."
+      ]
+    },
+    "parallax_labs": {
+      "sprite": "art/places/parallax_labs.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The rooftop lounge and terrace are the picture's own; the data describes only the office floor (standing desks, a whiteboard wall)."
+      ]
+    },
+    "police_station": {
+      "sprite": "art/places/police_station.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The crest and flags are invented, as the prompt asked: no real department's marks."
+      ]
+    }
   },
   "transit": {
     "bus_line_1": "art/transit/bus_line_1.jpg",

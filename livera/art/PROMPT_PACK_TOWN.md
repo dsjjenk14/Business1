@@ -70,9 +70,9 @@ Every prompt below repeats this in brief, so you can paste any single prompt on 
 
 ### Civic Row
 
-#### Livéra Police Station
+#### Livéra Police Station (in the game)
 
-Save as `art/places/police_station.png` · 1024×1024 · sign: LIVÉRA POLICE
+Save as `art/places/police_station.png` · 1024×1024 · sign: LIVÉRA POLICE · filed as `art/places/police_station.webp`
 
 Facts from the data:
 
@@ -95,9 +95,9 @@ Livéra Police Station: a civic building in the Civic Row district. The game des
 Size 1024×1024, transparent background. Save as art/places/police_station.png
 ```
 
-#### Station 1 Fire & Rescue
+#### Station 1 Fire & Rescue (in the game)
 
-Save as `art/places/fire_station.png` · 1024×1024 · sign: STATION 1
+Save as `art/places/fire_station.png` · 1024×1024 · sign: STATION 1 · filed as `art/places/fire_station.webp`
 
 Facts from the data:
 
@@ -120,9 +120,9 @@ Station 1 Fire & Rescue: a civic building in the Civic Row district. The game de
 Size 1024×1024, transparent background. Save as art/places/fire_station.png
 ```
 
-#### The Livéra Ledger
+#### The Livéra Ledger (in the game)
 
-Save as `art/places/livera_ledger.png` · 1024×1024 · sign: LIVÉRA LEDGER
+Save as `art/places/livera_ledger.png` · 1024×1024 · sign: LIVÉRA LEDGER · filed as `art/places/livera_ledger.webp`
 
 Facts from the data:
 
@@ -172,9 +172,9 @@ Size 1024×1024, transparent background. Save as art/places/whitaker_capital.png
 
 ### Downtown
 
-#### Baptiste & Co. Events
+#### Baptiste & Co. Events (in the game)
 
-Save as `art/places/baptiste_events.png` · 1024×1024 · sign: BAPTISTE & CO.
+Save as `art/places/baptiste_events.png` · 1024×1024 · sign: BAPTISTE & CO. · filed as `art/places/baptiste_events.webp`
 
 Facts from the data:
 
@@ -197,9 +197,9 @@ Baptiste & Co. Events: an event agency in the Downtown district. The game descri
 Size 1024×1024, transparent background. Save as art/places/baptiste_events.png
 ```
 
-#### Ellis Atelier
+#### Ellis Atelier (in the game)
 
-Save as `art/places/ellis_atelier.png` · 1024×1024 · sign: ELLIS ATELIER
+Save as `art/places/ellis_atelier.png` · 1024×1024 · sign: ELLIS ATELIER · filed as `art/places/ellis_atelier.webp`
 
 Facts from the data:
 
@@ -248,9 +248,9 @@ Founders Park: a park in the Downtown district. The game describes it: "A small 
 Size 1024×1024, transparent background. Save as art/places/founders_park.png
 ```
 
-#### Founders School
+#### Founders School (in the game)
 
-Save as `art/places/founders_school.png` · 1536×1024 · sign: FOUNDERS SCHOOL
+Save as `art/places/founders_school.png` · 1536×1024 · sign: FOUNDERS SCHOOL · filed as `art/places/founders_school.webp`
 
 Facts from the data:
 
@@ -272,9 +272,9 @@ Founders School: a school in the Downtown district. The game describes it: "Kind
 Size 1536×1024, transparent background. Save as art/places/founders_school.png
 ```
 
-#### Greenleaf Market
+#### Greenleaf Market (in the game)
 
-Save as `art/places/greenleaf_market.png` · 1536×1024 · sign: GREENLEAF MARKET
+Save as `art/places/greenleaf_market.png` · 1536×1024 · sign: GREENLEAF MARKET · filed as `art/places/greenleaf_market.webp`
 
 Facts from the data:
 
@@ -297,9 +297,9 @@ Greenleaf Market: a grocery store in the Downtown district. The game describes i
 Size 1536×1024, transparent background. Save as art/places/greenleaf_market.png
 ```
 
-#### Hale & Partners
+#### Hale & Partners (in the game)
 
-Save as `art/places/hale_partners.png` · 1024×1024 · sign: HALE & PARTNERS
+Save as `art/places/hale_partners.png` · 1024×1024 · sign: HALE & PARTNERS · filed as `art/places/hale_partners.webp`
 
 Facts from the data:
 
@@ -322,9 +322,9 @@ Hale & Partners: a law firm in the Downtown district. The game describes it: "Li
 Size 1024×1024, transparent background. Save as art/places/hale_partners.png
 ```
 
-#### Heritage Coffee Co.
+#### Heritage Coffee Co. (in the game)
 
-Save as `art/places/heritage_coffee.png` · 1024×1024 · sign: HERITAGE COFFEE
+Save as `art/places/heritage_coffee.png` · 1024×1024 · sign: HERITAGE COFFEE · filed as `art/places/heritage_coffee.webp`
 
 Facts from the data:
 
@@ -348,9 +348,9 @@ Heritage Coffee Co.: a café in the Downtown district. The game describes it: "E
 Size 1024×1024, transparent background. Save as art/places/heritage_coffee.png
 ```
 
-#### James Wellness
+#### James Wellness (in the game)
 
-Save as `art/places/james_wellness.png` · 1024×1024 · sign: JAMES WELLNESS
+Save as `art/places/james_wellness.png` · 1024×1024 · sign: JAMES WELLNESS · filed as `art/places/james_wellness.webp`
 
 Facts from the data:
 
@@ -373,9 +373,9 @@ James Wellness: a therapy and wellness studio in the Downtown district. The game
 Size 1024×1024, transparent background. Save as art/places/james_wellness.png
 ```
 
-#### Little Sprouts Daycare
+#### Little Sprouts Daycare (in the game)
 
-Save as `art/places/little_sprouts.png` · 1024×1024 · sign: LITTLE SPROUTS
+Save as `art/places/little_sprouts.png` · 1024×1024 · sign: LITTLE SPROUTS · filed as `art/places/little_sprouts.webp`
 
 Facts from the data:
 
@@ -397,9 +397,9 @@ Little Sprouts Daycare: a daycare in the Downtown district. The game describes i
 Size 1024×1024, transparent background. Save as art/places/little_sprouts.png
 ```
 
-#### Lumen Creative
+#### Lumen Creative (in the game)
 
-Save as `art/places/lumen_creative.png` · 1024×1024 · sign: LUMEN CREATIVE
+Save as `art/places/lumen_creative.png` · 1024×1024 · sign: LUMEN CREATIVE · filed as `art/places/lumen_creative.webp`
 
 Facts from the data:
 
@@ -422,9 +422,9 @@ Lumen Creative: a creative agency in the Downtown district. The game describes i
 Size 1024×1024, transparent background. Save as art/places/lumen_creative.png
 ```
 
-#### Lustre Jewelers
+#### Lustre Jewelers (in the game)
 
-Save as `art/places/lustre_jewelers.png` · 1024×1024 · sign: LUSTRE JEWELERS
+Save as `art/places/lustre_jewelers.png` · 1024×1024 · sign: LUSTRE JEWELERS · filed as `art/places/lustre_jewelers.webp`
 
 Facts from the data:
 
@@ -472,9 +472,9 @@ Meridian Talent Partners: an office in the Downtown district. The game describes
 Size 1024×1024, transparent background. Save as art/places/meridian_talent.png
 ```
 
-#### Parallax Labs
+#### Parallax Labs (in the game)
 
-Save as `art/places/parallax_labs.png` · 1024×1024 · sign: PARALLAX LABS
+Save as `art/places/parallax_labs.png` · 1024×1024 · sign: PARALLAX LABS · filed as `art/places/parallax_labs.webp`
 
 Facts from the data:
 
