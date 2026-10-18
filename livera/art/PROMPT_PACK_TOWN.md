@@ -524,9 +524,9 @@ Size 1024×1024, transparent background. Save as art/places/riverdale_clinic.png
 
 ### Forge yard
 
-#### The Underpass
+#### The Underpass (in the game)
 
-Save as `art/places/the_underpass.png` · 1024×1024 · no sign
+Save as `art/places/the_underpass.png` · 1024×1024 · no sign · filed as `art/places/the_underpass.webp`
 
 Facts from the data:
 
@@ -552,9 +552,9 @@ Size 1024×1024, transparent background. Save as art/places/the_underpass.png
 
 ### Founders Way
 
-#### Circuit Electronics
+#### Circuit Electronics (in the game)
 
-Save as `art/places/circuit_electronics.png` · 1024×1024 · sign: CIRCUIT ELECTRONICS
+Save as `art/places/circuit_electronics.png` · 1024×1024 · sign: CIRCUIT ELECTRONICS · filed as `art/places/circuit_electronics.webp`
 
 Facts from the data:
 
@@ -577,9 +577,9 @@ Circuit Electronics: an electronics store in the Founders Way district. The game
 Size 1024×1024, transparent background. Save as art/places/circuit_electronics.png
 ```
 
-#### Fade & Glow Salon
+#### Fade & Glow Salon (in the game)
 
-Save as `art/places/fade_glow.png` · 1024×1024 · sign: FADE & GLOW
+Save as `art/places/fade_glow.png` · 1024×1024 · sign: FADE & GLOW · filed as `art/places/fade_glow.webp`
 
 Facts from the data:
 
@@ -602,9 +602,9 @@ Fade & Glow Salon: a salon in the Founders Way district. The game describes it: 
 Size 1024×1024, transparent background. Save as art/places/fade_glow.png
 ```
 
-#### Founders Animal Hospital
+#### Founders Animal Hospital (in the game)
 
-Save as `art/places/founders_animal_hospital.png` · 1024×1024 · sign: ANIMAL HOSPITAL
+Save as `art/places/founders_animal_hospital.png` · 1024×1024 · sign: ANIMAL HOSPITAL · filed as `art/places/founders_animal_hospital.webp`
 
 Facts from the data:
 
@@ -676,9 +676,9 @@ Paws & Whiskers Adoption Center: a pet adoption center in the Founders Way distr
 Size 1024×1024, transparent background. Save as art/places/paws_whiskers.png
 ```
 
-#### Riverdale Pharmacy
+#### Riverdale Pharmacy (in the game)
 
-Save as `art/places/riverdale_pharmacy.png` · 1024×1024 · sign: RIVERDALE PHARMACY
+Save as `art/places/riverdale_pharmacy.png` · 1024×1024 · sign: RIVERDALE PHARMACY · filed as `art/places/riverdale_pharmacy.webp`
 
 Facts from the data:
 
@@ -701,9 +701,9 @@ Riverdale Pharmacy: a pharmacy in the Founders Way district. The game describes 
 Size 1024×1024, transparent background. Save as art/places/riverdale_pharmacy.png
 ```
 
-#### Starlight Cinema
+#### Starlight Cinema (in the game)
 
-Save as `art/places/starlight_cinema.png` · 1536×1024 · sign: STARLIGHT CINEMA
+Save as `art/places/starlight_cinema.png` · 1536×1024 · sign: STARLIGHT CINEMA · filed as `art/places/starlight_cinema.webp`
 
 Facts from the data:
 
@@ -726,9 +726,9 @@ Starlight Cinema: a cinema in the Founders Way district. The game describes it: 
 Size 1536×1024, transparent background. Save as art/places/starlight_cinema.png
 ```
 
-#### Suds & Spin Laundromat
+#### Suds & Spin Laundromat (in the game)
 
-Save as `art/places/suds_spin.png` · 1024×1024 · sign: SUDS & SPIN
+Save as `art/places/suds_spin.png` · 1024×1024 · sign: SUDS & SPIN · filed as `art/places/suds_spin.webp`
 
 Facts from the data:
 
@@ -750,9 +750,9 @@ Suds & Spin Laundromat: a laundromat in the Founders Way district. The game desc
 Size 1024×1024, transparent background. Save as art/places/suds_spin.png
 ```
 
-#### The Copper Tap
+#### The Copper Tap (in the game)
 
-Save as `art/places/copper_tap.png` · 1024×1024 · sign: COPPER TAP
+Save as `art/places/copper_tap.png` · 1024×1024 · sign: COPPER TAP · filed as `art/places/copper_tap.webp`
 
 Facts from the data:
 
@@ -803,9 +803,9 @@ Size 1024×1024, transparent background. Save as art/places/thread_co.png
 
 ### Maple Court
 
-#### Common Ground Community Center
+#### Common Ground Community Center (in the game)
 
-Save as `art/places/common_ground.png` · 1536×1024 · sign: COMMON GROUND
+Save as `art/places/common_ground.png` · 1536×1024 · sign: COMMON GROUND · filed as `art/places/common_ground.webp`
 
 Facts from the data:
 
@@ -1703,9 +1703,9 @@ The Line 1 · Riverside Loop bus, the town's only vehicle: a modern low-floor ci
 Size 1536×1024, transparent background. Save as art/transit/bus_line_1_side.png
 ```
 
-#### Stop: Church Street
+#### Stop: Church Street (in the game)
 
-Save as `art/transit/stops/stop_church_street.png` · 1024×1024 · sign: 1 · CHURCH STREET
+Save as `art/transit/stops/stop_church_street.png` · 1024×1024 · sign: 1 · CHURCH STREET · filed as `art/transit/stops/stop_church_street.webp`
 
 Facts from the data:
 
@@ -1727,9 +1727,9 @@ Bus shelter for the stop "Church Street", stop 4 of 7 on Line 1 · Riverside Loo
 Size 1024×1024, transparent background. Save as art/transit/stops/stop_church_street.png
 ```
 
-#### Stop: Civic Row
+#### Stop: Civic Row (in the game)
 
-Save as `art/transit/stops/stop_civic_row.png` · 1024×1024 · sign: 1 · CIVIC ROW
+Save as `art/transit/stops/stop_civic_row.png` · 1024×1024 · sign: 1 · CIVIC ROW · filed as `art/transit/stops/stop_civic_row.webp`
 
 Facts from the data:
 
@@ -1775,9 +1775,9 @@ Bus shelter for the stop "Founders Park", stop 5 of 7 on Line 1 · Riverside Loo
 Size 1024×1024, transparent background. Save as art/transit/stops/stop_founders_park.png
 ```
 
-#### Stop: Founders Way & Main
+#### Stop: Founders Way & Main (in the game)
 
-Save as `art/transit/stops/stop_founders_main.png` · 1024×1024 · sign: 1 · FOUNDERS WAY
+Save as `art/transit/stops/stop_founders_main.png` · 1024×1024 · sign: 1 · FOUNDERS WAY · filed as `art/transit/stops/stop_founders_main.webp`
 
 Facts from the data:
 
@@ -1823,9 +1823,9 @@ Bus shelter for the stop "Lexington Ave & River Rd", stop 7 of 7 on Line 1 · Ri
 Size 1024×1024, transparent background. Save as art/transit/stops/stop_lexington_ave.png
 ```
 
-#### Stop: Maple Court
+#### Stop: Maple Court (in the game)
 
-Save as `art/transit/stops/stop_maple_court.png` · 1024×1024 · sign: 1 · MAPLE COURT
+Save as `art/transit/stops/stop_maple_court.png` · 1024×1024 · sign: 1 · MAPLE COURT · filed as `art/transit/stops/stop_maple_court.webp`
 
 Facts from the data:
 
@@ -1873,9 +1873,9 @@ Size 1024×1024, transparent background. Save as art/transit/stops/stop_riversid
 
 ## Ground tiles and the crane
 
-#### Tile: Arched stone bridge
+#### Tile: Arched stone bridge (in the game)
 
-Save as `art/tiles/bridge.png` · 1536×1024 · no sign
+Save as `art/tiles/bridge.png` · 1536×1024 · no sign · filed as `art/tiles/bridge.webp`
 
 Facts from the data:
 
@@ -1891,9 +1891,9 @@ Bridge sprite. Draw an arched stone footbridge in cream stone with four round ar
 Size 1536×1024, transparent background. Save as art/tiles/bridge.png
 ```
 
-#### Tile: Grass
+#### Tile: Grass (in the game)
 
-Save as `art/tiles/grass.png` · 1024×1024 · no sign
+Save as `art/tiles/grass.png` · 1024×1024 · no sign · filed as `art/tiles/grass.webp`
 
 Facts from the data:
 
@@ -1908,9 +1908,9 @@ Ground tile: grass. One seamless isometric ground tile, a 2:1 diamond that touch
 Size 1024×1024, transparent background. Save as art/tiles/grass.png
 ```
 
-#### Tile: River edge
+#### Tile: River edge (in the game)
 
-Save as `art/tiles/river_edge.png` · 1024×1024 · no sign
+Save as `art/tiles/river_edge.png` · 1024×1024 · no sign · filed as `art/tiles/river_edge.webp`
 
 Facts from the data:
 
@@ -1943,9 +1943,9 @@ Ground tile: road, t junction. One seamless isometric ground tile, a 2:1 diamond
 Size 1024×1024, transparent background. Save as art/tiles/road_t.png
 ```
 
-#### Tile: Road, corner
+#### Tile: Road, corner (in the game)
 
-Save as `art/tiles/road_corner.png` · 1024×1024 · no sign
+Save as `art/tiles/road_corner.png` · 1024×1024 · no sign · filed as `art/tiles/road_corner.webp`
 
 Facts from the data:
 
@@ -1960,9 +1960,9 @@ Ground tile: road, corner. One seamless isometric ground tile, a 2:1 diamond tha
 Size 1024×1024, transparent background. Save as art/tiles/road_corner.png
 ```
 
-#### Tile: Road, crossroad
+#### Tile: Road, crossroad (in the game)
 
-Save as `art/tiles/road_crossroad.png` · 1024×1024 · no sign
+Save as `art/tiles/road_crossroad.png` · 1024×1024 · no sign · filed as `art/tiles/road_crossroad.webp`
 
 Facts from the data:
 
@@ -1977,9 +1977,9 @@ Ground tile: road, crossroad. One seamless isometric ground tile, a 2:1 diamond 
 Size 1024×1024, transparent background. Save as art/tiles/road_crossroad.png
 ```
 
-#### Tile: Road, straight
+#### Tile: Road, straight (in the game)
 
-Save as `art/tiles/road_straight.png` · 1024×1024 · no sign
+Save as `art/tiles/road_straight.png` · 1024×1024 · no sign · filed as `art/tiles/road_straight.webp`
 
 Facts from the data:
 
@@ -1994,9 +1994,9 @@ Ground tile: road, straight. One seamless isometric ground tile, a 2:1 diamond t
 Size 1024×1024, transparent background. Save as art/tiles/road_straight.png
 ```
 
-#### Tile: Road, unpaved
+#### Tile: Road, unpaved (in the game)
 
-Save as `art/tiles/road_gravel.png` · 1024×1024 · no sign
+Save as `art/tiles/road_gravel.png` · 1024×1024 · no sign · filed as `art/tiles/road_gravel.webp`
 
 Facts from the data:
 
@@ -2012,9 +2012,9 @@ Ground tile: road, unpaved. One seamless isometric ground tile, a 2:1 diamond th
 Size 1024×1024, transparent background. Save as art/tiles/road_gravel.png
 ```
 
-#### Tile: Sidewalk
+#### Tile: Sidewalk (in the game)
 
-Save as `art/tiles/sidewalk.png` · 1024×1024 · no sign
+Save as `art/tiles/sidewalk.png` · 1024×1024 · no sign · filed as `art/tiles/sidewalk.webp`
 
 Facts from the data:
 
@@ -2029,9 +2029,9 @@ Ground tile: sidewalk. One seamless isometric ground tile, a 2:1 diamond that to
 Size 1024×1024, transparent background. Save as art/tiles/sidewalk.png
 ```
 
-#### Tile: Tower crane
+#### Tile: Tower crane (in the game)
 
-Save as `art/tiles/crane.png` · 1024×1536 · no sign
+Save as `art/tiles/crane.png` · 1024×1536 · no sign · filed as `art/tiles/crane.webp`
 
 Facts from the data:
 

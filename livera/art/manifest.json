@@ -183,6 +183,69 @@
         "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
         "The crest and flags are invented, as the prompt asked: no real department's marks."
       ]
+    },
+    "fade_glow": {
+      "sprite": "art/places/fade_glow.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Three barber chairs, the nail station and a gold-and-black striped pole match the data; the hair-wash basins are the picture's own."
+      ]
+    },
+    "circuit_electronics": {
+      "sprite": "art/places/circuit_electronics.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Demo laptops on white tables and the wall of headphones match the data. The second floor is the picture's own; the data says nothing about storeys. The devices carry no brand."
+      ]
+    },
+    "the_underpass": {
+      "sprite": "art/places/the_underpass.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Drawn as asked: an empty corner under the overpass, no people and nothing for sale. The overpass looks finished and the corner tidy (planters, lamps, bollards); the data calls it half-built, and the trade after dark is the game's, never the picture's."
+      ]
+    },
+    "founders_animal_hospital": {
+      "sprite": "art/places/founders_animal_hospital.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The paw-and-cross mark and the ANIMAL HOSPITAL sign are as asked; the brick side panels and the exam room seen through the window are the picture's own."
+      ]
+    },
+    "riverdale_pharmacy": {
+      "sprite": "art/places/riverdale_pharmacy.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The aisles and the counter at the back match the data. The green cross is the picture's own colour (pharmacies use one; the palette asked for gold), and the light is warm rather than the data's fluorescent."
+      ]
+    },
+    "common_ground": {
+      "sprite": "art/places/common_ground.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The friendly brick front, the noticeboard and the big warm windows are as asked; the benches outside are the picture's own. The posters on the noticeboard are illegible decoration, not real notices."
+      ]
+    },
+    "suds_spin": {
+      "sprite": "art/places/suds_spin.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Washers, stacked dryers and one bench, as asked. The number of machines in the picture is not the data's twelve washers and eight dryers."
+      ]
+    },
+    "starlight_cinema": {
+      "sprite": "art/places/starlight_cinema.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The bulb marquee and the red-velvet lobby and seats are as asked. The poster of a skyline under a crescent moon is a film poster, not the town (art/STYLE.md: no towers that don't exist)."
+      ]
+    },
+    "copper_tap": {
+      "sprite": "art/places/copper_tap.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The long copper bar, the dartboard and the corner stage with a guitar match the data. The railed terrace with tables out front is the picture's own."
+      ]
     }
   },
   "transit": {
@@ -190,22 +253,76 @@
     "bus_line_1_side": "art/transit/bus_line_1_side.jpg",
     "stops": {
       "stop_riverside": "art/transit/stops/stop_riverside.jpg",
-      "stop_founders_main": "art/transit/stops/stop_founders_main.jpg",
-      "stop_maple_court": "art/transit/stops/stop_maple_court.jpg",
-      "stop_church_street": "art/transit/stops/stop_church_street.jpg",
+      "stop_founders_main": {
+        "sprite": "art/transit/stops/stop_founders_main.webp",
+        "crop": "art/transit/stops/stop_founders_main.jpg"
+      },
+      "stop_maple_court": {
+        "sprite": "art/transit/stops/stop_maple_court.webp",
+        "crop": "art/transit/stops/stop_maple_court.jpg"
+      },
+      "stop_church_street": {
+        "sprite": "art/transit/stops/stop_church_street.webp",
+        "alternate": "art/transit/stops/stop_church_street_alt.webp",
+        "crop": "art/transit/stops/stop_church_street.jpg"
+      },
       "stop_founders_park": "art/transit/stops/stop_founders_park.jpg",
-      "stop_civic_row": "art/transit/stops/stop_civic_row.jpg",
+      "stop_civic_row": {
+        "sprite": "art/transit/stops/stop_civic_row.webp",
+        "crop": "art/transit/stops/stop_civic_row.jpg"
+      },
       "stop_lexington_ave": "art/transit/stops/stop_lexington_ave.jpg"
     },
     "notes": [
-      "Six stop shelters are the first six panels of the bus collage's bottom row (badges 1-6), in route order, small (about 300x190) and unnamed; Lexington Ave & River Rd has its own full shelter picture whose route list names all seven real stops.",
+      "Four stops now have a full shelter sprite (stops/<stop_id>.webp, isometric, golden hour, transparent, from PROMPT_PACK_TOWN.md): Founders Way & Main, Maple Court, Church Street (two near-identical versions) and Civic Row; their `crop` is the earlier small panel from the bus collage. Riverside Lofts and Founders Park still have only the crop (the first and fifth panels of the collage's bottom row, about 300x190, unnamed); Lexington Ave & River Rd has its own full shelter picture whose route list names all seven real stops.",
       "The route diagram names the seven real stops in order and the real $2.75 fare; its geography (the river, the loop's shape, a 'Rivéra River') is stylised and not the game's coordinates.",
       "The transit card is branding only: fares in the game are paid by card, cash or LivPay, and there is no transit-card item.",
-      "The side view is a crop on a grey studio background, not a transparent sprite."
+      "The side view is a crop on a grey studio background, not a transparent sprite.",
+      "The Founders Way & Main totem reads FOUNDERS WAY, as its prompt asked: the stop's name in the data is longer than a totem holds. Every totem's gold 1 is the line number, not the stop's place in the route."
     ],
     "livera_transit_mark": "art/transit/livera_transit_mark.png",
     "transit_card": "art/transit/transit_card.png",
     "route_line_1": "art/transit/route_line_1.jpg"
+  },
+  "tiles": {
+    "notes": [
+      "Ground tiles, the crane and the bridge, made from the 'Ground tiles and the crane' prompts in PROMPT_PACK_TOWN.md: isometric, golden hour, transparent.",
+      "The flat tiles are 2:1 diamonds (1774x887). The web client's view is 30-degree isometric (about 1.73:1), so it re-projects a tile to a flat texture before drawing it; nothing in a tile is a fact about the town.",
+      "road_gravel_alt and road_crossroad_alt are squarer diamonds (about 1.37:1) from a first round; the 2:1 versions are the ones to use.",
+      "river_edge: a stone promenade with a black-and-gold railing and the water; no data file gives the river a shape (the sketch draws it along the east edge).",
+      "bridge: four arches, lamps and a stair at the near end. Like the river it is part of the sketch: no data file has a bridge and nobody can cross it in the game.",
+      "crane: the tower crane the client draws over every active construction project; it is a marker, not a count of real cranes.",
+      "Still to come: road_t (the T junction)."
+    ],
+    "grass": {
+      "sprite": "art/tiles/grass.webp"
+    },
+    "sidewalk": {
+      "sprite": "art/tiles/sidewalk.webp"
+    },
+    "road_straight": {
+      "sprite": "art/tiles/road_straight.webp"
+    },
+    "road_corner": {
+      "sprite": "art/tiles/road_corner.webp"
+    },
+    "road_crossroad": {
+      "sprite": "art/tiles/road_crossroad.webp",
+      "alternate": "art/tiles/road_crossroad_alt.webp"
+    },
+    "road_gravel": {
+      "sprite": "art/tiles/road_gravel.webp",
+      "alternate": "art/tiles/road_gravel_alt.webp"
+    },
+    "river_edge": {
+      "sprite": "art/tiles/river_edge.webp"
+    },
+    "bridge": {
+      "sprite": "art/tiles/bridge.webp"
+    },
+    "crane": {
+      "sprite": "art/tiles/crane.webp"
+    }
   },
   "city": {
     "stage_1": "art/city/stage_1.jpg",
