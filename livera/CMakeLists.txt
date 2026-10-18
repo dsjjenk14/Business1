@@ -99,11 +99,11 @@ target_link_libraries(livera_core PUBLIC nlohmann_json::nlohmann_json)
 livera_target_options(livera_core)
 
 # --- Protocol: the in-world op routing shared by the server and the single-player build ----
-add_library(livera_protocol src/protocol/WorldOps.cpp)
+add_library(livera_protocol src/protocol/WorldOps.cpp src/protocol/LocalTown.cpp)
 target_link_libraries(livera_protocol PUBLIC livera_core)
 livera_target_options(livera_protocol)
 
-# --- Single-player WebAssembly module (LIVERA_WASM only) ---------------------------------
+# --- Browser WebAssembly module (LIVERA_WASM only): single-player and the "Play together" host ---------
 if(LIVERA_WASM)
   add_executable(livera_solo src/wasm/solo.cpp)
   target_link_libraries(livera_solo PRIVATE livera_core livera_protocol)
@@ -116,7 +116,7 @@ if(LIVERA_WASM)
   target_link_options(livera_solo PRIVATE
     -sSINGLE_FILE=1 -sSINGLE_FILE_BINARY_ENCODE=0 -sMODULARIZE=1 -sEXPORT_ES6=1 -sEXPORT_NAME=createLivera -sALLOW_MEMORY_GROWTH=1
     "-sENVIRONMENT=${LIVERA_WASM_ENVIRONMENT}"
-    "-sEXPORTED_FUNCTIONS=_solo_new,_solo_load,_solo_save,_solo_rules,_solo_characters,_solo_create_character,_solo_play,_solo_leave,_solo_request,_solo_tick,_solo_autopilot_start,_solo_autopilot_stop,_solo_autopilot_status,_malloc,_free"
+    "-sEXPORTED_FUNCTIONS=_solo_new,_solo_load,_solo_save,_solo_rules,_solo_characters,_solo_create_character,_solo_play,_solo_leave,_solo_request,_solo_tick,_solo_autopilot_start,_solo_autopilot_stop,_solo_autopilot_status,_town_join,_town_leave,_town_request,_town_tick,_town_characters,_town_create_character,_town_creator_options,_town_humans,_malloc,_free"
     "-sEXPORTED_RUNTIME_METHODS=ccall,cwrap,UTF8ToString,stringToUTF8,lengthBytesUTF8"
     # ccall puts string arguments on the wasm stack; the wrappers in solo_post.js use the heap instead,
     # and the stack is still larger than the default 64 KB for the core's own deep calls.
@@ -180,6 +180,7 @@ add_executable(livera_tests
   tests/test_details.cpp
   tests/test_autopilot.cpp
   tests/test_protocol.cpp
+  tests/test_localtown.cpp
   src/client/MusicText.cpp)
 target_link_libraries(livera_tests PRIVATE livera_server_lib)
 target_compile_definitions(livera_tests PRIVATE LIVERA_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")

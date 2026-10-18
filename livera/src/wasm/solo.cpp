@@ -1,63 +1,59 @@
-// The single-player harness: the core, the shared op dispatch and the autopilot compiled to WebAssembly
-// (CMake option LIVERA_WASM, scripts/build_wasm.sh). The page (web/client/solo/) is the only client; it
-// calls these C functions with UTF-8 JSON strings and gets JSON strings back, shaped like the server's
-// replies and events (docs/MULTIPLAYER.md), so the same client code draws a solo town and a live one.
-// Content is read from /data, where the build embeds data/ (MEMFS). The save is the whole world as one
-// JSON document (core/Serialization.h); the autopilot's plans are not in it (it re-plans on load).
+// The browser harness: the core, the shared op dispatch and the autopilot compiled to WebAssembly (CMake
+// option LIVERA_WASM, scripts/build_wasm.sh), around one protocol::LocalTown. Two pages use it:
+//   - single-player (web/client/solo/): the solo_* functions, one person;
+//   - "Play together" (web/client/together/): the host's tab calls the town_* functions for everyone it
+//     serves, several people at once, each named by the character they play.
+// Pages call these C functions with UTF-8 JSON strings and get JSON strings back, shaped like the server's
+// replies and events (docs/MULTIPLAYER.md), so the same client code draws a solo town, a shared one and a
+// live one. Content is read from /data, where the build embeds data/ (MEMFS). The save is the whole world as
+// one JSON document (core/Serialization.h); the autopilot's plans are not in it (it re-plans on load).
 //
 // Every reply string points at one buffer that the next call overwrites: the caller copies it first
-// (ccall with a "string" return does).
+// (ccall with a "string" return does, and so do the wrappers in solo_post.js).
 
 #include <emscripten/emscripten.h>
 
-#include <algorithm>
-#include <cmath>
 #include <exception>
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
 
-#include "core/Autopilot.h"
 #include "core/Clock.h"
 #include "core/Serialization.h"
+#include "protocol/LocalTown.h"
 #include "protocol/WorldOps.h"
 
 using namespace livera;
+using protocol::LocalTown;
+using protocol::replyLine;
 
 namespace {
 
-constexpr const char* kProtocol = "livera/1";
 constexpr const char* kDataDir = "/data";
-constexpr GameMinutes kMaxDevAdvance = 60 * kMinutesPerDay;
-// One slow frame can't teleport everyone: the same cap as the server's tick.
-constexpr double kMaxTickSeconds = 1.0;
 
-struct Solo {
-  std::shared_ptr<const ContentDatabase> content;
-  std::optional<World> world;
-  Autopilot autopilot;
-  CharacterId human;  // the character the person plays, "" until solo_play
-  std::string out;    // the buffer every call answers from
+struct Harness {
+  std::optional<LocalTown> town;  // built once content has loaded
+  CharacterId human;              // the single-player page's character, "" until solo_play
+  std::string out;                // the buffer every call answers from
 };
 
-Solo& solo() {
-  static Solo s;
-  return s;
+Harness& harness() {
+  static Harness h;
+  return h;
 }
 
-Json errorJson(const Error& e) { return Json{{"code", e.code}, {"message", e.message}}; }
 Json okReply(Json data) { return Json{{"ok", true}, {"data", std::move(data)}}; }
-Json failReply(const Error& e) { return Json{{"ok", false}, {"error", errorJson(e)}}; }
+Json failReply(const Error& e) { return Json{{"ok", false}, {"error", {{"code", e.code}, {"message", e.message}}}}; }
 Json failReply(const std::string& code, const std::string& message) { return failReply(fail(code, message)); }
 
 const char* answer(const Json& j) {
-  Solo& s = solo();
-  s.out = j.dump();
-  return s.out.c_str();
+  Harness& h = harness();
+  h.out = j.dump();
+  return h.out.c_str();
 }
 
-// A Result<Json> as the server would send it.
+// A Result<Json> as {"ok": true, "data"} or {"ok": false, "error"}.
 const char* answerResult(const Result<Json>& r) { return answer(r ? okReply(r.value()) : failReply(r.error())); }
 
 // Parses an argument without throwing; a null pointer or non-JSON text becomes `discarded`.
@@ -66,171 +62,39 @@ Json parseArg(const char* text) {
   return Json::parse(text, nullptr, /*allow_exceptions=*/false);
 }
 
-Status ensureContent() {
-  Solo& s = solo();
-  if (s.content) return okStatus();
-  auto loaded = ContentDatabase::loadFromDirectory(kDataDir);
-  if (!loaded) return loaded.error();
-  s.content = loaded.value();
-  return okStatus();
-}
-
-Error noWorld() { return fail("no_world", "found a town first (solo_new) or load a save (solo_load)"); }
-
-Json helloJson(const World& w) {
-  return Json{{"protocol", kProtocol}, {"world_time", formatDateTime(w.now())}, {"rules", w.publicRules()}};
-}
-
-// Replaces the world: the autopilot stops (its characters leave), the person is out, nobody is online.
-void installWorld(World world) {
-  Solo& s = solo();
-  if (s.world) s.autopilot.stop(*s.world);
-  s.human.clear();
-  s.world.emplace(std::move(world));
-  s.world->setTestPayments(false);  // no store billing in the browser: the wallet app says coins can't be bought
-  for (const auto& [id, c] : s.world->state().characters) {
-    if (c.online) s.world->disconnect(id);
+// The town, with content loaded from /data on first use (one made character per town: the solo rule; the
+// together host keeps its own per-account rule on top, as the server does).
+Result<LocalTown*> town() {
+  Harness& h = harness();
+  if (!h.town) {
+    auto loaded = ContentDatabase::loadFromDirectory(kDataDir);
+    if (!loaded) return loaded.error();
+    h.town.emplace(loaded.value(), LocalTown::Options{.oneCreatedCharacter = false});
   }
-  (void)s.world->drainEvents();  // nobody is listening yet
+  return &*h.town;
 }
 
-Result<Json> newWorld() {
-  if (Status st = ensureContent(); !st) return st.error();
-  installWorld(World::createNew(solo().content));
-  return helloJson(*solo().world);
+// A town that has a world in it, or `no_world`.
+Result<LocalTown*> liveTown() {
+  auto t = town();
+  if (!t) return t.error();
+  if (!t.value()->hasWorld()) return fail("no_world", "found a town first (solo_new) or load a save (solo_load)");
+  return t;
 }
 
-Result<Json> loadWorld(const Json& doc) {
-  if (doc.is_discarded()) return fail("bad_request", "the save is not JSON");
-  if (Status st = ensureContent(); !st) return st.error();
-  auto state = worldStateFromJson(doc);
-  if (!state) return state.error();
-  installWorld(World(solo().content, std::move(state).value()));
-  return helloJson(*solo().world);
-}
-
-Result<Json> characters() {
-  Solo& s = solo();
-  if (!s.world) return noWorld();
-  Json list = s.world->playableCharacters();
-  for (auto& c : list) {
-    const std::string id = c["id"].get<std::string>();
-    // Nobody else can hold a character in a solo town: the person may take any founder, the autopilot's included.
-    c["available"] = true;
-    c["scripted_now"] = s.world->isScripted(id);
-    if (s.world->isScripted(id)) c["played_by"] = s.world->playedBy(id);
-  }
-  for (const auto& [id, def] : s.world->state().createdCharacters) {
-    list.push_back(Json{{"id", def.id}, {"name", def.fullName()}, {"age", def.age}, {"pronouns", def.pronouns},
-                        {"tagline", def.profile.value("tagline", "")}, {"created", true}, {"available", true}});
-  }
-  return Json{{"characters", list}, {"can_create", s.world->state().createdCharacters.empty()}};
-}
-
-Result<Json> createCharacter(const Json& sheet) {
-  Solo& s = solo();
-  if (!s.world) return noWorld();
-  if (!sheet.is_object()) return fail("bad_request", "send your character sheet as \"character\"");
-  // One made character per town, as one account makes one on a server.
-  if (!s.world->state().createdCharacters.empty()) return fail("already_has_character", "this town already has your character");
-  auto id = s.world->createCharacter(sheet);
-  if (!id) return id.error();
-  const CharacterDef* def = s.world->definition(id.value());
-  return Json{{"id", id.value()}, {"name", def->fullName()}, {"home", s.world->content().location(def->spawnLocation)->name}};
-}
-
-Result<Json> play(const CharacterId& id) {
-  Solo& s = solo();
-  if (!s.world) return noWorld();
-  if (!s.human.empty()) return fail("already_playing", "already in the world");
-  const CharacterDef* def = s.world->definition(id);
-  if (!def || !def->playable) return fail("unknown_character", "that character can't be played");
-  // Humans win: the autopilot lets go (plan dropped, label cleared, still in the world) before the person connects.
-  if (s.autopilot.runs(id)) s.autopilot.release(*s.world, id);
-  if (Status st = s.world->connect(id); !st) return st.error();
-  s.human = id;
-  return s.world->look(id);
-}
-
-Result<Json> leave() {
-  Solo& s = solo();
-  if (!s.world) return noWorld();
-  if (s.human.empty()) return fail("not_playing", "choose a character first");
-  s.world->disconnect(s.human);
-  s.world->setScripted(s.human, false);
-  s.human.clear();
-  return Json{{"logged_out", true}};
-}
-
-std::vector<CharacterId> playableFounders() {
-  Solo& s = solo();
-  std::vector<CharacterId> ids;
-  for (const auto& [id, def] : s.world->content().characters()) {
-    if (def.playable && id != s.human) ids.push_back(id);
-  }
-  return ids;
-}
-
-Result<Json> autopilotStart(const Json& arg) {
-  Solo& s = solo();
-  if (!s.world) return noWorld();
-  std::vector<CharacterId> ids;
-  if (arg.is_array()) {
-    for (const auto& v : arg) {
-      if (v.is_string() && v.get<std::string>() != s.human) ids.push_back(v.get<std::string>());
-    }
-  } else if (arg.is_null() || arg.is_discarded()) {
-    ids = playableFounders();
-  } else {
-    return fail("bad_request", "send a JSON array of character ids, or null for everyone you don't play");
-  }
-  s.autopilot.start(*s.world, ids);
-  return Json{{"running", s.autopilot.characters()}};
-}
-
-Result<Json> autopilotStop() {
-  Solo& s = solo();
-  if (!s.world) return noWorld();
-  s.autopilot.stop(*s.world);
-  return Json{{"running", Json::array()}};
-}
-
-// The pre-play ops a client sends before and around `play` (the server's "ops for logged-in accounts"),
-// so a transport can route every request here; the dedicated solo_* entry points do the same.
-Result<Json> dispatch(const std::string& op, const Json& req) {
-  Solo& s = solo();
-  if (op == "ping") return Json{{"pong", true}};
-  if (!s.world) return noWorld();
-  if (op == "hello") return helloJson(*s.world);
-  if (op == "characters") return characters();
-  if (op == "creator_options") return s.world->creatorOptions();
-  if (op == "create_character") {
-    if (!req.contains("character")) return fail("bad_request", "send your character sheet as \"character\"");
-    return createCharacter(req["character"]);
-  }
-  if (op == "play") return play(protocol::str(req, "character"));
-  if (op == "logout") return leave();
-  if (op == "dev_advance") {
-    // A solo town is the player's own: skipping time is allowed, with the server's bounds.
-    const auto minutes = req.at("minutes").get<GameMinutes>();
-    if (minutes < 1 || minutes > kMaxDevAdvance) return fail("bad_request", "minutes must be 1..86400");
-    s.world->advanceMinutes(minutes);
-    return Json{{"now", formatDateTime(s.world->now())}};
-  }
-  if (s.human.empty()) return fail("not_playing", "choose a character first");
-  if (op == "buy_coins")
-    return fail("payments_unavailable",
-                "Buying coins needs real store billing (App Store / Google Play), which the single-player game "
-                "doesn't have. Nothing was charged.");
-  return protocol::dispatchWorldOp(*s.world, s.human, op, req);
-}
-
-// `solo_play` takes a bare id, a JSON string or {"character": id}.
+// A character argument: a bare id, a JSON string, or {"character": id}.
 CharacterId characterArg(const char* text) {
   const Json parsed = parseArg(text);
   if (parsed.is_string()) return parsed.get<std::string>();
   if (parsed.is_object()) return protocol::str(parsed, "character");
   return text ? std::string(text) : std::string();
+}
+
+// A character sheet argument: the sheet itself, or {"character": sheet} as the `create_character` op takes it.
+Json sheetArg(const char* text) {
+  Json sheet = parseArg(text);
+  if (sheet.is_object() && sheet.contains("character") && sheet["character"].is_object()) sheet = sheet["character"];
+  return sheet;
 }
 
 template <class F>
@@ -242,57 +106,146 @@ const char* guarded(F&& f) {
   }
 }
 
+// ---------------------------------------------------------------------------- single-player (solo_*)
+
+// One person, so nobody else can hold a character: every founder is free (the autopilot's included), and one
+// character may be made per town.
+Result<Json> soloCharacters() {
+  auto t = liveTown();
+  if (!t) return t.error();
+  auto list = t.value()->characters(harness().human);
+  if (!list) return list;
+  Json data = list.value();
+  for (auto& c : data["characters"]) c["available"] = true;
+  data["can_create"] = t.value()->world().state().createdCharacters.empty();
+  return data;
+}
+
+Result<Json> soloCreateCharacter(const Json& sheet) {
+  auto t = liveTown();
+  if (!t) return t.error();
+  if (!sheet.is_object()) return fail("bad_request", "send your character sheet as \"character\"");
+  // One made character per town, as one account makes one on a server.
+  if (!t.value()->world().state().createdCharacters.empty())
+    return fail("already_has_character", "this town already has your character");
+  return t.value()->createCharacter(sheet);
+}
+
+Result<Json> soloPlay(const CharacterId& id) {
+  auto t = liveTown();
+  if (!t) return t.error();
+  Harness& h = harness();
+  if (!h.human.empty()) return fail("already_playing", "already in the world");
+  auto look = t.value()->join(id);
+  if (look) h.human = id;
+  return look;
+}
+
+Result<Json> soloLeave() {
+  auto t = liveTown();
+  if (!t) return t.error();
+  Harness& h = harness();
+  if (h.human.empty()) return fail("not_playing", "choose a character first");
+  // "Change who you play": the one left goes on autopilot when the next one starts it, not before.
+  auto r = t.value()->leave(h.human, /*autopilotTakesOver=*/false);
+  h.human.clear();
+  return r;
+}
+
+Result<Json> autopilotStart(const Json& arg) {
+  auto t = liveTown();
+  if (!t) return t.error();
+  if (arg.is_null() || arg.is_discarded()) return t.value()->autopilotStart();  // every playable founder nobody plays
+  if (!arg.is_array()) return fail("bad_request", "send a JSON array of character ids, or null for everyone nobody plays");
+  std::vector<CharacterId> ids;
+  for (const auto& v : arg) {
+    if (v.is_string()) ids.push_back(v.get<std::string>());
+  }
+  return t.value()->autopilotStart(ids);
+}
+
+// The pre-play ops a client sends before and around `play` (the server's "ops for logged-in accounts"), so the
+// solo transport can route every request here; the dedicated solo_* entry points do the same.
+Result<Json> soloDispatch(const std::string& op, const Json& req) {
+  if (op == "ping") return Json{{"pong", true}};
+  auto t = liveTown();
+  if (!t) return t.error();
+  LocalTown& lt = *t.value();
+  if (op == "hello") return lt.hello();
+  if (op == "characters") return soloCharacters();
+  if (op == "creator_options") return lt.creatorOptions();
+  if (op == "create_character") {
+    if (!req.contains("character")) return fail("bad_request", "send your character sheet as \"character\"");
+    return soloCreateCharacter(req["character"]);
+  }
+  if (op == "play") return soloPlay(protocol::str(req, "character"));
+  if (op == "logout") return soloLeave();
+  // A solo town is the player's own: skipping time is allowed, with the server's bounds.
+  if (op == "dev_advance") return lt.advanceMinutes(req.at("minutes").get<GameMinutes>());
+  return lt.worldOp(harness().human, op, req);
+}
+
 }  // namespace
 
 extern "C" {
 
 EMSCRIPTEN_KEEPALIVE const char* solo_new() {
-  return guarded([] { return answerResult(newWorld()); });
+  return guarded([] {
+    auto t = town();
+    if (!t) return answer(failReply(t.error()));
+    harness().human.clear();
+    return answerResult(t.value()->found());
+  });
 }
 
 EMSCRIPTEN_KEEPALIVE const char* solo_load(const char* stateJson) {
-  return guarded([&] { return answerResult(loadWorld(parseArg(stateJson))); });
+  return guarded([&] {
+    auto t = town();
+    if (!t) return answer(failReply(t.error()));
+    const Json doc = parseArg(stateJson);
+    auto r = t.value()->load(doc);
+    if (r) harness().human.clear();  // a refused load leaves the town (and whoever plays it) as it was
+    return answerResult(r);
+  });
 }
 
 // The whole world as one JSON document ("format": 1), or {"ok": false, "error": {"code": "no_world"}}.
 EMSCRIPTEN_KEEPALIVE const char* solo_save() {
   return guarded([] {
-    Solo& s = solo();
-    if (!s.world) return answer(failReply(noWorld()));
-    return answer(worldStateToJson(s.world->state()));
+    auto t = liveTown();
+    if (!t) return answer(failReply(t.error()));
+    auto doc = t.value()->save();
+    return doc ? answer(doc.value()) : answer(failReply(doc.error()));
   });
 }
 
 // The `rules` object clients get in `welcome`, `hello` and `map`; content-only, so it works before a town exists.
 EMSCRIPTEN_KEEPALIVE const char* solo_rules() {
   return guarded([] {
-    Solo& s = solo();
-    if (s.world) return answer(s.world->publicRules());
-    if (!ensureContent()) return answer(Json::object());
-    return answer(World::createNew(s.content).publicRules());
+    auto t = town();
+    if (!t) return answer(Json::object());
+    return answer(t.value()->rules());
   });
 }
 
 EMSCRIPTEN_KEEPALIVE const char* solo_characters() {
-  return guarded([] { return answerResult(characters()); });
+  return guarded([] { return answerResult(soloCharacters()); });
 }
 
-// The sheet itself, or {"character": sheet} as the `create_character` op takes it.
 EMSCRIPTEN_KEEPALIVE const char* solo_create_character(const char* sheetJson) {
   return guarded([&] {
-    Json sheet = parseArg(sheetJson);
-    if (sheet.is_object() && sheet.contains("character") && sheet["character"].is_object()) sheet = sheet["character"];
+    const Json sheet = sheetArg(sheetJson);
     if (sheet.is_discarded()) return answer(failReply("bad_request", "the character sheet is not JSON"));
-    return answerResult(createCharacter(sheet));
+    return answerResult(soloCreateCharacter(sheet));
   });
 }
 
 EMSCRIPTEN_KEEPALIVE const char* solo_play(const char* characterId) {
-  return guarded([&] { return answerResult(play(characterArg(characterId))); });
+  return guarded([&] { return answerResult(soloPlay(characterArg(characterId))); });
 }
 
 EMSCRIPTEN_KEEPALIVE const char* solo_leave() {
-  return guarded([] { return answerResult(leave()); });
+  return guarded([] { return answerResult(soloLeave()); });
 }
 
 // One request line as the server takes it: {"id": ..., "op": ..., ...} -> {"re", "ok", "data"|"error"}.
@@ -300,26 +253,18 @@ EMSCRIPTEN_KEEPALIVE const char* solo_request(const char* reqJson) {
   return guarded([&] {
     const Json req = parseArg(reqJson);
     const Json re = req.is_object() && req.contains("id") ? req["id"] : Json();
-    Json reply{{"re", re}};
     Result<Json> result = fail("internal", "unhandled");
     if (!req.is_object() || !req.contains("op") || !req["op"].is_string()) {
       result = fail("bad_request", "expected {\"op\": ...}");
     } else {
       try {
-        result = dispatch(req["op"].get<std::string>(), req);
+        result = soloDispatch(req["op"].get<std::string>(), req);
       } catch (const std::exception& e) {
         // Malformed argument types land here (e.g. a string where a number belongs).
         result = fail("bad_request", e.what());
       }
     }
-    if (result) {
-      reply["ok"] = true;
-      reply["data"] = result.value();
-    } else {
-      reply["ok"] = false;
-      reply["error"] = errorJson(result.error());
-    }
-    return answer(reply);
+    return answer(replyLine(re, result));
   });
 }
 
@@ -328,40 +273,116 @@ EMSCRIPTEN_KEEPALIVE const char* solo_request(const char* reqJson) {
 // everyone else are dropped; nobody else is listening.
 EMSCRIPTEN_KEEPALIVE const char* solo_tick(double realSeconds) {
   return guarded([&] {
-    Solo& s = solo();
     Json events = Json::array();
-    if (!s.world) return answer(events);
-    const double seconds = std::isfinite(realSeconds) ? std::clamp(realSeconds, 0.0, kMaxTickSeconds) : 0.0;
-    // As on the server: the autopilot acts first, so this tick's people stream already shows what it did.
-    s.autopilot.step(*s.world, seconds);
-    s.world->advanceRealTime(seconds);
-    const std::vector<WorldEvent> batch = s.world->drainEvents();
-    s.autopilot.observe(batch);
-    for (const auto& ev : batch) {
-      if (s.human.empty()) break;
-      if (std::find(ev.recipients.begin(), ev.recipients.end(), s.human) != ev.recipients.end())
-        events.push_back(Json{{"event", ev.type}, {"data", ev.data}});
+    auto t = liveTown();
+    if (!t) return answer(events);
+    auto all = t.value()->tick(realSeconds);
+    const Harness& h = harness();
+    if (!h.human.empty()) {
+      auto it = all.find(h.human);
+      if (it != all.end()) events = it->second;
     }
     return answer(events);
   });
 }
 
-// Puts these characters (a JSON array of ids), or with null every playable founder the person doesn't play, on
-// autopilot. Replies {"running": [ids]}.
+// Puts these characters (a JSON array of ids), or with null every playable founder nobody plays, on autopilot.
+// Replies {"running": [ids]}.
 EMSCRIPTEN_KEEPALIVE const char* solo_autopilot_start(const char* idsJson) {
   return guarded([&] { return answerResult(autopilotStart(parseArg(idsJson))); });
 }
 
 EMSCRIPTEN_KEEPALIVE const char* solo_autopilot_stop() {
-  return guarded([] { return answerResult(autopilotStop()); });
+  return guarded([] {
+    auto t = liveTown();
+    return answerResult(t ? t.value()->autopilotStop() : Result<Json>(t.error()));
+  });
 }
 
 // What each autopilot character is up to (Autopilot::status), for the page's debug hook.
 EMSCRIPTEN_KEEPALIVE const char* solo_autopilot_status() {
   return guarded([] {
-    Solo& s = solo();
-    if (!s.world) return answer(failReply(noWorld()));
-    return answer(okReply(s.autopilot.status()));
+    auto t = liveTown();
+    return answerResult(t ? t.value()->autopilotStatus() : Result<Json>(t.error()));
+  });
+}
+
+// ---------------------------------------------------------------------------- several people (town_*)
+// The host page calls these after it has decided who may play whom (accounts and claims are its business,
+// as they are the server's, not the World's). The town is the same one solo_new / solo_load / solo_save
+// found, load and save; a page uses either the solo_* people functions or the town_* ones, not both.
+
+// Puts a person in as this character (bare id, JSON string or {"character": id}) -> {"ok", "data": look}.
+EMSCRIPTEN_KEEPALIVE const char* town_join(const char* characterId) {
+  return guarded([&] {
+    auto t = liveTown();
+    return answerResult(t ? t.value()->join(characterArg(characterId)) : Result<Json>(t.error()));
+  });
+}
+
+// Takes a person out. {"character": id, "autopilot": false} keeps the character off the autopilot (someone
+// keeps them: a claim); a bare id hands a founder back to it.
+EMSCRIPTEN_KEEPALIVE const char* town_leave(const char* arg) {
+  return guarded([&] {
+    auto t = liveTown();
+    if (!t) return answer(failReply(t.error()));
+    const Json parsed = parseArg(arg);
+    const bool handBack = !(parsed.is_object() && parsed.contains("autopilot") && parsed["autopilot"] == false);
+    return answerResult(t.value()->leave(characterArg(arg), handBack));
+  });
+}
+
+// One request line for one person: (character, {"id", "op", ...}) -> {"re", "ok", "data"|"error"}.
+EMSCRIPTEN_KEEPALIVE const char* town_request(const char* characterId, const char* reqJson) {
+  return guarded([&] {
+    const Json req = parseArg(reqJson);
+    auto t = liveTown();
+    if (!t) return answer(replyLine(req.is_object() && req.contains("id") ? req["id"] : Json(), t.error()));
+    return answer(t.value()->request(characterArg(characterId), req));
+  });
+}
+
+// Advances the town (capped at 1 s) and returns everyone's events: {"<character>": [{"event", "data"}...]}.
+EMSCRIPTEN_KEEPALIVE const char* town_tick(double realSeconds) {
+  return guarded([&] {
+    Json out = Json::object();
+    auto t = liveTown();
+    if (!t) return answer(out);
+    for (auto& [who, events] : t.value()->tick(realSeconds)) out[who] = std::move(events);
+    return answer(out);
+  });
+}
+
+// The pick list as this character (or, with null or "", nobody) sees it -> {"ok", "data": {characters, can_create}}.
+EMSCRIPTEN_KEEPALIVE const char* town_characters(const char* characterId) {
+  return guarded([&] {
+    auto t = liveTown();
+    if (!t) return answer(failReply(t.error()));
+    return answerResult(t.value()->characters(characterId ? characterArg(characterId) : CharacterId()));
+  });
+}
+
+EMSCRIPTEN_KEEPALIVE const char* town_create_character(const char* sheetJson) {
+  return guarded([&] {
+    const Json sheet = sheetArg(sheetJson);
+    if (sheet.is_discarded()) return answer(failReply("bad_request", "the character sheet is not JSON"));
+    auto t = liveTown();
+    return answerResult(t ? t.value()->createCharacter(sheet) : Result<Json>(t.error()));
+  });
+}
+
+EMSCRIPTEN_KEEPALIVE const char* town_creator_options() {
+  return guarded([] {
+    auto t = liveTown();
+    return answerResult(t ? t.value()->creatorOptions() : Result<Json>(t.error()));
+  });
+}
+
+// Who is playing right now -> {"ok", "data": [ids]}.
+EMSCRIPTEN_KEEPALIVE const char* town_humans() {
+  return guarded([] {
+    auto t = liveTown();
+    return answerResult(t ? Result<Json>(Json(t.value()->humans())) : Result<Json>(t.error()));
   });
 }
 

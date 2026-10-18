@@ -586,3 +586,22 @@ keeps the client, the prompts and future art consistent. The one limit is honest
 pictures' skylines are the future city, so the founding town never gains towers the data doesn't
 have, and people in reference art are not game characters unless the cast sheets say so.
 
+
+## D-056 — One town process for the browser: LocalTown, for one player or several
+**Decision:** The part of `Server` that needs no sockets, accounts or SQLite is
+`protocol::LocalTown` (`src/protocol/LocalTown.h`): the World, the autopilot, and the set of
+characters people are playing right now, with the server's tick order (autopilot first), its
+in-world dispatch (`WorldOps`), its refusal codes and "people always win" (joining releases the
+autopilot first). The single-player module now runs on it (`solo_*` exports), and the same module
+exports `town_*` functions for several people in one town: join, leave, request, tick, characters,
+create a character, the people present. Accounts and claims stay with the caller, as they do in
+`Server`. Tested in `tests/test_localtown.cpp` (five people see each other, hear a say only within
+range, and keep their own money; a played character can't be taken; the save round-trips) and in
+`web/tests/town_smoke.mjs` against the built module.
+**Status:** The browser page that would host friends through it ("Play together": the host's tab
+runs the town and the others connect through the artifact's room and database) is not built yet.
+Nothing in the published game offers it.
+**Why:** The owner asked for five people in one town on the web. A second copy of the server's
+rules for the browser would drift from the real ones; one process type for "one player" and
+"several players in a browser" keeps a single set of rules, and the real server (D-045) stays the
+way to play on a VPS.
