@@ -70,4 +70,7 @@ Sampled from the pictures. Use these, or colours between them.
 - `web/client/` draws the town and its screens in this palette and light.
 - `scripts/town_prompts.py` writes it into every map-sprite prompt (`PROMPT_PACK_TOWN.md`,
   `prompts_town.html`).
+- `scripts/interior_prompts.py` writes it into every interior prompt (`PROMPT_PACK_INTERIORS.md`,
+  `prompts_interiors.html`): the town's camera, cut away like a dollhouse, golden hour through the
+  windows, black marble and gold only where a place is named as luxurious.
 - New character, place or concept art should match it.

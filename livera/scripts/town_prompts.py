@@ -338,7 +338,9 @@ def outdoor_line(loc):
 
 
 def article(noun):
-    return ("an " if noun[:1].lower() in "aeiou" else "a ") + noun
+    # "a university", "a one-storey": a vowel letter that sounds like "you" or "won" takes "a".
+    vowel_sound = noun[:1].lower() in "aeiou" and not noun.lower().startswith(("uni", "use", "one"))
+    return ("an " if vowel_sound else "a ") + noun
 
 
 def finish(parts, size, save_as):

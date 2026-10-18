@@ -901,7 +901,7 @@ Facts from the data:
 ```text
 LIVÉRA town sprite. Isometric 2:1 (30°) view from the south-west, warm golden-hour light from the west with a soft champagne glow, warm amber light in the windows, clean photoreal render, no outlines, no sky. The Livéra palette: ivory and sand stone, champagne-gold trim and serif lettering, deep emerald green accents (awnings, doors, sign plates), warm brick only where named, charcoal glass with thin gold edges, lush rounded sage-green trees with a few tiny warm lights, pale cream paving. Transparent background, no ground shadow outside the footprint, no people, no cars, no text except the sign named below. Scale: a door is 1 unit tall; a one-storey shop is about 3 units.
 
-Livéra University: an university in the Riverside district. The game describes it: "A new campus on the river: one finished lecture hall, a library that smells of fresh paint, and a law clinic upstairs." Draw a new campus building with a young lawn, one hall finished and a second still framed. It is open 07:00–22:00. The only text is the sign "LIVÉRA UNIVERSITY" in champagne-gold serif capitals, spelled exactly like that.
+Livéra University: a university in the Riverside district. The game describes it: "A new campus on the river: one finished lecture hall, a library that smells of fresh paint, and a law clinic upstairs." Draw a new campus building with a young lawn, one hall finished and a second still framed. It is open 07:00–22:00. The only text is the sign "LIVÉRA UNIVERSITY" in champagne-gold serif capitals, spelled exactly like that.
 
 Size 1536×1024, transparent background. Save as art/places/livera_university.png
 ```

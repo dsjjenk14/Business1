@@ -105,3 +105,20 @@ else in the manifest: when a generated picture gets a fact wrong (a misspelled s
 storey, a lit "open" sign on a place that is still a building site), the entry's `notes` say so,
 and nobody treats the picture as the game's state. The prompts' art direction (what a building
 looks like beyond its data description) is marked as such in each prompt's facts.
+
+## Interiors (`PROMPT_PACK_INTERIORS.md`, `prompts_interiors.html`)
+
+`scripts/interior_prompts.py` prompts the inside of every place a character can enter and every home, the same way:
+from `data/world`, `data/careers` and `data/characters`, into `PROMPT_PACK_INTERIORS.md` and a phone page,
+`prompts_interiors.html`. Each picture is one cutaway room at the town sprites' camera angle, drawn to scale with
+clear walkways, every seat and bed in view, and a piece of furniture for each activity the place offers (a shower
+for "Take a shower", the sofa for "Nap on the sofa"), so the rooms can later be walked around and sat in. Homes
+the data describes the same way share one picture. Walking around inside and sitting are **not in the game yet**;
+the pack's "How a picture becomes a room you can walk in" says what is planned. Files go to
+`art/interiors/<id>.png` (shared pictures are named by their homes, e.g. `willow_lane_2_4_6_8.png`), then into
+`manifest.json` under `interiors`, with notes as for everything else.
+
+```bash
+python3 scripts/interior_prompts.py          # regenerate both files after editing data/
+python3 scripts/interior_prompts.py --check  # fails if a place someone can enter has no prompt, or the files are stale
+```
