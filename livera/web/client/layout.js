@@ -88,10 +88,13 @@ export function footprint(b) {
 }
 
 // Buildings to draw from the server's place list: units grouped by door, construction sites
-// folded into the building going up on them, parks drawn as ground (not boxes).
+// folded into the building going up on them, parks drawn as ground (not boxes). A site and the
+// building going up on it share a door in the map's data; `site` keeps the site's place id, so
+// the site's own picture can stand in for the building while it's under construction.
 export function buildingsFrom(places) {
   const out = [], byDoor = new Map();
   const doorKey = p => `${p.door[0]},${p.door[1]}`;
+  const sites = new Map(places.filter(p => p.type === "construction_site").map(p => [doorKey(p), p.id]));
   for (const p of places) {
     if (UNIT_TYPES.has(p.type)) {
       const k = doorKey(p);
@@ -107,7 +110,7 @@ export function buildingsFrom(places) {
     }
     if (p.type === "construction_site" || p.type === "park") continue;
     out.push({ id: p.id, name: p.name, type: p.type, shape: p.type, district: p.district, door: p.door, status: p.status,
-               enterable: p.enterable, units: null, place: p });
+               enterable: p.enterable, units: null, place: p, site: sites.get(doorKey(p)) || null });
   }
   return out;
 }
@@ -135,6 +138,31 @@ export const RIVER = { x0: 860, x1: 1000, depth: 10, promenade: 10 };
 // An arched stone bridge on the line of Lexington Avenue, from River Road to the map edge
 // (sketch decoration, like the river: no place, no stop, nothing to tap).
 export const BRIDGE = { y: 485, x0: 805, x1: 1000, width: 14, arches: 4, pier: 7, rise: 7.6 };
+
+// The owner's ground tiles and set pieces (client/tiles/, made by scripts/client_tiles.py), as the
+// sketch lays them out. How many meters one repeat of each ground texture covers (the gravel spans
+// a road's width instead):
+export const TILE_METERS = { grass: 16, paving: 7, asphalt: 9 };
+// The bridge picture spans the river on Lexington Avenue's line, its deck from the quay (x0) to just
+// short of the map's east edge (x1, where its stair comes down), at height z; a paved approach joins
+// it to River Road. Like the drawn bridge it is decoration: nobody can cross it.
+export const BRIDGE_ART = { x0: 852, x1: 985, z: 1, approach: 805 };
+export const CRANE_M = 38;          // the crane marker's height to its jib, the same over every site
+export const SHELTER_M = 13;        // a bus shelter picture's width on the map
+export const SITE_FRAMED_PCT = 35;  // a site shows its framed stage once its project is this far along
+// Site pictures that already paint tower cranes of their own: no crane marker on top of them.
+export const SITE_ART_CRANES = new Set(["maple_court_ii_site", "eclat_site_framed"]);
+// Parks drawn with the owner's picture (client/sprites/<park>.webp) standing on their lawn: the
+// square lot it stands on. Willow Lane crosses the sketch's oval for Willow Lake Park, so the
+// picture takes the square between Lakeshore Drive and Willow Lane; the sketch's lake, boardwalk
+// and trees inside it give way to the picture's.
+export const PARK_ART = { willow_lake_park: { x0: 266, x1: 318, y0: 646, y1: 698 } };
+// Road works: while a road's project is active and SITE_FRAMED_PCT along, the picture of its works
+// (client/sprites/<site>_framed.webp, the site being the construction-site place whose door is on
+// the road) is laid along the road from x `from` to `to`, next to the site's door but clear of the
+// junction there. Measured on the picture: its road's centre line at the paved end (`near`) and
+// further along (`far`), as fractions of it; it is mirrored, its road running along the art's y axis.
+export const ROAD_WORKS = { founders_way: { from: 401, to: 445, near: [0.1484, 0.8052], far: [0.9375, 0.284] } };
 
 export const TREES = [];
 {

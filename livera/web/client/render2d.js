@@ -10,9 +10,10 @@
 // clock (LIGHT in layout.js): warm champagne by day, golden hour at dawn and dusk, deep
 // emerald-navy at night with gold lights.
 
-import { PAL, SPECIAL_COLORS, GOLD_EDGED, LOOK, LIGHT, footprint, ROADS, PARK_SHAPES, RIVER, BRIDGE, TREES, streetTrees } from "./layout.js";
+import { PAL, SPECIAL_COLORS, GOLD_EDGED, LOOK, LIGHT, footprint, ROADS, PARK_SHAPES, RIVER, BRIDGE, TREES, streetTrees,
+         TILE_METERS, BRIDGE_ART, CRANE_M, SHELTER_M, SITE_FRAMED_PCT, SITE_ART_CRANES, PARK_ART, ROAD_WORKS } from "./layout.js";
 import { predict, dist } from "./state.js";
-import { faceUrl, spriteUrl, initials, firstName } from "./dom.js";
+import { faceUrl, spriteUrl, initials, firstName, loadTileManifest, tileInfo, tileUrl } from "./dom.js";
 
 const C = Math.cos(Math.PI / 6), S = 0.5;
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -108,6 +109,27 @@ function spriteLights(img) {
   } catch { return null; }
 }
 const quantize = hex => "#" + hex.match(/\w\w/g).map(h => Math.min(255, Math.round(parseInt(h, 16) / 8) * 8).toString(16).padStart(2, "0")).join("");
+// The width of a road's asphalt and of its kerbs, in meters: the strokes drawRoads() draws are
+// 11 and 14.5 scale units (x0.9) across on screen, and a band of world width w along either axis is
+// w x 2CS x scale across on screen.
+const ROAD_W = 11 * 0.9 / (2 * Math.cos(Math.PI / 6) * 0.5), KERB_W = 14.5 * 0.9 / (2 * Math.cos(Math.PI / 6) * 0.5);
+
+// Where the sketch's roads meet: {x, y, through, roads}. A junction lies on two perpendicular roads;
+// at a T the road it lies inside of (not at one of its ends) goes "through" (null at a crossing).
+const JUNCTIONS = (() => {
+  const out = [];
+  const span = r => { const [[ax, ay], [bx, by]] = r.pts; return ay === by ? { h: true, c: ay, lo: Math.min(ax, bx), hi: Math.max(ax, bx) } : { h: false, c: ax, lo: Math.min(ay, by), hi: Math.max(ay, by) }; };
+  for (let i = 0; i < ROADS.length; i++) for (let j = i + 1; j < ROADS.length; j++) {
+    const a = span(ROADS[i]), b = span(ROADS[j]);
+    if (a.h === b.h) continue;
+    const [hz, vt] = a.h ? [a, b] : [b, a], [hr, vr] = a.h ? [ROADS[i], ROADS[j]] : [ROADS[j], ROADS[i]];
+    const x = vt.c, y = hz.c, tol = 1;
+    if (x < hz.lo - tol || x > hz.hi + tol || y < vt.lo - tol || y > vt.hi + tol) continue;
+    const hEnds = x <= hz.lo + tol || x >= hz.hi - tol, vEnds = y <= vt.lo + tol || y >= vt.hi - tol;
+    out.push({ x, y, through: hEnds && !vEnds ? vr : vEnds && !hEnds ? hr : null, roads: [hr, vr] });
+  }
+  return out;
+})();
 
 export class Renderer2D {
   constructor(canvas, world) {
@@ -131,6 +153,11 @@ export class Renderer2D {
     this.glowCanvas = glowSprite();
     this.motion = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
     this.routeCache = { transit: null, loops: [] };
+    this.tileSprites = new Map();    // tile id -> {img, info, lights, baked, key}: the owner's ground tiles and set pieces
+    this.groundBakes = new Map();    // "id|k|meters" -> {key, pattern, n, meters}: a ground texture lit for the hour
+    this.groundCache = null;         // the flat ground drawn offscreen (drawGroundLayer)
+    this.loads = 0;                  // pictures loaded so far: the cached ground is re-drawn when one arrives
+    loadTileManifest().catch(() => {});
     // Water glints: fixed spots on the river that catch the light (seeded, so they don't jump).
     const rnd = seeded("river", 100000);
     this.glints = Array.from({ length: 70 }, () => [RIVER.x0 + 6 + rnd() / 100000 * (RIVER.x1 - RIVER.x0 - 10), rnd() / 100000, 3 + rnd() / 100000 * 9, rnd() / 100000 * 6.28]);
@@ -204,14 +231,71 @@ export class Renderer2D {
     if (!url) return null;
     let s = this.sprites.get(id);
     if (!s) {
-      s = { img: new Image(), lights: null, baked: null, key: "" };
+      s = { id, img: new Image(), lights: null, baked: null, key: "" };
       s.img.decoding = "async";
-      s.img.onload = () => { s.lights = spriteLights(s.img); };
+      s.img.onload = () => { s.lights = spriteLights(s.img); this.loads++; };
       s.img.src = url;
       this.sprites.set(id, s);
     }
     return s.img.complete && s.img.naturalWidth ? s : null;
   }
+  // A ground tile or set piece from client/tiles once it has loaded (lazily: the hand-drawn ground,
+  // crane, bridge or stop post is drawn until then), or null.
+  tile(id) {
+    const url = tileUrl(id);
+    if (!url) return null;
+    let t = this.tileSprites.get(id);
+    if (!t) {
+      t = { img: new Image(), info: tileInfo(id), lights: null, baked: null, key: "" };
+      t.img.decoding = "async";
+      t.img.onload = () => { if (t.info.kind === "sprite") t.lights = spriteLights(t.img); this.loads++; };
+      t.img.src = url;
+      this.tileSprites.set(id, t);
+    }
+    return t.img.complete && t.img.naturalWidth ? t : null;
+  }
+  // A ground texture as a CanvasPattern, lit exactly as lit(c, k) lights a colour (toward the hour's
+  // ambient light, then toward the night's dark while the ground layer is drawn), done once on the
+  // texture. It's baked at about the size it's drawn, so it neither shimmers when it's small nor
+  // costs much, and re-baked only when the light moves a step or the zoom doubles or halves.
+  groundTexture(id, meters, k = 1) {
+    const t = this.tile(id);
+    if (!t || t.info.kind !== "texture" || !meters) return null;
+    const L = this.light, full = t.img.naturalWidth, want = meters * this.scale * this.dpr * 0.85;
+    let n = 16;
+    while (n < want && n < full) n *= 2;
+    n = Math.min(n, full);
+    const a = Math.round(Math.min(0.95, L.amt * k) * 48) / 48, dim = Math.round(this.dim * 48) / 48, amb = quantize(L.amb);
+    const key = `${n}|${amb}|${a}|${dim}`, slot = `${id}|${k}|${meters}`;
+    let g = this.groundBakes.get(slot);
+    if (g && g.key === key) return g;
+    const c = document.createElement("canvas");
+    c.width = c.height = n;
+    const x = c.getContext("2d");
+    x.imageSmoothingEnabled = true; x.imageSmoothingQuality = "high";
+    x.drawImage(t.img, 0, 0, n, n);
+    if (a > 0) { x.fillStyle = rgba(amb, a); x.fillRect(0, 0, n, n); }
+    if (dim > 0) { x.fillStyle = rgba("#031118", dim); x.fillRect(0, 0, n, n); }
+    const pattern = this.canvas.getContext("2d").createPattern(c, "repeat");
+    if (!pattern || typeof pattern.setTransform !== "function" || typeof DOMMatrix === "undefined") return null;
+    g = { key, pattern, n, meters };
+    this.groundBakes.set(slot, g);
+    return g;
+  }
+  // Lays a ground texture flat on the map: texture pixel (u, v) at world (ox, oy) + (u U + v V) x
+  // meters per pixel, through P(), so it scrolls and zooms with the map. U and V default to the
+  // world's x and y; a road's gravel turns them so its ruts run along the road.
+  laid(g, ox = 0, oy = 0, U = [1, 0], V = [0, 1]) {
+    const s = this.scale, m = g.meters / g.n, [e, f] = this.P(ox, oy);
+    g.pattern.setTransform(new DOMMatrix([(U[0] - U[1]) * C * s * m, (U[0] + U[1]) * S * s * m, (V[0] - V[1]) * C * s * m, (V[0] + V[1]) * S * s * m, e, f]));
+    return g.pattern;
+  }
+  // The pattern for a whole-map surface (lawn, paving, asphalt) this frame, or the flat colour.
+  surface(id, color, k = 1) {
+    const g = this.groundTexture(id, TILE_METERS[id], k);
+    return g ? this.laid(g) : this.lit(color, k);
+  }
+
   // Where a sprite goes: about 1.15 times the width of the footprint's diamond, centred on it, its
   // base (the picture's own pavement and planters) just below the diamond's front corner.
   spriteRect(s, fp) {
@@ -387,6 +471,68 @@ export class Renderer2D {
     const hook = P(x + 16, y - 4, h - 10 - (working ? 4 * Math.sin(now / 600) : 0));
     ctx.strokeStyle = rgba(this.lit("#5b4a33", 0.5), 0.7); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(...P(x + 16, y - 4, h)); ctx.lineTo(...hook); ctx.stroke();
   }
+  // A park's picture standing on its lot (PARK_ART), like a building's on its footprint.
+  drawLot(spr, fp, night) {
+    const r = this.spriteRect(spr, fp);
+    if (r.x + r.W < -20 || r.x > this.cw + 20 || r.y > this.ch + 20 || r.bottom < -20) return;
+    if (night > 0.3 && this.scale > 0.5) this.glow(r.x + r.W / 2, r.bottom - r.H * 0.35, r.W * 0.6, 0.25 * night, 0.7);
+    this.ctx.drawImage(this.bakedSprite(spr, r.W), r.x, r.y, r.W, r.H);
+  }
+  // Road works to lay along the roads this frame: a road whose project is active and far enough
+  // along, with a picture of its site's framed stage (ROAD_WORKS says where along the road). The
+  // site is the construction-site place whose door lies on the road.
+  roadWorks(w) {
+    const out = [];
+    for (const r of ROADS) {
+      const spot = r.project && ROAD_WORKS[r.project], proj = spot && w.projects.get(r.project);
+      if (!proj || proj.status !== "active" || (proj.progress_pct || 0) < SITE_FRAMED_PCT) continue;
+      const [[ax, ay], [bx, by]] = r.pts;
+      if (ay !== by) continue;   // the picture is mirrored to run along x; no road along y has works
+      const site = w.places.find(p => p.type === "construction_site" && Math.abs(p.door[1] - ay) <= KERB_W / 2 && p.door[0] >= Math.min(ax, bx) && p.door[0] <= Math.max(ax, bx));
+      const spr = site && spriteUrl(`${site.id}_framed`) && this.sprite(`${site.id}_framed`);
+      if (!spr) continue;
+      out.push({ spr, spot, y: ay, depth: (spot.from + spot.to) / 2 + ay + 11, lot: { x0: spot.from - 4, x1: spot.to + 4, y0: ay - 13, y1: ay + 13 } });
+    }
+    return out;
+  }
+  // The works picture, mirrored, its road's centre line on the road's: the paved end at `to`.
+  drawWorks({ spr, spot, y }) {
+    const [nx, ny] = this.P(spot.to, y, 0), [fx, fy] = this.P(spot.from, y, 0), near = [1 - spot.near[0], spot.near[1]], far = [1 - spot.far[0], spot.far[1]];
+    const W = (nx - fx) / (near[0] - far[0]), H = (ny - fy) / (near[1] - far[1]);
+    if (!(W > 0 && H > 0)) return;
+    const x = nx - near[0] * W, top = ny - near[1] * H;
+    if (x > this.cw + 20 || x + W < -20 || top > this.ch + 20 || top + H < -20) return;
+    const ctx = this.ctx;
+    ctx.save(); ctx.translate(x + W, top); ctx.scale(-1, 1);
+    ctx.drawImage(this.bakedSprite(spr, W), 0, 0, W, H);
+    ctx.restore();
+  }
+  // The crane over a construction project: the owner's crane picture (client/tiles) over an active
+  // project, unless the site's own picture already paints cranes. `drawn`: the hand-drawn site (no
+  // site picture), which keeps the hand-drawn crane until the crane picture has loaded.
+  drawCraneMarker(fp, proj, siteId, dl, now, drawn) {
+    const t = this.tile("crane"), a = t && t.info.kind === "sprite" ? t.info.anchors : null, x = fp.x0 + 4, y = fp.y0 + 6;
+    const active = !!(proj && proj.status === "active");
+    if (!a || !a.ground || !a.jib) {
+      if (drawn || (active && !SITE_ART_CRANES.has(siteId))) this.drawCrane(x, y, Math.max(fp.h, 20) + 12, active && dl > 0.5, now);
+      return;
+    }
+    if (!active || SITE_ART_CRANES.has(siteId)) return;
+    const [gx, gy] = this.P(x, y, 0), [, jy] = this.P(x, y, CRANE_M), H = (gy - jy) / (a.ground[1] - a.jib[1]), W = H * t.img.naturalWidth / t.img.naturalHeight;
+    const left = gx - a.ground[0] * W, top = gy - a.ground[1] * H;
+    if (left > this.cw || left + W < 0 || top > this.ch || top + H < 0) return;
+    this.ctx.drawImage(this.bakedSprite(t, W), left, top, W, H);
+  }
+  // While a building is going up, its site's picture (client/sprites/<site>.webp): the framed stage
+  // once the project is active and SITE_FRAMED_PCT along, if there is a picture of it, else the bare
+  // site. The site is the construction-site place that shares the building's door (`b.site`). null
+  // until the picture has loaded (the hand-drawn site is drawn meanwhile).
+  siteSprite(b, proj) {
+    if (!b.site) return null;
+    const framed = `${b.site}_framed`, far = !!(proj && proj.status === "active" && (proj.progress_pct || 0) >= SITE_FRAMED_PCT);
+    const id = far && spriteUrl(framed) ? framed : spriteUrl(b.site) ? b.site : null;
+    return id ? this.sprite(id) : null;
+  }
   drawFrame(b, pct) {
     const ctx = this.ctx, P = this.P.bind(this), h = Math.max(1.5, b.h * pct / 100), col = this.lit("#a8834c", 0.5);
     ctx.strokeStyle = rgba(col, 0.9); ctx.lineWidth = Math.max(1, 0.8 * this.scale);
@@ -462,32 +608,7 @@ export class Renderer2D {
     const B = w.bounds;
     // Night falls on the ground first (not before golden hour has passed: it would dull it).
     this.dim = 0.34 * clamp01((night - 0.3) / 0.7);
-    this.drawGround(B);
-    this.drawYards(w.buildings);
-    this.drawShadows(w.buildings, L, dl, grey);
-    this.drawRiver(B, now);
-    for (const pl of w.places) {
-      if (pl.type !== "park") continue;
-      const shape = PARK_SHAPES[pl.id] || { rx: 30, ry: 28 }, [cx, cy] = pl.door, lawn = [], inner = [];
-      for (let a = 0; a < Math.PI * 2; a += 0.2) {
-        lawn.push(P(cx + Math.cos(a) * shape.rx, cy + Math.sin(a) * shape.ry));
-        inner.push(P(cx + Math.cos(a) * shape.rx * 0.72, cy + Math.sin(a) * shape.ry * 0.72));
-      }
-      this.poly(lawn, this.lit(LOOK.lawn[1], 1.05));
-      this.poly(inner, this.lit(LOOK.lawn[0], 1.05));
-      if (shape.lake) {
-        const lake = []; for (let a = 0; a < Math.PI * 2; a += 0.2) lake.push(P(cx + Math.cos(a) * shape.lake.rx, cy + Math.sin(a) * shape.lake.ry));
-        ctx.lineWidth = Math.max(1, 1.2 * this.scale);
-        this.poly(lake, this.lit(mix(LOOK.water[0], LOOK.glassGold, L.gold * 0.3)), this.lit(LOOK.stone[0]));
-      }
-      if (shape.boardwalk) {
-        ctx.strokeStyle = this.lit("#b08a5c"); ctx.lineWidth = Math.max(1, 1.6 * this.scale);
-        ctx.beginPath(); ctx.moveTo(...P(cx + shape.boardwalk[0][0], cy + shape.boardwalk[0][1])); ctx.lineTo(...P(cx + shape.boardwalk[1][0], cy + shape.boardwalk[1][1])); ctx.stroke();
-      }
-      this.hit.push({ kind: "park", id: pl.id, poly: lawn });
-    }
-    this.drawRoads(w);
-    this.drawBridge(B);
+    this.drawGroundLayer(w, B, L, dl, grey, now);
     this.dim = 0;
     this.drawGroundLights(w, now);
     this.drawRoutes(w);
@@ -507,7 +628,22 @@ export class Renderer2D {
     this.stopNo = new Map();
     for (const line of w.transit || []) line.stops.forEach((s, i) => { if (!this.stopNo.has(s.id)) this.stopNo.set(s.id, i + 1); });
     for (const s of w.allStops()) items.push({ depth: s.at[0] + s.at[1], kind: "stop", s });
-    for (const [x, y, s] of this.treesFor(w)) items.push({ depth: x + y, kind: "tree", x, y, s });
+    // The bridge picture stands in the river: behind the trees on the bank south of it, in front of those north.
+    if (this.bridgeAt) items.push({ depth: BRIDGE_ART.x0 + BRIDGE.y - 9, kind: "bridge" });
+    // Pictures laid on the ground (a park's, road works'): the sketch's trees inside them give way.
+    const lots = [];
+    for (const pl of w.places) {
+      const lot = pl.type === "park" && PARK_ART[pl.id], spr = lot && this.sprite(pl.id);
+      if (!spr) continue;
+      // The picture has its own trees: the sketch's give way across the park's whole oval.
+      const sh = PARK_SHAPES[pl.id] || { rx: 30, ry: 28 }, [cx, cy] = pl.door;
+      lots.push({ x0: cx - sh.rx - 4, x1: cx + sh.rx + 4, y0: cy - sh.ry - 4, y1: cy + sh.ry + 4 });
+      items.push({ depth: lot.x1 + lot.y1, kind: "lot", spr, fp: lot });
+    }
+    for (const works of this.roadWorks(w)) { lots.push(works.lot); items.push({ depth: works.depth, kind: "works", works }); }
+    for (const [x, y, s] of this.treesFor(w)) {
+      if (!lots.some(l => x > l.x0 - 2 && x < l.x1 + 2 && y > l.y0 - 2 && y < l.y1 + 2)) items.push({ depth: x + y, kind: "tree", x, y, s });
+    }
     const people = this.peopleToDraw(now, dt);
     for (const c of people) items.push({ depth: c.x + c.y + 30, kind: "person", c });
     items.sort((a, b) => a.depth - b.depth);
@@ -516,6 +652,9 @@ export class Renderer2D {
       else if (it.kind === "stop") this.drawStop(it.s, night);
       else if (it.kind === "building") this.drawBuilding(it.b, it.fp, dl, night, now);
       else if (it.kind === "person") this.drawPerson(it.c, night);
+      else if (it.kind === "bridge") this.drawBridgeSprite(this.bridgeAt);
+      else if (it.kind === "lot") this.drawLot(it.spr, it.fp, night);
+      else if (it.kind === "works") this.drawWorks(it.works);
     }
     this.drawHaze(L, night, dl);
     this.drawWeather(wx, now, dl);
@@ -558,6 +697,123 @@ export class Renderer2D {
     this.drawBubbles(people, now);
   }
 
+  // The ground: parchment, lawns, shadows, river, parks, roads, the bridge. With the owner's ground
+  // textures, the flat part of it (parchment, lawns, parks, roads, the bridge's approach) is the
+  // costliest thing on the map to draw, and it changes only with the zoom, the light (in steps), the
+  // places, the projects and pictures arriving; so it's drawn into an offscreen canvas a margin
+  // larger than the view and copied in, and re-drawn only when one of those changes or the view pans
+  // past the margin. While a pinch or the wheel is still zooming, the last copy is stretched to the
+  // new scale (re-drawn once the zoom settles, or sooner if it no longer covers the view). The shadows (they turn with the sun) and the river
+  // (its glints move) are drawn over it every frame. Without the textures, everything is drawn
+  // every frame in the hand-drawn order.
+  drawGroundLayer(w, B, L, dl, grey, now) {
+    this.bridgeAt = this.bridgeGeom();
+    if (!["grass", "paving", "asphalt", "gravel"].some(id => this.tile(id))) {
+      this.drawGround(B);
+      this.drawYards(w.buildings);
+      this.drawShadows(w.buildings, L, dl, grey);
+      this.drawRiver(B, now);
+      this.drawParks(w, true, true);
+      this.drawRoads(w);
+      if (this.bridgeAt) { this.drawBridgeApproach(); this.drawBridgeReflection(this.bridgeAt, B); }
+      else this.drawBridge(B);
+      return;
+    }
+    const flat = () => {
+      this.drawGround(B);
+      this.drawYards(w.buildings);
+      this.drawParks(w, true, false);
+      this.drawRoads(w);
+      if (this.bridgeAt) this.drawBridgeApproach();
+    };
+    const zooming = this.scale !== this.groundScale;
+    this.groundScale = this.scale;
+    if (!((zooming && this.stretchGround(w)) || this.blitGround(w, flat))) flat();
+    this.drawParks(w, false, true);
+    this.drawShadows(w.buildings, L, dl, grey);
+    this.drawRiver(B, now);
+    if (this.bridgeAt) this.drawBridgeReflection(this.bridgeAt, B);
+    else this.drawBridge(B);
+  }
+  // What the cached ground depends on, besides the zoom and the view.
+  groundKey(w) {
+    const L = this.light, roads = ROADS.map(r => (r.project && w.projects.get(r.project) || {}).status || "").join();
+    return [this.dpr, this.cw, this.ch, quantize(L.amb), Math.round(L.amt * 48), Math.round(L.gold * 24), Math.round(this.dim * 48),
+            Math.round(this.dl * 12), Math.round(this.night * 24), roads, this.loads].join("|");
+  }
+  // Mid-zoom: the cached ground scaled from its zoom to this one, if it still covers the view and the
+  // zoom hasn't moved by more than a third. false: re-draw it.
+  stretchGround(w) {
+    const c = this.groundCache;
+    if (!c || c.rest !== this.groundKey(w) || c.buildings !== w.buildings || c.places !== w.places) return false;
+    const k = this.scale / c.scale, x0 = this.ox + k * (-c.mx - c.ox), y0 = this.oy + k * (-c.my - c.oy);
+    if (k > 1.34 || k < 0.75) return false;   // too far from the zoom it was drawn at: re-draw it
+    const x1 = this.ox + k * (this.cw + c.mx - c.ox), y1 = this.oy + k * (this.ch + c.my - c.oy);
+    if (x0 > 0 || y0 > 0 || x1 < this.cw || y1 < this.ch) return false;
+    // Unfiltered: it's on screen only while the zoom moves, and filtering a whole screen is slow.
+    const ctx = this.ctx;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(c.canvas, x0, y0, x1 - x0, y1 - y0);
+    ctx.imageSmoothingEnabled = true;
+    return true;
+  }
+  // Copies the cached flat ground into the frame, re-drawing it first if it's stale or the view has
+  // left it. false: no cache on a screen this big (the ground is drawn directly).
+  blitGround(w, flat) {
+    const dpr = this.dpr, rest = this.groundKey(w);
+    let c = this.groundCache;
+    const fresh = c && c.rest === rest && c.scale === this.scale && c.buildings === w.buildings && c.places === w.places && Math.abs(this.ox - c.ox) <= c.mx && Math.abs(this.oy - c.oy) <= c.my;
+    if (!fresh) {
+      // A margin of up to 30% each side, less on big high-density screens (at most ~10 Mpx).
+      let m = 0.3;
+      while (m > 0.08 && (this.cw * (1 + 2 * m)) * (this.ch * (1 + 2 * m)) * dpr * dpr > 10e6) m -= 0.04;
+      if ((this.cw * (1 + 2 * m)) * (this.ch * (1 + 2 * m)) * dpr * dpr > 12e6) { this.groundCache = null; return false; }
+      c = this.groundCache || (this.groundCache = { canvas: document.createElement("canvas") });
+      c.mx = Math.ceil(this.cw * m); c.my = Math.ceil(this.ch * m);
+      const cw = Math.round((this.cw + 2 * c.mx) * dpr), ch = Math.round((this.ch + 2 * c.my) * dpr);
+      if (c.canvas.width !== cw || c.canvas.height !== ch) { c.canvas.width = cw; c.canvas.height = ch; }
+      const g = c.canvas.getContext("2d"), main = this.ctx;
+      g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cw, ch);
+      g.setTransform(dpr, 0, 0, dpr, c.mx * dpr, c.my * dpr);
+      this.ctx = g;
+      try { flat(); } finally { this.ctx = main; }
+      Object.assign(c, { rest, scale: this.scale, ox: this.ox, oy: this.oy, buildings: w.buildings, places: w.places });
+    }
+    const ctx = this.ctx;
+    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.drawImage(c.canvas, Math.round((this.ox - c.ox - c.mx) * dpr), Math.round((this.oy - c.oy - c.my) * dpr));
+    ctx.restore();
+    return true;
+  }
+  // Parks are ground: a lawn (the owner's grass once it has loaded), and for Willow Lake the lake and
+  // its boardwalk. `paint` draws them; `hits` adds their tap targets (every frame, cached or not).
+  drawParks(w, paint, hits) {
+    const ctx = this.ctx, P = this.P.bind(this), L = this.light;
+    for (const pl of w.places) {
+      if (pl.type !== "park") continue;
+      const shape = PARK_SHAPES[pl.id] || { rx: 30, ry: 28 }, [cx, cy] = pl.door, lawn = [], inner = [];
+      for (let a = 0; a < Math.PI * 2; a += 0.2) {
+        lawn.push(P(cx + Math.cos(a) * shape.rx, cy + Math.sin(a) * shape.ry));
+        inner.push(P(cx + Math.cos(a) * shape.rx * 0.72, cy + Math.sin(a) * shape.ry * 0.72));
+      }
+      if (hits) this.hit.push({ kind: "park", id: pl.id, poly: lawn });
+      if (!paint) continue;
+      const grass = this.groundTexture("grass", TILE_METERS.grass, 1.05);
+      if (grass) { ctx.lineWidth = Math.max(1, 0.5 * this.scale); this.poly(lawn, this.laid(grass), rgba(this.lit(LOOK.stone[1]), 0.7)); }
+      else { this.poly(lawn, this.lit(LOOK.lawn[1], 1.05)); this.poly(inner, this.lit(LOOK.lawn[0], 1.05)); }
+      if (PARK_ART[pl.id] && this.sprite(pl.id)) continue;   // the park's own picture has its lake
+      if (shape.lake) {
+        const lake = []; for (let a = 0; a < Math.PI * 2; a += 0.2) lake.push(P(cx + Math.cos(a) * shape.lake.rx, cy + Math.sin(a) * shape.lake.ry));
+        ctx.lineWidth = Math.max(1, 1.2 * this.scale);
+        this.poly(lake, this.lit(mix(LOOK.water[0], LOOK.glassGold, L.gold * 0.3)), this.lit(LOOK.stone[0]));
+      }
+      if (shape.boardwalk) {
+        ctx.strokeStyle = this.lit("#b08a5c"); ctx.lineWidth = Math.max(1, 1.6 * this.scale);
+        ctx.beginPath(); ctx.moveTo(...P(cx + shape.boardwalk[0][0], cy + shape.boardwalk[0][1])); ctx.lineTo(...P(cx + shape.boardwalk[1][0], cy + shape.boardwalk[1][1])); ctx.stroke();
+      }
+    }
+  }
+
   // The sketch's trees plus the street trees that fit around this map's buildings and stops.
   treesFor(w) {
     const c = this.treeCache;
@@ -590,7 +846,7 @@ export class Renderer2D {
   // Sage lawns around homes, civic buildings and brick ones; a pale stone plaza around the glass towers.
   drawYards(buildings) {
     if (this.scale < 0.3) return;
-    const P = this.P.bind(this), lawn = this.lit(LOOK.lawn[0], 1.05), plaza = this.lit(LOOK.stone[0], 1.05), ctx = this.ctx;
+    const P = this.P.bind(this), lawn = this.surface("grass", LOOK.lawn[0], 1.05), plaza = this.surface("paving", LOOK.stone[0], 1.05), ctx = this.ctx;
     for (const b of buildings) {
       if (b.status === "under_construction") continue;
       const fp = footprint(b), kind = fp.pal === "glass" ? plaza : ["home", "civic", "brick"].includes(fp.pal) ? lawn : null;
@@ -653,7 +909,7 @@ export class Renderer2D {
     this.poly([P(x0, y0, 0), P(x0, y1, 0), P(x0, y1, -d), P(x0, y0, -d)], this.lit(stone[1]));
     ctx.strokeStyle = rgba(this.lit("#6d5a3e"), 0.35); ctx.lineWidth = Math.max(1, 0.6 * this.scale);
     ctx.beginPath(); ctx.moveTo(...P(x0, y0, -d + 0.6)); ctx.lineTo(...P(x0, y1, -d + 0.6)); ctx.stroke();
-    this.poly([P(x0 - promenade, y0), P(x0, y0), P(x0, y1), P(x0 - promenade, y1)], this.lit(stone[0]));
+    this.poly([P(x0 - promenade, y0), P(x0, y0), P(x0, y1), P(x0 - promenade, y1)], this.surface("paving", stone[0]));
     ctx.strokeStyle = this.lit(stone[2]); ctx.lineWidth = Math.max(1, 0.5 * this.scale);
     ctx.beginPath(); ctx.moveTo(...P(x0 - promenade, y0)); ctx.lineTo(...P(x0 - promenade, y1)); ctx.stroke();
     // Balustrade: a rail on posts along the water's edge.
@@ -664,26 +920,60 @@ export class Renderer2D {
   }
 
   // Roads: warm grey asphalt on pale kerbs with cream dashes. A road still being paved is gravel
-  // until the city says it's complete.
+  // until the city says it's complete. With the owner's tiles the asphalt, the kerbs' slabs and the
+  // gravel are textured (the gravel's wheel ruts run along the road), the centre line breaks at
+  // every junction instead of running through it, and where a paved road meets a road still being
+  // paved, the gravel goes through.
   drawRoads(w) {
     const ctx = this.ctx, P = this.P.bind(this), path = r => { ctx.beginPath(); r.pts.forEach((p, i) => i ? ctx.lineTo(...P(...p)) : ctx.moveTo(...P(...p))); };
     const paving = r => { const proj = r.project && w.projects.get(r.project); return !!(proj && proj.status !== "complete"); };
+    const asphalt = this.groundTexture("asphalt", TILE_METERS.asphalt), gravel = this.groundTexture("gravel", ROAD_W);
     ctx.lineCap = "round"; ctx.lineJoin = "round";
-    ctx.strokeStyle = this.lit(LOOK.kerb); ctx.lineWidth = Math.max(3, 14.5 * this.scale * 0.9);
+    ctx.strokeStyle = this.surface("paving", LOOK.kerb); ctx.lineWidth = Math.max(3, 14.5 * this.scale * 0.9);
     for (const r of ROADS) { path(r); ctx.stroke(); }
     for (const r of ROADS) {
-      const gravel = paving(r);
-      ctx.strokeStyle = this.lit(gravel ? LOOK.gravel : LOOK.road); ctx.lineWidth = Math.max(2, 11 * this.scale * 0.9);
+      const unpaved = paving(r);
+      ctx.strokeStyle = unpaved ? (gravel ? this.gravelAlong(gravel, r) : this.lit(LOOK.gravel)) : asphalt ? this.laid(asphalt) : this.lit(LOOK.road);
+      ctx.lineWidth = Math.max(2, 11 * this.scale * 0.9);
       path(r); ctx.stroke();
-      if (gravel) {
+      if (unpaved) {
+        if (gravel) continue;
         ctx.strokeStyle = rgba(this.lit("#8a7150"), 0.45); ctx.lineWidth = Math.max(1, 0.7 * this.scale); ctx.setLineDash([1, 3.5 * this.scale]);
         path(r); ctx.stroke(); ctx.setLineDash([]);
       } else {
         ctx.strokeStyle = rgba(this.lit(LOOK.dash, 0.8), 0.75 + 0.2 * this.dl); ctx.lineWidth = Math.max(0.6, 0.6 * this.scale); ctx.setLineDash([6 * this.scale, 6 * this.scale]);
-        path(r); ctx.stroke(); ctx.setLineDash([]);
+        if (asphalt) this.centreLine(r);
+        else { path(r); ctx.stroke(); }
+        ctx.setLineDash([]); ctx.lineDashOffset = 0;
       }
     }
+    if (gravel) for (const j of JUNCTIONS) if (j.through && paving(j.through)) {
+      const h = ROAD_W / 2;
+      this.poly([P(j.x - h, j.y - h), P(j.x + h, j.y - h), P(j.x + h, j.y + h), P(j.x - h, j.y + h)], this.gravelAlong(gravel, j.through));
+    }
     ctx.lineCap = "butt";
+  }
+  // The gravel texture across this road's width, its ruts along the road.
+  gravelAlong(g, r) {
+    const [[ax, ay], [bx, by]] = r.pts, len = Math.hypot(bx - ax, by - ay) || 1, t = [(bx - ax) / len, (by - ay) / len], n = [-t[1], t[0]];
+    return this.laid(g, ax - n[0] * ROAD_W / 2, ay - n[1] * ROAD_W / 2, n, t);
+  }
+  // A road's dashed centre line in pieces, stopping short of every junction on it. Each piece
+  // keeps the dashes' phase along the whole road, so they don't jump.
+  centreLine(r) {
+    const ctx = this.ctx, P = this.P.bind(this), s = this.scale, [[ax, ay], [bx, by]] = r.pts, len = Math.hypot(bx - ax, by - ay) || 1;
+    const ux = (bx - ax) / len, uy = (by - ay) / len, gap = ROAD_W / 2 + 2, cuts = [];
+    for (const j of JUNCTIONS) if (j.roads.includes(r)) { const t = (j.x - ax) * ux + (j.y - ay) * uy; cuts.push([t - gap, t + gap]); }
+    cuts.sort((p, q) => p[0] - q[0]);
+    let t0 = 0;
+    const piece = t1 => {
+      if (t1 - t0 > 2) {
+        ctx.lineDashOffset = t0 * s;
+        ctx.beginPath(); ctx.moveTo(...P(ax + ux * t0, ay + uy * t0)); ctx.lineTo(...P(ax + ux * t1, ay + uy * t1)); ctx.stroke();
+      }
+    };
+    for (const [c0, c1] of cuts) { piece(Math.min(len, c0)); t0 = Math.max(t0, c1); }
+    piece(len);
   }
 
   // The arched stone bridge on Lexington Avenue's line (sketch decoration): back face, the arches'
@@ -741,6 +1031,49 @@ export class Renderer2D {
     this.bridgeLamps = lamps;
   }
 
+  // The owner's bridge picture, placed so its deck runs on Lexington Avenue's line from the quay to
+  // the east edge: two points on the deck's centre line, measured on the art (tiles/manifest.json),
+  // go to their places on the map. The art is a 2:1 isometric and the map a 30° one, so it comes
+  // out a little taller than a drawn bridge would; heights are a sketch anyway. null until loaded.
+  bridgeGeom() {
+    const t = this.tile("bridge"), a = t && t.info.kind === "sprite" ? t.info.anchors : null;
+    if (!a || !a.west || !a.east) return null;
+    const z = BRIDGE_ART.z, [wx, wy] = this.P(BRIDGE_ART.x0, BRIDGE.y, z), [ex, ey] = this.P(BRIDGE_ART.x1, BRIDGE.y, z);
+    const W = (ex - wx) / (a.east[0] - a.west[0]), H = (ey - wy) / (a.east[1] - a.west[1]);
+    if (!(W > 0 && H > 0)) return null;
+    const x = wx - a.west[0] * W, y = wy - a.west[1] * H, at = p => [x + p[0] * W, y + p[1] * H];
+    // The line where the front piers stand in the water: the picture's reflection flips about it.
+    const water = a.water_west && a.water_east ? [at(a.water_west), at(a.water_east)] : null;
+    return { t, x, y, W, H, at, water, lamps: t.info.lamps.map(at) };
+  }
+  // A paved approach from River Road to the bridge picture's deck, up to the quay's promenade.
+  drawBridgeApproach() {
+    const P = this.P.bind(this), hw = 8, x0 = BRIDGE_ART.approach + KERB_W / 2, x1 = RIVER.x0 - RIVER.promenade, y = BRIDGE.y;
+    this.ctx.lineWidth = Math.max(1, 0.5 * this.scale);
+    this.poly([P(x0, y - hw), P(x1, y - hw), P(x1, y + hw), P(x0, y + hw)], this.surface("paving", LOOK.stone[0]), rgba(this.lit(LOOK.stone[2]), 0.8));
+  }
+  // The bridge picture's reflection in the river: flipped about its waterline, faint, clipped to the water.
+  drawBridgeReflection(g, B) {
+    const ctx = this.ctx, P = this.P.bind(this), R = RIVER;
+    this.bridgeLamps = null;
+    if (!g.water || g.x > this.cw || g.x + g.W < 0) return;
+    const [[ax, ay], [bx, by]] = g.water, k = (by - ay) / (bx - ax), c = ay - k * ax, d = R.depth, xe = Math.min(R.x1, B.max[0]);
+    ctx.save();
+    this.poly([P(R.x0, B.min[1], -d), P(xe, B.min[1], -d), P(xe, B.max[1], -d), P(R.x0, B.max[1], -d)], null);
+    ctx.clip();
+    // (x, y) -> (x, 2(kx + c) - y): a mirror about the waterline y = kx + c.
+    ctx.transform(1, 2 * k, 0, -1, 0, 2 * c);
+    ctx.globalAlpha = 0.16 + 0.1 * this.light.gold;
+    ctx.drawImage(this.bakedSprite(g.t, g.W), g.x, g.y, g.W, g.H);
+    ctx.restore();
+  }
+  drawBridgeSprite(g) {
+    if (!g || g.x > this.cw + 20 || g.x + g.W < -20 || g.y > this.ch + 20 || g.y + g.H < -20) return;
+    this.ctx.drawImage(this.bakedSprite(g.t, g.W), g.x, g.y, g.W, g.H);
+    const on = clamp01((this.night - 0.15) / 0.5);
+    if (on > 0) for (const [lx, ly] of g.lamps) this.glow(lx, ly, Math.max(4, g.W * 0.025), 0.8 * on);
+  }
+
   // What glows on the ground after dark: pools of lamplight along the roads, the bridge's lamps
   // and their reflections in the river.
   drawGroundLights(w, now) {
@@ -759,6 +1092,15 @@ export class Renderer2D {
     }
     // Reflections: gold streaks in the water under the front lamps.
     const ctx = this.ctx, reduce = this.reduce, t = reduce ? 0 : now / 1000;
+    const g = this.bridgeAt;
+    if (g && g.water) {
+      // The picture's front lamps (the first five in the manifest), mirrored about its waterline.
+      const [[ax, ay], [bx, by]] = g.water, k = (by - ay) / (bx - ax);
+      g.lamps.slice(0, 5).forEach(([lx, ly], i) => {
+        const ry = 2 * (ay + k * (lx - ax)) - ly, f = reduce ? 1 : 0.8 + 0.2 * Math.sin(t * 2.4 + i * 1.3);
+        this.glow(lx, ry, Math.max(3, g.W * 0.012), 0.7 * on * f, 3.6);
+      });
+    }
     ctx.lineCap = "round";
     for (const lx of this.bridgeLamps || []) {
       const [rx, ry] = P(lx, y + width / 2, -d - 7), k = reduce ? 1 : 0.8 + 0.2 * Math.sin(t * 2.4 + lx);
@@ -885,10 +1227,19 @@ export class Renderer2D {
     }
   }
 
-  // A bus stop: a slim post with a round gold badge carrying the stop's number on its line.
+  // A bus stop: a slim post with a round gold badge carrying the stop's number on its line. Stops
+  // with a shelter picture (client/tiles/<stop id>.webp) show the shelter under the badge instead
+  // of the post, and the shelter can be tapped too.
   drawStop(s, night) {
     const ctx = this.ctx, [bx, by] = this.P(s.at[0], s.at[1], 0), [tx, ty] = this.P(s.at[0], s.at[1], 8), rb = Math.max(8.5, Math.min(14, 4.8 * this.scale));
-    ctx.strokeStyle = this.lit("#3b3a33", 0.5); ctx.lineWidth = Math.max(1, 0.5 * this.scale); ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(tx, ty); ctx.stroke();
+    const shelter = this.tile(s.id), a = shelter && shelter.info.kind === "sprite" ? shelter.info.anchors.ground : null;
+    if (a) {
+      const W = SHELTER_M * this.scale, H = W * shelter.img.naturalHeight / shelter.img.naturalWidth, x = bx - a[0] * W, y = by - a[1] * H;
+      if (x < this.cw && x + W > 0 && y < this.ch && y + H > 0) ctx.drawImage(this.bakedSprite(shelter, W), x, y, W, H);
+      this.hit.push({ kind: "stop", id: s.id, poly: [[x + W * 0.08, y + H * 0.25], [x + W * 0.92, y + H * 0.25], [x + W * 0.92, y + H], [x + W * 0.08, y + H]] });
+    } else {
+      ctx.strokeStyle = this.lit("#3b3a33", 0.5); ctx.lineWidth = Math.max(1, 0.5 * this.scale); ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(tx, ty); ctx.stroke();
+    }
     const cy = ty - rb * 0.6;
     if (night > 0.3) this.glow(tx, cy, rb * 2.6, 0.45 * night);
     const gg = ctx.createRadialGradient(tx - rb * 0.35, cy - rb * 0.4, 1, tx, cy, rb);
@@ -910,11 +1261,14 @@ export class Renderer2D {
     const P = this.P.bind(this), ctx = this.ctx, w = this.world;
     const sel = this.selected && this.selected.kind === "place" && (this.selected.id === b.id || (b.units || []).some(u => u.id === this.selected.id));
     const outline = pts => { ctx.lineWidth = 3.5; this.poly(pts, null, "rgba(11,43,35,.55)"); ctx.lineWidth = 2; this.poly(pts, null, LOOK.goldLight); };
-    // The owner's picture of this building, once it has loaded.
-    const spr = b.status !== "under_construction" && this.sprite(b.id);
+    // The owner's picture of this building, once it has loaded; while it's going up, its site's.
+    const building = b.status === "under_construction", proj = building ? w.projects.get(b.id) : null;
+    const spr = building ? this.siteSprite(b, proj) : this.sprite(b.id);
     if (spr) {
       const r = this.spriteRect(spr, fp);
       this.hit.push({ kind: "place", id: b.id, poly: r.poly });
+      // The crane stands at the back of the lot: drawn first, the site's fences and huts hide its foot.
+      if (building) this.drawCraneMarker(fp, proj, spr.id, dl, now, false);
       if (r.x + r.W < -20 || r.x > this.cw + 20 || r.y > this.ch + 20 || r.bottom < -20) return;
       this.spriteTops.set(b.id, r.y);
       if (sel) { ctx.fillStyle = "rgba(218,187,133,.22)"; this.poly(r.lot, ctx.fillStyle); outline(r.lot); }
@@ -931,12 +1285,12 @@ export class Renderer2D {
         : [P(fp.x0, fp.y1, 0), P(fp.x1, fp.y1, 0), P(fp.x1, fp.y0, 0), P(fp.x1, fp.y0, fp.h), P(fp.x0, fp.y0, fp.h), P(fp.x0, fp.y1, fp.h)] });
       return;
     }
-    if (b.status === "under_construction") {
+    if (building) {
       // A building still going up: site, rising frame and a crane.
-      const proj = w.projects.get(b.id), pct = proj ? proj.progress_pct || 0 : 10;
+      const pct = proj ? proj.progress_pct || 0 : 10;
       this.poly([P(fp.x0 - 3, fp.y0 - 3), P(fp.x1 + 3, fp.y0 - 3), P(fp.x1 + 3, fp.y1 + 3), P(fp.x0 - 3, fp.y1 + 3)], this.lit("#d8c19a"));
       if (!proj || proj.status === "active") this.drawFrame(fp, pct);
-      this.drawCrane(fp.x0 + 4, fp.y0 + 6, Math.max(fp.h, 20) + 12, !!(proj && proj.status === "active" && dl > 0.5), now);
+      this.drawCraneMarker(fp, proj, null, dl, now, true);
       const r4 = [P(fp.x0, fp.y0), P(fp.x1, fp.y0), P(fp.x1, fp.y1), P(fp.x0, fp.y1)];
       this.hit.push({ kind: "place", id: b.id, poly: r4 });
       if (sel) outline(r4);

@@ -167,6 +167,7 @@ rented VPS with a domain, and proximity voice as soon as possible. Plan and esti
 | Autopilot residents: founders nobody plays live their day inside the core (`src/core/Autopilot`, D-053), labelled `played_by: "autopilot"`; server flag `--autopilot` | ✅ (`tests/test_autopilot.cpp`, `tests/test_server.cpp`) |
 | Deploy scripts for an Ubuntu VPS (`deploy/`: Caddy HTTPS, systemd, backups, firewall) | ⚠️ written and dry-run in a sandbox; not yet run on a real VPS |
 | Running on the owner's VPS | ⬜ needs the owner to rent it and paste one command |
+| Five people in one town on the web before the VPS: "Play together", the host's tab runs the town through LocalTown and friends play over the artifact's room, encrypted per person (D-056, D-057, `docs/MULTIPLAYER.md`) | ⚠️ built; five pages on a stand-in for the platform (`web/tests/run_together_e2e.sh`, 15 tests) and five players on the live server (`web/tests/run_e2e.sh five_players.js`); not yet published or tried on the real artifact platform |
 
 **Next: voice v1** right after Phase 0, designed in `docs/proposals/voice.md`: server-decided
 hearing with the same whisper/say/shout ranges, a push-to-talk button, a mic indicator, and the

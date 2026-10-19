@@ -41,7 +41,8 @@ At most 8 connections per IPv4 address or IPv6 /64 (more get 429). `GET /healthz
 ## Tests
 
 ```bash
-livera/web/tests/run_e2e.sh
+livera/web/tests/run_e2e.sh                    # the gateway's caps, then e2e.js
+livera/web/tests/run_e2e.sh five_players.js    # only the named test files, on the same fresh server
 ```
 
 First `web/gateway/test_gateway.mjs` checks the gateway's connection caps against a stand-in game
@@ -115,11 +116,12 @@ module in its place (used while the page was developed), and the test's summary 
 **Publishing it as an artifact.** Lay the files out as the page expects, the page at the root
 and everything else at its `web/client` path: `css/app.css`, the client modules (`main.js`,
 `transport.js`, `state.js`, `render2d.js`, `ui.js`, `phone.js`, `creator.js`, `dom.js`,
-`layout.js`), `faces/` with its `manifest.json`, `sprites/` with its `manifest.json`, `fonts/`
-(three WOFF2 files and their licences), and `solo/solo.js`, `solo/transport_local.js`,
-`solo/save.js`, `solo/livera_solo.js`. Besides the faces, the fonts and sprites are binary files;
-a host that takes text files only can leave `fonts/` out (the page falls back to Georgia / Times
-New Roman) and publish an empty sprite manifest (`[]`: every building is drawn as a box). The module is built with the wasm inlined as base64
+`layout.js`), `faces/` with its `manifest.json`, `sprites/` with its `manifest.json`, `tiles/`
+with its `manifest.json`, `fonts/` (three WOFF2 files and their licences), and `solo/solo.js`,
+`solo/transport_local.js`, `solo/save.js`, `solo/livera_solo.js`. Besides the faces, the fonts,
+sprites and tiles are binary files; a host that takes text files only can leave `fonts/` out (the
+page falls back to Georgia / Times New Roman) and publish empty sprite and tile manifests (`[]`:
+every building is drawn as a box, the ground, crane, bridge and stops by hand). The module is built with the wasm inlined as base64
 (`-sSINGLE_FILE_BINARY_ENCODE=0` in `CMakeLists.txt`), so every published file is plain text
 without control characters, which the artifact publisher requires.
 
@@ -171,6 +173,103 @@ the map app's Show); 44 px tap targets, 16 px inputs, no sideways scroll, no ove
 HUD notes stay short; the creator makes a playable character; no console errors or dialogs.
 Screenshots go to `LIVERA_SHOTS`.
 
+## Play together
+
+`web/client/together/` lets a few friends share one town with no server: one person's browser tab
+hosts it (the game core in WebAssembly, the same module as single-player, through
+`protocol::LocalTown`'s `town_*` functions) and everyone plays through the same client, published as
+one Claude artifact. The page says on the lobby, the menu and the HUD that the town runs in the
+host's browser, pauses while the host's tab is hidden or closed, and that the host's browser holds
+everyone's state. How it works, the database layout, the security model and how to share it:
+`docs/MULTIPLAYER.md`, "Play together in the browser" (D-057).
+
+```
+host's tab:    web/client (same modules) ──pipe──▶ together/host.js (lease, claims, saves; town_* in solo/livera_solo.js)
+friend's tab:  web/client (same modules) ──request(op)──▶ together/transport_room.js ──link.js──▶ the artifact's room ──▶ host's tab
+```
+
+### Run, test
+
+```bash
+cd livera/web/gateway && STATIC_DIR=../client node gateway.mjs        # or any static server for web/client
+# open http://127.0.0.1:8080/together/?as=dee&level=owner&name=Dee      and press "Host the town here"
+# then, in more tabs of the same browser: ?as=ali&level=interact&name=Ali, ?as=gray&level=interact&name=Gray, ...
+livera/web/tests/run_together_e2e.sh       # the link's unit tests, then five pages in one Chromium
+livera/web/tests/run_e2e.sh five_players.js   # the same five-people checks against the live server
+```
+
+Locally, `together/index.html` loads `together/fake_platform.js`, a stand-in for the artifact
+platform's `room`, `db` and `user`: every tab of the browser is one person (`as`, `level`, `name` in
+the address; `space` isolates a run; `drop` loses that share of room messages). It enforces what the
+page relies on: undeclared topics are admin-only, 4 KiB messages, about 40 sends a second (more are
+dropped and reported as an error), the sender stamped by the platform, the database rules by level,
+256 KiB documents, and leases (IndexedDB transactions across tabs).
+
+`run_together_e2e.sh` (port `LIVERA_TOGETHER_PORT`, 18960; `LIVERA_TOGETHER_DROP`, default 0.05)
+runs `together_link.mjs` (Node: chunking under 4 KiB, delivery once and in order through a room that
+drops a quarter of its messages, giving up and skipping, keys only the right page can use, a forged
+frame doing nothing, a page with no identity turned away) and then `together_e2e.js`, 15 tests with
+five pages (a host, four friends; one at 390x844): every lobby states the three facts above and only
+the owner is offered hosting; the host founds a town on an empty database; four friends join as four
+other characters; a taken character is marked on the picker and refused (`character_taken`,
+`already_playing`, `already_has_character`); a Contributor can't send on the host's topic, read or
+write the save, the claims or `town/host`, and a made-up frame in their own channel does nothing;
+the server's request and chat limits hold; everyone sees the other four on the map; a say reaches
+only those in range (`<img onerror>` stays text); a buy changes only the buyer's money; the host's
+tab hiding pauses everyone (banner, `town_paused`, no ticks, a save) and showing it resumes; the host
+reloading stops the town and says so (no Contributor takes over) and hosting again brings everyone
+back from the save, money, places and positions intact; the host closing hands over to an Editor who
+has played; a second tab of the same person takes over and the first can take it back; Stop hosting
+(the menu) saves and ends the town for everyone, and the host that stopped doesn't take it back; a
+save whose checksum doesn't match is refused and a new town needs a confirm (the old claims go with
+the old town); the link resent what the room dropped and gave up on nothing; no console errors.
+
+### Files
+
+| File | What it does |
+|---|---|
+| `together/together.js` | The page shell: `TogetherGame extends Game`. Finds the platform (`claude.use("room" / "db" / "user")`, `null` handled), watches `town/host` and the room to know who hosts and whether their page is still there, shows the lobby (who hosts, who's here, Join, Host for admins), its own picker and menu (Save now, Stop hosting, Leave the town, who plays whom for the host), the paused and host-left banners, puts people back in their character after a handover or the host's return, and hands over: an admin's page that has played here and is in front takes the lease when the host goes. `window.__liveraTogether` is the tests' view. |
+| `together/host.js` | `TownHost`: the lease on `town/host`, loading or founding the town, the autopilot for unclaimed founders, one session per page, the server's session ops (`characters`, `create_character`, `play`, `logout`, with the server's refusals and claims in `town/claims`), every other op through `town_request`, the server's rate limits, the 10 Hz tick routed per character, pausing while hidden, saves (gzipped, split, two slots, SHA-256), stopping and losing the lease, and the host player's own pipe. |
+| `together/link.js` | The wire: key agreement and per-direction AES-GCM keys, gzip, 4 KiB chunks, numbered frames with acknowledgements, resends and in-order delivery, one pacer for the page's sends; `FriendEnd` (a friend's pipe to the host) and `HostEnd` (the host's channels, bound to the platform-stamped sender). |
+| `together/transport_room.js` | `RoomTransport`: the `transport.js` interface over a pipe (a friend's `FriendEnd`, or the host's own straight into `TownHost`); replies by id, events, the town's public status. |
+| `together/fake_platform.js` | The stand-in for the platform, for tests and local runs only. Exports `CAPABILITIES`, the declaration below. |
+| `together/index.html` | The local page: the same shell as `client/index.html` with `data-boot="together"`, loading `fake_platform.js` then `together.js`. |
+| `together/artifact.html` | The page as published (no document skeleton, sets `data-boot="together"` and `LIVERA_IN_ARTIFACT` before the modules run). |
+| `tests/together_link.mjs`, `tests/together_e2e.js`, `tests/run_together_e2e.sh` | The tests above. |
+| `tests/five_players.js` | Five browsers on the live server through the gateway: accounts, five characters, everyone sees the other four, a say reaches only those in range, a buy moves only the buyer's money, a taken character is refused (the picker and the raw protocol). Run with `run_e2e.sh five_players.js`. |
+
+The seam in the shared code: `main.js` boots the live game only when `<body>` has no `data-boot`
+(single-player sets `solo`, Play together `together`). Nothing else in the client changed; the
+host-paused and host-left banners use the existing `#conn` line (`ui.setConnection`).
+
+### Publishing it as an artifact
+
+The page is `together/artifact.html`, published at the root; everything else keeps its
+`web/client` path: `css/app.css`; `main.js`, `transport.js`, `state.js`, `render2d.js`, `ui.js`,
+`phone.js`, `creator.js`, `dom.js`, `layout.js`; `faces/` and `sprites/` and `tiles/`, each with its
+`manifest.json`; `fonts/` (three WOFF2 files and their licences); `solo/livera_solo.js`; and
+`together/together.js`, `together/host.js`, `together/link.js`, `together/transport_room.js`. Not
+`together/fake_platform.js`, `together/index.html` or `together/package.json` (it only lets Node's
+tests import `link.js` as a module). As for single-player, a host that takes text
+files only can leave `fonts/` out and publish empty manifests for `sprites/` and `tiles/`. Declare:
+
+```json
+{
+  "room": { "topics": { "up": "interact" } },
+  "db": { "rules": [
+    { "path": "town", "read": "admin", "write": "admin" },
+    { "path": "town/host", "read": "view", "write": "admin" }
+  ] },
+  "user": { "scopes": ["profile"] }
+}
+```
+
+`up` is the only topic open to Contributors (their moves to the host); `down`, the host's, stays
+admin-only. The save and the claims are admin-only; `town/host` (a public key, a page label, the host's
+id, paused or not) is readable by everyone who can open the page, so friends find the host and
+Viewers see whether anyone hosts. `user` gives everyone's id (who plays whom) and names for "Who's here". Then share
+the artifact and give friends Contributor access (`docs/MULTIPLAYER.md`, "How to share it").
+
 ## Module map
 
 | File | What it does |
@@ -181,14 +280,15 @@ Screenshots go to `LIVERA_SHOTS`.
 | `client/main.js` | Game controller: session flow (connect, resume or log in, pick or create, play), events, polling, and every intent (walk, go inside, buy, ride, say, interact, tip, LivPay, give, ask, answer, work, study, phone). Walk-then-act (go inside, take the bus, talk to someone) waits for the server to say you've arrived. |
 | `client/transport.js` | WebSocket, request/reply by `id`, events, reconnect with backoff (reset only by the server's `welcome`), `resume` with the stored token. A reconnect resumes with `take_over: false`, so a device that dropped off never kicks the device the player moved to; opening the page or "Play here instead" sends `take_over: true`. |
 | `client/state.js` | The live world model: rules, map, transit, interactions, you, the people in sight with straight-line prediction, clock from `look.time.minute` and `rules.minutes_per_real_second`, money, weather, bubbles. |
-| `client/render2d.js` | The isometric canvas renderer forked from the preview (projection, buildings, cranes, weather, day/night, bubbles, voice ring, tap hit-testing, drag / pinch / wheel). Replaceable by a three.js renderer behind the same small interface. |
-| `client/layout.js` | **The sketch**: building sizes by type, roads, river and bridge, park outlines, trees and street trees, the palette and the light by the hour (`LIGHT`). |
+| `client/render2d.js` | The isometric canvas renderer forked from the preview (projection, buildings, cranes, weather, day/night, bubbles, voice ring, tap hit-testing, drag / pinch / wheel), and the owner's ground textures and set pieces laid on it (see "The look"). Replaceable by a three.js renderer behind the same small interface. |
+| `client/layout.js` | **The sketch**: building sizes by type, roads, river and bridge, park outlines, trees and street trees, the palette and the light by the hour (`LIGHT`), and where the ground tiles and set pieces go (`TILE_METERS`, `BRIDGE_ART`, `PARK_ART`, `ROAD_WORKS`, …). |
 | `client/ui.js` | Top bar, chat bar, feed and toasts, bottom sheets (place, scene inside, person, bus stop, ask, needs, log, menu). |
 | `client/phone.js` | The phone: all 26 apps as cards; bank, messages (updated in place as messages arrive), map, transit, career and romance (answer asks still waiting) screens; any other app shown as labelled fields. |
 | `client/creator.js` | Character creator form generated from `creator_options`. |
-| `client/dom.js` | `el()` (DOM building with text nodes only), money formatting, faces, safe localStorage. |
+| `client/dom.js` | `el()` (DOM building with text nodes only), money formatting, the face, sprite and tile manifests, safe localStorage. |
 | `client/faces/` | 160 px face crops by character id; `manifest.json` lists them so the page never requests a missing image. |
 | `client/sprites/` | The owner's building pictures for 14 places (Heritage Coffee, Greenleaf Market, Founders School, the police station, Station 1, …), drawn on the map in place of their boxes. They come from `art/places/` (made with the prompt pack in `scripts/town_prompts.py`) as map-size copies: 640 px wide, transparent WebP, cropped to their content. `manifest.json` lists them, so the page never requests one that isn't there; the box is drawn until a picture has loaded. |
+| `client/tiles/` | The owner's ground tiles and set pieces (`art/tiles/`, `art/transit/stops/`) as the client uses them, made by `scripts/client_tiles.py` (Python 3 + Pillow; run it again when that art changes, `--preview DIR` writes 3x3 repeats to check for seams): ground textures (`grass`, `paving`, `asphalt`, `gravel`) re-projected from the art's 2:1 diamonds to top-down squares that repeat without seams, and set pieces (`crane`, `bridge`, four bus shelters) trimmed and scaled down. `manifest.json` gives each one's kind, size and anchor points (measured on the art); only ids listed there are requested, and without it the map keeps its hand-drawn ground. |
 | `client/fonts/` | Cinzel and Cormorant Garamond (roman and italic), latin subset, self-hosted for the CSP's `font-src 'self'`; SIL Open Font License texts beside them. |
 
 ## The look
@@ -221,9 +321,43 @@ the width of its footprint, keeps its tap target, gets a gold outline of the lot
 and is darkened at night with its own lit windows and lamps laid back on top. Places without a
 picture keep the boxes above.
 
+A building under construction shows its site's picture instead (the construction-site place that
+shares its door in the map's data): the framed stage (`<site>_framed`) once the city app says its
+project is active and at least 35% built, if there is a picture of it, else the bare site. The
+crane picture (`client/tiles/crane.webp`) stands at the back of every active project's lot, except
+where the site's own picture already paints cranes (Maple Court Phase II, ÉCLAT framed); planned
+projects get none. While Founders Way's project is active and 35% along, the picture of its works
+(paver, half paved, half gravel) is laid along the road next to the site's door, west of Main
+Street; the rest of the road stays gravel until the project is complete. Willow Lake Park's
+picture stands on the square between Lakeshore Drive and Willow Lane, on its lawn, in place of the
+drawn lake and trees.
+
+The ground is textured with the owner's tiles (`client/tiles/`, made by `scripts/client_tiles.py`):
+grass on the lawns and parks, the pale stone slabs on the kerbs, plazas, the quay's promenade and
+the bridge's approach, asphalt on the roads and gravel (its ruts along the road) on Founders Way
+while it's unpaved. Each texture is a top-down square laid flat through the map's projection with
+a `CanvasPattern` transform, so it scrolls and zooms with the map; it is baked at about the size it
+is drawn (no shimmer when small) and lit exactly as the flat colours are (`lit()`), in steps. The
+centre lines stop short of every junction. The flat ground is drawn into an offscreen canvas a
+margin larger than the view and copied in each frame, re-drawn only when the zoom, the light step,
+the places or the projects change or the view pans past the margin (mid-zoom the last copy is
+stretched, unfiltered); the shadows, the river and everything standing on the ground stay live,
+so the textures cost about nothing per frame. The bridge picture spans the river on Lexington Avenue's
+line (mirrored: its art runs along the other axis), its reflection flipped about its waterline in
+the water and its lamps glowing at night; the four bus shelters with pictures (Founders Way & Main,
+Maple Court, Church Street, Civic Row) stand under their gold numbered badges, which keep their
+44 px tap targets (the shelter can be tapped too); the other three stops keep their posts. Not used: `road_corner` (the sketch's streets meet only in T junctions and
+crossings, never a bend), `road_crossroad` (its roads run corner to corner of the diamond, at 45°
+to the map's streets once re-projected; turned, only a corner of it fits a crossing and its stubs
+don't meet the roads' lines; the centre lines' breaks give the same clean crossing at every
+junction, T ones too, and `road_t` isn't made yet) and `river_edge` (its railing and water are
+painted with height and golden light, its water lies beyond the railing where the map's river lies
+in front of the quay, and its setts are painted in perspective; the quay uses the sidewalk slabs).
+The ÉCLAT site pictures paint a river beside the lot, where the sketch has River Road.
+
 None of this is game data: the bridge, the river, the street trees, the lawns and the light are
-part of the sketch, like the building shapes. No building, tower or skyline is drawn that isn't
-in the server's map.
+part of the sketch, like the building shapes, and so are where the tiles and set pieces go. No
+building, tower or skyline is drawn that isn't in the server's map.
 
 ## What is a sketch, and what is real
 
@@ -233,7 +367,9 @@ hours), bus stops and fares, everyone's position and movement, the clock, the
 weather, prices, balances, needs, speech, and every outcome.
 
 Sketch, drawn by hand in `layout.js`: building sizes and heights, street lines, the river and its
-bridge, park outlines, trees, the lawns and colours. The page says so on screen ("2.5D preview:
+bridge, park outlines, trees, the lawns and colours, and where the owner's tiles and set pieces are
+laid (the bridge picture, Willow Lake's picture, the Founders Way works, the crane marker: a
+marker over each active project, not a count of real cranes). The page says so on screen ("2.5D preview:
 street layout and building shapes are sketches"). Other labels on screen: "played by a script"
 on characters a `bot_` account plays, "single-rider shuttle" on the bus (shared buses come in
 Phase 1), and "placeholder landmark" on civic places the data marks as not enterable (the fire

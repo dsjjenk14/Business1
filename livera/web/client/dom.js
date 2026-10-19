@@ -91,6 +91,31 @@ export async function loadSpriteManifest() {
 }
 export const spriteUrl = id => (spriteIds.has(id) ? `sprites/${encodeURIComponent(id)}.webp` : null);
 
+// Ground tiles and set pieces: client/tiles/<id>.webp, made by scripts/client_tiles.py from the
+// owner's art/tiles and bus-shelter pictures. Its manifest.json gives each one's kind ("texture":
+// a top-down square laid flat on the map; "sprite": a picture stood up on it), size and anchor
+// points (fractions of the picture). Same rule as the sprites: only ids in the manifest are ever
+// requested; with no manifest the map keeps its hand-drawn ground, crane, bridge and stop posts.
+const tiles = new Map();
+const isPoint = p => Array.isArray(p) && p.length === 2 && p.every(Number.isFinite);
+export async function loadTileManifest() {
+  try {
+    const r = await fetch("tiles/manifest.json", { cache: "no-cache" });
+    if (!r.ok) return;
+    const m = await r.json();
+    for (const [id, t] of Object.entries(m && typeof m === "object" ? m : {})) {
+      if (!/^[a-z0-9_]+$/.test(id) || !t || (t.kind !== "texture" && t.kind !== "sprite")) continue;
+      if (!isPoint(t.size) || !(t.size[0] > 0 && t.size[1] > 0)) continue;
+      const anchors = {};
+      for (const [k, p] of Object.entries(t.anchors && typeof t.anchors === "object" ? t.anchors : {})) if (isPoint(p)) anchors[k] = p;
+      const lamps = Array.isArray(t.lamps) ? t.lamps.filter(isPoint) : [];
+      tiles.set(id, Object.freeze({ kind: t.kind, size: t.size, anchors: Object.freeze(anchors), lamps: Object.freeze(lamps) }));
+    }
+  } catch { /* no tiles: the hand-drawn ground */ }
+}
+export const tileInfo = id => tiles.get(id) || null;
+export const tileUrl = id => (tiles.has(id) ? `tiles/${encodeURIComponent(id)}.webp` : null);
+
 export function avatar(id, name, size = "") {
   const url = faceUrl(id);
   if (url) return el("img", { class: `av ${size}`, src: url, alt: "", "aria-hidden": "true", draggable: "false" });

@@ -105,6 +105,13 @@ web/gateway/  Node + ws: WebSocket ⇄ TCP, nothing else
   `solo_tick`), so nothing is simulated twice. The save is the whole `WorldState` as one JSON
   document (`worldStateToJson`, `"format": 1`), kept by the page; no SQLite, OpenSSL or sockets
   are built. Nobody else can join a solo save; the page says so.
+- **Play together** (D-057). The same module in one person's browser tab serves a town to a few
+  friends with no server: the host's tab holds the lease on the artifact's database document
+  `town/host`, runs the town through LocalTown's `town_*` functions and answers every person's
+  requests; friends play through the same client over the artifact's room, each on a channel
+  encrypted for them alone. Accounts are the platform's ids, claims and the save live in the
+  artifact's database (admins only), and the town pauses while the host's tab is hidden. The
+  real server stays the way to play on a VPS.
 
 ## Scaling (later, not now)
 
@@ -130,7 +137,9 @@ The target today is one world shard with up to 16 people plus up to 16 scripted 
 | `src/core/Music.cpp` | Songs, releases, the town chart, live performance. |
 | `src/core/Serialization.*` | JSON encoding of state records for the save format, and the whole world as one JSON document (the single-player save). |
 | `src/protocol/WorldOps.*` | The in-world op routing (`look`, `move`, `buy`...) shared by the server and the single-player build. |
-| `src/wasm/solo.cpp` | The single-player harness: the core, the dispatch and the autopilot as a WebAssembly module (`LIVERA_WASM`). |
+| `src/protocol/LocalTown.*` | A whole town in one process with no sockets, accounts or SQLite: the World, the autopilot and who is playing, with the server's tick order and refusals (D-056). |
+| `src/wasm/solo.cpp` | The browser harness around LocalTown as a WebAssembly module (`LIVERA_WASM`): `solo_*` for single-player, `town_*` for Play together. |
+| `web/client/together/` | Play together: the host's tab runs the town (`host.js`), friends connect through the artifact's room, encrypted per person (`link.js`, `transport_room.js`) (D-057). |
 | `src/persistence/SqliteStore.*` | Schema, migrations, save/load, accounts, claims. |
 | `src/persistence/PasswordHash.*` | PBKDF2-HMAC-SHA256. |
 | `src/net/Socket.*` | POSIX TCP + line framing with a size limit. |

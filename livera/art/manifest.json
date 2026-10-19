@@ -269,7 +269,7 @@
       "sprite": "art/places/willow_lake_park.webp",
       "notes": [
         "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
-        "Willows, the boardwalk, the boathouse with rowboats and the picnic lawns match the data. The lake's shape and the brick-and-stone gate are the picture's own; the client draws parks as ground and does not place this sprite yet."
+        "Willows, the boardwalk, the boathouse with rowboats and the picnic lawns match the data. The lake's shape and the brick-and-stone gate are the picture's own; the client draws it on the park's square between Lakeshore Drive and Willow Lane in place of its hand-drawn lake (web/client/layout.js, D-059)."
       ]
     },
     "founders_row_3": {

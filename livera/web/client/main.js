@@ -652,6 +652,6 @@ export class Game {
   }
 }
 
-// The live page boots here; the single-player page (solo/index.html, data-boot="solo") imports
-// Game and boots its own subclass.
-if (document.body.dataset.boot !== "solo") new Game().start();
+// The live page boots here. Pages that boot their own subclass of Game set data-boot on <body>:
+// single-player (solo/index.html, "solo") and Play together (together/index.html, "together").
+if (!document.body.dataset.boot) new Game().start();

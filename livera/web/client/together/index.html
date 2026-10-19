@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- "Play together", run locally: the same page shell and modules as ../index.html, booting
+     together/together.js. fake_platform.js stands in for the artifact platform's room, database and user
+     (every tab of this browser is one person: ?as=<id>&level=<owner|admin|interact|view>&name=<name>), so
+     this file is for tests and local runs; the published page is together/artifact.html. `base-uri 'self'`
+     for the <base> below, 'wasm-unsafe-eval' because the host's tab compiles the game core, and
+     connect-src 'self': nothing here talks to a server. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#0b2b23">
+<meta name="description" content="LIVÉRA, play together: one person's browser hosts the town and up to 16 people play in it. 2.5D web preview.">
+<title>Livéra · together</title>
+<!-- The client's relative URLs (css/, faces/) are written from web/client; this page lives one folder down. -->
+<base href="../">
+<link rel="stylesheet" href="css/app.css">
+<script type="module" src="together/fake_platform.js"></script>
+<script type="module" src="together/together.js"></script>
+</head>
+<body data-boot="together">
+<div id="app">
+  <canvas id="town" aria-label="The town of Livéra, seen from above. Tap the ground to walk, a building to go there, a person to see them, a bus stop to ride."></canvas>
+
+  <div id="hud" hidden>
+    <div class="topbar">
+      <button type="button" class="chip" id="clock" aria-label="Time and weather"><span class="big" id="clock-time">--:--</span><span class="small" id="clock-sub"></span></button>
+      <button type="button" class="chip" id="money" aria-label="Money: open the bank app"><span class="big" id="money-bank">$—</span><span class="small" id="money-cash"></span></button>
+      <button type="button" class="iconbtn" id="phone-btn" aria-label="Phone"><span aria-hidden="true">&#9783;&#xFE0E;</span></button>
+      <button type="button" class="iconbtn" id="menu-btn" aria-label="Menu"><span aria-hidden="true">&#8801;</span></button>
+    </div>
+    <div class="needs" id="needs" aria-label="Your lowest needs"></div>
+    <p class="sketch-note" id="sketch-note"></p>
+    <p class="sketch-note" id="together-note"></p>
+    <div id="conn" hidden></div>
+  </div>
+
+  <div id="mapctl" hidden>
+    <button type="button" class="iconbtn" id="z-in" aria-label="Zoom in">+</button>
+    <button type="button" class="iconbtn" id="z-out" aria-label="Zoom out">&minus;</button>
+    <button type="button" class="iconbtn" id="z-fit" aria-label="See the whole town"><span aria-hidden="true">&#9638;&#xFE0E;</span></button>
+    <button type="button" class="iconbtn on" id="z-me" aria-label="Follow me" aria-pressed="true"><span aria-hidden="true">&#9678;&#xFE0E;</span></button>
+  </div>
+
+  <div id="feed" aria-live="polite"></div>
+
+  <section id="sheet" hidden aria-live="polite"></section>
+
+  <form id="chatbar" hidden autocomplete="off">
+    <div class="row">
+      <div class="seg" role="group" aria-label="How loud">
+        <button type="button" data-volume="whisper" aria-pressed="false">Whisper</button>
+        <button type="button" data-volume="say" aria-pressed="true">Say</button>
+        <button type="button" data-volume="shout" aria-pressed="false">Shout</button>
+      </div>
+      <span class="range-note" id="range-note"></span>
+      <button type="button" class="iconbtn" id="log-btn" aria-label="Everything you heard"><span aria-hidden="true">&#9776;&#xFE0E;</span></button>
+    </div>
+    <div class="targets" id="whisper-targets" hidden></div>
+    <div class="row">
+      <input type="text" id="chat-input" class="input" maxlength="300" placeholder="Say something" aria-label="Message" enterkeyhint="send">
+      <button type="submit" class="btn primary" id="chat-send">Send</button>
+    </div>
+  </form>
+
+  <div id="phone" hidden></div>
+  <div id="screen" class="screen"></div>
+</div>
+</body>
+</html>

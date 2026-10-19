@@ -47,9 +47,9 @@ Event (server push): `{"event": "message", "data": {"from": "dax", "body": "..."
 | `register` | – | `username` (3–24 of a-z, 0-9, _; not starting `bot_`), `password` (8–128) |
 | `login` | – | `username`, `password` → `{username, character, token}` (`character` may be null) |
 | `resume` | – | `token`, `take_over` (optional, default true) → `{username, character, token}` (the same token); `bad_token` if unknown, expired or logged out; `in_use_elsewhere` when `take_over` is false and another connection holding a different token is logged in to the account |
-| `characters` | login | – (founding characters, plus your own created one; `can_create`). Each entry has `available` and `scripted_now` (a script is playing them right now; then also `played_by`: `"script"` or `"autopilot"`) |
-| `creator_options` | login | – (every choice the character creator offers) |
-| `create_character` | login, no character yet | `character`: the character sheet (see DATA_MODEL.md) |
+| `characters` | login | – (founding characters, plus your own created one; `can_create`). Each entry has `id`, `name`, `age`, `pronouns`, `career` (the title), `tagline`, `home` and `workplace` (place names as they are now; null when there is none), `available` and `scripted_now` (a script is playing them right now; then also `played_by`: `"script"` or `"autopilot"`) |
+| `creator_options` | login | – (every choice the character creator offers; each of `careers` has `requires_degree` (a degree name or null) and `educations`, the education answers that qualify for it by the rule `apply` uses) |
+| `create_character` | login, no character yet | `character`: the character sheet (see DATA_MODEL.md); a starting career your education doesn't qualify for is refused with `missing_degree`, as `apply` would |
 | `play` | login | `character` (optional: defaults to your own; scripts must name one) |
 | `logout` | login | – (leaves the world, revokes this session's resume token, keeps the connection) |
 | `look`, `map` | playing | – (see "What a player can see" for `look.people`, `look.you` and `map`) |
@@ -107,6 +107,28 @@ you whispered to someone: `{from, from_name, to, to_name}`, never the words), `p
 (someone performed where you are; carries the full song so the client can play it),
 `released` (a person took the character your script was playing), `kicked`.
 
+Phone app `goals` (D-061; only ever about your own character, from your own records): today's
+goals, a pure draw per character and game day, and your aspirations (a founder's from data, a made
+character's from the creator; one the game can't follow says why instead of showing progress):
+
+```json
+{"day": 84, "done_today": 0, "from": "story",
+ "today": [{"id": "paid_shift", "label": "Work a paid shift", "done": false, "progress": "0/1"},
+           {"id": "come_out_ahead", "label": "Earn more than you spend today", "done": false, "progress": "+$0.00 today"}],
+ "aspirations": [{"id": "get_promoted", "label": "Get promoted", "tracked": true, "done": false,
+                  "next": "Earn your next title", "detail": "Recruiting Manager: 0 of 120 hours",
+                  "steps": [{"label": "Earn your next title", "done": false, "progress": "0/1"},
+                            {"label": "Two titles up", "done": false, "progress": "0/2"}]},
+                 {"id": "give_back", "label": "Give back to the community", "tracked": false,
+                  "reason": "Volunteering and giving aren't recorded yet, so the game can't follow this one."}],
+ "note": "3 goals a day, new at midnight. ..."}
+```
+
+Redesign events and codes (D-060): `work_decision` (one of today's work decisions has come up on your shift:
+`{task, prompt, open, upcoming, next_at}`); `work_answer` refuses `not_yet` for one that hasn't come up, and
+`work_tasks` and the `work` app carry `upcoming`, `next_at`, `next_in_minutes` and `spacing_minutes`
+(`docs/m08/work.md`).
+
 M0.8 ops, each with its arguments and refusals in its feature page: homes (`buy_home`,
 `move_out`, `move_home`, `sell_home`, and `request` kinds `buy_home`, `move_in`, `sell_home`;
 `docs/m08/homes.md`), work (`work_tasks`, `work_answer`; `docs/m08/work.md`), wallet
@@ -114,7 +136,7 @@ M0.8 ops, each with its arguments and refusals in its feature page: homes (`buy_
 `ride` with `pay_with`; `docs/m08/wallet.md`), leisure (`join_team`, `leave_team`;
 `docs/m08/leisure.md`), pets (`adopt`, `pet`, `vet`; `docs/m08/pets.md`) and details
 (`laundry`; `docs/m08/details.md`). New phone apps: `homes`, `work`, `wallet`, `store`,
-`sports`, `pets`, `weather`.
+`sports`, `pets`, `weather`; and, with the redesign, `goals`.
 
 Any later engine client maps its calls to the same `World` commands (ARCHITECTURE.md), so
 this table stays the list of what a client can ask for.
@@ -122,7 +144,7 @@ this table stays the list of what a client can ask for.
 ## What a player can see
 
 Rule 5 (clients see only what their character may know) applies to bodies as well as
-feelings. **In sight** means: outdoors, other people outdoors within `sight_range_m` (120 m,
+feelings. **In sight** means: outdoors, other people outdoors within `sight_range_m` (160 m,
 `data/config/simulation.json`); inside, other people in the same building. Nobody else, ever.
 Content is refused if `sight_range_m` is below `shout_range_m`, so you can always see whoever
 you can hear.
@@ -144,7 +166,21 @@ without copying numbers out of data:
 - `rules`: `{whisper_range_m, say_range_m, shout_range_m, sight_range_m, walk_speed_mps,
   minutes_per_real_second, entry_radius_m, boarding_radius_m}` (also in `welcome` and `hello`);
 - `transit`: `{lines: [{id, name, fare_cents, speed_mps, first_hour, last_hour, stops: [{id, name, at: [x, y]}]}]}`;
-- `interactions`: `[{id, label, range_m}]`.
+- `interactions`: `[{id, label, range_m}]`;
+- each of `places` carries `hours` (`[open, close)`, a close before the open running past midnight;
+  null for a place that never closes) and `open_days` (weekdays it opens, 0 = Monday; empty = every
+  day). A place's `status` follows both.
+
+`look.here` (the place you're in or standing at) lists its `offers` and `activities` with what
+each does: `needs` and `emotions` (the effects as in data, public like the price). Each activity
+also has `cooldown_minutes` and your own cooldown there: `ready_at` (the game minute you can do it
+again, or null when you can now) and `ready_in_minutes` (0 when ready); an activity kept to some
+hours (stargazing) has `hours: [from, to]`. Example:
+
+```json
+{"id": "shower", "label": "Take a shower", "needs": {"comfort": 5, "hygiene": 45}, "emotions": {},
+ "cooldown_minutes": 60, "ready_at": 121442, "ready_in_minutes": 22}
+```
 
 ### The `people` stream
 
@@ -301,3 +337,96 @@ client is no longer the M1 plan): the design is in `docs/proposals/voice.md`. Th
 is unchanged: the **same hearing rules**, decided by the server. The server will publish, per
 player, whom they may hear, so a client can't eavesdrop on a conversation across town by
 joining its channel.
+
+## Play together in the browser
+
+Until a VPS runs the server, a few friends can share one town through a published Claude artifact
+(`web/client/together/`, D-057). It is the same game, rules and refusals (the host's tab runs
+the core compiled to WebAssembly through `protocol::LocalTown`, D-056), with a different
+"server": one person's browser tab.
+
+**How it works.**
+- The **host** is whoever holds the database lease on `town/host` (12 s, renewed every 4 s). Only
+  the artifact's admins (its owner and Editors) can take it. The host's tab loads the town from
+  `town/save` (or founds a new one when the database is empty), runs it at real time, 10 ticks a
+  second, and answers every request: its own player's straight in the tab, each friend's through
+  the room. Founders nobody has claimed live their day on autopilot (D-053).
+- **Friends** open the same page. It reads `town/host` (the host's room `peer`, the hosting
+  session's `epoch` and the host's public key), says `hello` on the room topic `up` with its own
+  public key, and from then on talks to the host on a channel encrypted for the two of them:
+  ECDH P-256, HKDF-SHA-256 to one AES-GCM key per direction, the key salted with the epoch and
+  bound to the friend's page. Everyone in a room hears every message; this is what keeps rule 5.
+  The host answers on `down`, which only admins can send on, and a friend also checks that
+  `down` messages come from the `peer` that `town/host` names.
+- **Who you are** is the platform's id for you (`user.id()`), stamped by the platform on every
+  room message (`by`). The host binds a channel to the `peer` and `by` of its `hello`; a message
+  from that page with another `by` ends the session; a page with no `by` is turned away
+  (`no_identity`). Nothing inside a message or in presence is taken as identity.
+- **One person, one character**, as one account plays one character on the server: the first
+  `play` (or `create_character`) claims it in `town/claims`, keyed by the person's id. Refusals
+  are the server's: `character_taken` (someone else's), `already_has_character` (you have
+  another), `character_in_use` (from LocalTown), `already_playing`, `server_full` (16 people, the
+  server's default cap). The same person opening a second tab and playing takes the character
+  there; the first tab gets `kicked` ("playing in another tab") and can take it back. The host's
+  menu lists who plays whom (only the host sees it) and can let someone pick again, the
+  equivalent of `--release-character`.
+- **Limits** are the server's: 20 requests a second per page (bursts of 40; dropped after 50
+  refusals) and a line a second for `say` and `message` (bursts of five).
+- **The wire** (`link.js`): messages drop, carry at most 4 KiB and a page sends about 40 a second,
+  so items are batched into numbered frames, gzipped, encrypted, split into chunks, acknowledged
+  and sent again (from 0.7 s, backing off to 4 s; given up after 30 s, and the receiver is told to
+  stop waiting), delivered once and in order; every send waits its turn in one pacer of 25 a
+  second.
+- **Time and pausing.** The town only moves while the host's tab is visible. Hidden, the host
+  stops ticking, saves, and tells everyone (a public status on `down`, and `paused` in
+  `town/host` for whoever arrives); players see "Paused: the host's tab is in the background",
+  and anything but `look` and `map` is refused with `town_paused` until the host is back. No time
+  is caught up.
+- **Saving.** Every 20 s, when the host's tab is hidden, when hosting stops, and right after a
+  character is made: the whole world (the solo save format) gzipped, base64'd and split into
+  parts under the database's 256 KiB per document, written to the slot not in use
+  (`town/save/a/<n>` or `town/save/b/<n>`), then the manifest `town/save` (slot, parts, bytes,
+  SHA-256) moves over. An interrupted save leaves the previous one whole; a save whose parts
+  don't match isn't loaded, and the host is offered a new town instead, with a confirm.
+- **When the host leaves.** Closing the tab stops the town: the host saves, marks `town/host`
+  stopped and shortens its lease to a second. An admin whose tab has been in the town and is in
+  front takes over from the save (handover) and everyone is put back in their character. With no
+  such admin the town stops and the page says so: "The host left, so the town has stopped. It
+  goes on from its last save when someone hosts it again." A host whose tab crashes loses at most
+  the last 20 s; the lease runs out in 12 s and a handover follows. A host who reloads takes the
+  town straight back (the lease holder survives a reload).
+
+**Database layout and rules** (declared when publishing; see `web/README.md`, "Play together"):
+
+| Path | Holds | Read | Write |
+|---|---|---|---|
+| `town/host` | the lease; `state` (starting, hosting, stopped), `uid`, `peer`, `epoch`, `pub`, `paused`, `saved_at` | everyone who can open the page | admin |
+| `town/claims` | `{claims: {<user id>: {character, at}}}` | admin | admin |
+| `town/save`, `town/save/{a,b}/<n>` | the manifest and the parts of the world | admin | admin |
+
+**What the page says, plainly** (rule 6): on the lobby, the menu and the HUD, that the town runs
+in the host's browser, pauses while the host's tab is hidden and stops when it's closed, and that
+the host's browser holds everyone's state ("Whoever hosts can see everything in the town: every
+person's money, messages and feelings… Play with people you trust.").
+
+**Limits.**
+- The town exists only while an admin's tab is open and in front. It is not a server.
+- The host can read everything, in their own browser's memory and in the save.
+- Latency grows with the number of people: every message to every friend shares the host page's
+  budget of about 40 room messages a second. Tested with five people; capped at 16.
+- No time skips (`dev_advance` is `forbidden`), no coin purchases (`payments_unavailable`), no
+  voice.
+- Publishing a new version of the artifact reloads every page: the town stops (the host's tab
+  saves on the way out), the host presses Host again, and everyone joins again.
+- Tested on a stand-in for the platform (`together/fake_platform.js`: BroadcastChannel and
+  IndexedDB across tabs of one browser), not yet on the real artifact platform.
+
+**How to share it.** The owner publishes the artifact (the files and the capabilities in
+`web/README.md`, "Play together"), opens it, and presses **Host the town here**. Then they share
+it and give each friend **Contributor** access, which lets them send their moves to the host and
+nothing more: they can't host, can't read the save or the claims, and can't send as the host.
+Viewers and Commenters can open the page but can't play (the page tells them to ask for
+Contributor). Where the share menu offers people outside the owner's organization only Viewer or
+Editor, an Editor can play too, but can also host and read the save: make Editors only of people
+you'd trust as host. Friends open the link, press **Join the town** and pick a character. The
+host keeps the tab open and in front while people play.

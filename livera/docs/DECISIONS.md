@@ -598,10 +598,65 @@ create a character, the people present. Accounts and claims stay with the caller
 `Server`. Tested in `tests/test_localtown.cpp` (five people see each other, hear a say only within
 range, and keep their own money; a played character can't be taken; the save round-trips) and in
 `web/tests/town_smoke.mjs` against the built module.
-**Status:** The browser page that would host friends through it ("Play together": the host's tab
-runs the town and the others connect through the artifact's room and database) is not built yet.
-Nothing in the published game offers it.
+**Status:** The browser page that hosts friends through it is built: "Play together"
+(`web/client/together/`, D-057), tested with five pages on a stand-in for the artifact platform
+(`web/tests/run_together_e2e.sh`). It has not been published as an artifact yet, so nobody has
+played it on the real platform.
 **Why:** The owner asked for five people in one town on the web. A second copy of the server's
 rules for the browser would drift from the real ones; one process type for "one player" and
 "several players in a browser" keeps a single set of rules, and the real server (D-045) stays the
 way to play on a VPS.
+
+## D-057 — Play together: the host's tab is the server, and only admins host
+**Decision:** "Play together" (`web/client/together/`) is a published artifact page where one
+person's tab runs the town for everyone (LocalTown, D-056) and the others play through the same
+web client over the artifact's room. The host is whoever holds the database lease on `town/host`,
+and only the artifact's admins (its owner and Editors) can take it: the page declares
+`town` admin-only in the database (the save, `town/save`, and the claims, `town/claims`) except
+`town/host`, which everyone who can open the page reads (to find the host), and leaves the host's room topic (`down`)
+undeclared, so it stays admin-only; friends, at Contributor, send on `up` only. Who a person is
+comes from the platform's stamp on their messages (`by`, their `user.id()`), never from anything
+inside them; one person plays one character, kept in `town/claims` as the server keeps it in
+SQLite (`character_taken`, `already_has_character`, the newer tab wins). Everything one person
+may know travels encrypted for them alone (ECDH P-256 per friend, HKDF, AES-GCM per direction;
+the host's public key pinned in `town/host`), because everyone in the room hears every message.
+The host applies the server's request and chat limits. The town ticks only while the host's tab
+is visible; hidden, it pauses, tells everyone and saves; closed, it stops, and an admin who has
+played in this page and has it in front takes over from the last save (handover); with no such
+admin it stops and says so. Saves go to the database every 20 s, on hide and on stop, gzipped,
+split under the 256 KiB document limit into two alternating slots behind a manifest with a
+SHA-256, so an interrupted save leaves the previous one whole.
+**Why:** The owner wants five people in one town on the web before a VPS exists. Letting any
+Contributor host would let any friend read everyone's money, messages and feelings from the save
+and act as any character, which rule 5 and "a friend can only act as the character they claimed"
+forbid; admins can already change the artifact itself, so trusting them to host adds no new
+power. Encrypting per person is the only way to keep rule 5 on a channel everyone hears.
+**Trade-off:** The host's browser holds everyone's state; the page says so on the lobby, the menu
+and the HUD. The town stops whenever no admin's tab is open and in front, and progress since the
+last save (at most 20 s) is lost if the host's tab crashes. On a personal plan, people outside
+the owner's organization may be offered only Viewer (they can't play: the page says so) or Editor
+(they can play, and could also host and read the save), so the owner should make Editors only of
+people they'd trust as host. Latency grows with the number of people because the room carries
+about 40 messages a second per page; tested with five, capped at the server's 16.
+
+## D-059 — The owner's ground tiles: re-projected textures, a cached ground, set pieces placed by the sketch
+**Decision:** The web client draws the owner's ground tiles and set pieces (`art/tiles/`, the bus
+shelters) from client copies in `web/client/tiles/`, made by `scripts/client_tiles.py`: the 2:1
+diamonds are turned back into top-down squares (the inverse of each diamond's affine map, its top
+corner being world (0, 0) under `P()`), their painted light taken out, graded toward the palette and
+made to repeat, and laid flat with `CanvasPattern` transforms through the projection; set pieces
+carry anchor points measured on the art. The flat ground is drawn into an offscreen canvas and
+copied in each frame, re-drawn when the zoom, the light (in steps), the places, the projects or the
+pictures change or the view pans past its margin. Construction sites show their site's picture
+(bare, or framed from 35% of an active project); the crane marker stands over active projects whose
+picture paints none; Founders Way's works are laid at one spot on the road while it's active and 35%
+along. Where each piece goes (the bridge's span, Willow Lake's lot, the works' stretch) is in
+`layout.js` with the rest of the sketch. Without `tiles/manifest.json` the hand-drawn ground stays.
+**Why:** The tiles were painted for a 2:1 view and the map is 30°, so drawing them as pictures would
+misalign every diamond; re-projected they lie flat at any zoom. Textured strokes and fills cost
+several milliseconds a frame in software canvases (headless Chromium, low-end phones), and the
+ground almost never changes between frames, so caching it makes the textured map no slower than the
+flat one. The art's state follows the game's: a site picture only while the building is under
+construction, framed only from the project's real progress, no crane over a planned project. The
+corner, crossroad and river-edge tiles don't fit the sketch's streets and quay (web/README.md, "The
+look").

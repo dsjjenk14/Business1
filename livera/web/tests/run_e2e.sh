@@ -3,7 +3,8 @@
 # and Playwright (Chromium) playing it at phone and desktop sizes. The gateway's connection caps
 # are checked first (web/gateway/test_gateway.mjs).
 #
-#   livera/web/tests/run_e2e.sh
+#   livera/web/tests/run_e2e.sh                     # the gateway's caps, then e2e.js
+#   livera/web/tests/run_e2e.sh five_players.js     # only these test files (in web/tests), same server setup
 #
 # Env:
 #   LIVERA_SERVER   server binary (default: livera/build/livera_server)
@@ -65,9 +66,16 @@ BOT_USER=""
 if printf 'e2e-bot-password\n' | "$SERVER" --db "$DB" --add-account bot_graham > "$E2E_DIR/add_account.log" 2>&1; then BOT_USER=bot_graham; fi
 
 status=0
-# The gateway's connection caps, against its own stand-in game server.
-node "$WEB/gateway/test_gateway.mjs" || status=$?
-NODE_PATH="$(npm root -g)" LIVERA_URL="http://127.0.0.1:$GPORT/" LIVERA_SHOTS="$SHOTS" LIVERA_TCP_PORT="$SPORT" \
-  LIVERA_BOT_USER="$BOT_USER" LIVERA_BOT_PASSWORD="e2e-bot-password" LIVERA_DOWN_URL="$DOWN_URL" node "$HERE/e2e.js" || status=$?
+TESTS=("$@")
+if [ ${#TESTS[@]} -eq 0 ]; then
+  # The gateway's connection caps, against its own stand-in game server.
+  node "$WEB/gateway/test_gateway.mjs" || status=$?
+  TESTS=(e2e.js)
+fi
+for t in "${TESTS[@]}"; do
+  [ -f "$HERE/$t" ] || { echo "no test file web/tests/$t" >&2; status=2; continue; }
+  NODE_PATH="$(npm root -g)" LIVERA_URL="http://127.0.0.1:$GPORT/" LIVERA_SHOTS="$SHOTS" LIVERA_TCP_PORT="$SPORT" \
+    LIVERA_BOT_USER="$BOT_USER" LIVERA_BOT_PASSWORD="e2e-bot-password" LIVERA_DOWN_URL="$DOWN_URL" node "$HERE/$t" || status=$?
+done
 echo "logs: $E2E_DIR (server.log, gateway.log) · screenshots: $SHOTS"
 exit $status
