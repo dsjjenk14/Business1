@@ -471,9 +471,9 @@ Parallax Labs: the inside of a tech startup office in the Downtown district. The
 Size 1536×1024, transparent background. Save as art/interiors/parallax_labs.png
 ```
 
-#### Riverdale Clinic
+#### Riverdale Clinic (filed)
 
-Save as `art/interiors/riverdale_clinic.png` · 1536×1024
+Save as `art/interiors/riverdale_clinic.png` · 1536×1024 · filed as `art/interiors/riverdale_clinic.webp`
 
 Facts from the data:
 
@@ -521,9 +521,9 @@ Circuit Electronics: the inside of an electronics store in the Founders Way dist
 Size 1536×1024, transparent background. Save as art/interiors/circuit_electronics.png
 ```
 
-#### Fade & Glow Salon
+#### Fade & Glow Salon (filed)
 
-Save as `art/interiors/fade_glow.png` · 1536×1024
+Save as `art/interiors/fade_glow.png` · 1536×1024 · filed as `art/interiors/fade_glow.webp`
 
 Facts from the data:
 
@@ -546,9 +546,9 @@ Fade & Glow Salon: the inside of a salon in the Founders Way district. The game 
 Size 1536×1024, transparent background. Save as art/interiors/fade_glow.png
 ```
 
-#### Founders Animal Hospital
+#### Founders Animal Hospital (filed)
 
-Save as `art/interiors/founders_animal_hospital.png` · 1536×1024
+Save as `art/interiors/founders_animal_hospital.png` · 1536×1024 · filed as `art/interiors/founders_animal_hospital.webp`
 
 Facts from the data:
 
@@ -569,9 +569,9 @@ Founders Animal Hospital: the inside of a veterinary clinic in the Founders Way 
 Size 1536×1024, transparent background. Save as art/interiors/founders_animal_hospital.png
 ```
 
-#### Lumière Bistro
+#### Lumière Bistro (filed)
 
-Save as `art/interiors/lumiere_bistro.png` · 1536×1024
+Save as `art/interiors/lumiere_bistro.png` · 1536×1024 · filed as `art/interiors/lumiere_bistro.webp`
 
 Facts from the data:
 
@@ -617,9 +617,9 @@ Paws & Whiskers Adoption Center: the inside of a pet adoption center in the Foun
 Size 1536×1024, transparent background. Save as art/interiors/paws_whiskers.png
 ```
 
-#### Riverdale Pharmacy
+#### Riverdale Pharmacy (filed)
 
-Save as `art/interiors/riverdale_pharmacy.png` · 1536×1024
+Save as `art/interiors/riverdale_pharmacy.png` · 1536×1024 · filed as `art/interiors/riverdale_pharmacy.webp`
 
 Facts from the data:
 
@@ -642,9 +642,9 @@ Riverdale Pharmacy: the inside of a pharmacy in the Founders Way district. The g
 Size 1536×1024, transparent background. Save as art/interiors/riverdale_pharmacy.png
 ```
 
-#### Starlight Cinema
+#### Starlight Cinema (filed)
 
-Save as `art/interiors/starlight_cinema.png` · 1536×1024
+Save as `art/interiors/starlight_cinema.png` · 1536×1024 · filed as `art/interiors/starlight_cinema.webp`
 
 Facts from the data:
 
@@ -742,9 +742,9 @@ Size 1536×1024, transparent background. Save as art/interiors/thread_co.png
 
 ### Maple Court
 
-#### Common Ground Community Center
+#### Common Ground Community Center (filed)
 
-Save as `art/interiors/common_ground.png` · 1536×1024
+Save as `art/interiors/common_ground.png` · 1536×1024 · filed as `art/interiors/common_ground.webp`
 
 Facts from the data:
 
@@ -766,9 +766,9 @@ Common Ground Community Center: the inside of a community center in the Maple Co
 Size 1536×1024, transparent background. Save as art/interiors/common_ground.png
 ```
 
-#### Greater Hope Missionary Baptist Church
+#### Greater Hope Missionary Baptist Church (filed)
 
-Save as `art/interiors/greater_hope.png` · 1536×1024
+Save as `art/interiors/greater_hope.png` · 1536×1024 · filed as `art/interiors/greater_hope.webp`
 
 Facts from the data:
 
@@ -794,9 +794,9 @@ Size 1536×1024, transparent background. Save as art/interiors/greater_hope.png
 
 ### Riverside
 
-#### Livéra General Hospital
+#### Livéra General Hospital (filed)
 
-Save as `art/interiors/livera_general.png` · 1536×1024
+Save as `art/interiors/livera_general.png` · 1536×1024 · filed as `art/interiors/livera_general.webp`
 
 Facts from the data:
 
@@ -844,9 +844,9 @@ Livéra University: the inside of a university in the Riverside district. The ga
 Size 1536×1024, transparent background. Save as art/interiors/livera_university.png
 ```
 
-#### Low End Studios
+#### Low End Studios (filed)
 
-Save as `art/interiors/low_end_studios.png` · 1536×1024
+Save as `art/interiors/low_end_studios.png` · 1536×1024 · filed as `art/interiors/low_end_studios.webp`
 
 Facts from the data:
 

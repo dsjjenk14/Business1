@@ -362,8 +362,10 @@
       "notes": [
         "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
         "A construction site the client folds into the building going up on it; the sprite is the bare site and `framed` is the same lot once work shows above ground (art direction: the game only says the project is active and how far along it is).",
-        "Lumber stacks, a site hut and the first slab with column stubs, as asked. The two tower cranes are the picture's own (the data's description mentions cranes); the client also draws its own crane marker over active projects. The framed stage has no picture yet."
-      ]
+        "Lumber stacks, a site hut and the first slab with column stubs, as asked. The two tower cranes are the picture's own (the data's description mentions cranes); the client also draws its own crane marker over active projects.",
+        "The framed stage (concrete columns and slabs, formwork, one tower crane, lumber stacks and a fence) came unlabelled; it is filed as Maple Court Phase II's because the frame is a multi-storey block with a lift core, not a two-storey gym. If it was made from the Body & Balance prompt, move it to body_balance_site_framed.webp."
+      ],
+      "framed": "art/places/maple_court_ii_site_framed.webp"
     },
     "eclat_site": {
       "sprite": "art/places/eclat_site.webp",
@@ -380,6 +382,20 @@
         "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
         "A construction site the client folds into the building going up on it; the sprite is the bare site and `framed` is the same lot once work shows above ground (art direction: the game only says the project is active and how far along it is).",
         "Founders Way: only the later stage has a picture: half freshly paved with a cream centre line, half gravel, the paver at the join, a dump truck, a grader and a roller, with cones. The machines' cabs are empty; the green fences and lamps are the picture's own. The bare stage (dirt road with the machines parked) has no picture yet."
+      ]
+    },
+    "maple_court_ii": {
+      "sprite": "art/places/maple_court_ii.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The finished Phase II block (drawn when its project completes): brick and stone, four storeys, small balconies and one street door, the twin of Maple Court as asked. It has a dark vignette outside the building instead of a clean edge."
+      ]
+    },
+    "livera_university": {
+      "sprite": "art/places/livera_university.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The lecture hall with its colonnade, the glass library and the river quay match the data's 'new campus on the river'. The framed wing behind a fence is the picture's reading of the law clinic still being built; the game has no project for it, so it is scenery, not a construction site."
       ]
     }
   },
@@ -517,6 +533,78 @@
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "Glass cases in a U, black marble and gold, and the velvet-topped table with two chairs; the bags on the stand are the store's designer bag."
       ]
+    },
+    "low_end_studios": {
+      "picture": "art/interiors/low_end_studios.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The vintage console, the wall of synths, the couch and the live room with mic stands behind glass match the data."
+      ]
+    },
+    "livera_general": {
+      "picture": "art/interiors/livera_general.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Reception, the waiting room, treatment bays behind curtains, a ward and newborn cribs (the maternity ward) match the data. The emergency entrance isn't marked."
+      ]
+    },
+    "common_ground": {
+      "picture": "art/interiors/common_ground.webp",
+      "alternate": "art/interiors/common_ground_alt.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Long dinner tables with benches, the serving counter from the kitchen, the tutoring corner with bookshelves, the noticeboard and an office desk match the data. Two versions; the second is kept as the alternate."
+      ]
+    },
+    "greater_hope": {
+      "picture": "art/interiors/greater_hope.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Pews facing the pulpit, choir seats, the piano and the kitchen through a door match the data; the band corner with drums is the picture's own (the church is a stage in the data)."
+      ]
+    },
+    "starlight_cinema": {
+      "picture": "art/interiors/starlight_cinema.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The lobby with the popcorn machine and concession counter, the velvet rope and one screening room of red velvet seats match the data; the data has two screens, the picture shows one."
+      ]
+    },
+    "riverdale_pharmacy": {
+      "picture": "art/interiors/riverdale_pharmacy.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Aisles of shelves and the prescription counter at the back with a waiting bench match the data; the light is warm rather than the data's fluorescent."
+      ]
+    },
+    "fade_glow": {
+      "picture": "art/interiors/fade_glow.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Three barber chairs at lit mirrors, two hair-wash basins, the nail station and a waiting sofa match the data."
+      ]
+    },
+    "lumiere_bistro": {
+      "picture": "art/interiors/lumiere_bistro.webp",
+      "alternate": "art/interiors/lumiere_bistro_alt.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Candlelit tables for two and four, booths and the bar in front of the wine wall match the data. Two versions (ivory and black marble tables); the second is kept as the alternate."
+      ]
+    },
+    "riverdale_clinic": {
+      "picture": "art/interiors/riverdale_clinic.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Reception, a waiting room and two exam rooms with exam tables match the prompt."
+      ]
+    },
+    "founders_animal_hospital": {
+      "picture": "art/interiors/founders_animal_hospital.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Reception, waiting chairs, the exam room with a steel table and the recovery kennels (empty) match the data."
+      ]
     }
   },
   "transit": {
@@ -563,7 +651,7 @@
       "river_edge: a stone promenade with a black-and-gold railing and the water; no data file gives the river a shape (the sketch draws it along the east edge).",
       "bridge: four arches, lamps and a stair at the near end. Like the river it is part of the sketch: no data file has a bridge and nobody can cross it in the game.",
       "crane: the tower crane the client draws over every active construction project; it is a marker, not a count of real cranes.",
-      "Still to come: road_t (the T junction)."
+      "road_t and road_corner_alt came as one picture and were split; both are about 1.65:1 diamonds rather than 2:1. road_corner_alt is a curved bend; the map's streets never bend, so neither is drawn yet (D-059)."
     ],
     "grass": {
       "sprite": "art/tiles/grass.webp"
@@ -575,7 +663,8 @@
       "sprite": "art/tiles/road_straight.webp"
     },
     "road_corner": {
-      "sprite": "art/tiles/road_corner.webp"
+      "sprite": "art/tiles/road_corner.webp",
+      "alternate": "art/tiles/road_corner_alt.webp"
     },
     "road_crossroad": {
       "sprite": "art/tiles/road_crossroad.webp",
@@ -593,6 +682,9 @@
     },
     "crane": {
       "sprite": "art/tiles/crane.webp"
+    },
+    "road_t": {
+      "sprite": "art/tiles/road_t.webp"
     }
   },
   "city": {

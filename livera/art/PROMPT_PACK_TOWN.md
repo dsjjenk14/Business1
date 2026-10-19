@@ -881,9 +881,9 @@ Livéra General Hospital: a hospital in the Riverside district. The game describ
 Size 1536×1024, transparent background. Save as art/places/livera_general.png
 ```
 
-#### Livéra University
+#### Livéra University (in the game)
 
-Save as `art/places/livera_university.png` · 1536×1024 · sign: LIVÉRA UNIVERSITY
+Save as `art/places/livera_university.png` · 1536×1024 · sign: LIVÉRA UNIVERSITY · filed as `art/places/livera_university.webp`
 
 Facts from the data:
 
@@ -1362,9 +1362,9 @@ Size 1024×1024, transparent background. Save as art/places/body_balance.png
 
 ### Maple Court
 
-#### Maple Court Phase II
+#### Maple Court Phase II (in the game)
 
-Save as `art/places/maple_court_ii.png` · 1536×1024 · sign: MAPLE COURT
+Save as `art/places/maple_court_ii.png` · 1536×1024 · sign: MAPLE COURT · filed as `art/places/maple_court_ii.webp`
 
 Facts from the data:
 
@@ -1501,9 +1501,9 @@ Maple Court Phase II site: a construction site in the Maple Court district, wher
 Size 1024×1024, transparent background. Save as art/places/maple_court_ii_site.png
 ```
 
-#### Maple Court Phase II site — framed stage
+#### Maple Court Phase II site — framed stage (in the game)
 
-Save as `art/places/maple_court_ii_site_framed.png` · 1024×1024 · no sign
+Save as `art/places/maple_court_ii_site_framed.png` · 1024×1024 · no sign · filed as `art/places/maple_court_ii_site_framed.webp`
 
 Facts from the data:
 
@@ -1926,9 +1926,9 @@ Ground tile: river edge. One seamless isometric ground tile, a 2:1 diamond that 
 Size 1024×1024, transparent background. Save as art/tiles/river_edge.png
 ```
 
-#### Tile: Road, T junction
+#### Tile: Road, T junction (in the game)
 
-Save as `art/tiles/road_t.png` · 1024×1024 · no sign
+Save as `art/tiles/road_t.png` · 1024×1024 · no sign · filed as `art/tiles/road_t.webp`
 
 Facts from the data:
 
