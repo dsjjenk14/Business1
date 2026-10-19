@@ -178,12 +178,35 @@ void Server::run(const std::atomic<bool>& stop) {
 }
 
 void Server::tick(double realSeconds) {
+  // With nobody in the world the town can wait for them: no time passes, nobody moves (scripts don't count).
+  if (config_.pauseWhenEmpty && inWorld(false) == 0) return;
   // Cap catch-up after a stall so one slow frame can't teleport everyone.
   const double seconds = std::min(realSeconds, 1.0);
   // The autopilot acts first, so what it does is in this tick's people stream rather than the next one's: a
   // player who sees an autopilot character in `look` has already been told about them.
   autopilot_.step(world_, seconds);
   world_.advanceRealTime(seconds);
+  if (config_.nightSkip) skipNightIfAllAsleep();
+}
+
+int Server::peopleAwake() const {
+  int playing = 0, awake = 0;
+  for (const auto& [id, s] : sessions_) {
+    if (s.character.empty() || s.closing || isScriptAccount(s.username)) continue;
+    ++playing;
+    awake += world_.isAsleep(s.character) ? 0 : 1;
+  }
+  return playing == 0 ? -1 : awake;
+}
+
+// The bed rule: everyone playing is asleep, so the night passes at once, lived out minute by minute with the
+// autopilot still playing its founders (World::skipNight). Scripts neither count nor block it.
+void Server::skipNightIfAllAsleep() {
+  if (peopleAwake() != 0) return;
+  auto skipped = world_.skipNight([this](double s) { autopilot_.step(world_, s); });
+  if (skipped)
+    logLine("everyone playing is asleep: skipped the night to " + formatDateTime(world_.now()) + " (" +
+            std::to_string(skipped.value().value("minutes", GameMinutes{0})) + " game minutes)");
 }
 
 void Server::acceptClients() {
@@ -378,9 +401,11 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
     // Your own created character, if you have one. Other players' creations aren't listed.
     const auto mine = store_->characterOf(s.username);
     if (mine && !world_.content().character(*mine)) {
-      if (const CharacterDef* def = world_.definition(*mine)) {
-        list.push_back(Json{{"id", def->id}, {"name", def->fullName()}, {"age", def->age}, {"pronouns", def->pronouns},
-                            {"tagline", def->profile.value("tagline", "")}, {"created", true}, {"available", true}});
+      Json card = world_.characterCard(*mine);
+      if (card.is_object()) {
+        card["created"] = true;
+        card["available"] = true;
+        list.push_back(std::move(card));
       }
     }
     return Json{{"characters", list}, {"can_create", !mine.has_value() && !script}};
@@ -440,12 +465,20 @@ Result<Json> Server::dispatch(Session& s, const std::string& op, const Json& req
     return credited;
   }
   // } m08:wallet
+  if (op == "sleep") {
+    // The bed rule is this server's: say whether the night will be skipped and how many are still up.
+    auto slept = protocol::dispatchWorldOp(world_, me, op, req);
+    if (!slept) return slept;
+    Json out = slept.value();
+    out["night_skip"] = Json{{"on", config_.nightSkip}, {"others_awake", std::max(0, peopleAwake())}};
+    return out;
+  }
   return protocol::dispatchWorldOp(world_, me, op, req);
 }
 
 void Server::routeEvents() {
   const auto events = world_.drainEvents();
-  autopilot_.observe(events);  // asks addressed to its characters, which it declines
+  autopilot_.observe(events);  // asks addressed to its characters, which it answers by its data's rules
   for (const auto& ev : events) {
     for (const auto& who : ev.recipients) {
       for (auto& [id, s] : sessions_) {

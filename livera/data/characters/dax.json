@@ -80,6 +80,7 @@
           "about": "julian"
         }
       ],
+      "aspirations": ["get_promoted", "get_rich", "make_friends"],
       "profile": {
         "tagline": "Builds the brain behind the city. Wants a city worth building for.",
         "why_livera": "fresh_start",
@@ -128,7 +129,10 @@
           }
         ],
         "schedule": {
-          "weekdays": [{"time": "08:00", "activity": "Parallax Labs"}, {"time": "19:00", "activity": "Home, cooking"}],
+          "weekdays": [
+            {"time": "08:00", "activity": "Parallax Labs", "work": true},
+            {"time": "19:00", "activity": "Home, cooking"}
+          ],
           "saturday": [{"time": "09:00", "activity": "Pickup basketball with Andre"}]
         },
         "starting_inventory": ["phone", "laptop", "noise-cancelling headphones", "basketball", "pickup truck keys"],

@@ -246,27 +246,29 @@ Json toJson(const CharacterDef& c) {
   Json relationships = Json::array();
   for (const auto& r : c.relationships)
     relationships.push_back(Json{{"to", r.to}, {"dimensions", r.dimensions}, {"history", r.history}});
-  return Json{{"id", c.id},
-              {"first_name", c.firstName},
-              {"last_name", c.lastName},
-              {"pronouns", c.pronouns},
-              {"gender", c.gender},
-              {"age", c.age},
-              {"playable", c.playable},
-              {"personality", c.personality},
-              {"values", c.values},
-              {"traits", c.traits},
-              {"interests", c.interests},
-              {"skills", c.skills},
-              {"career", {{"id", c.careerId}, {"level", c.careerLevel}}},
-              {"finances", {{"cash_cents", c.startingCashCents}, {"bank_cents", c.startingBankCents}}},
-              {"home", {{"property", c.homeProperty}}},
-              {"spawn_location", c.spawnLocation},
-              {"degrees", c.degrees},
-              {"sex", c.sex},
-              {"fame", c.fame},
-              {"relationships", relationships},
-              {"profile", c.profile}};
+  Json out{{"id", c.id},
+           {"first_name", c.firstName},
+           {"last_name", c.lastName},
+           {"pronouns", c.pronouns},
+           {"gender", c.gender},
+           {"age", c.age},
+           {"playable", c.playable},
+           {"personality", c.personality},
+           {"values", c.values},
+           {"traits", c.traits},
+           {"interests", c.interests},
+           {"skills", c.skills},
+           {"career", {{"id", c.careerId}, {"level", c.careerLevel}}},
+           {"finances", {{"cash_cents", c.startingCashCents}, {"bank_cents", c.startingBankCents}}},
+           {"home", {{"property", c.homeProperty}}},
+           {"spawn_location", c.spawnLocation},
+           {"degrees", c.degrees},
+           {"sex", c.sex},
+           {"fame", c.fame},
+           {"relationships", relationships},
+           {"profile", c.profile}};
+  if (!c.aspirations.empty()) out["aspirations"] = c.aspirations;  // only founders name them; saves stay as they were
+  return out;
 }
 
 const char* toString(ConstructionStatus s) {

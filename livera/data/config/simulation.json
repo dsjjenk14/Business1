@@ -1,8 +1,8 @@
 {
-  "$comment": "Global simulation tuning. Every stat name used anywhere in data/ must be declared here.",
+  "$comment": "Global simulation tuning. Every stat name used anywhere in data/ must be declared here. A new world starts in spring: start_minute 121380 is Year 1, Month 4, Day 1, a Monday, at 07:00 (docs/proposals/redesign.md).",
   "simulation": {
     "minutes_per_real_second": 1.0,
-    "start_minute": 420,
+    "start_minute": 121380,
     "walk_speed_mps": 6.0,
     "entry_radius_m": 5.0,
     "world_bounds": {"min": [0, 0], "max": [1000, 800]},
@@ -10,11 +10,11 @@
       {"id": "hunger", "decay_per_hour": 6.0, "initial": 70},
       {"id": "energy", "decay_per_hour": 4.0, "initial": 80},
       {"id": "hygiene", "decay_per_hour": 3.0, "initial": 85},
-      {"id": "social", "decay_per_hour": 3.0, "initial": 60},
+      {"id": "social", "decay_per_hour": 2.0, "initial": 60},
       {"id": "recreation", "decay_per_hour": 3.0, "initial": 60},
       {"id": "comfort", "decay_per_hour": 2.0, "initial": 75},
       {"id": "health", "decay_per_hour": 0.2, "initial": 90},
-      {"id": "bladder", "decay_per_hour": 10.0, "initial": 80},
+      {"id": "bladder", "decay_per_hour": 6.0, "initial": 80},
       {"id": "dental", "decay_per_hour": 2.0, "initial": 80},
       {"id": "grooming", "decay_per_hour": 1.0, "initial": 75}
     ],
@@ -63,6 +63,6 @@
     "shout_range_m": 60,
     "whisper_range_m": 2,
     "max_speech_length": 300,
-    "sight_range_m": 120
+    "sight_range_m": 160
   }
 }

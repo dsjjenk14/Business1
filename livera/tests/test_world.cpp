@@ -1,4 +1,5 @@
 #include "TestSupport.h"
+#include "core/Autopilot.h"
 #include "core/Clock.h"
 
 using namespace livera;
@@ -315,8 +316,10 @@ TEST_CASE("career: promotion follows hours and performance") {
 }
 
 TEST_CASE("economy: rent is charged monthly; shortfalls become arrears") {
+  // Away pay is off: this counts rent alone (away pay has its own tests below).
   auto db = patchedContent([](Json& doc, const std::string& file) {
     if (file == "dax.json") doc["characters"][0]["finances"]["bank_cents"] = 1000;
+    if (file == "life.json") doc["life"]["offline"]["away_work"]["pay_share"] = 0.0;
   });
   World w = World::createNew(db);
   const Cents domBefore = bank(w, "dominique");
@@ -460,6 +463,551 @@ TEST_CASE("look: shows people who are with you, not their private state") {
   CHECK(look.value()["here"]["offers"].size() == 4);
 }
 
+TEST_CASE("look: each offer and activity says what it does, and when you can do it again") {
+  World w = onlineWorld();
+  const ContentDatabase& db = w.content();
+  walkInto(w, "dominique", "lexington_1204");
+  auto find = [](const Json& list, const std::string& id) {
+    for (const auto& x : list) {
+      if (x["id"] == id) return x;
+    }
+    return Json();
+  };
+  const LocationDef& home = *db.location("lexington_1204");
+  const Activity* shower = nullptr;
+  for (const auto& a : home.activities) {
+    if (a.id == "shower") shower = &a;
+  }
+  REQUIRE(shower);
+  Json act = find(w.look("dominique").value()["here"]["activities"], "shower");
+  REQUIRE(act.is_object());
+  // Public content, as it is in data (like a price).
+  CHECK(act["needs"] == Json(shower->needEffects));
+  CHECK(act["emotions"].is_object());
+  CHECK(act["cooldown_minutes"] == shower->cooldownMinutes);
+  // Your own cooldown: ready now...
+  CHECK(act["ready_at"].is_null());
+  CHECK(act["ready_in_minutes"] == 0);
+  REQUIRE(w.useActivity("dominique", "shower"));
+  const GameMinutes used = w.now();
+  act = find(w.look("dominique").value()["here"]["activities"], "shower");
+  CHECK(act["ready_at"] == used + shower->cooldownMinutes);
+  CHECK(act["ready_in_minutes"] == shower->cooldownMinutes);
+  w.advanceMinutes(10);
+  act = find(w.look("dominique").value()["here"]["activities"], "shower");
+  CHECK(act["ready_in_minutes"] == shower->cooldownMinutes - 10);
+  CHECK(w.useActivity("dominique", "shower").error().code == "too_soon");  // the world agrees with the view
+  w.advanceMinutes(shower->cooldownMinutes - 10);
+  act = find(w.look("dominique").value()["here"]["activities"], "shower");
+  CHECK(act["ready_at"].is_null());
+  CHECK(w.useActivity("dominique", "shower"));
+
+  // Offers carry their effects; a cooldown is only ever the viewer's own.
+  walkInto(w, "dominique", "heritage_coffee");
+  walkInto(w, "dax", "heritage_coffee");
+  const Json offers = w.look("dominique").value()["here"]["offers"];
+  for (const auto& o : db.location("heritage_coffee")->offers) {
+    const Json shown = find(offers, o.id);
+    REQUIRE(shown.is_object());
+    CHECK(shown["needs"] == Json(o.needEffects));
+    CHECK(shown["emotions"] == Json(o.emotionEffects));
+    CHECK(shown["price_cents"] == o.priceCents);
+  }
+  REQUIRE(w.useActivity("dax", "restroom"));
+  CHECK(find(w.look("dominique").value()["here"]["activities"], "restroom")["ready_at"].is_null());
+  CHECK(!find(w.look("dax").value()["here"]["activities"], "restroom")["ready_at"].is_null());
+
+  // An activity kept to some hours says which.
+  walkTo(w, "dominique", "willow_lake_park");
+  const Json star = find(w.look("dominique").value()["here"]["activities"], "stargazing");
+  REQUIRE(star.is_object());
+  CHECK(star["hours"] == Json::array({20, 2}));
+  CHECK(!find(w.look("dominique").value()["here"]["activities"], "picnic").contains("hours"));
+}
+
+TEST_CASE("map: each place's opening hours and days, and the status keeps the days too") {
+  World w = World::createNew(realContent());
+  const Json m = w.mapView();
+  auto place = [&](const std::string& id) {
+    for (const auto& p : m["places"]) {
+      if (p["id"] == id) return p;
+    }
+    return Json();
+  };
+  CHECK(place("heritage_coffee")["hours"] == Json::array({6, 20}));
+  CHECK(place("heritage_coffee")["open_days"] == Json::array());
+  CHECK(place("meridian_talent")["hours"].is_null());  // never closes
+  CHECK(place("founders_school")["open_days"] == Json::array({0, 1, 2, 3, 4}));
+  CHECK(place("copper_tap")["hours"] == Json::array({16, 2}));
+  // Where performers can play is public too: a stage at the café and the bar, none at the bank's office.
+  CHECK(place("heritage_coffee")["stage"] == true);
+  CHECK(place("copper_tap")["stage"] == true);
+  CHECK(place("meridian_talent")["stage"] == false);
+  // The school keeps its weekdays: open on a Tuesday morning, closed on a Saturday morning.
+  advanceTo(w, 1, 10);
+  CHECK(w.locationStatus(*w.content().location("founders_school")) == "open");
+  advanceTo(w, 5, 10);
+  CHECK(w.locationStatus(*w.content().location("founders_school")) == "closed");
+  CHECK(w.locationStatus(*w.content().location("heritage_coffee")) == "open");
+}
+
+TEST_CASE("characters: the pick list names each character's home and workplace") {
+  World w = World::createNew(realContent());
+  auto entry = [&](const std::string& id) {
+    for (const auto& c : w.playableCharacters()) {
+      if (c["id"] == id) return c;
+    }
+    return Json();
+  };
+  const Json dom = entry("dominique");
+  CHECK(dom["home"] == w.content().location("lexington_1204")->name);
+  CHECK(dom["workplace"] == "Meridian Talent Partners");
+  CHECK(dom["career"] == "Senior Recruiter");
+  for (const auto& c : w.playableCharacters()) {
+    CHECK(c["home"].is_string());
+    CHECK(c["workplace"].is_string());
+  }
+  // As things are now: someone who moved out has no home to name.
+  REQUIRE(w.connect("dominique"));
+  walkInto(w, "dominique", "lexington_1204");
+  REQUIRE(w.moveOut("dominique"));
+  CHECK(entry("dominique")["home"].is_null());
+  // A made character's card has the same fields.
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+  auto sol = w.createCharacter(Json::parse(in));
+  REQUIRE(sol);
+  const Json card = w.characterCard(sol.value());
+  CHECK(card["name"] == "Sol Rivera");
+  CHECK(card["home"].is_string());
+  CHECK(card["workplace"].is_string());
+  CHECK(w.characterCard("nobody").is_null());
+}
+
+TEST_CASE("tunings: the redesign's numbers, and what each one does") {
+  World w = onlineWorld();
+  const ContentDatabase& db = w.content();
+  // A new world starts in spring: Month 4, Day 1, a Monday, at 07:00.
+  const DateTime start = toDateTime(w.now());
+  CHECK(start.month == 4);
+  CHECK(start.day == 1);
+  CHECK(start.weekday == 0);
+  CHECK(start.hour == 7);
+  CHECK(start.minute == 0);
+  // Bladder empties at 6 an hour and social at 2 (an hour online, nothing else touching either).
+  const double bladder = w.character("dominique")->needs.at("bladder");
+  const double social = w.character("dominique")->needs.at("social");
+  w.advanceMinutes(60);
+  CHECK_NEAR(bladder - w.character("dominique")->needs.at("bladder"), 6.0, 1e-6);
+  CHECK_NEAR(social - w.character("dominique")->needs.at("social"), 2.0, 1e-6);
+  // Sight is 160 m (still at least the shout range): from Lexington's door you can see someone at Maple Court's.
+  CHECK(db.sim().sightRangeMeters == 160);
+  CHECK(db.sim().sightRangeMeters >= db.sim().shoutRangeMeters);
+  REQUIRE(w.exitBuilding("dominique"));
+  REQUIRE(w.exitBuilding("dax"));
+  CHECK(distance(w.character("dominique")->position, w.character("dax")->position) > 120);
+  const Json seen = w.look("dominique").value()["people"];
+  CHECK(seen.size() == 1);
+  // Promotion hours: level 2 and level 3 are 220 and 300 where they were 320 and 500 (Aaliyah is at level 3).
+  const CareerDef* events = db.career("event_production");
+  REQUIRE(events);
+  CHECK(events->levels.at(2).hoursToPromote == 220);
+  CHECK(events->levels.at(3).hoursToPromote == 300);
+  REQUIRE(w.connect("aaliyah"));
+  CHECK(w.openPhoneApp("aaliyah", "career").value()["hours_to_promote"] == 300);
+  // Work decisions: four a day, one every 150 minutes, 2 promotion hours per point (tests/test_work.cpp).
+  CHECK(db.workDecisions().perDay == 4);
+  CHECK(db.workDecisions().spacingMinutes == 150);
+  CHECK(db.workDecisions().bonusHoursPerPoint == 2.0);
+  // Offices have a break-room coffee, usable on shift without ending it.
+  walkInto(w, "dominique", "meridian_talent");
+  REQUIRE(w.startShift("dominique"));
+  const double energy = w.character("dominique")->needs.at("energy");
+  auto coffee = w.useActivity("dominique", "break_coffee");
+  REQUIRE(coffee);
+  CHECK(w.character("dominique")->needs.at("energy") == std::min(100.0, energy + 8));
+  CHECK(w.character("dominique")->career.shiftStartedAt.has_value());
+  for (const char* office : {"meridian_talent", "parallax_labs", "whitaker_capital", "lumen_creative"}) {
+    bool has = false;
+    for (const auto& a : db.location(office)->activities) has |= a.id == "break_coffee";
+    CHECK(has);
+  }
+  REQUIRE(w.endShift("dominique"));
+  // Chatting with the regulars at Heritage Coffee: social +6.
+  walkInto(w, "dominique", "heritage_coffee");
+  double before = w.character("dominique")->needs.at("social");
+  REQUIRE(w.useActivity("dominique", "chat_regulars"));
+  CHECK_NEAR(w.character("dominique")->needs.at("social"), std::min(100.0, before + 6), 1e-9);
+  // Darts at The Copper Tap: social +8 (it opens at 16:00).
+  advanceTo(w, 0, 17);
+  walkInto(w, "dominique", "copper_tap");
+  before = w.character("dominique")->needs.at("social");
+  REQUIRE(w.useActivity("dominique", "darts"));
+  CHECK_NEAR(w.character("dominique")->needs.at("social"), std::min(100.0, before + 8), 1e-9);
+}
+
+// --- Sleep and the night skip ------------------------------------------------------------
+
+namespace {
+
+// To `hour`:00 today, or tomorrow if that's past.
+void atHour(World& w, int hour) {
+  const GameMinutes target = (w.now() / kMinutesPerDay) * kMinutesPerDay + hour * kMinutesPerHour;
+  w.advanceMinutes(target > w.now() ? target - w.now() : target + kMinutesPerDay - w.now());
+}
+
+std::vector<Json> eventsOf(const std::vector<WorldEvent>& events, const std::string& type, const CharacterId& who) {
+  std::vector<Json> out;
+  for (const auto& e : events) {
+    if (e.type == type && std::find(e.recipients.begin(), e.recipients.end(), who) != e.recipients.end())
+      out.push_back(e.data);
+  }
+  return out;
+}
+
+}  // namespace
+
+TEST_CASE("sleep: only at home, in the evening, and not at work; each refusal has its code") {
+  World w = World::createNew(realContent());
+  CHECK(w.sleep("dominique").error().code == "not_in_world");
+  CHECK(w.sleep("nobody").error().code == "unknown_character");
+  REQUIRE(w.connect("dominique"));
+  CHECK(w.sleep("dominique").error().code == "not_bedtime");  // 07:00 at home
+  atHour(w, 21);
+  walkTo(w, "dominique", "heritage_coffee");  // on the street at the café's door
+  CHECK(w.sleep("dominique").error().code == "not_home");
+  walkTo(w, "dominique", "founders_park");
+  CHECK(w.sleep("dominique").error().code == "not_home");
+  // Someone else's home isn't yours to sleep in, even with a key-holding partner: Dominique at Meridian on shift.
+  walkInto(w, "dominique", "meridian_talent");
+  REQUIRE(w.startShift("dominique"));
+  CHECK(w.sleep("dominique").error().code == "on_shift");
+  REQUIRE(w.endShift("dominique"));
+  // In a cell, nothing.
+  WorldState s = w.state();
+  s.characters.at("dominique").jailedUntil = w.now() + 60;
+  World jailed(realContent(), s);
+  CHECK(jailed.sleep("dominique").error().code == "in_jail");
+  // At home from 21:00 to 03:00.
+  walkInto(w, "dominique", "lexington_1204");
+  auto r = w.sleep("dominique");
+  REQUIRE(r);
+  CHECK(r.value()["asleep"] == true);
+  CHECK(r.value()["wake_time"] == "07:00");
+  CHECK(r.value()["wake_at"] == w.nextWakeAt());
+  CHECK(w.isAsleep("dominique"));
+  CHECK(w.sleepers() == std::vector<CharacterId>{"dominique"});
+  CHECK(w.look("dominique").value()["you"]["asleep"] == true);
+  // Past 03:00 it's too late to start a night.
+  World late = World::createNew(realContent());
+  REQUIRE(late.connect("dominique"));
+  atHour(late, 4);
+  CHECK(late.sleep("dominique").error().code == "not_bedtime");
+  atHour(late, 2);
+  CHECK(late.sleep("dominique"));
+}
+
+TEST_CASE("sleep: your routine looks after you in bed; any command but look and the phone gets you up") {
+  World w = World::createNew(realContent());
+  REQUIRE(w.connect("dominique"));
+  atHour(w, 22);
+  walkInto(w, "dominique", "lexington_1204");
+  REQUIRE(w.sleep("dominique"));
+  const StatMap before = w.character("dominique")->needs;
+  w.advanceMinutes(120);
+  CHECK(w.character("dominique")->needs == before);  // not running down minute by minute
+  // Looking around and reading the phone in bed don't wake you.
+  REQUIRE(w.look("dominique"));
+  REQUIRE(w.openPhoneApp("dominique", "goals"));
+  REQUIRE(w.openPhoneApp("dominique", "bank"));
+  CHECK(w.isAsleep("dominique"));
+  // Doing anything does, and the time asleep catches up as an away character's would (toward the routine's 70).
+  const double hunger = before.at("hunger");
+  REQUIRE(w.useActivity("dominique", "toilet"));
+  CHECK(!w.isAsleep("dominique"));
+  CHECK(w.look("dominique").value()["you"]["asleep"] == false);
+  const double k = 1 - std::exp(-2.0 / 8.0);
+  CHECK_NEAR(w.character("dominique")->needs.at("hunger"), hunger + (70 - hunger) * k, 1e-6);
+  // Back to bed, then logging off: the night so far catches up first.
+  REQUIRE(w.sleep("dominique"));
+  w.advanceMinutes(60);
+  w.disconnect("dominique");
+  CHECK(!w.isAsleep("dominique"));
+  CHECK(w.sleepers().empty());
+}
+
+TEST_CASE("sleep: at the wake hour everyone asleep gets up, with what happened overnight") {
+  World w = World::createNew(realContent());
+  REQUIRE(w.connect("dominique"));
+  REQUIRE(w.connect("dax"));
+  atHour(w, 22);
+  walkInto(w, "dominique", "lexington_1204");
+  REQUIRE(w.sleep("dominique"));
+  const GameMinutes slept = w.now();
+  REQUIRE(w.sendMessage("dax", "dominique", "You up?"));
+  REQUIRE(w.livpaySend("dax", "dominique", 2000, "for the cab"));
+  (void)w.drainEvents();
+  atHour(w, 6);
+  CHECK(w.isAsleep("dominique"));
+  atHour(w, 7);
+  CHECK(!w.isAsleep("dominique"));
+  const auto morning = eventsOf(w.drainEvents(), "good_morning", "dominique");
+  REQUIRE(morning.size() == 1);
+  const Json& m = morning[0];
+  CHECK(m["minutes"] == w.now() - slept);
+  CHECK(m["skipped"] == false);
+  CHECK(m["money_change_cents"] == 2000);
+  CHECK(m["needs"]["hunger"].is_number());
+  CHECK(m["weather"]["label"].is_string());
+  bool heard = false;
+  for (const auto& n : m["notifications"])
+    heard |= n["text"].get<std::string>().find("for the cab") != std::string::npos;
+  CHECK(heard);
+  CHECK(eventsOf(w.drainEvents(), "good_morning", "dax").empty());  // only sleepers get a morning
+}
+
+TEST_CASE("sleep: skipping the night lives it out: the awake minute by minute, sleepers on their routine") {
+  World start = World::createNew(realContent());
+  CHECK(start.skipNight().error().code == "nobody_asleep");
+  REQUIRE(start.connect("dominique"));
+  REQUIRE(start.connect("dax"));
+  atHour(start, 22);
+  walkInto(start, "dominique", "lexington_1204");
+  REQUIRE(start.exitBuilding("dax"));
+  CHECK(start.skipNight().error().code == "nobody_asleep");
+  REQUIRE(start.sleep("dominique"));
+  WorldState state = start.state();
+  state.characters.at("dax").needs["hunger"] = 100;  // so nine hours awake show, unclamped
+  World w(realContent(), state);
+  const double domHunger = w.character("dominique")->needs.at("hunger");
+  const double daxHunger = w.character("dax")->needs.at("hunger");
+  const GameMinutes from = w.now();
+  const GameMinutes julianLast = w.character("julian")->lastSimulatedAt;
+  (void)w.drainEvents();
+  int calls = 0;
+  double seconds = 0;
+  auto r = w.skipNight([&](double s) {
+    ++calls;
+    seconds += s;
+  });
+  REQUIRE(r);
+  const Json& out = r.value();
+  CHECK(out["from"] == from);
+  CHECK(out["to"] == w.now());
+  CHECK(out["minutes"] == 9 * 60);
+  CHECK(out["woke"] == Json::array({"dominique"}));
+  CHECK(toDateTime(w.now()).hour == 7);
+  CHECK(toDateTime(w.now()).minute == 0);
+  CHECK(calls == 9 * 60);  // once per game minute, with the real time a minute stands for
+  CHECK_NEAR(seconds, 9 * 60 / w.content().sim().minutesPerRealSecond, 1e-6);
+  // Dax was awake: nine hours of hunger. Dominique slept: her routine's night (toward 70).
+  CHECK(w.character("dax")->needs.at("hunger") < daxHunger - 40);
+  const double k = 1 - std::exp(-9.0 / 8.0);
+  CHECK_NEAR(w.character("dominique")->needs.at("hunger"), domHunger + (70 - domHunger) * k, 1e-6);
+  CHECK(!w.isAsleep("dominique"));
+  // Julian, offline, is untouched until he comes back (the usual catch-up).
+  CHECK(w.character("julian")->lastSimulatedAt == julianLast);
+  const auto events = w.drainEvents();
+  const auto morning = eventsOf(events, "good_morning", "dominique");
+  REQUIRE(morning.size() == 1);
+  CHECK(morning[0]["skipped"] == true);
+  CHECK(morning[0]["minutes"] == 9 * 60);
+  // The people stream comes once, at the end, not once a minute.
+  CHECK(eventsOf(events, "people", "dax").size() <= 1);
+  // The clock goes on normally afterwards.
+  w.advanceRealTime(1.0);
+  CHECK(w.now() == out["to"].get<GameMinutes>() + 1);
+}
+
+TEST_CASE("sleep: with the autopilot stepped through the skip, its founders go to bed and get up on time") {
+  // Dax at home all day (no shift to wear him out), up from 09:00 until bed at 22:30.
+  static const auto homeDay = patchedContent([](Json& doc, const std::string& file) {
+    if (file == "dax.json")
+      doc["characters"][0]["profile"]["schedule"] =
+          Json{{"weekdays", Json::array({Json{{"time", "19:00"}, {"activity", "Home, cooking"}}})}};
+  });
+  World w = World::createNew(homeDay);
+  Autopilot pilot;
+  REQUIRE(w.connect("dominique"));
+  pilot.start(w, {"dax"});
+  // Real time to 21:00 with the autopilot playing Dax.
+  for (int i = 0; i < 20000 && toDateTime(w.now()).hour != 21; ++i) {
+    w.advanceRealTime(1.0);
+    pilot.step(w, 1.0);
+    pilot.observe(w.drainEvents());
+  }
+  walkInto(w, "dominique", "lexington_1204");
+  REQUIRE(w.sleep("dominique"));
+  REQUIRE(w.character("dax")->online);  // up until his bedtime (22:30 at the earliest)
+  (void)w.drainEvents();
+  GameMinutes daxLeft = -1;
+  bool daxBack = false;
+  REQUIRE(w.skipNight([&](double s) {
+    pilot.step(w, s);
+    const CharacterState* dax = w.character("dax");
+    if (!dax->online && daxLeft < 0) daxLeft = w.now();
+    if (daxLeft >= 0 && dax->online) daxBack = true;
+  }));
+  // He went to bed (left the world) between 22:30 and 23:45, as on any night, and wasn't simulated awake all night.
+  REQUIRE(daxLeft >= 0);
+  const int at = toDateTime(daxLeft).hour * 60 + toDateTime(daxLeft).minute;
+  CHECK(at >= 22 * 60 + 30);
+  CHECK(at <= 23 * 60 + 47);
+  // He gets up at 09:00, after the skip (07:00), and then comes back as on any morning.
+  CHECK(!daxBack);
+  for (int i = 0; i < 3 * 3600 && !w.character("dax")->online; ++i) {
+    w.advanceRealTime(1.0);
+    pilot.step(w, 1.0);
+  }
+  CHECK(w.character("dax")->online);
+  CHECK(toDateTime(w.now()).hour == 9);
+  CHECK(pilot.runs("dax"));
+}
+
+// --- Away: the routine includes the job ----------------------------------------------------
+
+namespace {
+
+std::vector<LedgerTransaction> awayPay(const World& w, const CharacterId& who) {
+  std::vector<LedgerTransaction> out;
+  for (const auto& tx : w.state().ledger.transactions()) {
+    if (tx.kind == "salary_away" && tx.to == bankAccountOf(who)) out.push_back(tx);
+  }
+  return out;
+}
+
+bool told(const World& w, const CharacterId& id, const std::string& fragment) {
+  for (const auto& n : w.state().notifications) {
+    if (n.recipient == id && n.text.find(fragment) != std::string::npos) return true;
+  }
+  return false;
+}
+
+}  // namespace
+
+TEST_CASE("away: a scheduled work block spent away is paid by the employer at the data share, with promotion hours") {
+  World w = World::createNew(realContent());
+  const LifeConfig& L = w.content().life();
+  CHECK(L.awayPayShare == 0.8);
+  CHECK(L.awayPromotionShare == 0.5);
+  REQUIRE(w.connect("dominique"));
+  w.disconnect("dominique");  // Monday 07:00: away all day
+  const double hours = w.character("dominique")->career.hoursAtLevel;
+  const Cents employer = w.state().ledger.balance("org:meridian_talent");
+  // Her work line is 08:30 Meridian, until her next line at 18:30: ten hours, paid in the hour it ends.
+  atHour(w, 18);
+  CHECK(awayPay(w, "dominique").empty());
+  atHour(w, 19);
+  const auto paid = awayPay(w, "dominique");
+  REQUIRE(paid.size() == 1);
+  CHECK(paid[0].from == "org:meridian_talent");
+  CHECK(paid[0].amountCents == std::llround(10 * 4600 * 0.8));
+  CHECK(paid[0].at == w.now());
+  CHECK(w.state().ledger.balance("org:meridian_talent") == employer - paid[0].amountCents);
+  CHECK_NEAR(w.character("dominique")->career.hoursAtLevel, hours + 10 * 0.5, 1e-9);
+  CHECK(w.character("dominique")->career.lifetimeEarningsCents == paid[0].amountCents);
+  CHECK(told(w, "dominique", "While you were away you worked your usual hours at Meridian Talent Partners"));
+  CHECK(w.state().ledger.sumOfBalances() == 0);
+  // No decisions came up for her, and nothing on the weekend (her work line is a weekday one).
+  CHECK(w.character("dominique")->workDecisions.answers.empty());
+  advanceTo(w, 5, 0);
+  const std::size_t beforeWeekend = awayPay(w, "dominique").size();
+  advanceTo(w, 0, 0);
+  CHECK(awayPay(w, "dominique").size() == beforeWeekend);
+  CHECK(beforeWeekend == 5);  // Monday to Friday
+  // The bank app shows it like any pay.
+  REQUIRE(w.connect("dominique"));
+  bool shown = false;
+  const Json bankApp = w.openPhoneApp("dominique", "bank").value();
+  for (const auto& tx : bankApp["recent"]) shown |= tx["kind"] == "salary_away";
+  CHECK(shown);
+}
+
+TEST_CASE("away: only time actually spent away, never without a job, from a broke employer, or while depressed") {
+  // Logged off at noon: paid for 12:00-18:30 only (she could have worked the morning in person).
+  World w = World::createNew(realContent());
+  REQUIRE(w.connect("dominique"));
+  atHour(w, 12);
+  w.disconnect("dominique");
+  atHour(w, 19);
+  REQUIRE(awayPay(w, "dominique").size() == 1);
+  CHECK(awayPay(w, "dominique")[0].amountCents == std::llround(6.5 * 4600 * 0.8));
+  // In the world all day: no away pay (a shift in person is how you're paid then).
+  World online = World::createNew(realContent());
+  REQUIRE(online.connect("dominique"));
+  atHour(online, 20);
+  CHECK(awayPay(online, "dominique").empty());
+  // No job, no pay.
+  WorldState s = World::createNew(realContent()).state();
+  s.characters.at("dax").career.careerId.clear();
+  World jobless(realContent(), s);
+  atHour(jobless, 20);
+  CHECK(awayPay(jobless, "dax").empty());
+  CHECK(!awayPay(jobless, "dominique").empty());  // never played, still lives her routine
+  // An employer that can't pay pays nothing; the hours count, as they would for a shift in person.
+  World broke = World::createNew(realContent());
+  REQUIRE(broke.connect("dominique"));
+  broke.disconnect("dominique");
+  WorldState b = broke.state();
+  const Cents all = b.ledger.balance("org:meridian_talent");
+  REQUIRE(b.ledger.transfer("org:meridian_talent", kEconomyAccount, all, "opening_balance", "test", b.now));
+  World poor(realContent(), b);
+  const double hours = poor.character("dominique")->career.hoursAtLevel;
+  atHour(poor, 19);
+  CHECK(awayPay(poor, "dominique").empty());
+  CHECK(told(poor, "dominique", "couldn't pay you for your hours while you were away"));
+  CHECK_NEAR(poor.character("dominique")->career.hoursAtLevel, hours + 5, 1e-9);
+  CHECK(poor.state().ledger.sumOfBalances() == 0);
+  // Depressed, a character keeps up only the basics: no work.
+  World low = World::createNew(realContent());
+  REQUIRE(low.devAddCondition("dominique", "depression"));
+  atHour(low, 19);
+  CHECK(awayPay(low, "dominique").empty());
+}
+
+TEST_CASE("away: someone made in the creator works the default block on weekdays") {
+  World w = World::createNew(realContent());
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+  auto sol = w.createCharacter(Json::parse(in));
+  REQUIRE(sol);
+  // A barista with no schedule: 09:00-17:00 on weekdays (data), at the café's $21 an hour, paid as it ends.
+  atHour(w, 16);
+  CHECK(awayPay(w, sol.value()).empty());
+  atHour(w, 17);
+  const auto paid = awayPay(w, sol.value());
+  REQUIRE(paid.size() == 1);
+  CHECK(paid[0].from == "org:heritage_coffee");
+  CHECK(paid[0].amountCents == std::llround(8 * 2100 * 0.8));
+}
+
+TEST_CASE("away: a once-a-day player on an always-on clock stays solvent; without away pay they fall behind") {
+  // One 10-hour shift a real day; the rest of the real day (60 game days at 1:1) she's away. Six real days.
+  const auto noAwayPay = patchedContent([](Json& doc, const std::string& file) {
+    if (file == "life.json") doc["life"]["offline"]["away_work"]["pay_share"] = 0.0;
+  });
+  auto run = [](std::shared_ptr<const ContentDatabase> db) {
+    World w = World::createNew(std::move(db));
+    for (int realDay = 0; realDay < 6; ++realDay) {
+      const GameMinutes start = w.now();
+      REQUIRE(w.connect("dominique"));
+      walkInto(w, "dominique", "meridian_talent");
+      REQUIRE(w.startShift("dominique"));
+      w.advanceMinutes(10 * 60);
+      REQUIRE(w.endShift("dominique"));
+      w.disconnect("dominique");
+      w.advanceMinutes(start + 60 * kMinutesPerDay - w.now());
+    }
+    CHECK(w.state().ledger.sumOfBalances() == 0);
+    return std::pair<Cents, Cents>{w.state().ledger.balance(bankAccountOf("dominique")),
+                                   w.character("dominique")->rentArrearsCents};
+  };
+  const auto [bank, arrears] = run(realContent());
+  CHECK(arrears == 0);
+  CHECK(bank > 1450000);  // ahead of what she arrived with
+  const auto [bankWithout, arrearsWithout] = run(noAwayPay);
+  CHECK(arrearsWithout > 0);  // the review's finding: rent outruns one shift a real day
+  CHECK(bankWithout < bank);
+}
+
 // --- What you can see: look, the people stream, speech, the public rules -----------------
 
 namespace {
@@ -539,10 +1087,15 @@ TEST_CASE("people: on arrival you are told about yourself; then nothing until so
 }
 
 TEST_CASE("people: someone walking into sight appears with their target; walking straight on is silent") {
-  World w = onlineWorld();
+  // Lexington's and Maple Court's doors are 139 m apart: in sight at the real 160 m, so this test of crossing into
+  // sight keeps the earlier 120 m (the rule is the same at any range).
+  static const auto shortSight = patchedContent([](Json& doc, const std::string& file) {
+    if (file == "simulation.json") doc["simulation"]["sight_range_m"] = 120;
+  });
+  World w = onlineWorld(shortSight);
   REQUIRE(w.exitBuilding("dominique"));  // Lexington's door
   REQUIRE(w.exitBuilding("dax"));        // Maple Court's door, 139 m away
-  const double sight = realContent()->sim().sightRangeMeters;
+  const double sight = w.content().sim().sightRangeMeters;
   REQUIRE(apart(w, "dominique", "dax") > sight);
   CHECK(about(changesFor(tick(w), "dominique"), "dax").empty());
   CHECK(w.look("dominique").value()["people"].empty());
@@ -905,7 +1458,7 @@ TEST_CASE("map: the public rules, transit lines and interactions come from data"
   CHECK(rules["whisper_range_m"] == db.sim().whisperRangeMeters);
   CHECK(rules["say_range_m"] == db.sim().hearingRangeMeters);
   CHECK(rules["shout_range_m"] == db.sim().shoutRangeMeters);
-  CHECK(rules["sight_range_m"] == 120);
+  CHECK(rules["sight_range_m"] == 160);
   CHECK(rules["walk_speed_mps"] == db.sim().walkSpeedMetersPerSecond);
   CHECK(rules["minutes_per_real_second"] == db.sim().minutesPerRealSecond);
   CHECK(rules["entry_radius_m"] == db.sim().entryRadiusMeters);

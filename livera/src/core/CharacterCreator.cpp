@@ -138,8 +138,19 @@ Json World::creatorOptions() const {
     if (!career.entryLevel || career.workplaces.empty()) continue;
     Json workplaces = Json::array();
     for (const auto& w : career.workplaces) workplaces.push_back(content_->location(w)->name);
+    // Which education answers qualify, by the rule `apply` uses, so a client can offer only those jobs.
+    Json educations = Json::array();
+    for (const auto& answer : c.education.options) {
+      const auto held = content_->education().creatorEducation.find(answer);
+      const std::vector<std::string> none;
+      if (meetsEntryRequirements(career, held == content_->education().creatorEducation.end() ? none : held->second,
+                                 false))
+        educations.push_back(answer);
+    }
+    const DegreeDef* needs = content_->degree(career.requiresDegree);
     careers.push_back(Json{{"id", id}, {"name", career.name}, {"starting_title", career.levels.front().title},
-                           {"hourly_cents", career.levels.front().hourlyCents}, {"workplaces", workplaces}});
+                           {"hourly_cents", career.levels.front().hourlyCents}, {"workplaces", workplaces},
+                           {"requires_degree", needs ? Json(needs->name) : Json()}, {"educations", educations}});
   }
   const SimulationConfig& sim = content_->sim();
   Json ageGroups = Json::array();
@@ -268,6 +279,12 @@ Result<CharacterId> World::createCharacter(const Json& spec) {
   const CareerDef* career = db.career(text("career"));
   if (!career || !career->entryLevel || career->workplaces.empty())
     return fail("invalid_character", "choose a starting career from the list");
+  // What you studied before Livéra counts: a law degree means you can practise law here. A starting job needs
+  // what `apply` would ask of you (a newcomer has no record here yet).
+  if (auto it = db.education().creatorEducation.find(education.value()); it != db.education().creatorEducation.end())
+    def.degrees = it->second;
+  if (Status st = meetsEntryRequirements(*career, def.degrees, false); !st)
+    return fail(st.error().code, st.error().message + " (with " + education.value() + " you can't start there)");
   def.careerId = career->id;
   def.careerLevel = std::clamp(origin->careerLevelBonus, 0, static_cast<int>(career->levels.size()) - 1);
   def.startingBankCents = origin->bankCents;
@@ -296,10 +313,6 @@ Result<CharacterId> World::createCharacter(const Json& spec) {
                      {"goals", goals.value()},
                      {"background", background},
                      {"tagline", origin->label}};
-
-  // What you studied before Livéra counts: a law degree means you can practise law here.
-  if (auto it = db.education().creatorEducation.find(education.value()); it != db.education().creatorEducation.end())
-    def.degrees = it->second;
 
   if (Status st = db.validateCharacter(def, [this](const std::string& other) { return definition(other) != nullptr; }); !st)
     return st.error();

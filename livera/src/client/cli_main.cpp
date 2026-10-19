@@ -644,6 +644,10 @@ const char* kHelpDetails = R"(Little things:
   give PERSON birthday_cake on their birthday it means a lot more than a gift)";
 // } m08:details
 
+const char* kHelpRedesign = R"(The day's shape:
+  phone goals               today's three goals and your aspirations (what's done comes from what you did)
+  sleep                     go to bed at home, 21:00-03:00; anything but look and the phone gets you up)";
+
 
 // Returns false to quit.
 bool runCommand(Client& c, const std::string& input) {
@@ -666,7 +670,7 @@ bool runCommand(Client& c, const std::string& input) {
   Json req;
   if (cmd == "help") {
     std::printf("%s\n", kHelp);
-    for (const char* more : {kHelpHomes, kHelpWork, kHelpWallet, kHelpLeisure, kHelpPets, kHelpDetails}) {
+    for (const char* more : {kHelpHomes, kHelpWork, kHelpWallet, kHelpLeisure, kHelpPets, kHelpDetails, kHelpRedesign}) {
       if (*more) std::printf("%s\n", more);
     }
     return true;
@@ -1003,6 +1007,8 @@ bool runCommand(Client& c, const std::string& input) {
   } else if (cmd == "laundry") {
     req = {{"op", "laundry"}};
     // } m08:details
+  } else if (cmd == "sleep") {
+    req = {{"op", "sleep"}};
   } else if (cmd == "skip") {
     req = {{"op", "dev_advance"}, {"minutes", std::stoll(arg())}};
   } else if (cmd == "logout") {

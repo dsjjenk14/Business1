@@ -223,7 +223,12 @@ TEST_CASE("server: the founding vertical slice works over the network and surviv
     jax.ok({{"op", "work"}, {"action", "start"}});
     jax.ok({{"op", "dev_advance"}, {"minutes", 8 * 60}});
     Json pay = jax.ok({{"op", "work"}, {"action", "end"}});
-    CHECK(pay["pay_cents"] == 8 * 6800);  // Senior AI Engineer
+    // Senior AI Engineer, by the hour. The server's clock keeps ticking while the skip is handled, so the shift can
+    // be a minute or two over eight hours (more under the sanitizers): pay follows the minutes the shift reports.
+    const auto worked = pay["minutes_worked"].get<GameMinutes>();
+    CHECK(worked >= 8 * 60);
+    CHECK(worked <= 8 * 60 + 3);
+    CHECK(pay["pay_cents"] == std::llround(static_cast<double>(worked) / 60.0 * 6800));
     jax.pump(0.3);
     CHECK(jax.sawEvent("notification"));  // paycheck deposited
 
@@ -480,6 +485,154 @@ Json listed(TestClient& c, const std::string& id) {
 
 }  // namespace
 
+TEST_CASE("server: look carries effects and cooldowns, map the opening hours, characters homes and workplaces") {
+  RunningServer server(tempPath("views_net.db").string());
+  TestClient sol(server.port());
+  sol.login("sol", "sol-pass-123");
+  // The pick list: every founder's home and workplace, by name.
+  const Json dom = listed(sol, "dominique");
+  CHECK(dom["home"].is_string());
+  CHECK(dom["workplace"] == "Meridian Talent Partners");
+  // Your own made character is listed with the same fields.
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+  sol.ok({{"op", "create_character"}, {"character", Json::parse(in)}});
+  const Json mine = listed(sol, "sol-rivera");
+  CHECK(mine["created"] == true);
+  CHECK(mine["home"].is_string());
+  CHECK(mine["workplace"].is_string());
+  const Json here = sol.ok({{"op", "play"}})["here"];  // play answers look: Sol starts at home
+  REQUIRE(!here["activities"].empty());
+  std::string used;
+  for (const auto& a : here["activities"]) {
+    CHECK(a["needs"].is_object());
+    CHECK(a["ready_at"].is_null());
+    if (used.empty() && a["id"] != "restroom") used = a["id"].get<std::string>();
+  }
+  REQUIRE(!used.empty());
+  sol.ok({{"op", "activity"}, {"activity", used}});
+  Json again;
+  const Json after = sol.ok({{"op", "look"}})["here"]["activities"];
+  for (const auto& a : after) {
+    if (a["id"] == used) again = a;
+  }
+  REQUIRE(again.is_object());
+  CHECK(again["ready_at"].is_number_integer());
+  CHECK(again["ready_in_minutes"].get<int>() > 0);
+  // The map: opening hours and days per place.
+  const Json places = sol.ok({{"op", "map"}})["places"];
+  int withHours = 0;
+  for (const auto& p : places) {
+    CHECK(p.contains("hours") && p.contains("open_days"));
+    if (p["id"] == "heritage_coffee") CHECK(p["hours"] == Json::array({6, 20}));
+    withHours += p["hours"].is_array() ? 1 : 0;
+  }
+  CHECK(withHours > 0);
+}
+
+TEST_CASE("server: the goals phone app answers about your own character only") {
+  RunningServer server(tempPath("goals_net.db").string());
+  TestClient dom(server.port()), dax(server.port());
+  dom.login("dom", "dom-pass-123");
+  dax.login("dax", "dax-pass-123");
+  CHECK(dom.refusal({{"op", "phone"}, {"app", "goals"}}) == "not_playing");
+  dom.ok({{"op", "play"}, {"character", "dominique"}});
+  dax.ok({{"op", "play"}, {"character", "dax"}});
+  // Asking about someone else isn't a thing: extra arguments are ignored and the answer is still yours.
+  const Json mine = dom.ok({{"op", "phone"}, {"app", "goals"}, {"character", "dax"}});
+  REQUIRE(mine["today"].size() == 3);
+  for (const auto& g : mine["today"]) {
+    CHECK(g["label"].is_string());
+    CHECK(g["done"].is_boolean());
+    CHECK(g["progress"].is_string());
+  }
+  CHECK(mine["from"] == "story");
+  CHECK(mine["aspirations"][0]["id"] == "get_promoted");
+  CHECK(mine == dom.ok({{"op", "phone"}, {"app", "goals"}}));
+  const Json his = dax.ok({{"op", "phone"}, {"app", "goals"}});
+  CHECK(his["aspirations"] != mine["aspirations"]);
+  CHECK(his.dump().find("dominique") == std::string::npos);
+}
+
+TEST_CASE("server: --night-skip skips the night only when everyone playing is asleep") {
+  RunningServer server(tempPath("night_skip.db").string(), true, [](ServerConfig& cfg) { cfg.nightSkip = true; });
+  TestClient dom(server.port()), dax(server.port());
+  dom.login("dom", "dom-pass-123");
+  dax.login("dax", "dax-pass-123");
+  dom.ok({{"op", "play"}, {"character", "dominique"}});
+  dax.ok({{"op", "play"}, {"character", "dax"}});  // both start at home
+  dom.ok({{"op", "dev_advance"}, {"minutes", 14 * 60 + 30}});  // 21:30
+  const Json first = dom.ok({{"op", "sleep"}});
+  CHECK(first["asleep"] == true);
+  CHECK(first["night_skip"]["on"] == true);
+  CHECK(first["night_skip"]["others_awake"] == 1);
+  // One person still up: the night goes on at its usual pace.
+  dom.pump(1.0);
+  CHECK(dom.ok({{"op", "look"}})["time"]["hour"] == 21);
+  CHECK(!dom.sawEvent("good_morning"));
+  const Json second = dax.ok({{"op", "sleep"}});
+  CHECK(second["night_skip"]["others_awake"] == 0);
+  // Everyone playing is asleep: the next tick lives the night out, and both wake to a good morning.
+  for (int i = 0; i < 40 && !(dom.sawEvent("good_morning") && dax.sawEvent("good_morning")); ++i) {
+    dom.pump(0.1);
+    dax.pump(0.1);
+  }
+  CHECK(dom.sawEvent("good_morning"));
+  CHECK(dax.sawEvent("good_morning"));
+  const Json morning = dom.ok({{"op", "look"}});
+  CHECK(morning["time"]["hour"] == 7);
+  CHECK(morning["you"]["asleep"] == false);
+  for (const auto& e : dom.events) {
+    if (e["event"] == "good_morning") CHECK(e["data"]["skipped"] == true);
+  }
+}
+
+TEST_CASE("server: without --night-skip, going to bed never skips time") {
+  RunningServer server(tempPath("no_night_skip.db").string());
+  TestClient dom(server.port());
+  dom.login("dom", "dom-pass-123");
+  dom.ok({{"op", "play"}, {"character", "dominique"}});
+  CHECK(dom.refusal({{"op", "sleep"}}) == "not_bedtime");
+  dom.ok({{"op", "dev_advance"}, {"minutes", 14 * 60 + 30}});
+  const Json slept = dom.ok({{"op", "sleep"}});
+  CHECK(slept["night_skip"]["on"] == false);
+  CHECK(slept["night_skip"]["others_awake"] == 0);
+  dom.pump(1.0);
+  const Json look = dom.ok({{"op", "look"}});
+  CHECK(look["time"]["hour"] == 21);
+  CHECK(look["you"]["asleep"] == true);
+  CHECK(!dom.sawEvent("good_morning"));
+  dom.ok({{"op", "exit"}});  // any command gets you up
+  CHECK(dom.ok({{"op", "look"}})["you"]["asleep"] == false);
+}
+
+TEST_CASE("server: --pause-when-empty stops the clock while nobody is in the world") {
+  RunningServer paused(tempPath("pause_empty.db").string(), true, [](ServerConfig& cfg) {
+    cfg.pauseWhenEmpty = true;
+    cfg.autopilot = true;  // the autopilot's founders don't keep the town running on their own
+  });
+  TestClient dom(paused.port());
+  dom.login("dom", "dom-pass-123");  // logged in, not in the world
+  const std::string before = dom.ok({{"op", "hello"}})["world_time"].get<std::string>();
+  dom.pump(2.5);
+  CHECK(dom.ok({{"op", "hello"}})["world_time"] == before);
+  // A person in the world: time runs.
+  dom.ok({{"op", "play"}, {"character", "dominique"}});
+  dom.pump(2.5);
+  const std::string playing = dom.ok({{"op", "hello"}})["world_time"].get<std::string>();
+  CHECK(playing != before);
+  // They leave: it stops again.
+  dom.ok({{"op", "logout"}});
+  const std::string left = dom.ok({{"op", "hello"}})["world_time"].get<std::string>();
+  dom.pump(2.5);
+  CHECK(dom.ok({{"op", "hello"}})["world_time"] == left);
+  // Without the flag (the default) the town runs on with nobody in it.
+  RunningServer running(tempPath("run_empty.db").string());
+  TestClient sam(running.port());
+  const std::string at = sam.ok({{"op", "hello"}})["world_time"].get<std::string>();
+  sam.pump(2.5);
+  CHECK(sam.ok({{"op", "hello"}})["world_time"] != at);
+}
+
 TEST_CASE("server: every reply names its request, refusals included") {
   RunningServer server(tempPath("re.db").string(), /*dev=*/false);
   RawClient c(server.port());
@@ -519,7 +672,7 @@ TEST_CASE("server: welcome and hello carry the protocol name and the public rule
   TestClient c(server.port());
   const Json hello = c.ok({{"op", "hello"}});
   CHECK(hello["protocol"] == "livera/1");
-  CHECK(hello["rules"]["sight_range_m"] == 120);
+  CHECK(hello["rules"]["sight_range_m"] == 160);
   CHECK(hello["rules"]["say_range_m"] == 20);
   CHECK(hello["rules"]["walk_speed_mps"] == 400.0);  // this test server's fast walking, from its data
   REQUIRE(!c.events.empty());

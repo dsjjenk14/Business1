@@ -43,7 +43,7 @@ Every player-caused change goes through a `World` command method:
 ```
 moveTo · enter · exitBuilding · interact · buy · useActivity · startShift · endShift ·
 sendMessage · say · tip · createCharacter · saveSong · releaseSong · openSong · perform ·
-openPhoneApp · connect · disconnect
+openPhoneApp · sleep · connect · disconnect
 ```
 
 Each validates against current state (is the character in the world? at the door? allowed
@@ -135,6 +135,9 @@ The target today is one world shard with up to 16 people plus up to 16 scripted 
 | `src/core/WorldViews.cpp` | What each character is allowed to see (`look`, phone apps). |
 | `src/core/CharacterCreator.cpp` | Character creator: validates a sheet against data, founds the resident. |
 | `src/core/Music.cpp` | Songs, releases, the town chart, live performance. |
+| `src/core/Goals.cpp` | Daily goals and aspirations, read from the character's own records (D-061). |
+| `src/core/Sleep.cpp` | Going to bed, waking, and `World::skipNight`, the night skip every host calls (D-062). |
+| `src/core/Away.cpp` | The away routine's work: scheduled blocks spent offline paid at a share (D-063). |
 | `src/core/Serialization.*` | JSON encoding of state records for the save format, and the whole world as one JSON document (the single-player save). |
 | `src/protocol/WorldOps.*` | The in-world op routing (`look`, `move`, `buy`...) shared by the server and the single-player build. |
 | `src/protocol/LocalTown.*` | A whole town in one process with no sockets, accounts or SQLite: the World, the autopilot and who is playing, with the server's tick order and refusals (D-056). |

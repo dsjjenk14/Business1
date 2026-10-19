@@ -236,3 +236,199 @@ TEST_CASE("autopilot: asks addressed to it are declined, and it never takes some
   CHECK(t.logged("declines a 'date' ask from dax"));
   CHECK(t.stat("dominique", "asks_declined") == 1);
 }
+
+// ---- Manners (D-064) ---------------------------------------------------------------------------
+
+namespace {
+
+// Dax's weekday starts at Heritage Coffee at 07:00 (it opens at 06:00) and stays there till 10:00, so a person can
+// meet him there; `chat` sets the chance he starts a chat with someone he knows (base, nothing else).
+std::shared_ptr<const ContentDatabase> cafeContent(double chat, const Json& asks = Json()) {
+  return patchedContent([=](Json& doc, const std::string& file) {
+    if (file == "dax.json")
+      doc["characters"][0]["profile"]["schedule"]["weekdays"] =
+          Json::array({Json{{"time", "07:00"}, {"activity", "Heritage Coffee"}},
+                       Json{{"time", "10:00"}, {"activity", "Parallax Labs"}, {"work", true}}});
+    if (file == "julian.json")
+      doc["characters"][0]["profile"]["schedule"]["weekdays"] =
+          Json::array({Json{{"time", "07:00"}, {"activity", "Heritage Coffee"}},
+                       Json{{"time", "10:00"}, {"activity", "Parallax Labs"}, {"work", true}}});
+    if (file == "manners.json") {
+      Json& c = doc["autopilot_manners"]["chat"];
+      c["base"] = chat;
+      c["per_trait"] = 0.0;
+      c["per_friendship"] = 0.0;
+      if (!asks.is_null()) doc["autopilot_manners"]["asks"] = asks;
+    }
+  });
+}
+
+std::vector<Json> heard(const std::vector<WorldEvent>& events, const CharacterId& listener, const CharacterId& from) {
+  std::vector<Json> out;
+  for (const auto& e : events) {
+    if (e.type == "speech" && e.recipients == std::vector<CharacterId>{listener} && e.data.value("from", "") == from)
+      out.push_back(e.data);
+  }
+  return out;
+}
+
+int interactionsFrom(const std::vector<WorldEvent>& events, const CharacterId& to, const CharacterId& from) {
+  int n = 0;
+  for (const auto& e : events)
+    n += e.type == "interaction" && e.recipients.front() == to && e.data.value("from", "") == from;
+  return n;
+}
+
+// A town where every event is kept (the autopilot still sees them first, as the server's routing does).
+struct WatchedTown : Town {
+  std::vector<WorldEvent> events;
+  using Town::Town;
+  void tick(double seconds = 0.5) {
+    world.advanceRealTime(seconds);
+    pilot.step(world, seconds);
+    auto batch = world.drainEvents();
+    pilot.observe(batch);
+    for (auto& e : batch) events.push_back(std::move(e));
+  }
+  bool runUntil(double seconds, const std::function<bool()>& done) {
+    for (double t = 0; t < seconds; t += 0.5) {
+      if (done()) return true;
+      tick();
+    }
+    return done();
+  }
+};
+
+}  // namespace
+
+TEST_CASE("autopilot manners: a founder greets a person once per game day, by name only if they know them") {
+  WatchedTown t(cafeContent(0.0));
+  REQUIRE(t.world.connect("dominique"));
+  t.pilot.start(t.world, {"dax"});
+  REQUIRE(t.runUntil(200, [&] { return t.you("dax").value("inside", "") == "heritage_coffee"; }));
+  walkInto(t.world, "dominique", "heritage_coffee");
+  REQUIRE(t.runUntil(20, [&] { return !heard(t.events, "dominique", "dax").empty(); }));
+  const auto hi = heard(t.events, "dominique", "dax");
+  REQUIRE(hi.size() == 1);
+  CHECK(hi[0]["text"].get<std::string>().find("Dominique") != std::string::npos);  // they know each other
+  CHECK(t.logged("greet"));
+  CHECK(t.stat("dax", "greetings") == 1);
+  // The rest of the morning together: no second greeting the same day.
+  t.runUntil(60, [] { return false; });
+  CHECK(heard(t.events, "dominique", "dax").size() == 1);
+  // A stranger is greeted without a name.
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+  auto sol = t.world.createCharacter(Json::parse(in));
+  REQUIRE(sol);
+  REQUIRE(t.world.connect(sol.value()));
+  walkInto(t.world, sol.value(), "heritage_coffee");
+  REQUIRE(t.runUntil(20, [&] { return !heard(t.events, sol.value(), "dax").empty(); }));
+  for (const auto& line : heard(t.events, sol.value(), "dax"))
+    CHECK(line["text"].get<std::string>().find("Sol") == std::string::npos);
+  // Another day, another greeting.
+  t.skipTo(6, 55);
+  const std::size_t before = heard(t.events, "dominique", "dax").size();
+  REQUIRE(t.runUntil(300, [&] { return heard(t.events, "dominique", "dax").size() > before; }));
+}
+
+TEST_CASE("autopilot manners: founders never greet or chat with each other, only with people") {
+  WatchedTown t(cafeContent(1.0));
+  t.pilot.start(t.world, {"dax", "julian"});
+  REQUIRE(t.runUntil(250, [&] {
+    return t.you("dax").value("inside", "") == "heritage_coffee" &&
+           t.you("julian").value("inside", "") == "heritage_coffee";
+  }));
+  t.runUntil(60, [] { return false; });
+  CHECK(heard(t.events, "julian", "dax").empty());
+  CHECK(heard(t.events, "dax", "julian").empty());
+  CHECK(interactionsFrom(t.events, "julian", "dax") == 0);
+  CHECK(interactionsFrom(t.events, "dax", "julian") == 0);
+  CHECK(t.stat("dax", "greetings") == 0);
+  CHECK(t.stat("dax", "chats") == 0);
+}
+
+TEST_CASE("autopilot manners: someone they know may get a chat, at most once a day, and never if the data says no") {
+  {
+    WatchedTown t(cafeContent(1.0));
+    REQUIRE(t.world.connect("dominique"));
+    t.pilot.start(t.world, {"dax"});
+    REQUIRE(t.runUntil(200, [&] { return t.you("dax").value("inside", "") == "heritage_coffee"; }));
+    walkInto(t.world, "dominique", "heritage_coffee");
+    REQUIRE(t.runUntil(30, [&] { return interactionsFrom(t.events, "dominique", "dax") == 1; }));
+    t.runUntil(60, [] { return false; });
+    CHECK(interactionsFrom(t.events, "dominique", "dax") == 1);  // once a day
+    CHECK(t.stat("dax", "chats") == 1);
+    CHECK(t.stat("dax", "refusals") == 0);
+    CHECK(t.world.relationship("dax", "dominique")->lastInteractionAt >= 0);  // Dax's move, through the World
+  }
+  {
+    WatchedTown t(cafeContent(0.0));
+    REQUIRE(t.world.connect("dominique"));
+    t.pilot.start(t.world, {"dax"});
+    REQUIRE(t.runUntil(200, [&] { return t.you("dax").value("inside", "") == "heritage_coffee"; }));
+    walkInto(t.world, "dominique", "heritage_coffee");
+    t.runUntil(60, [] { return false; });
+    CHECK(interactionsFrom(t.events, "dominique", "dax") == 0);
+    CHECK(t.stat("dax", "greetings") == 1);  // a hello all the same
+  }
+}
+
+TEST_CASE("autopilot manners: asks are answered by the data's rules, from their own feelings; never intimacy") {
+  auto askDax = [](WatchedTown& t, const std::string& kind) {
+    REQUIRE(t.world.connect("dominique"));
+    t.pilot.start(t.world, {"dax"});
+    REQUIRE(t.runUntil(200, [&] { return t.you("dax").value("inside", "") == "heritage_coffee"; }));
+    walkInto(t.world, "dominique", "heritage_coffee");
+    t.runUntil(6, [] { return false; });  // his hello first
+    auto ask = t.world.request("dominique", kind, "dax");
+    REQUIRE(ask);
+    return ask.value()["request"].get<std::string>();
+  };
+  {
+    // A rule Dax's feelings meet: he says yes, and the World makes them a couple.
+    WatchedTown t(cafeContent(0.0, Json::array({Json{{"kind", "date"}, {"min", {{"compatibility", 0}}}}})));
+    askDax(t, "date");
+    REQUIRE(t.runUntil(10, [&] { return t.stat("dax", "asks_accepted") == 1; }));
+    CHECK(t.logged("accepts a 'date' ask from dominique"));
+    CHECK(t.world.relationshipStatus("dax", "dominique") == "dating");
+  }
+  {
+    // His own side falls short of the rule: no (the real data: a date needs romantic attraction 15 from him).
+    WatchedTown t(cafeContent(0.0, Json::array({Json{{"kind", "date"}, {"min", {{"friendship", 101}}}}})));
+    askDax(t, "date");
+    REQUIRE(t.runUntil(10, [&] { return t.stat("dax", "asks_declined") == 1; }));
+    CHECK(t.logged("friendship"));
+    CHECK(t.world.relationshipStatus("dax", "dominique").empty());
+  }
+  {
+    // A kind with no rule (a kiss, here) is declined.
+    WatchedTown t(cafeContent(0.0, Json::array({Json{{"kind", "date"}, {"min", {{"compatibility", 0}}}}})));
+    askDax(t, "kiss");
+    REQUIRE(t.runUntil(10, [&] { return t.stat("dax", "asks_declined") == 1; }));
+    CHECK(t.logged("no rule for a 'kiss' ask"));
+  }
+  // Intimacy can't even be written into the rules.
+  auto bad = [](const Json& asks) {
+    std::vector<std::pair<std::string, Json>> docs;
+    std::vector<std::filesystem::path> files;
+    for (const auto& e : std::filesystem::recursive_directory_iterator(LIVERA_DATA_DIR)) {
+      if (e.path().extension() == ".json") files.push_back(e.path());
+    }
+    std::sort(files.begin(), files.end());
+    for (const auto& f : files) {
+      std::ifstream in(f);
+      Json doc = Json::parse(in, nullptr, true, true);
+      if (f.filename() == "manners.json") doc["autopilot_manners"]["asks"] = asks;
+      docs.emplace_back(f.filename().string(), std::move(doc));
+    }
+    auto r = ContentDatabase::loadFromDocuments(docs);
+    return r ? std::string("(loaded)") : r.error().message;
+  };
+  CHECK(bad(Json::array({Json{{"kind", "intimacy"}, {"min", {{"friendship", 90}}}}})).find("never intimacy") !=
+        std::string::npos);
+  CHECK(bad(Json::array({Json{{"kind", "elope"}, {"min", Json::object()}}})).find("unknown ask kind") !=
+        std::string::npos);
+  CHECK(bad(Json::array({Json{{"kind", "date"}, {"min", {{"vibes", 1}}}}})).find("unknown dimension") !=
+        std::string::npos);
+  CHECK(bad(Json::array()) == "(loaded)");
+}

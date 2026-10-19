@@ -17,8 +17,75 @@
 #include <tuple>
 
 #include "core/Clock.h"
+#include "core/ContentParse.h"
+#include "core/Schedule.h"
 
 namespace livera {
+
+// ---- Content: the autopilot's manners (data/society/manners.json) -------------------------------
+Status ContentDatabase::ingestManners(const std::string& source, const std::string& section, const Json& body,
+                                      bool& handled) {
+  handled = section == "autopilot_manners";
+  if (!handled) return okStatus();
+  if (haveManners_) return fail("content_duplicate", source + ": 'autopilot_manners' defined twice");
+  haveManners_ = true;
+  try {
+    AutopilotMannersConfig& M = manners_;
+    const Json greet = body.value("greet", Json::object());
+    M.greetRangeMeters = greet.value("range_m", M.greetRangeMeters);
+    M.greetKnown = content_parse::readStrings(greet, "known");
+    M.greetStranger = content_parse::readStrings(greet, "stranger");
+    const Json chat = body.value("chat", Json::object());
+    M.chatInteraction = chat.value("interaction", "");
+    M.chatTrait = chat.value("trait", "");
+    M.chatBase = chat.value("base", 0.0);
+    M.chatPerTrait = chat.value("per_trait", 0.0);
+    M.chatPerFriendship = chat.value("per_friendship", 0.0);
+    for (const auto& a : body.value("asks", Json::array()))
+      M.asks.push_back(AutopilotAskRule{a.at("kind").get<std::string>(), content_parse::readStats(a, "min")});
+  } catch (const std::exception& e) {
+    return fail("content_invalid", source + ": " + e.what());
+  }
+  return okStatus();
+}
+
+Status ContentDatabase::validateManners() const {
+  const AutopilotMannersConfig& M = manners_;
+  // A greeting nobody could hear would be a script talking to itself.
+  if (M.greetRangeMeters < 0 || M.greetRangeMeters > sim_.hearingRangeMeters)
+    return fail("content_invalid", "autopilot_manners.greet.range_m must be within the say range (hearing_range_m)");
+  if (M.greetKnown.empty() != M.greetStranger.empty())
+    return fail("content_invalid", "autopilot_manners.greet needs lines for people they know and for strangers");
+  for (const auto& lines : {M.greetKnown, M.greetStranger}) {
+    for (const auto& l : lines) {
+      if (l.empty() || static_cast<int>(l.size()) > sim_.maxSpeechLength)
+        return fail("content_invalid", "autopilot_manners.greet: a line is empty or too long to say");
+    }
+  }
+  if (!M.chatInteraction.empty() && !interaction(M.chatInteraction))
+    return fail("content_invalid", "autopilot_manners.chat: unknown interaction '" + M.chatInteraction + "'");
+  const auto& traits = sim_.personalityTraits;
+  if (!M.chatTrait.empty() && std::find(traits.begin(), traits.end(), M.chatTrait) == traits.end())
+    return fail("content_invalid", "autopilot_manners.chat: unknown personality trait '" + M.chatTrait + "'");
+  for (double p : {M.chatBase, M.chatPerTrait, M.chatPerFriendship}) {
+    if (p < 0 || p > 1) return fail("content_invalid", "autopilot_manners.chat: chances are 0-1");
+  }
+  const std::set<std::string> kinds{"date", "kiss", "propose", "marry", "buy_home", "move_in", "sell_home", "nanny"};
+  const std::set<std::string> dims(sim_.relationshipDimensions.begin(), sim_.relationshipDimensions.end());
+  std::set<std::string> seen;
+  for (const auto& a : M.asks) {
+    // Rule 6 and D-025: a script never consents to intimacy for a character, whatever the data says.
+    if (a.kind == "intimacy") return fail("content_invalid", "autopilot_manners.asks: never intimacy");
+    if (!kinds.count(a.kind))
+      return fail("content_invalid", "autopilot_manners.asks: unknown ask kind '" + a.kind + "'");
+    if (!seen.insert(a.kind).second) return fail("content_duplicate", "autopilot_manners.asks: '" + a.kind + "' twice");
+    for (const auto& [dim, v] : a.min) {
+      if (!dims.count(dim))
+        return fail("content_invalid", "autopilot_manners.asks." + a.kind + ": unknown dimension '" + dim + "'");
+    }
+  }
+  return okStatus();
+}
 
 namespace {
 
@@ -295,32 +362,12 @@ struct Matcher {
   }
 };
 
-// The schedule lines for a weekday: the weekdays (Mon-Fri) or weekend lines, then the day's own lines, which
-// win at the same time.
+// The schedule lines for a weekday, as text (core/Schedule.h reads them the same way for the away routine).
 std::vector<std::pair<int, std::string>> scheduleEntries(const Json& schedule, int weekday) {
-  std::map<int, std::string> out;
-  const std::string general = weekday < 5 ? "weekdays" : "weekends";
-  const std::string day = weekdayName(weekday);
-  std::string dayLower;
-  for (char ch : day) dayLower += static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
-  if (!schedule.is_object()) return {};
-  for (const std::string& name : {general, general.substr(0, general.size() - 1), dayLower}) {
-    const auto it = schedule.find(name);
-    if (it == schedule.end() || !it->is_array()) continue;
-    for (const auto& e : *it) {
-      if (!e.is_object() || !e.contains("time") || !e["time"].is_string()) continue;
-      const std::string t = e["time"].get<std::string>();
-      const auto colon = t.find(':');
-      if (colon == std::string::npos) continue;
-      try {
-        const int minute = std::stoi(t.substr(0, colon)) * 60 + std::stoi(t.substr(colon + 1));
-        out[minute] = e.value("activity", std::string());
-      } catch (const std::exception&) {
-        continue;
-      }
-    }
-  }
-  return {out.begin(), out.end()};
+  std::vector<std::pair<int, std::string>> out;
+  for (const auto& [minute, e] : schedule::entriesFor(schedule, weekday))
+    out.emplace_back(minute, e.value("activity", std::string()));
+  return out;
 }
 
 // --- Content helpers (the same reading of data/ the director does) ------------------------------
@@ -427,6 +474,8 @@ struct Autopilot::Impl {
     std::int64_t committedSleepDay = -1;
     std::int64_t boughtOn = -1;  // the day of the one everyday purchase
     std::vector<Json> pendingAsks;
+    std::map<CharacterId, std::int64_t> greeted;     // person -> the game day they were last greeted
+    std::map<CharacterId, std::int64_t> chatRolled;  // person -> the game day a chat with them was last considered
     std::map<std::string, int> stats;
     std::string lastOnce;
     std::set<std::string> unmatchedLogged;
@@ -874,6 +923,7 @@ struct Autopilot::Impl {
     const DateTime d = toDateTime(now);
     const std::int64_t day = d.dayIndex;
     const int mod = static_cast<int>(now % kMinutesPerDay);
+    if (manners(w, b, look, day)) return;
     if (b.ctxDay != day) discover(w, b, day);
     DayPlan& plan = planFor(w, b, day, d.weekday);
     const Json& you = look["you"];
@@ -943,6 +993,90 @@ struct Autopilot::Impl {
     if (goal.kind == Kind::Place && plan.has(goal) && !tooLateChecked(w, b, goal, you, pos, plan, now)) return;
     goal = urgent(w, b, look, goal, now);
     pursue(w, b, look, goal, plan, now);
+  }
+
+  // People it meets: a greeting once per person per game day (by name only if it knows them), and now and then a
+  // chat with someone it knows. People only: never another autopilot founder or a script (`scripted` in look),
+  // and only someone close enough to hear it. One command at most, like any turn; true if one went out.
+  bool manners(World& w, Bot& b, const Json& look, std::int64_t day) {
+    const AutopilotMannersConfig& M = w.content().autopilotManners();
+    const std::string inside = look["you"].value("inside", std::string());
+    const Json people = look.value("people", Json::array());
+    for (const auto& p : people) {
+      const CharacterId pid = p.value("id", std::string());
+      if (pid.empty() || p.value("scripted", false)) continue;
+      const bool sameRoom = !inside.empty() && p.value("inside", std::string()) == inside;
+      const double apart = p.value("distance_m", 1e9);
+      if (!sameRoom && (!inside.empty() || apart > M.greetRangeMeters)) continue;
+      const bool known = p.value("known", false);
+      const CharacterDef* them = w.definition(pid);
+      const std::string first = them ? them->firstName : pid;
+      auto greetedIt = b.greeted.find(pid);
+      if (!M.greetKnown.empty() && (greetedIt == b.greeted.end() || greetedIt->second != day)) {
+        b.greeted[pid] = day;
+        const std::vector<std::string>& lines = known ? M.greetKnown : M.greetStranger;
+        std::string line = lines[pick(w, lines.size())];
+        for (auto at = line.find("{first}"); at != std::string::npos; at = line.find("{first}"))
+          line.replace(at, 7, first);
+        ++b.stats["commands"];
+        auto r = w.say(b.id, line, "say");
+        ++b.stats["greetings"];
+        log(w, b, "greet", "says \"" + line + "\" to " + first + (r ? "" : "; the world said " + r.error().code));
+        pause(b, jittered(w, 2.0));
+        return true;
+      }
+      const InteractionDef* chat = w.content().interaction(M.chatInteraction);
+      auto rolledIt = b.chatRolled.find(pid);
+      if (!known || !chat || (rolledIt != b.chatRolled.end() && rolledIt->second == day)) continue;
+      if (!sameRoom && apart > chat->rangeMeters) continue;
+      b.chatRolled[pid] = day;  // considered once a day: lingering nearby doesn't make a chat certain
+      const CharacterDef* me = w.definition(b.id);
+      const auto trait = me ? me->personality.find(M.chatTrait) : StatMap::const_iterator();
+      const double t = me && trait != me->personality.end() ? trait->second : 50;
+      const double friendship = std::max(0.0, w.relationshipValue(b.id, pid, "friendship"));  // its own side
+      const double chance =
+          std::clamp(M.chatBase + M.chatPerTrait * t / 100 + M.chatPerFriendship * friendship / 100, 0.0, 1.0);
+      if (w.roll() >= chance) continue;
+      ++b.stats["commands"];
+      auto r = w.interact(b.id, chat->id, pid);
+      if (!r) {
+        refused(w, b, "interact", pid, r.error(), 10, 300);
+        return true;
+      }
+      ++b.stats["chats"];
+      log(w, b, "chat",
+          chat->label + " with " + first + " (someone it knows): " + r.value().value("reaction", std::string()));
+      pause(b, jittered(w, 2.0));
+      return true;
+    }
+    return false;
+  }
+
+  // Answers an ask by the data's rule for its kind, from its own side of the relationship with the asker; a kind
+  // with no rule is declined, and intimacy always is.
+  bool acceptsAsk(const World& w, const Bot& b, const std::string& kind, const CharacterId& from,
+                  std::string& why) const {
+    if (kind == "intimacy") {
+      why = "the autopilot never accepts intimacy";
+      return false;
+    }
+    const auto& rules = w.content().autopilotManners().asks;
+    const auto rule =
+        std::find_if(rules.begin(), rules.end(), [&](const AutopilotAskRule& r) { return r.kind == kind; });
+    if (rule == rules.end()) {
+      why = "the autopilot's data has no rule for a '" + kind + "' ask";
+      return false;
+    }
+    for (const auto& [dim, min] : rule->min) {
+      const double v = w.relationshipValue(b.id, from, dim);
+      if (v < min) {
+        why = dim + " " + std::to_string(static_cast<int>(std::floor(v))) + " is under " +
+              std::to_string(static_cast<int>(min));
+        return false;
+      }
+    }
+    why = "their feelings meet the data's rule for a '" + kind + "'";
+    return true;
   }
 
   // False (after skipping it) if a visit can't fit any more: we'd arrive with under 10 minutes before having to leave
@@ -1437,12 +1571,16 @@ struct Autopilot::Impl {
       b.pendingAsks.erase(b.pendingAsks.begin());
       const std::string rid = ask.value("id", std::string());
       if (!rid.empty() && b.playing) {
+        const std::string kind = ask.value("kind", std::string("?"));
+        const std::string from = ask.value("from", std::string("someone"));
+        std::string why;
+        const bool yes = acceptsAsk(w, b, kind, from, why);
         ++b.stats["commands"];
-        auto r = w.respond(b.id, rid, false);
-        ++b.stats["asks_declined"];
-        log(w, b, "decline", "declines a '" + ask.value("kind", std::string("?")) + "' ask from " +
-                                 ask.value("from", std::string("someone")) + " (the autopilot never accepts asks)" +
-                                 (r ? "" : "; the world said " + r.error().code));
+        auto r = w.respond(b.id, rid, yes);
+        ++b.stats[yes ? "asks_accepted" : "asks_declined"];
+        log(w, b, yes ? "accept" : "decline",
+            std::string(yes ? "accepts" : "declines") + " a '" + kind + "' ask from " + from + " (" + why + ")" +
+                (r ? "" : "; the world said " + r.error().code));
         pause(b, 2);
         return;
       }
@@ -1511,8 +1649,13 @@ void Autopilot::observe(const std::vector<WorldEvent>& events) {
     for (const auto& who : ev.recipients) {
       auto it = impl_->bots.find(who);
       if (it == impl_->bots.end()) continue;
-      if (ev.type == "request") it->second.pendingAsks.push_back(ev.data);
-      else if (ev.type == "arrived") it->second.riding = false;
+      if (ev.type == "request") {
+        it->second.pendingAsks.push_back(ev.data);
+        // An ask lapses in minutes: answer on the next turn the two-second rule allows, not after a long idle.
+        it->second.nextActAt = std::min(it->second.nextActAt, impl_->clock + kCommandIntervalSeconds);
+      } else if (ev.type == "arrived") {
+        it->second.riding = false;
+      }
     }
   }
 }

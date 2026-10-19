@@ -18,7 +18,13 @@
       },
       "depressed_emotion_targets": {"happiness": 15, "sadness": 70, "loneliness": 80, "stress": 60, "confidence": 20},
       "depression_condition": "depression",
-      "recovery_per_good_hour": 1
+      "recovery_per_good_hour": 1,
+      "away_work": {
+        "$comment": "Away, a character's routine includes their job (D-063): each scheduled work block they spend offline (the schedule line marked \"work\": true, or default_block for a character without one) is paid at pay_share of the wage from the employer, through the ledger, with promotion_share of the hours toward the next title and no work decisions. Never while depressed, in jail, without a job, or when the employer can't pay.",
+        "pay_share": 0.8,
+        "promotion_share": 0.5,
+        "default_block": {"days": [0, 1, 2, 3, 4], "hours": [9, 17]}
+      }
     },
     "bathroom": {"accident_hygiene_loss": 40, "accident_embarrassment": 40},
     "home": {
@@ -55,6 +61,11 @@
         {"id": "senior", "min_age": 75, "health_decay_multiplier": 2.5}
       ]
     },
-    "grooming": {"attraction_min": 0.6, "attraction_max": 1.4}
+    "grooming": {"attraction_min": 0.6, "attraction_max": 1.4},
+    "sleep": {
+      "$comment": "Going to bed (the sleep op): at home, from bed_hours[0] until bed_hours[1] (past midnight). Everyone asleep wakes at wake_hour; asleep, your routine looks after you. Where the night is skipped, it is skipped to wake_hour.",
+      "bed_hours": [21, 3],
+      "wake_hour": 7
+    }
   }
 }

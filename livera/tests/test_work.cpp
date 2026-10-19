@@ -108,6 +108,32 @@ std::string loadError(const std::function<void(Json& bank)>& patch) {
 
 bool contains(const std::string& s, const std::string& part) { return s.find(part) != std::string::npos; }
 
+// The real content with every decision up at clock-in, for tests about the draw and the answers. Pacing through the
+// shift (the real spacing_minutes) has its own tests.
+std::shared_ptr<const ContentDatabase> allAtOnce() {
+  static auto db = patchedContent([](Json& doc, const std::string& file) {
+    if (file == "work_tasks.json") doc["work_decisions"]["spacing_minutes"] = 0;
+  });
+  return db;
+}
+
+double bonusPerPoint() { return realContent()->workDecisions().bonusHoursPerPoint; }
+
+// Today's whole draw, including decisions that haven't come up yet (stored when the shift starts).
+std::vector<std::string> drawnToday(const World& w, const CharacterId& who = "dominique") {
+  return w.character(who)->workDecisions.tasks;
+}
+
+std::vector<std::string> workEvents(const std::vector<WorldEvent>& events, const CharacterId& who = "dominique") {
+  std::vector<std::string> out;
+  for (const auto& e : events) {
+    if (e.type != "work_decision") continue;
+    CHECK(e.recipients == std::vector<CharacterId>{who});
+    if (e.recipients.front() == who) out.push_back(e.data.at("task").get<std::string>());
+  }
+  return out;
+}
+
 }  // namespace
 
 TEST_CASE("work: the real bank has decisions for the cast's careers, and Dominique's are hiring calls") {
@@ -123,7 +149,9 @@ TEST_CASE("work: the real bank has decisions for the cast's careers, and Dominiq
     CHECK(t->career == "recruiting");
     CHECK(t->options.size() >= 3);
   }
-  CHECK(db->workDecisions().perDay == 3);
+  CHECK(db->workDecisions().perDay == 4);
+  CHECK(db->workDecisions().spacingMinutes == 150);
+  CHECK(db->workDecisions().bonusHoursPerPoint == 2.0);
   CHECK(db->workTasksFor("no_such_career").empty());
 }
 
@@ -166,6 +194,8 @@ TEST_CASE("content: work decisions are validated") {
                  "two options are labelled"));
   CHECK(contains(loadError([](Json& d) { d["work_tasks"][0]["tasks"][0].erase("prompt"); }), "prompt"));
   CHECK(contains(loadError([](Json& d) { d["work_decisions"]["per_day"] = 0; }), "per_day"));
+  CHECK(contains(loadError([](Json& d) { d["work_decisions"]["spacing_minutes"] = -1; }), "spacing_minutes"));
+  CHECK(contains(loadError([](Json& d) { d["work_decisions"]["spacing_minutes"] = 1441; }), "spacing_minutes"));
   CHECK(contains(loadError([](Json& d) { d["work_decisions"]["performance_best"] = -10; }), "performance_best"));
   CHECK(contains(loadError([](Json& d) { d["work_tasks"] = Json::object(); }), "must be a list"));
   // Any number of tasks per career is fine, including none at all.
@@ -192,11 +222,15 @@ TEST_CASE("work: decisions only come up on shift, for someone with a job") {
   CHECK(phone.at("career").is_null());
   CHECK(contains(phone.at("note").get<std::string>(), "don't have a job"));
 
-  // On shift: three of her career's decisions.
+  // On shift: four of her career's decisions today, the first up at once and the rest through the shift.
   clockIn(w);
   const Json list = tasksOf(w);
-  REQUIRE(list.at("decisions").size() == 3);
-  CHECK(list.at("open") == 3);
+  REQUIRE(list.at("decisions").size() == 1);
+  CHECK(list.at("open") == 1);
+  CHECK(list.at("upcoming") == 3);
+  CHECK(list.at("per_day") == 4);
+  CHECK(list.at("next_in_minutes") == 150);
+  CHECK(drawnToday(w).size() == 4);
   CHECK(list.at("title") == "Senior Recruiter");
   for (const auto& id : taskIds(list)) CHECK(w.content().workTask(id)->career == "recruiting");
   // Off shift again, the questions are gone.
@@ -205,7 +239,7 @@ TEST_CASE("work: decisions only come up on shift, for someone with a job") {
 }
 
 TEST_CASE("work: the same decisions all day, different ones the next day, never with scores or reasons") {
-  World w = World::createNew(realContent());
+  World w = World::createNew(allAtOnce());
   REQUIRE(w.connect("dominique"));
   clockIn(w);
   const Json first = tasksOf(w);
@@ -239,23 +273,23 @@ TEST_CASE("work: the same decisions all day, different ones the next day, never 
   }
 
   // A pure function of (character, day): another world on the same day draws the same.
-  World twin = World::createNew(realContent());
+  World twin = World::createNew(allAtOnce());
   REQUIRE(twin.connect("dominique"));
   clockIn(twin);
   CHECK(tasksOf(twin).at("decisions") == first.at("decisions"));
 
   // The next days work through the whole bank before anything repeats (twelve hiring calls,
-  // three a day), and the day's set always changes.
+  // four a day), and the day's set always changes.
   std::set<std::string> seen;
   for (const auto& id : taskIds(first)) seen.insert(id);
   std::vector<std::string> previous = taskIds(first);
   const std::size_t bank = w.content().workTasksFor("recruiting").size();
-  for (int day = 2; day <= 4; ++day) {
+  for (int day = 2; day <= 3; ++day) {
     REQUIRE(w.endShift("dominique"));
     nextDayAt(w, 9);
     clockIn(w);
     const auto ids = taskIds(tasksOf(w));
-    CHECK(ids.size() == 3);
+    CHECK(ids.size() == 4);
     CHECK(ids != previous);
     for (const auto& id : ids) {
       if (bank >= 12) CHECK(!seen.count(id));
@@ -265,20 +299,20 @@ TEST_CASE("work: the same decisions all day, different ones the next day, never 
   }
   if (bank == 12) CHECK(seen.size() == 12);
   // Once everything has come up, the groupings keep changing and no set repeats two days running.
-  for (int day = 5; day <= 9; ++day) {
+  for (int day = 4; day <= 9; ++day) {
     REQUIRE(w.endShift("dominique"));
     nextDayAt(w, 9);
     clockIn(w);
     const auto ids = taskIds(tasksOf(w));
     std::set<std::string> a(ids.begin(), ids.end()), b(previous.begin(), previous.end());
-    CHECK(ids.size() == 3 && a.size() == 3);
+    CHECK(ids.size() == 4 && a.size() == 4);
     CHECK(a != b);
     previous = ids;
   }
 }
 
 TEST_CASE("work: each decision is answered once, and the reply explains the call") {
-  World w = World::createNew(realContent());
+  World w = World::createNew(allAtOnce());
   REQUIRE(w.connect("dominique"));
   clockIn(w);
   const Json list = tasksOf(w);
@@ -310,8 +344,8 @@ TEST_CASE("work: each decision is answered once, and the reply explains the call
   CHECK(a.at("you_chose").at("label") == chosen.label);
   CHECK(a.at("you_chose").at("why") == chosen.why);
   CHECK(a.at("best").at("option") == best);
-  CHECK(a.at("open") == 2);
-  CHECK(a.at("bonus_hours") == 1.5);
+  CHECK(a.at("open") == 3);
+  CHECK(a.at("bonus_hours") == bonusPerPoint());
   CHECK(!a.contains("score"));
   CHECK(t->options.size() == first.at("options").size());
 
@@ -320,7 +354,7 @@ TEST_CASE("work: each decision is answered once, and the reply explains the call
   CHECK(answerCode(w, task, 0) == "already_answered");
   // The list now shows the result for that one, and still keeps the others' scores back.
   const Json after = tasksOf(w);
-  CHECK(after.at("open") == 2);
+  CHECK(after.at("open") == 3);
   const Json answered = after.at("decisions")[0];
   CHECK(answered.at("answered") == true);
   CHECK(answered.at("best_call") == true);
@@ -348,7 +382,7 @@ TEST_CASE("work: each decision is answered once, and the reply explains the call
   CHECK(shift.at("decisions")[0].at("you_chose") == chosen.label);
   CHECK(shift.at("decisions")[1].at("best_call") == false);
   CHECK_NEAR(shift.at("decision_bonus_hours").get<double>(),
-             1.5 + 1.5 * bankOption(w, second, static_cast<std::size_t>(worst)).score, 0.051);
+             bonusPerPoint() * (1 + bankOption(w, second, static_cast<std::size_t>(worst)).score), 0.051);
   CHECK(shift.at("best_calls") == 1);
   // A second shift the same day reports only its own decisions.
   REQUIRE(w.startShift("dominique"));
@@ -357,7 +391,7 @@ TEST_CASE("work: each decision is answered once, and the reply explains the call
 }
 
 TEST_CASE("work: good calls raise performance and add promotion hours; poor ones lower it") {
-  World w = World::createNew(realContent());
+  World w = World::createNew(allAtOnce());
   REQUIRE(w.connect("dominique"));
   clockIn(w);
   const Json list = tasksOf(w);
@@ -385,7 +419,7 @@ TEST_CASE("work: good calls raise performance and add promotion hours; poor ones
   // Performance stays within 0..100. (A copy of the world, mid-shift.)
   WorldState s = w.state();
   s.characters.at("dominique").career.performance = 98;
-  World high(realContent(), s);
+  World high(allAtOnce(), s);
   const Json last = tasksOf(high).at("decisions")[2];
   REQUIRE(high.answerWorkTask("dominique", last.at("task").get<std::string>(), shownBest(high, last)));
   CHECK(high.character("dominique")->career.performance == 100);
@@ -396,10 +430,12 @@ TEST_CASE("work: a shift too short to be paid doesn't count toward promotion, de
   REQUIRE(w.connect("dominique"));
   clockIn(w);
   const CareerState& cs = w.character("dominique")->career;
+  REQUIRE(cs.shiftStartedAt.has_value());
+  CHECK(w.openPhoneApp("dominique", "work").value().at("shift_started_at") == *cs.shiftStartedAt);
   const double hours = cs.hoursAtLevel, perf = cs.performance;
   const Json d = tasksOf(w).at("decisions")[0];
   REQUIRE(w.answerWorkTask("dominique", d.at("task").get<std::string>(), shownBest(w, d)));
-  CHECK_NEAR(cs.hoursAtLevel, hours + 1.5, 1e-9);
+  CHECK_NEAR(cs.hoursAtLevel, hours + bonusPerPoint(), 1e-9);
   w.advanceMinutes(10);
   const Json shift = w.endShift("dominique").value();
   CHECK(shift.at("pay_cents") == 0);
@@ -411,6 +447,9 @@ TEST_CASE("work: a shift too short to be paid doesn't count toward promotion, de
   CHECK_NEAR(cs.performance, std::min(100.0, perf + 6), 1e-9);  // the call itself still counted
   const Json phone = w.openPhoneApp("dominique", "work").value();
   CHECK(phone.at("decision_bonus_hours") == 0.0);
+  // Off shift there is no start time; the cap is the career's own (data).
+  CHECK(phone.at("shift_started_at").is_null());
+  CHECK(phone.at("max_shift_hours") == w.content().career("recruiting")->maxShiftHours);
   CHECK(phone.at("decisions")[0].at("bonus_hours") == 0.0);
   // The decision stays made: it can't be answered again on a longer shift.
   REQUIRE(w.startShift("dominique"));
@@ -438,14 +477,21 @@ TEST_CASE("work: answering well gets you promoted sooner than idling the same ho
       if (day == 1) REQUIRE(w->connect("dominique"));
       else nextDayAt(*w, 9);
       clockIn(*w);
-      if (w == &good) {
-        const Json list = tasksOf(*w);
-        for (const auto& d : list.at("decisions"))
-          REQUIRE(w->answerWorkTask("dominique", d.at("task").get<std::string>(), shownBest(*w, d)));
-        const Json phone = w->openPhoneApp("dominique", "work").value();
-        CHECK_NEAR(phone.at("decision_bonus_hours").get<double>(), 4.5 * day, 0.051);
+      // Eight hours: the good worker makes each call as it comes up (one every 150 minutes, all four by 450).
+      for (int step = 0; step < 4; ++step) {
+        if (w == &good) {
+          const Json up = tasksOf(*w);  // named: ranging over a temporary's member would dangle
+          for (const auto& d : up.at("decisions")) {
+            if (!d.at("answered").get<bool>())
+              REQUIRE(w->answerWorkTask("dominique", d.at("task").get<std::string>(), shownBest(*w, d)));
+          }
+        }
+        w->advanceMinutes(step < 3 ? 150 : 8 * 60 - 3 * 150);
       }
-      w->advanceMinutes(8 * 60);
+      if (w == &good) {
+        const Json phone = w->openPhoneApp("dominique", "work").value();
+        CHECK_NEAR(phone.at("decision_bonus_hours").get<double>(), 4 * bonusPerPoint() * day, 0.051);
+      }
       const Json shift = w->endShift("dominique").value();
       CHECK(shift.at("minutes_worked") == 8 * 60);
       CHECK(shift.at("pay_cents") == 8 * 4600);  // decisions or not, the same pay
@@ -460,7 +506,7 @@ TEST_CASE("work: answering well gets you promoted sooner than idling the same ho
     if (day == 1)
       CHECK_NEAR(idle.character("dominique")->career.hoursAtLevel, 8.0, 1e-9);  // idling counts as it always has
   }
-  CHECK(goodDay == 3);  // 8 + 4.5 hours a day
+  CHECK(goodDay == 2);  // 8 + 8 hours a day
   CHECK(idleDay == 4);  // 8 hours a day
 }
 
@@ -472,20 +518,29 @@ TEST_CASE("work: unanswered decisions lapse at midnight, and a shift past midnig
   const Json today = tasksOf(w);
   const Json d0 = today.at("decisions")[0];
   REQUIRE(w.answerWorkTask("dominique", d0.at("task").get<std::string>(), shownBest(w, d0)));
-  const std::string lapsed = today.at("decisions")[1].at("task").get<std::string>();
+  // The day's second decision would come up at 00:30: by then it's another day's draw.
+  const std::string lapsed = drawnToday(w)[1];
   const double perf = w.character("dominique")->career.performance;
-  // Past midnight, still on shift: a new day's decisions; yesterday's open ones are gone.
+  // Past midnight, still on shift: a new day's decisions, the first up at midnight (the worker hears);
+  // yesterday's open ones are gone.
+  (void)w.drainEvents();
   nextDayAt(w, 1);
+  const std::vector<std::string> told = workEvents(w.drainEvents());
   const Json tomorrow = tasksOf(w);
   CHECK(w.character("dominique")->career.performance == perf);  // no penalty
-  CHECK(tomorrow.at("open") == 3);
-  for (const auto& id : taskIds(tomorrow)) CHECK(id != lapsed);
+  CHECK(tomorrow.at("open") == 1);
+  CHECK(tomorrow.at("upcoming") == 3);
+  CHECK(tomorrow.at("next_in_minutes") == 150 - 60);  // 02:30, counted from midnight
+  REQUIRE(told.size() == 1);
+  CHECK(told[0] == drawnToday(w)[0]);
+  for (const auto& id : drawnToday(w)) CHECK(id != lapsed);
   CHECK(answerCode(w, lapsed, 0) == "not_today");
+  CHECK(answerCode(w, drawnToday(w)[1], 0) == "not_yet");
   const Json d1 = tomorrow.at("decisions")[0];
   REQUIRE(w.answerWorkTask("dominique", d1.at("task").get<std::string>(), shownBest(w, d1)));
   const Json shift = w.endShift("dominique").value();
   REQUIRE(shift.at("decisions").size() == 2);
-  CHECK(shift.at("decision_bonus_hours") == 3.0);
+  CHECK(shift.at("decision_bonus_hours") == 2 * bonusPerPoint());
   // The phone shows today's results only.
   const Json phone = w.openPhoneApp("dominique", "work").value();
   CHECK(phone.at("answered_today") == 1);
@@ -501,7 +556,9 @@ TEST_CASE("work: the phone shows today's decisions, results and progress, and re
   Json phone = w.openPhoneApp("dominique", "work").value();
   CHECK(phone.at("on_shift") == false);
   CHECK(phone.at("decisions").empty());
-  CHECK(phone.at("open") == 3);
+  CHECK(phone.at("open") == 0);      // nothing can be answered off shift...
+  CHECK(phone.at("upcoming") == 4);  // ...and all four come up at work
+  CHECK(phone.at("spacing_minutes") == 150);
   CHECK(phone.at("title") == "Senior Recruiter");
   CHECK(phone.at("next_title") == "Recruiting Manager");
   CHECK(phone.at("hours_to_promote") == 120);
@@ -512,8 +569,9 @@ TEST_CASE("work: the phone shows today's decisions, results and progress, and re
   const GameMinutes start = w.now();
   phone = w.openPhoneApp("dominique", "work").value();
   CHECK(phone.at("on_shift") == true);
-  REQUIRE(phone.at("decisions").size() == 3);
+  REQUIRE(phone.at("decisions").size() == 1);
   CHECK(phone.at("decisions") == tasksOf(w).at("decisions"));  // the phone and the op agree
+  CHECK(phone.at("upcoming") == 3);
   CHECK(!contains(phone.dump(), "\"why\""));
 
   // The phone nudges once in the day when decisions are waiting...
@@ -523,22 +581,25 @@ TEST_CASE("work: the phone shows today's decisions, results and progress, and re
   REQUIRE(v.connect("dominique"));
   clockIn(v);
   v.advanceMinutes(3 * 60);
-  CHECK(notifiedCount(v, "dominique", "3 decisions are waiting") == 1);
+  CHECK(notifiedCount(v, "dominique", "1 decision is waiting") == 1);  // once in the day, not every hour
+  CHECK(notifiedCount(v, "dominique", "waiting for you at work") == 1);
 
-  const Json d = phone.at("decisions")[2];
+  const Json d = phone.at("decisions")[0];
   REQUIRE(w.answerWorkTask("dominique", d.at("task").get<std::string>(), shownBest(w, d)));
   phone = w.openPhoneApp("dominique", "work").value();
-  CHECK(phone.at("open") == 2);
+  CHECK(phone.at("open") == 0);
   CHECK(phone.at("answered_today") == 1);
-  CHECK(phone.at("decisions")[2].at("answered") == true);
-  CHECK(phone.at("decisions")[2].at("best_call") == true);
-  CHECK(phone.at("decision_bonus_hours") == 1.5);
-  // Off shift, the result stays; the open questions wait for the next shift.
+  CHECK(phone.at("decisions")[0].at("answered") == true);
+  CHECK(phone.at("decisions")[0].at("best_call") == true);
+  CHECK(phone.at("decision_bonus_hours") == bonusPerPoint());
+  CHECK(contains(phone.at("note").get<std::string>(), "next decision comes up at"));
+  // Off shift, the result stays; the rest wait for the next shift.
   REQUIRE(w.endShift("dominique"));
   phone = w.openPhoneApp("dominique", "work").value();
   CHECK(phone.at("decisions").size() == 1);
   CHECK(phone.at("decisions")[0].at("task") == d.at("task"));
-  CHECK(phone.at("open") == 2);
+  CHECK(phone.at("open") == 0);
+  CHECK(phone.at("upcoming") == 3);
 }
 
 TEST_CASE("work: a nanny on shift gets nanny decisions") {
@@ -557,15 +618,103 @@ TEST_CASE("work: a nanny on shift gets nanny decisions") {
   CHECK(v.workTasks(nanny).error().code == "not_working");
   clockIn(v, nanny, "lexington_1204");
   const Json list = tasksOf(v, nanny);
-  REQUIRE(list.at("decisions").size() == 3);
+  REQUIRE(list.at("decisions").size() == 1);
   CHECK(list.at("career") == "Nanny");
-  for (const auto& id : taskIds(list)) CHECK(v.content().workTask(id)->career == "nanny");
+  for (const auto& id : drawnToday(v, nanny)) CHECK(v.content().workTask(id)->career == "nanny");
   const Json d = list.at("decisions")[0];
   REQUIRE(v.answerWorkTask(nanny, d.at("task").get<std::string>(), shownBest(v, d)));
   v.advanceMinutes(2 * 60);
   const Json shift = v.endShift(nanny).value();
   CHECK(shift.at("decisions").size() == 1);
-  CHECK(shift.at("decision_bonus_hours") == 1.5);
+  CHECK(shift.at("decision_bonus_hours") == bonusPerPoint());
+}
+
+TEST_CASE("work: decisions come up through the shift, one every spacing_minutes, and the worker hears each") {
+  World w = World::createNew(realContent());
+  REQUIRE(w.connect("dominique"));
+  walkInto(w, "dominique", "meridian_talent");
+  (void)w.drainEvents();
+  REQUIRE(w.startShift("dominique"));
+  const GameMinutes start = w.now();
+  const std::vector<std::string> day = drawnToday(w);
+  REQUIRE(day.size() == 4);
+  // The first is up at clock-in, and says so.
+  std::vector<std::string> told = workEvents(w.drainEvents());
+  REQUIRE(told.size() == 1);
+  CHECK(told[0] == day[0]);
+  Json list = tasksOf(w);
+  CHECK(taskIds(list) == std::vector<std::string>{day[0]});
+  CHECK(list.at("next_at") == start + 150);
+  // The rest aren't up yet: they can't be answered, and nothing about them is shown.
+  CHECK(answerCode(w, day[1], 0) == "not_yet");
+  CHECK(!contains(list.dump(), day[1]));
+  w.advanceMinutes(149);
+  CHECK(workEvents(w.drainEvents()).empty());
+  CHECK(tasksOf(w).at("decisions").size() == 1);
+  w.advanceMinutes(1);
+  told = workEvents(w.drainEvents());
+  REQUIRE(told.size() == 1);
+  CHECK(told[0] == day[1]);
+  list = tasksOf(w);
+  CHECK(taskIds(list) == (std::vector<std::string>{day[0], day[1]}));
+  CHECK(list.at("open") == 2);  // the first is still waiting: they don't lapse until midnight
+  CHECK(list.at("upcoming") == 2);
+  // A call made late counts like any other.
+  for (const auto& d : list.at("decisions"))
+    REQUIRE(w.answerWorkTask("dominique", d.at("task").get<std::string>(), shownBest(w, d)));
+  // By 450 minutes all four are up; the pacing doesn't run past the day's quota.
+  w.advanceMinutes(300);
+  told = workEvents(w.drainEvents());
+  CHECK(told == (std::vector<std::string>{day[2], day[3]}));
+  list = tasksOf(w);
+  CHECK(taskIds(list) == day);
+  CHECK(list.at("upcoming") == 0);
+  CHECK(list.at("next_at").is_null());
+  w.advanceMinutes(150);
+  CHECK(workEvents(w.drainEvents()).empty());
+  // Nobody else hears about Dominique's decisions.
+  World other = World::createNew(realContent());
+  REQUIRE(other.connect("dominique"));
+  REQUIRE(other.connect("dax"));
+  walkInto(other, "dominique", "meridian_talent");
+  (void)other.drainEvents();
+  REQUIRE(other.startShift("dominique"));
+  other.advanceMinutes(150);
+  for (const auto& e : other.drainEvents()) {
+    if (e.type == "work_decision") CHECK(e.recipients == std::vector<CharacterId>{"dominique"});
+  }
+}
+
+TEST_CASE("work: a later shift the same day starts with the next decision, not the ones already made") {
+  World w = World::createNew(realContent());
+  REQUIRE(w.connect("dominique"));
+  clockIn(w);
+  const std::vector<std::string> day = drawnToday(w);
+  const Json d = tasksOf(w).at("decisions")[0];
+  REQUIRE(w.answerWorkTask("dominique", d.at("task").get<std::string>(), shownBest(w, d)));
+  w.advanceMinutes(60);
+  REQUIRE(w.endShift("dominique"));
+  w.advanceMinutes(120);
+  (void)w.drainEvents();
+  REQUIRE(w.startShift("dominique"));
+  CHECK(workEvents(w.drainEvents()) == std::vector<std::string>{day[1]});
+  const Json list = tasksOf(w);
+  CHECK(taskIds(list) == (std::vector<std::string>{day[0], day[1]}));  // the earlier call stays, as a result
+  CHECK(list.at("open") == 1);
+  CHECK(list.at("upcoming") == 2);
+  CHECK(list.at("next_in_minutes") == 150);
+  // A shift with the day's decisions all made says so, and nothing more comes up.
+  World all = World::createNew(allAtOnce());
+  REQUIRE(all.connect("dominique"));
+  clockIn(all);
+  const Json everything = tasksOf(all);
+  for (const auto& x : everything.at("decisions"))
+    REQUIRE(all.answerWorkTask("dominique", x.at("task").get<std::string>(), shownBest(all, x)));
+  REQUIRE(all.endShift("dominique"));
+  (void)all.drainEvents();
+  REQUIRE(all.startShift("dominique"));
+  CHECK(workEvents(all.drainEvents()).empty());
+  CHECK(tasksOf(all).at("note") == "That's all of today's decisions.");
 }
 
 TEST_CASE("persistence: work decisions survive a save and load in the middle of the day") {
@@ -574,7 +723,7 @@ TEST_CASE("persistence: work decisions survive a save and load in the middle of 
   std::string answered;
   WorldState saved;
   {
-    World w = World::createNew(realContent());
+    World w = World::createNew(allAtOnce());
     REQUIRE(w.connect("dominique"));
     clockIn(w);
     before = tasksOf(w);
@@ -597,15 +746,15 @@ TEST_CASE("persistence: work decisions survive a save and load in the middle of 
   const WorkDecisionsState& b = loaded.value().characters.at("dominique").workDecisions;
   CHECK(a.day == b.day && a.career == b.career && a.tasks == b.tasks && a.drawn == b.drawn);
   CHECK(b.answers.size() == 1 && b.answers[0].task == answered && b.answers[0].score == 1);
-  CHECK(b.bonusHours == 1.5 && b.bonusLevel == 1 && b.bonusCareer == "recruiting");
+  CHECK(b.bonusHours == bonusPerPoint() && b.bonusLevel == 1 && b.bonusCareer == "recruiting");
   CHECK(b.answeredTotal == 1 && b.bestTotal == 1);
 
-  World w(realContent(), std::move(loaded).value());
+  World w(allAtOnce(), std::move(loaded).value());
   REQUIRE(w.connect("dominique"));
   clockIn(w);
   const Json after = tasksOf(w);
   CHECK(after.at("decisions") == before.at("decisions"));
-  CHECK(after.at("decision_bonus_hours") == 1.5);
+  CHECK(after.at("decision_bonus_hours") == bonusPerPoint());
   CHECK(answerCode(w, answered, 0) == "already_answered");
   const Json d = after.at("decisions")[0];
   CHECK(answerCode(w, d.at("task").get<std::string>(), shownBest(w, d)) == "(accepted)");
@@ -645,16 +794,16 @@ TEST_CASE("persistence: after a crash mid-shift, the calls already made stay mad
   CHECK(!c.career.shiftStartedAt.has_value());
   REQUIRE(c.workDecisions.answers.size() == 1);
   CHECK(c.workDecisions.answers[0].reported);  // settled on load: its shift is gone
-  CHECK_NEAR(c.career.hoursAtLevel, hours + 1.5, 1e-9);
+  CHECK_NEAR(c.career.hoursAtLevel, hours + bonusPerPoint(), 1e-9);
 
-  // Back at work the same day, in the very minute the save was taken: the same decisions,
-  // the first one still made.
+  // Back at work the same day, in the very minute the save was taken: the same decisions, the first one still
+  // made, and (that call belonging to a shift that's over) the next one up at once.
   REQUIRE(w.connect("dominique"));
   clockIn(w);
   const Json list = tasksOf(w);
   CHECK(list.at("decisions")[0].at("task") == first);
   CHECK(list.at("decisions")[0].at("answered") == true);
-  CHECK(list.at("open") == 2);
+  CHECK(list.at("open") == 1);
   CHECK(answerCode(w, first, 0) == "already_answered");
   const Json d = list.at("decisions")[1];
   REQUIRE(w.answerWorkTask("dominique", d.at("task").get<std::string>(), shownBest(w, d)));
@@ -663,8 +812,8 @@ TEST_CASE("persistence: after a crash mid-shift, the calls already made stay mad
   const Json shift = w.endShift("dominique").value();
   REQUIRE(shift.at("decisions").size() == 1);
   CHECK(shift.at("decisions")[0].at("task") == d.at("task"));
-  CHECK(shift.at("decision_bonus_hours") == 1.5);
-  CHECK(w.openPhoneApp("dominique", "work").value().at("decision_bonus_hours") == 3.0);
+  CHECK(shift.at("decision_bonus_hours") == bonusPerPoint());
+  CHECK(w.openPhoneApp("dominique", "work").value().at("decision_bonus_hours") == 2 * bonusPerPoint());
   // Which answers have been reported is saved with them.
   const CharacterState back = characterStateFromJson(toJson(*w.character("dominique")));
   REQUIRE(back.workDecisions.answers.size() == 2);
@@ -774,14 +923,16 @@ TEST_CASE("server: work decisions over the network") {
   CHECK(dom.refusal({{"op", "work_tasks"}}) == "not_playing");
   dom.ok({{"op", "play"}, {"character", "dominique"}});
   CHECK(dom.refusal({{"op", "work_tasks"}}) == "not_working");
-  CHECK(dom.ok({{"op", "phone"}, {"app", "work"}})["open"] == 3);
+  CHECK(dom.ok({{"op", "phone"}, {"app", "work"}})["upcoming"] == 4);
 
   dom.ok({{"op", "exit"}});
   dom.walkTo("meridian_talent");
   dom.ok({{"op", "enter"}, {"location", "meridian_talent"}});
   dom.ok({{"op", "work"}, {"action", "start"}});
   const Json list = dom.ok({{"op", "work_tasks"}});
-  REQUIRE(list["decisions"].size() == 3);
+  REQUIRE(list["decisions"].size() == 1);  // the first is up at once; the next in 150 game minutes
+  CHECK(list["upcoming"] == 3);
+  CHECK(list["next_in_minutes"] == 150);
   CHECK(!contains(list.dump(), "score") && !contains(list.dump(), "\"why\""));
   const std::string task = list["decisions"][0]["task"].get<std::string>();
 
@@ -796,7 +947,7 @@ TEST_CASE("server: work decisions over the network") {
   CHECK(answer["you_chose"]["option"] == 0);
   CHECK(answer["you_chose"]["label"] == list["decisions"][0]["options"][0]["label"]);
   CHECK(answer["best"]["why"].is_string());
-  CHECK(answer["open"] == 2);
+  CHECK(answer["open"] == 0);
   CHECK(dom.refusal({{"op", "work_answer"}, {"task", task}, {"option", 1}}) == "already_answered");
 
   const Json phone = dom.ok({{"op", "phone"}, {"app", "work"}});
@@ -807,5 +958,5 @@ TEST_CASE("server: work decisions over the network") {
   REQUIRE(shift["decisions"].size() == 1);
   CHECK(shift["decisions"][0]["task"] == task);
   CHECK(shift["decision_bonus_hours"] == answer["bonus_hours"]);
-  CHECK(dom.refusal({{"op", "work_answer"}, {"task", list["decisions"][1]["task"]}, {"option", 0}}) == "not_working");
+  CHECK(dom.refusal({{"op", "work_answer"}, {"task", task}, {"option", 0}}) == "not_working");
 }

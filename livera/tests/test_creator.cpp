@@ -162,3 +162,54 @@ TEST_CASE("creator: options are served from data") {
   CHECK(hasCafe);
   CHECK(!hasLaw);
 }
+
+TEST_CASE("creator: a starting job needs what applying for it would (missing_degree), and the options say which") {
+  World w = World::createNew(realContent());
+  // Machine learning needs a bachelor's: a high-school graduate can't start there, from the creator or by applying.
+  Json hs = solSheet();
+  hs["education"] = "high school";
+  hs["career"] = "ai_engineering";
+  auto refused = w.createCharacter(hs);
+  REQUIRE(!refused);
+  CHECK(refused.error().code == "missing_degree");
+  CHECK(refused.error().message.find("Bachelor") != std::string::npos);
+  CHECK(w.state().createdCharacters.empty());  // nothing was made
+  Json grad = hs;
+  grad["education"] = "bachelor's degree";
+  auto made = w.createCharacter(grad);
+  REQUIRE(made);
+  CHECK(w.character(made.value())->career.careerId == "ai_engineering");
+  // `apply` keeps the same rule: Julian (high school) can't become a machine learning engineer either.
+  REQUIRE(w.connect("julian"));
+  walkTo(w, "julian", "parallax_labs");
+  CHECK(w.applyForJob("julian", "ai_engineering").error().code == "missing_degree");
+  // Jobs without a requirement stay open to every education.
+  hs["career"] = "cafe";
+  hs["first_name"] = "Bo";
+  CHECK(w.createCharacter(hs));
+
+  // creator_options marks, for each career, the education answers that qualify, by the same rule.
+  const Json o = w.creatorOptions();
+  const std::vector<std::string> answers = o["education"]["options"].get<std::vector<std::string>>();
+  for (const auto& c : o["careers"]) {
+    const CareerDef* career = w.content().career(c["id"].get<std::string>());
+    REQUIRE(career);
+    for (const auto& answer : answers) {
+      const auto held = w.content().education().creatorEducation.find(answer);
+      const std::vector<std::string> degrees =
+          held == w.content().education().creatorEducation.end() ? std::vector<std::string>{} : held->second;
+      const Json& open = c["educations"];
+      const bool listed = std::find(open.begin(), open.end(), Json(answer)) != open.end();
+      CHECK(listed == static_cast<bool>(w.meetsEntryRequirements(*career, degrees, false)));
+    }
+    if (c["id"] == "ai_engineering") {
+      CHECK(c["requires_degree"] == "Bachelor's degree");
+      CHECK(std::find(c["educations"].begin(), c["educations"].end(), Json("high school")) == c["educations"].end());
+      CHECK(std::find(c["educations"].begin(), c["educations"].end(), Json("doctorate")) != c["educations"].end());
+    }
+    if (c["id"] == "cafe") {
+      CHECK(c["requires_degree"].is_null());
+      CHECK(c["educations"].size() == answers.size());
+    }
+  }
+}

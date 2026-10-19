@@ -74,6 +74,7 @@
           "about": "graham"
         }
       ],
+      "aspirations": ["get_famous", "get_promoted"],
       "profile": {
         "tagline": "Designs what Livéra will wear before Livéra knows it.",
         "why_livera": "business_opportunity",
@@ -113,7 +114,10 @@
           }
         ],
         "schedule": {
-          "weekdays": [{"time": "09:30", "activity": "Ellis Atelier"}, {"time": "21:00", "activity": "Sketching at home"}],
+          "weekdays": [
+            {"time": "09:30", "activity": "Ellis Atelier", "work": true},
+            {"time": "21:00", "activity": "Sketching at home"}
+          ],
           "saturday": [{"time": "11:00", "activity": "Fittings"}]
         },
         "starting_inventory": ["phone", "sketchbook", "tailor's shears", "fabric swatches", "black top-handle bag"],

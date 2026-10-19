@@ -59,6 +59,7 @@ Event (server push): `{"event": "message", "data": {"from": "dax", "body": "..."
 | `buy` | playing | `offer`, `method` (`card`/`cash`) |
 | `activity` | playing | `activity` |
 | `work` | playing | `action` (`start`/`end`) |
+| `sleep` | playing, at home in the evening | – (see below; D-062) |
 | `phone` | playing | `app` |
 | `message` | playing | `to`, `text` |
 | `say` | playing | `text`, `volume` (`say`/`shout`/`whisper`), `to` (whisper) |
@@ -124,10 +125,35 @@ character's from the creator; one the game can't follow says why instead of show
  "note": "3 goals a day, new at midnight. ..."}
 ```
 
+`sleep` (D-062; playing, at home): go to bed. Only in your own home, between `life.sleep.bed_hours`
+(21:00 and 03:00), not on shift or studying; refusals `not_home`, `not_bedtime`, `on_shift`,
+`studying`, `in_jail`. You stay in the world, asleep (`look.you.asleep`), until the wake hour (07:00)
+or until any command but `look`, `map` and `phone` gets you up; asleep, your routine looks after you.
+The server adds whether the night will be skipped:
+
+```json
+{"asleep": true, "since": 122670, "wake_at": 123240, "wake_time": "07:00",
+ "note": "You're in bed. ...", "night_skip": {"on": true, "others_awake": 1}}
+```
+
+At the wake hour each sleeper gets `good_morning`: `{slept_from, woke_at, minutes, skipped,
+needs, money_change_cents, notifications: [{kind, text, when}], weather: {kind, label, temp_c}}`,
+all from their own records. A server started with `--night-skip` (off by default) applies the bed
+rule: when at least one person is playing and everyone playing is asleep, the night is skipped to
+the wake hour on the next tick (`World::skipNight`, minute by minute with the autopilot still
+playing; scripts neither count nor block it). Without the flag, sleeping never moves the clock.
+
+A server started with `--pause-when-empty` (D-063; off by default) only runs the clock (and the
+autopilot) while at least one person is in the world; scripts and logged-in sessions that haven't
+picked a character don't count. Pay for scheduled work done while away shows in the bank app with
+kind `salary_away`, with a `bank` notification for characters someone has played.
+
 Redesign events and codes (D-060): `work_decision` (one of today's work decisions has come up on your shift:
 `{task, prompt, open, upcoming, next_at}`); `work_answer` refuses `not_yet` for one that hasn't come up, and
 `work_tasks` and the `work` app carry `upcoming`, `next_at`, `next_in_minutes` and `spacing_minutes`
-(`docs/m08/work.md`).
+(`docs/m08/work.md`). The `work` app also carries `shift_started_at` (the game minute your shift began, null off
+shift) and `max_shift_hours` (the career's cap), so a client's time-worked and pay-so-far estimate uses the
+server's own numbers.
 
 M0.8 ops, each with its arguments and refusals in its feature page: homes (`buy_home`,
 `move_out`, `move_home`, `sell_home`, and `request` kinds `buy_home`, `move_in`, `sell_home`;
@@ -169,7 +195,8 @@ without copying numbers out of data:
 - `interactions`: `[{id, label, range_m}]`;
 - each of `places` carries `hours` (`[open, close)`, a close before the open running past midnight;
   null for a place that never closes) and `open_days` (weekdays it opens, 0 = Monday; empty = every
-  day). A place's `status` follows both.
+  day). A place's `status` follows both. `stage` says performers can play there (`perform`); `look.here`
+  carries it too.
 
 `look.here` (the place you're in or standing at) lists its `offers` and `activities` with what
 each does: `needs` and `emotions` (the effects as in data, public like the price). Each activity
@@ -234,7 +261,9 @@ labelled a script and a script never passes as a person.
   (`World::setScripted`), set on `play`, cleared when the session leaves the world.
 - With `--autopilot`, founders no account has claimed are played by the core's `Autopilot`
   (D-053, SIMULATION.md "Autopilot"): the same `scripted: true`, with `played_by: "autopilot"`.
-  They are not sessions (neither cap counts them). A script's `play` for one is refused with
+  They are not sessions (neither cap counts them). They greet people they meet, sometimes start a chat
+  with someone they know, and answer asks by data rules (D-064; never intimacy), all through World
+  commands like any client's, still labelled. A script's `play` for one is refused with
   `character_in_use`; a person's `play` releases them from the autopilot first (they stay where
   they stand) and then plays and claims as usual. When a player leaves a founder nobody has
   claimed (a script's session, or a claim the operator released), the autopilot takes them back.

@@ -83,6 +83,9 @@ add_library(livera_core
   src/core/Leisure.cpp
   src/core/Pets.cpp
   src/core/Details.cpp
+  src/core/Goals.cpp
+  src/core/Sleep.cpp
+  src/core/Away.cpp
   src/core/WorldParts.cpp
   src/core/Items.cpp
   src/core/Ledger.cpp
@@ -181,6 +184,7 @@ add_executable(livera_tests
   tests/test_autopilot.cpp
   tests/test_protocol.cpp
   tests/test_localtown.cpp
+  tests/test_goals.cpp
   src/client/MusicText.cpp)
 target_link_libraries(livera_tests PRIVATE livera_server_lib)
 target_compile_definitions(livera_tests PRIVATE LIVERA_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")

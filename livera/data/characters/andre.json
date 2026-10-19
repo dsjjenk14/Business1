@@ -74,6 +74,7 @@
           "info": "Produced 'Golden Hour', the song that put his name on the map."
         }
       ],
+      "aspirations": ["release_an_album", "find_love"],
       "profile": {
         "tagline": "Makes the town's soundtrack. Makes his own rules.",
         "why_livera": "financial_opportunity",
@@ -121,7 +122,7 @@
         ],
         "schedule": {
           "weekdays": [
-            {"time": "13:00", "activity": "Low End Studios"},
+            {"time": "13:00", "activity": "Low End Studios", "work": true},
             {"time": "22:00", "activity": "Listening sessions at the studio"}
           ],
           "saturday": [{"time": "09:00", "activity": "Pickup basketball with Dax"}]

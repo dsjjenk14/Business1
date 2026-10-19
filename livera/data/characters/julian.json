@@ -74,6 +74,7 @@
           "about": "graham"
         }
       ],
+      "aspirations": ["get_promoted", "build_something_that_lasts", "find_love"],
       "profile": {
         "tagline": "Thinks Livéra is a product. Might be right.",
         "why_livera": "business_opportunity",
@@ -121,7 +122,7 @@
         "schedule": {
           "weekdays": [
             {"time": "07:00", "activity": "Gym"},
-            {"time": "08:30", "activity": "Parallax Labs"},
+            {"time": "08:30", "activity": "Parallax Labs", "work": true},
             {"time": "23:00", "activity": "Still at Parallax Labs"}
           ]
         },

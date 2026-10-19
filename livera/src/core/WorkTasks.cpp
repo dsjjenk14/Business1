@@ -6,12 +6,14 @@
 // still pays and counts toward promotion exactly as before. See docs/m08/work.md.
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 #include <numeric>
 #include <set>
 
 #include "core/Clock.h"
 #include "core/Content.h"
 #include "core/ContentParse.h"
+#include "core/DayHash.h"
 #include "core/Parts.h"
 #include "core/World.h"
 
@@ -23,30 +25,20 @@ namespace {
 
 // Draws and option orders are a pure function of (character, day, task): the same all day,
 // different from one day to the next, the same after a restart, and they never touch the
-// world's random stream (opening a phone must not change anyone's dice).
-std::uint64_t fnv1a(const std::string& s) {
-  std::uint64_t h = 0xcbf29ce484222325ull;
-  for (const unsigned char ch : s) {
-    h ^= ch;
-    h *= 0x100000001b3ull;
-  }
-  return h;
-}
-
-std::uint64_t mix64(std::uint64_t z) {
-  z += 0x9E3779B97F4A7C15ull;
-  z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ull;
-  z = (z ^ (z >> 27)) * 0x94D049BB133111EBull;
-  return z ^ (z >> 31);
-}
-
-std::uint64_t dayKey(const CharacterId& who, std::int64_t day, const std::string& what) {
-  return mix64(fnv1a(who + "|" + std::to_string(day) + "|" + what));
-}
+// world's random stream (opening a phone must not change anyone's dice). See DayHash.h.
+using dayhash::dayKey;
+using dayhash::mix64;
 
 std::int64_t dayOf(GameMinutes t) { return toDateTime(t).dayIndex; }
 
 double round1(double v) { return std::round(v * 10) / 10; }
+
+std::string hhmm(GameMinutes t) {
+  const DateTime d = toDateTime(t);
+  char buf[8];
+  std::snprintf(buf, sizeof buf, "%02d:%02d", d.hour, d.minute);
+  return buf;
+}
 
 // order[i] is the bank index of the option shown at position i.
 std::vector<int> optionOrder(const CharacterId& who, std::int64_t day, const WorkTaskDef& t) {
@@ -105,6 +97,7 @@ Status ContentDatabase::ingestWork(const std::string& source, const std::string&
       haveWorkDecisions_ = true;
       WorkDecisionsConfig& W = workDecisions_;
       W.perDay = body.value("per_day", W.perDay);
+      W.spacingMinutes = body.value("spacing_minutes", W.spacingMinutes);
       W.performanceBest = body.value("performance_best", W.performanceBest);
       W.performanceWorst = body.value("performance_worst", W.performanceWorst);
       W.bonusHoursPerPoint = body.value("bonus_hours_per_point", W.bonusHoursPerPoint);
@@ -138,6 +131,8 @@ Status ContentDatabase::ingestWork(const std::string& source, const std::string&
 Status ContentDatabase::validateWork() const {
   const WorkDecisionsConfig& W = workDecisions_;
   if (W.perDay < 1 || W.perDay > 10) return fail("content_invalid", "work_decisions.per_day must be 1 to 10");
+  if (W.spacingMinutes < 0 || W.spacingMinutes > kMinutesPerDay)
+    return fail("content_invalid", "work_decisions.spacing_minutes must be 0 to 1440");
   if (W.performanceBest < W.performanceWorst)
     return fail("content_invalid", "work_decisions: performance_best must be at least performance_worst");
   if (W.bonusHoursPerPoint < 0)
@@ -252,6 +247,65 @@ const WorkAnswer* World::workAnswerToday(const CharacterState& c, const std::str
   return nullptr;
 }
 
+// Decisions come up through the shift. Those answered on an earlier shift today stay up (as results); the rest
+// come up in today's order, the first when the shift starts (or at midnight, on a shift that crosses it) and one
+// more every spacing_minutes. A pure function of the shift's start, the clock and the answers, so the phone, the
+// op and the minute step agree without saving anything.
+World::WorkTasksUp World::workTasksUp(const CharacterState& c) const {
+  WorkTasksUp u;
+  if (!c.career.shiftStartedAt) return u;
+  const std::vector<std::string> tasks = workTasksToday(c);
+  const GameMinutes dayStart = state_.now - state_.now % kMinutesPerDay;
+  const GameMinutes anchor = std::max(*c.career.shiftStartedAt, dayStart);
+  std::set<std::string> earlier;
+  for (const auto& t : tasks) {
+    // Calls made on this shift aren't reported yet; anything else answered today was an earlier shift's.
+    const WorkAnswer* a = workAnswerToday(c, t);
+    if (a && (a->reported || a->at < anchor)) earlier.insert(t);
+    else u.pending.push_back(t);
+  }
+  const int spacing = content_->workDecisions().spacingMinutes;
+  u.shown = u.pending.size();
+  if (spacing > 0)
+    u.shown = std::min(u.pending.size(), static_cast<std::size_t>(1 + (state_.now - anchor) / spacing));
+  if (u.shown < u.pending.size()) u.nextAt = anchor + static_cast<GameMinutes>(u.shown) * spacing;
+  const std::set<std::string> shownSet(u.pending.begin(), u.pending.begin() + static_cast<std::ptrdiff_t>(u.shown));
+  for (const auto& t : tasks) {
+    if (earlier.count(t) || shownSet.count(t)) u.up.push_back(t);
+  }
+  return u;
+}
+
+void World::announceWorkTask(const CharacterState& c, const WorkTasksUp& u, const std::string& task) {
+  const WorkTaskDef* t = content_->workTask(task);
+  if (!t) return;
+  int open = 0;
+  for (const auto& id : u.up) open += workAnswerToday(c, id) ? 0 : 1;
+  emit({c.id}, "work_decision",
+       Json{{"task", task},
+            {"prompt", t->prompt},
+            {"open", open},
+            {"upcoming", static_cast<int>(u.pending.size() - u.shown)},
+            {"next_at", u.nextAt >= 0 ? Json(u.nextAt) : Json()}});
+}
+
+// Every game minute, for people on shift: when the next decision's minute comes, it is up, and the worker hears.
+void World::stepWorkMinute() {
+  const int spacing = content_->workDecisions().spacingMinutes;
+  if (spacing <= 0) return;
+  const GameMinutes dayStart = state_.now - state_.now % kMinutesPerDay;
+  for (auto& [id, c] : state_.characters) {
+    if (!c.online || !c.career.shiftStartedAt || !content_->career(c.career.careerId)) continue;
+    const GameMinutes anchor = std::max(*c.career.shiftStartedAt, dayStart);
+    // The one up when the shift started was announced by startShift; one at midnight is the new day's first.
+    if ((state_.now - anchor) % spacing != 0 || state_.now == *c.career.shiftStartedAt) continue;
+    refreshWorkDay(c);
+    const WorkTasksUp u = workTasksUp(c);
+    const auto k = static_cast<std::size_t>((state_.now - anchor) / spacing);
+    if (k < u.pending.size() && k + 1 == u.shown) announceWorkTask(c, u, u.pending[k]);
+  }
+}
+
 // One decision as the player sees it: options in today's order, without scores or reasons;
 // once answered, the outcome too.
 Json World::workTaskView(const CharacterState& c, const std::string& task) const {
@@ -309,19 +363,23 @@ Result<Json> World::workTasks(const CharacterId& actor) {
   if (!c.career.shiftStartedAt) return fail("not_working", "decisions come up on shift; start one at work first");
   refreshWorkDay(c);
   c.workDecisions.nudgedDay = c.workDecisions.day;  // they've looked: no need for the phone to remind them
+  const WorkTasksUp u = workTasksUp(c);
   Json decisions = Json::array();
   int open = 0;
-  for (const auto& id : c.workDecisions.tasks) {
+  for (const auto& id : u.up) {
     Json v = workTaskView(c, id);
     if (v.is_null()) continue;
     if (!v.value("answered", false)) ++open;
     decisions.push_back(std::move(v));
   }
   Json out = workProgress(c);
-  out["per_day"] = content_->workDecisions().perDay;
+  addWorkPacing(u, out);
   out["decisions"] = decisions;
   out["open"] = open;
-  if (decisions.empty()) out["note"] = "There are no decisions for this job yet. Your shift counts as it always has.";
+  if (c.workDecisions.tasks.empty())
+    out["note"] = "There are no decisions for this job yet. Your shift counts as it always has.";
+  else if (open == 0 && u.nextAt >= 0)
+    out["note"] = "The next decision comes up at " + hhmm(u.nextAt) + ".";
   else if (open == 0) out["note"] = "That's all of today's decisions.";
   else out["note"] = "Optional: a shift counts either way, but good calls get you promoted sooner.";
   return out;
@@ -340,6 +398,9 @@ Result<Json> World::answerWorkTask(const CharacterId& actor, const std::string& 
   if (std::find(w.tasks.begin(), w.tasks.end(), task) == w.tasks.end())
     return fail("not_today", "that isn't one of today's decisions");
   if (workAnswerToday(c, task)) return fail("already_answered", "you've already made that call today");
+  const WorkTasksUp up = workTasksUp(c);
+  if (std::find(up.up.begin(), up.up.end(), task) == up.up.end())
+    return fail("not_yet", "that decision hasn't come up yet; they come up through the shift");
   if (option < 0 || option >= static_cast<int>(t->options.size()))
     return fail("unknown_option", "pick one of the " + std::to_string(t->options.size()) + " options shown");
 
@@ -376,8 +437,9 @@ Result<Json> World::answerWorkTask(const CharacterId& actor, const std::string& 
   out["task"] = task;
   out.update(workProgress(c));
   int open = 0;
-  for (const auto& id : w.tasks) open += workAnswerToday(c, id) ? 0 : 1;
+  for (const auto& id : up.up) open += workAnswerToday(c, id) ? 0 : 1;
   out["open"] = open;
+  addWorkPacing(up, out);
   return out;
 }
 
@@ -391,7 +453,7 @@ void World::stepWorkHourly() {
     WorkDecisionsState& w = c.workDecisions;
     if (w.nudgedDay == w.day) continue;
     int open = 0;
-    for (const auto& t : w.tasks) open += workAnswerToday(c, t) ? 0 : 1;
+    for (const auto& t : workTasksUp(c).up) open += workAnswerToday(c, t) ? 0 : 1;
     if (open == 0) continue;
     w.nudgedDay = w.day;
     notify(id, "career",
@@ -443,32 +505,56 @@ Json World::phoneWork(const CharacterState& c) const {
   }
   const bool onShift = c.career.shiftStartedAt.has_value();
   const std::vector<std::string> tasks = workTasksToday(c);
+  const WorkTasksUp u = workTasksUp(c);
   Json decisions = Json::array();
-  int open = 0;
+  int open = 0, answered = 0;
   for (const auto& id : tasks) {
-    const bool answered = workAnswerToday(c, id) != nullptr;
-    open += answered ? 0 : 1;
-    // Off shift, only the results: the questions themselves come up at work.
-    if (!onShift && !answered) continue;
+    const bool done = workAnswerToday(c, id) != nullptr;
+    answered += done ? 1 : 0;
+    // On shift, the ones that have come up; off shift, only the results: the questions come up at work.
+    const bool isUp = std::find(u.up.begin(), u.up.end(), id) != u.up.end();
+    if (onShift ? !isUp : !done) continue;
+    open += done ? 0 : 1;
     Json v = workTaskView(c, id);
     if (!v.is_null()) decisions.push_back(std::move(v));
   }
   const WorkDecisionsState& w = c.workDecisions;
   out["on_shift"] = onShift;
-  out["per_day"] = content_->workDecisions().perDay;
+  // The client's time-worked and pay-so-far estimate uses the server's own start and cap, not its own guess.
+  out["shift_started_at"] = onShift ? Json(*c.career.shiftStartedAt) : Json();
+  out["max_shift_hours"] = content_->career(c.career.careerId)->maxShiftHours;
+  addWorkPacing(u, out);
+  // Off shift nothing has come up yet: every one still unanswered today comes up at work.
+  if (!onShift) out["upcoming"] = static_cast<int>(tasks.size()) - answered;
   out["decisions"] = decisions;
   out["open"] = open;
-  out["answered_today"] = static_cast<int>(tasks.size()) - open;
+  out["answered_today"] = answered;
   out["decisions_answered"] = w.answeredTotal;
   out["best_calls"] = w.bestTotal;
+  const int upcoming = out["upcoming"].get<int>();
+  const int spacing = content_->workDecisions().spacingMinutes;
   if (tasks.empty())
     out["note"] = "There are no decisions for this job yet. Shifts pay and count toward promotion as always.";
-  else if (open == 0) out["note"] = "That's all of today's decisions.";
+  else if (open == 0 && upcoming == 0) out["note"] = "That's all of today's decisions.";
   else if (!onShift)
-    out["note"] = std::to_string(open) + (open == 1 ? " decision comes" : " decisions come") +
-                  " up when you're on shift today. Unanswered ones lapse at midnight.";
+    out["note"] = std::to_string(upcoming) + (upcoming == 1 ? " decision comes" : " decisions come") +
+                  " up when you're on shift today" +
+                  (spacing > 0 ? ", one every " + std::to_string(spacing) + " minutes" : std::string()) +
+                  ". Unanswered ones lapse at midnight.";
+  else if (open == 0)
+    out["note"] = "The next decision comes up at " + hhmm(u.nextAt) + ".";
   else out["note"] = "Answer with work_answer {task, option}. Optional: a shift counts either way.";
   return out;
+}
+
+// How decisions are paced, for the op, the phone and an answer: today's quota, the spacing, how many are still
+// to come this shift, and when the next one does.
+void World::addWorkPacing(const WorkTasksUp& u, Json& out) const {
+  out["per_day"] = content_->workDecisions().perDay;
+  out["spacing_minutes"] = content_->workDecisions().spacingMinutes;
+  out["upcoming"] = static_cast<int>(u.pending.size() - u.shown);
+  out["next_at"] = u.nextAt >= 0 ? Json(u.nextAt) : Json();
+  out["next_in_minutes"] = u.nextAt >= 0 ? Json(u.nextAt - state_.now) : Json();
 }
 
 // ---- Save ----------------------------------------------------------------------------------

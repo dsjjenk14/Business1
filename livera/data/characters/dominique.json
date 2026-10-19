@@ -123,6 +123,7 @@
           "info": "At 24, placed a nurse who'd been turned down thirty times. Bought her first blazer with the commission."
         }
       ],
+      "aspirations": ["get_promoted", "buy_a_home", "make_friends"],
       "profile": {
         "tagline": "Came to staff a city. Plans to own part of it.",
         "why_livera": "career_advancement",
@@ -184,7 +185,7 @@
         "schedule": {
           "weekdays": [
             {"time": "06:30", "activity": "Gym or a run in Founders Park"},
-            {"time": "08:30", "activity": "Meridian Talent Partners"},
+            {"time": "08:30", "activity": "Meridian Talent Partners", "work": true},
             {"time": "18:30", "activity": "Home, or networking at Heritage Coffee"}
           ],
           "thursday": [{"time": "07:00", "activity": "James Wellness (private)"}],

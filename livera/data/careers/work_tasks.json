@@ -1,6 +1,12 @@
 {
-  "$comment": "Work decisions: on shift, up to per_day job decisions a work day, drawn from the character's career (a nanny's from the nanny bank). Optional: a shift counts either way. Each task has three or four options; exactly one scores 1 (the best call) and scores stay on the server until the decision is made. An answer moves performance by performance_worst + (performance_best - performance_worst) x score and adds score x bonus_hours_per_point promotion hours. See docs/m08/work.md.",
-  "work_decisions": {"per_day": 3, "performance_best": 6, "performance_worst": -4, "bonus_hours_per_point": 1.5},
+  "$comment": "Work decisions: on shift, up to per_day job decisions a work day, drawn from the character's career (a nanny's from the nanny bank). They come up through the shift: one when it starts (or at midnight on a shift that crosses it) and one more every spacing_minutes. Optional: a shift counts either way. Each task has three or four options; exactly one scores 1 (the best call) and scores stay on the server until the decision is made. An answer moves performance by performance_worst + (performance_best - performance_worst) x score and adds score x bonus_hours_per_point promotion hours. See docs/m08/work.md.",
+  "work_decisions": {
+    "per_day": 4,
+    "spacing_minutes": 150,
+    "performance_best": 6,
+    "performance_worst": -4,
+    "bonus_hours_per_point": 2.0
+  },
   "work_tasks": [
     {
       "career": "cafe",

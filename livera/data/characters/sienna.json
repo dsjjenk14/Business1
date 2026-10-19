@@ -73,6 +73,7 @@
           "info": "Pitched the Livéra brand to the consortium. They bought it on the spot."
         }
       ],
+      "aspirations": ["get_promoted", "get_famous", "find_love"],
       "profile": {
         "tagline": "Decides what's beautiful in Livéra. Rarely says so out loud.",
         "why_livera": "career_advancement",
@@ -119,7 +120,7 @@
         ],
         "schedule": {
           "weekdays": [
-            {"time": "09:30", "activity": "Lumen Creative"},
+            {"time": "09:30", "activity": "Lumen Creative", "work": true},
             {"time": "20:00", "activity": "Gallery openings, shoots, ÉCLAT when it opens"}
           ]
         },

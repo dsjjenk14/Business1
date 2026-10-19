@@ -318,7 +318,13 @@ TEST_CASE("localtown: made characters: one per town when asked, listed with crea
   REQUIRE(list);
   CHECK(list.value()["can_create"] == false);
   bool listed = false;
-  for (const auto& c : list.value()["characters"]) listed = listed || (c["id"] == id && c["created"] == true);
+  for (const auto& c : list.value()["characters"]) {
+    if (c["id"] != id) continue;
+    listed = c["created"] == true;
+    // The same card as the founders' (World::characterCard): the picker can say where they live and work.
+    CHECK(c["home"].is_string());
+    CHECK(c.contains("workplace"));
+  }
   CHECK(listed);
   CHECK(solo.join(id));
 
@@ -327,3 +333,29 @@ TEST_CASE("localtown: made characters: one per town when asked, listed with crea
   REQUIRE(shared.found());
   CHECK(shared.characters().value()["can_create"] == true);
 }
+
+TEST_CASE("localtown: the night is skipped only once everyone playing here is asleep (the bed rule)") {
+  LocalTown town(realContent());
+  REQUIRE(town.found());
+  REQUIRE(town.join("dominique"));
+  REQUIRE(town.join("naomi"));
+  // New towns start at 07:00; both are at home in the Lexington. Go to 21:30.
+  REQUIRE(town.advanceMinutes(870));
+  const GameMinutes evening = town.world().now();
+  REQUIRE(ask(town, "dominique", {{"op", "sleep"}})["ok"] == true);
+  Heard one = run(town, 1.0);
+  CHECK(town.world().now() < evening + 10);  // Naomi is still up: nobody skips her night for her
+  CHECK(!one.got("dominique", "good_morning"));
+  CHECK(town.world().isAsleep("dominique"));
+
+  REQUIRE(ask(town, "naomi", {{"op", "sleep"}})["ok"] == true);
+  Heard both = run(town, 0.2);
+  CHECK(town.world().now() % kMinutesPerDay == 7 * kMinutesPerHour);  // woken at the wake hour
+  CHECK(town.world().now() > evening + 9 * 60);
+  const auto skipped = [](const Json& d) { return d["skipped"] == true; };
+  CHECK(both.got("dominique", "good_morning", skipped));
+  CHECK(both.got("naomi", "good_morning", skipped));
+  CHECK(!town.world().isAsleep("dominique"));
+  CHECK(!town.world().isAsleep("naomi"));
+}
+

@@ -74,7 +74,7 @@ TEST_CASE("content: a new career is a data change, not a code change") {
 }
 
 TEST_CASE("content: sight range comes from data and never falls below the shout range") {
-  CHECK(realContent()->sim().sightRangeMeters == 120);
+  CHECK(realContent()->sim().sightRangeMeters == 160);
   Json sim = minimalSim();
   auto defaults = ContentDatabase::loadFromDocuments({{"sim", sim}});
   REQUIRE(defaults);

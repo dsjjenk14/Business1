@@ -1,6 +1,7 @@
 #include "core/Content.h"
 
 #include <algorithm>
+#include <cctype>
 #include <fstream>
 #include <set>
 
@@ -150,6 +151,7 @@ Result<CharacterDef> ContentDatabase::parseCharacter(const Json& j) {
         c.memories.push_back(std::move(sm));
       }
     }
+    c.aspirations = readStrings(j, "aspirations");
     c.profile = j.value("profile", Json::object());
     return c;
   } catch (const std::exception& e) {
@@ -352,6 +354,15 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
         L.depressedEmotionTargets = readStats(off, "depressed_emotion_targets");
         L.depressionCondition = off.value("depression_condition", L.depressionCondition);
         L.depressionRecoveryPerGoodHour = off.value("recovery_per_good_hour", L.depressionRecoveryPerGoodHour);
+        const Json away = off.value("away_work", Json::object());
+        L.awayPayShare = away.value("pay_share", L.awayPayShare);
+        L.awayPromotionShare = away.value("promotion_share", L.awayPromotionShare);
+        const Json block = away.value("default_block", Json::object());
+        L.defaultWorkDays = readInts(block, "days");
+        if (block.contains("hours")) {
+          L.defaultWorkStartHour = block.at("hours").at(0).get<int>();
+          L.defaultWorkEndHour = block.at("hours").at(1).get<int>();
+        }
         const Json& bath = body.at("bathroom");
         L.accidentHygieneLoss = bath.value("accident_hygiene_loss", L.accidentHygieneLoss);
         L.accidentEmbarrassment = bath.value("accident_embarrassment", L.accidentEmbarrassment);
@@ -382,6 +393,10 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
         const Json& g = body.at("grooming");
         L.groomingAttractionMin = g.value("attraction_min", L.groomingAttractionMin);
         L.groomingAttractionMax = g.value("attraction_max", L.groomingAttractionMax);
+        const Json sleep = body.value("sleep", Json::object());
+        if (sleep.contains("bed_hours"))
+          L.bedHours = OpeningHours{sleep.at("bed_hours").at(0).get<int>(), sleep.at("bed_hours").at(1).get<int>(), {}};
+        L.wakeHour = sleep.value("wake_hour", L.wakeHour);
       } else if (section == "conditions") {
         for (const auto& j : body) {
           ConditionDef d;
@@ -702,6 +717,21 @@ Status ContentDatabase::validate() const {
       if (life_.lifeStages[i].minAge <= life_.lifeStages[i - 1].minAge)
         return fail("content_invalid", "life.aging.life_stages must be in increasing age order");
     }
+    const auto share = [](double v) { return v >= 0 && v <= 1; };
+    if (!share(life_.awayPayShare) || !share(life_.awayPromotionShare))
+      return fail("content_invalid", "life.offline.away_work: pay_share and promotion_share are 0-1");
+    for (int d : life_.defaultWorkDays) {
+      if (d < 0 || d > 6) return fail("content_invalid", "life.offline.away_work.default_block.days must be 0..6");
+    }
+    if (life_.defaultWorkStartHour < 0 || life_.defaultWorkEndHour > 24 ||
+        life_.defaultWorkStartHour >= life_.defaultWorkEndHour)
+      return fail("content_invalid", "life.offline.away_work.default_block.hours must be [start, end) within a day");
+    const OpeningHours& bed = life_.bedHours;
+    if (bed.openHour < 0 || bed.openHour > 23 || bed.closeHour < 0 || bed.closeHour > 24 ||
+        bed.openHour == bed.closeHour)
+      return fail("content_invalid", "life.sleep.bed_hours must be [from, to) hours of the day");
+    if (life_.wakeHour < 0 || life_.wakeHour > 23 || bed.isOpenAt(life_.wakeHour))
+      return fail("content_invalid", "life.sleep.wake_hour must be an hour outside bed_hours");
   }
   for (const auto& [id, d] : conditions_) {
     const std::string where = "condition " + id;
@@ -803,6 +833,22 @@ Status ContentDatabase::validateCharacter(const CharacterDef& c,
   for (const auto& m : c.memories) {
     for (const auto& p : m.participants) {
       if (!characterExists(p)) return fail("content_invalid", where + ": memory participant unknown: " + p);
+    }
+  }
+  // The away routine pays the schedule line marked "work": it needs a time, and a day has one.
+  const Json schedule = c.profile.is_object() ? c.profile.value("schedule", Json::object()) : Json::object();
+  if (schedule.is_object()) {
+    for (const auto& [day, lines] : schedule.items()) {
+      if (!lines.is_array()) continue;
+      int work = 0;
+      for (const auto& e : lines) {
+        if (!e.is_object() || !e.value("work", false)) continue;
+        ++work;
+        const std::string t = e.value("time", std::string());
+        if (t.size() != 5 || t[2] != ':' || !std::isdigit(static_cast<unsigned char>(t[0])))
+          return fail("content_invalid", where + ": schedule." + day + ": a work line needs a time like 08:30");
+      }
+      if (work > 1) return fail("content_invalid", where + ": schedule." + day + " has more than one work line");
     }
   }
   return okStatus();

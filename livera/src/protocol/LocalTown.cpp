@@ -149,6 +149,15 @@ std::map<CharacterId, Json> LocalTown::tick(double realSeconds) {
   // As on the server: the autopilot acts first, so this tick's people stream already shows what it did.
   autopilot_.step(*world_, seconds);
   world_->advanceRealTime(seconds);
+  // The bed rule (D-062): once everyone playing here is asleep, the night is skipped. A local town has nobody
+  // else to wait for (the server keeps this behind --night-skip), and a night lived in real time is minutes of
+  // nothing. The autopilot still steps each skipped minute, so its founders keep their own evening and morning.
+  if (!humans_.empty() && std::all_of(humans_.begin(), humans_.end(), [&](const CharacterId& id) {
+        return world_->isAsleep(id);
+      })) {
+    // Can't be refused here (someone is asleep); its good_morning events go out with this tick's batch.
+    (void)world_->skipNight([&](double s) { autopilot_.step(*world_, s); });
+  }
   const std::vector<WorldEvent> batch = world_->drainEvents();
   autopilot_.observe(batch);  // asks addressed to its characters, which it declines
   for (const auto& ev : batch) {
@@ -174,8 +183,8 @@ Result<Json> LocalTown::characters(const CharacterId& forCharacter) const {
   Json list = world_->playableCharacters();
   for (auto& c : list) mark(c, c["id"].get<std::string>());
   for (const auto& [id, def] : world_->state().createdCharacters) {
-    Json c{{"id", def.id}, {"name", def.fullName()}, {"age", def.age}, {"pronouns", def.pronouns},
-           {"tagline", def.profile.value("tagline", "")}, {"created", true}};
+    Json c = world_->characterCard(id);
+    c["created"] = true;
     mark(c, id);
     list.push_back(std::move(c));
   }

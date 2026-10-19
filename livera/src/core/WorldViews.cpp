@@ -105,7 +105,8 @@ Result<Json> World::look(const CharacterId& actor) const {
                   {"inside", c->inside},
                   {"needs", roundedStats(c->needs)},
                   {"emotions", roundedStats(c->emotions)},
-                  {"on_shift", c->career.shiftStartedAt.has_value()}});
+                  {"on_shift", c->career.shiftStartedAt.has_value()},
+                  {"asleep", c->asleepSince >= 0}});
 
   Json people = Json::array();
   for (const auto& [id, o] : state_.characters) {
@@ -119,12 +120,33 @@ Result<Json> World::look(const CharacterId& actor) const {
 
   Json here = Json::object();
   if (const LocationDef* loc = currentPlace(*c)) {
+    // What each offer and activity does is public content, like its price. When an activity can be done again is
+    // the viewer's own state (their cooldown there).
     Json offers = Json::array();
-    for (const auto& o : loc->offers) offers.push_back(Json{{"id", o.id}, {"label", o.label}, {"price_cents", o.priceCents}});
+    for (const auto& o : loc->offers)
+      offers.push_back(Json{{"id", o.id},
+                            {"label", o.label},
+                            {"price_cents", o.priceCents},
+                            {"needs", o.needEffects},
+                            {"emotions", o.emotionEffects}});
     Json activities = Json::array();
-    for (const auto& a : loc->activities) activities.push_back(Json{{"id", a.id}, {"label", a.label}});
+    for (const auto& a : loc->activities) {
+      const auto ready = c->activityReadyAt.find(loc->id + "/" + a.id);
+      const bool cooling = ready != c->activityReadyAt.end() && ready->second > state_.now;
+      Json act{{"id", a.id},
+               {"label", a.label},
+               {"needs", a.needEffects},
+               {"emotions", a.emotionEffects},
+               {"cooldown_minutes", a.cooldownMinutes},
+               {"ready_at", cooling ? Json(ready->second) : Json()},
+               {"ready_in_minutes", cooling ? ready->second - state_.now : 0}};
+      for (const auto& h : db.leisure().activityHours) {  // some can only be done at some hours (stargazing)
+        if (h.place == loc->id && h.activity == a.id) act["hours"] = Json::array({h.hours.openHour, h.hours.closeHour});
+      }
+      activities.push_back(std::move(act));
+    }
     here = Json{{"id", loc->id}, {"name", loc->name}, {"type", loc->type}, {"description", loc->description},
-                {"status", locationStatus(*loc)}, {"offers", offers}, {"activities", activities}};
+                {"status", locationStatus(*loc)}, {"offers", offers}, {"activities", activities}, {"stage", loc->stage}};
   }
 
   Json nearby = Json::array();
@@ -160,13 +182,18 @@ Result<Json> World::look(const CharacterId& actor) const {
 Json World::mapView() const {
   Json places = Json::array();
   for (const auto& [id, loc] : content_->locations()) {
+    // Opening hours are public: [open, close) with a close before the open running past midnight, and the
+    // weekdays it opens (0 = Monday; empty = every day). null hours = never closes.
     places.push_back(Json{{"id", id},
                           {"name", loc.name},
                           {"type", loc.type},
                           {"district", loc.district},
                           {"door", {loc.door.x, loc.door.y}},
                           {"enterable", loc.enterable},
-                          {"status", locationStatus(loc)}});
+                          {"status", locationStatus(loc)},
+                          {"hours", loc.hours ? Json::array({loc.hours->openHour, loc.hours->closeHour}) : Json()},
+                          {"open_days", loc.hours ? Json(loc.hours->days) : Json::array()},
+                          {"stage", loc.stage}});  // performers can play here (perform)
   }
   const SimulationConfig& sim = content_->sim();
   Json lines = Json::array();
@@ -320,19 +347,37 @@ void World::emitPeopleChanges() {
   }
 }
 
+Json World::characterCard(const CharacterId& id) const {
+  const CharacterDef* def = definition(id);
+  if (!def) return Json();
+  const CharacterState* c = character(id);
+  // Their job and home as they are now (people change jobs and move house), else as content founded them.
+  const CareerDef* career = content_->career(c ? c->career.careerId : def->careerId);
+  const int level = c ? c->career.level : def->careerLevel;
+  const bool hasLevel = career && level >= 0 && level < static_cast<int>(career->levels.size());
+  LocationId homeAt = def->spawnLocation;
+  if (const PropertyState* home = homeOf(id)) {
+    if (const PropertyDef* pd = content_->property(home->id)) homeAt = pd->location;
+  } else if (c) {
+    homeAt.clear();  // in the world with nowhere to live
+  }
+  const LocationDef* homeLoc = content_->location(homeAt);
+  const LocationDef* work =
+      career && !career->workplaces.empty() ? content_->location(career->workplaces.front()) : nullptr;
+  return Json{{"id", id},
+              {"name", def->fullName()},
+              {"age", def->age},
+              {"pronouns", def->pronouns},
+              {"career", hasLevel ? career->levels.at(static_cast<std::size_t>(level)).title : ""},
+              {"tagline", def->profile.value("tagline", "")},
+              {"home", homeLoc ? Json(homeLoc->name) : Json()},
+              {"workplace", work ? Json(work->name) : Json()}};
+}
+
 Json World::playableCharacters() const {
   Json out = Json::array();
   for (const auto& [id, def] : content_->characters()) {
-    if (!def.playable) continue;
-    const CareerDef* career = content_->career(def.careerId);
-    const CharacterState* c = character(id);
-    const int level = c ? c->career.level : def.careerLevel;
-    out.push_back(Json{{"id", id},
-                       {"name", def.fullName()},
-                       {"age", def.age},
-                       {"pronouns", def.pronouns},
-                       {"career", career ? career->levels.at(static_cast<std::size_t>(level)).title : ""},
-                       {"tagline", def.profile.value("tagline", "")}});
+    if (def.playable) out.push_back(characterCard(id));
   }
   return out;
 }

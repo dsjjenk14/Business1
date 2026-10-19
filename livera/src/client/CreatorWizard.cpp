@@ -155,13 +155,21 @@ std::optional<Json> runCreatorWizard(const Json& o) {
     }
     sheet["origin"] = o["origins"][askInt("  number: ", 1, static_cast<int>(o["origins"].size())) - 1]["id"];
 
+    // Only the jobs your education qualifies you for (the server applies the same rule as `apply`).
+    Json open = Json::array();
+    for (const auto& c : o["careers"]) {
+      const Json educations = c.value("educations", Json::array());
+      const bool qualifies = std::find(educations.begin(), educations.end(), sheet["education"]) != educations.end();
+      if (!c.contains("educations") || qualifies) open.push_back(c);
+    }
+    if (open.empty()) open = o["careers"];
     std::printf("\nStarting career\n");
     i = 1;
-    for (const auto& c : o["careers"]) {
+    for (const auto& c : open) {
       std::printf("  %2d) %-26s starts as %s ($%.2f/hr)\n", i++, c.value("name", "").c_str(),
                   c.value("starting_title", "").c_str(), c.value("hourly_cents", 0) / 100.0);
     }
-    sheet["career"] = o["careers"][askInt("  number: ", 1, static_cast<int>(o["careers"].size())) - 1]["id"];
+    sheet["career"] = open[askInt("  number: ", 1, static_cast<int>(open.size())) - 1]["id"];
     sheet["background"] = ask("\nA line or two about your past (optional): ");
     return sheet;
   } catch (const std::exception&) {

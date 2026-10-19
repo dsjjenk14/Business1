@@ -12,6 +12,12 @@ call was. Promotion still happens when the shift ends, by the same rule as befor
 calls get you there sooner. Ignoring them costs nothing: the shift pays and counts exactly
 as it always did.
 
+**Redesign update (R2.3, D-060):** four decisions a day, and they come up through the shift instead of all at
+clock-in: the first when the shift starts (or at midnight, on a shift that crosses it) and one more every
+`spacing_minutes` (150), each announced to the worker with a `work_decision` event. A decision answered on an
+earlier shift the same day stays up as a result, and the next shift starts with the next one. One that hasn't
+come up can't be answered (`not_yet`). The decision bonus is 2.0 hours per point.
+
 Code: `src/core/WorkTasks.cpp` (content, draw, commands, phone app, hourly step, save),
 one call in `World::endShift`, the `m08:work` blocks in `World.h`, `Content.h`,
 `World.cpp` (on load), `Server.cpp` and `cli_main.cpp`. Tests: `tests/test_work.cpp` (14
@@ -64,9 +70,10 @@ command agree without saving anything until the player actually looks.
   decisions). Up to `per_day` a game day, from the character's career bank. A career with
   no decisions in the bank works exactly as before.
 - **The draw:** the least-shown decisions first, ties broken by a hash of (character, day,
-  task); never the previous work day's exact set when the bank has more. Stored when the
-  player first looks (or the hourly step runs while they're on shift), so it is fixed for
-  the day. Options are shown in a per-day shuffled order; `option` in an answer is the
+  task); never the previous work day's exact set when the bank has more. Stored when a
+  shift starts or the player first looks (or the hourly step runs while they're on shift),
+  so it is fixed for the day. Since the redesign the day's decisions come up one at a time
+  through the shift (`spacing_minutes`), each with a `work_decision` event. Options are shown in a per-day shuffled order; `option` in an answer is the
   index in that order.
 - **An answer:** once per decision per day, only today's. Performance changes at once by
   `worst + (best − worst) × score`, clamped 0–100. `hours_at_level` gains `score ×
@@ -102,7 +109,7 @@ Content (`data/careers/work_tasks.json`):
 | Section | Shape (abridged) | Notes |
 |---|---|---|
 | `work_tasks` | `[{career, tasks[] {id, prompt, options[] {label, detail?, score, why}}}]` | M0.8. Career ids must exist; task ids unique across all careers; 3–4 options with distinct labels; scores in [0, 1] with exactly one scoring 1 (the best call); every option has a `why`. A career may have any number of decisions, including none. May appear in several files (they add up). |
-| `work_decisions` | `per_day, performance_best, performance_worst, bonus_hours_per_point` | M0.8. At most one; defaults 3, +6, −4, 1.5. `per_day` 1–10; `performance_best ≥ performance_worst`; bonus ≥ 0. |
+| `work_decisions` | `per_day, spacing_minutes, performance_best, performance_worst, bonus_hours_per_point` | M0.8. At most one; defaults 3, 0, +6, −4, 1.5 (the data now says 4, 150, +6, −4, 2.0). `per_day` 1–10; `spacing_minutes` 0–1440 (0 = all at once); `performance_best ≥ performance_worst`; bonus ≥ 0. |
 
 State (character JSON, key `work`; no world part, no migration; a save without it loads with
 no decisions made):
@@ -133,13 +140,16 @@ The world part `work` is an empty object (no world-wide state).
 
 | Op | Arguments | Reply / refusals |
 |---|---|---|
-| `work_tasks` | none | `{career, title, performance, hours_at_level, decision_bonus_hours, next_title, hours_to_promote, hours_left, min_performance, per_day, open, note, decisions[] {task, prompt, options[] {option, label, detail?}, answered, ...outcome when answered}}`. Refusals: `not_playing`, `no_career`, `not_working`. |
-| `work_answer` | `task` (a task id from `work_tasks`), `option` (integer: the option's index in the order sent) | `{task, best_call, you_chose {option, label, why}, best {option, label, why}, performance_change, bonus_hours, open, ...progress}`. Refusals: `bad_request` (no integer `option`), `no_career`, `not_working`, `unknown_task`, `not_today` (a real decision, but not one of today's), `already_answered`, `unknown_option`. |
-| `phone` `{app: "work"}` | | Progress as above plus `on_shift, decisions[], open, answered_today, decisions_answered, best_calls, note`. On shift: all of today's decisions; off shift: only the answered ones with their results, and how many are still open. |
+| `work_tasks` | none | `{career, title, performance, hours_at_level, decision_bonus_hours, next_title, hours_to_promote, hours_left, min_performance, per_day, spacing_minutes, open, upcoming, next_at, next_in_minutes, note, decisions[] {task, prompt, options[] {option, label, detail?}, answered, ...outcome when answered}}`. `decisions` are the ones that have come up; `open` how many of them are unanswered; `upcoming` how many more come up this shift if it runs long enough; `next_at` the game minute the next one does (null when none). Refusals: `not_playing`, `no_career`, `not_working`. |
+| `work_answer` | `task` (a task id from `work_tasks`), `option` (integer: the option's index in the order sent) | `{task, best_call, you_chose {option, label, why}, best {option, label, why}, performance_change, bonus_hours, open, upcoming, next_at, ...progress}`. Refusals: `bad_request` (no integer `option`), `no_career`, `not_working`, `unknown_task`, `not_today` (a real decision, but not one of today's), `already_answered`, `not_yet` (one of today's that hasn't come up), `unknown_option`. |
+| `phone` `{app: "work"}` | | Progress as above plus `on_shift, decisions[], open, upcoming, next_at, answered_today, decisions_answered, best_calls, note`. On shift: the decisions that have come up; off shift: only the answered ones with their results, `open` 0 and `upcoming` the ones still to come today. |
 | `work` `{action: "end"}` | (existing) | Now also `decisions[] {task, prompt, you_chose, best_call, performance_change, bonus_hours}`, `decision_bonus_hours`, `best_calls`, and `decisions_note` when a too-short shift took the hours back. |
 
-A notification of kind `career` ("3 decisions are waiting for you at work today…") goes
+A notification of kind `career` ("1 decision is waiting for you at work today…") goes
 out once a day to an on-shift player who hasn't looked yet.
+
+Event `work_decision` (to the worker only), when a decision comes up:
+`{"task": "recruiting_vet_tech", "prompt": "...", "open": 1, "upcoming": 2, "next_at": 121830}`.
 
 CLI:
 
@@ -164,9 +174,9 @@ The CLI numbers options from 1; the protocol's `option` is 0-based.
   no per-level difficulty or level-gated decisions yet.
 - **The CLI's `work end` line** doesn't print the shift's decisions or bonus (the reply has
   them; that printer is shared code outside this lane). Use `phone work` or `tasks`.
-- **No decision timer:** all of the day's decisions are available as soon as the shift
-  starts; they don't arrive through the day.
-- **Offline characters and NPCs** make no decisions (offline life doesn't work shifts).
+- **Pacing counts from the shift's start:** a decision comes up every `spacing_minutes` of the shift you're on;
+  minutes on an earlier shift that day don't carry over (that shift's calls stay made).
+- **Offline characters and NPCs** make no decisions (away pay for scheduled work never includes them, D-063).
 - **No consequences beyond performance and promotion hours:** a bad hire doesn't come back
   as a bad employee, an upset customer doesn't leave a review, and no money changes hands.
 - **Only the player answers:** nobody else sees or reacts to a character's calls; there is

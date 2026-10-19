@@ -17,7 +17,10 @@ namespace livera {
 // from what a client of that character would see (look, the phone apps, the map), so it can never
 // cheat. Characters it runs are labelled `scripted` with `played_by: "autopilot"` (D-053).
 //
-// It never chats, never sends asks, declines asks addressed to it, and answers nothing at work.
+// Manners (D-064, data/society/manners.json): it greets a person it meets once per person per game day, now and
+// then starts a chat with someone it knows, and answers asks by the data's rules from its own feelings (never
+// intimacy; a kind with no rule is declined). People only: never another autopilot founder or a script. It never
+// sends asks and answers nothing at work.
 // Refusals back off with jitter drawn from the world's saved random stream; a character sends at
 // most one command every two real seconds. Plan state lives here, in memory only: a loaded world
 // re-plans. Humans win: release() drops a character without disconnecting them so the caller can
@@ -45,8 +48,8 @@ class Autopilot {
   // Call it after World::advanceRealTime with the same seconds.
   void step(World& world, double realSeconds);
   // Shows it the events the world emitted (the batch from World::drainEvents, before the host routes
-  // them): asks addressed to its characters are declined on their next turn. Optional; without it
-  // asks just expire.
+  // them): asks addressed to its characters are answered (by data/society/manners.json) on their next
+  // turn. Optional; without it asks just expire.
   void observe(const std::vector<WorldEvent>& events);
   // Where the log lines go (the server's log, a debug hook). Nothing is printed otherwise.
   void setLog(std::function<void(const std::string&)> log);

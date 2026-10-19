@@ -1,0 +1,15 @@
+{
+  "$comment": "How autopilot founders treat people (D-064, core/Autopilot.cpp). They greet a person they meet, once per person per game day (by name only if they know them), and sometimes start a chat with someone they know: the chance is base + per_trait x their trait/100 + per_friendship x their friendship/100, rolled once per person per day. Asks are answered by these rules from their own side of the relationship; a kind with no rule is declined, and intimacy is never accepted (the loader refuses a rule for it). People only: never other autopilot founders or scripts.",
+  "autopilot_manners": {
+    "greet": {
+      "range_m": 20,
+      "known": ["Hi, {first}.", "Hey, {first}!", "Good to see you, {first}."],
+      "stranger": ["Hi.", "Hello there."]
+    },
+    "chat": {"interaction": "chat", "trait": "sociability", "base": 0.1, "per_trait": 0.35, "per_friendship": 0.3},
+    "asks": [
+      {"kind": "date", "min": {"compatibility": 60, "friendship": 30, "romantic_attraction": 15}},
+      {"kind": "kiss", "min": {"compatibility": 60, "friendship": 40, "romantic_attraction": 30}}
+    ]
+  }
+}

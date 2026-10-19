@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <optional>
@@ -326,6 +327,7 @@ struct CharacterState {
   double moveSpeedMps = 0;  // > 0 while riding: overrides walking speed until arrival
   std::map<std::string, std::vector<GameMinutes>> recentUses;  // substance -> when, for overdoses
   std::map<CharacterId, GameMinutes> pickpocketedAt;           // victim -> when
+  GameMinutes asleepSince = -1;  // in bed (World::sleep) since then; -1 = awake (Sleep.cpp)
 
   SimTier tier() const { return online ? SimTier::Active : SimTier::Dormant; }
 };
@@ -598,6 +600,10 @@ class World {
   // Apply in person at the workplace; hired at the first level if you meet the requirements.
   Result<Json> applyForJob(const CharacterId& actor, const std::string& career);
   bool hasDegree(const CharacterId& id, const std::string& degree) const;
+  // A career's entry requirements, the one rule `apply` and the character creator share: the degree it needs
+  // (missing_degree) and a clean record (criminal_record).
+  Status meetsEntryRequirements(const CareerDef& career, const std::vector<std::string>& degrees,
+                                bool hasRecord) const;
 
   // --- Crime and the police (Crime.cpp) ---------------------------------------------------
   Result<Json> steal(const CharacterId& actor, const std::string& offer);
@@ -713,6 +719,36 @@ class World {
   std::string fameTierOf(const CharacterId& id) const;
   bool unlocked(const CharacterId& id, const std::string& capability) const;  // by an item you own
 
+  // --- Sleep and the night (Sleep.cpp) -------------------------------------------------
+  // Go to bed: in your own home, in the evening window (life.sleep.bed_hours, 21:00-03:00), not on shift or
+  // studying. You stay in the world, asleep, until the wake hour (life.sleep.wake_hour, 07:00) or until you do
+  // anything else: every command wakes you except `look`, `map` and the phone apps. Asleep, your routine looks
+  // after you: needs and emotions aren't simulated minute by minute but catch up as an away character's do
+  // (catchUpDormant) when you wake. Waking at the wake hour sends you `good_morning` (what happened overnight).
+  // Refusals: not_in_world, in_jail, on_shift, studying, not_home, not_bedtime.
+  Result<Json> sleep(const CharacterId& actor);
+  bool isAsleep(const CharacterId& id) const;
+  std::vector<CharacterId> sleepers() const;  // characters in the world and asleep, in id order
+  GameMinutes nextWakeAt() const;             // the next wake hour strictly after now
+
+  // THE NIGHT SKIP. Advances the world to nextWakeAt() as if the night had been lived: minute by minute in order,
+  // so rent, construction, the hourly steps and work all fire exactly as they would; characters in the world and
+  // awake are simulated minute by minute and move along their paths; those asleep (and everyone offline) are
+  // looked after by their routine and catch up when they wake. At the wake hour every sleeper wakes with a
+  // `good_morning` event (`skipped: true`). The people stream is sent once, at the end.
+  //
+  // It never decides whether a skip is allowed: the caller does, and calls it then. The server's rule
+  // (`--night-skip`): at least one person is playing and everyone playing is asleep. A single-player town: its
+  // one person is asleep. Refused with `nobody_asleep` when no character is asleep.
+  //
+  // `beforeEachMinute(realSeconds)` runs before each simulated minute with the real time one game minute stands
+  // for (1 / minutes_per_real_second). Pass the town's Autopilot step so autopilot founders still walk home, go
+  // to bed and get up on time during the skip:
+  //     world.skipNight([&](double s) { autopilot.step(world, s); });
+  // Then drain the events and route them as after any tick (Autopilot::observe first).
+  // Returns {from, to, minutes, woke: [ids]} (game minutes; `woke` = who was asleep).
+  Result<Json> skipNight(const std::function<void(double realSeconds)>& beforeEachMinute = {});
+
   // Dev servers only (the server gates it behind --dev): give a character a condition, for testing care and contagion.
   Status devAddCondition(const CharacterId& id, const std::string& condition);
 
@@ -723,6 +759,9 @@ class World {
   Json mapView() const;
   Json publicRules() const;
   Json playableCharacters() const;
+  // One entry of the pick list: {id, name, age, pronouns, career (title), tagline, home, workplace}. Home and
+  // workplace are place names (null when there is none). Founders and made characters alike.
+  Json characterCard(const CharacterId& id) const;
 
   const CharacterState* character(const CharacterId& id) const;
   // Definition of any character: founding (content) or created (state).
@@ -748,7 +787,22 @@ class World {
   Json personJson(const CharacterState& viewer, const CharacterState& other) const;
   void emitPeopleChanges();
   CharacterState* mutableCharacter(const CharacterId& id);
-  Result<CharacterState*> activeCharacter(const CharacterId& id);
+  // The actor of a command, who must be in the world. A command wakes them if they're asleep (`wakes` false:
+  // reading the phone in bed doesn't).
+  Result<CharacterState*> activeCharacter(const CharacterId& id, bool wakes = true);
+  // Sleep.cpp: wake one sleeper (their routine's catch-up for the time asleep); at the wake hour, with good_morning.
+  void wakeUp(CharacterState& c, bool morning);
+  void stepSleepHourly();  // called once a game hour from stepHourly (Life.cpp): the wake hour wakes everyone
+  // Away.cpp: a character's scheduled work block on a weekday (minutes of the day; start < 0 = none), and the
+  // routine paying blocks that ended in the last hour for characters who spent them offline.
+  struct WorkBlock {
+    int start = -1;
+    int end = -1;
+  };
+  WorkBlock scheduledWorkBlock(const CharacterState& c, int weekday) const;
+  void stepAwayWorkHourly();
+  void moveEveryone(double seconds);  // advanceRealTime's movement, shared with skipNight
+  bool skipping_ = false;  // inside skipNight (good_morning says the night was skipped)
   std::string nextId(const char* prefix);
   void stepMinute();
   void simulateCharacterMinute(CharacterState& c);
@@ -852,6 +906,18 @@ class World {
   // Today's decisions for a character: the stored draw if it's today's, else the draw it would be.
   std::vector<std::string> workTasksToday(const CharacterState& c) const;
   std::vector<std::string> drawWorkTasks(const CharacterState& c, std::int64_t day) const;
+  // On shift: which of today's decisions have come up (in today's order) and, if more are still to come this
+  // shift, the minute the next one does (else -1). Off shift: nothing has come up.
+  struct WorkTasksUp {
+    std::vector<std::string> up;
+    std::vector<std::string> pending;  // not answered before this shift, in the order they come up
+    std::size_t shown = 0;             // how many of `pending` have come up
+    GameMinutes nextAt = -1;
+  };
+  WorkTasksUp workTasksUp(const CharacterState& c) const;
+  void stepWorkMinute();  // called every game minute from advanceMinutes: a decision comes up (`work_decision`)
+  void announceWorkTask(const CharacterState& c, const WorkTasksUp& u, const std::string& task);
+  void addWorkPacing(const WorkTasksUp& u, Json& out) const;
   // Stores today's draw; yesterday's unanswered decisions lapse.
   void refreshWorkDay(CharacterState& c);
   const WorkAnswer* workAnswerToday(const CharacterState& c, const std::string& task) const;
@@ -910,6 +976,20 @@ class World {
   void addMedicineToHealth(const CharacterState& c, Json& out) const;
   void stepMedicineHourly(CharacterState& c);
   // } m08:pets
+
+  // Goals (Goals.cpp): computed from the character's own records only; nothing is saved.
+  struct GoalProgress {
+    bool done = false;
+    double count = 0;
+    double target = 1;
+    std::string progress;  // "1/3", "$14,960.00 of $52,000.00"
+    std::string detail;    // what's next, where the check knows ("Recruiting Manager: 58 of 120 hours")
+  };
+  GoalProgress checkGoal(const CharacterState& c, const GoalCheckDef& check) const;
+  bool goalRequirementMet(const CharacterState& c, const std::string& requirement) const;
+  // Today's daily goals for a character: a pure function of (character, day) over the goals they can do.
+  std::vector<const DailyGoalDef*> dailyGoals(const CharacterState& c, std::int64_t day) const;
+  Json phoneGoals(const CharacterState& c) const;
 
   // m08:details helpers { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
   void stepDetailsHourly();  // called once a game hour from stepHourly (Life.cpp)

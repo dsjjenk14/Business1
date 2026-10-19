@@ -64,6 +64,8 @@ Status ContentDatabase::ingestMore(const std::string& source, const std::string&
   if (auto st = ingestLeisure(source, section, body, handled); !st || handled) return st;
   if (auto st = ingestPets(source, section, body, handled); !st || handled) return st;
   if (auto st = ingestDetails(source, section, body, handled); !st || handled) return st;
+  if (auto st = ingestGoals(source, section, body, handled); !st || handled) return st;
+  if (auto st = ingestManners(source, section, body, handled); !st || handled) return st;
   handled = false;
   return okStatus();
 }
@@ -107,6 +109,8 @@ Status ContentDatabase::validateMore() const {
   if (auto st = validateLeisure(); !st) return st;
   if (auto st = validatePets(); !st) return st;
   if (auto st = validateDetails(); !st) return st;
+  if (auto st = validateGoals(); !st) return st;
+  if (auto st = validateManners(); !st) return st;
   return okStatus();
 }
 

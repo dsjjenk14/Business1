@@ -74,6 +74,7 @@
           "about": "dominique"
         }
       ],
+      "aspirations": ["get_famous", "get_promoted"],
       "profile": {
         "tagline": "Knows everyone. Throws the party everyone talks about.",
         "why_livera": "business_opportunity",
@@ -120,7 +121,7 @@
         ],
         "schedule": {
           "weekdays": [
-            {"time": "10:00", "activity": "Baptiste & Co. Events"},
+            {"time": "10:00", "activity": "Baptiste & Co. Events", "work": true},
             {"time": "19:00", "activity": "Site visits and tastings"}
           ],
           "friday": [{"time": "21:00", "activity": "Whatever party she's producing"}]

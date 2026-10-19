@@ -215,7 +215,7 @@ TEST_CASE("details: clothes you wet are ruined until washed; laundry at home or 
   CHECK(code(w.doLaundry("dominique")) == "wrong_place");
   walkInto(w, "dominique", "lexington_1204");
 
-  waitForAccident(w, "dominique", 12 * 60);
+  waitForAccident(w, "dominique", 18 * 60);  // from 100 at 6 an hour
   const CharacterState& d = *w.character("dominique");
   CHECK(w.soiledOutfit(d));
   CHECK(notified(w, "dominique", "Your clothes are ruined until they're washed"));
@@ -226,7 +226,9 @@ TEST_CASE("details: clothes you wet are ruined until washed; laundry at home or 
   w.advanceMinutes(60);
   CHECK(need(w, "dominique", "hygiene") <= 50);
 
-  // Suds & Spin: a wash costs $8, paid to the laundromat.
+  // Suds & Spin: a wash costs $8, paid to the laundromat. (At 6 an hour the accident comes in the night, so she
+  // waits for the morning: it opens at 6:00.)
+  advanceTo(w, 9);
   walkInto(w, "dominique", "suds_spin");
   const Cents before = bank(w, "dominique");
   const Cents shop = w.state().ledger.balance("org:suds_spin");
@@ -268,22 +270,24 @@ TEST_CASE("details: the weather changes at 06:00 to yesterday's forecast, and it
   CHECK(w.openPhoneApp("dominique", "weather").value().at("today").is_null());
   w.advanceMinutes(60);
   const DetailsWorldState& W = w.state().details;
-  REQUIRE(W.weatherDay == 0);
+  const std::int64_t day0 = toDateTime(w.now()).dayIndex;  // the world's first day
+  REQUIRE(W.weatherDay == day0);
   Json app = w.openPhoneApp("dominique", "weather").value();
   CHECK(app.at("today").at("kind") == W.today.kind);
   CHECK(app.at("tomorrow").at("kind") == W.tomorrow.kind);
   CHECK(app.at("changes_at") == "6:00");
   CHECK(app.at("umbrella") == false);
   CHECK(w.content().weatherKind(W.today.kind) != nullptr);
-  // Month 1 is winter: -4 to 6 degrees.
-  CHECK(W.today.tempC >= -4);
-  CHECK(W.today.tempC <= 6);
+  // A new world starts in Month 4, spring: 8 to 19 degrees.
+  CHECK(toDateTime(w.now()).month == 4);
+  CHECK(W.today.tempC >= 8);
+  CHECK(W.today.tempC <= 19);
   w.disconnect("dominique");
   advanceTo(w, 5);
-  CHECK(W.weatherDay == 0);
+  CHECK(W.weatherDay == day0);
   const WeatherDay forecast = W.tomorrow;
   advanceTo(w, 6);
-  CHECK(W.weatherDay == 1);
+  CHECK(W.weatherDay == day0 + 1);
   CHECK(W.today.kind == forecast.kind);
   CHECK(W.today.tempC == forecast.tempC);
   // Over four weeks, more than one kind of weather.

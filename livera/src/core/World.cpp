@@ -267,6 +267,17 @@ void World::addCharacterState(const CharacterDef& def, const OriginDef* origin) 
 void World::advanceRealTime(double seconds) {
   if (seconds <= 0) return;
   const ContentDatabase& db = *content_;
+  moveEveryone(seconds);
+  state_.clockCarry += seconds * db.sim().minutesPerRealSecond;
+  const auto whole = static_cast<GameMinutes>(state_.clockCarry);
+  state_.clockCarry -= static_cast<double>(whole);
+  advanceMinutes(whole);
+  // Last, so it catches every move this tick made, forced ones included (jail, the ER, being shown out).
+  emitPeopleChanges();
+}
+
+void World::moveEveryone(double seconds) {
+  const ContentDatabase& db = *content_;
   for (auto& [id, c] : state_.characters) {
     if (!c.online || !c.moveTarget || !c.inside.empty()) continue;
     const double step = (c.moveSpeedMps > 0 ? c.moveSpeedMps : db.sim().walkSpeedMetersPerSecond) * seconds;
@@ -282,12 +293,6 @@ void World::advanceRealTime(double seconds) {
       c.position.y += (target.y - c.position.y) / d * step;
     }
   }
-  state_.clockCarry += seconds * db.sim().minutesPerRealSecond;
-  const auto whole = static_cast<GameMinutes>(state_.clockCarry);
-  state_.clockCarry -= static_cast<double>(whole);
-  advanceMinutes(whole);
-  // Last, so it catches every move this tick made, forced ones included (jail, the ER, being shown out).
-  emitPeopleChanges();
 }
 
 // Each step simulates the minute [now, now+1), then moves the clock. Things that happen
@@ -298,13 +303,15 @@ void World::advanceMinutes(GameMinutes minutes) {
     ++state_.now;
     if (state_.now % 60 == 0) stepHourly();
     if (state_.now % kMinutesPerMonth == 0) chargeRent();
+    stepWorkMinute();  // after the hourly step, which rolls the work day over at midnight (WorkTasks.cpp)
   }
 }
 
 void World::stepMinute() {
   stepConstruction();
   for (auto& [id, c] : state_.characters) {
-    if (c.online) simulateCharacterMinute(c);
+    // Asleep, your routine looks after you: you catch up when you wake (Sleep.cpp).
+    if (c.online && c.asleepSince < 0) simulateCharacterMinute(c);
   }
 }
 
@@ -457,6 +464,7 @@ Status World::connect(const CharacterId& id) {
 void World::disconnect(const CharacterId& id) {
   CharacterState* c = mutableCharacter(id);
   if (!c || !c->online) return;
+  if (c->asleepSince >= 0) wakeUp(*c, false);  // the time asleep catches up before they go
   if (c->career.shiftStartedAt) (void)endShift(id);
   if (c->education.sessionStartedAt) (void)endStudy(id);
   c->moveTarget.reset();
@@ -817,6 +825,10 @@ Status World::startShift(const CharacterId& actor) {
   c.career.shiftLocation = c.inside;
   c.career.shiftWellbeingSum = 0;
   c.career.shiftSamples = 0;
+  // The shift's first decision is up at once; say so, as each later one will be (WorkTasks.cpp).
+  refreshWorkDay(c);
+  const WorkTasksUp up = workTasksUp(c);
+  if (up.shown > 0 && !workAnswerToday(c, up.pending.front())) announceWorkTask(c, up, up.pending.front());
   return okStatus();
 }
 
@@ -981,7 +993,7 @@ Result<Json> World::tip(const CharacterId& actor, const CharacterId& target, Cen
 }
 
 Result<Json> World::openPhoneApp(const CharacterId& actor, const std::string& app) {
-  auto r = activeCharacter(actor);
+  auto r = activeCharacter(actor, /*wakes=*/false);  // reading your phone in bed doesn't get you up
   if (!r) return r.error();
   CharacterState& c = *r.value();
   if (Status st = phoneUsable(c); !st) return st.error();  // a dead phone opens nothing (Wallet.cpp)
@@ -1011,6 +1023,7 @@ Result<Json> World::openPhoneApp(const CharacterId& actor, const std::string& ap
   if (app == "sports") return phoneSports(c);
   if (app == "pets") return phonePets(c);
   if (app == "weather") return phoneWeather(c);
+  if (app == "goals") return phoneGoals(c);  // only ever your own (Goals.cpp)
   return fail("unknown_app", "no such phone app");
 }
 
@@ -1027,10 +1040,11 @@ CharacterState* World::mutableCharacter(const CharacterId& id) {
   return it == state_.characters.end() ? nullptr : &it->second;
 }
 
-Result<CharacterState*> World::activeCharacter(const CharacterId& id) {
+Result<CharacterState*> World::activeCharacter(const CharacterId& id, bool wakes) {
   CharacterState* c = mutableCharacter(id);
   if (!c) return fail("unknown_character", "no such character");
   if (!c->online) return fail("not_in_world", "character is not in the world");
+  if (wakes && c->asleepSince >= 0) wakeUp(*c, false);  // doing anything gets you out of bed (Sleep.cpp)
   return c;
 }
 
@@ -1112,7 +1126,10 @@ std::string World::locationStatus(const LocationDef& loc) const {
     auto it = state_.construction.find(loc.constructionProject);
     if (it == state_.construction.end() || it->second.status != ConstructionStatus::Complete) return "under_construction";
   }
-  if (loc.hours && !loc.hours->isOpenAt(toDateTime(state_.now).hour)) return "closed";
+  if (loc.hours) {
+    const DateTime d = toDateTime(state_.now);
+    if (!loc.hours->isOpenOn(d.weekday, d.hour)) return "closed";  // its hours, on the weekdays it opens
+  }
   return "open";
 }
 

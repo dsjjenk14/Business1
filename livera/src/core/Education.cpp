@@ -28,6 +28,18 @@ bool World::hasDegree(const CharacterId& id, const std::string& degree) const {
   return std::find(c->education.degrees.begin(), c->education.degrees.end(), degree) != c->education.degrees.end();
 }
 
+Status World::meetsEntryRequirements(const CareerDef& career, const std::vector<std::string>& degrees,
+                                     bool hasRecord) const {
+  if (!career.requiresDegree.empty() &&
+      std::find(degrees.begin(), degrees.end(), career.requiresDegree) == degrees.end()) {
+    const DegreeDef* d = content_->degree(career.requiresDegree);
+    return fail("missing_degree", career.levels.front().title + " needs a " + (d ? d->name : career.requiresDegree));
+  }
+  if (career.requiresCleanRecord && hasRecord)
+    return fail("criminal_record", career.name + " won't hire someone with a criminal record");
+  return okStatus();
+}
+
 Result<Json> World::enroll(const CharacterId& actor, const std::string& programId) {
   auto r = activeCharacter(actor);
   if (!r) return r.error();
@@ -181,16 +193,15 @@ Result<Json> World::applyForJob(const CharacterId& actor, const std::string& car
     if (c.inside == w || (c.inside.empty() && distance(c.position, loc->door) <= content_->sim().entryRadiusMeters)) at = loc;
   }
   if (!at) return fail("wrong_place", "apply in person at " + content_->location(career->workplaces.front())->name);
-  if (!career->requiresDegree.empty() && !hasDegree(actor, career->requiresDegree))
-    return fail("missing_degree", "this job needs a " + content_->degree(career->requiresDegree)->name);
-  if (career->requiresCleanRecord && !c.record.empty())
-    return fail("criminal_record", career->name + " won't hire someone with a criminal record");
+  if (Status st = meetsEntryRequirements(*career, c.education.degrees, !c.record.empty()); !st) return st.error();
   c.career.careerId = careerId;
   c.career.level = 0;
   c.career.hoursAtLevel = 0;
   c.career.performance = 60;
   const std::string& title = career->levels.front().title;
-  notify(actor, "career", "You're hired: " + title + " at " + at->name + ".");
+  // "Heritage Coffee Co." already ends the sentence.
+  const std::string place = at->name;
+  notify(actor, "career", "You're hired: " + title + " at " + place + (place.ends_with('.') ? "" : "."));
   Memory m;
   m.id = nextId("mem");
   m.owner = actor;

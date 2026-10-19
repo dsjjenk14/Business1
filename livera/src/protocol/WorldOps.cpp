@@ -126,6 +126,8 @@ Result<Json> dispatchWorldOp(World& world, const CharacterId& me, const std::str
   // m08:details ops { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
   if (op == "laundry") return world.doLaundry(me);
   // } m08:details
+  // Redesign: going to bed (whether the night is then skipped is the host's rule, not the op's).
+  if (op == "sleep") return world.sleep(me);
   if (op == "message") {
     auto id = world.sendMessage(me, str(req, "to"), str(req, "text"));
     if (!id) return id.error();

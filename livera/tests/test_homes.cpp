@@ -21,10 +21,13 @@ namespace {
 constexpr const char* kLender = "org:livera_savings_bank";
 constexpr const char* kDeveloper = "org:willow_lane_homes";
 
-// The real content, with quick walking so the tests don't spend game hours on the street.
+// The real content, with quick walking so the tests don't spend game hours on the street. Away pay (D-063) is off
+// here: these tests count every cent of rent and mortgage, and a character away would otherwise be paid for their
+// scheduled hours on top (tests/test_world.cpp tests that on its own).
 std::shared_ptr<const ContentDatabase> homesContent() {
   static auto db = patchedContent([](Json& doc, const std::string& file) {
     if (file == "simulation.json") doc["simulation"]["walk_speed_mps"] = 60.0;
+    if (file == "life.json") doc["life"]["offline"]["away_work"]["pay_share"] = 0.0;
   });
   return db;
 }

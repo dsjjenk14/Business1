@@ -208,6 +208,21 @@ struct Activity {
   double caloriesEaten = 0;  // 0 = derived from the hunger it restores
 };
 
+struct OpeningHours {
+  int openHour = 0;   // inclusive
+  int closeHour = 24; // exclusive; a close earlier than open wraps past midnight
+  std::vector<int> days;  // weekdays it opens (0 = Monday); empty = every day
+  bool isOpenAt(int hour) const {
+    if (openHour == closeHour) return true;
+    if (openHour < closeHour) return hour >= openHour && hour < closeHour;
+    return hour >= openHour || hour < closeHour;
+  }
+  bool isOpenOn(int weekday, int hour) const {
+    if (!days.empty() && std::find(days.begin(), days.end(), weekday) == days.end()) return false;
+    return isOpenAt(hour);
+  }
+};
+
 // A life stage by age (baby, child, teen, young adult, adult, elder).
 struct LifeStageDef {
   std::string id;
@@ -224,6 +239,14 @@ struct LifeConfig {
   StatMap depressedEmotionTargets;
   std::string depressionCondition = "depression";
   double depressionRecoveryPerGoodHour = 1;  // online hours with needs averaging 60+ help
+  // Away, the routine includes the job (Away.cpp): scheduled work blocks spent offline are paid at this share of
+  // the wage, with this share of the hours toward promotion. A character with no work line in their schedule
+  // (everyone made in the creator) works the default block.
+  double awayPayShare = 0;
+  double awayPromotionShare = 0;
+  std::vector<int> defaultWorkDays;  // weekdays, 0 = Monday
+  int defaultWorkStartHour = 9;
+  int defaultWorkEndHour = 17;
   // Bathroom: when bladder hits 0.
   double accidentHygieneLoss = 40;
   double accidentEmbarrassment = 40;
@@ -252,6 +275,9 @@ struct LifeConfig {
   // Grooming makes first impressions: physical attraction gains scale between these.
   double groomingAttractionMin = 0.6;
   double groomingAttractionMax = 1.4;
+  // Sleep (Sleep.cpp): when you can go to bed at home, and the hour everyone asleep wakes.
+  OpeningHours bedHours{21, 3, {}};
+  int wakeHour = 7;
 };
 
 // A condition a character can have: an illness, an infection, depression, an addiction.
@@ -276,21 +302,6 @@ struct ConditionDef {
   double contagionPerHour = 0;  // per infected person sharing a space
   double sexualTransmission = 0;
   std::vector<std::string> treatedBy;  // care services (or items) that cure or manage it
-};
-
-struct OpeningHours {
-  int openHour = 0;   // inclusive
-  int closeHour = 24; // exclusive; a close earlier than open wraps past midnight
-  std::vector<int> days;  // weekdays it opens (0 = Monday); empty = every day
-  bool isOpenAt(int hour) const {
-    if (openHour == closeHour) return true;
-    if (openHour < closeHour) return hour >= openHour && hour < closeHour;
-    return hour >= openHour || hour < closeHour;
-  }
-  bool isOpenOn(int weekday, int hour) const {
-    if (!days.empty() && std::find(days.begin(), days.end(), weekday) == days.end()) return false;
-    return isOpenAt(hour);
-  }
 };
 
 enum class AccessRule { Public, Residents, Staff };
@@ -436,6 +447,9 @@ struct CharacterDef {
   double fame = 0;           // starting fame
   std::vector<StartingRelationship> relationships;
   std::vector<SeedMemory> memories;
+  // Aspirations the game can follow (ids from data/goals), beside the free-text profile.goals. Founders name them;
+  // a made character's come from the goals picked in the creator.
+  std::vector<std::string> aspirations;
   Json profile;  // narrative: appearance, background, goals, secrets, schedule, social media...
 
   std::string fullName() const { return firstName + " " + lastName; }
@@ -597,6 +611,9 @@ struct WorkTaskDef {
 
 struct WorkDecisionsConfig {
   int perDay = 3;                   // decisions a work day
+  // They come up through the shift: one when it starts (or at midnight on a shift that crosses it) and one more
+  // every spacing_minutes after. 0 = all of them at once.
+  int spacingMinutes = 0;
   double performanceBest = 6;       // performance change for the best call (score 1)
   double performanceWorst = -4;     // and for the worst (score 0); linear in between
   double bonusHoursPerPoint = 1.5;  // promotion hours per point of score
@@ -929,6 +946,74 @@ struct DetailsConfig {
 };
 // } m08:details
 
+// ---- Redesign content (docs/proposals/redesign.md, Release 2) ----
+// Goals (data/goals/goals.json, Goals.cpp). Which goals exist, their labels and numbers are data; how each kind
+// of check is computed (from records the World already keeps) is code, so a check names one of those kinds.
+struct GoalCheckDef {
+  std::string type;                     // ledger_today, memories_today, promotions... (Goals.cpp lists them)
+  int min = 1;                          // the count the check needs, where it counts
+  std::vector<std::string> kinds;       // ledger_today: transaction kinds
+  std::string direction = "in";         // ledger_today: money into ("in") or out of ("out") your accounts
+  std::vector<std::string> placeTypes;  // purchases_today: where you bought it
+  std::string memory;                   // memories_today, memories: the memory type
+  bool bestOnly = false;                // work_calls_today: only best calls count
+  std::string dimension;                // relationships_at_least: your side of the relationship
+  double value = 0;                     //   ...at or above this
+  std::vector<std::string> statuses;    // relationship_status: dating, engaged, married...
+  std::string tier;                     // fame_tier_at_least
+  Cents cents = 0;                      // bank_at_least, ledger_net_today
+};
+
+// A daily goal: three are drawn per character and game day from the pool of those whose `requires` hold.
+struct DailyGoalDef {
+  std::string id;
+  std::string label;
+  GoalCheckDef check;
+  // `requires` in data: has_career, has_work_decisions, has_partner, on_team, match_today, has_phone.
+  std::vector<std::string> requirements;
+};
+
+struct AspirationStepDef {
+  std::string label;
+  GoalCheckDef check;
+};
+
+// A life aspiration: chosen in the creator (`creator_goal`) or named in a founder's `aspirations`. One the game
+// can't follow yet is `tracked: false` with the reason it says, never a pretend progress bar.
+struct AspirationDef {
+  std::string id;
+  std::string label;
+  std::string creatorGoal;
+  bool tracked = true;
+  std::string untrackedReason;
+  std::vector<AspirationStepDef> steps;
+};
+
+struct GoalsConfig {
+  int perDay = 3;
+  std::vector<DailyGoalDef> daily;
+  std::vector<AspirationDef> aspirations;
+};
+
+// How autopilot founders treat people (data/society/manners.json, Autopilot.cpp). Without the section they keep to
+// themselves and decline every ask, as they did before the redesign.
+struct AutopilotAskRule {
+  std::string kind;  // an ask kind (date, kiss...); never intimacy
+  StatMap min;       // their own side of the relationship with the asker: dimension -> at least
+};
+
+struct AutopilotMannersConfig {
+  double greetRangeMeters = 20;              // outdoors (inside: anyone in the building); within say range
+  std::vector<std::string> greetKnown;       // to someone they know; "{first}" is that person's first name
+  std::vector<std::string> greetStranger;    // to someone they've never met
+  std::string chatInteraction;               // the interaction a chat is (empty = they never start one)
+  std::string chatTrait;                     // the personality trait that makes them chattier
+  double chatBase = 0;                       // chance = base + per_trait x trait/100 + per_friendship x friendship/100
+  double chatPerTrait = 0;
+  double chatPerFriendship = 0;
+  std::vector<AutopilotAskRule> asks;        // kinds not listed are declined
+};
+
 class ContentDatabase {
  public:
   // Loads every *.json under `dir` (recursively, sorted for determinism) and merges them.
@@ -1007,6 +1092,11 @@ class ContentDatabase {
   const DetailsConfig& details() const { return details_; }
   const WeatherKindDef* weatherKind(const std::string& id) const;
   // } m08:details
+  // Redesign: goals (Goals.cpp) and the autopilot's manners (Autopilot.cpp).
+  const AutopilotMannersConfig& autopilotManners() const { return manners_; }
+  const GoalsConfig& goals() const { return goals_; }
+  const AspirationDef* aspiration(const std::string& id) const;
+  const AspirationDef* aspirationForCreatorGoal(const std::string& creatorGoal) const;
   const ProgramDef* program(const std::string& id) const;
   const DegreeDef* degree(const std::string& id) const;
   // The line and stop for a stop id, or {nullptr, nullptr}.
@@ -1055,6 +1145,10 @@ class ContentDatabase {
   Status ingestDetails(const std::string& source, const std::string& section, const Json& body, bool& handled);
   Status validateDetails() const;
   // } m08:details
+  Status ingestGoals(const std::string& source, const std::string& section, const Json& body, bool& handled);
+  Status validateGoals() const;
+  Status ingestManners(const std::string& source, const std::string& section, const Json& body, bool& handled);
+  Status validateManners() const;
   Status validate() const;
 
   bool haveSim_ = false;
@@ -1116,6 +1210,10 @@ class ContentDatabase {
   bool haveDetails_ = false;
   DetailsConfig details_;
   // } m08:details
+  bool haveGoals_ = false;
+  GoalsConfig goals_;
+  bool haveManners_ = false;
+  AutopilotMannersConfig manners_;
 };
 
 }  // namespace livera

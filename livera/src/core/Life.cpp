@@ -245,6 +245,8 @@ void World::stepBodyMinute(CharacterState& c) {
 // Every game hour, for everyone.
 // ---------------------------------------------------------------------------------
 void World::stepHourly() {
+  stepSleepHourly();  // the wake hour: everyone asleep gets up first (Sleep.cpp)
+  stepAwayWorkHourly();  // away, the routine works its scheduled hours (Away.cpp)
   stepHomes();
   stepCrimeHourly();
   stepHomesHourly();

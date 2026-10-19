@@ -74,6 +74,7 @@
           "public": true
         }
       ],
+      "aspirations": ["give_back", "build_something_that_lasts"],
       "profile": {
         "tagline": "Building the town around the people who build it.",
         "why_livera": "family",
@@ -118,7 +119,10 @@
           }
         ],
         "schedule": {
-          "weekdays": [{"time": "08:00", "activity": "Common Ground"}, {"time": "18:00", "activity": "Community dinner"}],
+          "weekdays": [
+            {"time": "08:00", "activity": "Common Ground", "work": true},
+            {"time": "18:00", "activity": "Community dinner"}
+          ],
           "sunday": [{"time": "10:00", "activity": "Greater Hope service"}]
         },
         "starting_inventory": ["phone", "clipboard", "Common Ground keys", "gold bangles"],

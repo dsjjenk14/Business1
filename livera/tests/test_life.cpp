@@ -52,7 +52,7 @@ std::shared_ptr<const ContentDatabase> onlyCatching(const std::string& id, doubl
 TEST_CASE("life: everyone needs the bathroom, and holding it too long ends badly") {
   World w = lifeWorld(onlyCatching("none", 0));
   CHECK(needOf(w, "dominique", "bladder") > 0);
-  w.advanceMinutes(9 * 60);  // bladder starts at 80 and empties at 10 an hour
+  w.advanceMinutes(14 * 60);  // bladder starts at 80 and empties at 6 an hour
   CHECK(notified(w, "dominique", "couldn't make it to a bathroom"));
   CHECK(w.character("dominique")->emotions.at("embarrassment") > 20);
   auto r = w.useActivity("dominique", "toilet");

@@ -79,6 +79,7 @@
           "about": "harper"
         }
       ],
+      "aspirations": ["get_promoted", "get_famous"],
       "profile": {
         "tagline": "Knows what happened. Finding out who knows.",
         "why_livera": "career_advancement",
@@ -114,7 +115,7 @@
         "secrets": [{"id": "leila_source", "truth": "She has a source inside Whitaker Capital.", "known_by": []}],
         "schedule": {
           "weekdays": [
-            {"time": "09:00", "activity": "The Livéra Ledger"},
+            {"time": "09:00", "activity": "The Livéra Ledger", "work": true},
             {"time": "19:00", "activity": "Council meetings, or Heritage Coffee with a notebook"}
           ]
         },

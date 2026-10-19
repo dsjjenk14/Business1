@@ -526,7 +526,15 @@
       "description": "The consortium's Livéra office: glass, walnut, and a model of the city as it will look in ten years.",
       "door": [590, 330],
       "access": "staff",
-      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+      "activities": [
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {
+          "id": "break_coffee",
+          "label": "Coffee in the break room",
+          "cooldown_minutes": 180,
+          "needs": {"energy": 8, "bladder": -5}
+        }
+      ]
     },
     {
       "id": "common_ground",
@@ -561,7 +569,15 @@
       "description": "Julian Park's startup, building AI that plans cities, with Livéra as its first customer. Standing desks, a whiteboard wall, cold brew on tap.",
       "door": [540, 345],
       "access": "staff",
-      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+      "activities": [
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {
+          "id": "break_coffee",
+          "label": "Coffee in the break room",
+          "cooldown_minutes": 180,
+          "needs": {"energy": 8, "bladder": -5}
+        }
+      ]
     },
     {
       "id": "livera_ledger",
@@ -571,7 +587,15 @@
       "description": "The town's newspaper: four desks, a police scanner, and Leila Rahal's corkboard of red string.",
       "door": [610, 285],
       "access": "staff",
-      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+      "activities": [
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {
+          "id": "break_coffee",
+          "label": "Coffee in the break room",
+          "cooldown_minutes": 180,
+          "needs": {"energy": 8, "bladder": -5}
+        }
+      ]
     },
     {
       "id": "baptiste_events",
@@ -581,7 +605,15 @@
       "description": "Aaliyah Baptiste's event agency: swatches, seating charts, and the guest list for every opening in town.",
       "door": [505, 455],
       "access": "staff",
-      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+      "activities": [
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {
+          "id": "break_coffee",
+          "label": "Coffee in the break room",
+          "cooldown_minutes": 180,
+          "needs": {"energy": 8, "bladder": -5}
+        }
+      ]
     },
     {
       "id": "lumen_creative",
@@ -591,7 +623,15 @@
       "description": "The agency branding Livéra itself. Sienna Brooks runs the creative floor.",
       "door": [575, 375],
       "access": "staff",
-      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+      "activities": [
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {
+          "id": "break_coffee",
+          "label": "Coffee in the break room",
+          "cooldown_minutes": 180,
+          "needs": {"energy": 8, "bladder": -5}
+        }
+      ]
     },
     {
       "id": "lexington_1801",
@@ -1174,7 +1214,15 @@
         }
       ],
       "stage": true,
-      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+      "activities": [
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {
+          "id": "chat_regulars",
+          "label": "Chat with the regulars",
+          "cooldown_minutes": 60,
+          "needs": {"social": 6}
+        }
+      ]
     },
     {
       "id": "greenleaf_market",
@@ -1222,7 +1270,15 @@
       "description": "A recruiting firm's new Livéra office, hiring for every employer that's moving to town.",
       "door": [510, 380],
       "access": "staff",
-      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+      "activities": [
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {
+          "id": "break_coffee",
+          "label": "Coffee in the break room",
+          "cooldown_minutes": 180,
+          "needs": {"energy": 8, "bladder": -5}
+        }
+      ]
     },
     {
       "id": "forge_site_office",
@@ -1232,7 +1288,15 @@
       "description": "Two stacked trailers, a plan table, and a whiteboard of every build in town.",
       "door": [480, 610],
       "access": "staff",
-      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+      "activities": [
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {
+          "id": "break_coffee",
+          "label": "Coffee in the break room",
+          "cooldown_minutes": 180,
+          "needs": {"energy": 8, "bladder": -5}
+        }
+      ]
     },
     {
       "id": "riverdale_clinic",
@@ -1790,7 +1854,15 @@
       "access": "staff",
       "description": "Livéra's first law firm: glass conference room, a library of statute books nobody reads, and a partner who bills in six-minute increments.",
       "door": [660, 440],
-      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+      "activities": [
+        {"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {
+          "id": "break_coffee",
+          "label": "Coffee in the break room",
+          "cooldown_minutes": 180,
+          "needs": {"energy": 8, "bladder": -5}
+        }
+      ]
     },
     {
       "id": "copper_tap",
@@ -1808,7 +1880,7 @@
           "id": "darts",
           "label": "Throw darts",
           "cooldown_minutes": 60,
-          "needs": {"recreation": 12, "social": 5}
+          "needs": {"recreation": 12, "social": 8}
         }
       ],
       "offers": [

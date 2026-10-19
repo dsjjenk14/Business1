@@ -73,6 +73,7 @@
           "info": "Opened James Wellness's doors to three bookings and a broken heater."
         }
       ],
+      "aspirations": ["get_promoted", "give_back"],
       "profile": {
         "tagline": "Holds everyone's secrets. Keeps her own.",
         "why_livera": "business_opportunity",
@@ -125,7 +126,7 @@
         ],
         "schedule": {
           "weekdays": [
-            {"time": "07:00", "activity": "James Wellness: early clients"},
+            {"time": "07:00", "activity": "James Wellness: early clients", "work": true},
             {"time": "18:00", "activity": "Yoga class she teaches"}
           ],
           "tuesday": [{"time": "19:00", "activity": "Free support group at Common Ground"}],

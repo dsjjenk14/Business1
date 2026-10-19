@@ -192,7 +192,7 @@ Content (`data/careers/work_tasks.json`):
 | Section | Shape (abridged) | Notes |
 |---|---|---|
 | `work_tasks` | `[{career, tasks[] {id, prompt, options[] {label, detail?, score, why}}}]` | M0.8. Career ids must exist; task ids unique across all careers; 3–4 options with distinct labels; scores in [0, 1] with exactly one scoring 1 (the best call); every option has a `why`. A career may have any number of decisions, including none. May appear in several files (they add up). |
-| `work_decisions` | `per_day, performance_best, performance_worst, bonus_hours_per_point` | M0.8. At most one; defaults 3, +6, −4, 1.5. `per_day` 1–10; `performance_best ≥ performance_worst`; bonus ≥ 0. |
+| `work_decisions` | `per_day, spacing_minutes, performance_best, performance_worst, bonus_hours_per_point` | M0.8. At most one; defaults 3, 0, +6, −4, 1.5 (data: 4, 150, +6, −4, 2.0). `per_day` 1–10; `spacing_minutes` 0–1440, the minutes between decisions coming up on a shift (0 = all at once; redesign R2.3); `performance_best ≥ performance_worst`; bonus ≥ 0. |
 
 State (character JSON, key `work`; no world part, no migration; a save without it loads with
 no decisions made):
@@ -287,3 +287,36 @@ Save: world part `details` (`weather_day`, `today`/`tomorrow` `{kind, temp_c}`, 
 {about, what, at, until, tellers, knows}`); character key `details` (`worn_hours{item: h}`,
 `soiled[]`, `drinks[]` game minutes). Older saves load with no weather (rolled at the next
 hour), no rumours and clean clothes.
+
+## Redesign content (`docs/proposals/redesign.md`, Release 2)
+
+No save-format change: everything below is content, or computed from state that was already saved.
+
+### Goals (D-061)
+
+| Section | Fields | Notes |
+|---|---|---|
+| `goals` | `daily{per_day, pool[] {id, label, check, requires[]}}, aspirations[] {id, label, creator_goal?, tracked?, untracked_reason?, steps[] {label, check}}` | data/goals/goals.json; at most one. `per_day` 1–10 (3). `requires`: `has_career`, `has_work_decisions`, `has_partner`, `on_team`, `match_today`, `has_phone`. Every creator goal maps to exactly one aspiration (`creator_goal`); a tracked aspiration has steps; an untracked one (`tracked: false`) has an `untracked_reason` and no steps. |
+| check | `{type, min?, kinds?, direction?, place_types?, memory?, best_only?, dimension?, value?, statuses?, tier?, cents?}` | `type` is one the World computes from what it keeps: `ledger_today` (`kinds` of transaction, `direction` in/out of your accounts, counted today), `ledger_net_today` (money in minus out today, not counting opening balances, at least `cents`), `purchases_today` (purchases at places of `place_types`), `memories_today` / `memories` (your memories of type `memory`, today or ever), `promotions`, `people_interacted_today`, `messages_sent_today`, `work_calls_today` (`best_only`), `relationships_at_least` (your side: `dimension` ≥ `value`, `min` people), `relationship_status` (any of `statuses`), `children`, `fame_tier_at_least` (`tier`), `songs_released`, `owns_home`, `bank_at_least` (`cents`), `bank_covers_down_payment` (the cheapest home for sale at the lender's minimum down payment). `min` defaults to 1. Unknown types, ledger kinds, memory types, place types, dimensions, statuses and tiers fail the load. |
+| `characters` | `aspirations[]` | Founders name the aspirations their free-text `profile.goals` map to; ids must exist. A made character's come from the goals picked in the creator (`profile.goals`), so nothing new is stored for them. |
+
+### Sleep (D-062)
+
+| Section | Fields | Notes |
+|---|---|---|
+| `life.sleep` | `bed_hours [from, to)`, `wake_hour` | data/config/life.json; defaults [21, 3] and 7. The wake hour must fall outside the bed hours. Being asleep is session state (never saved). |
+
+### Away pay (D-063)
+
+| Section | Fields | Notes |
+|---|---|---|
+| `life.offline.away_work` | `pay_share`, `promotion_share`, `default_block{days[], hours[start, end)}` | data/config/life.json; shares 0–1 (0.8, 0.5); the default block (weekdays 9–17) is for characters whose schedule has no work line. |
+| `characters` `profile.schedule` lines | `work: true` | The line the routine works away (founders' weekday job lines). At most one per day key, with an `HH:MM` time; the block runs to the next line (or midnight), at most the career's `max_shift_hours`. |
+
+Ledger kind `salary_away`: away pay, employer to the character's bank.
+
+### Autopilot manners (D-064)
+
+| Section | Fields | Notes |
+|---|---|---|
+| `autopilot_manners` | `greet{range_m, known[], stranger[]}, chat{interaction, trait, base, per_trait, per_friendship}, asks[] {kind, min{dimension: value}}` | data/society/manners.json; at most one; absent = founders keep to themselves and decline every ask. `range_m` within `hearing_range_m`; greeting lines for people they know (`{first}` = the person's first name) and strangers, both or neither; `interaction` and `trait` must exist; chances 0–1; ask kinds are request kinds except `intimacy`, which is refused; dimensions are relationship dimensions. |

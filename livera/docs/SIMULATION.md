@@ -6,7 +6,8 @@ How the world moves forward, and what is (and isn't) simulated today. Numbers li
 ## Time
 
 - One clock for the whole world, in **game minutes since the epoch** (Year 1, Month 1,
-  Day 1, Monday 00:00). A new world starts at 07:00 on day 1 (`start_minute`).
+  Day 1, Monday 00:00). A new world starts in spring, at 07:00 on Monday, Month 4, Day 1
+  (`start_minute` 121380).
 - Calendar: 60-minute hours, 24-hour days, 7-day weeks, **28-day months**, 12-month years
   (DECISIONS.md D-007).
 - Rate: `minutes_per_real_second` (default 1.0, so a game day is 24 real minutes).
@@ -150,7 +151,15 @@ teeth, therapy and antidepressants help depression, rehab treats addiction.
 
 ## Away from the game
 
-An offline character's needs converge on a self-care baseline (Tier 3). A character whose
+An offline character's needs converge on a self-care baseline (Tier 3), and their routine
+includes their job (D-063): each scheduled work block they spend offline (the schedule line marked
+`"work": true`, or for a character without one the default block, weekdays 09:00–17:00) is paid in
+the game hour it ends, from the employer through the ledger (kind `salary_away`), at
+`away_work.pay_share` (80%) of the wage for the part of the block they were away, with
+`promotion_share` (50%) of those hours toward the next title and no work decisions; a promotion
+still comes at the end of a shift in person. Never while depressed, in jail, without a job, for a
+nanny (whose job is a family's), or when the employer can't pay (the hours still count, as they do
+for a shift in person). A character whose
 player has been away for `self_care_real_days` (21) is depressed instead: needs converge on
 `depressed_need_targets`, mood on `depressed_emotion_targets`, weight drifts down and the
 home goes untended. Coming back, depression is a condition like any other.
@@ -186,8 +195,16 @@ What it does, all from data:
 - two habits are its own, not character data, and say so in the log: a coffee before some work
   days, and an outing on a free day.
 
-What it never does: chat, message or interact with anyone; send an ask; accept one (every ask is
-declined with `respond accept=false`); answer work decisions (doing nothing still pays); pretend
+Manners (D-064, `data/society/manners.json`): it greets a person it meets (within say range, or in
+the same building) once per person per game day, by first name only if it knows them; once a day per
+person it knows, it may start a chat (`interact`), with a chance from its sociability and its own
+friendship toward them; and it answers asks by the data's rule for each kind, from its own side of
+the relationship (a date needs compatibility 60, friendship 30 and romantic attraction 15 from it; a
+kiss more). A kind with no rule is declined, and intimacy always is (the loader refuses a rule for
+it). People only: never another autopilot founder or a script. An ask brings its next turn forward,
+within the two-second rule, so it's answered before it lapses.
+
+What it never does: message anyone; send an ask; answer work decisions (doing nothing still pays); pretend
 (every log line reports the world's reply); spin (a refusal backs off exponentially with jitter
 drawn from the world's saved random stream, and a character sends at most one command every two
 real seconds). In a cell it waits to be let out, then re-plans; the emergency room is just
@@ -301,12 +318,16 @@ lives there; the family's nanny has a key to the employer's current home.
 ## Work decisions
 
 - **When:** only while on shift (a nanny on shift in the family's home gets nanny
-  decisions). Up to `per_day` a game day, from the character's career bank. A career with
-  no decisions in the bank works exactly as before.
+  decisions). Up to `per_day` (4) a game day, from the character's career bank. A career with
+  no decisions in the bank works exactly as before. They come up through the shift: the
+  first when it starts (or at midnight, on a shift that crosses it), then one every
+  `spacing_minutes` (150), each with a `work_decision` event to the worker. One answered on
+  an earlier shift that day stays up as a result; the next shift starts with the next one.
+  One that hasn't come up can't be answered (`not_yet`).
 - **The draw:** the least-shown decisions first, ties broken by a hash of (character, day,
-  task); never the previous work day's exact set when the bank has more. Stored when the
-  player first looks (or the hourly step runs while they're on shift), so it is fixed for
-  the day. Options are shown in a per-day shuffled order; `option` in an answer is the
+  task); never the previous work day's exact set when the bank has more. Stored when a
+  shift starts or the player first looks (or the hourly step runs while they're on shift),
+  so it is fixed for the day. Options are shown in a per-day shuffled order; `option` in an answer is the
   index in that order.
 - **An answer:** once per decision per day, only today's. Performance changes at once by
   `worst + (best − worst) × score`, clamped 0–100. `hours_at_level` gains `score ×
@@ -326,12 +347,35 @@ lives there; the family's nanny has a key to the employer's current home.
   gets the new day's decisions, and its report covers both days.
 - **Reminder:** once a day, an hourly check tells an on-shift player how many decisions
   are waiting, unless they've already looked.
-- **Offline characters** don't make decisions; their routine doesn't include shifts.
+- **Offline characters** don't make decisions. Their routine includes their scheduled work, paid at
+  a share of the wage (D-063, "Away from the game"), with no decisions.
 - **Restarts:** a clean shutdown ends every shift (and reports it) before the last save. A
   crash after an autosave loses the shift in progress, as it always has for pay; the calls
   made in it keep their effects and stay made for the day. On load they are marked
   reported (nothing is left to report them), so a new shift, even one starting in the
   same game minute, reports only its own calls.
+
+## Sleep and the night
+
+`sleep` puts you to bed in your own home between 21:00 and 03:00 (`life.sleep`). Asleep, you stay
+in the world but your routine looks after you as it does while you're away: needs and emotions
+aren't simulated minute by minute; when you wake they catch up with the Tier-3 rule
+(`1 − e^(−hours/8)` toward the self-care targets), so a night's sleep leaves you rested and fed
+the way a night logged off does (D-050). Anything you do except looking around and your phone gets
+you up. At the wake hour (07:00) everyone asleep wakes with a `good_morning`. Skipping the night is
+the host's decision, never a client's: `World::skipNight` lives the night out minute by minute in
+one go (rent, construction, the hourly steps; people awake move and are simulated; the autopilot,
+stepped through it, still sends its founders to bed and gets them up), and the server does it only
+with `--night-skip` when everyone playing is asleep (D-062).
+
+## Goals
+
+Three daily goals per character and game day, drawn (a pure function of character and day, like
+work decisions) from `data/goals/goals.json` among those the character can do now, and the
+character's aspirations: a founder's from data, a made character's from the creator. Every check
+reads the character's own records (ledger, memories, relationships, messages, work answers,
+career, fame, songs, homes); nothing is saved and nothing is rewarded yet. Goals the game can't
+follow are shown as untracked with the reason. Phone app `goals` (D-061).
 
 ## Phones, coins and LivPay
 

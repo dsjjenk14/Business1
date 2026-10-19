@@ -30,6 +30,13 @@ struct ServerConfig {
   // Founders no account has claimed live their day on the core's Autopilot (D-053). They aren't sessions
   // and count toward neither cap; a person's `play` takes one over at once.
   bool autopilot = false;
+  // The bed rule (--night-skip): when at least one person is playing and everyone playing is asleep, the night is
+  // skipped to the wake hour (World::skipNight). Off by default: a town shared with strangers shouldn't let a few
+  // people skip time for everyone.
+  bool nightSkip = false;
+  // --pause-when-empty: the clock (and the autopilot) only runs while at least one person is in the world, so a
+  // town friends visit now and then doesn't live sixty game days a real day without them. Off by default.
+  bool pauseWhenEmpty = false;
   // m08:wallet config { Coins, phones and LivPay (Wallet.cpp)
   // Accept test coin purchases (receipts "test-..."; no money is charged). Dev servers always do.
   // Real store billing isn't connected, so without this every coin purchase is refused.
@@ -83,6 +90,8 @@ class Server {
   void handleLine(Session& s, const std::string& line);
   Result<Json> dispatch(Session& s, const std::string& op, const Json& req);
   void tick(double realSeconds);
+  void skipNightIfAllAsleep();
+  int peopleAwake() const;  // people playing (not scripts) who aren't asleep; -1 when nobody is playing
   void routeEvents();
   void send(Session& s, const Json& message);
   // Logs a session in as `username` (password or token checked by the caller); another session for

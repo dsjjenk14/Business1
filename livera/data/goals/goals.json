@@ -1,0 +1,176 @@
+{
+  "$comment": "Goals (docs/proposals/redesign.md R2.1, core/Goals.cpp). Daily: per_day goals drawn per character and game day from the pool, among the ones whose `requires` hold (a pure function of character and day, like work decisions). Aspirations: life goals chosen in the creator (creator_goal: every creator goal must map to one) or named in a founder's `aspirations`; one the game can't follow yet is tracked: false with its untracked_reason. A check's `type` is one the World knows how to compute from records it already keeps (Goals.cpp lists them); everything else here is data. Nothing is rewarded yet: rewards and streaks need saved state.",
+  "goals": {
+    "daily": {
+      "per_day": 3,
+      "pool": [
+        {
+          "id": "paid_shift",
+          "label": "Work a paid shift",
+          "check": {"type": "ledger_today", "kinds": ["salary"], "direction": "in"},
+          "requires": ["has_career"]
+        },
+        {
+          "id": "best_calls",
+          "label": "Make the best call on 2 work decisions",
+          "check": {"type": "work_calls_today", "best_only": true, "min": 2},
+          "requires": ["has_work_decisions"]
+        },
+        {
+          "id": "new_face",
+          "label": "Meet someone new",
+          "check": {"type": "memories_today", "memory": "first_meeting"}
+        },
+        {
+          "id": "three_people",
+          "label": "Talk with 3 different people",
+          "check": {"type": "people_interacted_today", "min": 3}
+        },
+        {
+          "id": "eat_out",
+          "label": "Eat or drink out",
+          "check": {"type": "purchases_today", "place_types": ["coffee_shop", "restaurant", "bar", "nightclub"]}
+        },
+        {
+          "id": "text_someone",
+          "label": "Text someone",
+          "check": {"type": "messages_sent_today"},
+          "requires": ["has_phone"]
+        },
+        {
+          "id": "take_the_bus",
+          "label": "Take the bus somewhere",
+          "check": {"type": "ledger_today", "kinds": ["fare", "livpay_fare"], "direction": "out"}
+        },
+        {
+          "id": "come_out_ahead",
+          "label": "Earn more than you spend today",
+          "check": {"type": "ledger_net_today", "cents": 1},
+          "requires": ["has_career"]
+        },
+        {
+          "id": "date_night",
+          "label": "Go on a date",
+          "check": {"type": "memories_today", "memory": "date"},
+          "requires": ["has_partner"]
+        },
+        {
+          "id": "match_day",
+          "label": "Play in today's league match",
+          "check": {"type": "memories_today", "memory": "match"},
+          "requires": ["match_today"]
+        }
+      ]
+    },
+    "aspirations": [
+      {
+        "id": "get_promoted",
+        "label": "Get promoted",
+        "creator_goal": "get promoted",
+        "steps": [
+          {"label": "Earn your next title", "check": {"type": "promotions", "min": 1}},
+          {"label": "Two titles up", "check": {"type": "promotions", "min": 2}}
+        ]
+      },
+      {
+        "id": "buy_a_home",
+        "label": "Buy a home",
+        "creator_goal": "buy a home",
+        "steps": [
+          {
+            "label": "Save the down payment on the cheapest home for sale",
+            "check": {"type": "bank_covers_down_payment"}
+          },
+          {"label": "Own your home", "check": {"type": "owns_home"}}
+        ]
+      },
+      {
+        "id": "start_a_business",
+        "label": "Start a business",
+        "creator_goal": "start a business",
+        "tracked": false,
+        "untracked_reason": "Owning a business arrives with the businesses milestone; the game can't follow this yet."
+      },
+      {
+        "id": "find_love",
+        "label": "Find love",
+        "creator_goal": "find love",
+        "steps": [
+          {
+            "label": "Be with someone",
+            "check": {"type": "relationship_status", "statuses": ["dating", "engaged", "married"]}
+          },
+          {"label": "Get married", "check": {"type": "relationship_status", "statuses": ["married"]}}
+        ]
+      },
+      {
+        "id": "make_friends",
+        "label": "Make friends",
+        "creator_goal": "make friends",
+        "steps": [
+          {
+            "label": "Three friends (friendship 40+)",
+            "check": {"type": "relationships_at_least", "dimension": "friendship", "value": 40, "min": 3}
+          },
+          {
+            "label": "A best friend (friendship 75+)",
+            "check": {"type": "relationships_at_least", "dimension": "friendship", "value": 75}
+          }
+        ]
+      },
+      {
+        "id": "get_famous",
+        "label": "Get famous",
+        "creator_goal": "get famous",
+        "steps": [
+          {"label": "Become a local name", "check": {"type": "fame_tier_at_least", "tier": "local_name"}},
+          {"label": "Become a celebrity", "check": {"type": "fame_tier_at_least", "tier": "celebrity"}}
+        ]
+      },
+      {
+        "id": "release_an_album",
+        "label": "Release an album",
+        "creator_goal": "release an album",
+        "steps": [
+          {"label": "Release a song", "check": {"type": "songs_released"}},
+          {"label": "Release four songs", "check": {"type": "songs_released", "min": 4}}
+        ]
+      },
+      {
+        "id": "get_rich",
+        "label": "Get rich",
+        "creator_goal": "get rich",
+        "steps": [
+          {"label": "$50,000 in the bank", "check": {"type": "bank_at_least", "cents": 5000000}},
+          {"label": "$250,000 in the bank", "check": {"type": "bank_at_least", "cents": 25000000}}
+        ]
+      },
+      {
+        "id": "start_a_family",
+        "label": "Start a family",
+        "creator_goal": "start a family",
+        "steps": [
+          {
+            "label": "Be with someone",
+            "check": {"type": "relationship_status", "statuses": ["dating", "engaged", "married"]}
+          },
+          {"label": "Have a child", "check": {"type": "children"}}
+        ]
+      },
+      {
+        "id": "give_back",
+        "label": "Give back to the community",
+        "creator_goal": "give back to the community",
+        "tracked": false,
+        "untracked_reason": "Volunteering and giving aren't recorded yet, so the game can't follow this one."
+      },
+      {
+        "id": "build_something_that_lasts",
+        "label": "Build something that lasts",
+        "creator_goal": "build something that lasts",
+        "tracked": false,
+        "untracked_reason": "Founding a business or a building comes with later milestones; the game can't follow this yet."
+      }
+    ]
+  }
+}

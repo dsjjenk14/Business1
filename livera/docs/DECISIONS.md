@@ -639,6 +639,22 @@ the owner's organization may be offered only Viewer (they can't play: the page s
 people they'd trust as host. Latency grows with the number of people because the room carries
 about 40 messages a second per page; tested with five, capped at the server's 16.
 
+## D-058 — What a place offers, when it's open, and which jobs a newcomer can take, are public
+**Decision:** `look.here` lists each offer's and activity's `needs` and `emotions` effects (content,
+like the price) and, per activity, the viewer's own `ready_at` / `ready_in_minutes`; `map` gives each
+place's `hours` and `open_days`, and a place's `status` now keeps its open days (the school and the
+daycare are closed at weekends, as their data always said; before, only the hours were checked);
+`characters` names each character's `home` and `workplace` as they are now. The character creator
+applies the career entry rule `apply` uses (`World::meetsEntryRequirements`): a starting career your
+education doesn't qualify for is refused with `missing_degree`, and `creator_options` marks the
+education answers each career takes. AI Engineering now needs a bachelor's degree, in the creator and
+when applying.
+**Why:** The redesign (R1.2, R2.6) asks the client to show what an action will do and when it's
+possible again, which needs numbers only the server has; none of them is anyone's private state.
+A shown `open_days` the world ignored would have been a pretend rule. A high-school graduate starting
+as a machine learning engineer at $50 an hour broke the story the creator asks you to tell, and the
+creator and `apply` disagreeing about the same job was a bug.
+
 ## D-059 — The owner's ground tiles: re-projected textures, a cached ground, set pieces placed by the sketch
 **Decision:** The web client draws the owner's ground tiles and set pieces (`art/tiles/`, the bus
 shelters) from client copies in `web/client/tiles/`, made by `scripts/client_tiles.py`: the 2:1
@@ -660,3 +676,116 @@ flat one. The art's state follows the game's: a site picture only while the buil
 construction, framed only from the project's real progress, no crane over a planned project. The
 corner, crossroad and river-edge tiles don't fit the sketch's streets and quay (web/README.md, "The
 look").
+
+## D-060 — Work decisions arrive through the shift, and the redesign's tunings
+**Decision:** Four work decisions a day (`work_decisions.per_day`), and they come up through the
+shift: the first when it starts (or at midnight on a shift that crosses it) and one more every
+`spacing_minutes` (150), each announced to the worker with a `work_decision` event; one that hasn't
+come up is refused with `not_yet`, and a decision answered on an earlier shift that day stays up as a
+result, so the next shift starts with the next one. Which are up is a pure function of the shift's
+start, the clock and the answers (like the draw, D-037), so nothing new is saved. The decision bonus
+is 2.0 promotion hours per point (was 1.5). Tunings, all data: bladder decays 6 an hour (was 10),
+social 2 (was 3); sight range 160 m (was 120, D-051; still at least the shout range); a new world
+starts in spring, Monday of Month 4 at 07:00 (was midwinter, Month 1); level-2 and level-3 promotion
+hours are 220 and 300 where they were 320 and 500 (the eleven careers on that ladder; recruiting, law
+and the M0.7 careers keep theirs); darts gives 8 social (was 5); offices (the staff-only office,
+agency, newsroom, law firm and site office workplaces) get a break-room coffee (energy +8, bladder
+−5, every 3 hours), and Heritage Coffee gets "chat with the regulars" (social +6, hourly).
+**Why:** The redesign's reviews found a shift was ten still minutes with every decision waiting at
+clock-in, needs were a tap-tax (a bathroom every eight real minutes), solo players had few ways to
+be social, the five founders on level 3 needed about 35 perfect shifts for a title, and every town
+opened in a storm at 0 °C. Pacing the calls gives a shift something to wait for without changing
+what a shift pays or how promotion is decided.
+**Trade-off:** A shift shorter than 7.5 game hours sees fewer than four decisions; the ones that
+don't come up lapse at midnight like unanswered ones, and they still count as drawn for the cycle
+through the bank.
+
+## D-061 — Goals are read from what the World already records, and say when they can't be
+**Decision:** `data/goals/goals.json` defines daily goals and life aspirations; `src/core/Goals.cpp`
+checks them. Three daily goals per character and game day are a pure draw (a hash of character, day
+and goal, D-037) over the goals whose `requires` hold now (no partner, no date goal), keeping any
+already done today. Aspirations are a founder's `aspirations` (beside the free-text `profile.goals`)
+or, for a made character, the goals picked in the creator, mapped by `creator_goal`; every creator
+goal maps to exactly one aspiration or the content doesn't load. Each check is one of a fixed set of
+kinds computed only from the character's own records: their accounts, memories, side of each
+relationship, messages, work answers, career, fame, songs and homes. Aspirations the game can't
+follow (start a business, give back, build something that lasts) are `tracked: false` with the
+reason, shown as such. The phone app `goals` answers only for the character asking. Nothing is
+saved: no rewards, no streaks.
+**Why:** The reviews found the game never said what to do, while the creator asked for life goals
+and then ignored them. Reading goals off records the World already keeps answers "what next?"
+without new state, so nothing can drift from what actually happened, and a goal is never shown done
+unless the record says so. An untracked goal with a reason is honest; a bar that never moves would
+be a pretend system.
+**Revisit:** Rewards (emotions, never money) and streaks need a per-character record and a
+migration; volunteering and giving need records before "give back" can be followed.
+
+## D-062 — Sleep is your routine's night; skipping it is the host's call, and the server's needs everyone asleep
+**Decision:** `World::sleep` puts a character to bed in their own home between `life.sleep.bed_hours`
+(21:00–03:00), not on shift or studying (stable codes `not_home`, `not_bedtime`, `on_shift`,
+`studying`, `in_jail`). Asleep, they stay in the world, but their needs and emotions aren't
+simulated minute by minute: when they wake they catch up with the Tier-3 rule, as if they'd logged
+off for the night. Any command except `look`, `map` and the phone apps wakes them; so does the wake
+hour (07:00), which sends `good_morning` with what happened overnight from their own records.
+`World::skipNight(beforeEachMinute)` advances the world to the wake hour minute by minute, with
+everyone awake simulated and moving, sleepers on their routine, and the caller's hook run before
+each minute (the Autopilot's step, so its founders still go to bed and get up); the people stream is
+sent once at the end. The World never decides whether a skip happens: the server does it only when
+started with `--night-skip` (off by default) and at least one person is playing and everyone playing
+is asleep; scripts neither count nor block it. A LocalTown (single-player and Play together) applies
+the same bed rule always: it has nobody else to wait for. Being asleep is session state, never saved.
+**Why:** A night was eight real minutes with nothing to do. Sleeping as "the routine looks after
+you" reuses the offline model D-050 already relies on, so a slept night and a logged-off night end
+the same way and nobody wets the bed during a skip. Keeping the skip decision outside the World
+lets the server, a solo town and Play together each apply their own rule to one helper, and keeps a
+24/7 town shared with strangers from being fast-forwarded by a few of them.
+**Trade-off:** Reading your phone in bed doesn't wake you (so a client refreshing goals or messages
+doesn't block the bed rule), but it is a command; the exception is deliberate. The skip runs on the
+server loop (about 600 minute-steps), a fraction of a second once a night.
+
+## D-063 — Away, the routine includes the job; the server can pause when nobody is in town
+**Decision:** Amends "offline characters don't make decisions; their routine doesn't include
+shifts" (D-036, SIMULATION.md): a character away from the game works their scheduled hours. Once a
+game hour, for each character offline, grown up, out of jail and still looking after themself, with
+a job that isn't a family's (a nanny), a scheduled work block that ended in that hour (the schedule
+line marked `"work": true` up to the next line, at most the career's longest shift; the default
+weekday 09:00–17:00 block for a character without one, such as everyone made in the creator) is paid
+for the part of it they were away: `Ledger::transfer` from the employer to their bank, kind
+`salary_away`, at `life.offline.away_work.pay_share` (0.8) of the wage, plus `promotion_share` (0.5)
+of the hours toward the next title, with no work decisions; promotion itself still happens at the
+end of a shift in person. An employer that can't pay pays nothing (the hours still count, as for a
+shift in person). Never-played founders live this routine too (D-023), and are not notified. Nothing
+new is saved: the block comes from content and the time away from `lastSimulatedAt`. Separately, the
+server gains `--pause-when-empty` (off by default): with no person in the world, the clock and the
+autopilot don't run.
+**Why:** On an always-on server the 1:1 clock runs sixty game days a real day; a player who works one
+shift a real day fell behind on rent by the fifth real day (the redesign's review). SIMULATION's
+tier 3 already promised that a dormant character lives their routine; paying the job at a share
+keeps playing worth more than being away, keeps the ledger zero-sum, and pays in the hour the work
+ends so it's there for the rent. Pausing an empty town is the owner's choice for a small private
+server, not a rule.
+**Trade-off:** Employers with no revenue (offices) run down faster with everyone's away pay; when
+one runs dry its people's pay fails, away or in person, as it always could. A test runs a
+once-a-day player for six real days: solvent with away pay, in arrears without.
+
+## D-064 — Autopilot founders have manners: they greet, sometimes chat, and answer asks by data rules
+**Decision:** Amends D-053 ("it never chats... declines every ask"). From `data/society/manners.json`,
+an autopilot founder greets a person it meets (outdoors within say range, or in the same building)
+once per person per game day with a `say` (by first name only if it knows them), may start a chat
+(`interact`, the data's interaction) once a day with someone it knows, with a chance from its
+personality trait and its own friendship toward them, and answers each ask by the rule for its kind:
+minimums on its own side of the relationship with the asker (a date: compatibility 60, friendship 30,
+romantic attraction 15; a kiss: 60, 40, 30). A kind with no rule is declined; intimacy is always
+declined in code and refused in the data at load. It never greets or chats with another autopilot
+founder or a script (anyone `scripted` in its look), acts only through World commands within its
+one-command-every-two-seconds rule (an incoming ask brings its next turn forward within that rule so
+it's answered before it lapses), keeps who it has greeted in memory only, and stays labelled
+`played_by: "autopilot"`.
+**Why:** In single-player the town felt empty: founders walked past without a word and refused every
+ask. Greeting and the occasional chat make the town answer you without the autopilot pretending to
+be a person (it's still labelled, and every action is a World command with the World's rules,
+grudges and receptivity applying). Data thresholds keep a founder's yes tied to how they feel about
+you, never automatic, and consent to intimacy is something a script must never give for a character
+(D-025).
+**Trade-off:** A restart forgets who was greeted that day, so a founder may say hello twice. Accepting
+a date makes a founder someone's partner; the person can end it as with anyone.
