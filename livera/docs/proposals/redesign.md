@@ -167,6 +167,35 @@ list with who is online, Messages from your contacts and a group chat, alerts wh
 arrives nearby, and a public town board (league standings, the music chart, fame, weddings,
 promotions: only what is already public).
 
+### Release 4: BitLife meets The Sims meets GTA, and you can go inside places
+
+The owner's direction after playing Releases 1 and 2. Four pieces, built in parallel:
+
+**R4.1 Rooms you walk around and sit in (The Sims; D-066).** A place whose interior picture is in
+the game (`art/interiors/`, from `art/PROMPT_PACK_INTERIORS.md`) opens as a room: the picture at the
+town's angle, everyone present drawn where they are, tap the floor to walk, a chair to sit, the
+counter to buy, the stage to perform, the door to leave. The room's floor and spots are data
+(`data/interiors/<place>.json`); where you stand and which seat you hold are World state the server
+checks, so two people never share a chair. A place without a picture keeps its card.
+
+**R4.2 The whole character (D-067).** People are drawn full-body on the map and in rooms, cut from
+the cast's own model sheets (front, three-quarter, side, back), facing where they walk; created
+characters get a drawn figure in their own colours. A character sprite prompt pack asks the
+owner's image generator for walk cycles and sitting poses to replace the cut-outs.
+
+**R4.3 Life happens to you (BitLife; D-068).** Scenario cards with choices, drawn from data by
+what the World knows about you (where you are, your job, money, relationships, age), resolved by
+the server through its usual rules (money only through the Ledger, relationships, feelings,
+memories, fame), at most a few a day; a `story` app tells your life so far.
+
+**R4.4 Street life (GTA; D-069).** The crimes the game already has, where they happen
+(shoplifting at shops, pickpocketing a person, fare dodging, the Underpass after dark), with the
+risk and the consequences shown first; a Wanted marker, police you can recognise, arrests and jail
+on screen. **Fist fights** (the owner's choice for GTA; no weapons): started by one person, answered
+by the other (fight back, run or take it), resolved by the server from both characters' state,
+with injuries treated at the clinic, assault as a crime for whoever started it, self-defence never
+a crime, and limits so nobody can be harassed. Cars and police chases are not in this release.
+
 ## Not now, and why
 
 - **Timed activities** (a shower takes 15 minutes): a real design change worth prototyping in
