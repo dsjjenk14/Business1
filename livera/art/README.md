@@ -106,6 +106,11 @@ storey, a lit "open" sign on a place that is still a building site), the entry's
 and nobody treats the picture as the game's state. The prompts' art direction (what a building
 looks like beyond its data description) is marked as such in each prompt's facts.
 
+## What's still needed (`prompts_needed.html`)
+
+`scripts/art_needed.py` writes one phone page with only the pictures the game doesn't have yet, from the interior and town packs
+(rooms first), with the same Copy buttons and done ticks. Run it after filing a picture; `--check` fails when the page is stale.
+
 ## Interiors (`PROMPT_PACK_INTERIORS.md`, `prompts_interiors.html`)
 
 `scripts/interior_prompts.py` prompts the inside of every place a character can enter and every home, the same way:
