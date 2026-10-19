@@ -14,6 +14,7 @@ import { PAL, SPECIAL_COLORS, GOLD_EDGED, LOOK, LIGHT, footprint, ROADS, PARK_SH
          TILE_METERS, BRIDGE_ART, CRANE_M, SHELTER_M, SITE_FRAMED_PCT, SITE_ART_CRANES, PARK_ART, ROAD_WORKS } from "./layout.js";
 import { predict, dist } from "./state.js";
 import { faceUrl, spriteUrl, initials, firstName, loadTileManifest, tileInfo, tileUrl } from "./dom.js";
+import { drawIcon, kindIcon } from "./icons.js";
 
 const C = Math.cos(Math.PI / 6), S = 0.5;
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -21,6 +22,11 @@ const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const CAPS = '"Cinzel", Georgia, "Times New Roman", serif';
 const SERIF = '"Cormorant Garamond", Georgia, "Times New Roman", serif';
 const SANS = 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
+// The default zoom: buildings about 110 px wide on a phone, so the pictures read (UX 3.9).
+export const DEFAULT_ZOOM = { phone: 2.1, wide: 2.4 };
+// Places whose names are always shown when they're open and in view: where everyday needs are met.
+const EVERYDAY = new Set(["coffee_shop", "grocery", "pharmacy", "clinic", "restaurant"]);
+const FLOAT_MS = 2400;
 
 export function daylight(m) {
   const h = (m % 1440) / 60;
@@ -149,6 +155,9 @@ export class Renderer2D {
     this.lastNow = performance.now();
     this.placed = [];
     this.bubbleRects = [];           // where speech bubbles were drawn last frame (for tests)
+    this.floaters = [];              // {who, text, at, self}: a word rising over someone (a reaction, "+15 Hygiene")
+    this.getMarks = null;            // () => {home, work: [ids], next}: places that always get a name
+    this.labelCount = 0;
     this.light = lightAt(720); this.litCache = new Map(); this.dim = 0; this.reduce = false;
     this.glowCanvas = glowSprite();
     this.motion = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
@@ -182,9 +191,25 @@ export class Renderer2D {
     this.canvas.width = Math.round(this.cw * this.dpr); this.canvas.height = Math.round(this.ch * this.dpr);
     if (oldW) { this.ox += (this.cw - oldW) / 2; this.oy += (this.ch - oldH) / 2; }
   }
+  // The town's content (doors and stops), not the server's world bounds, which are mostly empty
+  // ground: the whole-town view frames what's there, as it lands on screen (the projected extent,
+  // so a portrait phone isn't fitted to the empty corners of the diamond).
+  contentExtent() {
+    const w = this.world, pts = [...w.places.map(p => p.door), ...w.allStops().map(s => s.at)];
+    if (pts.length < 2) { const b = w.bounds; pts.push(b.min, b.max, [b.min[0], b.max[1]], [b.max[0], b.min[1]]); }
+    const us = pts.map(p => (p[0] - p[1]) * C), vs = pts.map(p => (p[0] + p[1]) * S);
+    // Margins in world units: the buildings stand up from their doors (taller than they're wide).
+    return { u0: Math.min(...us) - 30, u1: Math.max(...us) + 30, v0: Math.min(...vs) - 70, v1: Math.max(...vs) + 20 };
+  }
+  // The visible map, after the panels: what's left of the canvas once the insets are taken off.
+  freeView() {
+    const ins = this.getInsets ? this.getInsets() : { top: 0, bottom: 0, left: 0 };
+    const left = Math.min(ins.left || 0, this.cw * 0.6), top = Math.min(ins.top || 0, this.ch * 0.5), bottom = Math.min(ins.bottom || 0, this.ch - top - 80);
+    return { left, top, w: this.cw - left, h: this.ch - top - bottom };
+  }
   minScale() {
-    const b = this.world.bounds, w = (b.max[0] - b.min[0] + b.max[1] - b.min[1]) * C;
-    return Math.max(0.2, Math.min(this.cw / w, this.ch / ((b.max[0] + b.max[1]) * S)) * 0.9);
+    const e = this.contentExtent(), v = this.freeView();
+    return Math.max(0.2, Math.min(v.w / (e.u1 - e.u0), v.h / (e.v1 - e.v0)) * 0.96);
   }
   // Where the camera centres a world point: a little above the middle, so the bottom sheet and
   // chat bar don't cover you.
@@ -194,9 +219,8 @@ export class Renderer2D {
   }
   // Just above the middle of the map area the panels leave uncovered (the feed sits low).
   viewCenter() {
-    const ins = this.getInsets ? this.getInsets() : { top: 0, bottom: 0 };
-    const top = Math.min(ins.top, this.ch * 0.5), bottom = Math.min(ins.bottom, this.ch - top - 80);
-    return [this.cw / 2, top + (this.ch - top - bottom) * 0.45];
+    const v = this.freeView();
+    return [v.left + v.w / 2, v.top + v.h * 0.45];
   }
   centerOn(x, y, follow = false) {
     [this.ox, this.oy] = this.centerTarget(x, y);
@@ -210,10 +234,19 @@ export class Renderer2D {
   zoomBy(f) { this.zoomAt(f, ...this.viewCenter()); }
   fitTown() {
     this.scale = this.minScale();
-    const b = this.world.bounds;
-    this.centerOn((b.min[0] + b.max[0]) / 2, (b.min[1] + b.max[1]) / 2, false);
+    const e = this.contentExtent(), v = this.freeView();
+    this.ox = v.left + v.w / 2 - (e.u0 + e.u1) / 2 * this.scale;
+    this.oy = v.top + v.h / 2 - (e.v0 + e.v1) / 2 * this.scale;
+    this.follow = false;
   }
-  followMe() { this.follow = true; if (this.scale < 1.2) this.scale = this.cw < 700 ? 1.6 : 1.9; }
+  defaultZoom() { return this.cw < 700 ? DEFAULT_ZOOM.phone : DEFAULT_ZOOM.wide; }
+  followMe() { this.follow = true; if (this.scale < 1.6) this.scale = this.defaultZoom(); }
+  // A word that rises over someone's head for a moment: their reaction, or what a meal did for you.
+  addFloater(f) {
+    if (!f || !f.text) return;
+    this.floaters.push({ ...f, at: performance.now() });
+    if (this.floaters.length > 6) this.floaters.shift();
+  }
   select(s) { this.selected = s; }
   setRing(volume) { this.ring = volume ? { volume, until: performance.now() + 2500 } : null; }
 
@@ -341,10 +374,21 @@ export class Renderer2D {
     let drag = null;
     const pinchDist = () => { const [a, b] = [...pointers.values()]; return Math.hypot(a[0] - b[0], a[1] - b[1]); };
     const mid = () => { const r = cv.getBoundingClientRect(), [a, b] = [...pointers.values()]; return [(a[0] + b[0]) / 2 - r.left, (a[1] + b[1]) / 2 - r.top]; };
+    let press = null;   // a long press walks you exactly there, even onto a building's lot
+    const cancelPress = () => { if (press) { clearTimeout(press.timer); press = null; } };
     cv.addEventListener("pointerdown", e => {
       try { cv.setPointerCapture(e.pointerId); } catch { /* ignore */ }
       pointers.set(e.pointerId, [e.clientX, e.clientY]);
       drag = { x: e.clientX, y: e.clientY, moved: drag && pointers.size > 1 ? 99 : 0, dist: pointers.size === 2 ? pinchDist() : 0 };
+      cancelPress();
+      if (pointers.size === 1) {
+        const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+        press = { fired: false, timer: setTimeout(() => {
+          if (!press || !drag || drag.moved > 6 || pointers.size !== 1) return;
+          press.fired = true;
+          if (this.onTap) this.onTap({ kind: "ground", world: this.unproject(x, y), long: true });
+        }, 600) };
+      }
     });
     cv.addEventListener("pointermove", e => {
       if (!pointers.has(e.pointerId) || !drag) return;
@@ -352,11 +396,14 @@ export class Renderer2D {
       if (pointers.size === 2) { const d = pinchDist(); if (drag.dist) this.zoomAt(d / drag.dist, ...mid()); drag.dist = d; drag.moved = 99; return; }
       const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
       drag.moved += Math.abs(dx) + Math.abs(dy);
+      if (drag.moved > 6 && press && !press.fired) cancelPress();
       if (drag.moved > 6) { cv.classList.add("dragging"); this.follow = false; this.ox += dx; this.oy += dy; }
       drag.x = e.clientX; drag.y = e.clientY;
     });
     const up = e => {
-      const wasTap = drag && drag.moved <= 6 && pointers.size === 1 && e.type === "pointerup";
+      const long = press && press.fired;
+      cancelPress();
+      const wasTap = !long && drag && drag.moved <= 6 && pointers.size === 1 && e.type === "pointerup";
       pointers.delete(e.pointerId); cv.classList.remove("dragging");
       if (wasTap) { const r = cv.getBoundingClientRect(); this.tap(e.clientX - r.left, e.clientY - r.top); }
       if (pointers.size === 0) drag = null;
@@ -375,11 +422,11 @@ export class Renderer2D {
       this.zoomAt(Math.exp(-e.deltaY * 0.0015), e.clientX - r.left, e.clientY - r.top);
     }, { passive: false });
   }
+  // People win over buildings and stops: a person standing in front of a building is who you meant.
   hitTest(x, y) {
-    for (let i = this.hit.length - 1; i >= 0; i--) {
-      const h = this.hit[i];
-      if (h.circle ? Math.hypot(x - h.circle[0], y - h.circle[1]) <= h.circle[2] : inPoly(x, y, h.poly)) return { kind: h.kind, id: h.id };
-    }
+    const inside = h => (h.circle ? Math.hypot(x - h.circle[0], y - h.circle[1]) <= h.circle[2] : inPoly(x, y, h.poly));
+    for (let i = this.hit.length - 1; i >= 0; i--) { const h = this.hit[i]; if (h.kind === "person" && inside(h)) return { kind: h.kind, id: h.id }; }
+    for (let i = this.hit.length - 1; i >= 0; i--) { const h = this.hit[i]; if (h.kind !== "person" && inside(h)) return { kind: h.kind, id: h.id }; }
     return null;
   }
   tap(x, y) {
@@ -545,20 +592,27 @@ export class Renderer2D {
     return null;
   }
   // A name plate like the poster's tiles: deep emerald with ivory serif capitals; selected ones gold.
-  label(text, x, y, z, strong) {
-    const ctx = this.ctx;
+  // style: "strong" (selected: gold), "mine" (your home, your workplace, the Next target: ivory
+  // with a gold edge), "muted" (closed), or plain. glyph: an icons.js name drawn before the text.
+  label(text, x, y, z, strong, glyph = null, style = null) {
+    const ctx = this.ctx, st = strong ? "strong" : style;
     let [sx, sy] = this.P(x, y, z);
-    ctx.font = `600 ${strong ? 11 : 10}px ${CAPS}`;
-    const w = ctx.measureText(text).width + 14;
-    if (sx < -w || sx > this.cw + w || sy < -20 || sy > this.ch + 20) return;
+    ctx.font = `600 ${st === "strong" || st === "mine" ? 13 : 12}px ${CAPS}`;
+    const g = glyph ? 15 : 0, w = ctx.measureText(text).width + 16 + g, h = 21;
+    if (sx < -w || sx > this.cw + w || sy < -20 || sy > this.ch + 20) return false;
     sx = Math.max(w / 2 + 4, Math.min(this.cw - w / 2 - 4, sx));
-    const at = this.claim(sx - w / 2, sy - 18, w, 17);
-    if (at === null && !strong) return;
-    if (at !== null) sy = at + 18;
-    ctx.beginPath(); ctx.roundRect(sx - w / 2, sy - 18, w, 17, 4);
-    ctx.fillStyle = strong ? "rgba(218,187,133,.97)" : "rgba(11,43,35,.9)"; ctx.fill();
-    ctx.strokeStyle = strong ? "rgba(11,43,35,.55)" : "rgba(218,187,133,.6)"; ctx.lineWidth = 1; ctx.stroke();
-    ctx.fillStyle = strong ? LOOK.emerald : LOOK.ivory; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(text, sx, sy - 9);
+    const at = this.claim(sx - w / 2, sy - h - 1, w, h);
+    if (at === null && st !== "strong") return false;
+    if (at !== null) sy = at + h + 1;
+    const top = sy - h - 1;
+    ctx.beginPath(); ctx.roundRect(sx - w / 2, top, w, h, 5);
+    ctx.fillStyle = st === "strong" ? "rgba(218,187,133,.97)" : st === "mine" ? "rgba(251,243,226,.97)" : st === "muted" ? "rgba(46,62,56,.84)" : "rgba(11,43,35,.92)"; ctx.fill();
+    ctx.strokeStyle = st === "strong" ? "rgba(11,43,35,.55)" : st === "mine" ? "rgba(180,138,76,.95)" : "rgba(218,187,133,.6)"; ctx.lineWidth = st === "mine" ? 1.5 : 1; ctx.stroke();
+    const fg = st === "strong" || st === "mine" ? LOOK.emerald : st === "muted" ? "#cfc4ab" : LOOK.ivory;
+    if (glyph) drawIcon(ctx, glyph, sx - w / 2 + 8 + 6, top + h / 2, 13, st === "strong" || st === "mine" ? "#7a5a26" : st === "muted" ? "#b7ab90" : LOOK.goldLight, 1.6);
+    ctx.fillStyle = fg; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(text, sx + g / 2, top + h / 2 + 0.5);
+    this.labelCount++;
+    return true;
   }
 
   // Where a person stands on the map: their position, or in front of the door of the building
@@ -579,7 +633,8 @@ export class Renderer2D {
     const me = w.self && this.standingPoint(w.self, now);
     if (me && (!this.centered || this.follow)) {
       const [tx, ty] = this.centerTarget(me[0], me[1]);
-      if (!this.centered) { this.ox = tx; this.oy = ty; this.centered = true; this.scale = this.cw < 700 ? 1.6 : 1.9; [this.ox, this.oy] = this.centerTarget(me[0], me[1]); }
+      if (!this.centered) { this.ox = tx; this.oy = ty; this.centered = true; this.scale = this.defaultZoom(); [this.ox, this.oy] = this.centerTarget(me[0], me[1]); }
+      else if (this.reduced()) { this.ox = tx; this.oy = ty; }   // reduced motion: the camera snaps
       else { const k = 1 - Math.exp(-dt * 6); this.ox += (tx - this.ox) * k; this.oy += (ty - this.oy) * k; }
     }
     this.draw(now, dt);
@@ -659,42 +714,89 @@ export class Renderer2D {
     this.drawHaze(L, night, dl);
     this.drawWeather(wx, now, dl);
     this.drawRing(now);
-    // Labels: people first, then places, so place names move out of the way.
-    this.placed = [];
-    const nameFont = `600 13px ${SERIF}`;
+    // Labels (UX 3.9): people first, then places, so place names move out of the way. Never under
+    // the HUD, the bottom panels or the left column (they're claimed first). Always named: your
+    // home, your workplace, the Next target and the selected place; then open everyday places in
+    // view; everything once you zoom in past 2.6. At most 12 on a phone.
+    this.placed = []; this.labelCount = 0;
+    const ins = this.getInsets ? this.getInsets() : { top: 0, bottom: 0, left: 0 };
+    if (ins.top) this.placed.push([-50, -50, cw + 100, ins.top + 50]);
+    if (ins.bottom) this.placed.push([-50, ch - ins.bottom, cw + 100, ins.bottom + 50]);
+    if (ins.left) this.placed.push([-50, -50, ins.left + 50, ch + 100]);
+    for (const r of ins.blocks || []) this.placed.push(r);
+    const nameFont = `600 14px ${SERIF}`;
     ctx.font = nameFont;
     for (const c of people) if (c.screen) {
       const [x, y, r] = c.screen; this.placed.push([x - r, y - r, r * 2, r * 2]);
       const lw = ctx.measureText(c.label).width + 12;
-      c.nameAt = [x - lw / 2, this.claim(x - lw / 2, y + r + 3, lw, 15, [0, 1, 2, 3, 4, 5]) ?? y + r + 3, lw];
+      c.nameAt = [x - lw / 2, this.claim(x - lw / 2, y + r + 3, lw, 17, [0, 1, 2, 3, 4, 5]) ?? y + r + 3, lw];
     }
     for (const c of people) if (c.bus && c.screen) this.label("single-rider shuttle", c.x, c.y, 14, false);
-    const showAll = this.scale > 2.6, mePos = self ? this.standingPoint(self, now) : null;
-    for (const b of w.buildings) {
-      const sel = this.selected && this.selected.kind === "place" && (this.selected.id === b.id || (b.units || []).some(u => u.id === this.selected.id));
-      const near = mePos && dist(mePos, b.door) < 45;
-      if (!(sel || showAll || near || (self && self.inside && w.buildingOfPlace.get(self.inside) === b))) continue;
+    const showAll = this.scale > 2.6, mePos = self ? this.standingPoint(self, now) : null, cap = cw < 700 ? 12 : 30;
+    const marks = this.getMarks ? this.getMarks() : {}, mine = new Set([marks.home, ...(marks.work || []), marks.next].filter(Boolean));
+    const isMine = b => mine.has(b.id) || (b.units || []).some(u => mine.has(u.id));
+    const buildingLabel = (b, style) => {
       const fp = footprint(b), cx = (fp.x0 + fp.x1) / 2, cy = (fp.y0 + fp.y1) / 2, top = this.spriteTops.get(b.id);
       const placeholder = b.type === "civic" && b.enterable === false;
       const z = top === undefined ? fp.h + (b.type === "church" ? 24 : 4) : Math.max(fp.h + 4, (P(cx, cy)[1] - top) / this.scale + 1);
-      this.label(b.name + (placeholder ? " · placeholder landmark" : ""), cx, cy, z, sel);
+      const homeHere = marks.home && (b.id === marks.home || (b.units || []).some(u => u.id === marks.home));
+      const work = (marks.work || []).includes(b.id);
+      const name = homeHere ? `Home · ${b.name}` : work ? `Work · ${b.name}` : b.name + (placeholder ? " · placeholder landmark" : "");
+      return this.label(name, cx, cy, z, style === "strong", homeHere ? "home" : work ? "work" : kindIcon(b.shape || b.type), style === "strong" ? null : style);
+    };
+    const insideB = self && self.inside ? w.buildingOfPlace.get(self.inside) : null;
+    // Priority: selected, yours (home, work, Next), where you are, then the rest.
+    const sel = b => this.selected && this.selected.kind === "place" && (this.selected.id === b.id || (b.units || []).some(u => u.id === this.selected.id));
+    for (const b of w.buildings) if (sel(b)) buildingLabel(b, "strong");
+    for (const b of w.buildings) if (!sel(b) && isMine(b)) buildingLabel(b, "mine");
+    if (insideB && !sel(insideB) && !isMine(insideB)) buildingLabel(insideB, null);
+    const rest = w.buildings.filter(b => !sel(b) && !isMine(b) && b !== insideB).map(b => ({ b, d: mePos ? dist(mePos, b.door) : 0 })).sort((a, b) => a.d - b.d);
+    for (const { b, d } of rest) {
+      if (this.labelCount >= cap) break;
+      const open = b.status === "open", everyday = EVERYDAY.has(b.type);
+      if (!(showAll || d < 45 || (everyday && open))) continue;
+      buildingLabel(b, b.status === "closed" ? "muted" : null);
     }
-    for (const pl of w.places) if (pl.type === "park" && (showAll || (mePos && dist(mePos, pl.door) < 60) || (this.selected && this.selected.id === pl.id))) this.label(pl.name, pl.door[0], pl.door[1], 6, this.selected && this.selected.id === pl.id);
+    for (const pl of w.places) if (pl.type === "park" && this.labelCount < cap && (showAll || (mePos && dist(mePos, pl.door) < 60) || (this.selected && this.selected.id === pl.id))) this.label(pl.name, pl.door[0], pl.door[1], 6, this.selected && this.selected.id === pl.id, "park");
     for (const s of w.allStops()) {
-      const sel = this.selected && this.selected.kind === "stop" && this.selected.id === s.id;
-      if (sel || this.scale > 3.2 || (mePos && dist(mePos, s.at) < 25)) this.label("Bus · " + s.name, s.at[0], s.at[1], 9, sel);
+      const isSel = this.selected && this.selected.kind === "stop" && this.selected.id === s.id;
+      if (isSel || ((this.scale > 3.2 || (mePos && dist(mePos, s.at) < 40)) && this.labelCount < cap)) this.label(s.name, s.at[0], s.at[1], 9, isSel, "bus");
     }
     for (const c of people) if (c.nameAt) {
       ctx.font = nameFont; ctx.textAlign = "center"; ctx.textBaseline = "middle";
       const [nx, ny, lw] = c.nameAt;
-      ctx.beginPath(); ctx.roundRect(nx, ny, lw, 15, 4);
-      ctx.fillStyle = c.self ? "rgba(218,187,133,.97)" : c.scripted ? "rgba(30,56,48,.9)" : "rgba(11,43,35,.9)"; ctx.fill();
+      ctx.beginPath(); ctx.roundRect(nx, ny, lw, 17, 4);
+      ctx.fillStyle = c.self ? "rgba(218,187,133,.97)" : c.scripted ? "rgba(30,56,48,.92)" : "rgba(11,43,35,.92)"; ctx.fill();
       ctx.lineWidth = 1;
       if (c.scripted) { ctx.setLineDash([2, 2]); ctx.strokeStyle = "rgba(247,236,214,.8)"; ctx.stroke(); ctx.setLineDash([]); }
       else { ctx.strokeStyle = c.self ? "rgba(11,43,35,.5)" : "rgba(218,187,133,.55)"; ctx.stroke(); }
-      ctx.fillStyle = c.self ? LOOK.emerald : LOOK.ivory; ctx.fillText(c.label, nx + lw / 2, ny + 8);
+      ctx.fillStyle = c.self ? LOOK.emerald : LOOK.ivory; ctx.fillText(c.label, nx + lw / 2, ny + 9);
     }
     this.drawBubbles(people, now);
+    this.drawFloaters(people, now);
+  }
+
+  // Floaters: a short word rising from a portrait, fading as it goes (static under reduced motion).
+  drawFloaters(people, now) {
+    if (!this.floaters.length) return;
+    this.floaters = this.floaters.filter(f => now - f.at < FLOAT_MS);
+    const pos = new Map(people.filter(p => p.screen).map(p => [p.id, p.screen]));
+    const ctx = this.ctx;
+    const seen = new Map();
+    for (const f of this.floaters) {
+      const sp = pos.get(f.who);
+      if (!sp) continue;
+      const k = (now - f.at) / FLOAT_MS, n = seen.get(f.who) || 0;
+      seen.set(f.who, n + 1);
+      const [x, y, r] = sp, rise = this.reduce ? 0 : 28 * k, a = k < 0.15 ? k / 0.15 : k > 0.7 ? (1 - k) / 0.3 : 1;
+      ctx.font = `italic 600 ${f.self ? 17 : 16}px ${SERIF}`;
+      const tw = ctx.measureText(f.text).width + 16, bx = Math.max(4, Math.min(this.cw - tw - 4, x - tw / 2)), by = y - r - 34 - rise - n * 24;
+      ctx.globalAlpha = Math.max(0, Math.min(1, a));
+      ctx.beginPath(); ctx.roundRect(bx, by, tw, 22, 11);
+      ctx.fillStyle = "rgba(11,43,35,.92)"; ctx.fill(); ctx.strokeStyle = LOOK.gold; ctx.lineWidth = 1; ctx.stroke();
+      ctx.fillStyle = LOOK.goldLight; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(f.text, bx + tw / 2, by + 11.5);
+      ctx.globalAlpha = 1;
+    }
   }
 
   // The ground: parchment, lawns, shadows, river, parks, roads, the bridge. With the owner's ground
@@ -1470,7 +1572,7 @@ export class Renderer2D {
     const pos = new Map(people.filter(p => p.screen).map(p => [p.id, p.screen]));
     // Keep bubbles in the part of the map the top bar (and, on phones, the sheet) leaves visible.
     const ins = this.getInsets ? this.getInsets() : { top: 0, bottom: 0 };
-    const top = Math.min(ins.top, this.ch * 0.5) + 6, bottom = this.ch - Math.min(ins.bottom, this.ch - top - 40) - 6;
+    const top = Math.min(ins.top || 0, this.ch * 0.5) + 6, bottom = this.ch - Math.min(ins.bottom || 0, this.ch - top - 40) - 6;
     this.bubbleRects = [];
     for (const b of this.world.liveBubbles(now)) {
       let x, y, r = 0;

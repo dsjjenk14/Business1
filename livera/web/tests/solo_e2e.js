@@ -9,7 +9,9 @@
 // something ("Heard by N" or "Nobody heard you") → save → reload → Continue: balance and
 // position survived → export and import the save file → the clock pauses while the tab is
 // hidden → change who you play (the picker says who is on autopilot) → the creator → layout at
-// phone and desktop sizes → no console errors.
+// phone and desktop sizes → no console errors. The redesign (Release 1) adds: the Next card points
+// at the workplace before a shift, an activity shows its need change, Places finds a place, the
+// doing-now pill stops a walk, Esc closes the top layer, and nothing overlaps the bottom bar.
 
 const { chromium } = require("playwright");
 const fs = require("fs");
@@ -116,6 +118,8 @@ async function ensurePlaying(p) {
   throw new Error("not playing and no way back in from here");
 }
 async function openMenu(p) { await closeSheet(p); await p.page.click("#menu-btn"); await p.page.waitForSelector("#solo-save"); }
+// On a phone the composer is docked behind Talk; on a desktop it's always there.
+async function openTalk(p) { if (await p.page.$("#chatbar[hidden]")) await p.page.click("#talk-btn"); await p.page.waitForSelector("#chatbar:not([hidden])"); }
 const shot = (p, name) => p.page.screenshot({ path: path.join(SHOTS, name) });
 const scripted = p => W(p, () => [...window.__livera.world.people.values()].filter(x => x.scripted && x.pos).map(x => ({ id: x.id, pos: x.pos, target: x.target, inside: x.inside })));
 
@@ -129,6 +133,7 @@ const scripted = p => W(p, () => [...window.__livera.world.people.values()].filt
     await townScreen(A);
     assert(!(await A.page.$("#login-user")), "a login form is on the single-player page");
     const text = await A.page.textContent("#screen");
+    assert(/How it works/i.test(text) && /Tap the ground to walk/.test(text), "the town screen doesn't say how it works");
     assert(/Single-player: the town runs in your browser\. Nobody else can join this save\./.test(text), "the single-player notice is missing from the town screen");
     assert(/The town pauses while this tab is closed\./.test(text), "the pause notice is missing from the town screen");
     await shot(A, "solo_01_town.png");
@@ -147,8 +152,46 @@ const scripted = p => W(p, () => [...window.__livera.world.people.values()].filt
     const notes = await W(A, () => [document.getElementById("sketch-note").textContent, document.getElementById("solo-note").textContent]);
     assert(/sketches/.test(notes[0]), "the sketch note is missing");
     assert(/Nobody else can join this save/.test(notes[1]), "the single-player note is missing from the HUD");
+    // The attribution line is on screen (its short form on a phone; the full sentences open on a tap).
+    const attrib = await W(A, () => { const b = document.getElementById("attrib-btn").getBoundingClientRect(); return { h: b.height, w: b.width, text: document.getElementById("attrib-btn").textContent }; });
+    assert(attrib.h >= 43.5 && attrib.w > 100 && /single-player/.test(attrib.text), "the attribution line isn't on screen: " + JSON.stringify(attrib));
     await sleep(600);
     await shot(A, "solo_03_home_scene.png");
+  });
+
+  await test("the Next card points at the workplace before a shift (from the Calendar)", async () => {
+    await waitFor(A, () => { const n = window.__livera.next(); return n && n.target; }, null, 15000);
+    const n = await W(A, () => ({ next: window.__livera.next(), work: (window.__livera.world.career || {}).workplaces || [], text: document.getElementById("next").textContent, hidden: document.getElementById("next").hidden }));
+    assert(n.work.length, "the career app didn't arrive: " + JSON.stringify(n));
+    assert(n.work.includes(n.next.title) || n.next.target === "meridian_talent", `the Next card points at ${JSON.stringify(n.next)}, not the workplace ${n.work}`);
+    assert(/From your (Calendar|Career)/.test(n.next.source), "the Next card doesn't say where it comes from: " + n.next.source);
+    // A phone with the scene card open keeps the card out of the way; outside it's on screen.
+    await A.page.click("#exit-btn");
+    await waitFor(A, () => window.__livera.world.self.inside === "" && !document.getElementById("next").hidden);
+    const card = await A.page.textContent("#next");
+    assert(/Meridian Talent Partners/.test(card) && /Go/.test(card), "the Next card on the map doesn't offer the workplace: " + card);
+    const ctx = await A.page.textContent("#ctx-btn");
+    assert(/Go/.test(ctx), "the context button doesn't offer Go to the Next target: " + ctx);
+    await shot(A, "solo_03b_next_card.png");
+    // Back home for the tests that follow (they start inside).
+    await A.page.click("#places-btn");
+    await A.page.click('#places-list li[data-place="lexington"] .place-go');
+    await waitFor(A, () => window.__livera.world.self.inside === "lexington_1204", null, 20000);
+  });
+
+  await test("an activity shows its need change (Take a shower · Hygiene 85 → 100)", async () => {
+    await A.page.waitForSelector('#sheet[data-kind="scene"] [data-activity="shower"]');
+    const before = await W(A, () => window.__livera.world.self.needs.hygiene);
+    await A.page.click('#sheet [data-activity="shower"]');
+    await feedMatches(A, /Take a shower · .*Hygiene \d+ → \d+/);
+    const line = await W(A, () => [...document.querySelectorAll("#feed .line")].map(n => n.textContent).find(t => /Take a shower/.test(t)));
+    const m = /Hygiene (\d+) → (\d+)/.exec(line);
+    assert(m && Number(m[2]) > Number(m[1]) && Math.abs(Number(m[1]) - before) <= 2, `the shower's change reads "${line}" (hygiene was ${before})`);
+    // The Activity log keeps it.
+    await A.page.click("#you-btn");
+    await A.page.waitForSelector('#sheet[data-kind="needs"]');
+    await shot(A, "solo_03c_you.png");
+    await closeSheet(A);
   });
 
   await test("the map draws (buildings, stops, a lit canvas)", async () => {
@@ -231,12 +274,42 @@ const scripted = p => W(p, () => [...window.__livera.world.people.values()].filt
   });
 
   await test("say something: the honest answer is \"Heard by N\" or \"Nobody heard you\"", async () => {
+    await openTalk(A);
     await A.page.fill("#chat-input", `Hello town ${XSS}`);
     await A.page.click("#chat-send");
     await feedMatches(A, /^(Heard by \d+|Nobody heard you)$/);
     const imgs = await W(A, () => document.querySelectorAll('img[src="x"], img:not([src^="faces/"])').length);
     assert(imgs === 0, "an <img> was created from speech");
     assert(!A.dialogs.length, "a dialog opened: " + A.dialogs.join(", "));
+  });
+
+  await test("Places search finds Heritage Coffee; the doing-now pill shows a walk and Stop stops it", async () => {
+    await exitBuilding(A);
+    await closeSheet(A);
+    await A.page.click("#places-btn");
+    await A.page.waitForSelector('#sheet[data-kind="places"] #places-search');
+    await A.page.fill("#places-search", "heritage");
+    await waitFor(A, () => document.querySelectorAll("#places-list li").length === 1);
+    const row = await A.page.textContent('#places-list li[data-place="heritage_coffee"]');
+    assert(/Heritage Coffee/.test(row) && /\d+ m/.test(row), "the search didn't find Heritage Coffee with its distance: " + row);
+    await shot(A, "solo_06b_places.png");
+    // A long walk: the pill says where you're going, with Stop; Stop ends it where you stand.
+    await A.page.fill("#places-search", "university");
+    await A.page.click('#places-list li[data-place="livera_university"] .place-go');
+    await A.page.waitForSelector("#doing:not([hidden]) #doing-stop", { timeout: 8000 });
+    const pill = await A.page.textContent("#doing");
+    assert(/Walking to Livéra University/.test(pill), "the doing-now pill says: " + pill);
+    assert(/Stop/.test(await A.page.textContent("#ctx-btn")), "the context button isn't Stop while walking");
+    await shot(A, "solo_06c_walking.png");
+    await sleep(1500);
+    await A.page.click("#doing-stop");
+    await waitFor(A, () => !window.__livera.world.self.target && document.getElementById("doing").hidden, null, 8000);
+    const p1 = await corePos(A);
+    await sleep(1500);
+    const p2 = await corePos(A);
+    assert(d2(p1, p2) < 1, `Stop didn't stop the walk: ${p1} → ${p2}`);
+    const uni = await W(A, () => window.__livera.world.placeById.get("livera_university").door);
+    assert(d2(p2, uni) > 30, "stopped at the university anyway");
   });
 
   await test("Save now, then a reload offers Continue: balance and position survive", async () => {
@@ -345,7 +418,7 @@ const scripted = p => W(p, () => [...window.__livera.world.people.values()].filt
     await A.page.click("#phone-btn");
     await A.page.waitForSelector("#phone .app");
     const apps = await A.page.$$eval("#phone .app", x => x.length);
-    assert(apps === 26, `expected 26 apps, got ${apps}`);
+    assert(apps >= 25, `expected the phone's apps (26, the coin store hidden in single-player), got ${apps}`);
     await A.page.click('#phone [data-app="bank"]');
     await A.page.waitForSelector('#phone >> text="Balances"');
     await shot(A, "solo_09_bank.png");
@@ -356,6 +429,23 @@ const scripted = p => W(p, () => [...window.__livera.world.people.values()].filt
     await closeSheet(A);
   });
 
+  await test("Esc closes the top layer: the phone, then a card", async () => {
+    await ensurePlaying(A);
+    const phone = await A.page.$('#phone:not([hidden]) [aria-label="Close phone"]');
+    if (phone) await phone.click();
+    await exitBuilding(A);
+    await A.page.click("#phone-btn");
+    await A.page.waitForSelector("#phone:not([hidden])");
+    await A.page.keyboard.press("Escape");
+    await waitFor(A, () => document.getElementById("phone").hidden, null, 3000);
+    await A.page.click("#you-btn");
+    await A.page.waitForSelector('#sheet[data-kind="needs"]');
+    await A.page.keyboard.press("Escape");
+    await waitFor(A, () => document.getElementById("sheet").hidden, null, 3000);
+    const live = await W(A, () => document.getElementById("sheet").getAttribute("aria-live"));
+    assert(!live, "the card is still a live region");
+  });
+
   await test("phone layout: 44 px tap targets, 16 px inputs, no sideways scroll, nothing overlapping", async () => {
     await ensurePlaying(A);
     const phone = await A.page.$('#phone:not([hidden]) [aria-label="Close phone"]');
@@ -363,19 +453,31 @@ const scripted = p => W(p, () => [...window.__livera.world.people.values()].filt
     await closeSheet(A);
     const r = await W(A, () => {
       const vis = n => { const b = n.getBoundingClientRect(); const s = getComputedStyle(n); return b.width > 0 && b.height > 0 && s.visibility !== "hidden" && s.display !== "none"; };
-      const small = [...document.querySelectorAll("#hud button, #chatbar button, #mapctl button, #sheet button, #chatbar input")].filter(vis)
+      const small = [...document.querySelectorAll("#hud button, #chatbar button, #mapctl button, #sheet button, #chatbar input, #bar button, #next button, #doing button, #attrib button")].filter(vis)
         .filter(n => { const b = n.getBoundingClientRect(); return b.height < 43.5 || b.width < 43.5; }).map(n => `${n.tagName}:${(n.textContent || n.getAttribute("aria-label") || "").trim().slice(0, 20)} ${Math.round(n.getBoundingClientRect().width)}x${Math.round(n.getBoundingClientRect().height)}`);
       const fonts = [...document.querySelectorAll("input, select, textarea")].filter(vis).filter(n => parseFloat(getComputedStyle(n).fontSize) < 16).length;
       const box = id => { const n = document.getElementById(id); return n && !n.hidden ? n.getBoundingClientRect() : null; };
       const hit = (a, b) => a && b && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
       const topbar = document.querySelector("#hud .topbar").getBoundingClientRect(), chat = box("chatbar"), ctl = box("mapctl"), hud = box("hud");
-      return { small, fonts, scroll: document.documentElement.scrollWidth - innerWidth, overlap: [hit(topbar, chat), hit(topbar, ctl), hit(ctl, chat)].filter(Boolean).length, hudBottom: hud && hud.bottom };
+      // Nothing overlaps the bottom bar: the Next card, the attribution, the composer, the pill, the map controls, the feed.
+      const bar = box("bar"), others = ["next", "attrib-btn", "chatbar", "doing", "mapctl", "sheet", "needs", "faces"].map(id => [id, box(id)]).filter(([, b]) => b && b.height)
+        .concat([...document.querySelectorAll("#feed .line")].map(n => ["feed", n.getBoundingClientRect()]));
+      const onBar = others.filter(([, b]) => hit(bar, b)).map(([id]) => id);
+      return { small, fonts, scroll: document.documentElement.scrollWidth - innerWidth, overlap: [hit(topbar, chat), hit(topbar, ctl), hit(ctl, chat), hit(ctl, box("next"))].filter(Boolean).length, hudBottom: hud && hud.bottom, onBar, bar: !!bar };
     });
+    assert(r.bar, "the bottom bar isn't on screen");
+    assert(!r.onBar.length, "these overlap the bottom bar: " + r.onBar.join(", "));
     assert(!r.small.length, "tap targets under 44 px: " + r.small.join("; "));
     assert(r.fonts === 0, `${r.fonts} inputs under 16 px`);
     assert(r.scroll <= 0, `page scrolls sideways by ${r.scroll}px`);
     assert(r.overlap === 0, "top bar, map controls and chat bar overlap");
-    assert(r.hudBottom < 300, `the top bar with both notes is ${Math.round(r.hudBottom)} px tall`);
+    assert(r.hudBottom < 240, `the top of the screen takes ${Math.round(r.hudBottom)} px`);
+    // Talk docks the composer above the bar, still clear of it.
+    await openTalk(A);
+    const t = await W(A, () => { const a = document.getElementById("chatbar").getBoundingClientRect(), b = document.getElementById("bar").getBoundingClientRect(); return { chatBottom: a.bottom, barTop: b.top }; });
+    assert(t.chatBottom <= t.barTop + 0.5, "the composer overlaps the bottom bar: " + JSON.stringify(t));
+    await shot(A, "solo_10b_talk.png");
+    await A.page.click("#talk-btn");
     await shot(A, "solo_10_map.png");
   });
 
@@ -392,10 +494,13 @@ const scripted = p => W(p, () => [...window.__livera.world.people.values()].filt
     const r = await W(B, () => {
       const box = sel => { const n = document.querySelector(sel); return n && !n.hidden ? n.getBoundingClientRect() : null; };
       const hit = (a, b) => a && b && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
-      const t = box("#hud .topbar"), c = box("#chatbar"), m = box("#mapctl");
-      return { overlap: [hit(t, c), hit(t, m), hit(m, c)].filter(Boolean).length, scroll: document.documentElement.scrollWidth - innerWidth };
+      const t = box("#hud .topbar"), c = box("#chatbar"), m = box("#mapctl"), b = box("#bar"), n = box("#next"), a = box("#attrib-btn");
+      return { overlap: [hit(t, c), hit(t, m), hit(m, c), hit(b, m), hit(b, n), hit(b, c), hit(a, m), hit(a, b)].filter(Boolean).length, scroll: document.documentElement.scrollWidth - innerWidth,
+        chat: !!c, attrib: a && document.getElementById("attrib-btn").textContent };
     });
     assert(r.overlap === 0 && r.scroll <= 0, JSON.stringify(r));
+    assert(r.chat, "the composer isn't docked on a desktop");
+    assert(/Nobody else can join this save/.test(r.attrib), "the desktop attribution doesn't carry the single-player sentence");
   });
 
   await test("character creator: a form from creator_options makes a playable character", async () => {
@@ -409,16 +514,9 @@ const scripted = p => W(p, () => [...window.__livera.world.people.values()].filt
     if (err && !(await D.page.$("form.creator"))) throw new Error("creator_options refused: " + (await err.textContent()));
     assert(form, "no creator form");
     await shot(D, "solo_11_creator.png");
+    // The quick start: a name is enough (the rest has legal values, or is picked at random on submit).
     const inputs = await D.page.$$("form.creator fieldset:first-of-type input[type=text]");
     await inputs[0].fill("Robin"); await inputs[1].fill("Vale");
-    await D.page.evaluate(() => {
-      for (const fs of document.querySelectorAll("form.creator fieldset")) {
-        const boxes = [...fs.querySelectorAll(".chips input[type=checkbox]")];
-        if (!boxes.length) continue;
-        const m = (fs.querySelector(".budget").textContent.match(/choose (\d+)/) || [0, "0"])[1];
-        for (let i = 0; i < Number(m); i++) boxes[i].click();
-      }
-    });
     await D.page.click('form.creator button[type="submit"]');
     await waitPlaying(D);
     const name = await W(D, () => window.__livera.world.selfName);

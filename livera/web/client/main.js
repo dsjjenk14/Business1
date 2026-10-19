@@ -12,6 +12,9 @@ import { Phone } from "./phone.js";
 import { buildCreator } from "./creator.js";
 import { el, avatar, loadFaceManifest, loadSpriteManifest, firstName, money, titleCase, withoutCliHint, wordmark } from "./dom.js";
 import { SKETCH_NOTICE } from "./layout.js";
+import { Agenda } from "./today.js";
+import { FirstMorning, howItWorks } from "./onboarding.js";
+import { effectsText } from "./ui.js";
 
 const round1 = v => Math.round(v * 10) / 10;
 
@@ -33,12 +36,19 @@ export class Game {
     this.mapRetryAt = 0;
     this.welcomes = 0;         // welcomes seen: the first is this page load, later ones are reconnects
     this.takeOverNext = false; // "Play here instead": the next resume may kick the other device
+    this.agenda = new Agenda(this);           // Next and Today (today.js)
+    this.firstMorning = new FirstMorning(this);
+    this.shiftStart = null;    // the game minute your shift started, when this page saw it start
+    this.riding = null;        // the stop you're riding to
+    this.welcomedAs = null;    // "You're Dominique": said once per character per page
+    this.stubAt = 0; this.bannerAt = 0; this.dayIndex = null; this.wxHour = null;
   }
 
   async start() {
     this.ui.init();
     this.renderer.onTap = t => this.onTap(t);
     this.renderer.getInsets = () => this.ui.insets();
+    this.renderer.getMarks = () => ({ home: this.agenda.homeId(), work: this.agenda.workplaces().map(p => p.id), next: this.ui.nextItem && this.ui.nextItem.target });
     this.transport.on("welcome", d => this.onWelcome(d));
     this.transport.on("event", m => this.onEvent(m));
     this.transport.on("status", s => this.onStatus(s));
@@ -60,6 +70,8 @@ export class Game {
       look: () => this.transport.request("look"),
       drop: () => { if (this.transport.ws) this.transport.ws.close(); },   // simulate a dropped connection
       welcomes: () => this.welcomes, bubbles: () => this.renderer.bubbleRects.map(b => ({ ...b })),
+      next: () => (this.ui.nextItem ? { kind: this.ui.nextItem.kind, title: this.ui.nextItem.title, target: this.ui.nextItem.target || null, source: this.ui.nextItem.source } : null),
+      floaters: () => this.renderer.floaters.map(f => ({ who: f.who, text: f.text })),
     });
   }
 
@@ -141,7 +153,10 @@ export class Game {
     this.ui.hideScreen();
     this.ui.showGame(true);
     this.world.people.clear();
+    const switched = this.welcomedAs !== this.character;
+    if (switched) { this.agenda.reset(); this.firstMorning.reset(); this.shiftStart = null; this.ui.needAlert.clear(); }
     this.world.applyLook(look);
+    this.agenda.learnHere(this.world.here);
     this.lastLook = performance.now();
     await this.refreshMap();
     if (!this.world.transit) {
@@ -149,8 +164,10 @@ export class Game {
       if (t.ok && Array.isArray(t.data.lines)) this.world.setTransit(t.data.lines);
     }
     this.refreshBank(); this.refreshWeather(); this.refreshCity(); this.refreshCareer(); this.refreshSchool();
-    if (this.world.self.inside) this.ui.sheetScene();
-    this.ui.toast(`You're ${this.world.selfName}.`);
+    this.agenda.refresh("property"); this.agenda.refresh("calendar");
+    if (this.world.self.inside) this.ui.sheetScene({ focus: false });
+    // Once per character on this page: a reconnect or a resume doesn't say it again.
+    if (switched) { this.welcomedAs = this.character; this.ui.toast(`You're ${this.world.selfName}.`, false, { log: false }); }
   }
 
   async logout() {
@@ -161,7 +178,7 @@ export class Game {
     this.screenLogin("Logged out.");
   }
   leaveGame() {
-    this.phase = "login"; this.pending = null;
+    this.phase = "login"; this.pending = null; this.riding = null;
     this.ui.showGame(false); this.phoneUI.close();
     this.world.people.clear(); this.world.self = null; this.world.here = null; this.world.money = null;
   }
@@ -194,6 +211,7 @@ export class Game {
     this.ui.showScreen(el("div", { class: "screen-inner" },
       wordmark(), el("h1", null, "Log in"),
       el("p", { class: "hint" }, "A persistent multiplayer life sim, played in your browser. " + SKETCH_NOTICE + "."),
+      howItWorks(),
       form,
       el("p", { class: "hint" }, "Usernames: 3–24 lowercase letters, digits or underscores. Passwords: 8–128 characters. Your password is never stored on this device; a session token keeps you logged in.")));
     setTimeout(() => user.focus(), 50);
@@ -215,6 +233,7 @@ export class Game {
         el("span", { class: "name" }, c.name),
         el("span", { class: "hint" }, [c.age, c.pronouns, c.career].filter(Boolean).join(" · ")),
         c.tagline ? el("span", { class: "tag" }, c.tagline) : null,
+        c.home || c.workplace ? el("span", { class: "hint" }, [c.home ? `Home: ${c.home}` : "", c.workplace ? `Work: ${c.workplace}` : ""].filter(Boolean).join(" · ")) : null,
         el("span", { class: "row" },
           taken ? el("span", { class: "badge closed" }, "another player's") : null,
           c.created ? el("span", { class: "badge open" }, "yours") : null,
@@ -279,13 +298,31 @@ export class Game {
         // Refresh the threads in place: what the player is typing stays, and so does the keyboard.
         if (this.phoneUI.open && this.phoneUI.app === "messages") this.phoneUI.refreshMessages();
         return;
-      case "notification": ui.line("", withoutCliHint(d.text), "note"); return;
+      case "notification": {
+        const text = withoutCliHint(d.text), now = performance.now();
+        // One thing, one card: the pay stub already says the paycheck, the banner the promotion.
+        if (now - this.stubAt < 8000 && /^Paycheck deposited/.test(text)) { ui.history.push({ who: "", text, kind: "note", cat: "activity", at: Date.now() }); return; }
+        if (now - this.bannerAt < 8000 && /promoted to/i.test(text)) { ui.history.push({ who: "", text, kind: "note", cat: "activity", at: Date.now() }); return; }
+        if (/promoted to/i.test(text) && d.kind === "career") { ui.banner("Promoted", text.replace(/^.*promoted to\s*/i, "").replace(/!$/, ""), null); return; }
+        // An incident and the notes that follow it within 2 s are one story.
+        if (now - (this.storyAt || 0) < 2000) { this.storyAt = now; ui.story(text); return; }
+        if (["health", "details", "accident"].includes(d.kind) || /humiliat|wet yourself|in time/i.test(text)) { this.storyAt = now; ui.story(text); return; }
+        ui.line("", text, "note");
+        return;
+      }
       // An ask and its answer each come with a notification too (the feed line), so no toast here.
       case "request": ui.sheetRequest(d); return;
       case "answer": return;
-      case "interaction": ui.line(name(d.from), String(d.label ?? d.interaction ?? ""), "note"); return;
+      case "interaction": {
+        ui.line(name(d.from), String(d.label ?? d.interaction ?? ""), "note");
+        const p = w.people.get(d.from);
+        if (p) { p.known = true; this.renderer.addFloater({ who: d.from, text: String(d.label ?? d.interaction ?? "") }); }
+        return;
+      }
       case "gift": ui.toast(`${name(d.from)} gave you ${String(d.label ?? d.item ?? "something")}.`); return;
-      case "incident": ui.line("", `${name(d.character)}: ${titleCase(d.kind)}${d.crime ? ` (${d.crime})` : ""}`, "note"); return;
+      case "incident":
+        if (d.character === w.selfId) { this.storyAt = performance.now(); return; }   // your own: the story notes that follow say it
+        ui.line("", `${name(d.character)}: ${titleCase(d.kind)}${d.crime ? ` (${d.crime})` : ""}`, "note"); return;
       case "performance": ui.line(name(d.performer || d.from || ""), "is performing here", "note"); return;
       case "date": ui.line("", `A date with ${name(d.with)}${d.place ? ` at ${d.place}` : ""}`, "note"); return;
       case "match": ui.line("", `${d.home_name || "Home"} v ${d.away_name || "Away"}: ${d.status === "full_time" ? `${d.home_score}–${d.away_score}` : "kick-off"}`, "note"); return;
@@ -306,10 +343,10 @@ export class Game {
     if (!s) return;
     const now = s.inside || "";
     if ((before || "") === now) {
-      if (now && this.ui.sheet && this.ui.sheet.kind === "scene" && this.world.here && this.ui.sheet.id !== this.world.here.id) this.ui.sheetScene();
+      if (now && this.ui.sheet && this.ui.sheet.kind === "scene" && this.world.here && this.ui.sheet.id !== this.world.here.id) this.ui.sheetScene({ focus: false });
       return;
     }
-    if (now) { this.lastLook = 0; this.refreshLook().then(() => { if (this.world.here) this.ui.sheetScene(); }); }
+    if (now) { this.lastLook = 0; this.refreshLook().then(() => { if (this.world.here) this.ui.sheetScene({ focus: false }); }); }
     else if (this.ui.sheet && (this.ui.sheet.kind === "scene" || this.ui.sheet.kind === "scene-mini")) this.ui.closeSheet();
   }
 
@@ -324,6 +361,17 @@ export class Game {
     if (now - this.lastBank > 30000) this.refreshBank();
     if (now - this.lastWeather > 120000) this.refreshWeather();
     if (now - this.lastCity > 300000) this.refreshCity();
+    // A new game day: the date and the weather change with it (the weather's "today" turns at its
+    // forecast hour, so it is asked again every game hour).
+    const m0 = w.minute(now);
+    if (m0 !== null) {
+      const day = Math.floor(m0 / 1440), hr = Math.floor(m0 / 60);
+      if (this.dayIndex !== null && day !== this.dayIndex) this.lastLook = 0;
+      if (this.wxHour !== null && hr !== this.wxHour) this.refreshWeather();
+      this.dayIndex = day; this.wxHour = hr;
+    }
+    this.agenda.tick(now);
+    this.firstMorning.tick();
     // Opening hours are whole hours, so statuses can only change with the hour (or a project
     // finishing, also caught within the hour). The clock is predicted and can run up to ~1.5
     // game minutes ahead of the server, so ask a few minutes after our own hour turns.
@@ -353,7 +401,7 @@ export class Game {
     const before = this.world.self && this.world.self.inside;
     const r = await this.transport.request("look");
     this.lookBusy = false;
-    if (r.ok && this.phase === "playing") { this.world.applyLook(r.data); this.insideChanged(before); }
+    if (r.ok && this.phase === "playing") { this.world.applyLook(r.data); this.agenda.learnHere(this.world.here); this.insideChanged(before); }
     else if (!r.ok && r.error.code === "not_playing" && this.phase === "playing" && this.character) {
       // The server forgot we were playing (a reconnect): sit back down as the same character.
       await this.play(this.character);
@@ -377,7 +425,7 @@ export class Game {
   }
   async refreshCareer() {
     const r = await this.transport.request("phone", { app: "career" });
-    if (r.ok) this.world.career = r.data;
+    if (r.ok) { this.world.career = r.data; this.ui.agendaChanged(); }
   }
   // What you're enrolled in and the programs (with their campuses): the scene card offers study
   // only at your own program's campus, and enrolling where a program you can join is taught.
@@ -388,7 +436,7 @@ export class Game {
     // A scene card already open at a campus gets its study part.
     const here = this.world.here, sheet = this.ui.sheet;
     const campus = here && (r.data.programs || []).some(p => Array.isArray(p.campuses) && p.campuses.includes(here.name));
-    if (campus && sheet && sheet.kind === "scene") this.ui.sheetScene();
+    if (campus && sheet && sheet.kind === "scene") this.ui.sheetScene({ focus: false });
   }
 
   // ------------------------------------------------------------------ taps on the map
@@ -399,7 +447,7 @@ export class Game {
     if (t.kind === "stop") { this.ui.sheetStop(t.id); return; }
     // Parks are open ground: tapping one walks you there.
     if (t.kind === "park") { const pl = this.world.placeById.get(t.id); if (pl && !this.world.self.inside) this.ui.toast(pl.name); }
-    if (this.ui.sheet && ["place", "person", "stop", "needs", "log", "menu"].includes(this.ui.sheet.kind)) this.ui.closeSheet();
+    if (this.ui.sheet && ["place", "person", "stop", "needs", "log", "menu", "places", "today"].includes(this.ui.sheet.kind)) this.ui.closeSheet();
     this.walkTo(t.world);
   }
   showPlace(id) {
@@ -416,18 +464,41 @@ export class Game {
   }
 
   // ------------------------------------------------------------------ intents
-  req(op, args) { return this.transport.request(op, args); }
-
+  // Every intent goes through here; what went through is reported to the first-morning checklist.
+  async req(op, args) {
+    const r = await this.transport.request(op, args);
+    if (r && r.ok) { try { this.firstMorning.onReply(op, args || {}, r); } catch (e) { console.warn("checklist", e); } }
+    return r;
+  }
+  // Go to a place: in through its door when it has one, else just walk there.
+  goTo(placeId) {
+    const w = this.world, pl = w.placeById.get(placeId), b = w.buildingById.get(placeId) || w.buildingOfPlace.get(placeId);
+    if (pl && pl.enterable !== false) return this.goInside(placeId);
+    const door = (pl && pl.door) || (b && b.door);
+    if (door) { this.ui.closeSheet(); return this.walkTo(door); }
+    return null;
+  }
+  // Stop whatever you're walking to: a real move to where you stand (the server moves you; you're there).
+  async stop() {
+    const w = this.world, me = w.selfPos();
+    this.pending = null;
+    if (!w.self || w.self.inside || !me || (w.self.mode === "bus" && w.self.target)) return;
+    const r = await this.req("move", { x: round1(me[0]), y: round1(me[1]) });
+    if (!r.ok) { this.ui.refusal(r); return; }
+    w.selfMoving(r.data.target, w.rules.walk_speed_mps, "walk");
+    this.ui.toast("Stopped.", false, { log: false });
+  }
   insideNote() {
     const s = this.world.self;
     if (!s || !s.inside) return false;
     const here = this.world.here;
-    this.ui.toast(`You're inside ${here ? here.name : "a building"}. Exit first.`, true);
+    this.ui.toast(`You're inside ${here ? here.name : "a building"}. Exit first.`, true, { action: { label: "Exit", run: () => this.exit() } });
     return true;
   }
 
   async walkTo(pt, keepPending = false) {
     if (!keepPending) this.pending = null;
+    if (!pt) return { ok: false };
     if (this.insideNote()) return { ok: false };
     const r = await this.req("move", { x: round1(pt[0]), y: round1(pt[1]) });
     if (!r.ok) { this.ui.refusal(r); return r; }
@@ -449,13 +520,18 @@ export class Game {
     if (w.self.inside === placeId) { this.ui.sheetScene(); return; }
     if (this.insideNote()) return;
     const me = w.selfPos();
-    if (dist(me, pl.door) <= w.rules.entry_radius_m - 0.3) { await this.enterNow(placeId); return; }
+    if (dist(me, pl.door) <= w.rules.entry_radius_m - 0.3) {
+      // At the door already: a refusal is said, never dropped (R1.6d).
+      const r = await this.enterNow(placeId);
+      if (!r.ok) this.ui.refusal(r, `Couldn't go into ${pl.name}`, { place: pl });
+      return;
+    }
     const r = await this.walkToLocation(placeId);
     if (!r.ok) return;
     const eta = Number(r.data.eta_seconds) || 0;
     this.pending = { kind: "enter", place: placeId, until: performance.now() + (eta + 20) * 1000, nextTry: 0, tries: 0 };
     this.ui.closeSheet();
-    this.ui.toast(`Walking to ${pl.name}${eta ? ` (about ${Math.ceil(eta)} s)` : ""}.`);
+    this.ui.announce(`Walking to ${pl.name}`);
   }
   async enterNow(placeId) {
     const before = this.world.self.inside;
@@ -463,17 +539,19 @@ export class Game {
     if (!r.ok) return r;
     this.pending = null;
     this.world.applyLook(r.data);
+    this.agenda.learnHere(this.world.here);
     this.insideChanged(before);
-    if (!this.ui.sheet || this.ui.sheet.kind !== "scene") this.ui.sheetScene();
+    if (!this.ui.sheet || this.ui.sheet.kind !== "scene") this.ui.sheetScene({ focus: false });
+    this.ui.announce(`Inside ${this.world.here ? this.world.here.name : "the building"}`);
     return r;
   }
   async exit() {
+    const where = this.world.here && this.world.here.name;
     const r = await this.req("exit");
     if (!this.ui.refusal(r)) return;
-    const notes = [];
-    if (r.data.shift) notes.push(`Shift ended${typeof r.data.shift.pay_cents === "number" ? `: paid ${money(r.data.shift.pay_cents)}` : ""}`);
-    if (r.data.study) notes.push("Study session ended");
-    if (notes.length) this.ui.toast(notes.join(" · "));
+    // Leaving work ends the shift: the same pay stub as End shift.
+    if (r.data.shift) { this.ui.payStub(r.data.shift, where); this.shiftStart = null; this.refreshCareer(); this.agenda.refresh("work"); }
+    if (r.data.study) this.ui.toast("Study session ended");
     this.world.self.inside = "";
     this.world.here = null;
     this.ui.closeSheet();
@@ -481,30 +559,85 @@ export class Game {
     if (r.data.shift) this.refreshBank();
   }
 
+  // What a reply did to your needs, against what you had before: "Hygiene 85 → 100".
+  needChanges(before, after) {
+    // A change of 2 or more: the clock's own drift between two looks isn't something you did.
+    return Object.entries(after || {}).filter(([k, v]) => typeof v === "number" && typeof before[k] === "number" && Math.abs(v - before[k]) >= 1.5)
+      .sort((a, b) => Math.abs(b[1] - before[b[0]]) - Math.abs(a[1] - before[a[0]]))
+      .map(([k, v]) => `${titleCase(k)} ${Math.round(before[k])} → ${Math.round(v)}`).join(" · ");
+  }
+  floatGains(before, after) {
+    const gains = {};
+    for (const [k, v] of Object.entries(after || {})) if (typeof v === "number" && typeof before[k] === "number" && Math.abs(v - before[k]) >= 1.5) gains[k] = v - before[k];
+    const t = effectsText(gains, 2);
+    if (t) this.renderer.addFloater({ who: this.world.selfId, text: t, self: true });
+  }
   async buy(offer, method) {
+    const w = this.world, before = { ...((w.self && w.self.needs) || {}) }, place = w.here && w.placeById.get(w.here.id);
     const r = await this.req("buy", { offer: offer.id, method });
-    if (!this.ui.refusal(r, `Couldn't buy ${offer.label}`)) return r;
-    this.ui.toast(`Bought ${offer.label} (${method === "phone" ? "LivPay" : method}).`);
+    if (!this.ui.refusal(r, offer.label, { place, method, what: offer.label })) return r;
+    const paid = typeof r.data.price_cents === "number" ? r.data.price_cents : offer.price_cents;
+    const toast = this.ui.toast(`Bought ${offer.label} · −${money(paid)} (${method === "phone" ? "LivPay" : method})`);
     this.refreshBank(); this.lastLook = 0;
+    // The bought thing's effect on your needs, once the server's next look says it.
+    await this.refreshLook();
+    const changed = this.needChanges(before, w.self && w.self.needs);
+    if (changed && toast.isConnected) { toast.append(` · ${changed}`); const h = this.ui.history.filter(x => x.kind === "result").pop(); if (h && h.text.startsWith(`Bought ${offer.label}`)) h.text += ` · ${changed}`; }
+    if (changed) this.floatGains(before, w.self.needs);
     return r;
   }
   async activity(a) {
+    const w = this.world, here = w.here, before = { ...((w.self && w.self.needs) || {}) };
     const r = await this.req("activity", { activity: a.id });
-    if (!this.ui.refusal(r, a.label)) return;
-    this.ui.toast(`${a.label}: done.`); this.lastLook = 0;
+    if (!r.ok) {
+      // "You just did that": dim the button with when it's ready again, when the content says.
+      const m = w.minute(), key = here ? `${here.id}/${a.id}` : null;
+      const wait = a.ready_in_minutes > 0 ? a.ready_in_minutes : a.cooldown_minutes > 0 ? a.cooldown_minutes : 0;
+      if (r.error.code === "too_soon" && key && m !== null && wait && !this.ui.cooling.has(key)) this.ui.cooling.set(key, m + wait);
+      const left = key && this.ui.cooling.has(key) && m !== null ? this.ui.cooling.get(key) - m : 0;
+      this.ui.refusal(r, a.label, { cooldown: left, place: here && w.placeById.get(here.id) });
+      if (r.error.code === "too_soon" && this.ui.sheet && this.ui.sheet.kind === "scene") this.ui.sheetScene({ focus: false });
+      this.lastLook = 0;
+      return r;
+    }
+    // "Take a shower · Hygiene 85 → 100": the reply's needs against the ones you had.
+    const after = r.data && r.data.needs && typeof r.data.needs === "object" ? r.data.needs : null;
+    const changed = after ? this.needChanges(before, after) : "";
+    if (after && w.self) w.self.needs = { ...w.self.needs, ...after };
+    this.ui.toast(changed ? `${a.label} · ${changed}` : `${a.label}: done.`);
+    if (after) this.floatGains(before, after);
+    if (here && a.cooldown_minutes > 0 && w.minute() !== null) this.ui.cooling.set(`${here.id}/${a.id}`, w.minute() + a.cooldown_minutes);
+    this.lastLook = 0;
+    if (this.ui.sheet && this.ui.sheet.kind === "scene") { await this.refreshLook(); if (this.ui.sheet && this.ui.sheet.kind === "scene") this.ui.sheetScene({ focus: false }); }
+    return r;
   }
   async work(action) {
+    const w = this.world, where = w.here && w.here.name;
     const r = await this.req("work", { action });
-    if (!this.ui.refusal(r)) return;
-    if (action === "start") this.ui.toast("Shift started. Ending it pays you for the hours worked.");
-    else this.ui.toast(`Shift ended${typeof r.data.pay_cents === "number" ? `: paid ${money(r.data.pay_cents)}` : ""}${r.data.note ? ` · ${r.data.note}` : ""}`);
-    this.refreshBank(); this.lastLook = 0; this.refreshCareer();
+    const job = this.agenda.workplaces()[0];
+    if (!this.ui.refusal(r, null, { goWork: job ? { name: job.name, run: () => this.goTo(job.id) } : null })) return r;
+    if (action === "start") {
+      this.shiftStart = w.minute();
+      if (w.self) w.self.onShift = true;
+      const c = w.career;
+      this.ui.toast(`Shift started${c && c.hourly_cents ? ` · ${money(c.hourly_cents)}/hr` : ""}. End it to be paid for the hours worked.`);
+    } else {
+      if (w.self) w.self.onShift = false;
+      this.shiftStart = null;
+      this.ui.payStub(r.data, where);
+    }
+    this.refreshBank(); this.refreshCareer(); this.agenda.refresh("work");
+    // The scene card follows the shift right away (one button, Start or End).
+    await this.refreshLook();
+    if (this.ui.sheet && this.ui.sheet.kind === "scene") this.ui.sheetScene({ focus: false });
+    return r;
   }
   async study(action) {
     const r = await this.req("study", { action });
     if (!this.ui.refusal(r)) return;
     this.ui.toast(action === "start" ? "Studying." : "Study session ended."); this.lastLook = 0;
-    this.refreshSchool();
+    await this.refreshSchool();
+    if (this.ui.sheet && this.ui.sheet.kind === "scene") this.ui.sheetScene({ focus: false });
     if (action === "end") this.refreshBank();
   }
   async enroll(program) {
@@ -522,7 +655,7 @@ export class Game {
     if (!r.ok) return;
     this.pending = { kind: "ride", stop: stop.id, to, pay, payWith, until: performance.now() + ((Number(r.data.eta_seconds) || 0) + 20) * 1000, nextTry: 0, tries: 0 };
     this.ui.closeSheet();
-    this.ui.toast(`Walking to the ${stop.name} stop.`);
+    this.ui.announce(`Walking to the ${stop.name} stop`);
   }
   async rideNow(to, pay, payWith) {
     const w = this.world;
@@ -530,6 +663,7 @@ export class Game {
     if (!r.ok) return r;
     this.pending = null;
     const dest = w.stopById(to), line = w.lineOfStop(to);
+    this.riding = to;
     if (dest) w.selfMoving(dest.at, line && line.speed_mps ? line.speed_mps : undefined, "bus");
     const d = r.data;
     this.ui.toast(d.caught ? `A fare inspector caught you: fined ${money(d.fine_cents || 0)}.` : `Riding to ${d.to || (dest && dest.name) || "your stop"}${d.evaded ? " without paying" : d.fare_cents ? ` · paid ${money(d.fare_cents)}` : ""}.`, !!d.caught);
@@ -548,18 +682,30 @@ export class Game {
   async interact(i, target) {
     const w = this.world, range = typeof i.range_m === "number" ? i.range_m : 3;
     if (w.distanceTo(target) <= range) { await this.interactNow(i, target); return; }
+    await this.walkOver(target, range, { kind: "interact", i });
+  }
+  // Walk over to someone, then act (Talk and asks alike): the doing-now pill shows it, Stop cancels it.
+  async walkOver(target, range, act) {
+    const w = this.world, who = firstName(w.nameOf(target));
     const pos = w.personPos(target);
-    if (!pos || w.self.inside) { this.ui.toast(`${firstName(w.nameOf(target))} isn't close enough.`, true); return; }
+    if (!pos || w.self.inside) { this.ui.toast(`${who} isn't close enough${w.self.inside ? ": you're inside, they're not" : ""}.`, true); return; }
     const r = await this.walkTo(pos);
     if (!r.ok) return;
-    this.pending = { kind: "interact", i, target, range, until: performance.now() + 30000, lastMove: performance.now(), nextTry: 0, tries: 0 };
-    this.ui.toast(`Walking over to ${firstName(w.nameOf(target))}.`);
+    this.pending = { ...act, target, range, until: performance.now() + 30000, lastMove: performance.now(), nextTry: 0, tries: 0 };
+    this.ui.toast(`Walking over to ${who}.`, false, { log: false, ms: 2500 });
   }
   async interactNow(i, target, quiet = false) {
     this.pending = null;
+    const w = this.world, who = firstName(w.nameOf(target));
     const r = await this.req("interact", { interaction: i.id, target });
-    if (!r.ok) { if (!quiet) this.ui.refusal(r, i.label); return r; }
-    this.ui.toast(`${i.label} with ${firstName(this.world.nameOf(target))}.`);
+    if (!r.ok) { if (!quiet) this.ui.refusal(r, i.label, { person: who, walk: () => this.interact(i, target) }); return r; }
+    // Their reaction (never their feelings: the server only says how it went for you), and a first meeting.
+    const d = r.data || {}, reaction = typeof d.reaction === "string" && d.reaction !== "neutral" ? d.reaction : null;
+    this.ui.toast(`${i.label} with ${who}${reaction ? ` · ${reaction}` : ""}${d.first_meeting ? ` · you met ${who}` : ""}.`);
+    if (reaction || d.first_meeting) this.renderer.addFloater({ who: target, text: d.first_meeting ? (reaction ? `${reaction} · first meeting` : "first meeting") : reaction });
+    const p = w.people.get(target);
+    if (p && !p.known) { p.known = true; this.ui.facesKey = ""; }
+    if (this.ui.sheet && this.ui.sheet.kind === "person" && this.ui.sheet.id === target && this.ui.sheet.update) this.ui.sheet.update(performance.now());
     return r;
   }
   async tip(target, cents) {
@@ -586,10 +732,18 @@ export class Game {
     if (!r.ok) return null;
     return (r.data.items || []).filter(i => i && i.id).map(i => ({ id: i.id, label: `${i.label}${i.count > 1 ? ` ×${i.count}` : ""}` }));
   }
+  // Asks walk you over like Talk does (they need you within 3 m), so "you need to be with them" can't happen.
   async ask(kind, target, extra = {}) {
+    if (this.world.distanceTo(target) > 3) { await this.walkOver(target, 3, { kind: "ask", ask: kind, extra }); return; }
+    await this.askNow(kind, target, extra);
+  }
+  async askNow(kind, target, extra = {}, quiet = false) {
+    this.pending = null;
+    const who = firstName(this.world.nameOf(target));
     const r = await this.req("request", { kind, target, ...extra });
-    if (!this.ui.refusal(r)) return;
-    this.ui.toast(`Asked ${firstName(this.world.nameOf(target))}. Waiting for an answer.`);
+    if (!r.ok) { if (!quiet) this.ui.refusal(r, null, { person: who, walk: () => this.ask(kind, target, extra) }); return r; }
+    this.ui.toast(`Asked ${who}. Waiting for an answer.`);
+    return r;
   }
   // Returns the server's reply: callers close the ask on success, and on `unknown_request` (it passed).
   async respond(id, accept) {
@@ -600,18 +754,25 @@ export class Game {
   }
   phone(app) { return this.req("phone", { app }); }
   message(to, text) { return this.req("message", { to, text }); }
-  openPhone(app) { this.ui.closeSheet(); this.phoneUI.show(app); }
+  // On a phone the phone covers the screen, so the card closes; wider screens keep it beside the phone.
+  openPhone(app, opts) { if (this.ui.narrow()) this.ui.closeSheet(); this.phoneUI.show(app, opts); }
   setPhoneBadge(n) {
-    const b = document.getElementById("phone-btn");
+    const b = document.getElementById("phone-btn"), c = document.getElementById("phone-count");
     b.setAttribute("aria-label", n ? `Phone, ${n} new message${n > 1 ? "s" : ""}` : "Phone");
     b.classList.toggle("on", n > 0);
+    if (c) { c.hidden = !n; c.textContent = n > 99 ? "99+" : String(n || ""); }
   }
 
   // Walk-then-act: act once the server agrees we're there; give up politely.
   async checkPending(now) {
     const p = this.pending, w = this.world;
     if (!p || p.busy || now < p.nextTry) return;
-    if (now > p.until) { this.pending = null; this.ui.toast("Didn't get there. Try again.", true); return; }
+    if (now > p.until) {
+      this.pending = null;
+      const what = p.kind === "enter" ? (w.placeById.get(p.place) || {}).name : p.kind === "ride" ? "the stop" : firstName(w.nameOf(p.target));
+      this.ui.toast(`Didn't get to ${what || "there"} in time.`, true, { action: { label: "Try again", run: () => (p.kind === "enter" ? this.goInside(p.place) : p.kind === "interact" ? this.interact(p.i, p.target) : p.kind === "ask" ? this.ask(p.ask, p.target, p.extra) : null) } });
+      return;
+    }
     const me = w.selfPos(now), still = arrived(w.self, now);
     p.busy = true;
     try {
@@ -622,7 +783,7 @@ export class Game {
           const r = await this.enterNow(p.place);
           if (!r.ok) {
             if (r.error.code === "too_far" && ++p.tries < 6) { p.nextTry = now + 700; this.lastLook = 0; }
-            else { this.pending = null; this.ui.refusal(r, `Couldn't go into ${pl.name}`); }
+            else { this.pending = null; this.ui.refusal(r, `Couldn't go into ${pl.name}`, { place: pl }); }
           }
         }
       } else if (p.kind === "ride") {
@@ -634,14 +795,19 @@ export class Game {
             else { this.pending = null; this.ui.refusal(r, "Couldn't take the bus"); }
           }
         }
-      } else if (p.kind === "interact") {
-        if (!w.people.has(p.target)) { this.pending = null; this.ui.toast("They're out of sight now.", true); return; }
+      } else if (p.kind === "interact" || p.kind === "ask") {
+        const who = firstName(w.nameOf(p.target));
+        if (!w.people.has(p.target)) {
+          this.pending = null;
+          this.ui.toast(`${who} walked out of sight.`, true, { action: { label: "Try again", run: () => (p.kind === "ask" ? this.ask(p.ask, p.target, p.extra) : this.interact(p.i, p.target)) } });
+          return;
+        }
         // Prediction runs a little ahead of the server: act once comfortably inside the range.
         const d = w.distanceTo(p.target, now);
         if (d <= Math.max(0.5, p.range - 1) || (still && d <= p.range)) {
-          const r = await this.interactNow(p.i, p.target, true);
+          const r = p.kind === "ask" ? await this.askNow(p.ask, p.target, p.extra, true) : await this.interactNow(p.i, p.target, true);
           if (!r.ok && r.error.code === "too_far" && ++p.tries < 5) { this.pending = p; p.nextTry = now + 700; }
-          else if (!r.ok) this.ui.refusal(r, p.i.label);
+          else if (!r.ok) this.ui.refusal(r, p.kind === "ask" ? null : p.i.label, { person: who });
         } else if (still && now - p.lastMove > 1500) {
           const pos = w.personPos(p.target, now);
           p.lastMove = now;
@@ -650,6 +816,40 @@ export class Game {
       }
     } finally { if (this.pending === p) p.busy = false; }
   }
+
+  // --- verbs (engineer B)
+  // The ops the client had no screen for (web/client/verbs.js puts them where they happen; the
+  // phone apps use them too). Each sends one op and returns the server's reply as it came, without
+  // a toast: the phone shows results in place and verbs.js words them (`summary`). Money that moved
+  // refreshes the bank; a new job or a work call refreshes the career.
+  async workAnswer(task, option) { const r = await this.req("work_answer", { task, option }); if (r.ok) this.refreshCareer(); return r; }
+  async apply(career) { const r = await this.req("apply", { career }); if (r.ok) this.refreshCareer(); return r; }
+  async joinTeam(team) { const r = await this.req("join_team", { team }); if (r.ok) this.refreshBank(); return r; }
+  leaveTeam(team) { return this.req("leave_team", { team }); }
+  async adopt(pet, name = "", method = "card") {
+    const args = { pet, method };
+    if (name) args.name = name;
+    const r = await this.req("adopt", args);
+    if (r.ok) this.refreshBank();
+    return r;
+  }
+  petCare(pet, action) { return this.req("pet", { pet, action }); }
+  async vetVisit(pet, service, method = "card") { const r = await this.req("vet", { pet, service, method }); if (r.ok) this.refreshBank(); return r; }
+  async buyHome(property, downPaymentCents = 0) {
+    const args = { property };
+    if (downPaymentCents > 0) args.down_payment_cents = downPaymentCents;
+    const r = await this.req("buy_home", args);
+    if (r.ok) this.refreshBank();
+    return r;
+  }
+  wear(item) { return this.req("wear", { item }); }
+  takeOff(slot) { return this.req("take_off", { slot }); }
+  async use(item) { const r = await this.req("use", { item }); if (r.ok) this.lastLook = 0; return r; }
+  async perform(song) { const r = await this.req("perform", { song }); if (r.ok) this.lastLook = 0; return r; }
+  releaseSong(song) { return this.req("song_release", { song }); }
+  async laundry() { const r = await this.req("laundry"); if (r.ok) { this.refreshBank(); this.lastLook = 0; } return r; }
+  buyWithCoins(item) { return this.req("buy_with_coins", { item }); }
+  switchPhone(item) { return this.req("switch_phone", { item }); }
 }
 
 // The live page boots here. Pages that boot their own subclass of Game set data-boot on <body>:

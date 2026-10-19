@@ -14,6 +14,7 @@ import { LocalTransport } from "./transport_local.js";
 import { SaveSlot, makeRecord, exportRecord, readRecordFile } from "./save.js";
 import { el, avatar, lotus, wordmark } from "../dom.js";
 import { SKETCH_NOTICE } from "../layout.js";
+import { howItWorks } from "../onboarding.js";
 
 export const SOLO_NOTICE = "Single-player: the town runs in your browser. Nobody else can join this save.";
 export const PAUSE_NOTICE = "The town pauses while this tab is closed.";
@@ -111,6 +112,7 @@ class SoloGame extends Game {
     this.ui.showScreen(el("div", { class: "screen-inner" },
       wordmark(), el("h1", null, "Your own town"),
       el("p", { class: "hint" }, "A life sim that runs entirely in this tab: you play one resident, and the game's autopilot plays the other founders. " + SOLO_NOTICE + " " + PAUSE_NOTICE),
+      howItWorks(),
       err, body,
       el("p", { class: "hint" }, storage),
       el("p", { class: "hint" }, SKETCH_NOTICE + ". Doors, names, prices, opening hours, needs, money and every outcome come from the same game core as the multiplayer server, compiled to WebAssembly.")));

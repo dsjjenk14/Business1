@@ -789,3 +789,26 @@ you, never automatic, and consent to intimacy is something a script must never g
 (D-025).
 **Trade-off:** A restart forgets who was greeted that day, so a founder may say hello twice. Accepting
 a date makes a founder someone's partner; the person can end it as with anyone.
+
+## D-065 — The web client is map-first, says what's next, and puts every verb where it happens
+**Decision:** Release 1 of `docs/proposals/redesign.md`. The screen is the town: a status strip
+(clock, money, menu), need chips only when a need is low (with its number), the faces of people in
+sight, and a bottom bar (Places, Talk, a context button that is Stop while you walk or ride, Exit
+inside, Go to what's next, otherwise Today; Phone; You). Chat docks above the bar when Talk is open
+(always on desktop). The sketch and single-player / Play-together notices became one attribution
+line that keeps their full sentences. A Next card says what's next from your own data only (a low
+need, your shift, decisions waiting, your routine, a bill due) and names its source. Results show
+what changed ("Hygiene 85 → 100", a pay stub, a promotion banner) and are logged; refusals read as
+sentences with a next step. Work decisions are cards answered with `work_answer`, showing the
+server's verdict. Every verb the server has is reachable where a player looks for it
+(`verbs.js`): join a team at the clubhouse, adopt at the shelter, buy a house for sale, apply at
+an employer's door, wear and use in Items; a verb walks you there first and steps you out of the
+building you're in unless you're on shift or studying. The browser towns (single-player, Play
+together) show no coin store, and say why. The creator's quick start asks for name, pronouns and
+gender, why you moved, education and job, and fills the rest with legal values it shows on screen.
+**Why:** Four reviews of the restyled build (two players, a UX designer and a game developer)
+found the same things: no goal, the best content (work decisions) unplayable, results with no
+feedback, and panels covering the town. All of it was data the server already sent.
+**Trade-off:** Everything the client shows is still the server's answer; where a number would be a
+guess (pay so far) it is labelled an estimate. The nearest fix for a low need points only at places
+you've been inside, because `map` doesn't say what each place offers.

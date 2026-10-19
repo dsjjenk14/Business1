@@ -2,7 +2,8 @@
 // the gateway. Run with run_e2e.sh (it starts both and sets LIVERA_URL). Plain Node, no test
 // framework: each test prints PASS / FAIL / SKIP and the process exits non-zero on any FAIL.
 //
-// Phone: 390x844, touch, isMobile. Desktop: 1280x800. Tests that need the newer protocol
+// Phone: 390x844, touch, isMobile. Desktop: 1280x800. On a phone the composer is docked behind
+// the Talk button (the redesign's map-first layout); on a desktop it's always there. Tests that need the newer protocol
 // (`livera/1`: people stream, positions, whispering, map.interactions, session tokens) SKIP
 // against an older server and say so.
 
@@ -172,7 +173,7 @@ async function walkToPlaceDoor(p, placeId) {
   await waitFor(p, () => !window.__livera.world.self.target, null, 20000);
   await tapWorld(p, [[door[0], door[1] - 4, 6], [door[0] - 4, door[1] - 6, 10], [door[0] + 4, door[1] - 2, 3], [door[0], door[1] - 10, 20]], { kind: "place", id: bid }, placeId);
   await p.page.waitForSelector('#sheet[data-kind="place"]');
-  await p.page.click('#sheet >> text="Walk here"');
+  await p.page.click('#sheet >> text="Just walk there"');
   await waitFor(p, door => { const s = window.__livera.world.self; return s && s.pos && Math.hypot(s.pos[0] - door[0], s.pos[1] - door[1]) < 1 && !s.target; }, door, 30000);
 }
 async function closeSheet(p) {
@@ -180,6 +181,9 @@ async function closeSheet(p) {
   if (b) await b.click();
 }
 const shot = (p, name) => p.page.screenshot({ path: path.join(SHOTS, name) });
+async function openTalk(p) { if (await p.page.$("#chatbar[hidden]")) await p.page.click("#talk-btn"); await p.page.waitForSelector("#chatbar:not([hidden])"); }
+// The person card folds its asks away under "Ask…".
+async function openAsks(p) { const s = await p.page.$('#sheet details.more:not([open]) > summary:has-text("Ask")'); if (s) await s.click(); }
 async function newer(p) { return W(p, () => window.__livera.streaming() || window.__livera.world.rulesFromServer); }
 
 // ------------------------------------------------------------------ the run
@@ -204,6 +208,15 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     await A.page.waitForSelector('#sheet[data-kind="scene"]');
     await sleep(600);
     await shot(A, "phone_03_home_scene.png");
+  });
+
+  await test("the Next card points at the workplace before a shift; an activity shows its need change", async () => {
+    await waitFor(A, () => { const n = window.__livera.next(); return n && n.target; }, null, 15000);
+    const n = await W(A, () => ({ next: window.__livera.next(), work: (window.__livera.world.career || {}).workplaces || [] }));
+    assert(n.work.includes(n.next.title), `the Next card points at ${JSON.stringify(n.next)}, not the workplace ${n.work}`);
+    assert(/From your (Calendar|Career)/.test(n.next.source), "the Next card doesn't name its source: " + n.next.source);
+    await A.page.click('#sheet [data-activity="shower"]');
+    await waitFor(A, () => [...document.querySelectorAll("#feed .line")].some(l => /Take a shower · .*Hygiene \d+ → \d+/.test(l.textContent)), null, 8000);
   });
 
   await test("the map draws (buildings, stops, a lit canvas)", async () => {
@@ -256,6 +269,7 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     await waitFor(A, want => window.__livera.world.money && window.__livera.world.money.bank_cents === want, before - price, 10000);
     try {
       // Indoors a whisper still reaches only the one you pick; the chat bar must not say otherwise.
+      await openTalk(A);
       await A.page.click('#chatbar [data-volume="whisper"]');
       const note = await A.page.textContent("#range-note");
       await A.page.click('#chatbar [data-volume="say"]');
@@ -285,6 +299,7 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
   });
 
   await test("chat bar: say and shout reach a player nearby; the speaker sees who heard", async () => {
+    await openTalk(A);
     await A.page.fill("#chat-input", "Hello from the phone");
     await A.page.click("#chat-send");
     // Phone with a sheet open: the bubble stays below the top bar, and the feed shows one line.
@@ -317,6 +332,7 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
   });
 
   await test("whisper offers only people within whisper range", async () => {
+    await openTalk(A);
     await A.page.click('#chatbar [data-volume="whisper"]');
     await A.page.waitForSelector('#whisper-targets [data-person="dominique"]', { timeout: 8000 });
     assert(/^only they hear/.test(await A.page.textContent("#range-note")), "the whisper range note is wrong outdoors");
@@ -335,6 +351,7 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
   });
 
   await test("every server string is escaped (speech is player text)", async () => {
+    await openTalk(A);
     await A.page.fill("#chat-input", XSS);
     await A.page.click("#chat-send");
     await feedHas(B, XSS);
@@ -388,6 +405,7 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     assert(face, "Dominique isn't drawn on A's map");
     await tap(A, face[0], face[1]);
     await A.page.waitForSelector('#sheet[data-kind="person"]');
+    await openAsks(A);
     await A.page.click('#sheet >> text="Ask on a date"');
     await B.page.waitForSelector('#sheet[data-kind="request"]', { timeout: 10000 });
     await feedHas(B, "is asking you out");
@@ -408,6 +426,7 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
       assert(face, "Dominique isn't drawn on A's map");
       await tap(A, face[0], face[1]);
       await A.page.waitForSelector('#sheet[data-kind="person"]');
+      await openAsks(A);
       await A.page.click('#sheet >> text="Ask on a date"');
       await B.page.waitForSelector('#sheet[data-kind="request"]', { timeout: 10000 });
       await closeSheet(A);
@@ -427,7 +446,7 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     await askDate();
     await sleep(17000);
     await B.page.click('#sheet[data-kind="request"] >> text="Accept"');
-    await feedHas(B, "that ask has passed");
+    await waitFor(B, () => [...document.querySelectorAll("#feed .line")].some(n => /that ask has passed/i.test(n.textContent)), null, 8000);
     await waitFor(B, () => document.getElementById("sheet").dataset.kind !== "request", null, 5000);
   }, { skipIf: needNewer });
 
@@ -438,6 +457,7 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     await exitBuilding(C);
     await closeSheet(A);
     await rejoin(A, B);
+    await openTalk(A);
     await A.page.click('#chatbar [data-volume="whisper"]');
     await A.page.click('#whisper-targets [data-person="dominique"]');
     await A.page.fill("#chat-input", "secret words");
@@ -511,7 +531,11 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     await waitFor(A, () => !!window.__livera.world.money);
     const before = await W(A, () => window.__livera.world.money.bank_cents);
     const fare = await W(A, id => window.__livera.world.lineOfStop(id).fare_cents, tapped.id);
-    await A.page.click('#sheet >> text="Ride"');
+    // Nothing is picked for you: Ride waits until you choose where to go.
+    assert(await W(A, () => document.getElementById("ride-btn").disabled), "Ride is enabled before a destination is picked");
+    await A.page.click('#sheet input[name="dest"] >> nth=0');
+    assert(/^Ride to /.test(await A.page.textContent("#ride-btn")), "the Ride button doesn't name the destination");
+    await A.page.click("#ride-btn");
     await feedHas(A, "Riding to", 60000);
     await waitFor(A, want => window.__livera.world.money && window.__livera.world.money.bank_cents === want, before - fare, 10000);
   });
@@ -520,7 +544,7 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     await A.page.click("#phone-btn");
     await A.page.waitForSelector("#phone .app");
     const apps = await A.page.$$eval("#phone .app", x => x.length);
-    assert(apps === 26, `expected 26 apps, got ${apps}`);
+    assert(apps >= 26, `expected the phone's apps (26 or more), got ${apps}`);
     await shot(A, "phone_10_phone_home.png");
     await A.page.click('#phone [data-app="bank"]');
     await A.page.waitForSelector('#phone >> text="Balances"');
@@ -575,14 +599,17 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
   await test("phone layout: 44 px tap targets, 16 px inputs, no sideways scroll, nothing overlapping", async () => {
     const r = await W(A, () => {
       const vis = n => { const b = n.getBoundingClientRect(); const s = getComputedStyle(n); return b.width > 0 && b.height > 0 && s.visibility !== "hidden" && s.display !== "none"; };
-      const small = [...document.querySelectorAll("#hud button, #chatbar button, #mapctl button, #sheet button, #chatbar input")].filter(vis)
+      const small = [...document.querySelectorAll("#hud button, #chatbar button, #mapctl button, #sheet button, #chatbar input, #bar button, #next button, #doing button, #attrib button")].filter(vis)
         .filter(n => { const b = n.getBoundingClientRect(); return b.height < 43.5 || b.width < 43.5; }).map(n => `${n.tagName}:${(n.textContent || n.getAttribute("aria-label") || "").trim().slice(0, 20)} ${Math.round(n.getBoundingClientRect().width)}x${Math.round(n.getBoundingClientRect().height)}`);
       const fonts = [...document.querySelectorAll("input, select, textarea")].filter(vis).filter(n => parseFloat(getComputedStyle(n).fontSize) < 16).length;
       const box = id => { const n = document.getElementById(id); return n && !n.hidden ? n.getBoundingClientRect() : null; };
       const hit = (a, b) => a && b && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
       const topbar = document.querySelector("#hud .topbar").getBoundingClientRect(), chat = box("chatbar"), ctl = box("mapctl");
-      return { small, fonts, scroll: document.documentElement.scrollWidth - innerWidth, overlap: [hit(topbar, chat), hit(topbar, ctl), hit(ctl, chat)].filter(Boolean).length };
+      const bar = box("bar"), onBar = ["next", "attrib-btn", "chatbar", "doing", "mapctl", "sheet", "needs", "faces"].map(id => [id, box(id)]).filter(([, b]) => b && b.height && hit(bar, b)).map(([id]) => id)
+        .concat([...document.querySelectorAll("#feed .line")].filter(n => hit(bar, n.getBoundingClientRect())).map(() => "feed"));
+      return { small, fonts, scroll: document.documentElement.scrollWidth - innerWidth, overlap: [hit(topbar, chat), hit(topbar, ctl), hit(ctl, chat)].filter(Boolean).length, onBar, bar: !!bar };
     });
+    assert(r.bar && !r.onBar.length, "these overlap the bottom bar: " + r.onBar.join(", "));
     assert(!r.small.length, "tap targets under 44 px: " + r.small.join("; "));
     assert(r.fonts === 0, `${r.fonts} inputs under 16 px`);
     assert(r.scroll <= 0, `page scrolls sideways by ${r.scroll}px`);
@@ -622,10 +649,18 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     const r = await W(B, () => {
       const box = sel => { const n = document.querySelector(sel); return n && !n.hidden ? n.getBoundingClientRect() : null; };
       const hit = (a, b) => a && b && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
-      const t = box("#hud .topbar"), c = box("#chatbar"), m = box("#mapctl");
-      return { overlap: [hit(t, c), hit(t, m), hit(m, c)].filter(Boolean).length, scroll: document.documentElement.scrollWidth - innerWidth };
+      const t = box("#hud .topbar"), c = box("#chatbar"), m = box("#mapctl"), b = box("#bar"), n = box("#next"), a = box("#attrib-btn");
+      return { overlap: [hit(t, c), hit(t, m), hit(m, c), hit(b, m), hit(b, n), hit(b, c), hit(a, m), hit(a, b)].filter(Boolean).length, scroll: document.documentElement.scrollWidth - innerWidth };
     });
     assert(r.overlap === 0 && r.scroll <= 0, JSON.stringify(r));
+    // Places: search finds a place by name, with whether it's open and how far.
+    await B.page.click("#places-btn");
+    await B.page.fill("#places-search", "heritage");
+    await waitFor(B, () => document.querySelectorAll("#places-list li").length === 1 && !!document.querySelector('#places-list li[data-place="heritage_coffee"]'));
+    await shot(B, "desktop_05_places.png");
+    // Esc closes the top layer.
+    await B.page.keyboard.press("Escape");
+    await waitFor(B, () => !document.querySelector('#sheet[data-kind="places"]'), null, 3000);
   });
 
   await test("character creator: a form from creator_options makes a playable character", async () => {
@@ -638,17 +673,9 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     await D.page.click("#create-btn");
     await D.page.waitForSelector("form.creator");
     await shot(D, "phone_14_creator.png");
+    // The quick start: a name is enough (the rest has legal values, or is picked at random on submit).
     const inputs = await D.page.$$("form.creator fieldset:first-of-type input[type=text]");
     await inputs[0].fill("Robin"); await inputs[1].fill("Vale");
-    // Multi-pick fields: tick the minimum in each.
-    await D.page.evaluate(() => {
-      for (const fs of document.querySelectorAll("form.creator fieldset")) {
-        const boxes = [...fs.querySelectorAll(".chips input[type=checkbox]")];
-        if (!boxes.length) continue;
-        const m = (fs.querySelector(".budget").textContent.match(/choose (\d+)/) || [0, "0"])[1];
-        for (let i = 0; i < Number(m); i++) boxes[i].click();
-      }
-    });
     await D.page.click('form.creator button[type="submit"]');
     await waitFor(D, () => window.__livera && window.__livera.phase() === "playing", null, 15000);
     const name = await W(D, () => window.__livera.world.selfName);
@@ -676,7 +703,9 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     await G.page.waitForSelector("#create-btn");
     await G.page.click("#create-btn");
     await G.page.waitForSelector("form.creator");
-    await G.page.fill("form.creator fieldset:first-of-type input[type=text]", "Zelda");
+    await G.page.fill("form.creator fieldset:first-of-type input[type=text] >> nth=0", "Zelda");
+    const more = await G.page.$("form.creator details:not([open]) > summary");   // the backstory sits under "Customize more"
+    if (more && !(await G.page.isVisible("form.creator textarea"))) await more.click();
     await G.page.fill("form.creator textarea", "Typed on a phone, on a train");
     await dropAndReconnect();
     const form = await W(G, () => ({ phase: window.__livera.phase(), first: (document.querySelector("form.creator fieldset:first-of-type input[type=text]") || {}).value,

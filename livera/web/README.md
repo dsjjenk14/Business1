@@ -95,6 +95,7 @@ scripts/build_wasm.sh                       # Emscripten build (src/wasm/solo.cp
 cd web/gateway && STATIC_DIR=../client node gateway.mjs    # or any static server for web/client
 # open http://127.0.0.1:8080/solo/
 web/tests/run_solo_e2e.sh                   # Playwright: phone (390x844) and desktop, against the built module
+web/tests/run_solo_e2e.sh phone_e2e.js      # only the named test files (the phone, the verbs, the creator), same static server
 ```
 
 `livera_solo.js` is a single file (the wasm is inlined, `-sSINGLE_FILE=1`) so any static host
@@ -110,13 +111,14 @@ module in its place (used while the page was developed), and the test's summary 
 | `client/solo/solo.js` | `SoloGame extends Game` (`main.js`): the town screen (New town / Continue / Import a save file / Export / Start over with a confirm), its own picker (no accounts: "on autopilot right now" badges), a menu with Save now, Export, Change who you play, Start over and the honest labels; autosave every 30 s, when the tab is hidden and on `pagehide`. |
 | `client/solo/transport_local.js` | The `transport.js` interface (`request(op, args)` → `{ok, data}` or `{ok: false, error}`, `welcome` / `event` / `status` listeners) over the wasm module: `characters` → `solo_characters`, `create_character` → `solo_create_character`, `play` → `solo_play` (then `solo_autopilot_start()`), `logout` → `solo_leave`, `hello` / `ping` answered locally, `creator_options` → `solo_request` with a fallback to `solo_creator_options`, everything else → `solo_request` (the server's own dispatch, `src/protocol/WorldOps.cpp`). A 10 Hz timer calls `solo_tick` with the real seconds elapsed (at most 1 s a step) and feeds the returned events to the same handlers as the live client. Hidden tab: the clock stops; no catch-up. |
 | `client/solo/save.js` | One save slot: IndexedDB (`livera-solo`), falling back to localStorage when IndexedDB is missing or refuses; export as a JSON download; import from a file. The record is `{format: "livera-solo-save/1", saved_at, character, character_name, state}` where `state` is exactly what `solo_save()` wrote (its own `format` field); the core validates it on load. |
-| `tests/solo_e2e.js`, `tests/run_solo_e2e.sh` | The end-to-end tests below; the runner serves `web/client` with a plain static server on `LIVERA_SOLO_PORT` (18950). |
+| `tests/solo_e2e.js`, `tests/run_solo_e2e.sh` | The end-to-end tests below; the runner serves `web/client` with a plain static server on `LIVERA_SOLO_PORT` (18950) and runs `solo_e2e.js`, or the test files named as arguments. |
+| `tests/phone_e2e.js` | The phone, the verbs and the creator against the single-player page (`run_solo_e2e.sh phone_e2e.js`): the grouped home screen with no coin store, every app readable at 390 px (no raw ids or internal keys, nothing a letter per line, no sideways scroll, 44 px targets), going to work, starting a shift and answering a decision (the server's verdict shown), Apply in Jobs (walks to the door, the server hires you), Join at Riverside Clubhouse (`verbs.js`) and from Sports (the league fee is charged), Contacts with only your side and Message, the Calendar's agenda, Homes with what you can afford, and the creator (every error at once, the exact age hidden for a one-year group, Surprise me, the quick start alone); screenshots at 390x844 and 1440x900. |
 | `client/solo/artifact.html` | The same page as published to a Claude artifact: no document skeleton (the artifact adds one), sets `data-boot="solo"` and `LIVERA_IN_ARTIFACT` before the modules run, and sits at the root of the published files. That viewer blocks downloads, so the page offers no Export there; saves stay in that browser, and Import still works. |
 
 **Publishing it as an artifact.** Lay the files out as the page expects, the page at the root
 and everything else at its `web/client` path: `css/app.css`, the client modules (`main.js`,
-`transport.js`, `state.js`, `render2d.js`, `ui.js`, `phone.js`, `creator.js`, `dom.js`,
-`layout.js`), `faces/` with its `manifest.json`, `sprites/` with its `manifest.json`, `tiles/`
+`transport.js`, `state.js`, `render2d.js`, `ui.js`, `phone.js`, `creator.js`, `verbs.js`, `dom.js`,
+`layout.js`, `icons.js`, `messages.js`, `today.js`, `places.js`, `onboarding.js`), `css/phone.css` (`phone.js` loads it), `faces/` with its `manifest.json`, `sprites/` with its `manifest.json`, `tiles/`
 with its `manifest.json`, `fonts/` (three WOFF2 files and their licences), and `solo/solo.js`,
 `solo/transport_local.js`, `solo/save.js`, `solo/livera_solo.js`. Besides the faces, the fonts,
 sprites and tiles are binary files; a host that takes text files only can leave `fonts/` out (the
@@ -169,8 +171,13 @@ save, importing the file brings the same balance back; hiding the tab stops the 
 showing the tab resumes them; Change who you play: the picker marks exactly the founders the
 autopilot has in the world "on autopilot right now" (compared with `solo_autopilot_status`),
 and the one you left is marked after you switch; the phone (26 apps, bank,
-the map app's Show); 44 px tap targets, 16 px inputs, no sideways scroll, no overlap, the two
-HUD notes stay short; the creator makes a playable character; no console errors or dialogs.
+the map app's Show); 44 px tap targets, 16 px inputs, no sideways scroll, nothing overlapping the
+bar or the dock, the attribution keeps both notices' full sentences; the redesign (D-065): an
+activity shows its need change, the Next card points at the workplace before a shift and names
+its source, the doing-now pill's Stop stops you, Places search finds Heritage Coffee, Esc closes
+the top layer, the stop card picks no destination for you, "How it works" on the town screen; the
+creator makes a playable character; no console errors or dialogs. `run_solo_e2e.sh phone_e2e.js`
+runs the phone, verbs and creator tests instead.
 Screenshots go to `LIVERA_SHOTS`.
 
 ## Play together
@@ -246,7 +253,8 @@ host-paused and host-left banners use the existing `#conn` line (`ui.setConnecti
 
 The page is `together/artifact.html`, published at the root; everything else keeps its
 `web/client` path: `css/app.css`; `main.js`, `transport.js`, `state.js`, `render2d.js`, `ui.js`,
-`phone.js`, `creator.js`, `dom.js`, `layout.js`; `faces/` and `sprites/` and `tiles/`, each with its
+`phone.js`, `creator.js`, `verbs.js`, `dom.js`, `layout.js`, `icons.js`, `messages.js`, `today.js`, `places.js`,
+`onboarding.js`; `css/phone.css`; `faces/` and `sprites/` and `tiles/`, each with its
 `manifest.json`; `fonts/` (three WOFF2 files and their licences); `solo/livera_solo.js`; and
 `together/together.js`, `together/host.js`, `together/link.js`, `together/transport_room.js`. Not
 `together/fake_platform.js`, `together/index.html` or `together/package.json` (it only lets Node's
@@ -282,9 +290,16 @@ the artifact and give friends Contributor access (`docs/MULTIPLAYER.md`, "How to
 | `client/state.js` | The live world model: rules, map, transit, interactions, you, the people in sight with straight-line prediction, clock from `look.time.minute` and `rules.minutes_per_real_second`, money, weather, bubbles. |
 | `client/render2d.js` | The isometric canvas renderer forked from the preview (projection, buildings, cranes, weather, day/night, bubbles, voice ring, tap hit-testing, drag / pinch / wheel), and the owner's ground textures and set pieces laid on it (see "The look"). Replaceable by a three.js renderer behind the same small interface. |
 | `client/layout.js` | **The sketch**: building sizes by type, roads, river and bridge, park outlines, trees and street trees, the palette and the light by the hour (`LIGHT`), and where the ground tiles and set pieces go (`TILE_METERS`, `BRIDGE_ART`, `PARK_ART`, `ROAD_WORKS`, …). |
-| `client/ui.js` | Top bar, chat bar, feed and toasts, bottom sheets (place, scene inside, person, bus stop, ask, needs, log, menu). |
-| `client/phone.js` | The phone: all 26 apps as cards; bank, messages (updated in place as messages arrive), map, transit, career and romance (answer asks still waiting) screens; any other app shown as labelled fields. |
-| `client/creator.js` | Character creator form generated from `creator_options`. |
+| `client/ui.js` | The map-first layout (D-065): the status strip (clock, money, menu), need chips only when low, the faces of people in sight, the dock (the Next card, the Talk composer, the attribution line) and the bar (Places, Talk, the context button: Stop, Exit, Go or Today; Phone; You). Cards with three heights (place, scene inside, person, bus stop, ask, You, Today, log with Speech and Activity), the doing-now pill, toasts that are also logged, the pay stub and promotion banner, need warnings with the nearest fix, keyboard shortcuts. |
+| `client/icons.js` | One inline SVG icon set (bar, map controls, sheet chrome, every phone app) built with the DOM API, and the same paths for canvas labels. |
+| `client/messages.js` | Server refusals as plain sentences with a next step, and opening hours in words. |
+| `client/today.js` | The Next card's rules and the Today sheet, built only from your own data (needs, your workplace and shift, decisions waiting, your routine, bills due); every line names its source. |
+| `client/places.js` | The Places sheet: search, categories, your home and workplace pinned, open or closed and the distance, Go and Show. |
+| `client/onboarding.js` | The first-morning checklist (ticked from real game state), three one-time coach marks, and "How it works". |
+| `client/phone.js` | The phone: the 26 apps grouped under Everyday, Life, Ambition and Town, one icon each (`icons.js`); no coin store in a browser town (single-player, Play together). Screens for Work (decisions as cards → `work_answer`, the server's verdict, shift and promotion), Calendar (Today and This week from your routine, with Go), Contacts (your side only, as bars; Message), Messages (a contact picker; threads updated in place as messages arrive), Jobs (Apply), Homes (your home and rent; listings with what you can afford; Buy), Sports (fixtures, table, rosters; Join / Leave), Items (Wear, Take off, Use, laundry), Pets (adopt, care, the vet), Studio (perform, release), Wallet, Store, Alerts, Romance (answer asks still waiting), Bank, Map, Transit (ride to a stop from your nearest one), Career, School, City, Fame, Weather, Record and Goals (when the server has it). `generic()` shows any other answer readably: fields stacked on phones, ids and internal keys hidden, times as "Mon, Day 3 · 18:00", 0–100 stats as bars, yes/no in words, "none yet". Loads `css/phone.css` itself. |
+| `client/verbs.js` | Every verb where it happens: `placeActions(game, place)` lists what the server lets you do at a place (join or leave a league team at the clubhouse or the court, apply at an employer's door, adopt at the shelter, the vet, pet care at home, laundry at home or the laundromat, buy a home for sale with the price and an affordability estimate, perform on a stage when the map says it is one), each walking you there first (out of the building you're in, unless you're on shift or studying). `run()` resolves to the server's reply with a one-line `summary`; refusals are the server's. Also the phone's verbs and the text helpers (times, the server's terminal hints made readable). |
+| `client/css/phone.css` | The phone's screens, the verbs and the creator, in the same palette and type as `app.css`. |
+| `client/creator.js` | Character creator generated from `creator_options`: a quick start (name, pronouns and gender, why you moved, education and job; the job list follows the entry requirements when the server marks them), the rest under "Customize more" with legal values in place (your look and age group at random; traits, interests and goals picked at random on submit unless you choose them, and said so), "Surprise me", and every problem shown at once beside its field. |
 | `client/dom.js` | `el()` (DOM building with text nodes only), money formatting, the face, sprite and tile manifests, safe localStorage. |
 | `client/faces/` | 160 px face crops by character id; `manifest.json` lists them so the page never requests a missing image. |
 | `client/sprites/` | The owner's building pictures for 14 places (Heritage Coffee, Greenleaf Market, Founders School, the police station, Station 1, …), drawn on the map in place of their boxes. They come from `art/places/` (made with the prompt pack in `scripts/town_prompts.py`) as map-size copies: 640 px wide, transparent WebP, cropped to their content. `manifest.json` lists them, so the page never requests one that isn't there; the box is drawn until a picture has loaded. |
@@ -435,11 +450,12 @@ Built but not covered by the tests yet:
 - Bodies aren't drawn: people are face portraits on a stick; characters made in the creator show
   initials.
 - Children, pets and vehicles aren't on the map (the server doesn't place them yet).
-- Songs: `performance` events are announced in the feed but not played; the studio and stage
-  ops have no screens here yet (the studio app shows its data as cards).
+- Songs: `performance` events are announced in the feed but not played; writing and recording songs
+  (`song_save`) has no screen yet (the Studio app says so; it performs and releases songs you have).
 - No moderation tools (mute, block, report) and no voice yet; both are planned before strangers
   join.
-- Applying for a job (`apply`) and dropping out of a program (`enroll` with no program) have no
-  screens yet: the jobs and school apps show their data as cards, and the career screen says so.
+- Dropping out of a program (`enroll` with no program), selling a home and moving between homes
+  you own, naming a baby, child care, daycare and nannies have no screens yet; the School, Homes and
+  Family apps say so.
 - Studying at home on a laptop (online programs) isn't offered here; study at the campus.
 - Not tested on real iOS Safari or Android Chrome devices, only Chromium with phone emulation.

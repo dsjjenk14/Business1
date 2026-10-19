@@ -3,7 +3,8 @@
 # and Playwright (Chromium) playing it at phone and desktop sizes. No game server: the world is
 # the game core compiled to WebAssembly, web/client/solo/livera_solo.js (scripts/build_wasm.sh).
 #
-#   livera/web/tests/run_solo_e2e.sh
+#   livera/web/tests/run_solo_e2e.sh                  # solo_e2e.js
+#   livera/web/tests/run_solo_e2e.sh phone_e2e.js     # only these test files (in web/tests), same static server
 #
 # Env:
 #   LIVERA_E2E_DIR      where logs and downloads go (default: a new mktemp -d)
@@ -63,7 +64,12 @@ for _ in $(seq 1 50); do grep -q "listening" "$E2E_DIR/static.log" 2>/dev/null &
 grep -q "listening" "$E2E_DIR/static.log" || { echo "static server didn't start:"; cat "$E2E_DIR/static.log"; exit 1; }
 
 status=0
-NODE_PATH="$(npm root -g)" LIVERA_SOLO_URL="http://127.0.0.1:$PORT/solo/" LIVERA_SHOTS="$SHOTS" LIVERA_E2E_DIR="$E2E_DIR" \
-  LIVERA_SOLO_STANDIN="${MODULE:+1}" node "$HERE/solo_e2e.js" || status=$?
+TESTS=("$@")
+[ ${#TESTS[@]} -eq 0 ] && TESTS=(solo_e2e.js)
+for t in "${TESTS[@]}"; do
+  [ -f "$HERE/$t" ] || { echo "no test file web/tests/$t" >&2; status=2; continue; }
+  NODE_PATH="$(npm root -g)" LIVERA_SOLO_URL="http://127.0.0.1:$PORT/solo/" LIVERA_SHOTS="$SHOTS" LIVERA_E2E_DIR="$E2E_DIR" \
+    LIVERA_SOLO_STANDIN="${MODULE:+1}" node "$HERE/$t" || status=$?
+done
 echo "logs: $E2E_DIR (static.log) · screenshots: $SHOTS"
 exit $status
