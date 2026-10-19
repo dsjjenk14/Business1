@@ -190,6 +190,13 @@ TEST_CASE("art: the manifest links to files that exist and to real ids") {
   for (const auto& [id, p] : m["places"].items()) {
     if (isEntry(id)) CHECK(content->location(id) != nullptr);
   }
+  // An interior is the inside of a real place someone can enter.
+  for (const auto& [id, i] : m["interiors"].items()) {
+    if (!isEntry(id)) continue;
+    const auto* loc = content->location(id);
+    REQUIRE(loc != nullptr);
+    CHECK(loc->enterable);
+  }
   // A unit building is the client's grouping, not a place: what must be real is every unit it stands for.
   for (const auto& [id, b] : m["unit_buildings"].items()) {
     if (!isEntry(id)) continue;

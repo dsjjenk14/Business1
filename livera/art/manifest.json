@@ -443,6 +443,82 @@
       ]
     }
   },
+  "interiors": {
+    "notes": [
+      "Rooms a character will walk around and sit in (art/PROMPT_PACK_INTERIORS.md, 'How a picture becomes a room you can walk in'). Several have a soft dark or orange halo outside the room instead of a clean transparent edge; the client copies trim it.",
+      "Near walls are drawn as low emerald half-walls with the entrance doors rather than removed; the floor and every seat stay in view, which is what the prompts were for."
+    ],
+    "livera_ledger": {
+      "picture": "art/interiors/livera_ledger.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Four desks, the corkboard of red string and a sofa match the data; the radios on the shelf stand for the police scanner."
+      ]
+    },
+    "whitaker_capital": {
+      "picture": "art/interiors/whitaker_capital.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Glass, walnut and the model of the city as it will look in ten years, as the data says. The model's towers are that future city, not the founding town."
+      ]
+    },
+    "body_balance": {
+      "picture": "art/interiors/body_balance.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Free weights, the spin room behind glass and the smoothie bar match the data; the treadmills, ellipticals and lockers are the picture's own."
+      ]
+    },
+    "greenleaf_market": {
+      "picture": "art/interiors/greenleaf_market.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The shelves are fully stocked; the data says the store is still half-stocked while the distribution road is paved (as its outside picture). The flowers and the cake case match its offers."
+      ]
+    },
+    "baptiste_events": {
+      "picture": "art/interiors/baptiste_events.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Filed as Baptiste & Co. Events from its seating charts, client table and flowers. The rails of clothes are the picture's reading of 'swatches'; if this was made from the Ellis Atelier prompt, move it to ellis_atelier.webp."
+      ]
+    },
+    "heritage_coffee": {
+      "picture": "art/interiors/heritage_coffee.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Exposed brick, the long communal table, the espresso machine, the pastry case and the open-mic stage match the data."
+      ]
+    },
+    "little_sprouts": {
+      "picture": "art/interiors/little_sprouts.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Cribs, play mats, small tables and the changing table match the data; the stairs lead to the nanny office upstairs, which isn't drawn."
+      ]
+    },
+    "lumen_creative": {
+      "picture": "art/interiors/lumen_creative.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "A softer, painterly render than the rest of the set, with an orange halo. Desks with big screens, pin-up walls and the client table match the prompt."
+      ]
+    },
+    "parallax_labs": {
+      "picture": "art/interiors/parallax_labs.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Desks with monitors, the whiteboard wall, the coffee bar (cold brew on tap) and the glass meeting room match the data; the beanbag lounge is the picture's own."
+      ]
+    },
+    "lustre_jewelers": {
+      "picture": "art/interiors/lustre_jewelers.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Glass cases in a U, black marble and gold, and the velvet-topped table with two chairs; the bags on the stand are the store's designer bag."
+      ]
+    }
+  },
   "transit": {
     "bus_line_1": "art/transit/bus_line_1.jpg",
     "bus_line_1_side": "art/transit/bus_line_1_side.jpg",

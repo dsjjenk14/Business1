@@ -97,9 +97,9 @@ Livéra Police Station: the inside of a civic building in the Civic Row district
 Size 1536×1024, transparent background. Save as art/interiors/police_station.png
 ```
 
-#### The Livéra Ledger
+#### The Livéra Ledger (filed)
 
-Save as `art/interiors/livera_ledger.png` · 1536×1024
+Save as `art/interiors/livera_ledger.png` · 1536×1024 · filed as `art/interiors/livera_ledger.webp`
 
 Facts from the data:
 
@@ -108,7 +108,7 @@ Facts from the data:
 - **Type:** newsroom
 - **District:** Civic Row
 - **Description:** The town's newspaper: four desks, a police scanner, and Leila Rahal's corkboard of red string.
-- **What a character can do here:** Use the restroom (restroom)
+- **What a character can do here:** Use the restroom (restroom); Coffee in the break room (break_coffee)
 - **Jobs here:** Journalism: Staff Reporter, Investigative Reporter, Senior Investigative Reporter, Editor, Editor-in-Chief
 - **Access:** staff
 - **Room (art direction):** about 12 × 9 m: four desks with chairs, the police scanner on a shelf, the corkboard of red string, a sofa
@@ -122,9 +122,9 @@ The Livéra Ledger: the inside of a newsroom in the Civic Row district. The game
 Size 1536×1024, transparent background. Save as art/interiors/livera_ledger.png
 ```
 
-#### Whitaker Capital
+#### Whitaker Capital (filed)
 
-Save as `art/interiors/whitaker_capital.png` · 1536×1024
+Save as `art/interiors/whitaker_capital.png` · 1536×1024 · filed as `art/interiors/whitaker_capital.webp`
 
 Facts from the data:
 
@@ -133,7 +133,7 @@ Facts from the data:
 - **Type:** office
 - **District:** Civic Row
 - **Description:** The consortium's Livéra office: glass, walnut, and a model of the city as it will look in ten years.
-- **What a character can do here:** Use the restroom (restroom)
+- **What a character can do here:** Use the restroom (restroom); Coffee in the break room (break_coffee)
 - **Jobs here:** Private Equity: Associate, Vice President, Principal, Partner, Managing Partner
 - **Access:** staff
 - **Room (art direction):** about 16 × 11 m: an open floor of desks with chairs, a glass meeting room with a table, a reception desk, a lounge corner with a sofa
@@ -149,9 +149,9 @@ Size 1536×1024, transparent background. Save as art/interiors/whitaker_capital.
 
 ### Downtown
 
-#### Baptiste & Co. Events
+#### Baptiste & Co. Events (filed)
 
-Save as `art/interiors/baptiste_events.png` · 1536×1024
+Save as `art/interiors/baptiste_events.png` · 1536×1024 · filed as `art/interiors/baptiste_events.webp`
 
 Facts from the data:
 
@@ -160,7 +160,7 @@ Facts from the data:
 - **Type:** event agency
 - **District:** Downtown
 - **Description:** Aaliyah Baptiste's event agency: swatches, seating charts, and the guest list for every opening in town.
-- **What a character can do here:** Use the restroom (restroom)
+- **What a character can do here:** Use the restroom (restroom); Coffee in the break room (break_coffee)
 - **Jobs here:** Event Production: Event Coordinator, Event Producer, Senior Producer, Creative Producer, Agency Founder
 - **Access:** staff
 - **Room (art direction):** about 12 × 9 m: desks with chairs, walls of swatches and seating charts, a client table with chairs
@@ -174,9 +174,9 @@ Baptiste & Co. Events: the inside of an event agency in the Downtown district. T
 Size 1536×1024, transparent background. Save as art/interiors/baptiste_events.png
 ```
 
-#### Body & Balance
+#### Body & Balance (filed)
 
-Save as `art/interiors/body_balance.png` · 1536×1024
+Save as `art/interiors/body_balance.png` · 1536×1024 · filed as `art/interiors/body_balance.webp`
 
 Facts from the data:
 
@@ -248,9 +248,9 @@ Founders School: the inside of a school in the Downtown district. The game descr
 Size 1536×1024, transparent background. Save as art/interiors/founders_school.png
 ```
 
-#### Greenleaf Market
+#### Greenleaf Market (filed)
 
-Save as `art/interiors/greenleaf_market.png` · 1536×1024
+Save as `art/interiors/greenleaf_market.png` · 1536×1024 · filed as `art/interiors/greenleaf_market.webp`
 
 Facts from the data:
 
@@ -284,7 +284,7 @@ Facts from the data:
 - **Type:** law firm
 - **District:** Downtown
 - **Description:** Livéra's first law firm: glass conference room, a library of statute books nobody reads, and a partner who bills in six-minute increments.
-- **What a character can do here:** Use the restroom (restroom)
+- **What a character can do here:** Use the restroom (restroom); Coffee in the break room (break_coffee)
 - **Jobs here:** Law: Associate, Senior Associate, Counsel, Partner
 - **Access:** staff
 - **Room (art direction):** about 16 × 11 m: the glass conference room with a long table and chairs, partners' offices with desks, the library of statute books with reading chairs, a reception desk; black marble and gold, warm lamps
@@ -298,9 +298,9 @@ Hale & Partners: the inside of a law firm in the Downtown district. The game des
 Size 1536×1024, transparent background. Save as art/interiors/hale_partners.png
 ```
 
-#### Heritage Coffee Co.
+#### Heritage Coffee Co. (filed)
 
-Save as `art/interiors/heritage_coffee.png` · 1536×1024
+Save as `art/interiors/heritage_coffee.png` · 1536×1024 · filed as `art/interiors/heritage_coffee.webp`
 
 Facts from the data:
 
@@ -309,7 +309,7 @@ Facts from the data:
 - **Type:** café
 - **District:** Downtown
 - **Description:** Exposed brick, a long communal table, and the only espresso machine in town. Everyone ends up here. Open mic any time the café is open.
-- **What a character can do here:** Use the restroom (restroom)
+- **What a character can do here:** Use the restroom (restroom); Chat with the regulars (chat_regulars)
 - **Sold or provided here:** Drip coffee ($3); Oat milk latte ($6); Almond croissant ($4); Breakfast sandwich ($9)
 - **Jobs here:** Café: Barista, Shift Lead, Café Manager
 - **Stage:** yes: performers can play here
@@ -349,9 +349,9 @@ James Wellness: the inside of a therapy and wellness studio in the Downtown dist
 Size 1536×1024, transparent background. Save as art/interiors/james_wellness.png
 ```
 
-#### Little Sprouts Daycare
+#### Little Sprouts Daycare (filed)
 
-Save as `art/interiors/little_sprouts.png` · 1536×1024
+Save as `art/interiors/little_sprouts.png` · 1536×1024 · filed as `art/interiors/little_sprouts.webp`
 
 Facts from the data:
 
@@ -373,9 +373,9 @@ Little Sprouts Daycare: the inside of a daycare in the Downtown district. The ga
 Size 1536×1024, transparent background. Save as art/interiors/little_sprouts.png
 ```
 
-#### Lumen Creative
+#### Lumen Creative (filed)
 
-Save as `art/interiors/lumen_creative.png` · 1536×1024
+Save as `art/interiors/lumen_creative.png` · 1536×1024 · filed as `art/interiors/lumen_creative.webp`
 
 Facts from the data:
 
@@ -384,7 +384,7 @@ Facts from the data:
 - **Type:** creative agency
 - **District:** Downtown
 - **Description:** The agency branding Livéra itself. Sienna Brooks runs the creative floor.
-- **What a character can do here:** Use the restroom (restroom)
+- **What a character can do here:** Use the restroom (restroom); Coffee in the break room (break_coffee)
 - **Jobs here:** Creative Direction: Junior Designer, Art Director, Creative Director, Executive Creative Director, Agency Founder
 - **Access:** staff
 - **Room (art direction):** about 16 × 11 m: an open creative floor of desks with big screens, pin-up walls, a client meeting table, a lounge sofa
@@ -398,9 +398,9 @@ Lumen Creative: the inside of a creative agency in the Downtown district. The ga
 Size 1536×1024, transparent background. Save as art/interiors/lumen_creative.png
 ```
 
-#### Lustre Jewelers
+#### Lustre Jewelers (filed)
 
-Save as `art/interiors/lustre_jewelers.png` · 1536×1024
+Save as `art/interiors/lustre_jewelers.png` · 1536×1024 · filed as `art/interiors/lustre_jewelers.webp`
 
 Facts from the data:
 
@@ -432,7 +432,7 @@ Facts from the data:
 - **Type:** office
 - **District:** Downtown
 - **Description:** A recruiting firm's new Livéra office, hiring for every employer that's moving to town.
-- **What a character can do here:** Use the restroom (restroom)
+- **What a character can do here:** Use the restroom (restroom); Coffee in the break room (break_coffee)
 - **Jobs here:** Recruiting: Recruiter, Senior Recruiter, Recruiting Manager, Director of Talent, VP of People, Chief People Officer
 - **Access:** staff
 - **Room (art direction):** about 16 × 11 m: an open floor of desks with chairs, a glass meeting room with a table, a reception desk, a lounge corner with a sofa
@@ -446,9 +446,9 @@ Meridian Talent Partners: the inside of an office in the Downtown district. The 
 Size 1536×1024, transparent background. Save as art/interiors/meridian_talent.png
 ```
 
-#### Parallax Labs
+#### Parallax Labs (filed)
 
-Save as `art/interiors/parallax_labs.png` · 1536×1024
+Save as `art/interiors/parallax_labs.png` · 1536×1024 · filed as `art/interiors/parallax_labs.webp`
 
 Facts from the data:
 
@@ -457,7 +457,7 @@ Facts from the data:
 - **Type:** tech startup office
 - **District:** Downtown
 - **Description:** Julian Park's startup, building AI that plans cities, with Livéra as its first customer. Standing desks, a whiteboard wall, cold brew on tap.
-- **What a character can do here:** Use the restroom (restroom)
+- **What a character can do here:** Use the restroom (restroom); Coffee in the break room (break_coffee)
 - **Jobs here:** AI Engineering: Machine Learning Engineer, Senior AI Engineer, Staff AI Engineer, Principal AI Engineer, Head of AI; Startup Founder: Founder (pre-seed), Founder & CEO (seed), CEO (Series A), CEO (scale-up), Founder & Chair
 - **Access:** staff
 - **Room (art direction):** about 16 × 11 m: standing desks with monitors, the whiteboard wall, a cold-brew tap, a lounge corner with beanbags and a sofa
@@ -932,7 +932,7 @@ Facts from the data:
 - **Type:** construction site office
 - **District:** South Works
 - **Description:** Two stacked trailers, a plan table, and a whiteboard of every build in town.
-- **What a character can do here:** Use the restroom (restroom)
+- **What a character can do here:** Use the restroom (restroom); Coffee in the break room (break_coffee)
 - **Jobs here:** Construction Management: Site Coordinator, Assistant Project Manager, Project Manager, Senior Project Manager, Director of Construction
 - **Access:** staff
 - **Room (art direction):** about 10 × 7 m: two stacked site trailers cut open: downstairs the plan table with stools and a whiteboard of every build, upstairs desks (an outside stair joins them)
