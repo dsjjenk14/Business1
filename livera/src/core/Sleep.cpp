@@ -126,6 +126,7 @@ Result<Json> World::skipNight(const std::function<void(double realSeconds)>& bef
   }
   skipping_ = false;
   emitPeopleChanges();
+  emitRoomChanges();  // interiors (Interiors.cpp)
   return Json{{"from", from}, {"to", to}, {"minutes", to - from}, {"woke", asleep}};
 }
 

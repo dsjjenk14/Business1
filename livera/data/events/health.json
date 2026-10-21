@@ -1,0 +1,179 @@
+{
+  "$comment": "Life events about your body and mind (D-068).",
+  "events": [
+    {
+      "id": "fourth_espresso",
+      "category": "health",
+      "title": "The shakes",
+      "prompt": "You notice your hand vibrating gently on the table. That's your fourth espresso today. Or fifth.",
+      "when": {"place_types": ["coffee_shop", "office", "tech_office"]},
+      "weight": 2,
+      "cooldown_days": 7,
+      "choices": [
+        {
+          "label": "Switch to water",
+          "outcomes": [
+            {
+              "text": "You switch to water. The vibrating stops in an hour. So does your will to live, briefly.",
+              "needs": {"energy": -6, "bladder": -8},
+              "emotions": {"stress": -6}
+            }
+          ]
+        },
+        {
+          "label": "One more for the road",
+          "outcomes": [
+            {
+              "text": "One more. You can hear colours now. You answer three emails in four minutes.",
+              "needs": {"energy": 12},
+              "emotions": {"stress": 10, "excitement": 6}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "back_twinge",
+      "category": "health",
+      "title": "Something went click",
+      "prompt": "You bend to pick up a pen and your lower back makes a sound like a twig. You are, apparently, old now.",
+      "when": {"age": [30, 120]},
+      "weight": 2,
+      "cooldown_days": 20,
+      "choices": [
+        {
+          "label": "Stretch it out carefully",
+          "outcomes": [
+            {
+              "text": "Ten minutes of careful stretching and it eases. You resolve to do this every day. You won't.",
+              "needs": {"comfort": 6, "energy": -3},
+              "emotions": {"stress": -3}
+            }
+          ]
+        },
+        {
+          "label": "Walk it off",
+          "outcomes": [
+            {"chance": 0.6, "text": "You walk it off. It works, mostly.", "needs": {"comfort": -3}},
+            {
+              "chance": 0.4,
+              "text": "You walk it off. It does not walk off. You spend the afternoon at a slight angle.",
+              "needs": {"comfort": -12, "health": -2},
+              "emotions": {"stress": 6}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mind_wont_stop",
+      "category": "health",
+      "title": "Racing thoughts",
+      "prompt": "It's late, the house is quiet, and your brain has chosen now to replay every awkward thing you've said since 2009.",
+      "when": {"hours": [21, 24], "place_types": ["apartment", "condo", "house", "townhouse"]},
+      "weight": 2,
+      "cooldown_days": 6,
+      "choices": [
+        {
+          "label": "Write it all down",
+          "outcomes": [
+            {
+              "text": "You write it all down. On paper it's smaller. You put the pen down and breathe.",
+              "emotions": {"stress": -10, "sadness": -3}
+            }
+          ]
+        },
+        {
+          "label": "Scroll your phone",
+          "outcomes": [
+            {
+              "text": "You scroll until your eyes sting and now you know about a war between two people you've never heard of.",
+              "needs": {"energy": -6},
+              "emotions": {"stress": 4}
+            }
+          ]
+        },
+        {
+          "label": "Make a warm drink",
+          "outcomes": [
+            {
+              "text": "Warm milk, the kitchen light, the hum of the fridge. Nothing is solved, but everything is softer.",
+              "needs": {"comfort": 8},
+              "emotions": {"stress": -6}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "park_bp_check",
+      "category": "health",
+      "title": "Free check-up in the park",
+      "prompt": "A nurse from Riverdale Health has set up a folding table in the park: \"Free blood pressure checks! Takes two minutes!\"",
+      "when": {"place_types": ["park"], "weekdays": [5, 6], "hours": [10, 16]},
+      "weight": 3,
+      "cooldown_days": 28,
+      "choices": [
+        {
+          "label": "Roll up your sleeve",
+          "outcomes": [
+            {
+              "chance": 0.8,
+              "text": "\"Textbook,\" says the nurse. You feel absurdly proud of your arteries.",
+              "emotions": {"happiness": 6, "stress": -4},
+              "memory": {"text": "Got a clean bill of health at a park check-up.", "impact": 8}
+            },
+            {
+              "chance": 0.2,
+              "text": "\"A little high. Less salt, more sleep, and see your doctor.\" You nod like you'll do all three.",
+              "emotions": {"stress": 8},
+              "memory": {"text": "A park check-up said my blood pressure was high.", "impact": -10}
+            }
+          ]
+        },
+        {
+          "label": "Walk past quickly",
+          "outcomes": [{"text": "You speed up. Ignorance is bliss, or at least it's faster.", "emotions": {"stress": 2}}]
+        }
+      ]
+    },
+    {
+      "id": "gym_mirror",
+      "category": "health",
+      "title": "The mirror at the gym",
+      "prompt": "The person on the next machine is lifting twice what you are, and making eye contact with you in the mirror.",
+      "when": {"place_types": ["gym"]},
+      "weight": 2,
+      "cooldown_days": 10,
+      "choices": [
+        {
+          "label": "Add weight. Show them.",
+          "outcomes": [
+            {
+              "chance": 0.5,
+              "text": "You add weight and do one heroic rep. Your body files a formal complaint, but they nod at you.",
+              "needs": {"energy": -12, "comfort": -6},
+              "emotions": {"confidence": 10, "excitement": 6}
+            },
+            {
+              "chance": 0.5,
+              "text": "You add weight. The weight wins. You pretend you meant to put it down there.",
+              "needs": {"energy": -10, "comfort": -10},
+              "emotions": {"embarrassment": 12}
+            }
+          ]
+        },
+        {
+          "label": "Do your own thing",
+          "outcomes": [
+            {
+              "text": "You do your own workout at your own pace. That is, in fact, the whole point.",
+              "needs": {"energy": -6},
+              "emotions": {"confidence": 5, "stress": -5}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

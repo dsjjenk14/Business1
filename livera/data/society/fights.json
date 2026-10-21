@@ -1,0 +1,53 @@
+{
+  "$comment": "Fist fights, no weapons (D-070, core/Fights.cpp). Someone within range_m starts one; the person attacked has window_minutes (game minutes; about that many real seconds) to fight back, run or take it, else they froze and took it. Scores are the World's own stats: base + skill x athletics + energy and health shares - per_injury for each injury already carried, plus noise from the saved random stream. A blow that lands is the crime `crime` for whoever started it (self-defence never is). Walking away (a person's choice in the You card, and what an autopilot founder does unless its trait says it fights back) means no blow lands. One fight per pair a game day, a cooldown for whoever starts one, and protection for whoever was attacked.",
+  "fights": {
+    "crime": "assault",
+    "range_m": 3,
+    "window_minutes": 15,
+    "attacker_cooldown_minutes": 120,
+    "protected_minutes": 480,
+    "no_fight_place_types": ["hospital", "clinic", "school", "daycare", "civic", "church"],
+    "autopilot": {"at_work": false, "fight_back_trait": "competitiveness", "fight_back_at": 70},
+    "score": {
+      "base": 40,
+      "skills": {"athletics": 0.35},
+      "needs": {"energy": 0.15, "health": 0.15},
+      "per_injury": 8,
+      "noise": 20
+    },
+    "run": {"base": 0.55, "per_point": 0.006, "min": 0.15, "max": 0.9, "distance_m": 30},
+    "injuries": [
+      {"condition": "bruises", "margin": 0},
+      {"condition": "black_eye", "margin": 12},
+      {"condition": "cracked_rib", "margin": 28}
+    ],
+    "winner": {
+      "needs": {"energy": -10, "health": -3, "comfort": -4},
+      "emotions": {"excitement": 15, "anger": 10, "stress": 8, "confidence": 6},
+      "injury_chance": 0.35,
+      "injury": "bruises"
+    },
+    "loser": {
+      "needs": {"energy": -14, "health": -8, "comfort": -12},
+      "emotions": {"embarrassment": 20, "anger": 12, "sadness": 10, "stress": 15, "confidence": -8}
+    },
+    "took_it": {
+      "needs": {"health": -6, "comfort": -10},
+      "emotions": {"embarrassment": 15, "sadness": 12, "stress": 15, "anger": 8},
+      "injury": "bruises"
+    },
+    "attacker_hit": {"needs": {"energy": -6}, "emotions": {"excitement": 8, "stress": 5}},
+    "ran": {"needs": {"energy": -8}, "emotions": {"stress": 12, "excitement": 6}},
+    "walked_away": {"emotions": {"stress": 6}},
+    "attacker_walked_away": {"emotions": {"embarrassment": 6, "anger": 6}},
+    "victim_relationship": {"trust": -35, "friendship": -25, "resentment": 35, "conflict": 30, "respect": -10},
+    "attacker_relationship": {"conflict": 20, "resentment": 10},
+    "witness_relationship": {"trust": -12, "respect": -8},
+    "report_chance": 0.7,
+    "witness_report_chance": 0.4,
+    "importance": 55,
+    "impact": -40,
+    "witness_importance": 35,
+    "witness_impact": -15
+  }
+}

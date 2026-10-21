@@ -1116,3 +1116,160 @@ TEST_CASE("server: --autopilot runs unclaimed founders, labelled played_by autop
   CHECK(listed(dom, "dax")["scripted_now"] == true);
   CHECK(listed(dom, "dax")["played_by"] == "autopilot");
 }
+
+// interiors (D-066): two people in one café's room over the wire.
+TEST_CASE("server: inside a place with a room: look shows it, move_inside / sit / stand, one person a seat, room events") {
+  RunningServer server(tempPath("rooms_net.db").string());
+  TestClient dom(server.port()), dax(server.port());
+  dom.login("domr", "dom-pass-123");
+  dax.login("daxr", "dax-pass-123");
+  dom.ok({{"op", "play"}, {"character", "dominique"}});
+  dax.ok({{"op", "play"}, {"character", "dax"}});
+  for (TestClient* c : {&dom, &dax}) {
+    c->ok({{"op", "exit"}});
+    c->walkTo("heritage_coffee");
+  }
+  // enter answers look: the room, and you at its entrance.
+  const Json entered = dom.ok({{"op", "enter"}, {"location", "heritage_coffee"}});
+  const Json room = entered["here"]["room"];
+  REQUIRE(room.is_object());
+  CHECK(room["interior"]["id"] == "heritage_coffee");
+  CHECK(room["interior"]["size"] == Json::array({1536, 1024}));
+  CHECK(room["people"].size() == 1);
+  CHECK(room["people"][0]["at"] == room["interior"]["entrance"]["at"]);
+  dax.ok({{"op", "enter"}, {"location", "heritage_coffee"}});
+  std::string seat;
+  for (const auto& s : room["interior"]["spots"]) {
+    if (s["kind"] == "seat" && seat.empty()) seat = s["id"].get<std::string>();
+  }
+  REQUIRE(!seat.empty());
+  // Refusals keep their codes over the wire.
+  CHECK(dom.refusal({{"op", "move_inside"}, {"x", 3}, {"y", 3}}) == "off_floor");
+  CHECK(dom.refusal({{"op", "move_inside"}, {"x", "here"}}) == "bad_request");
+  CHECK(dom.refusal({{"op", "sit"}, {"spot", "throne"}}) == "no_such_spot");
+  CHECK(dom.refusal({{"op", "sit"}, {"spot", "counter"}}) == "not_a_seat");
+  const Json moved = dom.ok({{"op", "move_inside"}, {"x", 700}, {"y", 760}});
+  CHECK(moved["at"] == Json::array({700, 760}));
+  CHECK(moved["spot"].is_null());
+  CHECK(dom.ok({{"op", "sit"}, {"spot", seat}})["spot"] == seat);
+  CHECK(dax.refusal({{"op", "sit"}, {"spot", seat}}) == "spot_taken");
+  // Dax sees her in her seat: in the room event and in his look.
+  dax.pump(0.4);
+  Json last;
+  for (const auto& e : dax.events) {
+    if (e.value("event", "") != "room") continue;
+    CHECK(e["data"]["place"] == "heritage_coffee");
+    for (const auto& c : e["data"]["changes"]) {
+      if (c["character"] == "dominique") last = c;
+    }
+  }
+  REQUIRE(last.is_object());
+  CHECK(last["spot"] == seat);
+  bool seen = false;
+  const Json daxLook = dax.ok({{"op", "look"}});
+  for (const auto& p : daxLook["here"]["room"]["people"]) seen |= p["id"] == "dominique" && p["spot"] == seat;
+  CHECK(seen);
+  // She stands; now he can sit there.
+  CHECK(dom.ok({{"op", "stand"}})["spot"].is_null());
+  CHECK(dax.ok({{"op", "sit"}, {"spot", seat}})["spot"] == seat);
+  // A purchase serves you at the counter.
+  CHECK(dom.ok({{"op", "buy"}, {"offer", "latte"}, {"method", "card"}})["room"]["spot"] == "counter");
+  // Outdoors there's no room.
+  dom.ok({{"op", "exit"}});
+  CHECK(dom.refusal({{"op", "move_inside"}, {"x", 700}, {"y", 760}}) == "not_inside");
+  CHECK(dom.refusal({{"op", "stand"}}) == "not_inside");
+  CHECK(!dom.ok({{"op", "look"}})["here"].contains("room"));
+}
+
+// Life events and street life over the wire (D-068, D-069, D-070).
+TEST_CASE("server: life events: life_event arrives, the story app lists it, event_answer applies it") {
+  RunningServer server(tempPath("events_net.db").string());
+  TestClient dom(server.port());
+  dom.login("domev", "dom-pass-123");
+  dom.ok({{"op", "play"}, {"character", "dominique"}});
+  CHECK(dom.refusal({{"op", "event_answer"}, {"event", "dropped_wallet"}}) == "bad_request");
+  CHECK(dom.refusal({{"op", "event_answer"}, {"event", "dropped_wallet"}, {"option", 0}}) == "unknown_event");
+  // A day goes by: something comes up.
+  Json offered;
+  for (int i = 0; i < 16 && offered.is_null(); ++i) {
+    dom.ok({{"op", "dev_advance"}, {"minutes", 60}});
+    dom.pump(0.05);
+    for (const auto& e : dom.events) {
+      if (e.value("event", "") == "life_event") offered = e["data"];
+    }
+  }
+  REQUIRE(offered.is_object());
+  CHECK(offered["prompt"].is_string());
+  CHECK(offered["choices"].size() >= 2);
+  CHECK(offered["choices"][0]["label"].is_string());
+  CHECK(offered["lapses_in_minutes"].is_number_integer());
+  const Json story = dom.ok({{"op", "phone"}, {"app", "story"}});
+  REQUIRE(story["pending"].size() == 1);
+  CHECK(story["pending"][0]["event"] == offered["event"]);
+  CHECK(story["story"].is_array());
+  // Answer with a choice that costs nothing.
+  int option = -1;
+  for (const auto& c : offered["choices"]) {
+    if (!c.contains("cost_cents")) option = c["option"].get<int>();
+  }
+  REQUIRE(option >= 0);
+  CHECK(dom.refusal({{"op", "event_answer"}, {"event", offered["event"]}, {"option", 9}}) == "bad_option");
+  const Json r = dom.ok({{"op", "event_answer"}, {"event", offered["event"]}, {"option", option}});
+  CHECK(r["outcome"].is_string());
+  CHECK(r["changes"]["memory"].is_string());
+  const Json after = dom.ok({{"op", "phone"}, {"app", "story"}});
+  CHECK(after["pending"].empty());
+  CHECK(after["story"][0]["life_event"] == true);
+  CHECK(after["story"][0]["text"] == r["changes"]["memory"]);
+}
+
+TEST_CASE("server: street life: crime_risk, the wanted line in look, a fight asked and answered over the wire") {
+  RunningServer server(tempPath("street_net.db").string());
+  TestClient dom(server.port()), dax(server.port());
+  dom.login("domst", "dom-pass-123");
+  dax.login("daxst", "dax-pass-123");
+  dom.ok({{"op", "play"}, {"character", "dominique"}});
+  dax.ok({{"op", "play"}, {"character", "dax"}});
+  dom.ok({{"op", "dev_advance"}, {"minutes", 3 * 60}});  // 10:00
+  dom.ok({{"op", "exit"}});
+  dax.ok({{"op", "exit"}});
+  dom.walkTo("heritage_coffee");
+  dom.ok({{"op", "enter"}, {"location", "heritage_coffee"}});
+  dax.walkTo("heritage_coffee");
+  dax.ok({{"op", "enter"}, {"location", "heritage_coffee"}});
+  const Json risk = dom.ok({{"op", "crime_risk"}, {"crime", "assault"}, {"target", "dax"}});
+  CHECK(risk["chance"].is_number());
+  CHECK(risk["if_caught"]["fine_cents"].is_number_integer());
+  CHECK(risk["self_defence"].is_string());
+  CHECK(dom.refusal({{"op", "crime_risk"}, {"crime", "littering"}}) == "unknown_crime");
+  CHECK(dom.refusal({{"op", "fight_prefs"}}) == "bad_request");
+  CHECK(dom.ok({{"op", "fight_prefs"}, {"walk_away", false}})["walk_away_from_fights"] == false);
+  CHECK(dom.refusal({{"op", "fight"}, {"target", "dominique"}}) == "invalid_target");
+  const Json started = dom.ok({{"op", "fight"}, {"target", "dax"}});
+  CHECK(started["status"] == "waiting");
+  dax.pump(0.2);
+  Json asked;
+  for (const auto& e : dax.events) {
+    if (e.value("event", "") == "fight_started") asked = e["data"];
+  }
+  REQUIRE(asked.is_object());
+  CHECK(asked["from"] == "dominique");
+  CHECK(dom.refusal({{"op", "fight_respond"}, {"fight", asked["fight"]}, {"choice", "run"}}) == "unknown_fight");
+  CHECK(dax.refusal({{"op", "fight_respond"}, {"fight", asked["fight"]}, {"choice", "dance"}}) == "bad_choice");
+  const Json mine = dax.ok({{"op", "fight_respond"}, {"fight", asked["fight"]}, {"choice", "fight_back"}});
+  CHECK(mine["role"] == "defender");
+  CHECK(mine["text"].is_string());
+  dom.pump(0.2);
+  Json told;
+  for (const auto& e : dom.events) {
+    if (e.value("event", "") == "fight_result") told = e["data"];
+  }
+  REQUIRE(told.is_object());
+  CHECK(told["role"] == "attacker");
+  CHECK(told["outcome"] == mine["outcome"]);
+  // If it was reported, look says so; if she was caught, look says until when.
+  const Json you = dom.ok({{"op", "look"}})["you"];
+  if (told.contains("crime") && told["crime"].value("arrested", false)) CHECK(you["jailed_until"].is_number_integer());
+  if (told.contains("crime") && told["crime"].value("wanted", false)) CHECK(you["wanted_for"] == "Assault");
+  CHECK(dom.refusal({{"op", "fight"}, {"target", "dax"}}) != "(accepted)");  // once a pair a day
+}

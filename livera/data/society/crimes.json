@@ -1,5 +1,5 @@
 {
-  "$comment": "Crimes and what getting caught costs. Detection chances add up: a base, per witness, per staff member on shift there, per police officer on duty nearby. Jail time is in game minutes (60 = one real minute).",
+  "$comment": "Crimes and what getting caught costs. Detection chances add up: a base, per witness, per staff member on shift there, per police officer on duty nearby. Jail time is in game minutes (60 = one real minute). shoplift_place_types: the kinds of shop where something can be slipped into a pocket (D-069); anywhere else steal is refused.",
   "crime": {
     "jail": "police_station",
     "hospital": "livera_general",
@@ -11,6 +11,7 @@
     "pickpocket_notice_chance": 0.35,
     "addiction_threshold": 50,
     "overdose_bill_cents": 45000,
+    "shoplift_place_types": ["clothing_store", "boutique", "grocery", "electronics_store", "pharmacy", "jeweler", "coffee_shop"],
     "crimes": [
       {
         "id": "shoplifting",
@@ -73,6 +74,17 @@
         "per_witness": 0,
         "per_staff": 0,
         "per_police": 0,
+        "notoriety": 3
+      },
+      {
+        "id": "assault",
+        "label": "Assault",
+        "fine_cents": 60000,
+        "jail_minutes": 1440,
+        "detection": 0.05,
+        "per_witness": 0.1,
+        "per_staff": 0.25,
+        "per_police": 0.8,
         "notoriety": 3
       }
     ]

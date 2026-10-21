@@ -66,6 +66,9 @@ Status ContentDatabase::ingestMore(const std::string& source, const std::string&
   if (auto st = ingestDetails(source, section, body, handled); !st || handled) return st;
   if (auto st = ingestGoals(source, section, body, handled); !st || handled) return st;
   if (auto st = ingestManners(source, section, body, handled); !st || handled) return st;
+  if (auto st = ingestInteriors(source, section, body, handled); !st || handled) return st;
+  if (auto st = ingestLifeEvents(source, section, body, handled); !st || handled) return st;  // D-068
+  if (auto st = ingestFights(source, section, body, handled); !st || handled) return st;      // D-070
   handled = false;
   return okStatus();
 }
@@ -111,6 +114,9 @@ Status ContentDatabase::validateMore() const {
   if (auto st = validateDetails(); !st) return st;
   if (auto st = validateGoals(); !st) return st;
   if (auto st = validateManners(); !st) return st;
+  if (auto st = validateInteriors(); !st) return st;
+  if (auto st = validateLifeEvents(); !st) return st;  // D-068
+  if (auto st = validateFights(); !st) return st;      // D-070
   return okStatus();
 }
 

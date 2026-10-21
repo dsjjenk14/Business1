@@ -320,3 +320,53 @@ Ledger kind `salary_away`: away pay, employer to the character's bank.
 | Section | Fields | Notes |
 |---|---|---|
 | `autopilot_manners` | `greet{range_m, known[], stranger[]}, chat{interaction, trait, base, per_trait, per_friendship}, asks[] {kind, min{dimension: value}}` | data/society/manners.json; at most one; absent = founders keep to themselves and decline every ask. `range_m` within `hearing_range_m`; greeting lines for people they know (`{first}` = the person's first name) and strangers, both or neither; `interaction` and `trait` must exist; chances 0–1; ask kinds are request kinds except `intimacy`, which is refused; dimensions are relationship dimensions. |
+
+### Rooms you walk around in (D-066)
+
+One file per room, `data/interiors/<id>.json`, with one `interior` section. Coordinates are the picture's pixels
+(`art/interiors/<id>.webp`), not metres.
+
+| Field | Shape | Notes |
+|---|---|---|
+| `id` | lowercase letters, digits, `_` | Also the picture's name (`art/interiors/<id>.webp`, `web/client/rooms/<id>.webp`). |
+| `places` | `[location id]` | The places this room is the inside of: each must exist and be enterable, and has at most one room. Homes the art pack draws alike can share one. |
+| `size` | `[width, height]` | The picture's size; `scripts/client_rooms.py` refuses a picture that doesn't match. |
+| `person_px` | number | An adult's height in pixels where they stand, so clients draw people to the picture's scale. |
+| `floor` | `[[[x, y], …], …]` | The walkable floor: one or more polygons (walls and the open front edge excluded). |
+| `blocked` | `[{label, poly: [[x, y], …], height}]` | Furniture standing on the floor: its footprint, which nobody walks onto, and its height in pixels (clients draw the footprint raised by it over whoever stands behind). |
+| `entrance` | `{at: [x, y], facing}` | Where you stand when you come in, connect or load a save; must be open floor. |
+| `spots` | `[{id, kind, at: [x, y], facing, label, activity?, offers?, staff?}]` | `kind`: `seat`, `sofa`, `bed`, `stool` (sat on with `sit`), `counter`, `station`, `fixture` (stood at; their point must be open floor), `stage`, `door`. `at` is where the person's feet are and must be on the floor. `facing`: the picture's direction they face, `n` (up-left), `e` (up-right), `s` (down-right) or `w` (down-left). `activity`: one of the place's activities, done here. `offers`: on a counter, `true` for everything the place sells or a list of its offer ids; on a seat, the offers served there (a restaurant table, a salon chair, an exam bed). A purchase goes to a spot naming the offer first and to a `true` counter only when none does. `staff`: a work station (a station, counter or seat) where starting a shift puts you. |
+
+The load fails unless every activity and offer of each place has a spot, a stage place has a
+`stage` spot, and there is a way out (a `door` with no activity). Where people are in a room is session state
+(`World::rooms_`), never saved.
+
+### Life events (D-068)
+
+`data/events/*.json`: one `life_events` section (in `life_events.json`) and any number of `events` lists (they add up).
+
+| Section | Fields | Notes |
+|---|---|---|
+| `life_events` | `per_day, hours [from, to), min_gap_minutes, check_every_minutes, lapse_minutes, memory_importance` | Defaults 2, [8, 23), 150, 10, 360, 30. `per_day` 1–10; hours 0–24 (a `to` before `from` wraps past midnight); `check_every_minutes` 1–60. Unknown keys are refused. |
+| `events` | `[{id, category, title, prompt, when, weight, cooldown_days, lapse_minutes?, choices}]` | `category`: work, money, love, friends, family, health, town, temptation, street. Ids unique across files; `weight` > 0; 2–4 choices with distinct labels. |
+| `when` | `outside, place_types[], places[], hours [from, to), weekdays[], age [min, max], has_career, careers[], on_shift, relationship ("single" / "partnered"), money_at_least_cents, money_below_cents, fame_tiers[], has_pet, has_kids, has_record, with ("anyone", "known", "stranger", "coworker", "partner", "ex"), founder, weather[], home ("renting", "owns", "none")` | All optional; unknown keys, place types, places, careers, fame tiers, weather kinds and characters are refused. `on_shift` true: only on a shift; otherwise never during one. `with` and `founder` can't both be set. |
+| choice | `{label, outcomes[]}` | 1–4 outcomes; with more than one, each has a `chance` and they add up to 1. |
+| outcome | `{chance?, text, needs{}, emotions{}, relationship{you{}, them{}, reaction}, money{cents, account, via}, memory{text, impact, importance?}, fame}` | Stats must be declared needs, emotions and relationship dimensions. `relationship` needs `when.with` or `when.founder`. `money.cents` ≠ 0 (+ paid to you, − by you); `via` cash or bank; `account` `sys:economy`, an org account, `employer` (needs a work event), `here` (needs places or place types that all have a revenue account) or `landlord` (needs `home: renting`). `fame` −5..5. Texts may use `{name}` (needs `with`), `{founder}` (needs `founder`) and `{place}`. |
+
+Character JSON key `events` (no SQL change): `{day, offered_today, last_offer_at, pending: [{event, with, place, at,
+lapses_at}], last_day: {event: day}, answered}`. A save without it has had no life events. Memories of answered events
+have type `life_event`; money moves with ledger kind `life_event`.
+
+### Street life and fist fights (D-069, D-070)
+
+| Section | Fields | Notes |
+|---|---|---|
+| `crime.shoplift_place_types` | `[place type]` | The kinds of shop where `steal` works (every type must exist); absent = any shop. |
+| `crime.crimes` | gains `assault` | Detection like any crime; fine and time when caught. |
+| `conditions` (`data/health/injuries.json`) | `bruises`, `black_eye`, `cracked_rib`, kind `injury` | Diagnosed when they happen; `treatment` at the clinic or the ER ends them. |
+| `fights` (`data/society/fights.json`) | `crime, range_m, window_minutes, attacker_cooldown_minutes, protected_minutes, no_fight_place_types[], autopilot{at_work, fight_back_trait, fight_back_at}, score{base, skills{}, needs{}, per_injury, noise}, run{base, per_point, min, max, distance_m}, injuries[] {condition, margin}, winner{needs, emotions, injury_chance, injury}, loser{…}, took_it{…, injury}, attacker_hit{…}, ran{…}, walked_away{…}, attacker_walked_away{…}, victim_relationship{}, attacker_relationship{}, witness_relationship{}, report_chance, witness_report_chance, importance, impact, witness_importance, witness_impact` | At most one. The crime, conditions, place types, trait, skills, needs, emotions and dimensions must exist; `range_m` within say range; chances 0–1; injury margins increase. Without the section there are no fights (`unavailable`). |
+
+Character JSON key `street` (no SQL change): `{walk_away, fought: {character: day}, next_fight_at, protected_until}`;
+a save without it has never been in a fight and doesn't always walk away. A fight waiting for its answer
+(`WorldState::fights`) is session state. Memories `fight` and `saw_fight`; a witnessed fight adds a rumour to the
+`details` world part.

@@ -274,6 +274,7 @@ void World::advanceRealTime(double seconds) {
   advanceMinutes(whole);
   // Last, so it catches every move this tick made, forced ones included (jail, the ER, being shown out).
   emitPeopleChanges();
+  emitRoomChanges();  // interiors: who is where in each room (Interiors.cpp)
 }
 
 void World::moveEveryone(double seconds) {
@@ -304,6 +305,8 @@ void World::advanceMinutes(GameMinutes minutes) {
     if (state_.now % 60 == 0) stepHourly();
     if (state_.now % kMinutesPerMonth == 0) chargeRent();
     stepWorkMinute();  // after the hourly step, which rolls the work day over at midnight (WorkTasks.cpp)
+    stepLifeEventsMinute();  // life events come up and lapse (LifeEvents.cpp, D-068)
+    stepFightsMinute();      // fights nobody answered in time (Fights.cpp, D-070)
   }
 }
 
@@ -457,6 +460,7 @@ Status World::connect(const CharacterId& id) {
   catchUpDormant(*c, state_.now - c->lastSimulatedAt);
   c->online = true;
   c->lastOnlineAt = state_.now;
+  resetRoomPlace(id);  // interiors: back in the world at the entrance
   emit(presentWith(*c), "presence", Json{{"character", id}, {"status", "arrived"}});
   return okStatus();
 }
@@ -475,6 +479,8 @@ void World::disconnect(const CharacterId& id) {
   c->lastOnlineAt = state_.now;
   seen_.erase(id);
   scripted_.erase(id);
+  resetRoomPlace(id);  // interiors: the seat is free
+  roomSeen_.erase(id);
 }
 
 void World::setScripted(const CharacterId& id, bool scripted, const std::string& playedBy) {
@@ -523,6 +529,7 @@ Status World::enter(const CharacterId& actor, const LocationId& locationId) {
   if (Status a = canAccess(actor, *loc); !a) return a;
   c.inside = loc->id;
   c.position = loc->door;
+  resetRoomPlace(actor);  // interiors: you come in at the entrance
   c.moveTarget.reset();
   const auto here = presentWith(c);
   emit(here, "presence", Json{{"character", actor}, {"status", "entered"}, {"location", loc->id}});
@@ -552,6 +559,7 @@ Result<Json> World::exitBuilding(const CharacterId& actor) {
   }
   emit(presentWith(c), "presence", Json{{"character", actor}, {"status", "left"}, {"location", c.inside}});
   out["left"] = c.inside;
+  resetRoomPlace(actor);  // interiors: the seat is free
   c.inside.clear();
   return out;
 }
@@ -741,6 +749,12 @@ Result<Json> World::buy(const CharacterId& actor, const std::string& offerId, co
   if (!offer->substance.empty()) out["effect"] = takeSubstance(c, offer->substance);
   applyConditionRecovery(c, offer->conditionRecovery);
   leisureAfterPurchase(c, *loc, offer->id, out);  // m08:leisure: a date at a date spot (Leisure.cpp)
+  // interiors: you're served where it's served: a table, a salon chair, else the counter (Interiors.cpp)
+  const auto servedHere = [&](const InteriorSpotDef& s) {
+    return content_->interiorFor(c.inside)->servedAt(s, offer->id);
+  };
+  if (Json room = takeRoomSpot(c, servedHere); !room.is_null())
+    out["room"] = room;
   return out;
 }
 
@@ -786,6 +800,9 @@ Result<Json> World::useActivity(const CharacterId& actor, const std::string& act
     out["home"] = Json{{"cleanliness", std::round(home->cleanliness)}, {"trash", std::round(home->trash)}};
   }
   out.update(leisure.value());  // m08:leisure
+  // interiors: done at its spot (Interiors.cpp)
+  if (Json room = takeRoomSpot(c, [&](const InteriorSpotDef& s) { return s.activity == act->id; }); !room.is_null())
+    out["room"] = room;
   return out;
 }
 
@@ -825,6 +842,7 @@ Status World::startShift(const CharacterId& actor) {
   c.career.shiftLocation = c.inside;
   c.career.shiftWellbeingSum = 0;
   c.career.shiftSamples = 0;
+  (void)takeRoomSpot(c, [](const InteriorSpotDef& s) { return s.staff; });  // interiors: to your station
   // The shift's first decision is up at once; say so, as each later one will be (WorkTasks.cpp).
   refreshWorkDay(c);
   const WorkTasksUp up = workTasksUp(c);
@@ -1024,6 +1042,7 @@ Result<Json> World::openPhoneApp(const CharacterId& actor, const std::string& ap
   if (app == "pets") return phonePets(c);
   if (app == "weather") return phoneWeather(c);
   if (app == "goals") return phoneGoals(c);  // only ever your own (Goals.cpp)
+  if (app == "story") return phoneStory(c);  // your life story, only ever your own (LifeEvents.cpp, D-068)
   return fail("unknown_app", "no such phone app");
 }
 

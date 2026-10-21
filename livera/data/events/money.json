@@ -1,0 +1,367 @@
+{
+  "$comment": "Life events about money (D-068). Money moves only through the ledger: to or from sys:economy, an org account, `employer`, `here` or `landlord`; a choice that costs money says so and is refused if you can't pay.",
+  "events": [
+    {
+      "id": "pavement_twenty",
+      "category": "money",
+      "title": "Twenty on the pavement",
+      "prompt": "A twenty-dollar bill is lying face up on the pavement, flapping a little in the breeze. Nobody's around. Nobody's looking.",
+      "when": {"outside": true},
+      "weight": 2,
+      "cooldown_days": 20,
+      "choices": [
+        {
+          "label": "Pocket it",
+          "outcomes": [
+            {
+              "text": "Finders keepers. You feel lucky all afternoon.",
+              "money": {"cents": 2000, "account": "sys:economy", "via": "cash"},
+              "emotions": {"happiness": 6, "excitement": 4},
+              "memory": {"text": "Found $20 on the pavement.", "impact": 8}
+            }
+          ]
+        },
+        {
+          "label": "Leave it for whoever dropped it",
+          "outcomes": [
+            {
+              "text": "You leave it. Somewhere, someone is about to retrace their steps and have a very good day.",
+              "emotions": {"confidence": 3, "happiness": 2}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dropped_wallet",
+      "category": "money",
+      "title": "A dropped wallet",
+      "prompt": "A leather wallet on the kerb. Inside: $60, a library card, and a photo of a grinning dog in a party hat.",
+      "when": {"outside": true},
+      "weight": 2,
+      "cooldown_days": 30,
+      "choices": [
+        {
+          "label": "Keep the cash, bin the wallet",
+          "outcomes": [
+            {
+              "text": "You take the $60 and drop the wallet in a bin. The dog in the party hat haunts you a little.",
+              "money": {"cents": 6000, "account": "sys:economy", "via": "cash"},
+              "emotions": {"excitement": 6, "sadness": 4},
+              "memory": {"text": "Kept the cash from a stranger's wallet.", "impact": -5}
+            }
+          ]
+        },
+        {
+          "label": "Hand it in at the police station",
+          "outcomes": [
+            {
+              "chance": 0.4,
+              "text": "Two days later an envelope arrives: a thank-you card, a $25 reward, and a new photo of the dog.",
+              "money": {"cents": 2500, "account": "sys:economy", "via": "bank"},
+              "emotions": {"happiness": 12},
+              "memory": {"text": "Handed in a lost wallet and got a thank-you from its owner.", "impact": 25}
+            },
+            {
+              "chance": 0.6,
+              "text": "The desk sergeant logs it with a nod. You never hear another word, but you sleep fine.",
+              "emotions": {"happiness": 5, "confidence": 4},
+              "memory": {"text": "Handed in a lost wallet.", "impact": 15}
+            }
+          ]
+        },
+        {
+          "label": "Leave it where it is",
+          "outcomes": [
+            {
+              "text": "Not your wallet, not your problem. You walk on. You think about the dog later.",
+              "emotions": {"sadness": 2}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phishing_text",
+      "category": "money",
+      "title": "Your account has been locked",
+      "prompt": "A text: \"LIVÉRA SAVINGS: Unusual activity. Verify within 1 hour or your account will be FROZEN.\" There's a link. The spelling is almost right.",
+      "when": {"money_at_least_cents": 30000},
+      "weight": 2,
+      "cooldown_days": 30,
+      "choices": [
+        {
+          "label": "Tap the link and verify",
+          "outcomes": [
+            {
+              "chance": 0.75,
+              "text": "The page asks for your card number. You give it. Twenty minutes later, $180 is gone and the number doesn't answer.",
+              "money": {"cents": -18000, "account": "sys:economy", "via": "bank"},
+              "emotions": {"anger": 15, "embarrassment": 15, "stress": 15},
+              "memory": {"text": "Fell for a scam text and lost $180.", "impact": -35, "importance": 45}
+            },
+            {
+              "chance": 0.25,
+              "text": "The page won't load. You look at it again and see \"Livera Savngs.\" Close call.",
+              "emotions": {"stress": 8},
+              "memory": {"text": "Nearly fell for a scam text.", "impact": -5}
+            }
+          ]
+        },
+        {
+          "label": "Call the bank yourself",
+          "outcomes": [
+            {
+              "text": "The real bank has no idea what you're talking about. \"Delete it,\" they say. \"And well done.\"",
+              "emotions": {"confidence": 8},
+              "memory": {"text": "Spotted a scam text before it got me.", "impact": 10}
+            }
+          ]
+        },
+        {"label": "Delete it", "outcomes": [{"text": "Delete. Block. Next.", "emotions": {"confidence": 4}}]}
+      ]
+    },
+    {
+      "id": "scratch_card",
+      "category": "money",
+      "title": "Feeling lucky?",
+      "prompt": "By the till, the scratch cards are fanned out like a magician's trick. \"Win up to $500!\" $5 a go.",
+      "when": {"place_types": ["grocery", "pharmacy"]},
+      "weight": 2,
+      "cooldown_days": 7,
+      "choices": [
+        {
+          "label": "Buy one ($5)",
+          "outcomes": [
+            {
+              "chance": 0.8,
+              "text": "Lemon, lemon, cherry. Nothing. Of course nothing.",
+              "money": {"cents": -500, "account": "here", "via": "cash"},
+              "emotions": {"sadness": 2}
+            },
+            {
+              "chance": 0.17,
+              "text": "Three bells! $10. You've doubled your money and feel like a financial genius.",
+              "money": {"cents": 500, "account": "here", "via": "cash"},
+              "emotions": {"happiness": 6, "excitement": 6}
+            },
+            {
+              "chance": 0.03,
+              "text": "You scratch the last box and make a noise you didn't know you could make. $500.",
+              "money": {"cents": 49500, "account": "here", "via": "cash"},
+              "emotions": {"happiness": 18, "excitement": 22},
+              "memory": {"text": "Won $500 on a scratch card.", "impact": 40, "importance": 50}
+            }
+          ]
+        },
+        {
+          "label": "The house always wins",
+          "outcomes": [{"text": "You keep your five dollars. The house sulks.", "emotions": {"confidence": 2}}]
+        }
+      ]
+    },
+    {
+      "id": "card_game",
+      "category": "money",
+      "title": "The game in the back",
+      "prompt": "Through a door you hadn't noticed, four people are playing cards under one bulb. \"Buy-in's fifty. Cash.\" A chair scrapes back for you.",
+      "when": {"place_types": ["bar", "nightclub"], "hours": [21, 3], "money_at_least_cents": 5000},
+      "weight": 2,
+      "cooldown_days": 7,
+      "choices": [
+        {
+          "label": "Sit down ($50)",
+          "outcomes": [
+            {
+              "chance": 0.4,
+              "text": "You play tight, then you play lucky. You walk out $70 up and trying not to grin.",
+              "money": {"cents": 7000, "account": "sys:economy", "via": "cash"},
+              "emotions": {"excitement": 18, "confidence": 10},
+              "memory": {"text": "Won at cards in the back room.", "impact": 20}
+            },
+            {
+              "chance": 0.6,
+              "text": "You lose the fifty in nine hands, mostly to a quiet woman who says \"sorry, love\" every time.",
+              "money": {"cents": -5000, "account": "sys:economy", "via": "cash"},
+              "emotions": {"sadness": 8, "stress": 6},
+              "memory": {"text": "Lost $50 at cards in the back room.", "impact": -10}
+            }
+          ]
+        },
+        {
+          "label": "Watch a few hands",
+          "outcomes": [
+            {
+              "text": "You watch, you learn, you keep your money. The quiet woman wins everything.",
+              "emotions": {"excitement": 5},
+              "needs": {"recreation": 6}
+            }
+          ]
+        },
+        {
+          "label": "Not tonight",
+          "outcomes": [{"text": "You close the door. Somewhere behind it, someone says \"sorry, love.\""}]
+        }
+      ]
+    },
+    {
+      "id": "wine_pairing",
+      "category": "money",
+      "title": "The pairing",
+      "prompt": "The waiter leans in. \"May I suggest the wine pairing tonight? Four glasses, chosen by the chef. $45.\"",
+      "when": {"place_types": ["restaurant"], "hours": [17, 23], "money_at_least_cents": 8000},
+      "weight": 2,
+      "cooldown_days": 10,
+      "choices": [
+        {
+          "label": "Treat yourself",
+          "outcomes": [
+            {
+              "text": "Each glass arrives with a little speech. By the third you're nodding like you understand tannins.",
+              "money": {"cents": -4500, "account": "here", "via": "bank"},
+              "emotions": {"happiness": 12, "stress": -8},
+              "needs": {"recreation": 10},
+              "memory": {"text": "Splurged on the wine pairing.", "impact": 12}
+            }
+          ]
+        },
+        {
+          "label": "Tap water is fine",
+          "outcomes": [
+            {
+              "text": "\"Tap water is fine.\" The waiter's smile doesn't move a millimetre.",
+              "emotions": {"confidence": 2}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "busker_song",
+      "category": "money",
+      "title": "The busker",
+      "prompt": "A busker on the corner is playing the song your mother used to hum while she cooked. You stop walking without meaning to.",
+      "when": {"outside": true, "hours": [10, 21]},
+      "weight": 2,
+      "cooldown_days": 14,
+      "choices": [
+        {
+          "label": "Drop $5 in the case",
+          "outcomes": [
+            {
+              "text": "You drop a five in the case. The busker nods and plays the bridge slower, just for you.",
+              "money": {"cents": -500, "account": "sys:economy", "via": "cash"},
+              "emotions": {"happiness": 8, "sadness": 4, "loneliness": -6},
+              "memory": {"text": "Heard my mother's song played on a street corner.", "impact": 20}
+            }
+          ]
+        },
+        {
+          "label": "Stay for the whole song",
+          "outcomes": [
+            {
+              "text": "You stay to the end. It's the best four minutes of your week.",
+              "emotions": {"happiness": 6, "stress": -6},
+              "needs": {"recreation": 6}
+            }
+          ]
+        },
+        {
+          "label": "Keep walking",
+          "outcomes": [{"text": "You keep walking. The tune follows you for two blocks.", "emotions": {"sadness": 3}}]
+        }
+      ]
+    },
+    {
+      "id": "landlord_heater",
+      "category": "money",
+      "title": "\"Tenant damage\"",
+      "prompt": "Your landlord's email: the heater that's been rattling since you moved in has died, and it's \"clearly tenant damage.\" The bill is $120.",
+      "when": {"home": "renting"},
+      "weight": 2,
+      "cooldown_days": 40,
+      "choices": [
+        {
+          "label": "Pay it and move on",
+          "outcomes": [
+            {
+              "text": "You pay. The heater works. Your resentment does too, quietly, all winter.",
+              "money": {"cents": -12000, "account": "landlord", "via": "bank"},
+              "emotions": {"anger": 8, "stress": 4},
+              "memory": {"text": "Paid my landlord for a heater that was already broken.", "impact": -10}
+            }
+          ]
+        },
+        {
+          "label": "Push back with photos",
+          "outcomes": [
+            {
+              "chance": 0.6,
+              "text": "You send the photos from move-in day, timestamped. A day later: \"Our mistake. Fixed at no charge.\"",
+              "emotions": {"confidence": 12, "happiness": 6},
+              "memory": {"text": "Won an argument with my landlord.", "impact": 15}
+            },
+            {
+              "chance": 0.4,
+              "text": "Three emails later, you're paying half and they're \"doing you a favour.\"",
+              "money": {"cents": -6000, "account": "landlord", "via": "bank"},
+              "emotions": {"stress": 10, "anger": 6},
+              "memory": {"text": "Split a repair bill with my landlord after a fight.", "impact": -5}
+            }
+          ]
+        },
+        {
+          "label": "Ignore it and wear a jumper",
+          "outcomes": [
+            {
+              "text": "You ignore the email and dig out your thickest jumper. It's fine. It's fine.",
+              "needs": {"comfort": -8},
+              "emotions": {"stress": 6}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "charity_tin",
+      "category": "money",
+      "title": "The rattling tin",
+      "prompt": "A kid with a gap-toothed smile rattles a tin at you: \"For the Common Ground food pantry!\"",
+      "when": {"outside": true, "hours": [9, 19]},
+      "weight": 2,
+      "cooldown_days": 14,
+      "choices": [
+        {
+          "label": "Give $10",
+          "outcomes": [
+            {
+              "text": "The kid shrieks \"THANK YOU\" loud enough to turn heads. You feel ten feet tall.",
+              "money": {"cents": -1000, "account": "org:common_ground", "via": "cash"},
+              "emotions": {"happiness": 8},
+              "memory": {"text": "Gave to the Common Ground food pantry.", "impact": 12}
+            }
+          ]
+        },
+        {
+          "label": "Give your loose change",
+          "outcomes": [
+            {
+              "text": "You tip in your loose change. It rattles impressively for what it is.",
+              "money": {"cents": -150, "account": "org:common_ground", "via": "cash"},
+              "emotions": {"happiness": 3}
+            }
+          ]
+        },
+        {
+          "label": "\"Sorry, no cash\"",
+          "outcomes": [
+            {
+              "text": "\"Sorry, no cash.\" The kid's smile holds. Yours doesn't.",
+              "emotions": {"embarrassment": 3}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

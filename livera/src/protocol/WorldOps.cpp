@@ -77,6 +77,22 @@ Result<Json> dispatchWorldOp(World& world, const CharacterId& me, const std::str
   if (op == "steal") return world.steal(me, str(req, "offer"));
   if (op == "pickpocket") return world.pickpocket(me, str(req, "target"));
   if (op == "arrest") return world.arrest(me, str(req, "target"));
+  // Street life (D-069, D-070): what a crime risks right now (read-only), fist fights and your rule for them.
+  if (op == "crime_risk") return world.crimeRisk(me, str(req, "crime"), str(req, "target"));
+  if (op == "fight") return world.startFight(me, str(req, "target"));
+  if (op == "fight_respond") return world.respondToFight(me, str(req, "fight"), str(req, "choice"));
+  if (op == "fight_prefs") {
+    const auto it = req.find("walk_away");
+    if (it == req.end() || !it->is_boolean()) return fail("bad_request", "send \"walk_away\": true or false");
+    return world.setWalkAwayFromFights(me, it->get<bool>());
+  }
+  // Life events (D-068): answer one that came up. `option` is the choice's number in the life_event event.
+  if (op == "event_answer") {
+    const auto it = req.find("option");
+    if (it == req.end() || !it->is_number_integer()) return fail("bad_request", "send the choice's number as \"option\"");
+    const auto n = it->get<std::int64_t>();
+    return world.answerLifeEvent(me, str(req, "event"), n < 0 || n > 64 ? -1 : static_cast<int>(n));
+  }
   if (op == "request")
     return world.request(me, str(req, "kind"), str(req, "target"), req.value("protection", false), str(req, "subject"));
   if (op == "respond") return world.respond(me, str(req, "request"), req.value("accept", false));
@@ -128,6 +144,15 @@ Result<Json> dispatchWorldOp(World& world, const CharacterId& me, const std::str
   // } m08:details
   // Redesign: going to bed (whether the night is then skipped is the host's rule, not the op's).
   if (op == "sleep") return world.sleep(me);
+  // interiors (D-066): walk to a point of the room you're in, sit down, stand up (points: the room picture's pixels).
+  if (op == "move_inside") {
+    const auto x = req.find("x"), y = req.find("y");
+    if (x == req.end() || y == req.end() || !x->is_number() || !y->is_number())
+      return fail("bad_request", "send the point as \"x\" and \"y\"");
+    return world.moveInside(me, Vec2{x->get<double>(), y->get<double>()});
+  }
+  if (op == "sit") return world.sit(me, str(req, "spot"));
+  if (op == "stand") return world.stand(me);
   if (op == "message") {
     auto id = world.sendMessage(me, str(req, "to"), str(req, "text"));
     if (!id) return id.error();

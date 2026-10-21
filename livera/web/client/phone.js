@@ -13,6 +13,7 @@ import {
   APP_NAMES, readable, sentence, shortWhen, isLongWhen, minuteWhen, clockText, dateOf, duration, hoursText,
   placeNamed, isAt, verbs, applyFor, joinAt, insideThen, atDoorThen, affordability, exposeForTests, showOutcome, getThere, setClock,
 } from "./verbs.js";
+import { storyScreen } from "./moments.js";  // the Story app (D-068)
 
 // The phone's own stylesheet, next to this module (so no page needs a <link> for it).
 (function addStylesheet() {
@@ -30,6 +31,7 @@ import {
 export const APPS = [
   ["bank", "everyday", "bank"], ["messages", "everyday", "messages"], ["calendar", "everyday", "calendar"], ["work", "everyday", "workdesk"],
   ["map", "everyday", "map"], ["transit", "everyday", "transit"],
+  ["story", "life", "log"],  // your life story (moments.js, D-068)
   ["contacts", "life", "contacts"], ["romance", "life", "romance"], ["family", "life", "family"], ["pets", "life", "pets"], ["health", "life", "health_app"],
   ["homes", "life", "homes"], ["property", "life", "property"], ["items", "life", "items"], ["wallet", "life", "wallet"], ["store", "life", "store"],
   ["career", "ambition", "career"], ["jobs", "ambition", "jobs"], ["school", "ambition", "school"], ["studio", "ambition", "studio"],
@@ -869,6 +871,7 @@ const SCREENS = {
   notifications(d) { return this.notifications(d); }, romance(d) { return this.romance(d); }, family(d) { return this.family(d); },
   weather(d) { return this.weather(d); }, city(d) { return this.city(d); }, fame(d) { return this.fame(d); }, school(d) { return this.school(d); },
   goals(d) { return this.goalsApp(d); },
+  story(d) { return storyScreen.call(this, d); },  // moments.js (D-068)
   record(d) {
     const list = Array.isArray(d.record) ? d.record : [];
     return [card(eyebrow("Criminal record"), el("h3", null, d.clean || !list.length ? "Clean" : `${list.length} on record`),

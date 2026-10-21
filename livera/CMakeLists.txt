@@ -78,6 +78,9 @@ add_library(livera_core
   src/core/Fame.cpp
   src/core/Family.cpp
   src/core/Homes.cpp
+  src/core/Interiors.cpp
+  src/core/LifeEvents.cpp
+  src/core/Fights.cpp
   src/core/WorkTasks.cpp
   src/core/Wallet.cpp
   src/core/Leisure.cpp
@@ -185,6 +188,9 @@ add_executable(livera_tests
   tests/test_protocol.cpp
   tests/test_localtown.cpp
   tests/test_goals.cpp
+  tests/test_interiors.cpp
+  tests/test_events.cpp
+  tests/test_street.cpp
   src/client/MusicText.cpp)
 target_link_libraries(livera_tests PRIVATE livera_server_lib)
 target_compile_definitions(livera_tests PRIVATE LIVERA_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")

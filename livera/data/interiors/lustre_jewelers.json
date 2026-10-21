@@ -1,0 +1,86 @@
+{
+  "interior": {
+    "id": "lustre_jewelers",
+    "places": ["lustre_jewelers"],
+    "size": [1536, 1024],
+    "person_px": 130,
+    "floor": [
+      [
+        [85, 572],
+        [400, 470],
+        [470, 420],
+        [700, 298],
+        [760, 290],
+        [1115, 455],
+        [1240, 470],
+        [1300, 470],
+        [1500, 530],
+        [1480, 560],
+        [1180, 760],
+        [1110, 800],
+        [990, 860],
+        [920, 885],
+        [700, 900],
+        [630, 862],
+        [480, 782],
+        [400, 830],
+        [270, 760],
+        [240, 650]
+      ]
+    ],
+    "blocked": [
+      {"label": "armchair", "poly": [[200, 590], [245, 568], [290, 590], [245, 612]], "height": 60},
+      {"label": "armchair", "poly": [[335, 545], [385, 520], [440, 545], [390, 570]], "height": 60},
+      {"label": "coffee table", "poly": [[312, 600], [360, 577], [410, 600], [362, 623]], "height": 45},
+      {"label": "plant", "poly": [[430, 435], [455, 422], [480, 435], [455, 448]], "height": 150},
+      {"label": "ring counter", "poly": [[565, 527], [605, 507], [780, 565], [740, 587]], "height": 100},
+      {"label": "ring counter", "poly": [[745, 340], [785, 320], [1110, 470], [1070, 490]], "height": 100},
+      {"label": "ring counter", "poly": [[940, 665], [1010, 682], [1180, 565], [1120, 540]], "height": 100},
+      {"label": "consultation desk", "poly": [[750, 500], [790, 478], [975, 560], [935, 582]], "height": 70},
+      {"label": "watch case", "poly": [[569, 712], [612, 690], [855, 798], [815, 820]], "height": 110},
+      {"label": "bag display", "poly": [[1145, 690], [1300, 600], [1400, 650], [1230, 770]], "height": 80},
+      {"label": "plant", "poly": [[1232, 490], [1255, 478], [1278, 490], [1255, 502]], "height": 120},
+      {"label": "plant", "poly": [[1398, 630], [1420, 618], [1442, 630], [1420, 642]], "height": 110}
+    ],
+    "entrance": {"at": [440, 690], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [335, 742], "facing": "w", "label": "Front door"},
+      {
+        "id": "watch_case",
+        "kind": "counter",
+        "at": [590, 760],
+        "facing": "e",
+        "label": "Watches",
+        "offers": ["gold_watch"]
+      },
+      {
+        "id": "bags",
+        "kind": "counter",
+        "at": [1118, 700],
+        "facing": "e",
+        "label": "Bags",
+        "offers": ["designer_bag"]
+      },
+      {
+        "id": "rings",
+        "kind": "counter",
+        "at": [1035, 715],
+        "facing": "n",
+        "label": "Rings",
+        "offers": ["engagement_ring"]
+      },
+      {"id": "consultation_1", "kind": "seat", "at": [790, 580], "facing": "e", "label": "Consultation chair"},
+      {"id": "consultation_2", "kind": "seat", "at": [878, 598], "facing": "e", "label": "Consultation chair"},
+      {
+        "id": "behind_desk",
+        "kind": "seat",
+        "at": [918, 450],
+        "facing": "w",
+        "label": "Behind the desk",
+        "staff": true
+      },
+      {"id": "armchair_1", "kind": "seat", "at": [245, 592], "facing": "e", "label": "Armchair"},
+      {"id": "armchair_2", "kind": "seat", "at": [388, 548], "facing": "s", "label": "Armchair"}
+    ]
+  }
+}

@@ -31,31 +31,44 @@ Status World::freeToAct(const CharacterState& c) const {
   return okStatus();
 }
 
+bool World::onDutyPolice(const CharacterState& c) const {
+  return c.online && c.career.shiftStartedAt && c.career.careerId == "police";
+}
+
 int World::policeNearby(const CharacterState& c) const {
   int n = 0;
   for (const auto& [id, o] : state_.characters) {
-    if (id == c.id || !o.online || !o.career.shiftStartedAt || o.career.careerId != "police") continue;
+    if (id == c.id || !onDutyPolice(o)) continue;
     if (together(c, o, content_->crime().policeNearbyMeters)) ++n;
   }
   return n;
 }
 
-double World::detectionChance(const CharacterState& c, const CrimeDef& crime) const {
-  int witnesses = 0, staff = 0;
+// Who would see a crime where `c` stands: anyone could count them (staff are behind the counter, officers are in
+// uniform), which is why crimeRisk can show the odds (D-069). `besides` is left out (the victim of a pickpocket
+// isn't a witness to it).
+World::CrimeWitnesses World::crimeWitnesses(const CharacterState& c, const CharacterId& besides) const {
+  CrimeWitnesses w;
   for (const auto& id : presentWith(c, content_->sim().hearingRangeMeters)) {
     const CharacterState* o = character(id);
-    if (!o) continue;
-    if (o->career.careerId == "police" && o->career.shiftStartedAt) continue;  // counted below
-    if (o->career.shiftStartedAt && !c.inside.empty() && o->career.shiftLocation == c.inside) ++staff;
-    else ++witnesses;
+    if (!o || id == besides) continue;
+    if (onDutyPolice(*o)) continue;  // counted below
+    if (o->career.shiftStartedAt && !c.inside.empty() && o->career.shiftLocation == c.inside) ++w.staff;
+    else ++w.witnesses;
   }
-  const double p = crime.detection + witnesses * crime.perWitness + staff * crime.perStaff + policeNearby(c) * crime.perPolice;
+  w.police = policeNearby(c);
+  return w;
+}
+
+double World::detectionChance(const CharacterState& c, const CrimeDef& crime) const {
+  const CrimeWitnesses w = crimeWitnesses(c);
+  const double p = crime.detection + w.witnesses * crime.perWitness + w.staff * crime.perStaff + w.police * crime.perPolice;
   return std::min(kMaxDetection, p);
 }
 
 void World::dispatchPolice(const std::string& text) {
   for (const auto& [id, o] : state_.characters) {
-    if (o.online && o.career.shiftStartedAt && o.career.careerId == "police") notify(id, "dispatch", text);
+    if (onDutyPolice(o)) notify(id, "dispatch", text);
   }
 }
 
@@ -142,6 +155,10 @@ Result<Json> World::steal(const CharacterId& actor, const std::string& offerId) 
   if (Status st = freeToAct(c); !st) return st.error();
   if (c.inside.empty()) return fail("not_inside", "you need to be inside a shop");
   const LocationDef* loc = content_->location(c.inside);
+  // Only the kinds of shop where something can be slipped into a pocket (D-069, crimes.json).
+  const std::vector<std::string>& shops = content_->crime().shopliftPlaceTypes;
+  if (!shops.empty() && std::find(shops.begin(), shops.end(), loc->type) == shops.end())
+    return fail("cant_steal_here", "there's nothing to slip into a pocket at " + loc->name);
   const Offer* offer = nullptr;
   for (const auto& o : loc->offers) {
     if (o.id == offerId) offer = &o;
@@ -279,8 +296,117 @@ Json World::phoneRecord(const CharacterState& c) const {
                            {"jail_minutes", e.jailMinutes}});
   }
   Json out{{"record", entries}, {"clean", c.record.empty()}};
-  if (!c.wantedFor.empty()) out["wanted"] = true;  // you'd know: it's in the news, and people look at you
-  if (c.jailedUntil > state_.now) out["jailed_until"] = formatDateTime(c.jailedUntil);
+  if (!c.wantedFor.empty()) {
+    out["wanted"] = true;  // you'd know: it's in the news, and people look at you
+    const CrimeDef* d = content_->crimeDef(c.wantedFor);
+    out["wanted_for"] = d ? d->label : c.wantedFor;
+  }
+  if (c.jailedUntil > state_.now) {
+    out["jailed_until"] = formatDateTime(c.jailedUntil);
+    out["jailed_until_minute"] = c.jailedUntil;
+    if (const LocationDef* cell = content_->location(content_->crime().jail)) out["held_at"] = cell->name;
+  }
+  if (content_->fights().enabled) out["walk_away_from_fights"] = c.street.walkAway;  // D-070
+  return out;
+}
+
+// ---- What a crime risks, before you do it (D-069) ------------------------------------------
+Result<Json> World::crimeRisk(const CharacterId& actor, const std::string& crimeId, const CharacterId& target) const {
+  const CharacterState* c = character(actor);
+  if (!c || !c->online) return fail("not_in_world", "character is not in the world");
+  const CrimeConfig& cfg = content_->crime();
+  const CrimeDef* crime = content_->crimeDef(crimeId);
+  if (!crime) return fail("unknown_crime", "no such crime");
+  // The ladder, from data: the fine (or longer in a cell if you can't pay it), the time, the record, the headline.
+  Json ladder{{"fine_cents", crime->fineCents},
+              {"jail_minutes", crime->jailMinutes},
+              {"record", true},
+              {"notoriety", crime->notoriety},
+              {"seized", "anything illegal on you goes, with a possession charge"}};
+  if (crime->fineCents > 0) ladder["jail_if_unpaid_minutes"] = crime->jailMinutes * 2 + 240;
+  if (const LocationDef* cell = content_->location(cfg.jail)) ladder["held_at"] = cell->name;
+  Json out{{"crime", crime->id}, {"label", crime->label}, {"chance", nullptr}, {"if_caught", ladder}};
+  auto odds = [&](const CharacterId& besides) {
+    const CrimeWitnesses w = crimeWitnesses(*c, besides);
+    const double p = std::min(kMaxDetection, crime->detection + w.witnesses * crime->perWitness + w.staff * crime->perStaff +
+                                                 w.police * crime->perPolice);
+    out["chance"] = std::round(p * 100) / 100;
+    out["seen_by"] = Json{{"witnesses", w.witnesses}, {"staff", w.staff}, {"police", w.police}};
+  };
+  const CharacterState* t = target.empty() ? nullptr : character(target);
+  if (crimeId == "shoplifting") {
+    const LocationDef* loc = c->inside.empty() ? nullptr : content_->location(c->inside);
+    const std::vector<std::string>& shops = cfg.shopliftPlaceTypes;
+    const bool shop = loc && (shops.empty() || std::find(shops.begin(), shops.end(), loc->type) != shops.end());
+    if (shop && isLocationOpen(*loc)) {
+      odds("");
+      Json offers = Json::array();
+      for (const auto& o : loc->offers) {
+        if (o.service.empty()) offers.push_back(o.id);
+      }
+      out["offers"] = offers;
+    } else {
+      out["note"] = "Inside an open shop that sells things you can pocket, you'll see the odds.";
+    }
+    out["place_types"] = shops;
+  } else if (crimeId == "pickpocketing") {
+    out["notice_chance"] = cfg.pickpocketNoticeChance;  // they felt it and saw who: reported, and you're wanted
+    out["max_cents"] = cfg.pickpocketMaxCents;
+    if (t && t->online && together(*c, *t, content_->sim().hearingRangeMeters)) {
+      odds("");  // as pickpocket() counts it: the person you rob is one more pair of eyes
+      const auto last = c->pickpocketedAt.find(target);
+      if (last != c->pickpocketedAt.end() && state_.now - last->second < cfg.pickpocketCooldownMinutes)
+        out["too_soon"] = true;
+    } else {
+      out["note"] = "Get close to them and you'll see the odds.";
+    }
+  } else if (crimeId == "drug_purchase") {
+    const LocationDef* here = currentPlace(*c);
+    Json charges = Json::array();
+    bool sold = false;
+    for (const auto& o : here ? here->offers : std::vector<Offer>{}) {
+      if (!o.illegal) continue;
+      sold = true;
+      const ItemDef* item = content_->item(o.item);
+      const SubstanceDef* sub = item ? content_->substance(item->substance) : nullptr;
+      const CrimeDef* poss = sub ? content_->crimeDef(sub->possessionCrime) : nullptr;
+      if (poss)
+        charges.push_back(Json{{"offer", o.id}, {"item", o.label}, {"crime", poss->label}, {"fine_cents", poss->fineCents},
+                               {"jail_minutes", poss->jailMinutes}});
+    }
+    if (sold && isLocationOpen(*here)) odds("");
+    else out["note"] = "Where something illegal is for sale, you'll see the odds.";
+    out["possession"] = charges;  // carrying it: what any later arrest adds
+  } else if (crimeId == "fare_evasion") {
+    // Inspectors, not witnesses: the line's own published chance.
+    const TransitLine* line = nullptr;
+    for (const auto& l : content_->transit().lines) {
+      for (const auto& st : l.stops) {
+        if (!line && distance(c->position, st.at) <= content_->transit().boardingRadiusMeters) line = &l;
+      }
+    }
+    if (!line && !content_->transit().lines.empty()) line = &content_->transit().lines.front();
+    if (line) {
+      out["chance"] = line->inspectionChance;
+      out["line"] = line->name;
+      out["if_caught"]["fine_cents"] = line->evasionFineCents;
+      out["if_caught"].erase("jail_if_unpaid_minutes");
+    }
+  } else if (crimeId == "assault") {
+    const FightsConfig& F = content_->fights();
+    out["report_chance"] = F.reportChance;  // not caught in the act: they report you, and you're wanted
+    out["witness_report_chance"] = F.witnessReportChance;
+    Json injuries = Json::array();
+    for (const auto& i : F.injuries) {
+      if (const ConditionDef* k = content_->condition(i.condition)) injuries.push_back(k->name);
+    }
+    out["injuries"] = injuries;  // what either of you can come away with
+    out["self_defence"] = "Fighting back when someone starts it is never a crime.";
+    if (t && t->online && together(*c, *t, content_->sim().hearingRangeMeters)) odds(target);
+    else out["note"] = "Get close to them and you'll see the odds.";
+  } else {
+    out["note"] = "This one isn't something you choose to do.";
+  }
   return out;
 }
 

@@ -1,0 +1,335 @@
+{
+  "$comment": "Life events at work (D-068): they come up on a shift (when.on_shift), often with a coworker on shift at the same place ({name}).",
+  "events": [
+    {
+      "id": "stolen_idea",
+      "category": "work",
+      "title": "Credit where it's due",
+      "prompt": "In the meeting, {name} pitches the idea you mentioned over coffee on Tuesday. Word for word. Everyone nods. Your boss says \"Brilliant.\"",
+      "when": {"on_shift": true, "with": "coworker"},
+      "weight": 2,
+      "cooldown_days": 20,
+      "choices": [
+        {
+          "label": "Call it out, politely",
+          "outcomes": [
+            {
+              "chance": 0.6,
+              "text": "\"Glad you liked my idea,\" you say, and smile. {name} goes red. Your boss writes your name down.",
+              "emotions": {"confidence": 10, "stress": 6},
+              "relationship": {
+                "you": {"respect": -10},
+                "them": {"respect": 8, "resentment": 10},
+                "reaction": "caught off guard"
+              },
+              "memory": {"text": "Took my idea back from {name} in front of everyone.", "impact": 15}
+            },
+            {
+              "chance": 0.4,
+              "text": "You try. It comes out sounding petty, and the room goes cold. {name} looks wounded; your boss looks at the clock.",
+              "emotions": {"embarrassment": 14, "stress": 10},
+              "relationship": {"you": {"respect": -12}, "them": {"resentment": 15, "trust": -5}, "reaction": "hurt"},
+              "memory": {"text": "Called out {name} for stealing my idea. It went badly.", "impact": -15}
+            }
+          ]
+        },
+        {
+          "label": "Let it go and seethe",
+          "outcomes": [
+            {
+              "text": "You let it go. You do not let it go. You think about it in the shower for three days.",
+              "emotions": {"anger": 12, "stress": 8, "confidence": -6},
+              "relationship": {"you": {"trust": -15, "resentment": 15}},
+              "memory": {"text": "Watched {name} take credit for my idea and said nothing.", "impact": -20}
+            }
+          ]
+        },
+        {
+          "label": "Talk to them after",
+          "outcomes": [
+            {
+              "text": "Later, by the coffee machine, {name} apologises. \"I honestly forgot it was yours.\" You almost believe it.",
+              "emotions": {"stress": -4, "confidence": 4},
+              "relationship": {"you": {"trust": 4}, "them": {"respect": 6, "trust": 4}, "reaction": "apologetic"},
+              "memory": {"text": "{name} and I sorted out whose idea it was.", "impact": 5}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "coworker_secret",
+      "category": "work",
+      "title": "A secret in the break room",
+      "prompt": "{name} pulls you aside, eyes darting. \"I'm interviewing somewhere else. Nobody can know. Please.\"",
+      "when": {"on_shift": true, "with": "coworker"},
+      "weight": 2,
+      "cooldown_days": 25,
+      "choices": [
+        {
+          "label": "Your lips are sealed",
+          "outcomes": [
+            {
+              "text": "You mime zipping your lips. {name} exhales like they've been holding it for a week.",
+              "relationship": {
+                "you": {"friendship": 4},
+                "them": {"trust": 15, "friendship": 8, "loyalty": 6},
+                "reaction": "relieved"
+              },
+              "emotions": {"happiness": 3},
+              "memory": {"text": "Kept {name}'s secret about the other job.", "impact": 10}
+            }
+          ]
+        },
+        {
+          "label": "Ask if they're hiring",
+          "outcomes": [
+            {
+              "text": "\"Are they hiring?\" {name} laughs for the first time all week. You trade notes on the place.",
+              "relationship": {"them": {"trust": 8, "friendship": 6}, "reaction": "amused"},
+              "emotions": {"excitement": 5},
+              "memory": {"text": "{name} told me about a job elsewhere. I asked if they had two.", "impact": 8}
+            }
+          ]
+        },
+        {
+          "label": "Mention it to the boss",
+          "outcomes": [
+            {
+              "text": "You mention it to your manager, \"just so they're prepared.\" By lunch, {name} knows it was you.",
+              "relationship": {"them": {"trust": -35, "resentment": 30, "friendship": -20}, "reaction": "betrayed"},
+              "emotions": {"stress": 10, "sadness": 4},
+              "memory": {"text": "Told the boss {name} was leaving. {name} found out.", "impact": -25, "importance": 45}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boss_mood",
+      "category": "work",
+      "title": "The weather in the corner office",
+      "prompt": "Your boss has been slamming doors since nine. Someone has to take the quarterly numbers in. Everyone is looking at you.",
+      "when": {"on_shift": true},
+      "weight": 2,
+      "cooldown_days": 12,
+      "choices": [
+        {
+          "label": "Take them in",
+          "outcomes": [
+            {
+              "chance": 0.5,
+              "text": "You walk in, set them down, say \"Rough day?\" Your boss sighs, smiles, and tells you about their kid's flu. You're a hero in the break room.",
+              "emotions": {"confidence": 10, "happiness": 6},
+              "memory": {"text": "Braved the boss on a bad day. It went fine.", "impact": 10}
+            },
+            {
+              "chance": 0.5,
+              "text": "You get two sentences in before the door-slamming resumes, this time with you on the wrong side of it.",
+              "emotions": {"stress": 14, "embarrassment": 8},
+              "memory": {"text": "Took the numbers in to the boss on a bad day. Mistake.", "impact": -10}
+            }
+          ]
+        },
+        {
+          "label": "Email them instead",
+          "outcomes": [
+            {
+              "text": "You email the numbers with a cheerful subject line and hide behind your screen. Cowardly. Effective.",
+              "emotions": {"stress": -4, "confidence": -2}
+            }
+          ]
+        },
+        {
+          "label": "Bring a coffee as a shield",
+          "outcomes": [
+            {
+              "text": "You lead with a flat white. Your boss blinks, takes it, and the storm clouds part for a full hour.",
+              "emotions": {"happiness": 6, "confidence": 6},
+              "needs": {"social": 4},
+              "memory": {"text": "Calmed the boss with a coffee.", "impact": 8}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "overtime_ask",
+      "category": "work",
+      "title": "Can you stay?",
+      "prompt": "Your manager hovers by your station. \"We're short tonight. Two hours, cash bonus, and I owe you one.\"",
+      "when": {"on_shift": true, "hours": [14, 20]},
+      "weight": 2,
+      "cooldown_days": 10,
+      "choices": [
+        {
+          "label": "Stay late",
+          "outcomes": [
+            {
+              "text": "You stay. The bonus lands, your feet ache, and your manager actually does owe you one now.",
+              "money": {"cents": 4000, "account": "employer", "via": "bank"},
+              "needs": {"energy": -15, "social": -5},
+              "emotions": {"stress": 6},
+              "memory": {"text": "Stayed late for a cash bonus.", "impact": 3}
+            }
+          ]
+        },
+        {
+          "label": "Say you have plans",
+          "outcomes": [
+            {
+              "text": "\"I have plans,\" you say. Your plans are a sofa and a show. You regret nothing.",
+              "emotions": {"happiness": 4, "confidence": 3}
+            }
+          ]
+        },
+        {
+          "label": "Negotiate",
+          "outcomes": [
+            {
+              "chance": 0.5,
+              "text": "\"Make it worth my while.\" Your manager laughs, then pays it. You've never felt more like a professional.",
+              "money": {"cents": 7000, "account": "employer", "via": "bank"},
+              "needs": {"energy": -15},
+              "emotions": {"confidence": 12},
+              "memory": {"text": "Negotiated a bigger overtime bonus.", "impact": 12}
+            },
+            {
+              "chance": 0.5,
+              "text": "\"Never mind,\" your manager says, and asks someone else. It stings more than it should.",
+              "emotions": {"embarrassment": 8, "confidence": -4}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "team_pastries",
+      "category": "work",
+      "title": "Pastry diplomacy",
+      "prompt": "{name} looks like they haven't slept. The whole team does. The bakery round the corner is open.",
+      "when": {"on_shift": true, "with": "coworker", "hours": [7, 12]},
+      "weight": 1,
+      "cooldown_days": 14,
+      "choices": [
+        {
+          "label": "Buy pastries for everyone",
+          "outcomes": [
+            {
+              "text": "You come back with a box of croissants. You are briefly the most popular person in Livéra.",
+              "money": {"cents": -2800, "account": "sys:economy", "via": "bank"},
+              "needs": {"social": 10, "hunger": 10},
+              "emotions": {"happiness": 8},
+              "relationship": {"them": {"friendship": 8}, "you": {"friendship": 4}, "reaction": "grateful"},
+              "memory": {"text": "Bought the team pastries on a long morning.", "impact": 10}
+            }
+          ]
+        },
+        {
+          "label": "Just make {name} a coffee",
+          "outcomes": [
+            {
+              "text": "You slide a coffee across. {name} looks at it like it's a winning lottery ticket.",
+              "relationship": {"them": {"friendship": 6, "trust": 3}, "reaction": "touched"},
+              "needs": {"social": 5},
+              "emotions": {"happiness": 4}
+            }
+          ]
+        },
+        {
+          "label": "Keep your head down",
+          "outcomes": [{"text": "Everyone suffers in silence, together. Very professional.", "emotions": {"stress": 3}}]
+        }
+      ]
+    },
+    {
+      "id": "rude_customer",
+      "category": "work",
+      "title": "The customer is always…",
+      "prompt": "A customer is jabbing a finger at you across the counter about something that is extremely not your fault. A queue is forming.",
+      "when": {"on_shift": true, "careers": ["cafe", "retail", "grocery", "pharmacy", "bartending", "beauty"]},
+      "weight": 3,
+      "cooldown_days": 6,
+      "choices": [
+        {
+          "label": "Stay calm, smile",
+          "outcomes": [
+            {
+              "text": "You smile until it hurts. The customer runs out of steam and leaves. The next person in the queue whispers \"I'm so sorry.\"",
+              "emotions": {"stress": 8, "confidence": 4},
+              "needs": {"social": -3},
+              "memory": {"text": "Kept my cool with a nightmare customer.", "impact": 5}
+            }
+          ]
+        },
+        {
+          "label": "Fetch the manager",
+          "outcomes": [
+            {
+              "text": "You fetch the manager, who is somehow worse at this than you. Still: not your problem now.",
+              "emotions": {"stress": -2}
+            }
+          ]
+        },
+        {
+          "label": "Tell them exactly what you think",
+          "outcomes": [
+            {
+              "chance": 0.3,
+              "text": "You say it. The queue applauds. Someone films it. You are a local legend for an afternoon.",
+              "emotions": {"excitement": 14, "confidence": 10},
+              "fame": 0.5,
+              "memory": {"text": "Told off a rude customer to applause.", "impact": 20}
+            },
+            {
+              "chance": 0.7,
+              "text": "You say it. The silence afterwards is very long. Your manager asks for a word.",
+              "emotions": {"embarrassment": 14, "stress": 14},
+              "memory": {"text": "Lost it with a customer at work.", "impact": -20}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "promotion_rumour",
+      "category": "work",
+      "title": "Rumours from upstairs",
+      "prompt": "{name} leans over: \"Heard a title is opening up. Heard your name, too.\"",
+      "when": {"on_shift": true, "with": "coworker"},
+      "weight": 1,
+      "cooldown_days": 30,
+      "choices": [
+        {
+          "label": "Get your hopes up",
+          "outcomes": [
+            {
+              "text": "You let yourself imagine the new title, the new desk, telling everyone. It's a nice afternoon.",
+              "emotions": {"happiness": 8, "excitement": 10},
+              "relationship": {"you": {"friendship": 3}}
+            }
+          ]
+        },
+        {
+          "label": "Rumours are cheap",
+          "outcomes": [
+            {
+              "text": "\"I'll believe it when I see it.\" You go back to work. Promotions come from the work anyway.",
+              "emotions": {"confidence": 4}
+            }
+          ]
+        },
+        {
+          "label": "Ask who said so",
+          "outcomes": [
+            {
+              "text": "{name} gets vague, then vaguer. It was the guy who fixes the printer.",
+              "emotions": {"stress": 2},
+              "relationship": {"them": {"familiarity": 4}, "reaction": "sheepish"}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

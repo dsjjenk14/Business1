@@ -13,10 +13,16 @@
 // `cancelled` (you walked somewhere else). `runAction(game, action)` is the same with a toast for
 // either outcome, for callers that want this module's wording.
 //
-// Engineer B owns this file (Release 1, R1.6b). The phone apps use the same helpers.
+// Engineer B owns this file (Release 1, R1.6b). The phone apps use the same helpers. The street verbs
+// (D-069, D-070: shoplifting, pickpocketing, a fight, what's sold at the Underpass after dark) are at the
+// end: each shows the server's odds and the consequence ladder (moments.js confirmCrime) before it sends
+// anything, and Back sends nothing.
+//
+//   const actions = await personActions(game, person)   // the person card's Street section
 
 import { money, firstName, titleCase } from "./dom.js";
 import { dist, arrived } from "./state.js";
+import { confirmCrime } from "./moments.js";
 
 // ------------------------------------------------------------------ words
 
@@ -24,7 +30,7 @@ export const APP_NAMES = {
   bank: "Bank", messages: "Messages", map: "Map", transit: "Transit", career: "Career", contacts: "Contacts", calendar: "Calendar",
   notifications: "Alerts", wallet: "Wallet", work: "Work", jobs: "Jobs", homes: "Homes", property: "Property", health: "Health",
   items: "Items", store: "Store", school: "School", studio: "Studio", record: "Record", romance: "Romance", family: "Family",
-  fame: "Fame", sports: "Sports", pets: "Pets", weather: "Weather", city: "City", goals: "Goals",
+  fame: "Fame", sports: "Sports", pets: "Pets", weather: "Weather", city: "City", goals: "Goals", story: "Story",
 };
 const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const pad = n => String(n).padStart(2, "0");
@@ -397,6 +403,7 @@ export async function placeActions(game, place) {
         run: () => atDoorThen(game, p, () => verbs.perform(game, s.id)) });
     }
   }
+  out.push(...await streetActionsAt(game, p, inside));
   return out;
 }
 
@@ -416,10 +423,145 @@ export async function runAction(game, action) {
   return r;
 }
 
-// For the end-to-end tests: the labels of the verbs at a place (read-only: nothing runs).
+// For the end-to-end tests: the labels of the verbs at a place, or for a person (read-only: nothing runs).
 export function exposeForTests(game) {
   if (typeof window === "undefined" || window.__liveraVerbs) return;
+  const labels = list => list.map(a => ({ key: a.key, kind: a.kind, label: a.label, detail: a.detail || "" }));
   window.__liveraVerbs = Object.freeze({
-    at: async id => (await placeActions(game, id)).map(a => ({ key: a.key, kind: a.kind, label: a.label, detail: a.detail || "" })),
+    at: async id => labels(await placeActions(game, id)),
+    person: async id => labels(await personActions(game, id)),
   });
+}
+
+// ------------------------------------------------------------------ the street (D-069, D-070)
+
+const round1 = v => Math.round(v * 10) / 10;
+const cancelled = () => fail("cancelled", "You thought better of it.");
+// What a crime risks right now, from the server (its odds come from who can see you; the ladder from data).
+async function riskOf(game, crime, target) {
+  const r = await game.req("crime_risk", target ? { crime, target } : { crime });
+  return r.ok ? r.data : null;
+}
+// Which kinds of shop let you pocket something: the server's own list, asked once per page.
+let shopTypes = null;
+async function shopliftTypes(game) {
+  if (!shopTypes) shopTypes = riskOf(game, "shoplifting").then(r => (r && Array.isArray(r.place_types) ? r.place_types : null));
+  const t = await shopTypes;
+  if (!t) shopTypes = null;
+  return t || [];
+}
+// "Caught shoplifting at Thread & Co.: fined $250.00, held until 14:20."
+function arrestText(d, what) {
+  const until = Number.isFinite(d.jail_minutes) && d.jail_minutes > 0 ? `, held ${duration(d.jail_minutes)}` : "";
+  return `Caught ${what}${d.by ? ` by ${d.by}` : ""}: ${d.fine_cents ? `fined ${money(d.fine_cents)}` : "no fine paid"}${until}.${Array.isArray(d.seized) && d.seized.length ? ` Seized: ${d.seized.join(", ")}.` : ""}`;
+}
+
+// Walk up to someone (within `range` m) and act, the way Talk does; the server says when you're close enough.
+export async function nearThen(game, target, range, act) {
+  const w = game.world, who = firstName(w.nameOf(target));
+  for (let tries = 0; tries < 6; tries++) {
+    if (!w.people.has(target)) return fail("target_unavailable", `${who} is out of sight.`);
+    const d = w.distanceTo(target);
+    if (d <= Math.max(0.5, range - 0.8)) {
+      const r = await act();
+      if (r.ok || r.error.code !== "too_far") return r;
+    }
+    if (w.self.inside) return fail("too_far", d === 0 ? `${who} is too far away.` : `You're inside and ${who} isn't. Go out first.`);
+    const pos = w.personPos(target);
+    if (!pos) return fail("target_unavailable", `${who} is out of sight.`);
+    const r = await game.req("move", { x: round1(pos[0]), y: round1(pos[1]) });
+    if (!r.ok) return r;
+    w.selfMoving(r.data.target, w.rules.walk_speed_mps, "walk");
+    const until = performance.now() + ((Number(r.data.eta_seconds) || 0) + 6) * 1000;
+    while (performance.now() < until && w.people.has(target) && w.distanceTo(target) > Math.max(0.5, range - 0.8)) await sleep(150);
+  }
+  return fail("didnt_arrive", `Couldn't get close enough to ${who}.`);
+}
+
+// The person card's Street section: pickpocket, start a fight. Risk first, every time.
+export async function personActions(game, person) {
+  const w = game.world, p = typeof person === "string" ? w.people.get(person) : person;
+  if (!p || !w.self || p.id === w.selfId) return [];
+  const who = firstName(p.name || w.nameOf(p.id));
+  return [
+    { key: `pickpocket:${p.id}`, kind: "pickpocket", danger: true, label: `Pick ${who}'s pocket…`,
+      detail: "A crime. First you'll see the odds of being caught and what it costs.", run: () => pickpocket(game, p.id) },
+    { key: `fight:${p.id}`, kind: "fight", danger: true, label: `Start a fight with ${who}…`,
+      detail: "Fists only. Assault if a blow lands; they can fight back, run or walk away. The ladder comes first.", run: () => fight(game, p.id) },
+  ];
+}
+
+async function pickpocket(game, target) {
+  const who = firstName(game.world.nameOf(target));
+  const c = await confirmCrime(game, { title: `Pick ${who}'s pocket?`, risk: await riskOf(game, "pickpocketing", target), go: "Pick their pocket" });
+  if (!c.go) return cancelled();
+  const r = await nearThen(game, target, 2, () => game.req("pickpocket", { target }));
+  cache.clear();
+  if (!r.ok) return r;
+  const d = r.data || {};
+  game.refreshBank(); game.lastLook = 0;
+  r.summary = d.caught ? arrestText(d, `picking ${who}'s pocket`) : d.stolen_cents > 0 ? `You lifted ${money(d.stolen_cents)} from ${who}'s pocket.` : sentence(d.note || `${who}'s pockets are empty.`);
+  return r;
+}
+
+async function fight(game, target) {
+  const who = firstName(game.world.nameOf(target));
+  const c = await confirmCrime(game, { eyebrow: "A fight", title: `Start a fight with ${who}?`, risk: await riskOf(game, "assault", target), go: "Throw the first punch",
+    note: "No weapons. One fight per pair a day; afterwards they're left alone for a while. People who choose to walk away from fights always do." });
+  if (!c.go) return cancelled();
+  const r = await nearThen(game, target, 3, () => game.req("fight", { target }));
+  if (!r.ok) return r;
+  if (r.data.status === "waiting") r.summary = `You squared up to ${who}. They have a moment to react.`;
+  else { r.announced = true; if (game.moments) game.moments.fightResult(r.data); }
+  return r;
+}
+
+async function shoplift(game, place) {
+  const w = game.world;
+  const risk = await riskOf(game, "shoplifting");
+  const can = new Set((risk && risk.offers) || []);
+  const offers = ((w.here && w.here.offers) || []).filter(o => can.has(o.id));
+  if (!offers.length) return fail("cant_steal_here", `There's nothing at ${place.name} you could slip into a pocket.`);
+  const c = await confirmCrime(game, { title: `Shoplift at ${place.name}?`, risk, go: "Slip it into your pocket",
+    choices: offers.map(o => ({ id: o.id, label: o.label, detail: `${money(o.price_cents)} on the shelf` })) });
+  if (!c.go) return cancelled();
+  const r = await game.req("steal", { offer: c.choice });
+  cache.clear();
+  if (!r.ok) return r;
+  const d = r.data || {}, label = (offers.find(o => o.id === c.choice) || {}).label || "it";
+  game.lastLook = 0; game.refreshBank();
+  r.summary = d.caught ? arrestText(d, `shoplifting at ${place.name}`) : `You walked out with ${d.stolen || label}. Nobody stopped you.`;
+  return r;
+}
+
+async function buyIllegal(game, place, offer) {
+  const c = await confirmCrime(game, { title: `Buy ${offer.label} for ${money(offer.price_cents)} cash?`, risk: await riskOf(game, "drug_purchase"), go: "Buy it", eyebrow: place.name });
+  if (!c.go) return cancelled();
+  const r = await game.req("buy", { offer: offer.id, method: "cash" });
+  cache.clear();
+  if (!r.ok) return r;
+  const d = r.data || {};
+  game.lastLook = 0; game.refreshBank();
+  r.summary = d.caught ? arrestText(d, `buying ${offer.label}`) : `Bought ${offer.label} for ${money(d.price_cents || offer.price_cents)} cash. It's in your Items; carrying it is a charge if you're ever arrested.`;
+  return r;
+}
+
+// At a place: shoplifting where the data allows it (walk in first), and what's sold illegally at an open-air
+// place while you stand there and it's open (the Underpass after dark).
+async function streetActionsAt(game, p, inside) {
+  const w = game.world, out = [];
+  if (p.enterable && !p.units && (await shopliftTypes(game)).includes(p.type)) {
+    out.push({ key: `steal:${p.id}`, kind: "steal", danger: true, label: "Shoplift…",
+      detail: inside ? "A crime. First you'll see the odds of being caught and what it costs." : "A crime. You'll walk in first, then see the odds.",
+      run: () => insideThen(game, p, () => shoplift(game, p)) });
+  }
+  const here = w.here && w.here.id === p.id ? w.here : null;
+  if (!p.enterable && here && Array.isArray(here.offers)) {
+    const illegal = here.offers.filter(o => o.illegal);
+    if (illegal.length && here.status === "open") {
+      for (const o of illegal) out.push({ key: `buy_illegal:${o.id}`, kind: "buy_illegal", danger: true, label: `Buy ${o.label} · ${money(o.price_cents)} cash`,
+        detail: "Illegal. First you'll see the odds of the police seeing it.", run: () => buyIllegal(game, p, o) });
+    }
+  }
+  return out;
 }

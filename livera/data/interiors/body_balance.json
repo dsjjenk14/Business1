@@ -1,0 +1,104 @@
+{
+  "interior": {
+    "id": "body_balance",
+    "places": ["body_balance"],
+    "size": [1536, 1024],
+    "person_px": 130,
+    "floor": [
+      [
+        [80, 563],
+        [620, 282],
+        [690, 230],
+        [1085, 425],
+        [1200, 362],
+        [1215, 330],
+        [1390, 385],
+        [1500, 440],
+        [1500, 466],
+        [1445, 500],
+        [1440, 655],
+        [1400, 690],
+        [1145, 797],
+        [1090, 862],
+        [940, 942],
+        [760, 962],
+        [700, 882],
+        [470, 752],
+        [440, 705],
+        [350, 790],
+        [250, 642],
+        [240, 632]
+      ]
+    ],
+    "blocked": [
+      {"label": "treadmills", "poly": [[110, 540], [480, 330], [530, 380], [160, 592]], "height": 70},
+      {"label": "cross-trainers", "poly": [[470, 330], [560, 282], [612, 322], [520, 372]], "height": 110},
+      {"label": "dumbbell racks", "poly": [[600, 420], [700, 366], [800, 420], [700, 476]], "height": 110},
+      {"label": "cable machine", "poly": [[800, 470], [880, 430], [985, 482], [905, 522]], "height": 160},
+      {"label": "bench", "poly": [[605, 485], [655, 460], [700, 485], [650, 510]], "height": 35},
+      {"label": "bench", "poly": [[680, 535], [730, 510], [770, 535], [720, 560]], "height": 35},
+      {"label": "bench", "poly": [[770, 585], [830, 555], [875, 580], [815, 610]], "height": 40},
+      {"label": "reception desk", "poly": [[555, 760], [590, 738], [835, 812], [800, 838]], "height": 85},
+      {"label": "armchair", "poly": [[365, 575], [398, 558], [432, 575], [398, 592]], "height": 60},
+      {"label": "armchair", "poly": [[500, 585], [533, 568], [567, 585], [533, 602]], "height": 60},
+      {"label": "coffee table", "poly": [[420, 615], [460, 595], [500, 615], [460, 635]], "height": 40},
+      {"label": "planter", "poly": [[280, 590], [315, 572], [350, 590], [315, 608]], "height": 80},
+      {"label": "planter", "poly": [[430, 540], [462, 524], [494, 540], [462, 556]], "height": 90},
+      {"label": "partition", "poly": [[870, 597], [1095, 722], [1095, 738], [870, 612]], "height": 90},
+      {"label": "pillar", "poly": [[1078, 760], [1110, 742], [1145, 760], [1112, 778]], "height": 120},
+      {"label": "smoothie bar", "poly": [[1065, 630], [1095, 605], [1420, 695], [1390, 720]], "height": 80},
+      {"label": "planters", "poly": [[860, 690], [930, 655], [1000, 690], [930, 725]], "height": 70},
+      {"label": "plant", "poly": [[1015, 795], [1050, 778], [1085, 795], [1050, 812]], "height": 110}
+    ],
+    "entrance": {"at": [510, 705], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [350, 770], "facing": "w", "label": "Front door"},
+      {
+        "id": "front_desk",
+        "kind": "counter",
+        "at": [532, 738],
+        "facing": "e",
+        "label": "Front desk",
+        "offers": ["day_pass"]
+      },
+      {
+        "id": "front_desk_staff",
+        "kind": "seat",
+        "at": [725, 712],
+        "facing": "w",
+        "label": "Front desk",
+        "staff": true
+      },
+      {
+        "id": "smoothie_bar",
+        "kind": "counter",
+        "at": [1285, 725],
+        "facing": "e",
+        "label": "Smoothie bar",
+        "offers": ["smoothie"]
+      },
+      {
+        "id": "behind_bar",
+        "kind": "station",
+        "at": [1250, 585],
+        "facing": "w",
+        "label": "Behind the bar",
+        "staff": true
+      },
+      {"id": "stool_1", "kind": "stool", "at": [1085, 645], "facing": "e", "label": "Bar stool"},
+      {"id": "stool_2", "kind": "stool", "at": [1130, 662], "facing": "e", "label": "Bar stool"},
+      {"id": "stool_3", "kind": "stool", "at": [1180, 687], "facing": "e", "label": "Bar stool"},
+      {"id": "stool_4", "kind": "stool", "at": [1233, 712], "facing": "e", "label": "Bar stool"},
+      {"id": "armchair_left", "kind": "seat", "at": [398, 585], "facing": "s", "label": "Armchair"},
+      {"id": "armchair_right", "kind": "seat", "at": [533, 595], "facing": "w", "label": "Armchair"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1440, 425],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      }
+    ]
+  }
+}

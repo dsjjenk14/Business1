@@ -148,7 +148,8 @@ async function screenProblems(p) {
     }));
     assert(JSON.stringify(home.groups) === JSON.stringify(["Everyday", "Life", "Ambition", "Town"]), "groups: " + home.groups);
     assert(!home.apps.includes("store"), "the coin store is on a single-player phone");
-    assert(home.apps.length === 25 || (home.apps.length === 26 && home.apps.includes("goals")), `expected 25 apps (26 with goals), got ${home.apps.length}: ${home.apps}`);
+    // 25 apps, the Story app (moments.js, D-068), and Goals when the server has it.
+    assert(home.apps.includes("story") && (home.apps.length === 26 || (home.apps.length === 27 && home.apps.includes("goals"))), `expected 26 apps (27 with goals), got ${home.apps.length}: ${home.apps}`);
     assert(/No coin store here/.test(home.text), "the phone doesn't say why there's no coin store");
     assert(home.icons.length === home.apps.length, `${home.icons.length} icons for ${home.apps.length} apps`);
     assert(new Set(home.icons).size === home.icons.length, "two apps share an icon");

@@ -47,6 +47,12 @@ void detailsPartFromJson(WorldState& s, const Json& j);
 void writeDetailsCharacter(const CharacterState& c, Json& j);
 void readDetailsCharacter(CharacterState& c, const Json& j);
 
+// LifeEvents.cpp (D-068) and Fights.cpp (D-070): character keys only (`events`, `street`), no world part.
+void writeLifeEventsCharacter(const CharacterState& c, Json& j);
+void readLifeEventsCharacter(CharacterState& c, const Json& j);
+void writeStreetCharacter(const CharacterState& c, Json& j);
+void readStreetCharacter(CharacterState& c, const Json& j);
+
 // All parts by key, for the store.
 std::map<std::string, Json> worldPartsToJson(const WorldState& s);
 void worldPartsFromJson(WorldState& s, const std::map<std::string, Json>& parts);

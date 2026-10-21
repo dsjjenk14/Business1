@@ -13,8 +13,9 @@
 import { PAL, SPECIAL_COLORS, GOLD_EDGED, LOOK, LIGHT, footprint, ROADS, PARK_SHAPES, RIVER, BRIDGE, TREES, streetTrees,
          TILE_METERS, BRIDGE_ART, CRANE_M, SHELTER_M, SITE_FRAMED_PCT, SITE_ART_CRANES, PARK_ART, ROAD_WORKS } from "./layout.js";
 import { predict, dist } from "./state.js";
-import { faceUrl, spriteUrl, initials, firstName, loadTileManifest, tileInfo, tileUrl } from "./dom.js";
+import { spriteUrl, firstName, loadTileManifest, tileInfo, tileUrl } from "./dom.js";
 import { drawIcon, kindIcon } from "./icons.js";
+import { drawFigure, facingFor, loadFigureManifest } from "./figures.js";
 
 const C = Math.cos(Math.PI / 6), S = 0.5;
 const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -23,7 +24,15 @@ const CAPS = '"Cinzel", Georgia, "Times New Roman", serif';
 const SERIF = '"Cormorant Garamond", Georgia, "Times New Roman", serif';
 const SANS = 'system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif';
 // The default zoom: buildings about 110 px wide on a phone, so the pictures read (UX 3.9).
-export const DEFAULT_ZOOM = { phone: 2.1, wide: 2.4 };
+export const DEFAULT_ZOOM = { phone: 2.8, wide: 3.0 };
+// The closest zoom: near enough to see a person whole (about 55 px tall).
+const MAX_ZOOM = 14;
+// People stand at real scale against the building pictures, not the sketch's boxes: the pictures
+// paint their buildings about 2.2 times the sketch's metres (Heritage Coffee's door is 2.3 m at 43 px
+// of its 640, on a lot drawn 36 m across), so a 1.75 m person is 1.75 x 2.2 sketch units tall.
+const ART_M = 2.2, PERSON_M = 1.75;
+// The smallest a person is drawn at the usual zooms (see personHeight).
+const MIN_PERSON_PX = 26;
 // Places whose names are always shown when they're open and in view: where everyday needs are met.
 const EVERYDAY = new Set(["coffee_shop", "grocery", "pharmacy", "clinic", "restaurant"]);
 const FLOAT_MS = 2400;
@@ -148,7 +157,6 @@ export class Renderer2D {
     this.ringHold = null;            // a volume to show while the chat box is in use
     this.hit = [];
     this.shown = new Map();          // id -> smoothed screen-world position
-    this.images = new Map();
     this.sprites = new Map();        // place id -> {img, lights, baked, key}: the owner's building pictures
     this.spriteTops = new Map();     // place id -> the top of its sprite on screen this frame (labels go above)
     this.onTap = null;
@@ -167,6 +175,8 @@ export class Renderer2D {
     this.groundCache = null;         // the flat ground drawn offscreen (drawGroundLayer)
     this.loads = 0;                  // pictures loaded so far: the cached ground is re-drawn when one arrives
     loadTileManifest().catch(() => {});
+    loadFigureManifest().catch(() => {});
+    this.gait = new Map();           // id -> {phase, facing, mirror}: how each person last walked
     // Water glints: fixed spots on the river that catch the light (seeded, so they don't jump).
     const rnd = seeded("river", 100000);
     this.glints = Array.from({ length: 70 }, () => [RIVER.x0 + 6 + rnd() / 100000 * (RIVER.x1 - RIVER.x0 - 10), rnd() / 100000, 3 + rnd() / 100000 * 9, rnd() / 100000 * 6.28]);
@@ -227,7 +237,7 @@ export class Renderer2D {
     this.follow = follow;
   }
   zoomAt(f, sx, sy) {
-    const nz = Math.max(this.minScale(), Math.min(8, this.scale * f));
+    const nz = Math.max(this.minScale(), Math.min(MAX_ZOOM, this.scale * f));
     f = nz / this.scale;
     this.ox = sx - (sx - this.ox) * f; this.oy = sy - (sy - this.oy) * f; this.scale = nz;
   }
@@ -249,14 +259,6 @@ export class Renderer2D {
   }
   select(s) { this.selected = s; }
   setRing(volume) { this.ring = volume ? { volume, until: performance.now() + 2500 } : null; }
-
-  face(id) {
-    const url = faceUrl(id);
-    if (!url) return null;
-    let im = this.images.get(id);
-    if (!im) { im = new Image(); im.decoding = "async"; im.src = url; this.images.set(id, im); }
-    return im.complete && im.naturalWidth ? im : null;
-  }
 
   // A building's sprite once it has loaded (lazily: the box is drawn until then), or null.
   sprite(id) {
@@ -423,9 +425,18 @@ export class Renderer2D {
     }, { passive: false });
   }
   // People win over buildings and stops: a person standing in front of a building is who you meant.
+  // Among people whose targets overlap (a crowd), the one whose figure is nearest the tap wins.
   hitTest(x, y) {
-    const inside = h => (h.circle ? Math.hypot(x - h.circle[0], y - h.circle[1]) <= h.circle[2] : inPoly(x, y, h.poly));
-    for (let i = this.hit.length - 1; i >= 0; i--) { const h = this.hit[i]; if (h.kind === "person" && inside(h)) return { kind: h.kind, id: h.id }; }
+    const inside = h => (h.rect ? x >= h.rect[0] && x <= h.rect[2] && y >= h.rect[1] && y <= h.rect[3]
+      : h.circle ? Math.hypot(x - h.circle[0], y - h.circle[1]) <= h.circle[2] : inPoly(x, y, h.poly));
+    let best = null, bd = Infinity;
+    for (let i = this.hit.length - 1; i >= 0; i--) {
+      const h = this.hit[i];
+      if (h.kind !== "person" || !inside(h)) continue;
+      const d = Math.hypot(x - h.circle[0], y - h.circle[1]);
+      if (d < bd - 0.5) { best = h; bd = d; }
+    }
+    if (best) return { kind: "person", id: best.id };
     for (let i = this.hit.length - 1; i >= 0; i--) { const h = this.hit[i]; if (h.kind !== "person" && inside(h)) return { kind: h.kind, id: h.id }; }
     return null;
   }
@@ -700,7 +711,7 @@ export class Renderer2D {
       if (!lots.some(l => x > l.x0 - 2 && x < l.x1 + 2 && y > l.y0 - 2 && y < l.y1 + 2)) items.push({ depth: x + y, kind: "tree", x, y, s });
     }
     const people = this.peopleToDraw(now, dt);
-    for (const c of people) items.push({ depth: c.x + c.y + 30, kind: "person", c });
+    for (const c of people) items.push({ depth: this.personDepth(c, items, lots), kind: "person", c });
     items.sort((a, b) => a.depth - b.depth);
     for (const it of items) {
       if (it.kind === "tree") this.drawTree(it, now);
@@ -724,14 +735,26 @@ export class Renderer2D {
     if (ins.bottom) this.placed.push([-50, ch - ins.bottom, cw + 100, ins.bottom + 50]);
     if (ins.left) this.placed.push([-50, -50, ins.left + 50, ch + 100]);
     for (const r of ins.blocks || []) this.placed.push(r);
+    // Name plates above the heads (claimed first: place names move out of their way), then the
+    // figures themselves kept clear of place names.
     const nameFont = `600 14px ${SERIF}`;
     ctx.font = nameFont;
-    for (const c of people) if (c.screen) {
-      const [x, y, r] = c.screen; this.placed.push([x - r, y - r, r * 2, r * 2]);
-      const lw = ctx.measureText(c.label).width + 12;
-      c.nameAt = [x - lw / 2, this.claim(x - lw / 2, y + r + 3, lw, 17, [0, 1, 2, 3, 4, 5]) ?? y + r + 3, lw];
+    const hud = this.placed.slice();
+    const underHud = (x, y, w, h) => hud.some(q => x < q[0] + q[2] && q[0] < x + w && y < q[1] + q[3] && q[1] < y + h);
+    // You first, then whoever is selected, then the nearest: in a crowd the plates that find no free
+    // spot close above their person are left out (zoom in, or tap someone, to see who they are).
+    const isSel = c => this.selected && this.selected.kind === "person" && this.selected.id === c.id;
+    const myPos = self ? this.shown.get(self.id) || [0, 0] : [0, 0];
+    const order = people.filter(c => c.box).sort((a, b) => (b.self - a.self) || (isSel(b) - isSel(a)) || (dist([a.x, a.y], myPos) - dist([b.x, b.y], myPos)));
+    for (const c of order) {
+      const x = c.screen[0], lw = ctx.measureText(c.label).width + 12, want = c.box[1] - 17 - 3;
+      const at = this.claim(x - lw / 2, want, lw, 17, [0, -1, -2]);
+      const must = c.self || isSel(c);
+      c.nameAt = at !== null ? [x - lw / 2, at, lw] : must && !underHud(x - lw / 2, want, lw, 17) ? [x - lw / 2, want, lw] : null;
     }
-    for (const c of people) if (c.bus && c.screen) this.label("single-rider shuttle", c.x, c.y, 14, false);
+    for (const c of order) { const [x0, y0, x1, y1] = c.box; this.placed.push([x0, y0, x1 - x0, y1 - y0]); }
+    this.plateHits(people);
+    for (const c of people) if (c.bus && c.box) this.label("single-rider shuttle", c.x, c.y, 2.6 * ART_M + 1, false);
     const showAll = this.scale > 2.6, mePos = self ? this.standingPoint(self, now) : null, cap = cw < 700 ? 12 : 30;
     const marks = this.getMarks ? this.getMarks() : {}, mine = new Set([marks.home, ...(marks.work || []), marks.next].filter(Boolean));
     const isMine = b => mine.has(b.id) || (b.units || []).some(u => mine.has(u.id));
@@ -762,7 +785,7 @@ export class Renderer2D {
       const isSel = this.selected && this.selected.kind === "stop" && this.selected.id === s.id;
       if (isSel || ((this.scale > 3.2 || (mePos && dist(mePos, s.at) < 40)) && this.labelCount < cap)) this.label(s.name, s.at[0], s.at[1], 9, isSel, "bus");
     }
-    for (const c of people) if (c.nameAt) {
+    for (const c of order.slice().reverse()) if (c.nameAt) {
       ctx.font = nameFont; ctx.textAlign = "center"; ctx.textBaseline = "middle";
       const [nx, ny, lw] = c.nameAt;
       ctx.beginPath(); ctx.roundRect(nx, ny, lw, 17, 4);
@@ -776,11 +799,13 @@ export class Renderer2D {
     this.drawFloaters(people, now);
   }
 
-  // Floaters: a short word rising from a portrait, fading as it goes (static under reduced motion).
+  // Where a person's speech and floaters go: above their name plate (or their head), centred on them.
+  overHead(c) { return [c.screen[0], c.nameAt ? Math.min(c.nameAt[1], c.box[1]) : c.box[1]]; }
+  // Floaters: a short word rising over someone's head, fading as it goes (static under reduced motion).
   drawFloaters(people, now) {
     if (!this.floaters.length) return;
     this.floaters = this.floaters.filter(f => now - f.at < FLOAT_MS);
-    const pos = new Map(people.filter(p => p.screen).map(p => [p.id, p.screen]));
+    const pos = new Map(people.filter(p => p.box).map(p => [p.id, [...this.overHead(p), 0]]));
     const ctx = this.ctx;
     const seen = new Map();
     for (const f of this.floaters) {
@@ -790,7 +815,7 @@ export class Renderer2D {
       seen.set(f.who, n + 1);
       const [x, y, r] = sp, rise = this.reduce ? 0 : 28 * k, a = k < 0.15 ? k / 0.15 : k > 0.7 ? (1 - k) / 0.3 : 1;
       ctx.font = `italic 600 ${f.self ? 17 : 16}px ${SERIF}`;
-      const tw = ctx.measureText(f.text).width + 16, bx = Math.max(4, Math.min(this.cw - tw - 4, x - tw / 2)), by = y - r - 34 - rise - n * 24;
+      const tw = ctx.measureText(f.text).width + 16, bx = Math.max(4, Math.min(this.cw - tw - 4, x - tw / 2)), by = y - r - 26 - rise - n * 24;
       ctx.globalAlpha = Math.max(0, Math.min(1, a));
       ctx.beginPath(); ctx.roundRect(bx, by, tw, 22, 11);
       ctx.fillStyle = "rgba(11,43,35,.92)"; ctx.fill(); ctx.strokeStyle = LOOK.gold; ctx.lineWidth = 1; ctx.stroke();
@@ -1256,8 +1281,16 @@ export class Renderer2D {
     }
   }
 
+  // How tall a 1.75 m person stands on the map at this zoom, in CSS pixels. True scale makes a person
+  // about 8 px tall at the default zoom, a speck under their name; like most isometric games, people are
+  // drawn larger than the buildings would make them (up to 3x, at least MIN_PERSON_PX) until zooming in
+  // reaches true scale. A sketch choice for readability, not a fact about anyone's height.
+  personHeight() {
+    const real = PERSON_M * ART_M * this.scale;
+    return Math.max(real, Math.min(MIN_PERSON_PX, real * 3));
+  }
   peopleToDraw(now, dt) {
-    const w = this.world, out = [];
+    const w = this.world, out = [], P = this.P.bind(this);
     const add = (e, isSelf) => {
       const truth = this.standingPoint(e, now);
       if (!truth) return;
@@ -1265,23 +1298,52 @@ export class Renderer2D {
       if (!s || dist(s, truth) > 40) s = truth.slice();
       else { const k = 1 - Math.exp(-dt * 12); s = [s[0] + (truth[0] - s[0]) * k, s[1] + (truth[1] - s[1]) * k]; }
       this.shown.set(e.id, s);
+      // Facing and the walk: from where they're heading on screen; standing still, the way they last went.
+      let g = this.gait.get(e.id);
+      if (!g) { g = { phase: 0, facing: "front", mirror: false }; this.gait.set(e.id, g); }
+      const bus = e.mode === "bus" && !!e.target, here = predict(e, now);
+      const walking = !e.inside && !bus && !!e.target && e.speed > 0 && dist(here, e.target) > 0.05;
+      if (walking) {
+        const [ax, ay] = P(here[0], here[1]), [bx, by] = P(e.target[0], e.target[1]), f = facingFor(bx - ax, by - ay, g);
+        g.facing = f.facing; g.mirror = f.mirror;
+        g.phase = (g.phase + dt * 1.15) % 1;   // about two steps a second
+      }
       const name = isSelf ? "You" : firstName(e.name) + (e.scripted ? " · script" : "");
       out.push({ id: e.id, x: s[0], y: s[1], inside: e.inside, self: isSelf, scripted: !!e.scripted, name: e.name, label: name,
-                 bus: e.mode === "bus" && !!e.target });
+                 bus, walking, gait: g, person: e });
     };
     if (w.self) add(w.self, true);
     for (const p of w.people.values()) add(p, false);
-    for (const id of [...this.shown.keys()]) if (id !== w.selfId && !w.people.has(id)) this.shown.delete(id);
-    // Screen-space fan-out: people closer than a portrait's width stand in a row.
-    const pr = Math.max(8, Math.min(16, 5 * this.scale + 4)), gap = pr * 2 + 4, clusters = [];
+    for (const id of [...this.shown.keys()]) if (id !== w.selfId && !w.people.has(id)) { this.shown.delete(id); this.gait.delete(id); }
+    // Screen-space fan-out: people standing on the same spot (everyone inside one building stands
+    // at its door) stand side by side instead of on top of each other.
+    const ph = this.personHeight(), gap = ph * 0.34 + 3, clusters = [];
     for (const c of out) {
-      [c.sx0, c.sy0] = this.P(c.x, c.y, 0);
+      [c.sx0, c.sy0] = P(c.x, c.y, 0);
       const cl = clusters.find(k => Math.hypot(k[0].sx0 - c.sx0, k[0].sy0 - c.sy0) < gap);
       cl ? cl.push(c) : clusters.push([c]);
     }
     for (const cl of clusters) cl.forEach((c, i) => { c.dx = (i - (cl.length - 1) / 2) * gap; c.dy = cl[0].sy0 - c.sy0; });
-    this.pr = pr;
     return out;
+  }
+  // Where a person comes in the back-to-front order. Their own depth (x + y) puts them behind a
+  // building whose front corner is further forward, so someone standing on the pavement in front of
+  // a building's south or east face (or at its door) is moved just in front of that building, and
+  // someone on a picture laid on the ground (a park's, the road works) just in front of the picture.
+  personDepth(c, items, lots) {
+    let d = c.x + c.y;
+    for (const it of items) {
+      if (it.kind === "building") {
+        const f = it.fp;
+        const south = c.y >= f.y1 - 0.5 && c.y <= f.y1 + 40 && c.x >= f.x0 - 16 && c.x <= f.x1 + 16;
+        const east = c.x >= f.x1 - 0.5 && c.x <= f.x1 + 40 && c.y >= f.y0 - 16 && c.y <= f.y1 + 16;
+        if (south || east) d = Math.max(d, it.depth + 0.01);
+      } else if (it.kind === "lot" || it.kind === "works") {
+        const l = it.kind === "lot" ? it.fp : it.works.lot;
+        if (c.x > l.x0 - 2 && c.x < l.x1 + 2 && c.y > l.y0 - 2 && c.y < l.y1 + 2) d = Math.max(d, it.depth + 0.01);
+      }
+    }
+    return d;
   }
 
   // One tree (shadow, trunk, canopy) drawn into a sprite for this light and zoom; every tree
@@ -1462,43 +1524,66 @@ export class Renderer2D {
     if (sel) outline(top);
   }
 
+  // A person, whole and at real scale (figures.js): their cut-out from the owner's sheets, or the
+  // stand-in body for someone without one. Facing their way, walking while they walk (no bob under
+  // reduced motion), darkened at night like everything else. Someone inside a building stands at its
+  // door, a little faded (interiors aren't drawn on the map). The tap target is the whole figure, at
+  // least 44 px each way; the name plate above it can be tapped too.
   drawPerson(c, night) {
-    const ctx = this.ctx, sx = c.sx0 + c.dx, sy = c.sy0 + c.dy, r = this.pr, lift = r * 1.9;
-    if (c.bus) {
-      // The poster's bus: emerald body, gold stripe, ivory roof, warm windows.
-      const bw = r * 3.4, bh = r * 1.5, x0 = sx - bw / 2, y0 = sy - bh;
-      ctx.fillStyle = LOOK.emerald; ctx.beginPath(); ctx.roundRect(x0, y0, bw, bh, 4); ctx.fill();
-      ctx.fillStyle = LOOK.ivory; ctx.beginPath(); ctx.roundRect(x0 + 1.5, y0 - 2, bw - 3, 3.5, 2); ctx.fill();
-      ctx.fillStyle = night > 0.3 ? "rgba(255,214,140,.95)" : "rgba(246,230,196,.92)";
-      for (let i = 0; i < 4; i++) ctx.fillRect(x0 + 4 + i * (bw - 8) / 4, y0 + 3, (bw - 8) / 4 - 2, bh * 0.35);
-      ctx.fillStyle = LOOK.gold; ctx.fillRect(x0, y0 + bh * 0.58, bw, Math.max(1.5, bh * 0.12));
-      ctx.strokeStyle = LOOK.gold; ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect(x0, y0, bw, bh, 4); ctx.stroke();
-      for (const wx of [sx - bw / 3, sx + bw / 3]) {
-        ctx.fillStyle = "#1c1f1d"; ctx.beginPath(); ctx.arc(wx, sy, 2.6, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = LOOK.gold; ctx.beginPath(); ctx.arc(wx, sy, 1, 0, Math.PI * 2); ctx.fill();
-      }
-    }
-    ctx.fillStyle = "rgba(40,28,14,.3)"; ctx.beginPath(); ctx.ellipse(sx, sy, r * 0.7, r * 0.3, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = night > 0.5 ? "rgba(247,236,214,.8)" : "rgba(60,50,36,.7)"; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(sx, sy); ctx.lineTo(sx, sy - lift + r); ctx.stroke();
-    const cy = sy - lift;
-    ctx.save(); ctx.beginPath(); ctx.arc(sx, cy, r, 0, Math.PI * 2); ctx.closePath(); ctx.clip();
-    const im = this.face(c.id);
-    if (im) ctx.drawImage(im, sx - r, cy - r, r * 2, r * 2);
-    else {
-      const gg = ctx.createRadialGradient(sx - r / 3, cy - r / 3, 1, sx, cy, r); gg.addColorStop(0, LOOK.emeraldMid); gg.addColorStop(1, LOOK.emerald);
-      ctx.fillStyle = gg; ctx.fillRect(sx - r, cy - r, r * 2, r * 2);
-      ctx.fillStyle = LOOK.goldLight; ctx.font = `600 ${Math.round(r * 0.8)}px ${SERIF}`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(initials(c.name), sx, cy + 1);
-    }
-    ctx.restore();
+    const ctx = this.ctx, sx = c.sx0 + c.dx, sy = c.sy0 + c.dy, ph = this.personHeight(), L = this.light;
+    c.box = null;
+    if (sx < -ph - 40 || sx > this.cw + ph + 40 || sy < -40 || sy > this.ch + ph * 1.4 + 40) return;   // off screen
     const sel = this.selected && this.selected.kind === "person" && this.selected.id === c.id;
-    // Portrait rings: ivory, gold for you (and anyone indoors), dashed when a script plays them.
-    if (sel) { ctx.lineWidth = 5; ctx.strokeStyle = "rgba(11,43,35,.6)"; ctx.beginPath(); ctx.arc(sx, cy, r + 1, 0, Math.PI * 2); ctx.stroke(); }
-    ctx.lineWidth = c.self ? 3 : 2;
-    ctx.strokeStyle = sel ? "#f3dfb3" : c.self ? LOOK.gold : c.inside ? LOOK.gold : LOOK.ivory;
-    if (c.scripted && !sel) ctx.setLineDash([3, 2]);
-    ctx.beginPath(); ctx.arc(sx, cy, r, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
-    c.screen = [sx, cy, r];
-    if (!c.self) this.hit.push({ kind: "person", id: c.id, circle: [sx, cy, Math.max(22, r + 6)] });
+    const tint = night < 0.5 && L.amt > 0.02 ? [quantize(L.amb), Math.min(0.25, L.amt * 0.6)] : null;
+    let box;
+    if (c.bus) box = this.drawShuttle(c, sx, sy, ph, night, tint);
+    else {
+      if (c.inside) ctx.globalAlpha = 0.78;
+      const g = c.gait, walk = c.walking && !this.reduce;
+      const r = drawFigure(ctx, c.person, sx, sy, { height: ph, facing: g.facing, mirror: g.mirror, pose: walk ? "walk" : "stand", phase: g.phase,
+        night, selected: sel, scripted: c.scripted, tint });
+      ctx.globalAlpha = 1;
+      box = [r.x0, r.y0, r.x1, r.y1];
+    }
+    c.box = box;
+    c.screen = [sx, box[1], 0];
+    if (c.self) return;
+    const cx = (box[0] + box[2]) / 2, cy = (box[1] + box[3]) / 2, hw = Math.max(22, (box[2] - box[0]) / 2 + 4), hh = Math.max(22, (box[3] - box[1]) / 2 + 4);
+    this.hit.push({ kind: "person", id: c.id, circle: [cx, cy, Math.min(hw, hh)], rect: [cx - hw, cy - hh, cx + hw, cy + hh] });
+  }
+  // The name plate can be tapped too (the figure's own target is the 44 px one; the plate's is just
+  // the plate, so it doesn't cover the building behind more than it shows).
+  plateHits(people) {
+    for (const c of people) if (c.nameAt && !c.self && c.box) {
+      const [nx, ny, lw] = c.nameAt, cx = (c.box[0] + c.box[2]) / 2, cy = (c.box[1] + c.box[3]) / 2;
+      this.hit.push({ kind: "person", id: c.id, circle: [cx, cy, 1], rect: [nx, ny, nx + lw, ny + 17] });
+    }
+  }
+  // The poster's bus at real scale (emerald body, gold stripe, ivory roof, warm windows), the
+  // rider seated behind its windows.
+  drawShuttle(c, sx, sy, ph, night, tint) {
+    const ctx = this.ctx, bh = ph * 2.6 / PERSON_M, bw = bh * 2.3, x0 = sx - bw / 2, y0 = sy - bh * 1.08, wheel = Math.max(1.5, bh * 0.13);
+    ctx.fillStyle = "rgba(40,28,14,.28)"; ctx.beginPath(); ctx.ellipse(sx, sy, bw * 0.55, Math.max(2, bh * 0.16), 0, 0, Math.PI * 2); ctx.fill();
+    const rad = Math.min(4, bh * 0.18);
+    ctx.fillStyle = LOOK.emerald; ctx.beginPath(); ctx.roundRect(x0, y0, bw, bh, rad); ctx.fill();
+    ctx.fillStyle = LOOK.ivory; ctx.beginPath(); ctx.roundRect(x0 + bw * 0.03, y0 - bh * 0.06, bw * 0.94, bh * 0.12, rad / 2); ctx.fill();
+    const wy = y0 + bh * 0.12, wh = bh * 0.38, n = 4, ww = (bw * 0.9) / n;
+    ctx.fillStyle = night > 0.3 ? "rgba(255,214,140,.95)" : "rgba(246,230,196,.92)";
+    for (let i = 0; i < n; i++) ctx.fillRect(x0 + bw * 0.05 + i * ww, wy, ww - Math.max(1, bw * 0.02), wh);
+    ctx.save();
+    ctx.beginPath();
+    for (let i = 0; i < n; i++) ctx.rect(x0 + bw * 0.05 + i * ww, wy, ww - Math.max(1, bw * 0.02), wh);
+    ctx.clip();
+    // Head and shoulders in the windows (the body below them hides the rest).
+    drawFigure(ctx, c.person, sx + bw * 0.08, wy + wh * 0.12 + ph, { height: ph, facing: "front34", mirror: false, night, tint });
+    ctx.restore();
+    ctx.fillStyle = LOOK.gold; ctx.fillRect(x0, y0 + bh * 0.6, bw, Math.max(1.5, bh * 0.1));
+    ctx.strokeStyle = LOOK.gold; ctx.lineWidth = 1; ctx.beginPath(); ctx.roundRect(x0, y0, bw, bh, rad); ctx.stroke();
+    for (const wx of [sx - bw / 3, sx + bw / 3]) {
+      ctx.fillStyle = "#1c1f1d"; ctx.beginPath(); ctx.arc(wx, sy - wheel, wheel, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = LOOK.gold; ctx.beginPath(); ctx.arc(wx, sy - wheel, wheel * 0.4, 0, Math.PI * 2); ctx.fill();
+    }
+    return [x0, y0 - bh * 0.06, x0 + bw, sy];
   }
 
   // How far your voice carries: a ring on the ground (outdoors; indoors the whole building hears).
@@ -1535,10 +1620,10 @@ export class Renderer2D {
     } else if (wx.kind === "cloud") { ctx.fillStyle = "rgba(70,72,66,.10)"; ctx.fillRect(0, 0, cw, ch); }
   }
 
-  // (x, y): the top of the speaker's head; r: its radius. A bubble goes above the head, but not
-  // under the top bar: with no room there it goes below the speaker's name, if that fits on the
+  // (x, y): just above the speaker's head and name plate. A bubble goes above it, but not under the
+  // top bar: with no room there it goes below the speaker's feet (`under`), if that fits on the
   // visible map, else it stays just under the top bar.
-  bubble(x, y, text, style, r = 0, top = 6, bottom = this.ch - 6) {
+  bubble(x, y, text, style, under = null, top = 6, bottom = this.ch - 6) {
     const ctx = this.ctx, cw = this.cw;
     ctx.font = `${style === "whisper" || style === "whispering" ? "italic " : ""}${style === "shout" ? 700 : 500} ${style === "shout" ? 14 : 12}px ${SANS}`;
     const maxW = Math.min(220, cw * 0.6), words = String(text).split(" "), lines = [];
@@ -1548,10 +1633,9 @@ export class Renderer2D {
     const shown = lines.slice(0, 4); if (lines.length > 4) shown[3] += " …";
     const w = Math.min(maxW, Math.max(...shown.map(l => ctx.measureText(l).width)) + 18), hh = shown.length * 15 + 12;
     const bx = Math.max(6, Math.min(cw - w - 6, x - w / 2));
-    let by = y - hh - 10, below = false;
+    let by = y - hh - 8, below = false;
     if (by < top) {
-      const under = y + 2 * r + 28;   // below the head and the name label under it (tail included)
-      if (r && under + hh <= bottom) { by = under; below = true; } else by = top;
+      if (under !== null && under + 8 + hh <= bottom) { by = under + 8; below = true; } else by = top;
     }
     const dark = style === "whisper" || style === "whispering";
     ctx.fillStyle = dark ? "rgba(11,43,35,.93)" : "rgba(251,245,233,.97)";
@@ -1569,19 +1653,19 @@ export class Renderer2D {
     shown.forEach((l, i) => ctx.fillText(l, bx + 9, by + 6 + i * 15));
   }
   drawBubbles(people, now) {
-    const pos = new Map(people.filter(p => p.screen).map(p => [p.id, p.screen]));
+    const pos = new Map(people.filter(p => p.box).map(p => [p.id, [...this.overHead(p), p.box[3]]]));
     // Keep bubbles in the part of the map the top bar (and, on phones, the sheet) leaves visible.
     const ins = this.getInsets ? this.getInsets() : { top: 0, bottom: 0 };
     const top = Math.min(ins.top || 0, this.ch * 0.5) + 6, bottom = this.ch - Math.min(ins.bottom || 0, this.ch - top - 40) - 6;
     this.bubbleRects = [];
     for (const b of this.world.liveBubbles(now)) {
-      let x, y, r = 0;
+      let x, y, under = null;
       const sp = pos.get(b.who);
-      if (sp) [x, y, r] = sp;
-      else if (b.pos) [x, y] = this.P(b.pos[0], b.pos[1], 18);
+      if (sp) [x, y, under] = sp;
+      else if (b.pos) [x, y] = this.P(b.pos[0], b.pos[1], PERSON_M * ART_M + 1);
       else continue;  // the speech log under the map shows it
       const text = b.kind === "whispering" ? `whispering to ${b.toName}` : b.text;
-      this.bubble(x, y - r, text, b.kind === "whispering" ? "whispering" : b.volume, r, top, bottom);
+      this.bubble(x, y, text, b.kind === "whispering" ? "whispering" : b.volume, under, top, bottom);
     }
   }
 }

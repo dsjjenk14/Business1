@@ -247,7 +247,28 @@ is an overdose: health drops, you're taken to the ER and billed.
 
 ## Crime
 
-See DECISIONS.md D-028. Jail time is game time (240 minutes = 4 real minutes).
+See DECISIONS.md D-028. Jail time is game time (240 minutes = 4 real minutes). Shoplifting only works in the kinds of
+shop `crime.shoplift_place_types` names; `crime_risk` shows anyone the chance of being caught in the act from who could
+see them right now, and the consequence ladder (D-069). An officer on duty is in uniform for anyone in sight.
+
+## Fist fights
+
+D-070. A fight is started with someone within 3 m; they have 15 game minutes to fight back, run or take it (or they
+always walk away, by their own choice). Score = base + skills and needs as the data weighs them − 8 per fight injury
+already carried ± noise; the higher wins (a tie goes to the one defending themself), and the loser's injury follows the
+margin (bruises from 0, a black eye from 12, a cracked rib from 28 points). Running gets away with 0.55 + 0.006 × (their
+score − the attacker's), between 15% and 90%. A blow that lands is assault for whoever started it: caught in the act by
+the crime's own detection, otherwise reported (70% by the person attacked, 40% by each witness) and wanted. One fight a
+pair a game day, 2 h before an attacker can start another, 8 h of protection for whoever was attacked.
+
+## Life events
+
+D-068. Up to two a game day per character, between 08:00 and 23:00, at least 150 minutes apart: each slot of the day
+opens at a hashed minute of its share of those hours, and when it has opened and the moment is right (awake, out of a
+cell, not on a bus, studying, in a fight or on a shift unless the event is about work, and played by a person) the
+event is a weighted pure draw over those whose conditions hold right then and whose cooldown has passed. An answer
+applies needs, emotions, both sides of the relationship with the person in it, money through the ledger, a memory and
+fame; a chance outcome rolls the saved stream. Unanswered, it lapses after 6 game hours.
 
 ## Romance and family
 

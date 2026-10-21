@@ -1,0 +1,259 @@
+{
+  "interior": {
+    "id": "lumiere_bistro",
+    "places": ["lumiere_bistro"],
+    "size": [1536, 1024],
+    "person_px": 125,
+    "floor": [
+      [
+        [90, 605],
+        [700, 290],
+        [790, 300],
+        [1240, 520],
+        [1290, 470],
+        [1370, 430],
+        [1500, 470],
+        [1500, 490],
+        [1440, 560],
+        [1380, 660],
+        [1000, 860],
+        [920, 840],
+        [700, 880],
+        [640, 870],
+        [480, 790],
+        [420, 830],
+        [280, 760],
+        [250, 650]
+      ],
+      [[860, 285], [895, 262], [1235, 425], [1210, 450]]
+    ],
+    "blocked": [
+      {"label": "bar", "poly": [[790, 340], [820, 300], [1245, 500], [1215, 555]], "height": 90},
+      {"label": "table", "poly": [[195, 590], [250, 560], [320, 595], [265, 625]], "height": 45},
+      {"label": "table", "poly": [[390, 490], [450, 460], [520, 495], [460, 525]], "height": 45},
+      {"label": "table", "poly": [[570, 350], [610, 330], [655, 352], [615, 372]], "height": 45},
+      {"label": "table", "poly": [[680, 475], [740, 445], [805, 478], [745, 508]], "height": 45},
+      {"label": "table", "poly": [[515, 610], [575, 580], [640, 612], [580, 642]], "height": 45},
+      {"label": "table", "poly": [[880, 605], [940, 575], [1010, 610], [950, 640]], "height": 45},
+      {"label": "table", "poly": [[1130, 680], [1185, 652], [1250, 685], [1195, 713]], "height": 45},
+      {"label": "banquette", "poly": [[135, 600], [290, 520], [310, 545], [160, 625]], "height": 60},
+      {"label": "banquette", "poly": [[340, 490], [480, 410], [500, 430], [360, 510]], "height": 60},
+      {"label": "olive tree", "poly": [[1040, 815], [1065, 802], [1090, 815], [1065, 828]], "height": 160},
+      {"label": "olive tree", "poly": [[765, 835], [792, 822], [820, 835], [792, 848]], "height": 180},
+      {"label": "plant", "poly": [[590, 820], [612, 808], [635, 820], [612, 832]], "height": 100},
+      {"label": "host stand", "poly": [[625, 760], [680, 730], [740, 762], [685, 792]], "height": 90}
+    ],
+    "entrance": {"at": [470, 700], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [345, 760], "facing": "w", "label": "Front doors"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1420, 470],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "host_stand",
+        "kind": "counter",
+        "at": [615, 800],
+        "facing": "e",
+        "label": "Host stand",
+        "offers": true
+      },
+      {
+        "id": "bar_staff",
+        "kind": "station",
+        "at": [1000, 330],
+        "facing": "w",
+        "label": "Behind the bar",
+        "staff": true
+      },
+      {
+        "id": "table_a_1",
+        "kind": "seat",
+        "at": [215, 600],
+        "facing": "s",
+        "label": "Table",
+        "offers": ["dinner", "dessert"]
+      },
+      {
+        "id": "table_a_2",
+        "kind": "seat",
+        "at": [330, 615],
+        "facing": "w",
+        "label": "Table",
+        "offers": ["dinner", "dessert"]
+      },
+      {
+        "id": "table_b_1",
+        "kind": "seat",
+        "at": [425, 495],
+        "facing": "s",
+        "label": "Table",
+        "offers": ["dinner", "dessert"]
+      },
+      {
+        "id": "table_b_2",
+        "kind": "seat",
+        "at": [530, 490],
+        "facing": "w",
+        "label": "Table",
+        "offers": ["dinner", "dessert"]
+      },
+      {
+        "id": "table_b_3",
+        "kind": "seat",
+        "at": [420, 545],
+        "facing": "e",
+        "label": "Table",
+        "offers": ["dinner", "dessert"]
+      },
+      {
+        "id": "table_c_1",
+        "kind": "seat",
+        "at": [575, 385],
+        "facing": "e",
+        "label": "Table",
+        "offers": ["dinner", "dessert"]
+      },
+      {
+        "id": "table_c_2",
+        "kind": "seat",
+        "at": [668, 372],
+        "facing": "w",
+        "label": "Table",
+        "offers": ["dinner", "dessert"]
+      },
+      {
+        "id": "table_d_1",
+        "kind": "seat",
+        "at": [660, 490],
+        "facing": "e",
+        "label": "Table",
+        "offers": ["dinner", "dessert"]
+      },
+      {
+        "id": "table_d_2",
+        "kind": "seat",
+        "at": [778, 545],
+        "facing": "n",
+        "label": "Table",
+        "offers": ["dinner", "dessert"]
+      },
+      {
+        "id": "table_d_3",
+        "kind": "seat",
+        "at": [825, 490],
+        "facing": "w",
+        "label": "Table",
+        "offers": ["dinner", "dessert"]
+      },
+      {
+        "id": "table_d_4",
+        "kind": "seat",
+        "at": [705, 450],
+        "facing": "s",
+        "label": "Table",
+        "offers": ["dinner", "dessert"]
+      },
+      {
+        "id": "table_e_1",
+        "kind": "seat",
+        "at": [505, 665],
+        "facing": "e",
+        "label": "Table",
+        "offers": ["dinner", "dessert"]
+      },
+      {
+        "id": "table_e_2",
+        "kind": "seat",
+        "at": [655, 665],
+        "facing": "n",
+        "label": "Table",
+        "offers": ["dinner", "dessert"]
+      },
+      {
+        "id": "table_f_1",
+        "kind": "seat",
+        "at": [875, 670],
+        "facing": "e",
+        "label": "Table",
+        "offers": ["dinner", "dessert"]
+      },
+      {
+        "id": "table_f_2",
+        "kind": "seat",
+        "at": [1018, 605],
+        "facing": "w",
+        "label": "Table",
+        "offers": ["dinner", "dessert"]
+      },
+      {
+        "id": "table_g_1",
+        "kind": "seat",
+        "at": [1252, 692],
+        "facing": "w",
+        "label": "Table",
+        "offers": ["dinner", "dessert"]
+      },
+      {
+        "id": "table_g_2",
+        "kind": "seat",
+        "at": [1140, 740],
+        "facing": "e",
+        "label": "Table",
+        "offers": ["dinner", "dessert"]
+      },
+      {
+        "id": "bar_stool_1",
+        "kind": "stool",
+        "at": [820, 410],
+        "facing": "e",
+        "label": "Bar stool",
+        "offers": ["wine"]
+      },
+      {
+        "id": "bar_stool_2",
+        "kind": "stool",
+        "at": [870, 435],
+        "facing": "e",
+        "label": "Bar stool",
+        "offers": ["wine"]
+      },
+      {
+        "id": "bar_stool_3",
+        "kind": "stool",
+        "at": [925, 460],
+        "facing": "e",
+        "label": "Bar stool",
+        "offers": ["wine"]
+      },
+      {
+        "id": "bar_stool_4",
+        "kind": "stool",
+        "at": [975, 490],
+        "facing": "e",
+        "label": "Bar stool",
+        "offers": ["wine"]
+      },
+      {
+        "id": "bar_stool_5",
+        "kind": "stool",
+        "at": [1030, 515],
+        "facing": "e",
+        "label": "Bar stool",
+        "offers": ["wine"]
+      },
+      {
+        "id": "bar_stool_6",
+        "kind": "stool",
+        "at": [1085, 545],
+        "facing": "e",
+        "label": "Bar stool",
+        "offers": ["wine"]
+      }
+    ]
+  }
+}

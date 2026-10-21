@@ -1,0 +1,96 @@
+{
+  "interior": {
+    "id": "baptiste_events",
+    "places": ["baptiste_events"],
+    "size": [1536, 1024],
+    "person_px": 130,
+    "floor": [
+      [
+        [80, 605],
+        [470, 400],
+        [520, 380],
+        [830, 235],
+        [900, 250],
+        [1130, 345],
+        [1250, 370],
+        [1340, 360],
+        [1500, 410],
+        [1500, 425],
+        [1450, 470],
+        [1340, 600],
+        [1150, 770],
+        [1060, 815],
+        [900, 895],
+        [650, 922],
+        [600, 905],
+        [400, 808],
+        [330, 762]
+      ]
+    ],
+    "blocked": [
+      {
+        "label": "sofa",
+        "poly": [[205, 570], [300, 505], [455, 520], [440, 560], [300, 560], [230, 610]],
+        "height": 60
+      },
+      {"label": "armchair", "poly": [[220, 660], [270, 635], [325, 662], [275, 688]], "height": 65},
+      {"label": "armchair", "poly": [[495, 690], [550, 662], [605, 690], [550, 718]], "height": 65},
+      {"label": "coffee table", "poly": [[355, 640], [428, 605], [505, 640], [428, 675]], "height": 45},
+      {"label": "side table", "poly": [[462, 725], [482, 715], [502, 725], [482, 735]], "height": 55},
+      {"label": "desk", "poly": [[540, 470], [610, 432], [700, 478], [630, 516]], "height": 70},
+      {"label": "desk", "poly": [[690, 535], [775, 490], [905, 560], [820, 605]], "height": 70},
+      {"label": "conference table", "poly": [[810, 360], [900, 315], [1090, 410], [1000, 455]], "height": 45},
+      {"label": "reception", "poly": [[950, 670], [1050, 615], [1200, 690], [1100, 745]], "height": 80},
+      {"label": "plant", "poly": [[455, 418], [478, 406], [501, 418], [478, 430]], "height": 110},
+      {"label": "plant", "poly": [[845, 240], [867, 229], [889, 240], [867, 251]], "height": 140},
+      {"label": "plant", "poly": [[1145, 370], [1168, 358], [1191, 370], [1168, 382]], "height": 120}
+    ],
+    "entrance": {"at": [1065, 765], "facing": "n"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [1105, 790], "facing": "s", "label": "Way out"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1395, 390],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "sofa_left",
+        "kind": "sofa",
+        "at": [275, 555],
+        "facing": "s",
+        "label": "Sofa",
+        "activity": "break_coffee"
+      },
+      {
+        "id": "sofa_right",
+        "kind": "sofa",
+        "at": [355, 540],
+        "facing": "s",
+        "label": "Sofa",
+        "activity": "break_coffee"
+      },
+      {"id": "armchair_left", "kind": "seat", "at": [272, 662], "facing": "e", "label": "Armchair"},
+      {"id": "armchair_right", "kind": "seat", "at": [550, 690], "facing": "n", "label": "Armchair"},
+      {"id": "desk_1", "kind": "seat", "at": [585, 515], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_2", "kind": "seat", "at": [735, 610], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_3", "kind": "seat", "at": [818, 495], "facing": "w", "label": "Desk", "staff": true},
+      {
+        "id": "reception",
+        "kind": "seat",
+        "at": [1198, 630],
+        "facing": "w",
+        "label": "Reception",
+        "staff": true
+      },
+      {"id": "table_1", "kind": "seat", "at": [830, 395], "facing": "e", "label": "Planning table"},
+      {"id": "table_2", "kind": "seat", "at": [885, 425], "facing": "e", "label": "Planning table"},
+      {"id": "table_3", "kind": "seat", "at": [945, 455], "facing": "e", "label": "Planning table"},
+      {"id": "table_4", "kind": "seat", "at": [970, 300], "facing": "w", "label": "Planning table"},
+      {"id": "table_5", "kind": "seat", "at": [1025, 330], "facing": "w", "label": "Planning table"},
+      {"id": "table_6", "kind": "seat", "at": [1072, 362], "facing": "w", "label": "Planning table"}
+    ]
+  }
+}

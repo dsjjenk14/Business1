@@ -611,6 +611,23 @@ export class UI {
     return el("div", { class: "grow" }, eyebrow ? el("div", { class: "eyebrow" }, eyebrow) : null, el("h2", null, title), extra || null);
   }
 
+  // The street verbs verbs.js finds for a person (pickpocket, fight: risk first), in a "Street" section in the danger
+  // style (empty: nothing shown). D-069, D-070.
+  async personSection(box, person) {
+    let mod = null;
+    try { mod = await import("./verbs.js"); } catch { mod = null; }
+    if (!mod || typeof mod.personActions !== "function" || !box.isConnected) return;
+    let actions = [];
+    try { actions = await mod.personActions(this.game, person); } catch { actions = []; }
+    if (!box.isConnected || !Array.isArray(actions) || !actions.length) return;
+    replace(box, el("div", { class: "eyebrow" }, "Street"), el("ul", { class: "list" }, actions.map(a => el("li", null,
+      el("button", { type: "button", class: "btn block danger", dataset: { verb: a.key }, onclick: async e => {
+        const b = e.currentTarget; b.disabled = true;
+        try { await mod.runAction(this.game, a); } finally { if (b.isConnected) b.disabled = false; }
+      } }, a.label), a.detail ? el("p", { class: "hint" }, a.detail) : null))));
+    box.hidden = false;
+  }
+
   // The verbs engineer B's verbs.js finds for a place, in a "Do" section (empty: nothing shown).
   async doSection(box, place) {
     let mod = null;
@@ -811,7 +828,8 @@ export class UI {
     const solo = document.body.dataset.boot === "solo";
     const body = [];
     body.push(el("div", { class: "row" }, avatar(id, p.name, "big"), el("div", { class: "stack grow", style: { gap: "4px" } },
-      p.scripted ? el("span", null, el("span", { class: "badge script" }, "played by a script")) : null, metText, distText)));
+      p.scripted ? el("span", null, el("span", { class: "badge script" }, "played by a script")) : null,
+      p.uniform === "police" ? el("span", null, el("span", { class: "badge police" }, "police officer on duty")) : null, metText, distText)));
     if (p.scripted) body.push(el("p", { class: "hint" }, "A script chooses where this character goes and what they do; the game's rules decide every outcome, as for everyone."));
     body.push(el("div", { class: "eyebrow" }, "Talk"));
     if (w.interactions && w.interactions.length) {
@@ -863,6 +881,8 @@ export class UI {
     };
     askList();
     body.push(el("details", { class: "more" }, el("summary", null, "Ask…"), askBody));
+    const streetBox = el("div", { class: "stack", hidden: true });  // street verbs (verbs.js personActions, D-069/D-070)
+    body.push(streetBox);
 
     this.openSheet("person", id, this.head(p.known ? "Someone you know" : "Someone nearby", p.name), body, now => {
       const pp = w.people.get(id);
@@ -871,6 +891,7 @@ export class UI {
       const d = w.distanceTo(id, now);
       distText.textContent = d === 0 ? "Here with you." : isFinite(d) ? `${Math.round(d)} m away` : "";
     });
+    this.personSection(streetBox, p);
   }
 
   // A bus stop: pick where to go (nothing is picked for you) and how to pay.
@@ -907,7 +928,13 @@ export class UI {
         pay = k; for (const b of paySeg.children) b.setAttribute("aria-pressed", String(b.dataset.pay === k));
       } }, l)));
     const dodgeBox = el("input", { type: "checkbox", id: "ride-dodge", onchange: () => { dodge = dodgeBox.checked; label(); } });
-    body.push(paySeg, el("label", { class: "choice danger-choice" }, dodgeBox, el("span", { class: "grow" }, "Ride without paying", el("span", { class: "near" }, "An inspector may catch you and fine you."))));
+    const dodgeNear = el("span", { class: "near" }, "An inspector may catch you and fine you.");
+    body.push(paySeg, el("label", { class: "choice danger-choice" }, dodgeBox, el("span", { class: "grow" }, "Ride without paying", dodgeNear)));
+    // The inspectors' odds and the fine are the server's own numbers (crime_risk, D-069).
+    this.game.req("crime_risk", { crime: "fare_evasion" }).then(r => {
+      if (r.ok && typeof r.data.chance === "number" && dodgeNear.isConnected)
+        dodgeNear.textContent = `Inspectors check about ${Math.round(r.data.chance * 100)}% of rides: a ${money((r.data.if_caught || {}).fine_cents || 0)} fine and fare evasion on your record if they catch you.`;
+    });
     body.push(ride);
     body.push(el("p", { class: "hint" }, "Riders travel on a single-rider shuttle for now; shared buses on a timetable come later."));
     this.openSheet("stop", id, this.head(`Bus stop ${this.renderer.stopNo && this.renderer.stopNo.get(id) ? `${this.renderer.stopNo.get(id)} ` : ""}· ${line.name}`, stop.name), body, now => {
@@ -959,6 +986,7 @@ export class UI {
       el("p", { class: "hint" }, "Only you see these. Eat, sleep, wash and see people to keep them up; anything below 20 needs you soon."),
       el("div", { class: "eyebrow" }, "Feelings"), bars(s.emotions, true),
       el("p", { class: "hint" }, "Green is good for you, red is not: high stress or embarrassment hurts, high happiness helps."),
+      ...(this.game.youExtras ? this.game.youExtras() : []),  // the street: wanted, held, walking away from fights (moments.js)
       el("div", { class: "eyebrow" }, "Game"),
       el("button", { type: "button", class: "btn block", id: "you-menu", onclick: () => this.sheetMenu() }, lotus(), "Game menu"),
       el("div", { class: "row" },

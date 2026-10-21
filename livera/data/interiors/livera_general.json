@@ -1,0 +1,109 @@
+{
+  "interior": {
+    "id": "livera_general",
+    "places": ["livera_general"],
+    "size": [1536, 1024],
+    "person_px": 110,
+    "floor": [
+      [
+        [395, 645],
+        [450, 615],
+        [600, 548],
+        [640, 505],
+        [700, 452],
+        [890, 545],
+        [950, 520],
+        [1040, 470],
+        [1100, 495],
+        [1050, 525],
+        [1010, 690],
+        [1080, 690],
+        [880, 800],
+        [820, 850],
+        [600, 845],
+        [545, 805],
+        [420, 725]
+      ],
+      [[540, 360], [640, 300], [790, 225], [870, 215], [930, 240], [700, 370], [620, 405]],
+      [[1260, 575], [1300, 500], [1400, 470], [1500, 520], [1500, 560], [1350, 640], [1310, 625]],
+      [[330, 520], [420, 480], [470, 500], [380, 550]]
+    ],
+    "blocked": [
+      {"label": "waiting chairs", "poly": [[462, 700], [500, 678], [618, 740], [580, 762]], "height": 55},
+      {"label": "waiting chairs", "poly": [[562, 625], [600, 603], [722, 668], [685, 690]], "height": 55},
+      {"label": "waiting chairs", "poly": [[700, 570], [735, 550], [835, 605], [800, 625]], "height": 55},
+      {"label": "waiting chairs", "poly": [[725, 735], [760, 715], [865, 775], [828, 795]], "height": 55},
+      {"label": "waiting chairs", "poly": [[870, 690], [905, 668], [1000, 725], [965, 745]], "height": 55},
+      {"label": "side table", "poly": [[575, 733], [600, 720], [625, 733], [600, 746]], "height": 45},
+      {"label": "side table", "poly": [[795, 640], [820, 627], [845, 640], [820, 653]], "height": 45},
+      {"label": "side table", "poly": [[853, 770], [880, 756], [908, 770], [880, 784]], "height": 45},
+      {"label": "round table", "poly": [[670, 822], [705, 802], [742, 822], [705, 842]], "height": 35},
+      {"label": "armchair", "poly": [[620, 775], [645, 762], [675, 778], [650, 792]], "height": 55},
+      {"label": "plant", "poly": [[845, 650], [865, 640], [885, 650], [865, 660]], "height": 100},
+      {"label": "plant", "poly": [[960, 750], [980, 740], [1000, 750], [980, 760]], "height": 90},
+      {"label": "plant", "poly": [[645, 520], [665, 510], [685, 520], [665, 530]], "height": 100},
+      {"label": "exam bed", "poly": [[1415, 500], [1460, 478], [1510, 505], [1465, 528]], "height": 55},
+      {"label": "cart", "poly": [[1300, 540], [1325, 528], [1350, 540], [1325, 552]], "height": 70}
+    ],
+    "entrance": {"at": [462, 662], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [410, 690], "facing": "w", "label": "Front doors"},
+      {
+        "id": "reception",
+        "kind": "counter",
+        "at": [472, 642],
+        "facing": "n",
+        "label": "Reception",
+        "offers": true
+      },
+      {
+        "id": "reception_staff",
+        "kind": "seat",
+        "at": [400, 522],
+        "facing": "s",
+        "label": "Behind reception",
+        "staff": true
+      },
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [885, 232],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "ward_bed_1",
+        "kind": "bed",
+        "at": [585, 352],
+        "facing": "s",
+        "label": "Ward bed",
+        "offers": ["treatment", "emergency_care", "rehab", "abortion"]
+      },
+      {
+        "id": "ward_bed_2",
+        "kind": "bed",
+        "at": [760, 265],
+        "facing": "s",
+        "label": "Ward bed",
+        "offers": ["treatment", "emergency_care", "rehab", "abortion"]
+      },
+      {
+        "id": "exam_bed",
+        "kind": "bed",
+        "at": [1432, 545],
+        "facing": "w",
+        "label": "Exam room",
+        "offers": ["checkup", "sti_test", "prenatal"]
+      },
+      {"id": "wait_1", "kind": "seat", "at": [512, 690], "facing": "s", "label": "Waiting room"},
+      {"id": "wait_2", "kind": "seat", "at": [575, 722], "facing": "s", "label": "Waiting room"},
+      {"id": "wait_3", "kind": "seat", "at": [615, 638], "facing": "s", "label": "Waiting room"},
+      {"id": "wait_4", "kind": "seat", "at": [685, 672], "facing": "s", "label": "Waiting room"},
+      {"id": "wait_5", "kind": "seat", "at": [745, 590], "facing": "s", "label": "Waiting room"},
+      {"id": "wait_6", "kind": "seat", "at": [772, 745], "facing": "s", "label": "Waiting room"},
+      {"id": "wait_7", "kind": "seat", "at": [915, 700], "facing": "s", "label": "Waiting room"},
+      {"id": "armchair", "kind": "seat", "at": [652, 790], "facing": "s", "label": "Armchair"}
+    ]
+  }
+}

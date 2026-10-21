@@ -1,0 +1,11 @@
+{
+  "$comment": "Life events (D-068, core/LifeEvents.cpp): BitLife-style moments that happen to you. Up to per_day a game day per character, inside hours [from, to), at least min_gap_minutes apart, checked every check_every_minutes; never asleep, in a cell, riding, on a shift (unless the event is about work: when.on_shift) or for someone a script plays. Which one comes up is a pure draw (a hash of character, day and slot, weighted) among the events whose `when` holds right then and whose cooldown_days have passed. An unanswered one lapses after lapse_minutes. Chance outcomes roll the world's saved random stream. Money only moves through the ledger, to or from sys:economy, an org account, `employer` (your career's), `here` (the place it came up) or `landlord` (who you rent from).",
+  "life_events": {
+    "per_day": 2,
+    "hours": [8, 23],
+    "min_gap_minutes": 150,
+    "check_every_minutes": 10,
+    "lapse_minutes": 360,
+    "memory_importance": 30
+  }
+}

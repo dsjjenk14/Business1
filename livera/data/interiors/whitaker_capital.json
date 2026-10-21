@@ -1,0 +1,87 @@
+{
+  "interior": {
+    "id": "whitaker_capital",
+    "places": ["whitaker_capital"],
+    "size": [1536, 1024],
+    "person_px": 140,
+    "floor": [
+      [
+        [95, 556],
+        [320, 445],
+        [490, 355],
+        [560, 300],
+        [775, 195],
+        [1180, 365],
+        [1340, 398],
+        [1500, 468],
+        [1370, 560],
+        [1180, 700],
+        [1050, 800],
+        [860, 945],
+        [720, 950],
+        [500, 852],
+        [495, 712],
+        [290, 634]
+      ]
+    ],
+    "blocked": [
+      {"label": "desk", "poly": [[307, 556], [345, 538], [582, 602], [545, 623]], "height": 70},
+      {"label": "desk", "poly": [[487, 440], [525, 422], [760, 485], [722, 506]], "height": 70},
+      {"label": "conference table", "poly": [[745, 305], [800, 282], [975, 375], [915, 415]], "height": 50},
+      {"label": "glass wall", "poly": [[555, 296], [955, 466], [955, 480], [555, 310]], "height": 0},
+      {"label": "glass wall", "poly": [[1000, 445], [1110, 380], [1110, 394], [1000, 459]], "height": 0},
+      {"label": "reception desk", "poly": [[605, 705], [625, 692], [870, 815], [830, 832]], "height": 85},
+      {"label": "partition", "poly": [[730, 600], [800, 562], [830, 576], [760, 615]], "height": 110},
+      {"label": "city model", "poly": [[835, 680], [950, 615], [1150, 720], [1040, 785]], "height": 70},
+      {"label": "sofa", "poly": [[1120, 520], [1180, 485], [1300, 548], [1240, 585]], "height": 60},
+      {"label": "coffee table", "poly": [[1100, 565], [1150, 540], [1200, 565], [1150, 590]], "height": 40},
+      {"label": "armchair", "poly": [[1010, 525], [1050, 505], [1095, 525], [1055, 548]], "height": 70},
+      {"label": "plant", "poly": [[505, 600], [530, 588], [555, 600], [530, 612]], "height": 90},
+      {"label": "plant", "poly": [[675, 505], [700, 493], [725, 505], [700, 517]], "height": 90},
+      {"label": "plant", "poly": [[255, 495], [280, 483], [305, 495], [280, 507]], "height": 110}
+    ],
+    "entrance": {"at": [520, 735], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [440, 680], "facing": "w", "label": "Front door"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1440, 472],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "coffee",
+        "kind": "fixture",
+        "at": [430, 452],
+        "facing": "n",
+        "label": "Coffee",
+        "activity": "break_coffee"
+      },
+      {
+        "id": "reception",
+        "kind": "seat",
+        "at": [757, 698],
+        "facing": "w",
+        "label": "Reception",
+        "staff": true
+      },
+      {"id": "desk_1", "kind": "seat", "at": [353, 557], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_2", "kind": "seat", "at": [434, 595], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_3", "kind": "seat", "at": [415, 465], "facing": "w", "label": "Desk", "staff": true},
+      {"id": "desk_4", "kind": "seat", "at": [511, 511], "facing": "w", "label": "Desk", "staff": true},
+      {"id": "desk_5", "kind": "seat", "at": [515, 449], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_6", "kind": "seat", "at": [584, 482], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_7", "kind": "seat", "at": [588, 384], "facing": "w", "label": "Desk", "staff": true},
+      {"id": "desk_8", "kind": "seat", "at": [668, 415], "facing": "w", "label": "Desk", "staff": true},
+      {"id": "conference_1", "kind": "seat", "at": [780, 345], "facing": "e", "label": "Conference table"},
+      {"id": "conference_2", "kind": "seat", "at": [860, 380], "facing": "e", "label": "Conference table"},
+      {"id": "conference_3", "kind": "seat", "at": [840, 255], "facing": "w", "label": "Conference table"},
+      {"id": "conference_4", "kind": "seat", "at": [898, 276], "facing": "w", "label": "Conference table"},
+      {"id": "armchair", "kind": "seat", "at": [1050, 535], "facing": "s", "label": "Armchair"},
+      {"id": "sofa_left", "kind": "sofa", "at": [1180, 530], "facing": "w", "label": "Sofa"},
+      {"id": "sofa_right", "kind": "sofa", "at": [1240, 562], "facing": "w", "label": "Sofa"}
+    ]
+  }
+}

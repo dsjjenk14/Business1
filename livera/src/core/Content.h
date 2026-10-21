@@ -111,6 +111,7 @@ struct CrimeConfig {
   LedgerAccountId finesAccount;
   Cents overdoseBillCents = 45000;
   LocationId hospital;
+  std::vector<std::string> shopliftPlaceTypes;  // where steal works (D-069); empty = any shop
 };
 
 // Things people own: clothes, accessories, electronics, medicine (data/items/items.json).
@@ -1014,6 +1015,176 @@ struct AutopilotMannersConfig {
   std::vector<AutopilotAskRule> asks;        // kinds not listed are declined
 };
 
+// --- interiors: rooms you walk around in (Interiors.cpp, D-066) ---
+// A place's room, traced from its picture (data/interiors/<id>.json). Coordinates are the picture's pixels, so a
+// client draws people straight onto it. `facing` is one of the picture's four iso directions, named for the walls
+// the art pack cuts away from the south-west: n (up-left, toward the far-left wall), e (up-right), s (down-right,
+// toward the viewer) and w (down-left, toward the viewer).
+struct InteriorSpotDef {
+  std::string id;
+  std::string kind;                 // seat, sofa, bed, stool (you sit there), counter, station, stage, fixture, door
+  Vec2 at;                          // where a person's feet are when they stand or sit there
+  std::string facing;
+  std::string label;
+  std::string activity;             // an activity of the place done here ("" = none); a door with none is the way out
+  bool offersAll = false;           // a counter selling everything the place sells...
+  std::vector<std::string> offers;  // ...or only these offers (a counter, or a seat they're served at: a table, a salon chair)
+  bool staff = false;               // a work station: where starting a shift puts you
+  bool isSeat() const { return kind == "seat" || kind == "sofa" || kind == "bed" || kind == "stool"; }
+  bool sells(const std::string& offer) const {
+    return offersAll || std::find(offers.begin(), offers.end(), offer) != offers.end();
+  }
+};
+
+// Furniture standing on the floor: nobody walks onto it, and clients draw it in front of whoever stands behind it
+// (its footprint raised by `height` pixels is the part of the picture that covers them).
+struct InteriorBlockDef {
+  std::string label;
+  std::vector<Vec2> poly;
+  double height = 0;
+};
+
+struct InteriorDef {
+  std::string id;                   // also the picture's id (art/interiors/<id>.webp)
+  std::vector<LocationId> places;   // places this room is the inside of (homes may share one picture)
+  double width = 0;
+  double height = 0;
+  double personPx = 120;            // an adult's height in pixels, for drawing people to the picture's scale
+  std::vector<std::vector<Vec2>> floor;
+  std::vector<InteriorBlockDef> blocked;
+  Vec2 entrance;                    // where you are when you come in (or connect, or load a save)
+  std::string entranceFacing;
+  std::vector<InteriorSpotDef> spots;
+  // Where an offer is served: the spots naming it (a table, a salon chair, an exam bed), or, when none does, the
+  // counters selling everything.
+  bool servedAt(const InteriorSpotDef& s, const std::string& offer) const;
+  bool onFloor(Vec2 p) const;       // inside the room's floor
+  bool walkable(Vec2 p) const;      // on the floor and not on furniture
+  const InteriorSpotDef* spot(const std::string& id) const;
+};
+
+// --- life events: moments that happen to you (data/events/*.json, LifeEvents.cpp, D-068) ---
+// Money an outcome moves, always through the ledger. `account` is sys:economy, an org account, or one resolved when
+// the event happens: "employer" (your career's), "here" (the place it came up) or "landlord" (who you rent from).
+// cents > 0 is paid to you, < 0 by you; `via` is your "cash" or "bank".
+struct LifeEventMoneyDef {
+  Cents cents = 0;
+  std::string account;
+  std::string via = "bank";
+};
+
+// One way a choice can turn out. A choice with several has a chance on each (they add up to 1), rolled from the
+// world's saved random stream.
+struct LifeEventOutcomeDef {
+  double chance = 1;
+  std::string text;                 // what happened; {name}, {founder} and {place} are filled in
+  StatMap needs;
+  StatMap emotions;
+  StatMap you;                      // your side of the relationship with the person in the event
+  StatMap them;                     // theirs toward you (never shown to you as numbers: `reaction` is)
+  std::string reaction;
+  std::optional<LifeEventMoneyDef> money;
+  std::string memory;               // the memory it leaves (default: the event's title and your choice)
+  int memoryImpact = 0;
+  int memoryImportance = -1;        // -1 = life_events.memory_importance
+  double fame = 0;
+};
+
+struct LifeEventChoiceDef {
+  std::string label;
+  std::vector<LifeEventOutcomeDef> outcomes;
+};
+
+// When an event can come up, from what the World knows about you right then. Unset = no condition.
+struct LifeEventWhenDef {
+  std::optional<bool> outside;
+  std::vector<std::string> placeTypes;   // the type of the place you're at
+  std::vector<LocationId> places;        // or these places
+  std::optional<OpeningHours> hours;     // [from, to) game hours, wrapping past midnight
+  std::vector<int> weekdays;             // 0 = Monday
+  int minAge = -1;
+  int maxAge = -1;
+  std::optional<bool> hasCareer;
+  std::vector<std::string> careers;
+  bool onShift = false;                  // only on a shift (otherwise never during one)
+  std::string relationship;              // "single" or "partnered"
+  Cents moneyAtLeast = -1;               // cash + bank
+  Cents moneyBelow = -1;
+  std::vector<std::string> fameTiers;
+  std::optional<bool> hasPet;
+  std::optional<bool> hasKids;
+  std::optional<bool> hasRecord;
+  std::string with;                      // someone with you: anyone, known, stranger, coworker, partner, ex
+  CharacterId founder;                   // this founder is with you (and isn't you)
+  std::vector<std::string> weather;      // today's weather kind
+  std::string home;                      // "renting", "owns" or "none"
+};
+
+struct LifeEventDef {
+  std::string id;
+  std::string category;   // work, money, love, friends, family, health, town, temptation, street
+  std::string title;
+  std::string prompt;
+  LifeEventWhenDef when;
+  double weight = 1;
+  int cooldownDays = 0;   // days before the same event can come up again for the same character
+  int lapseMinutes = -1;  // -1 = life_events.lapse_minutes
+  std::vector<LifeEventChoiceDef> choices;
+};
+
+struct LifeEventsConfig {
+  int perDay = 2;
+  OpeningHours hours{8, 23, {}};
+  int minGapMinutes = 150;
+  int checkEveryMinutes = 10;
+  int lapseMinutes = 360;
+  int memoryImportance = 30;
+};
+
+// --- fist fights (data/society/fights.json, Fights.cpp, D-070) ---
+struct FightEffectsDef {
+  StatMap needs;
+  StatMap emotions;
+};
+
+struct FightInjuryDef {
+  std::string condition;
+  double margin = 0;  // the loser's injury is the last one whose margin the winning score beat theirs by
+};
+
+struct FightsConfig {
+  bool enabled = false;
+  std::string crime = "assault";
+  double rangeMeters = 3;
+  int windowMinutes = 15;
+  int attackerCooldownMinutes = 120;
+  int protectedMinutes = 480;
+  std::vector<std::string> noFightPlaceTypes;
+  bool autopilotAtWork = false;   // whether a founder the autopilot plays can be attacked on shift
+  std::string autopilotTrait;     // an autopilot founder fights back when this trait is at least...
+  double autopilotFightBackAt = 101;  // ...this; otherwise it walks away
+  // A fighter's score: base + each skill x its weight + each need x its weight - per_injury for each injury of
+  // `injuries` already carried, plus +-noise from the saved random stream.
+  double scoreBase = 40, scorePerInjury = 8, scoreNoise = 20;
+  StatMap scoreSkills;
+  StatMap scoreNeeds;
+  double runBase = 0.55, runPerPoint = 0.006, runMin = 0.15, runMax = 0.9, runDistanceMeters = 30;
+  std::vector<FightInjuryDef> injuries;
+  FightEffectsDef winner, loser, tookIt, attackerHit, ran, walkedAway, attackerWalkedAway;
+  double winnerInjuryChance = 0;
+  std::string winnerInjury;
+  std::string tookItInjury;
+  StatMap victimRelationship;    // the person attacked, toward whoever started it
+  StatMap attackerRelationship;  // whoever started it, toward the person they attacked
+  StatMap witnessRelationship;   // everyone who saw it, toward whoever started it
+  double reportChance = 0.7;
+  double witnessReportChance = 0.4;
+  int importance = 55;
+  int impact = -40;
+  int witnessImportance = 35;
+  int witnessImpact = -15;
+};
+
 class ContentDatabase {
  public:
   // Loads every *.json under `dir` (recursively, sorted for determinism) and merges them.
@@ -1094,6 +1265,11 @@ class ContentDatabase {
   // } m08:details
   // Redesign: goals (Goals.cpp) and the autopilot's manners (Autopilot.cpp).
   const AutopilotMannersConfig& autopilotManners() const { return manners_; }
+  // life events (LifeEvents.cpp, D-068) and fist fights (Fights.cpp, D-070)
+  const LifeEventsConfig& lifeEventsConfig() const { return lifeEvents_; }
+  const std::map<std::string, LifeEventDef>& lifeEvents() const { return lifeEventDefs_; }
+  const LifeEventDef* lifeEvent(const std::string& id) const;
+  const FightsConfig& fights() const { return fights_; }
   const GoalsConfig& goals() const { return goals_; }
   const AspirationDef* aspiration(const std::string& id) const;
   const AspirationDef* aspirationForCreatorGoal(const std::string& creatorGoal) const;
@@ -1110,6 +1286,9 @@ class ContentDatabase {
   const InteractionDef* interaction(const std::string& id) const;
   const CharacterDef* character(const std::string& id) const;
   const ConstructionProjectDef* constructionProject(const std::string& id) const;
+  // interiors (Interiors.cpp, D-066): the room a place has, or nullptr (it keeps the scene card).
+  const std::map<std::string, InteriorDef>& interiors() const { return interiors_; }
+  const InteriorDef* interiorFor(const LocationId& place) const;
 
  private:
   Status ingest(const std::string& source, const Json& doc);
@@ -1149,6 +1328,12 @@ class ContentDatabase {
   Status validateGoals() const;
   Status ingestManners(const std::string& source, const std::string& section, const Json& body, bool& handled);
   Status validateManners() const;
+  Status ingestInteriors(const std::string& source, const std::string& section, const Json& body, bool& handled);
+  Status ingestLifeEvents(const std::string& source, const std::string& section, const Json& body, bool& handled);
+  Status validateLifeEvents() const;
+  Status ingestFights(const std::string& source, const std::string& section, const Json& body, bool& handled);
+  Status validateFights() const;
+  Status validateInteriors() const;
   Status validate() const;
 
   bool haveSim_ = false;
@@ -1214,6 +1399,12 @@ class ContentDatabase {
   GoalsConfig goals_;
   bool haveManners_ = false;
   AutopilotMannersConfig manners_;
+  std::map<std::string, InteriorDef> interiors_;            // interiors (Interiors.cpp)
+  std::map<LocationId, std::string> interiorByPlace_;
+  bool haveLifeEvents_ = false;                              // life events (LifeEvents.cpp)
+  LifeEventsConfig lifeEvents_;
+  std::map<std::string, LifeEventDef> lifeEventDefs_;
+  FightsConfig fights_;                                      // fist fights (Fights.cpp)
 };
 
 }  // namespace livera

@@ -179,8 +179,8 @@ timetable, residents on autopilot when nobody plays them (✅ `--autopilot`, D-0
 babies with an appearance and visible children, driving v1, rooms indoors so whisper and shout
 differ inside, add-to-home-screen.
 
-**Phase 2 — richer visuals:** a three.js 3D view in the same client, interiors, animation, and
-an optional app-store wrapper. The character creator gets a live preview there, and songs play
+**Phase 2 — richer visuals:** a three.js 3D view in the same client, interiors (2.5D rooms from the owner's
+pictures are in: D-066, below), animation, and an optional app-store wrapper. The character creator gets a live preview there, and songs play
 in the world from their note data.
 
 ## Redesign: easier, more playable (`docs/proposals/redesign.md`)
@@ -196,6 +196,10 @@ Server and core half (the client half is tracked in `web/README.md`):
 | R2.4 away pay for scheduled work (`salary_away`, data shares, default block for made characters) and the server's `--pause-when-empty` (D-063) | ✅ (`tests/test_world.cpp`, incl. a six-real-day once-a-day player who stays solvent; `tests/test_server.cpp`) |
 | R2.5 autopilot manners: greet a person once per day, sometimes chat with someone they know, answer asks by data rules, never intimacy, never each other (D-064) | ✅ (`tests/test_autopilot.cpp`) |
 | R2.6 the creator applies the same entry requirements as `apply` (`missing_degree`; `creator_options` marks the educations each career takes); AI Engineering now needs a bachelor's | ✅ (`tests/test_creator.cpp`) |
+| Go inside places: rooms traced from the owner's interior pictures (`data/interiors/`, twenty-one so far), `move_inside` / `sit` / `stand`, one person a seat, activities, purchases, performances and shifts at their spots, `look.here.room` and the `room` event, the web client's room view (`interior.js`) (D-066) | ✅ (`tests/test_interiors.cpp`, `tests/test_server.cpp`, `web/tests/interiors_e2e.js`) |
+| Life events, the BitLife pillar: 50 scenario cards in `data/events/` (work, money, love, friends, family, health, the town, temptation, the street), up to two a day at sensible moments, a pure weighted draw over what holds right then, outcomes through the World's rules (money only by the ledger), `life_event` / `event_answer` / `life_event_lapsed`, the phone app `story`; the web client's cards and Story app (`moments.js`) (D-068) | ✅ (`tests/test_events.cpp`, `tests/test_server.cpp`, `web/tests/moments_e2e.js`) |
+| Street life, the first GTA step: shoplifting only in shops the data names, read-only `crime_risk` (the odds from who could see you, and the consequence ladder), officers in uniform in `look` and the people stream, wanted and held in `look.you` and the Record app; in the client, Shoplift / Pick a pocket / the Underpass after dark with the odds first, the Wanted and Held chips, the cell's card (D-069) | ✅ (`tests/test_street.cpp`, `tests/test_server.cpp`, `web/tests/moments_e2e.js`) |
+| Fist fights: `fight` / `fight_respond` / `fight_prefs`, the person attacked chooses (fight back, run, take it) or always walks away, injuries as conditions the clinic treats, assault only when a blow lands, one fight a pair a day, protection afterwards (D-070) | ✅ (`tests/test_street.cpp`, `tests/test_server.cpp`, `web/tests/moments_e2e.js`) |
 
 ## M2 — Dominique, complete (spec Phase 2) ⬜
 

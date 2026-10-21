@@ -15,6 +15,7 @@ import { SKETCH_NOTICE } from "./layout.js";
 import { Agenda } from "./today.js";
 import { FirstMorning, howItWorks } from "./onboarding.js";
 import { effectsText } from "./ui.js";
+import { RoomView } from "./interior.js";
 
 const round1 = v => Math.round(v * 10) / 10;
 
@@ -850,6 +851,32 @@ export class Game {
   async laundry() { const r = await this.req("laundry"); if (r.ok) { this.refreshBank(); this.lastLook = 0; } return r; }
   buyWithCoins(item) { return this.req("buy_with_coins", { item }); }
   switchPhone(item) { return this.req("switch_phone", { item }); }
+
+  // --- interiors (D-066)
+  // Inside a place whose room the server describes and this client has a picture of, the room is the scene: the
+  // view, its taps (move_inside, sit, stand, the counter, the stage, the doors) and the `room` event live in
+  // interior.js. It attaches itself once the transport, renderer and UI exist, and draws over the town.
+  interiors = new RoomView(this);
+}
+
+// --- moments
+// Life events, the street and fights (moments.js; D-068, D-069, D-070): their events are taken there first, the
+// module comes in with the world (it reads the same look and people messages), and the You card gets its street
+// lines from it. Everything else the Game does is unchanged.
+import { installMoments } from "./moments.js";
+{
+  const onEvent = Game.prototype.onEvent, enterWorld = Game.prototype.enterWorld, leaveGame = Game.prototype.leaveGame;
+  Game.prototype.onEvent = function (msg) {
+    if (this.moments && this.moments.onEvent(msg)) return undefined;
+    return onEvent.call(this, msg);
+  };
+  Game.prototype.enterWorld = async function (look) {
+    if (!this.moments) { this.moments = installMoments(this); this.youExtras = () => this.moments.youNodes(); }
+    const r = await enterWorld.call(this, look);
+    this.moments.entered();
+    return r;
+  };
+  Game.prototype.leaveGame = function () { if (this.moments) this.moments.reset(); return leaveGame.call(this); };
 }
 
 // The live page boots here. Pages that boot their own subclass of Game set data-boot on <body>:

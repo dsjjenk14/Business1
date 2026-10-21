@@ -812,3 +812,166 @@ feedback, and panels covering the town. All of it was data the server already se
 **Trade-off:** Everything the client shows is still the server's answer; where a number would be a
 guess (pay so far) it is labelled an estimate. The nearest fix for a low need points only at places
 you've been inside, because `map` doesn't say what each place offers.
+
+## D-066 — Rooms you walk around in: traced from the owner's pictures, positions are the server's and not saved
+**Decision:** A place whose interior is in data (`data/interiors/<id>.json`, the `interior` section, checked by
+`ContentDatabase`) has a room: the picture's size and the scale of a person in it, the walkable floor (polygons in
+the picture's pixels), the furniture standing on it (footprints and heights), the entrance, and its spots (`seat`,
+`sofa`, `bed`, `stool` you sit on; `counter`, `station`, `stage`, `fixture`, `door` you stand at), each with where a
+person's feet are, which of the picture's four directions they face, a label, and optionally the place's activity
+done there, the offers sold or served there (a counter; a seat such as a restaurant table, a salon chair or an
+exam bed) or `staff` (a work station). Content is refused unless the place
+exists and is enterable, every spot is in the room (counters, stations and fixtures on open floor), ids are unique,
+each spot's activity and offers are that place's, every activity and offer of the place has a spot, a stage place
+has a stage, and there's a way out (a door with no activity). Twenty-one rooms are traced (all of the owner's
+interior pictures so far, the primary picture where there are two). Inside such a place each character has a point in the room and maybe a spot, kept in `World` as
+session state like the people stream (`rooms_`), never saved: connecting, loading and coming in put you at the
+entrance; leaving, logging off or being taken away frees your spot at once. Three World commands change it:
+`move_inside {x, y}` (refusals `not_inside`, `no_room`, `off_floor`: outside the floor or on furniture), `sit
+{spot}` (`no_such_spot`, `not_a_seat`, `spot_taken`; sitting where you already sit is fine) and `stand` (onto the
+open floor beside the seat). The server sets the position at once; clients animate the walk. An activity, a
+purchase, a performance and starting a shift there move you to the nearest free spot that serves it (the
+activity's spot, a spot naming that offer, else a counter selling everything, the stage, a staff station); you keep a
+spot that already serves
+it; when every such spot is held you stand on the open floor next to the nearest one, clear of other people. None
+of this adds a refusal to those commands: they work anywhere in the place, as before. `look.here.room` carries the
+interior (its geometry, public content like a price) and everyone inside with `{id, at, spot}`; a `room` event
+goes to the people inside, at most once a tick and only when something changed (who arrived, moved, sat, stood or
+left), like `people`. The web client draws the room from its own copy of the picture (`scripts/client_rooms.py`,
+`web/client/rooms/`) in `interior.js`; a place without data or without a picture keeps the scene card.
+**Why:** The owner's direction ("you can go inside places") and the interiors pack's plan. Positions inside are
+presentation-sized state with a rule that matters (one person a seat), so they live in the World and go through
+commands like everything else, and two people asking for one chair are answered one after the other on the
+single loop. Not saving them needs no migration and loses nothing anyone would miss: a reload, like a reconnect,
+finds you at the door. Putting an activity at its spot without refusing it elsewhere makes the room show what
+people are doing without changing a rule every other client and the autopilot already rely on.
+**Trade-off:** Walking inside is a teleport the client animates: there is no pathfinding around furniture and no
+travel time, so the server never says someone is between two points. The floor and spots are traced by hand from
+pictures; a picture that changes needs its data checked again (`scripts/client_rooms.py` refuses a picture whose
+size no longer matches its data). Rooms with stools for an activity show one person per stool even though the
+activity has no limit; the rest stand beside it.
+
+## D-067 — People are drawn whole, from the owner's model sheets, at real scale
+**Decision:** The web client draws every person as a full-body figure instead of a face badge
+(the owner: "you should see the entire character too"). `web/client/figures.js` is the one way a
+whole person is drawn, on the map and inside buildings: `drawFigure(ctx, person, x, y, {height,
+facing, mirror, pose, phase, night, selected, scripted})`, feet at (x, y), `height` being a 1.75 m
+person at that spot and everyone at their own height relative to it. The pictures are cut-outs of
+the full-body views on the model sheets (`scripts/client_figures.py`: BiRefNet through `rembg`,
+offline once its model is downloaded, then a cleaned, colour-decontaminated edge, one scale of
+360 px for 1.75 m, the feet found); the client picks the view from the direction someone walks on
+screen and mirrors it for the other side, falling back to the nearest view a character has.
+Walking is a bob and a sway; sitting lowers the standing figure so its hips meet the seat and clips
+it at the seat line, so the furniture drawn in front reads as the seat; `fight` and `flinch` lean,
+crouch and bounce or shake the standing figure (a photograph can't raise its fists; the stand-in
+body does). On the map people stand at
+real scale against the building pictures (which paint their buildings about 2.2 times the sketch's
+metres), face their way, carry their name plate and speech above their heads and keep a tap target
+of at least 44 px around the whole figure; the zoom goes in to 14 so a person can be seen close up.
+Characters with no sheet (made in the creator) are a stand-in body in neutral colours with an
+outfit colour picked from the town's palette by id, because the protocol doesn't tell other players
+what anyone chose in the creator; the code and the README say it is a stand-in. The faces row,
+cards and the phone keep the face crops.
+**Why:** The sheets are the approved look of each character; cutting them out shows the owner's art
+today, while `scripts/character_prompts.py` (`art/PROMPT_PACK_CHARACTERS.md`) asks for proper
+isometric sprite sheets (a walk cycle each way, standing, sitting on a chair and a sofa) to replace
+them. One drawing function keeps the map and the interiors consistent.
+**Trade-off:** The cut-outs are photographs from eye level, not the town's 30° camera, and nine
+founders' sheets are collages with only a walking shot and one from behind, so those founders look
+the same from the side as from the front. At real scale a person was about 8 px tall at the
+default zoom, a speck under their name, so (like most isometric games) people are drawn larger than
+the buildings would make them at the usual zooms: at least 26 px, at most three times real scale,
+reaching true scale as you zoom in (`personHeight()` in `render2d.js`); the default zoom moved
+closer too (2.8 on a phone, 3.0 wider). A readability choice of the sketch, not anyone's height. A
+classical matte (keying out the studio grey) can't cut the collages' lobby backgrounds, hence a
+segmentation model; its 224 MB weights are downloaded once and kept outside the repository.
+
+## D-068 — Life events: scenario cards from data, a pure draw at sensible moments, outcomes through the World's rules
+**Decision:** `data/events/*.json` holds BitLife-style scenario cards (`core/LifeEvents.cpp`): a prompt in the second
+person, `when` conditions read only from what the World knows (outside or in, the type of place or the place, hours,
+weekdays, age band, career, single or partnered, money band, fame tier, a pet, children, a record, today's weather,
+renting / owning / no home, someone with you of a kind — anyone, someone you know, a stranger, a coworker on shift
+with you, your partner, an ex — or a named founder with you), a weight, a cooldown in days, and two to four choices.
+Each choice has one outcome, or several with chances adding up to 1 rolled from the saved random stream (D-026). An
+outcome applies needs and emotions, your side of the relationship with the person in the event and theirs toward you
+(theirs is never shown as numbers: the reply carries a data `reaction`), money only by `Ledger::transfer` to or from
+`sys:economy`, an org account, or one resolved when it happens (`employer`, `here`, `landlord`), a memory (type
+`life_event`) and fame. The loader refuses unknown keys, conditions, places, careers, founders, stats, accounts,
+placeholders (`{name}`, `{founder}`, `{place}` only, and only when the event says who they are) and chances that don't
+add up. Up to `life_events.per_day` (2) come up per character and game day, inside `hours` ([8, 23)), at least
+`min_gap_minutes` (150) apart, never while one is waiting, never asleep, in a cell, on a bus, studying, in a fight, or
+for a character a script plays, and never during a shift unless the event is about work (`when.on_shift`). Slot *k*
+of a day opens at a hashed minute of its share of the hours; when it does and the moment is right, the event is a
+weighted pure draw (a hash of character, day and slot, as D-037) over the events whose conditions hold right then and
+whose cooldown has passed. It reaches the character as `life_event {event, title, category, prompt, choices:[{option,
+label, cost_cents?, cost_sure?, pay_with?}], lapses_at, with?, place?}`; what a choice can cost is shown on it, like a
+price, and a choice you can't afford is refused (`insufficient_funds`) before anything happens. `event_answer {event,
+option}` replies with `outcome` and `changes`; an unanswered event lapses after `lapse_minutes` (360) with
+`life_event_lapsed`. The phone app `story` is your own: the events waiting for you and your memories, newest first,
+each with your age then. Saved: the character key `events` (what's waiting, the day's count, the last offer, each
+event's last day for its cooldown); JSON fields only, no SQL change, as the `work` key; a save without it loads with
+none.
+**Why:** The owner's new direction, "BitLife meets The Sims meets GTA", needs life to happen to you. Cards that read
+only the World's own state can't pretend (a stray dog needs you outside, a coworker's secret needs a coworker on shift
+with you), and outcomes through the World's rules keep the ledger zero-sum and a relationship the same record
+interactions move. A pure draw keeps the Story app (a read-only view) and the minute step in agreement and keeps
+opening the phone from changing anyone's dice; what has come up must be saved, because it waits for an answer.
+**Trade-off:** The draw is a function of character and day, not of the world: Dominique's first event on day one is the
+same in every new town. A lapsed event still counts toward the day's two and its cooldown. Someone else's feelings move
+because of a choice they didn't see, as an interaction's do, by small data amounts.
+
+## D-069 — Street life is played where it happens, with the odds and the ladder shown first
+**Decision:** `crimes.json` names the kinds of shop where something can be pocketed (`shoplift_place_types`);
+`steal` elsewhere is refused (`cant_steal_here`). A read-only op, `crime_risk {crime, target?}`, gives the chance of
+being caught in the act exactly as the crime computes it (its base, plus each witness, each member of staff on shift
+there and each officer on duty nearby, at most 95%) from who could see you right now, with `seen_by` counts, and the
+consequence ladder from data (fine, time held and where, the longer time if the fine can't be paid, the record,
+notoriety, contraband seized); `chance` is null where you aren't where it would happen, so a client says "risky" and
+never makes a number up. It also gives a pickpocket's notice chance and cash cap, an assault's report chances and the
+injuries a fight can bring, the possession charge for what the Underpass sells, and the bus line's own inspection
+chance and fine. An officer on duty is in uniform: `uniform: "police"` on people in `look` and in the `people` stream
+(a change of uniform is news). Your own standing is yours to know: `look.you.wanted_for` and `jailed_until`, and the
+Record app's `wanted_for`, `jailed_until_minute` and `held_at`. `look.here.offers[].illegal` marks contraband. The web
+client puts each crime where it happens (`verbs.js`): Shoplift in a shop that allows it, Pick a pocket and Start a
+fight on a person's card, what's sold at an open-air place while it's open (the Underpass after dark), and the
+fare-dodge box with the line's odds; each opens the risk card first (`moments.js`), and Back sends nothing. Wanted and
+Held are chips under the strip; an arrest brings the cell's card (time left, what you can do), and release a card of
+its own.
+**Why:** The crime system existed (D-028) but no client could reach most of it, and "a chance you can see coming" was
+only true for someone who knew the data. The odds are computed from what anyone in the room could count and from public
+content, so showing them gives nothing away; the uniform is the one fact about an officer people can see.
+**Trade-off:** The odds are for where you stand now; walking up to someone can change who sees you. The map's officer
+badge is drawn over the portrait by the client's overlay, not by the figure renderer, until the figures have a uniform.
+
+## D-070 — Fist fights: the person attacked chooses, the World decides, assault only when a blow lands, and anyone can walk away
+**Decision:** `fight {target}` starts a fight with someone within `fights.range_m` (3 m; `core/Fights.cpp`,
+`data/society/fights.json`). Refused (stable codes): yourself (`invalid_target`), someone not here
+(`target_unavailable`), too far (`too_far`), a child either side (`minor`), someone asleep (`asleep`) or in a cell
+(`target_in_jail`, and `in_jail` for you), a place whose type the data rules out (`no_fighting_here`: clinic,
+hospital, school, daycare, church, the police station), a founder a script plays while they're at work (`not_now`,
+unless `autopilot.at_work`), either of you already in one (`busy`), your own cooldown after starting one
+(`cooling_down`, 120 min), their protection after being attacked (`protected`, 480 min), and a second fight between
+the same two people in a game day (`too_soon`). The person attacked gets `fight_started` and `window_minutes` (15) to
+`fight_respond` with `fight_back`, `run` or `take_it`; no answer means they froze and took it. Someone who has chosen
+to always walk away (`fight_prefs {walk_away}`, the You card) and a founder a script plays answer at once: the founder
+fights back if its data trait (`competitiveness`) is at least `fight_back_at` (70), otherwise walks away. The World
+decides from what neither side can fake: each fighter's score is the data base plus weighted skills and needs, less
+`per_injury` for each fight injury already carried, plus noise from the saved stream; running gets away with a chance
+from the difference of the scores (clamped). The loser's injury follows the margin (bruises, a black eye, a cracked
+rib: conditions diagnosed at once, healing on their own or treated at the clinic or the ER), the winner may be bruised,
+needs and emotions move for both, both remember it, the person attacked trusts and likes whoever started it less and
+everyone who saw it thinks less of them, and the witnesses start a rumour (the details' gossip). When a blow lands
+(fought back, took it, froze, or caught running) it's `assault` (crimes.json) for whoever started it: caught in the act
+by the crime's own detection over who saw it (the person attacked aside), else reported by them (`report_chance`) or a
+witness (`witness_report_chance` each) and wanted. Fighting back is never a crime. Walking away, a clean break and
+getting away mean no blow landed: no injury and no crime, but the relationship damage and the witnesses' view stand.
+Everyone present sees `fight` (started, then over, with who won) and both get `fight_result`. Saved: the character key
+`street` (walk away, today's fights, the cooldown, the protection); the waiting fight itself is session state.
+**Why:** The owner asked for fist fights as part of the street. The person attacked deciding (and a person being able
+to opt out entirely) keeps a fight from being something done to a player without a say, and the pair limit, the
+cooldown and the protection stop anyone from being harassed. Scoring from stats and the saved stream keeps outcomes on
+the server and reproducible; consequences through injuries, relationships, memories, rumours and the crime system mean
+nothing new had to be invented to make a fight matter.
+**Trade-off:** Walking away is a full opt-out from being hurt: an attacker can't force a fight on someone who chose
+not to fight, which is the point. A founder nobody plays can be beaten up and carries the injury into whoever plays it
+next. The scuffle on the map is an overlay and floating text until the figures have a fighting pose.

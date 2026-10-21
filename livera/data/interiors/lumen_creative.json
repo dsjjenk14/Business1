@@ -1,0 +1,90 @@
+{
+  "interior": {
+    "id": "lumen_creative",
+    "places": ["lumen_creative"],
+    "size": [1536, 1024],
+    "person_px": 115,
+    "floor": [
+      [
+        [85, 545],
+        [650, 255],
+        [780, 200],
+        [1300, 395],
+        [1360, 385],
+        [1500, 425],
+        [1480, 450],
+        [1270, 600],
+        [1100, 690],
+        [980, 765],
+        [810, 830],
+        [740, 800],
+        [600, 760],
+        [440, 705],
+        [380, 762],
+        [255, 702],
+        [225, 615]
+      ]
+    ],
+    "blocked": [
+      {"label": "window bench", "poly": [[140, 505], [390, 375], [410, 400], [160, 525]], "height": 45},
+      {"label": "sofa", "poly": [[465, 360], [595, 295], [615, 320], [485, 385]], "height": 55},
+      {"label": "sofa", "poly": [[305, 545], [430, 480], [530, 535], [410, 595]], "height": 60},
+      {"label": "armchair", "poly": [[245, 590], [285, 570], [325, 592], [285, 612]], "height": 55},
+      {"label": "armchair", "poly": [[432, 640], [475, 618], [522, 642], [478, 664]], "height": 55},
+      {"label": "coffee table", "poly": [[335, 590], [375, 570], [420, 590], [380, 610]], "height": 40},
+      {"label": "tree", "poly": [[420, 400], [442, 388], [464, 400], [442, 412]], "height": 150},
+      {"label": "desk", "poly": [[525, 435], [600, 395], [760, 470], [685, 510]], "height": 50},
+      {"label": "desk", "poly": [[705, 335], [790, 290], [1100, 440], [1015, 480]], "height": 55},
+      {
+        "label": "conference table",
+        "poly": [[1075, 515], [1180, 450], [1340, 525], [1235, 580]],
+        "height": 50
+      },
+      {"label": "shelves", "poly": [[805, 600], [900, 550], [1020, 610], [925, 660]], "height": 110},
+      {"label": "round table", "poly": [[700, 670], [755, 642], [812, 670], [757, 698]], "height": 35},
+      {"label": "round table", "poly": [[840, 705], [895, 678], [955, 705], [900, 732]], "height": 35},
+      {"label": "shelves", "poly": [[445, 790], [520, 750], [740, 850], [665, 890]], "height": 80},
+      {"label": "plant", "poly": [[1020, 640], [1042, 628], [1064, 640], [1042, 652]], "height": 80}
+    ],
+    "entrance": {"at": [450, 680], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [318, 728], "facing": "w", "label": "Front door"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1400, 420],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "sofa_left",
+        "kind": "sofa",
+        "at": [365, 550],
+        "facing": "s",
+        "label": "Sofa",
+        "activity": "break_coffee"
+      },
+      {
+        "id": "sofa_right",
+        "kind": "sofa",
+        "at": [430, 520],
+        "facing": "s",
+        "label": "Sofa",
+        "activity": "break_coffee"
+      },
+      {"id": "armchair_left", "kind": "seat", "at": [285, 592], "facing": "e", "label": "Armchair"},
+      {"id": "armchair_right", "kind": "seat", "at": [478, 640], "facing": "n", "label": "Armchair"},
+      {"id": "bench_1", "kind": "sofa", "at": [230, 482], "facing": "s", "label": "Window bench"},
+      {"id": "bench_2", "kind": "sofa", "at": [300, 446], "facing": "s", "label": "Window bench"},
+      {"id": "desk_1", "kind": "seat", "at": [550, 478], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_2", "kind": "seat", "at": [632, 505], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_3", "kind": "seat", "at": [750, 345], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_4", "kind": "seat", "at": [900, 412], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "meeting_1", "kind": "seat", "at": [1125, 560], "facing": "e", "label": "Meeting table"},
+      {"id": "meeting_2", "kind": "seat", "at": [1215, 582], "facing": "e", "label": "Meeting table"},
+      {"id": "round_1", "kind": "seat", "at": [700, 698], "facing": "e", "label": "Round table"},
+      {"id": "round_2", "kind": "seat", "at": [855, 745], "facing": "n", "label": "Round table"}
+    ]
+  }
+}

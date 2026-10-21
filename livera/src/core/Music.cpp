@@ -217,6 +217,7 @@ Result<Json> World::perform(const CharacterId& actor, const std::string& songId)
   const GameMinutes minutes =
       std::max<GameMinutes>(kMinPerformanceMinutes, static_cast<GameMinutes>(std::ceil(durationSeconds(song) / 60.0)));
   c.performReadyAt = state_.now + minutes;
+  (void)takeRoomSpot(c, [](const InteriorSpotDef& s) { return s.kind == "stage"; });  // interiors: onto the stage
 
   // Quality: mostly skill, a little for a fuller arrangement.
   const double skill = c.skills.count(kMusicSkill) ? c.skills.at(kMusicSkill) : 0;

@@ -60,6 +60,8 @@ Event (server push): `{"event": "message", "data": {"from": "dax", "body": "..."
 | `activity` | playing | `activity` |
 | `work` | playing | `action` (`start`/`end`) |
 | `sleep` | playing, at home in the evening | – (see below; D-062) |
+| `move_inside` | playing, inside a place with a room | `x`, `y` (the room picture's pixels; see "Rooms", D-066) |
+| `sit` / `stand` | playing, inside a place with a room | `spot` / – |
 | `phone` | playing | `app` |
 | `message` | playing | `to`, `text` |
 | `say` | playing | `text`, `volume` (`say`/`shout`/`whisper`), `to` (whisper) |
@@ -77,6 +79,11 @@ Event (server push): `{"event": "message", "data": {"from": "dax", "body": "..."
 | `steal` | playing, in a shop | `offer` |
 | `pickpocket` | playing | `target` |
 | `arrest` | playing, police on duty | `target` |
+| `crime_risk` | playing | `crime` (`shoplifting`, `pickpocketing`, `drug_purchase`, `fare_evasion`, `assault`), `target` (pickpocketing, assault); read-only (D-069) |
+| `fight` | playing, with them | `target` (D-070) |
+| `fight_respond` | playing, attacked | `fight` (id), `choice` (`fight_back`, `run`, `take_it`) |
+| `fight_prefs` | playing | `walk_away` (true / false) |
+| `event_answer` | playing | `event`, `option` (the choice's number in `life_event`) (D-068) |
 | `request` | playing | `kind` (date, kiss, propose, marry, intimacy), `target`, `protection` |
 | `respond` | playing | `request` (id), `accept` |
 | `end_relationship` | playing | `target` |
@@ -97,7 +104,7 @@ on duty and a warrant. Anything between two people beyond that is an ask (`reque
 other player answers (`respond`); asks expire, and adults-only and family rules are checked
 when asked and again when answered.
 
-Events: `welcome` (`{protocol, rules}` on connect), `arrived`, `presence` (someone
+Events: `welcome` (`{protocol, rules}` on connect), `room` (who is where in the room you're in; see "Rooms"), `arrived`, `presence` (someone
 arrived/entered/left near you), `people` (what changed among the people you can see; see
 below), `request` (an ask for you: `{id, kind, from, text, expires_in_minutes}`, the game minutes it stays open), `answer` (your ask was answered), `incident` (an arrest,
 an overdose or an accident near you), `gift`, `interaction` (someone did something to you),
@@ -164,6 +171,47 @@ M0.8 ops, each with its arguments and refusals in its feature page: homes (`buy_
 (`laundry`; `docs/m08/details.md`). New phone apps: `homes`, `work`, `wallet`, `store`,
 `sports`, `pets`, `weather`; and, with the redesign, `goals`.
 
+Life events (D-068). `life_event` (one came up for you): `{event, title, category, prompt, choices: [{option, label,
+cost_cents?, cost_sure?, pay_with?}], at, lapses_at, lapses_in_minutes, with?: {id, name}, place?}` (`cost_cents` is
+what a choice costs, or at most costs when `cost_sure` is false; the rest of what a choice does stays unsaid until you
+choose). `event_answer` refuses `unknown_event` (not yours, answered, lapsed), `bad_option`, `insufficient_funds`
+(before anything happens) and `in_jail`, and replies:
+
+```json
+{"event": "landlord_heater", "title": "\"Tenant damage\"", "option": 0, "label": "Pay it and move on",
+ "outcome": "You pay. The heater works. Your resentment does too, quietly, all winter.",
+ "changes": {"emotions": {"anger": 8, "stress": 4}, "money_cents": -12000, "account": "bank",
+             "memory": "Paid my landlord for a heater that was already broken."},
+ "balance_cents": {"cash": 18000, "bank": 1438000}}
+```
+
+With someone in it, `changes.relationship` is `{with, name, your_feelings: {dimension: change}, reaction}`: your side
+in numbers, theirs only as the data's reaction word. `life_event_lapsed {event}`: it passed unanswered. Phone app
+`story` (only ever yours): `{age, answered, pending: [life_event views], story: [{at, when, age, kind, text, impact,
+life_event}], note}`, your memories newest first.
+
+Street life (D-069). `crime_risk` replies `{crime, label, chance (0-1, or null where you aren't where it would
+happen), seen_by: {witnesses, staff, police}, if_caught: {fine_cents, jail_minutes, jail_if_unpaid_minutes, record,
+notoriety, seized, held_at}}`, plus per crime: `offers` and `place_types` (shoplifting), `notice_chance`, `max_cents`,
+`too_soon` (pickpocketing), `possession` charges (drug_purchase), `line` (fare_evasion), `report_chance`,
+`witness_report_chance`, `injuries`, `self_defence` (assault). `steal` refuses `cant_steal_here` outside the shop types
+in `crime.shoplift_place_types`. People in sight carry `uniform: "police"` while an officer is on duty (`look.people`
+and `people`; a change is news, and an entry without the key has none). `look.you` adds `wanted_for` (the crime's label)
+and `jailed_until` (a game minute) when they apply; the Record app adds `wanted_for`, `jailed_until_minute`, `held_at`
+and `walk_away_from_fights`. `look.here.offers[]` marks contraband `illegal: true`.
+
+Fist fights (D-070). `fight` refuses `invalid_target`, `target_unavailable`, `too_far`, `minor`, `asleep`,
+`target_in_jail`, `in_jail`, `no_fighting_here`, `not_now` (a founder a script plays, at work), `busy`, `cooling_down`,
+`protected`, `too_soon` (that pair, today) and `unavailable` (no fights in this world), and replies `{fight, with, name,
+status: "waiting", expires_in_minutes}`, or the result at once when they always walk away or a script plays them.
+The person attacked gets `fight_started {fight, from, name, expires_in_minutes, choices: [{choice, label}], note}`;
+`fight_respond` refuses `unknown_fight` and `bad_choice` and replies with their result; the other side gets
+`fight_result`: `{fight, role, with, name, outcome (attacker_won, defender_won, ran, caught, took_it, froze,
+walked_away, got_away), won?, text, changes: {needs, emotions, injuries}, crime?}` (`crime`: the arrest, `{wanted,
+crime}`, `{reported, text}` or `{self_defence: true}`). Everyone present gets `fight {fight, attacker, defender, stage:
+"started" | "over", outcome?, winner?, position, inside}` to show it. `fight_prefs {walk_away}` replies
+`{walk_away_from_fights}`.
+
 Any later engine client maps its calls to the same `World` commands (ARCHITECTURE.md), so
 this table stays the list of what a client can ask for.
 
@@ -207,6 +255,45 @@ hours (stargazing) has `hours: [from, to]`. Example:
 ```json
 {"id": "shower", "label": "Take a shower", "needs": {"comfort": 5, "hygiene": 45}, "emotions": {},
  "cooldown_minutes": 60, "ready_at": 121442, "ready_in_minutes": 22}
+```
+
+### Rooms (D-066)
+
+A place whose interior is in data (`data/interiors/`, `docs/DATA_MODEL.md`) has a room you walk around in. Points
+are the room picture's pixels. Where someone is in a room is session state: on `play`, after a save is loaded and
+on `enter` you stand at the entrance, and leaving (or logging off, or being taken away) frees your spot.
+
+`look.here.room` (only inside such a place) is the interior, public content like a price, and everyone in it,
+yourself included:
+
+```json
+{"interior": {"id": "heritage_coffee", "size": [1536, 1024], "person_px": 125,
+              "floor": [[[110, 572], [215, 615], ...]], "blocked": [{"label": "long table", "poly": [...], "height": 53}],
+              "entrance": {"at": [455, 750], "facing": "e"},
+              "spots": [{"id": "counter", "kind": "counter", "at": [1005, 525], "facing": "e", "label": "Counter", "offers": true},
+                        {"id": "table_near_3", "kind": "seat", "at": [702, 560], "facing": "e", "label": "Long table",
+                         "activity": "chat_regulars"}, ...]},
+ "people": [{"id": "dominique", "at": [702, 560], "spot": "table_near_3"}, {"id": "dax", "at": [455, 750], "spot": null}]}
+```
+
+- `move_inside {x, y}` → `{"at": [700, 760], "spot": null}`. Refused `not_inside` (outdoors), `no_room` (a place
+  without one), `off_floor` (outside the floor, on furniture, or not a number).
+- `sit {spot}` → `{"at": [702, 560], "spot": "table_near_3", "label": "Long table"}`. Refused `no_such_spot`,
+  `not_a_seat` (only `seat`, `sofa`, `bed` and `stool` spots), `spot_taken` (someone else is in it), and the two
+  above. Sitting where you sit already is accepted.
+- `stand` → `{"at": [712, 580], "spot": null}`: onto the open floor beside the seat (`not_inside`, `no_room`).
+- `activity`, `buy`, `perform` and `work start` there also move you, to the nearest free spot that serves it (the
+  activity's spot, a spot serving that offer (a table, a salon chair) else the counter, the stage, a `staff`
+  station); their replies carry `room`
+  (`activity`, `buy`) with where you are now. When every such spot is taken you stand next to the nearest one.
+
+The `room` event goes to everyone in a room, at the end of a tick and only when something there changed, with each
+person who arrived, moved, sat or stood (`here`, with `at` and `spot`) or left (`gone`):
+
+```json
+{"event": "room", "data": {"place": "heritage_coffee", "interior": "heritage_coffee", "changes": [
+  {"character": "dominique", "state": "here", "at": [702, 560], "spot": "table_near_3"},
+  {"character": "dax", "state": "gone"}]}}
 ```
 
 ### The `people` stream

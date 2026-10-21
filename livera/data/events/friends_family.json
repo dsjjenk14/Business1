@@ -1,0 +1,308 @@
+{
+  "$comment": "Life events with friends ({name}: someone you know who is with you) and family (children, pets).",
+  "events": [
+    {
+      "id": "forgot_birthday",
+      "category": "friends",
+      "title": "The birthday you missed",
+      "prompt": "\"Good weekend?\" asks {name}. \"It was my birthday, actually.\" Oh no.",
+      "when": {"with": "known"},
+      "weight": 2,
+      "cooldown_days": 40,
+      "choices": [
+        {
+          "label": "Apologise, properly",
+          "outcomes": [
+            {
+              "text": "You apologise properly, no excuses. {name} waves it off, but they're smiling now.",
+              "relationship": {"them": {"friendship": 4, "trust": 2}, "reaction": "touched"},
+              "emotions": {"embarrassment": 6}
+            }
+          ]
+        },
+        {
+          "label": "Insist on buying lunch",
+          "outcomes": [
+            {
+              "text": "You drag them for lunch and make the staff sing. {name} wants to die. {name} also loves it.",
+              "money": {"cents": -1800, "account": "sys:economy", "via": "bank"},
+              "needs": {"hunger": 20, "social": 10},
+              "relationship": {"them": {"friendship": 10}, "you": {"friendship": 5}, "reaction": "delighted"},
+              "emotions": {"happiness": 8},
+              "memory": {"text": "Made up for forgetting {name}'s birthday.", "impact": 15}
+            }
+          ]
+        },
+        {
+          "label": "\"I knew, I was saving it\"",
+          "outcomes": [
+            {
+              "chance": 0.3,
+              "text": "Somehow they buy it. You now owe them a surprise.",
+              "emotions": {"stress": 6},
+              "relationship": {"them": {"friendship": 3}, "reaction": "curious"}
+            },
+            {
+              "chance": 0.7,
+              "text": "{name} just looks at you until you crack. \"Okay. I forgot.\"",
+              "emotions": {"embarrassment": 12},
+              "relationship": {"them": {"trust": -4}, "reaction": "unimpressed"}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "help_moving",
+      "category": "friends",
+      "title": "Do you own a van?",
+      "prompt": "{name} is moving on Saturday. \"It's just a few boxes,\" they say. It is never just a few boxes.",
+      "when": {"with": "known", "weekdays": [3, 4, 5]},
+      "weight": 2,
+      "cooldown_days": 30,
+      "choices": [
+        {
+          "label": "Say yes",
+          "outcomes": [
+            {
+              "text": "It is forty-one boxes and a piano. You are owed pizza for life.",
+              "needs": {"energy": -20, "social": 12},
+              "emotions": {"happiness": 6},
+              "relationship": {"them": {"friendship": 12, "loyalty": 10}, "you": {"friendship": 6}, "reaction": "grateful"},
+              "memory": {"text": "Helped {name} move. There was a piano.", "impact": 20}
+            }
+          ]
+        },
+        {
+          "label": "Invent a prior engagement",
+          "outcomes": [
+            {
+              "text": "\"I'd love to, but my cousin…\" You don't have a cousin. {name} knows you don't have a cousin.",
+              "relationship": {"them": {"trust": -4}, "reaction": "unconvinced"},
+              "emotions": {"embarrassment": 4}
+            }
+          ]
+        },
+        {
+          "label": "Offer moral support by text",
+          "outcomes": [
+            {
+              "text": "You send encouraging memes all Saturday. {name} sends back a photo of the piano.",
+              "relationship": {"them": {"friendship": 2}, "reaction": "amused"}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "the_voice",
+      "category": "friends",
+      "title": "The voice",
+      "prompt": "{name} does The Voice. The one from that night. You haven't been able to breathe properly for a minute.",
+      "when": {"with": "known"},
+      "weight": 2,
+      "cooldown_days": 10,
+      "choices": [
+        {
+          "label": "Do it back",
+          "outcomes": [
+            {
+              "text": "You do it back. You both slide off your seats. Strangers look concerned.",
+              "needs": {"social": 10, "recreation": 8},
+              "emotions": {"happiness": 12, "stress": -8},
+              "relationship": {"you": {"friendship": 5}, "them": {"friendship": 6}, "reaction": "in stitches"},
+              "memory": {"text": "Laughed until I cried with {name}.", "impact": 20}
+            }
+          ]
+        },
+        {
+          "label": "\"It's getting old\"",
+          "outcomes": [
+            {
+              "text": "\"That's getting old.\" It isn't. You both know it isn't.",
+              "relationship": {"them": {"friendship": -3}, "reaction": "deflated"}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gossip_lean",
+      "category": "friends",
+      "title": "Did you hear?",
+      "prompt": "{name} leans in, delighted. \"Did you hear about what happened at the Copper Tap last night?\"",
+      "when": {"with": "known"},
+      "weight": 2,
+      "cooldown_days": 8,
+      "choices": [
+        {
+          "label": "\"Tell me everything\"",
+          "outcomes": [
+            {
+              "text": "It's a good story. It's possibly a true story. You feel closer, and slightly worse.",
+              "needs": {"social": 8},
+              "emotions": {"excitement": 6},
+              "relationship": {"them": {"trust": 4, "friendship": 3}, "reaction": "thrilled"}
+            }
+          ]
+        },
+        {
+          "label": "Change the subject",
+          "outcomes": [
+            {
+              "text": "You ask about their week instead. {name} looks briefly cheated, then tells you about their week.",
+              "needs": {"social": 5},
+              "relationship": {"them": {"respect": 3}, "reaction": "surprised"}
+            }
+          ]
+        },
+        {
+          "label": "\"Leave them alone\"",
+          "outcomes": [
+            {
+              "text": "\"Whatever it was, leave them be.\" {name} goes quiet. They'll remember you said it.",
+              "relationship": {"them": {"respect": 6, "friendship": -2}, "reaction": "chastened"},
+              "emotions": {"confidence": 5}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "lonely_evening",
+      "category": "friends",
+      "title": "A quiet evening",
+      "prompt": "It's that hour of the evening where everyone else seems to be somewhere, with someone.",
+      "when": {"hours": [18, 22], "place_types": ["apartment", "condo", "house", "townhouse"]},
+      "weight": 2,
+      "cooldown_days": 9,
+      "choices": [
+        {
+          "label": "Go out anyway",
+          "outcomes": [
+            {
+              "text": "You put shoes on before you can talk yourself out of it. Half the battle; maybe all of it.",
+              "emotions": {"confidence": 6, "loneliness": -4},
+              "needs": {"energy": -4}
+            }
+          ]
+        },
+        {
+          "label": "Make something nice for dinner",
+          "outcomes": [
+            {
+              "text": "You cook properly, light a candle, and eat at the table like a person in a film about getting their life together.",
+              "needs": {"hunger": 12, "comfort": 6},
+              "emotions": {"happiness": 6, "loneliness": -2}
+            }
+          ]
+        },
+        {
+          "label": "Wallow",
+          "outcomes": [
+            {
+              "text": "You lie on the floor and listen to sad songs. Honestly, sometimes it helps.",
+              "emotions": {"sadness": 6, "stress": -4}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stars_daytime",
+      "category": "family",
+      "title": "Where do the stars go?",
+      "prompt": "At bedtime your child asks, very seriously, where the stars go in the daytime.",
+      "when": {"has_kids": true, "hours": [18, 22], "place_types": ["apartment", "condo", "house", "townhouse"]},
+      "weight": 3,
+      "cooldown_days": 14,
+      "choices": [
+        {
+          "label": "Explain the sun, gently",
+          "outcomes": [
+            {
+              "text": "You explain that they're still there, just outshone. Your child thinks about it. \"Like you at parties.\" Wow.",
+              "emotions": {"happiness": 10},
+              "memory": {"text": "Explained the stars to my child at bedtime.", "impact": 25}
+            }
+          ]
+        },
+        {
+          "label": "Make up a story",
+          "outcomes": [
+            {
+              "text": "You invent the Star Keepers, who fold them away each morning. You will be asked for this story every night for a year.",
+              "emotions": {"happiness": 12, "loneliness": -6},
+              "needs": {"energy": -4},
+              "memory": {"text": "Made up the Star Keepers at bedtime.", "impact": 30}
+            }
+          ]
+        },
+        {
+          "label": "\"Ask me tomorrow\"",
+          "outcomes": [{"text": "\"Ask me tomorrow.\" They will. They absolutely will.", "emotions": {"stress": 2}}]
+        }
+      ]
+    },
+    {
+      "id": "pet_shoes",
+      "category": "family",
+      "title": "The crime scene",
+      "prompt": "Your favourite shoes. What's left of them. Your pet is sitting next to the evidence, looking proud.",
+      "when": {"has_pet": true, "place_types": ["apartment", "condo", "house", "townhouse"]},
+      "weight": 3,
+      "cooldown_days": 20,
+      "choices": [
+        {
+          "label": "Laugh. What else can you do?",
+          "outcomes": [
+            {
+              "text": "You laugh until your eyes water and take a photo for posterity. The shoes are gone, but the photo is great.",
+              "emotions": {"happiness": 8, "stress": -4},
+              "memory": {"text": "My pet ate my favourite shoes.", "impact": 10}
+            }
+          ]
+        },
+        {
+          "label": "A stern talking-to",
+          "outcomes": [
+            {
+              "text": "You deliver a long, serious lecture. Your pet listens intently and learns absolutely nothing.",
+              "emotions": {"anger": 4, "stress": 4}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "first_drawing",
+      "category": "family",
+      "title": "A masterpiece",
+      "prompt": "A drawing has appeared on the fridge: a tall wobbly person holding a small wobbly person's hand. The tall one is labelled with your name.",
+      "when": {"has_kids": true, "place_types": ["apartment", "condo", "house", "townhouse"]},
+      "weight": 2,
+      "cooldown_days": 25,
+      "choices": [
+        {
+          "label": "Frame it",
+          "outcomes": [
+            {
+              "text": "You frame it. It's the most valuable thing you own and it's worth nothing to anyone else.",
+              "emotions": {"happiness": 14, "loneliness": -8},
+              "memory": {"text": "Framed my child's drawing of the two of us.", "impact": 35, "importance": 45}
+            }
+          ]
+        },
+        {
+          "label": "Photograph it for your phone",
+          "outcomes": [
+            {
+              "text": "It's your lock screen now. You look at it during every meeting.",
+              "emotions": {"happiness": 10}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

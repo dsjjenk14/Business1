@@ -1,0 +1,152 @@
+{
+  "interior": {
+    "id": "livera_university",
+    "places": ["livera_university"],
+    "size": [1536, 1024],
+    "person_px": 120,
+    "floor": [
+      [
+        [95, 590],
+        [460, 400],
+        [700, 285],
+        [745, 300],
+        [735, 380],
+        [1010, 530],
+        [1200, 470],
+        [1360, 420],
+        [1500, 480],
+        [1500, 510],
+        [1410, 560],
+        [1400, 690],
+        [1080, 840],
+        [1000, 800],
+        [880, 840],
+        [650, 880],
+        [560, 850],
+        [420, 770],
+        [380, 800],
+        [250, 730],
+        [240, 640]
+      ]
+    ],
+    "blocked": [
+      {"label": "coffee counter", "poly": [[245, 615], [300, 590], [530, 690], [470, 720]], "height": 70},
+      {"label": "espresso shelf", "poly": [[180, 555], [250, 520], [330, 560], [260, 600]], "height": 80},
+      {"label": "bookcase", "poly": [[270, 520], [320, 495], [410, 545], [360, 570]], "height": 100},
+      {"label": "bookcase", "poly": [[480, 585], [530, 560], [630, 610], [580, 640]], "height": 110},
+      {"label": "bookcase", "poly": [[510, 470], [560, 445], [680, 505], [630, 530]], "height": 110},
+      {"label": "bookcase", "poly": [[550, 370], [600, 345], [690, 390], [640, 415]], "height": 120},
+      {"label": "reading table", "poly": [[385, 430], [450, 395], [530, 435], [465, 470]], "height": 50},
+      {"label": "reading table", "poly": [[690, 470], [750, 440], [855, 495], [795, 530]], "height": 50},
+      {"label": "coffee table", "poly": [[715, 645], [740, 632], [765, 645], [740, 658]], "height": 40},
+      {"label": "armchair", "poly": [[660, 620], [690, 605], [725, 625], [695, 640]], "height": 60},
+      {"label": "armchair", "poly": [[705, 585], [735, 570], [765, 585], [735, 600]], "height": 60},
+      {"label": "armchair", "poly": [[765, 630], [795, 615], [830, 632], [800, 648]], "height": 60},
+      {"label": "café table", "poly": [[555, 750], [590, 733], [625, 750], [590, 767]], "height": 45},
+      {"label": "café table", "poly": [[710, 755], [740, 740], [775, 755], [740, 772]], "height": 45},
+      {"label": "reading table", "poly": [[1100, 690], [1180, 645], [1265, 690], [1185, 735]], "height": 50},
+      {"label": "bookcase", "poly": [[1045, 565], [1200, 520], [1210, 540], [1055, 590]], "height": 130},
+      {"label": "desk", "poly": [[915, 665], [960, 640], [1015, 670], [970, 695]], "height": 70},
+      {"label": "desk", "poly": [[905, 800], [950, 778], [1000, 800], [955, 825]], "height": 60}
+    ],
+    "entrance": {"at": [430, 740], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [330, 745], "facing": "w", "label": "Front doors"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1440, 480],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "coffee",
+        "kind": "counter",
+        "at": [430, 712],
+        "facing": "n",
+        "label": "Campus coffee",
+        "offers": true
+      },
+      {
+        "id": "lib_1",
+        "kind": "seat",
+        "at": [440, 478],
+        "facing": "e",
+        "label": "Library table",
+        "activity": "library"
+      },
+      {
+        "id": "lib_2",
+        "kind": "seat",
+        "at": [500, 455],
+        "facing": "n",
+        "label": "Library table",
+        "activity": "library"
+      },
+      {
+        "id": "lib_3",
+        "kind": "seat",
+        "at": [725, 520],
+        "facing": "e",
+        "label": "Library table",
+        "activity": "library"
+      },
+      {
+        "id": "lib_4",
+        "kind": "seat",
+        "at": [780, 545],
+        "facing": "n",
+        "label": "Library table",
+        "activity": "library"
+      },
+      {
+        "id": "lib_5",
+        "kind": "seat",
+        "at": [800, 465],
+        "facing": "w",
+        "label": "Library table",
+        "activity": "library"
+      },
+      {
+        "id": "lib_6",
+        "kind": "seat",
+        "at": [1140, 738],
+        "facing": "n",
+        "label": "Library table",
+        "activity": "library"
+      },
+      {
+        "id": "lib_7",
+        "kind": "seat",
+        "at": [1200, 720],
+        "facing": "n",
+        "label": "Library table",
+        "activity": "library"
+      },
+      {
+        "id": "lib_8",
+        "kind": "seat",
+        "at": [1215, 650],
+        "facing": "w",
+        "label": "Library table",
+        "activity": "library"
+      },
+      {
+        "id": "desk_1",
+        "kind": "seat",
+        "at": [985, 700],
+        "facing": "n",
+        "label": "Study desk",
+        "activity": "library"
+      },
+      {"id": "lounge_1", "kind": "seat", "at": [695, 632], "facing": "s", "label": "Armchair"},
+      {"id": "lounge_2", "kind": "seat", "at": [738, 592], "facing": "s", "label": "Armchair"},
+      {"id": "lounge_3", "kind": "seat", "at": [800, 642], "facing": "w", "label": "Armchair"},
+      {"id": "cafe_1", "kind": "seat", "at": [560, 790], "facing": "n", "label": "Café table"},
+      {"id": "cafe_2", "kind": "seat", "at": [630, 775], "facing": "w", "label": "Café table"},
+      {"id": "cafe_3", "kind": "seat", "at": [700, 790], "facing": "e", "label": "Café table"},
+      {"id": "cafe_4", "kind": "seat", "at": [785, 790], "facing": "w", "label": "Café table"}
+    ]
+  }
+}

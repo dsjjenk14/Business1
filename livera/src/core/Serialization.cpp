@@ -75,6 +75,8 @@ Json toJson(const CharacterState& c) {
   writeLeisureCharacter(c, j);
   writePetsCharacter(c, j);
   writeDetailsCharacter(c, j);
+  writeLifeEventsCharacter(c, j);  // D-068
+  writeStreetCharacter(c, j);      // D-070
   // Online state, move targets and in-progress shifts are session state: a saved
   // character always loads offline, standing still, off shift (shifts are settled on logout).
   return j;
@@ -157,6 +159,8 @@ CharacterState characterStateFromJson(const Json& j) {
   readLeisureCharacter(c, j);
   readPetsCharacter(c, j);
   readDetailsCharacter(c, j);
+  readLifeEventsCharacter(c, j);  // D-068
+  readStreetCharacter(c, j);      // D-070
   return c;
 }
 

@@ -249,6 +249,32 @@ struct DetailsWorldState {
 };
 // } m08:details
 
+// Life events (LifeEvents.cpp, D-068): one that has come up and waits for your answer until it lapses.
+struct LifeEventOffer {
+  std::string event;
+  CharacterId with;    // the person in it, picked from who was with you when it came up ("" = nobody)
+  LocationId place;    // where it came up ("" = out on the street)
+  GameMinutes at = 0;
+  GameMinutes lapsesAt = 0;
+};
+
+struct LifeEventsState {
+  std::int64_t day = -1;                         // the game day `offeredToday` counts
+  int offeredToday = 0;
+  GameMinutes lastOfferAt = -1;
+  std::vector<LifeEventOffer> pending;
+  std::map<std::string, std::int64_t> lastDay;   // event -> the game day it last came up (its cooldown)
+  int answered = 0;                              // lifetime
+};
+
+// Street life (Fights.cpp, D-070): your own rules for fights, and the limits that keep anyone from being harassed.
+struct StreetState {
+  bool walkAway = false;                       // always walk away from a fight (chosen in the You card)
+  std::map<CharacterId, std::int64_t> fought;  // the other person -> the game day of your last fight together
+  GameMinutes nextFightAt = -1;                // having started one, you can't start another before this
+  GameMinutes protectedUntil = -1;             // having been attacked, nobody can start one with you before this
+};
+
 struct CharacterState {
   CharacterId id;
   Vec2 position;
@@ -320,6 +346,8 @@ struct CharacterState {
   // m08:details character { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
   DetailsCharacterState detail;
   // } m08:details
+  LifeEventsState lifeEvents;  // life events (LifeEvents.cpp, D-068)
+  StreetState street;           // fights (Fights.cpp, D-070)
   // Session state (not saved):
   std::map<std::string, GameMinutes> activityReadyAt;  // "location/activity" -> minute
   GameMinutes performReadyAt = 0;
@@ -444,6 +472,15 @@ struct PendingRequest {
   std::string subject = {};  // what it's about: the home to buy or sell together
 };
 
+// A fight someone started: the person attacked has until `expires` to fight back, run or take it (Fights.cpp, D-070).
+struct PendingFight {
+  std::string id;
+  CharacterId attacker;
+  CharacterId defender;
+  GameMinutes startedAt = 0;
+  GameMinutes expires = 0;
+};
+
 struct WorldState {
   GameMinutes now = 0;
   double clockCarry = 0;  // fractional game minutes not yet applied
@@ -462,6 +499,7 @@ struct WorldState {
   std::map<CharacterId, CharacterDef> createdCharacters;
   std::map<std::string, Song> songs;
   std::vector<PendingRequest> requests;  // session state: asks expire in minutes and aren't saved
+  std::vector<PendingFight> fights;      // session state: fights waiting for an answer (Fights.cpp)
   // m08:homes world { Buying homes, mortgages, moving in together (Homes.cpp)
   // } m08:homes
 
@@ -509,6 +547,16 @@ struct SeenPerson {
   double speedMps = 0;         // 0 when still
   bool bus = false;            // riding (moveSpeedMps > 0)
   bool scripted = false;
+  std::string uniform;  // a police officer on duty (D-069): anyone can see the uniform
+};
+
+// interiors: where someone is in the room of the place they're inside (Interiors.cpp, D-066). Session state, never
+// saved: on connect, on loading a save and on coming in you're at the entrance.
+struct RoomPlace {
+  LocationId place;
+  Vec2 at;           // the room picture's pixels
+  std::string spot;  // the seat, counter, stage... they hold; "" = standing on the floor
+  bool operator==(const RoomPlace&) const = default;
 };
 
 LedgerAccountId bankAccountOf(const CharacterId& id);
@@ -611,6 +659,26 @@ class World {
   // A police officer on duty arrests a wanted person they're with.
   Result<Json> arrest(const CharacterId& officer, const CharacterId& suspect);
   bool inJail(const CharacterId& id) const;
+  // What a crime risks right now, from what anyone could see (D-069): the chance of being caught in the act (null
+  // where you aren't where it would happen), who would see it, and the consequence ladder from data. Read-only.
+  // crime: shoplifting (offer optional), pickpocketing (target), drug_purchase, fare_evasion, assault (target).
+  Result<Json> crimeRisk(const CharacterId& actor, const std::string& crime, const CharacterId& target = "") const;
+  // A police officer on shift, whom anyone can see in uniform.
+  bool onDutyPolice(const CharacterState& c) const;
+
+  // --- Life events (LifeEvents.cpp, D-068) ------------------------------------------------
+  // Answer an event that came up (`life_event`): the choice's outcome is applied through the World's own rules
+  // (money only by Ledger::transfer). Refusals: unknown_event (not yours, answered or lapsed), bad_option,
+  // insufficient_funds (what the choice costs, before anything happens), in_jail.
+  Result<Json> answerLifeEvent(const CharacterId& actor, const std::string& event, int option);
+
+  // --- Fist fights (Fights.cpp, D-070) ------------------------------------------------------
+  // Start a fight with someone within fights.range_m. They answer with respondToFight within the window, unless
+  // they always walk away or a script plays them (then it's decided at once). See Fights.cpp for every refusal.
+  Result<Json> startFight(const CharacterId& actor, const CharacterId& target);
+  // choice: fight_back, run, take_it.
+  Result<Json> respondToFight(const CharacterId& actor, const std::string& fight, const std::string& choice);
+  Result<Json> setWalkAwayFromFights(const CharacterId& actor, bool walkAway);
 
   // --- Romance and family (Romance.cpp) ---------------------------------------------------
   // kind: date, kiss, propose, marry, intimacy; buy_home, move_in, sell_home (Homes.cpp; `subject`
@@ -749,6 +817,16 @@ class World {
   // Returns {from, to, minutes, woke: [ids]} (game minutes; `woke` = who was asleep).
   Result<Json> skipNight(const std::function<void(double realSeconds)>& beforeEachMinute = {});
 
+  // --- Rooms you walk around in (Interiors.cpp, D-066) -----------------------------------
+  // Inside a place whose interior is in data. The server decides where everyone is: these move you on the floor
+  // (`not_inside`, `no_room`, `off_floor`), sit you down (`no_such_spot`, `not_a_seat`, `spot_taken`: one person a
+  // seat) and stand you up. An activity, a purchase, a performance or a shift there puts you at its spot.
+  Result<Json> moveInside(const CharacterId& actor, Vec2 at);
+  Result<Json> sit(const CharacterId& actor, const std::string& spot);
+  Result<Json> stand(const CharacterId& actor);
+  // Where someone is in their place's room (the entrance until they move); nullopt outside or where there's none.
+  std::optional<RoomPlace> roomPlaceOf(const CharacterId& id) const;
+
   // Dev servers only (the server gates it behind --dev): give a character a condition, for testing care and contagion.
   Status devAddCondition(const CharacterId& id, const std::string& condition);
 
@@ -802,6 +880,13 @@ class World {
   WorkBlock scheduledWorkBlock(const CharacterState& c, int weekday) const;
   void stepAwayWorkHourly();
   void moveEveryone(double seconds);  // advanceRealTime's movement, shared with skipNight
+  // interiors (Interiors.cpp): forget where someone was in a room (they come in, leave, connect or disconnect).
+  void resetRoomPlace(const CharacterId& id);
+  // Puts `c` at the first free spot of their room that `serves` (or next to one when they're all taken), unless
+  // they hold one already. Returns {at, spot}, or null where there's no room or no such spot.
+  Json takeRoomSpot(CharacterState& c, const std::function<bool(const InteriorSpotDef&)>& serves);
+  Json roomView(const CharacterState& viewer) const;  // look.here.room
+  void emitRoomChanges();                              // the `room` event, once a tick, to people in a room
   bool skipping_ = false;  // inside skipNight (good_morning says the night was skipped)
   std::string nextId(const char* prefix);
   void stepMinute();
@@ -839,6 +924,12 @@ class World {
   // Crime.cpp
   void recordCrime(CharacterState& c, const std::string& crime, Cents fineCents, GameMinutes jailMinutes = 0);
   Status freeToAct(const CharacterState& c) const;  // refuses while in jail
+  struct CrimeWitnesses {
+    int witnesses = 0;
+    int staff = 0;   // on shift where it happens
+    int police = 0;  // on duty nearby
+  };
+  CrimeWitnesses crimeWitnesses(const CharacterState& c, const CharacterId& besides = "") const;
   double detectionChance(const CharacterState& c, const CrimeDef& crime) const;
   int policeNearby(const CharacterState& c) const;
   // Caught: fine, jail, record, contraband confiscated, the police told. Returns what happened.
@@ -990,6 +1081,19 @@ class World {
   // Today's daily goals for a character: a pure function of (character, day) over the goals they can do.
   std::vector<const DailyGoalDef*> dailyGoals(const CharacterState& c, std::int64_t day) const;
   Json phoneGoals(const CharacterState& c) const;
+  // Life events (LifeEvents.cpp, D-068).
+  void stepLifeEventsMinute();  // called every game minute from advanceMinutes: lapses, and a new one when it's time
+  bool lifeEventMoment(const CharacterState& c) const;  // awake, free, not riding or studying, played by a person
+  bool lifeEventHolds(const CharacterState& c, const LifeEventDef& e, std::int64_t day, CharacterId& with) const;
+  void offerLifeEvent(CharacterState& c, std::int64_t day);
+  std::string lifeEventText(const std::string& text, const LifeEventOffer& o, const LifeEventDef& e) const;
+  LedgerAccountId lifeEventAccount(const CharacterState& c, const LifeEventOffer& o, const std::string& account) const;
+  Json lifeEventView(const CharacterState& c, const LifeEventOffer& o) const;
+  Json phoneStory(const CharacterState& c) const;
+  // Fights (Fights.cpp, D-070).
+  void stepFightsMinute();  // fights nobody answered in time: they froze and took it
+  Json resolveFight(const PendingFight& f, const std::string& choice);  // returns the defender's result
+  double fightScore(const CharacterState& c);
 
   // m08:details helpers { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
   void stepDetailsHourly();  // called once a game hour from stepHourly (Life.cpp)
@@ -1042,6 +1146,8 @@ class World {
   // Session state, deliberately outside WorldState so it is never saved.
   std::map<CharacterId, std::string> scripted_;  // character -> who plays them ("script", "autopilot")
   std::map<CharacterId, std::map<CharacterId, SeenPerson>> seen_;  // viewer -> person -> last told
+  std::map<CharacterId, RoomPlace> rooms_;                             // interiors: where people are in rooms
+  std::map<CharacterId, std::map<CharacterId, RoomPlace>> roomSeen_;  // viewer -> person -> last told (`room`)
 };
 
 std::string formatMoney(Cents cents);

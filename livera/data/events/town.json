@@ -1,0 +1,349 @@
+{
+  "$comment": "Life events about the town and its founders (D-068). `founder` events need that founder with you ({founder}); never your own character.",
+  "events": [
+    {
+      "id": "lost_newcomer",
+      "category": "town",
+      "title": "Which way to the clinic?",
+      "prompt": "{name} is turning in slow circles with a dead phone. \"Sorry, which way is Riverdale Clinic? I've only been here a week.\"",
+      "when": {"outside": true, "with": "stranger", "hours": [8, 20]},
+      "weight": 2,
+      "cooldown_days": 12,
+      "choices": [
+        {
+          "label": "Walk them there",
+          "outcomes": [
+            {
+              "text": "You walk them there and point out the good coffee on the way. They say Livéra is friendlier than they'd heard.",
+              "needs": {"energy": -4, "social": 8},
+              "emotions": {"happiness": 8},
+              "relationship": {
+                "you": {"familiarity": 8},
+                "them": {"friendship": 10, "familiarity": 8, "trust": 6},
+                "reaction": "grateful"
+              },
+              "memory": {"text": "Walked {name}, a newcomer, all the way to the clinic.", "impact": 15}
+            }
+          ]
+        },
+        {
+          "label": "Point the way",
+          "outcomes": [
+            {
+              "text": "You point, with confidence. You're about seventy percent sure you pointed the right way.",
+              "relationship": {"them": {"familiarity": 4}, "reaction": "polite"}
+            }
+          ]
+        },
+        {
+          "label": "\"No idea, sorry\"",
+          "outcomes": [
+            {
+              "text": "\"No idea, sorry.\" You know exactly where it is. You're just late.",
+              "emotions": {"embarrassment": 3}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "jackhammer_morning",
+      "category": "town",
+      "title": "The sound of progress",
+      "prompt": "The site crew has been jackhammering since seven. The foreman sees your face and holds out a pair of earplugs and a sheepish grin.",
+      "when": {"place_types": ["construction_site"], "hours": [7, 16]},
+      "weight": 3,
+      "cooldown_days": 14,
+      "choices": [
+        {
+          "label": "Take the earplugs, ask what's going up",
+          "outcomes": [
+            {
+              "text": "He talks you through the plans with real pride. Suddenly the noise sounds like the town getting bigger.",
+              "emotions": {"happiness": 6, "excitement": 6},
+              "needs": {"social": 5},
+              "memory": {"text": "A foreman showed me what the town is building.", "impact": 10}
+            }
+          ]
+        },
+        {
+          "label": "Complain about the noise",
+          "outcomes": [
+            {
+              "text": "You complain. He nods. The jackhammer continues, at roughly the same volume as your complaint.",
+              "emotions": {"anger": 6, "stress": 4}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "town_meeting",
+      "category": "town",
+      "title": "The town meeting",
+      "prompt": "Common Ground is packed and loud: a meeting about what the town should build next. Someone is waving a petition about parking.",
+      "when": {"place_types": ["community_center"], "hours": [17, 21]},
+      "weight": 3,
+      "cooldown_days": 21,
+      "choices": [
+        {
+          "label": "Stand up and speak",
+          "outcomes": [
+            {
+              "chance": 0.6,
+              "text": "Your voice shakes for the first sentence, then it doesn't. People clap. Someone asks your name.",
+              "emotions": {"confidence": 14, "excitement": 10, "stress": 6},
+              "fame": 1.0,
+              "memory": {"text": "Spoke up at the town meeting.", "impact": 25, "importance": 45}
+            },
+            {
+              "chance": 0.4,
+              "text": "You stand, open your mouth, and forget everything. You say \"…more benches?\" and sit down. Some people nod.",
+              "emotions": {"embarrassment": 14},
+              "fame": 0.3,
+              "memory": {"text": "Froze speaking at the town meeting. Suggested benches.", "impact": -5}
+            }
+          ]
+        },
+        {
+          "label": "Listen from the back",
+          "outcomes": [
+            {
+              "text": "You listen. Livéra is arguing with itself about its own future, and it feels like it's yours too.",
+              "needs": {"social": 6},
+              "emotions": {"happiness": 4}
+            }
+          ]
+        },
+        {
+          "label": "Slip out",
+          "outcomes": [{"text": "You slip out during the parking debate. Nobody blames you.", "emotions": {"stress": -2}}]
+        }
+      ]
+    },
+    {
+      "id": "lake_litter",
+      "category": "town",
+      "title": "Someone else's picnic",
+      "prompt": "Someone has left their whole picnic by the water: takeaway boxes, a bottle, a sad paper crown.",
+      "when": {"place_types": ["park"]},
+      "weight": 2,
+      "cooldown_days": 14,
+      "choices": [
+        {
+          "label": "Clean it up",
+          "outcomes": [
+            {
+              "text": "You bin the lot. A passing jogger gives you a thumbs-up. You'll take it.",
+              "needs": {"hygiene": -4},
+              "emotions": {"happiness": 6, "confidence": 3},
+              "memory": {"text": "Cleaned up litter by the lake.", "impact": 8}
+            }
+          ]
+        },
+        {
+          "label": "Wear the crown",
+          "outcomes": [
+            {
+              "text": "You put on the paper crown. You are the monarch of this mess. You bin the mess, regally.",
+              "needs": {"hygiene": -3},
+              "emotions": {"happiness": 8, "excitement": 4}
+            }
+          ]
+        },
+        {
+          "label": "Not your picnic",
+          "outcomes": [
+            {
+              "text": "Not your picnic, not your problem. The crown watches you go.",
+              "emotions": {"sadness": 2}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ledger_vox_pop",
+      "category": "town",
+      "title": "On the record",
+      "prompt": "{founder} from the Livéra Ledger holds out a recorder. \"Quick one for the paper: what would make this town better?\"",
+      "when": {"founder": "leila", "outside": true},
+      "weight": 4,
+      "cooldown_days": 30,
+      "choices": [
+        {
+          "label": "Give a thoughtful answer",
+          "outcomes": [
+            {
+              "text": "You talk about the river path and the night bus. {founder} writes fast. Your words are in Thursday's paper.",
+              "fame": 1.5,
+              "emotions": {"confidence": 10, "excitement": 8},
+              "relationship": {"them": {"respect": 8, "familiarity": 6}, "you": {"familiarity": 6}, "reaction": "impressed"},
+              "memory": {"text": "Was quoted in the Livéra Ledger.", "impact": 25, "importance": 45}
+            }
+          ]
+        },
+        {
+          "label": "Make a joke",
+          "outcomes": [
+            {
+              "chance": 0.5,
+              "text": "\"A second bakery.\" {founder} laughs out loud. It's the pull-quote on page three.",
+              "fame": 1.0,
+              "emotions": {"happiness": 8},
+              "relationship": {"them": {"friendship": 6}, "reaction": "laughing"},
+              "memory": {"text": "My joke made the Livéra Ledger.", "impact": 20}
+            },
+            {
+              "chance": 0.5,
+              "text": "{founder} smiles politely and moves on to someone with an opinion.",
+              "emotions": {"embarrassment": 6}
+            }
+          ]
+        },
+        {
+          "label": "\"No comment\"",
+          "outcomes": [
+            {
+              "text": "\"No comment.\" You feel briefly like a celebrity. You are not.",
+              "emotions": {"confidence": 2}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "maya_volunteers",
+      "category": "town",
+      "title": "Many hands",
+      "prompt": "{founder} is unloading crates outside Common Ground, alone. \"Don't suppose you've got an hour?\"",
+      "when": {"founder": "maya"},
+      "weight": 4,
+      "cooldown_days": 21,
+      "choices": [
+        {
+          "label": "Roll up your sleeves",
+          "outcomes": [
+            {
+              "text": "An hour becomes two. You learn where the pantry gets its tins and how {founder} takes her tea.",
+              "needs": {"energy": -15, "social": 12},
+              "emotions": {"happiness": 10, "loneliness": -6},
+              "relationship": {"them": {"friendship": 10, "respect": 8}, "you": {"friendship": 6}, "reaction": "grateful"},
+              "memory": {"text": "Volunteered with {founder} at Common Ground.", "impact": 25}
+            }
+          ]
+        },
+        {
+          "label": "Donate instead",
+          "outcomes": [
+            {
+              "text": "You press a twenty into her hand. \"For the pantry.\" {founder} squeezes your arm.",
+              "money": {"cents": -2000, "account": "org:common_ground", "via": "cash"},
+              "relationship": {"them": {"friendship": 4, "respect": 4}, "reaction": "touched"},
+              "emotions": {"happiness": 5}
+            }
+          ]
+        },
+        {
+          "label": "\"Sorry, I'm late\"",
+          "outcomes": [
+            {
+              "text": "\"Sorry, I'm late for something.\" She waves you off kindly, which is worse.",
+              "emotions": {"embarrassment": 4}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "andre_demo",
+      "category": "friends",
+      "title": "Tell me honestly",
+      "prompt": "{founder} hands you one earbud. \"New track. Tell me honestly.\" It's… a lot of bass.",
+      "when": {"founder": "andre"},
+      "weight": 4,
+      "cooldown_days": 21,
+      "choices": [
+        {
+          "label": "Honest feedback",
+          "outcomes": [
+            {
+              "chance": 0.6,
+              "text": "\"The hook's great. The middle drags.\" {founder} goes quiet, then grins. \"You're right. Nobody says that.\"",
+              "relationship": {"them": {"respect": 10, "trust": 6}, "you": {"friendship": 4}, "reaction": "thoughtful"},
+              "emotions": {"confidence": 6},
+              "memory": {"text": "Gave {founder} honest notes on a track.", "impact": 15}
+            },
+            {
+              "chance": 0.4,
+              "text": "\"The middle drags.\" {founder} takes the earbud back a little fast. \"Cool. Cool cool.\"",
+              "relationship": {"them": {"friendship": -4}, "reaction": "stung"},
+              "emotions": {"embarrassment": 6}
+            }
+          ]
+        },
+        {
+          "label": "\"It's a banger\"",
+          "outcomes": [
+            {
+              "text": "\"It's a banger.\" {founder} beams. You'll hear it in every shop in town by Friday.",
+              "relationship": {"them": {"friendship": 6}, "reaction": "beaming"},
+              "emotions": {"happiness": 4}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "julian_pitch",
+      "category": "temptation",
+      "title": "Ground floor",
+      "prompt": "{founder} has a napkin covered in arrows. \"Hear me out. An app for… you know what, put in $50 and you'll be on the ground floor.\"",
+      "when": {"founder": "julian", "money_at_least_cents": 10000},
+      "weight": 4,
+      "cooldown_days": 30,
+      "choices": [
+        {
+          "label": "Put in $50",
+          "outcomes": [
+            {
+              "chance": 0.2,
+              "text": "Weeks later, {founder} pays you back double with a hug. \"Told you. Ground floor.\"",
+              "money": {"cents": 5000, "account": "sys:economy", "via": "bank"},
+              "relationship": {"them": {"loyalty": 12, "friendship": 8}, "reaction": "triumphant"},
+              "emotions": {"excitement": 14},
+              "memory": {"text": "Backed {founder}'s napkin idea. It paid off.", "impact": 25}
+            },
+            {
+              "chance": 0.8,
+              "text": "The napkin pivots twice and then becomes a different napkin. Your $50 is now \"equity.\"",
+              "money": {"cents": -5000, "account": "sys:economy", "via": "bank"},
+              "relationship": {"them": {"loyalty": 8, "friendship": 4}, "reaction": "grateful"},
+              "emotions": {"sadness": 4},
+              "memory": {"text": "Put $50 into {founder}'s napkin startup.", "impact": -5}
+            }
+          ]
+        },
+        {
+          "label": "Ask hard questions",
+          "outcomes": [
+            {
+              "text": "You ask who pays for it. {founder} stares at the napkin for a long time. \"Huh.\"",
+              "relationship": {"them": {"respect": 8}, "reaction": "rattled"},
+              "emotions": {"confidence": 6}
+            }
+          ]
+        },
+        {
+          "label": "\"Ground floor of what?\"",
+          "outcomes": [
+            {
+              "text": "\"Ground floor of what?\" {founder} laughs and pockets the napkin. \"Fair.\"",
+              "relationship": {"them": {"familiarity": 4}, "reaction": "amused"}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

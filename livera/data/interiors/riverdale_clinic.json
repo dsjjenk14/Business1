@@ -1,0 +1,113 @@
+{
+  "interior": {
+    "id": "riverdale_clinic",
+    "places": ["riverdale_clinic"],
+    "size": [1536, 1024],
+    "person_px": 125,
+    "floor": [
+      [
+        [95, 590],
+        [560, 350],
+        [700, 400],
+        [650, 450],
+        [690, 470],
+        [700, 540],
+        [1000, 720],
+        [1070, 690],
+        [1100, 640],
+        [1170, 600],
+        [1220, 600],
+        [1230, 520],
+        [1310, 480],
+        [1380, 470],
+        [1500, 500],
+        [1450, 560],
+        [1400, 640],
+        [1000, 830],
+        [950, 840],
+        [720, 885],
+        [660, 880],
+        [480, 790],
+        [420, 820],
+        [280, 760],
+        [250, 650]
+      ],
+      [[700, 240], [790, 200], [840, 225], [800, 290], [750, 300]],
+      [[1080, 405], [1140, 375], [1215, 410], [1170, 440]],
+      [[810, 420], [860, 395], [900, 425], [880, 470]],
+      [[760, 450], [830, 420], [1000, 520], [950, 560], [900, 560]]
+    ],
+    "blocked": [
+      {"label": "armchair", "poly": [[195, 590], [240, 568], [285, 592], [240, 614]], "height": 60},
+      {"label": "armchair", "poly": [[285, 545], [325, 525], [370, 548], [330, 568]], "height": 60},
+      {"label": "armchair", "poly": [[370, 495], [410, 475], [455, 498], [415, 518]], "height": 60},
+      {"label": "armchair", "poly": [[440, 460], [475, 442], [515, 462], [480, 480]], "height": 60},
+      {"label": "armchair", "poly": [[495, 575], [540, 552], [590, 578], [545, 600]], "height": 60},
+      {"label": "armchair", "poly": [[655, 690], [700, 668], [755, 695], [710, 718]], "height": 60},
+      {"label": "armchair", "poly": [[765, 735], [810, 712], [865, 740], [820, 762]], "height": 60},
+      {"label": "round table", "poly": [[375, 625], [430, 598], [490, 628], [432, 655]], "height": 45},
+      {"label": "side table", "poly": [[260, 575], [282, 563], [305, 575], [282, 587]], "height": 45},
+      {"label": "shelves", "poly": [[485, 690], [550, 655], [600, 680], [535, 715]], "height": 90},
+      {"label": "cabinet", "poly": [[565, 760], [620, 732], [725, 790], [670, 818]], "height": 70},
+      {"label": "cabinet", "poly": [[570, 590], [600, 575], [645, 598], [615, 613]], "height": 70},
+      {"label": "reception desk", "poly": [[650, 500], [690, 470], [1060, 640], [1020, 672]], "height": 110},
+      {"label": "side table", "poly": [[735, 722], [760, 710], [785, 722], [760, 734]], "height": 45},
+      {"label": "plant", "poly": [[1045, 680], [1067, 668], [1090, 680], [1067, 692]], "height": 100},
+      {"label": "desk", "poly": [[1235, 520], [1275, 500], [1385, 555], [1345, 575]], "height": 70},
+      {"label": "cabinet", "poly": [[1065, 495], [1100, 478], [1160, 508], [1125, 525]], "height": 90}
+    ],
+    "entrance": {"at": [480, 740], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [355, 772], "facing": "w", "label": "Front doors"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1440, 495],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "reception",
+        "kind": "counter",
+        "at": [870, 690],
+        "facing": "n",
+        "label": "Reception",
+        "offers": true
+      },
+      {
+        "id": "receptionist",
+        "kind": "seat",
+        "at": [880, 515],
+        "facing": "s",
+        "label": "Behind reception",
+        "staff": true
+      },
+      {
+        "id": "exam_1",
+        "kind": "bed",
+        "at": [815, 250],
+        "facing": "w",
+        "label": "Exam room",
+        "offers": ["checkup", "treatment", "sti_test", "prenatal", "dental_care", "abortion"]
+      },
+      {
+        "id": "exam_2",
+        "kind": "bed",
+        "at": [1150, 405],
+        "facing": "w",
+        "label": "Exam room",
+        "offers": ["checkup", "treatment", "sti_test", "prenatal", "dental_care", "abortion"]
+      },
+      {"id": "consult_1", "kind": "seat", "at": [1265, 590], "facing": "n", "label": "Consultation desk"},
+      {"id": "consult_2", "kind": "seat", "at": [1320, 615], "facing": "n", "label": "Consultation desk"},
+      {"id": "wait_1", "kind": "seat", "at": [240, 600], "facing": "e", "label": "Waiting room"},
+      {"id": "wait_2", "kind": "seat", "at": [328, 555], "facing": "e", "label": "Waiting room"},
+      {"id": "wait_3", "kind": "seat", "at": [412, 505], "facing": "s", "label": "Waiting room"},
+      {"id": "wait_4", "kind": "seat", "at": [478, 468], "facing": "s", "label": "Waiting room"},
+      {"id": "wait_5", "kind": "seat", "at": [545, 588], "facing": "w", "label": "Waiting room"},
+      {"id": "wait_6", "kind": "seat", "at": [708, 705], "facing": "s", "label": "Waiting room"},
+      {"id": "wait_7", "kind": "seat", "at": [818, 750], "facing": "w", "label": "Waiting room"}
+    ]
+  }
+}

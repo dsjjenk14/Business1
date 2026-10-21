@@ -43,7 +43,7 @@ Every player-caused change goes through a `World` command method:
 ```
 moveTo · enter · exitBuilding · interact · buy · useActivity · startShift · endShift ·
 sendMessage · say · tip · createCharacter · saveSong · releaseSong · openSong · perform ·
-openPhoneApp · sleep · connect · disconnect
+openPhoneApp · sleep · moveInside · sit · stand · connect · disconnect
 ```
 
 Each validates against current state (is the character in the world? at the door? allowed
@@ -77,6 +77,7 @@ web/client/   plain ES modules, no build step
   transport.js   WebSocket, request/reply by id, reconnect with a session token
   state.js       live model: people from look + the `people` stream, straight-line prediction
   render2d.js    isometric canvas (layout.js holds the sketched street layout)
+  interior.js    the room you're inside, drawn from the owner's picture (D-066)
   ui.js · phone.js · creator.js · main.js
 web/gateway/  Node + ws: WebSocket ⇄ TCP, nothing else
 ```
@@ -137,6 +138,9 @@ The target today is one world shard with up to 16 people plus up to 16 scripted 
 | `src/core/Music.cpp` | Songs, releases, the town chart, live performance. |
 | `src/core/Goals.cpp` | Daily goals and aspirations, read from the character's own records (D-061). |
 | `src/core/Sleep.cpp` | Going to bed, waking, and `World::skipNight`, the night skip every host calls (D-062). |
+| `src/core/LifeEvents.cpp` | Life events: scenario cards from `data/events/`, drawn at sensible moments, answered through the World's rules; the Story app (D-068). |
+| `src/core/Fights.cpp` | Fist fights: the person attacked chooses, the World scores it, injuries, assault, walking away (D-070). |
+| `src/core/Interiors.cpp` | Rooms you walk around in: the `interior` content and its checks, `moveInside` / `sit` / `stand`, spots taken by activities, purchases, performances and shifts, `look.here.room` and the `room` event (D-066). |
 | `src/core/Away.cpp` | The away routine's work: scheduled blocks spent offline paid at a share (D-063). |
 | `src/core/Serialization.*` | JSON encoding of state records for the save format, and the whole world as one JSON document (the single-player save). |
 | `src/protocol/WorldOps.*` | The in-world op routing (`look`, `move`, `buy`...) shared by the server and the single-player build. |

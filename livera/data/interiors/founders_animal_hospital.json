@@ -1,0 +1,125 @@
+{
+  "interior": {
+    "id": "founders_animal_hospital",
+    "places": ["founders_animal_hospital"],
+    "size": [1536, 1024],
+    "person_px": 125,
+    "floor": [
+      [
+        [95, 600],
+        [600, 345],
+        [680, 380],
+        [690, 420],
+        [700, 470],
+        [1000, 650],
+        [1060, 620],
+        [1060, 570],
+        [1180, 545],
+        [1200, 510],
+        [1300, 470],
+        [1500, 500],
+        [1440, 560],
+        [1400, 650],
+        [1000, 850],
+        [960, 840],
+        [640, 880],
+        [580, 860],
+        [450, 790],
+        [400, 810],
+        [270, 750],
+        [240, 650]
+      ],
+      [[730, 300], [800, 220], [900, 260], [1010, 300], [1005, 380], [960, 420], [900, 420], [760, 360]],
+      [[1075, 400], [1140, 370], [1185, 390], [1180, 420], [1130, 440]],
+      [[750, 430], [830, 400], [1000, 500], [1000, 560], [940, 560]]
+    ],
+    "blocked": [
+      {"label": "armchair", "poly": [[180, 595], [225, 572], [275, 598], [230, 622]], "height": 60},
+      {"label": "armchair", "poly": [[275, 545], [315, 525], [360, 548], [320, 568]], "height": 60},
+      {"label": "armchair", "poly": [[345, 500], [385, 480], [430, 503], [390, 523]], "height": 60},
+      {"label": "armchair", "poly": [[420, 465], [460, 445], [505, 468], [465, 488]], "height": 60},
+      {"label": "armchair", "poly": [[480, 690], [525, 668], [585, 698], [540, 722]], "height": 60},
+      {"label": "armchair", "poly": [[575, 625], [620, 602], [685, 635], [640, 658]], "height": 60},
+      {"label": "coffee table", "poly": [[420, 610], [480, 580], [540, 612], [480, 642]], "height": 45},
+      {"label": "side table", "poly": [[255, 555], [275, 545], [295, 555], [275, 565]], "height": 45},
+      {"label": "side table", "poly": [[600, 680], [620, 670], [640, 680], [620, 690]], "height": 45},
+      {"label": "shelves", "poly": [[505, 410], [560, 380], [640, 420], [585, 450]], "height": 80},
+      {"label": "toy shelf", "poly": [[605, 810], [700, 760], [835, 730], [740, 790]], "height": 90},
+      {"label": "reception desk", "poly": [[685, 470], [725, 445], [1010, 615], [970, 645]], "height": 110},
+      {"label": "exam table", "poly": [[800, 265], [850, 240], [935, 285], [885, 310]], "height": 70},
+      {"label": "kennels", "poly": [[1215, 540], [1260, 515], [1405, 600], [1365, 625]], "height": 110},
+      {"label": "water bowls", "poly": [[1175, 605], [1220, 582], [1320, 632], [1275, 655]], "height": 10},
+      {"label": "cabinet", "poly": [[1060, 590], [1100, 570], [1140, 590], [1100, 610]], "height": 80}
+    ],
+    "entrance": {"at": [470, 745], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [345, 772], "facing": "w", "label": "Front doors"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1420, 490],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {"id": "reception", "kind": "counter", "at": [855, 640], "facing": "n", "label": "Reception"},
+      {
+        "id": "receptionist",
+        "kind": "seat",
+        "at": [880, 485],
+        "facing": "s",
+        "label": "Behind reception",
+        "staff": true
+      },
+      {"id": "exam", "kind": "station", "at": [930, 345], "facing": "w", "label": "Exam table", "staff": true},
+      {
+        "id": "wait_1",
+        "kind": "seat",
+        "at": [228, 608],
+        "facing": "e",
+        "label": "Waiting room",
+        "activity": "waiting_room"
+      },
+      {
+        "id": "wait_2",
+        "kind": "seat",
+        "at": [318, 555],
+        "facing": "e",
+        "label": "Waiting room",
+        "activity": "waiting_room"
+      },
+      {
+        "id": "wait_3",
+        "kind": "seat",
+        "at": [388, 510],
+        "facing": "s",
+        "label": "Waiting room",
+        "activity": "waiting_room"
+      },
+      {
+        "id": "wait_4",
+        "kind": "seat",
+        "at": [462, 475],
+        "facing": "s",
+        "label": "Waiting room",
+        "activity": "waiting_room"
+      },
+      {
+        "id": "wait_5",
+        "kind": "seat",
+        "at": [535, 705],
+        "facing": "n",
+        "label": "Waiting room",
+        "activity": "waiting_room"
+      },
+      {
+        "id": "wait_6",
+        "kind": "seat",
+        "at": [628, 642],
+        "facing": "w",
+        "label": "Waiting room",
+        "activity": "waiting_room"
+      }
+    ]
+  }
+}

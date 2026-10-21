@@ -107,6 +107,12 @@ Result<Json> World::look(const CharacterId& actor) const {
                   {"emotions", roundedStats(c->emotions)},
                   {"on_shift", c->career.shiftStartedAt.has_value()},
                   {"asleep", c->asleepSince >= 0}});
+  // Your own standing with the police (D-069): you'd know you're wanted, and where you're held.
+  if (!c->wantedFor.empty()) {
+    const CrimeDef* crime = db.crimeDef(c->wantedFor);
+    you["wanted_for"] = crime ? crime->label : c->wantedFor;
+  }
+  if (c->jailedUntil > state_.now) you["jailed_until"] = c->jailedUntil;
 
   Json people = Json::array();
   for (const auto& [id, o] : state_.characters) {
@@ -123,12 +129,14 @@ Result<Json> World::look(const CharacterId& actor) const {
     // What each offer and activity does is public content, like its price. When an activity can be done again is
     // the viewer's own state (their cooldown there).
     Json offers = Json::array();
-    for (const auto& o : loc->offers)
+    for (const auto& o : loc->offers) {
       offers.push_back(Json{{"id", o.id},
                             {"label", o.label},
                             {"price_cents", o.priceCents},
                             {"needs", o.needEffects},
                             {"emotions", o.emotionEffects}});
+      if (o.illegal) offers.back()["illegal"] = true;  // buying it is a crime if the police see (D-069)
+    }
     Json activities = Json::array();
     for (const auto& a : loc->activities) {
       const auto ready = c->activityReadyAt.find(loc->id + "/" + a.id);
@@ -147,6 +155,7 @@ Result<Json> World::look(const CharacterId& actor) const {
     }
     here = Json{{"id", loc->id}, {"name", loc->name}, {"type", loc->type}, {"description", loc->description},
                 {"status", locationStatus(*loc)}, {"offers", offers}, {"activities", activities}, {"stage", loc->stage}};
+    if (Json room = roomView(*c); !room.is_null()) here["room"] = room;  // interiors: the room and who's where (D-066)
   }
 
   Json nearby = Json::array();
@@ -253,6 +262,7 @@ SeenPerson World::seenNow(const CharacterState& c) const {
   }
   m.bus = c.moveSpeedMps > 0;
   m.scripted = isScripted(c.id);
+  if (onDutyPolice(c)) m.uniform = "police";
   return m;
 }
 
@@ -276,6 +286,9 @@ Json World::personJson(const CharacterState& viewer, const CharacterState& other
          {"known", self || (rel && rel->firstMetAt >= 0)},
          {"scripted", isScripted(other.id)}};
   if (isScripted(other.id)) p["played_by"] = playedBy(other.id);  // "script" (a bot_ account) or "autopilot"
+  // A police officer on duty is in uniform: anyone who can see them can tell (D-069). Off duty (no key) they look
+  // like anyone; each `people` entry is whole, so a client clears it when the key is missing.
+  if (onDutyPolice(other)) p["uniform"] = "police";
   p.update(motionJson(seenBy(viewer, other)));
   return p;
 }
@@ -307,7 +320,7 @@ void World::emitPeopleChanges() {
         // Real destinations are compared: a cut target shifts whenever the viewer moves, and that alone isn't news.
         const SeenPerson& was = it->second;
         changed = now.inside != was.inside || !sameTarget(now.trueTarget, was.trueTarget) ||
-                  now.speedMps != was.speedMps || now.bus != was.bus || now.scripted != was.scripted ||
+                  now.speedMps != was.speedMps || now.bus != was.bus || now.scripted != was.scripted || now.uniform != was.uniform ||
                   (!now.target && distance(now.position, was.position) > kStillMoveThreshold) ||
                   cutTargetStale(was, now.position, viewer.position, sight);
       }

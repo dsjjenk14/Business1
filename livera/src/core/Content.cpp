@@ -481,6 +481,7 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
         C.finesAccount = body.at("fines_account").get<std::string>();
         C.overdoseBillCents = body.value("overdose_bill_cents", C.overdoseBillCents);
         C.hospital = body.at("hospital").get<std::string>();
+        C.shopliftPlaceTypes = readStrings(body, "shoplift_place_types");  // D-069
         for (const auto& j : body.at("crimes")) {
           CrimeDef d;
           d.id = j.at("id").get<std::string>();
@@ -778,6 +779,10 @@ Status ContentDatabase::validate() const {
     if (!location(crime_.jail)) return fail("content_invalid", "crime: unknown jail");
     if (!location(crime_.hospital)) return fail("content_invalid", "crime: unknown hospital");
     if (!orgs.count(crime_.finesAccount)) return fail("content_invalid", "crime: unknown fines_account");
+    for (const auto& t : crime_.shopliftPlaceTypes) {  // D-069: only kinds of place that exist
+      const bool any = std::any_of(locations_.begin(), locations_.end(), [&](const auto& kv) { return kv.second.type == t; });
+      if (!any) return fail("content_invalid", "crime.shoplift_place_types: unknown place type '" + t + "'");
+    }
   }
   if (!transit_.lines.empty()) {
     if (!orgs.count(transit_.operatorAccount)) return fail("content_invalid", "transit: unknown operator_account");
