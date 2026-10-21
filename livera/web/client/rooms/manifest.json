@@ -239,6 +239,21 @@
    1024
   ]
  },
+ "meridian_talent": {
+  "offset": [
+   2,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1534,
+   1024
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
  "parallax_labs": {
   "offset": [
    3,

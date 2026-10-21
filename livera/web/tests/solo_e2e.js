@@ -170,6 +170,8 @@ const scripted = p => W(p, () => [...window.__livera.world.people.values()].filt
     await waitFor(A, () => window.__livera.world.self.inside === "" && !document.getElementById("next").hidden);
     const card = await A.page.textContent("#next");
     assert(/Meridian Talent Partners/.test(card) && /Go/.test(card), "the Next card on the map doesn't offer the workplace: " + card);
+    // The context button follows on the client's next tick after the exit.
+    await waitFor(A, () => /Go/.test(document.getElementById("ctx-btn").textContent), null, 5000).catch(() => {});
     const ctx = await A.page.textContent("#ctx-btn");
     assert(/Go/.test(ctx), "the context button doesn't offer Go to the Next target: " + ctx);
     await shot(A, "solo_03b_next_card.png");
@@ -258,8 +260,13 @@ const scripted = p => W(p, () => [...window.__livera.world.people.values()].filt
   });
 
   await test("enter Heritage Coffee and buy a coffee: money goes down by the price", async () => {
-    await tapWorld(A, [[470, 422, 9], [470, 428, 4], [476, 420, 5], [465, 426, 6], [478, 416, 9]], { kind: "place", id: "heritage_coffee" }, "Heritage Coffee");
-    await A.page.waitForSelector('#sheet[data-kind="place"]');
+    // A founder walking by between the hit test and the tap takes the tap: close their card and tap again.
+    for (let i = 0; ; i++) {
+      await tapWorld(A, [[470, 422, 9], [470, 428, 4], [476, 420, 5], [465, 426, 6], [478, 416, 9]], { kind: "place", id: "heritage_coffee" }, "Heritage Coffee");
+      if (await A.page.waitForSelector('#sheet[data-kind="place"]', { timeout: 5000 }).then(() => true, () => false)) break;
+      assert(i < 2, "tapping Heritage Coffee never opened its card");
+      await closeSheet(A);
+    }
     await A.page.click('#sheet >> text="Go inside"');
     await waitFor(A, () => window.__livera.world.self.inside === "heritage_coffee", null, 40000);
     await A.page.waitForSelector('#sheet[data-kind="scene"] [data-buy]');

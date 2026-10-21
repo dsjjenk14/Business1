@@ -425,9 +425,9 @@ Lustre Jewelers: the inside of a jeweler in the Downtown district. The game desc
 Size 1536×1024, transparent background. Save as art/interiors/lustre_jewelers.png
 ```
 
-#### Meridian Talent Partners
+#### Meridian Talent Partners (filed)
 
-Save as `art/interiors/meridian_talent.png` · 1536×1024
+Save as `art/interiors/meridian_talent.png` · 1536×1024 · filed as `art/interiors/meridian_talent.webp`
 
 Facts from the data:
 

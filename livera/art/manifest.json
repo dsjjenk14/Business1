@@ -616,9 +616,10 @@
     },
     "greater_hope": {
       "picture": "art/interiors/greater_hope.webp",
+      "alternate": "art/interiors/greater_hope_alt.webp",
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
-        "Pews facing the pulpit, choir seats, the piano and the kitchen through a door match the data; the band corner with drums is the picture's own (the church is a stage in the data)."
+        "Pews facing the pulpit, choir seats, the piano and the kitchen through a door match the data; the band corner with drums is the picture's own (the church is a stage in the data). Two versions; the second (no drums, a mic stand on the platform, an open kitchen at the side) is kept as the alternate."
       ]
     },
     "starlight_cinema": {
@@ -669,6 +670,13 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "The lecture hall with rising seats and a lectern, the library's reading tables and shelves, and a coffee counter by the door (the picture's own) match the data's one finished lecture hall and library."
+      ]
+    },
+    "meridian_talent": {
+      "picture": "art/interiors/meridian_talent.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The open floor of desks (eight seats, four each side of the bank), the glass meeting room, the reception desk and the lounge corner's sofa match the data; the small meeting table by the shelves is the picture's own. The glass room has no door in the picture, so nobody walks in. There's no coffee machine: the break room's coffee is at the sideboard by the restroom."
       ]
     }
   },
