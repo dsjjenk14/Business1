@@ -665,9 +665,14 @@ carry anchor points measured on the art. The flat ground is drawn into an offscr
 copied in each frame, re-drawn when the zoom, the light (in steps), the places, the projects or the
 pictures change or the view pans past its margin. Construction sites show their site's picture
 (bare, or framed from 35% of an active project); the crane marker stands over active projects whose
-picture paints none; Founders Way's works are laid at one spot on the road while it's active and 35%
-along. Where each piece goes (the bridge's span, Willow Lake's lot, the works' stretch) is in
-`layout.js` with the rest of the sketch. Without `tiles/manifest.json` the hand-drawn ground stays.
+picture paints none; Founders Way's works are laid at one spot on the road while it's active (the
+bare site, then the framed stage from 35%). Where each piece goes (the bridge's span, Willow Lake's
+lot, the works' fit) is in `layout.js` with the rest of the sketch. Without `tiles/manifest.json` the
+hand-drawn ground stays. A picture drawn from a flatter angle than the map's (the bare works) keeps
+its proportions within a small stretch and is sheared, verticals upright, to lie along the road:
+stretched to fit it came out nearly twice as tall. The Founders Park stop moved from inside the park
+(420, 330) to Main Street's kerb opposite its gate (465, 350), where the other stops stand about 10 m
+off a road, so its shelter isn't hidden under the park's picture and the bus stops on a street.
 **Why:** The tiles were painted for a 2:1 view and the map is 30°, so drawing them as pictures would
 misalign every diamond; re-projected they lie flat at any zoom. Textured strokes and fills cost
 several milliseconds a frame in software canvases (headless Chromium, low-end phones), and the

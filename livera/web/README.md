@@ -311,7 +311,7 @@ the artifact and give friends Contributor access (`docs/MULTIPLAYER.md`, "How to
 | `client/faces/` | 160 px face crops by character id; `manifest.json` lists them so the page never requests a missing image. |
 | `client/figures.js` | The one way a whole person is drawn, on the map and inside: `drawFigure(ctx, person, x, y, {height, facing, mirror, pose, phase, night, selected, scripted})` with the feet at (x, y), `height` being a 1.75 m person there (everyone at their own height); `facingFor(dx, dy)` picks the view from a movement on screen; `figureReady(id)`, `loadFigureManifest()`. The owner's cut-outs where a character has them (the nearest view they have), otherwise a stand-in body in neutral colours, labelled as such in the code and D-067; walking bobs, sitting lowers the standing figure into the seat and clips it there, `fight` and `flinch` lean, crouch and bounce or shake it (the stand-in raises its fists or covers its face); scaled, lit pictures cached per height bucket and light step. |
 | `client/figures/` | Full-body cut-outs from the model sheets, `<id>/<view>.webp` (front, front34, side, back34, back; 360 px for a 1.75 m person), made by `scripts/client_figures.py`; `manifest.json` gives each view's size, feet and which way it faces, so only listed files are requested. |
-| `client/sprites/` | The owner's building pictures for 14 places (Heritage Coffee, Greenleaf Market, Founders School, the police station, Station 1, …), drawn on the map in place of their boxes. They come from `art/places/` (made with the prompt pack in `scripts/town_prompts.py`) as map-size copies: 640 px wide, transparent WebP, cropped to their content. `manifest.json` lists them, so the page never requests one that isn't there; the box is drawn until a picture has loaded. |
+| `client/sprites/` | The owner's pictures of 51 buildings and parks (Heritage Coffee, Greenleaf Market, Founders School, the police station, Station 1, …) and of the construction sites' stages, drawn on the map in place of their boxes. They come from `art/places/` (made with the prompt pack in `scripts/town_prompts.py`) as map-size copies: 640 px wide, transparent WebP, cropped to their content. `manifest.json` lists them, so the page never requests one that isn't there; the box is drawn until a picture has loaded. |
 | `client/tiles/` | The owner's ground tiles and set pieces (`art/tiles/`, `art/transit/stops/`) as the client uses them, made by `scripts/client_tiles.py` (Python 3 + Pillow; run it again when that art changes, `--preview DIR` writes 3x3 repeats to check for seams): ground textures (`grass`, `paving`, `asphalt`, `gravel`) re-projected from the art's 2:1 diamonds to top-down squares that repeat without seams, and set pieces (`crane`, `bridge`, four bus shelters) trimmed and scaled down. `manifest.json` gives each one's kind, size and anchor points (measured on the art); only ids listed there are requested, and without it the map keeps its hand-drawn ground. |
 | `client/fonts/` | Cinzel and Cormorant Garamond (roman and italic), latin subset, self-hosted for the CSP's `font-src 'self'`; SIL Open Font License texts beside them. |
 
@@ -339,7 +339,7 @@ numbers. The lotus mark is an inline SVG built with the DOM API (`lotus()` in `d
 over the wordmark on the full-screen screens and in the menu sheet. The fonts are self-hosted in
 `client/fonts/` (OFL), so the live page's CSP is unchanged.
 
-Fourteen places are drawn with the owner's own pictures (`client/sprites/`, map-size copies of
+Most places are drawn with the owner's own pictures (`client/sprites/`, map-size copies of
 `art/places/`, made with the prompt pack) instead of a box: each sits on its lot about 1.15 times
 the width of its footprint, keeps its tap target, gets a gold outline of the lot when selected,
 and is darkened at night with its own lit windows and lamps laid back on top. Places without a
@@ -349,10 +349,13 @@ A building under construction shows its site's picture instead (the construction
 shares its door in the map's data): the framed stage (`<site>_framed`) once the city app says its
 project is active and at least 35% built, if there is a picture of it, else the bare site. The
 crane picture (`client/tiles/crane.webp`) stands at the back of every active project's lot, except
-where the site's own picture already paints cranes (Maple Court Phase II, ÉCLAT framed); planned
-projects get none. While Founders Way's project is active and 35% along, the picture of its works
-(paver, half paved, half gravel) is laid along the road next to the site's door, west of Main
-Street; the rest of the road stays gravel until the project is complete. Willow Lake Park's
+where the site's own picture already paints cranes (Maple Court Phase II, ÉCLAT and Body & Balance
+framed); planned projects get none. While Founders Way's project is active, the picture of its works
+is laid along the road next to the site's door, west of Main Street: the bare site (machines parked
+on the dirt road) until it is 35% along, then the framed stage (paver, half paved, half gravel); the
+rest of the road stays gravel until the project is complete. The bare picture is drawn from a
+flatter angle than the map's, so it keeps its proportions (times `stretch`) and is sheared to lie
+along the road, where the framed one is stretched to fit. Willow Lake Park's
 picture stands on the square between Lakeshore Drive and Willow Lane, on its lawn, in place of the
 drawn lake and trees.
 
@@ -368,9 +371,9 @@ the places or the projects change or the view pans past the margin (mid-zoom the
 stretched, unfiltered); the shadows, the river and everything standing on the ground stay live,
 so the textures cost about nothing per frame. The bridge picture spans the river on Lexington Avenue's
 line (mirrored: its art runs along the other axis), its reflection flipped about its waterline in
-the water and its lamps glowing at night; the four bus shelters with pictures (Founders Way & Main,
-Maple Court, Church Street, Civic Row) stand under their gold numbered badges, which keep their
-44 px tap targets (the shelter can be tapped too); the other three stops keep their posts. Not used: `road_corner` (the sketch's streets meet only in T junctions and
+the water and its lamps glowing at night; every stop's bus shelter picture stands under its gold numbered badge,
+which keeps its 44 px tap target (the shelter can be tapped too); a stop whose picture hasn't loaded
+keeps its post. Not used: `road_corner` (the sketch's streets meet only in T junctions and
 crossings, never a bend), `road_crossroad` (its roads run corner to corner of the diamond, at 45°
 to the map's streets once re-projected; turned, only a corner of it fits a crossing and its stubs
 don't meet the roads' lines; the centre lines' breaks give the same clean crossing at every

@@ -151,19 +151,27 @@ export const CRANE_M = 38;          // the crane marker's height to its jib, the
 export const SHELTER_M = 13;        // a bus shelter picture's width on the map
 export const SITE_FRAMED_PCT = 35;  // a site shows its framed stage once its project is this far along
 // Site pictures that already paint tower cranes of their own: no crane marker on top of them.
-export const SITE_ART_CRANES = new Set(["maple_court_ii_site", "eclat_site_framed"]);
+export const SITE_ART_CRANES = new Set(["maple_court_ii_site", "eclat_site_framed", "body_balance_site_framed"]);
 // Parks drawn with the owner's picture (client/sprites/<park>.webp) standing on their lawn: the
 // square lot it stands on. Willow Lane crosses the sketch's oval for Willow Lake Park, so the
 // picture takes the square between Lakeshore Drive and Willow Lane; the sketch's lake, boardwalk
 // and trees inside it give way to the picture's.
 export const PARK_ART = { willow_lake_park: { x0: 266, x1: 318, y0: 646, y1: 698 },
                           founders_park: { x0: 360, x1: 440, y0: 310, y1: 390 } };
-// Road works: while a road's project is active and SITE_FRAMED_PCT along, the picture of its works
-// (client/sprites/<site>_framed.webp, the site being the construction-site place whose door is on
-// the road) is laid along the road from x `from` to `to`, next to the site's door but clear of the
-// junction there. Measured on the picture: its road's centre line at the paved end (`near`) and
-// further along (`far`), as fractions of it; it is mirrored, its road running along the art's y axis.
-export const ROAD_WORKS = { founders_way: { from: 401, to: 445, near: [0.1484, 0.8052], far: [0.9375, 0.284] } };
+// Road works: while a road's project is active, the picture of its works is laid along the road
+// from x `from` to `to`, next to the site's door but clear of the junction there: the bare site
+// (client/sprites/<site>.webp, the site being the construction-site place whose door is on the
+// road) until the project is SITE_FRAMED_PCT along, then the framed stage (<site>_framed.webp).
+// Measured on each picture: its road's centre line at the near end (`near`, the paved end of the
+// framed stage) and further along (`far`), as fractions of it; it is mirrored, its road running
+// along the art's y axis. The framed stage is stretched to fit. The bare site is drawn from a
+// flatter angle than the map's, so it would come out nearly twice as tall: it keeps its proportions
+// times `stretch` and is sheared (its verticals stay upright) to lay its road along the map's.
+export const ROAD_WORKS = {
+  founders_way: { from: 401, to: 445,
+                  framed: { near: [0.1484, 0.8052], far: [0.9375, 0.284] },
+                  bare: { near: [0.151, 0.7292], far: [0.9094, 0.2497], stretch: 1.2 } },
+};
 
 export const TREES = [];
 {

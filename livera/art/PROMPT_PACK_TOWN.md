@@ -651,9 +651,9 @@ Lumière Bistro: a restaurant in the Founders Way district. The game describes i
 Size 1024×1024, transparent background. Save as art/places/lumiere_bistro.png
 ```
 
-#### Paws & Whiskers Adoption Center
+#### Paws & Whiskers Adoption Center (in the game)
 
-Save as `art/places/paws_whiskers.png` · 1024×1024 · sign: PAWS & WHISKERS
+Save as `art/places/paws_whiskers.png` · 1024×1024 · sign: PAWS & WHISKERS · filed as `art/places/paws_whiskers.webp`
 
 Facts from the data:
 
@@ -1280,9 +1280,9 @@ LIVÉRA town sprite. Isometric 2:1 (30°) view from the south-west, warm golden-
 Size 1024×1024, transparent background. Save as art/places/willow_lane_6.png
 ```
 
-#### 8 Willow Lane
+#### 8 Willow Lane (in the game)
 
-Save as `art/places/willow_lane_8.png` · 1024×1024 · sign: 8
+Save as `art/places/willow_lane_8.png` · 1024×1024 · sign: 8 · filed as `art/places/willow_lane_8.webp`
 
 Facts from the data:
 
@@ -1447,9 +1447,9 @@ Body & Balance (construction): a construction site in the Downtown district, whe
 Size 1024×1024, transparent background. Save as art/places/body_balance_site.png
 ```
 
-#### Body & Balance (construction) — framed stage
+#### Body & Balance (construction) — framed stage (in the game)
 
-Save as `art/places/body_balance_site_framed.png` · 1024×1024 · no sign
+Save as `art/places/body_balance_site_framed.png` · 1024×1024 · no sign · filed as `art/places/body_balance_site_framed.webp`
 
 Facts from the data:
 
@@ -1583,9 +1583,9 @@ Size 1024×1024, transparent background. Save as art/places/eclat_site_framed.pn
 
 ### South Works
 
-#### Founders Way (unpaved) — bare site
+#### Founders Way (unpaved) — bare site (in the game)
 
-Save as `art/places/founders_way_site.png` · 1536×1024 · no sign
+Save as `art/places/founders_way_site.png` · 1536×1024 · no sign · filed as `art/places/founders_way_site.webp`
 
 Facts from the data:
 
@@ -1751,9 +1751,9 @@ Bus shelter for the stop "Civic Row", stop 6 of 7 on Line 1 · Riverside Loop, t
 Size 1024×1024, transparent background. Save as art/transit/stops/stop_civic_row.png
 ```
 
-#### Stop: Founders Park
+#### Stop: Founders Park (in the game)
 
-Save as `art/transit/stops/stop_founders_park.png` · 1024×1024 · sign: 1 · FOUNDERS PARK
+Save as `art/transit/stops/stop_founders_park.png` · 1024×1024 · sign: 1 · FOUNDERS PARK · filed as `art/transit/stops/stop_founders_park.webp`
 
 Facts from the data:
 
@@ -1761,8 +1761,8 @@ Facts from the data:
 - **Id:** stop_founders_park
 - **Line:** Line 1 · Riverside Loop (line_1)
 - **Order:** 5 of 7, after Church Street, before Civic Row
-- **Position:** (420, 330) m
-- **Nearest places:** Founders Park (28 m); Body & Balance (construction) (67 m)
+- **Position:** (465, 350) m
+- **Nearest places:** Meridian Talent Partners (54 m); Founders Park (65 m)
 - **Fare:** $2.75
 - **Line hours:** 05:00–01:00 (past midnight)
 - **Source:** data/transit/transit.json
@@ -1847,9 +1847,9 @@ Bus shelter for the stop "Maple Court", stop 3 of 7 on Line 1 · Riverside Loop,
 Size 1024×1024, transparent background. Save as art/transit/stops/stop_maple_court.png
 ```
 
-#### Stop: Riverside Lofts
+#### Stop: Riverside Lofts (in the game)
 
-Save as `art/transit/stops/stop_riverside.png` · 1024×1024 · sign: 1 · RIVERSIDE LOFTS
+Save as `art/transit/stops/stop_riverside.png` · 1024×1024 · sign: 1 · RIVERSIDE LOFTS · filed as `art/transit/stops/stop_riverside.webp`
 
 Facts from the data:
 

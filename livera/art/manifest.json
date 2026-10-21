@@ -351,10 +351,11 @@
     },
     "body_balance_site": {
       "sprite": "art/places/body_balance_site.webp",
+      "framed": "art/places/body_balance_site_framed.webp",
       "notes": [
         "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
         "A construction site the client folds into the building going up on it; the sprite is the bare site and `framed` is the same lot once work shows above ground (art direction: the game only says the project is active and how far along it is).",
-        "A dug foundation with rebar, a site hut and a skip, no workers, as asked. The framed stage has no picture yet."
+        "A dug foundation with rebar, a site hut and a skip, no workers, as asked. The framed stage: two storeys of concrete columns with rebar, formwork, scaffolding, lumber stacks, a fence and a tower crane of its own (so the client draws no crane marker over it), sent twice. Founders Park's picture stands in front of the lot on the map, so its trees hide part of it."
       ]
     },
     "maple_court_ii_site": {
@@ -363,7 +364,7 @@
         "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
         "A construction site the client folds into the building going up on it; the sprite is the bare site and `framed` is the same lot once work shows above ground (art direction: the game only says the project is active and how far along it is).",
         "Lumber stacks, a site hut and the first slab with column stubs, as asked. The two tower cranes are the picture's own (the data's description mentions cranes); the client also draws its own crane marker over active projects.",
-        "The framed stage (concrete columns and slabs, formwork, one tower crane, lumber stacks and a fence) came unlabelled; it is filed as Maple Court Phase II's because the frame is a multi-storey block with a lift core, not a two-storey gym. If it was made from the Body & Balance prompt, move it to body_balance_site_framed.webp."
+        "The framed stage (concrete columns and slabs, formwork, one tower crane, lumber stacks and a fence) came unlabelled; it is filed as Maple Court Phase II's because the frame is a multi-storey block with a lift core, not a two-storey gym. Body & Balance's own framed stage (two storeys) has since arrived, which bears that out."
       ],
       "framed": "art/places/maple_court_ii_site_framed.webp"
     },
@@ -377,11 +378,12 @@
       ]
     },
     "founders_way_site": {
+      "sprite": "art/places/founders_way_site.webp",
       "framed": "art/places/founders_way_site_framed.webp",
       "notes": [
         "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
         "A construction site the client folds into the building going up on it; the sprite is the bare site and `framed` is the same lot once work shows above ground (art direction: the game only says the project is active and how far along it is).",
-        "Founders Way: only the later stage has a picture: half freshly paved with a cream centre line, half gravel, the paver at the join, a dump truck, a grader and a roller, with cones. The machines' cabs are empty; the green fences and lamps are the picture's own. The bare stage (dirt road with the machines parked) has no picture yet."
+        "Founders Way, laid along the road by the client while it is being paved (ROAD_WORKS in web/client/layout.js). The bare stage: a dirt road with a grader, a paver and a roller parked on it, cones, kerb stones, pipes and a sand heap, no crew. It is drawn from a flatter angle than the map's, so the client shears it to lie along the road instead of stretching it. The later stage: half freshly paved with a cream centre line, half gravel, the paver at the join, a dump truck, a grader and a roller, with cones. The machines' cabs are empty; the green fences and lamps are the picture's own."
       ]
     },
     "maple_court_ii": {
@@ -409,7 +411,7 @@
       "sprite": "art/places/willow_lane_6.webp",
       "notes": [
         "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
-        "The third Willow Lane house, carrying the number 6: porch, back yard with a table, a young tree. 8 Willow Lane has no picture yet."
+        "The third Willow Lane house, carrying the number 6: porch, back yard with a table, a young tree."
       ]
     },
     "founders_park": {
@@ -438,6 +440,20 @@
       "notes": [
         "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
         "Glass, walnut and the model of the future city on the first floor, as the data says. The model's towers are that future city, not the founding town."
+      ]
+    },
+    "paws_whiskers": {
+      "sprite": "art/places/paws_whiskers.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The paw-print roundel, the PAWS & WHISKERS sign, a dog, cats on their towers and the rabbit in a window, as asked. The fenced play yard at the side is the picture's own."
+      ]
+    },
+    "willow_lane_8": {
+      "sprite": "art/places/willow_lane_8.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The fourth Willow Lane house, carrying the number 8 by the door: porch, shutters, a young tree and a fenced back patio. The data's garage isn't shown."
       ]
     }
   },
@@ -660,7 +676,10 @@
     "bus_line_1": "art/transit/bus_line_1.jpg",
     "bus_line_1_side": "art/transit/bus_line_1_side.jpg",
     "stops": {
-      "stop_riverside": "art/transit/stops/stop_riverside.jpg",
+      "stop_riverside": {
+        "sprite": "art/transit/stops/stop_riverside.webp",
+        "crop": "art/transit/stops/stop_riverside.jpg"
+      },
       "stop_founders_main": {
         "sprite": "art/transit/stops/stop_founders_main.webp",
         "crop": "art/transit/stops/stop_founders_main.jpg"
@@ -674,18 +693,22 @@
         "alternate": "art/transit/stops/stop_church_street_alt.webp",
         "crop": "art/transit/stops/stop_church_street.jpg"
       },
-      "stop_founders_park": "art/transit/stops/stop_founders_park.jpg",
+      "stop_founders_park": {
+        "sprite": "art/transit/stops/stop_founders_park.webp",
+        "crop": "art/transit/stops/stop_founders_park.jpg"
+      },
       "stop_civic_row": {
         "sprite": "art/transit/stops/stop_civic_row.webp",
         "crop": "art/transit/stops/stop_civic_row.jpg"
       },
       "stop_lexington_ave": {
         "sprite": "art/transit/stops/stop_lexington_ave.webp",
-        "crop": "art/transit/stops/stop_lexington_ave.jpg"
+        "crop": "art/transit/stops/stop_lexington_ave.jpg",
+        "alternate": "art/transit/stops/stop_lexington_ave_alt.webp"
       }
     },
     "notes": [
-      "Five stops now have a full shelter sprite (stops/<stop_id>.webp, isometric, golden hour, transparent, from PROMPT_PACK_TOWN.md): Founders Way & Main, Maple Court, Church Street (two near-identical versions), Civic Row and Lexington Ave & River Rd (its tree and planters are the picture's own); their `crop` is the earlier small panel from the bus collage. Riverside Lofts and Founders Park still have only the crop (the first and fifth panels of the collage's bottom row, about 300x190, unnamed); Lexington Ave & River Rd has its own full shelter picture whose route list names all seven real stops.",
+      "All seven stops now have a full shelter sprite (stops/<stop_id>.webp, isometric, golden hour, transparent, from PROMPT_PACK_TOWN.md); their `crop` is the earlier small panel from the bus collage. Church Street has two near-identical versions; Lexington Ave & River Rd's tree and planters are the picture's own. Founders Park's shelter and Lexington Ave's `alternate` came as one picture of two shelters side by side: each was cut out and scaled up 1.37x onto the same 1254 px frame as the Riverside Lofts shelter (the same design), so they are a little softer than the others.",
       "The route diagram names the seven real stops in order and the real $2.75 fare; its geography (the river, the loop's shape, a 'Rivéra River') is stylised and not the game's coordinates.",
       "The transit card is branding only: fares in the game are paid by card, cash or LivPay, and there is no transit-card item.",
       "The side view is a crop on a grey studio background, not a transparent sprite.",

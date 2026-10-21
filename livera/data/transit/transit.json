@@ -17,7 +17,7 @@
           {"id": "stop_founders_main", "name": "Founders Way & Main", "at": [465, 575]},
           {"id": "stop_maple_court", "name": "Maple Court", "at": [300, 535]},
           {"id": "stop_church_street", "name": "Church Street", "at": [245, 445]},
-          {"id": "stop_founders_park", "name": "Founders Park", "at": [420, 330]},
+          {"id": "stop_founders_park", "name": "Founders Park", "at": [465, 350]},
           {"id": "stop_civic_row", "name": "Civic Row", "at": [630, 320]},
           {"id": "stop_lexington_ave", "name": "Lexington Ave & River Rd", "at": [790, 470]}
         ]

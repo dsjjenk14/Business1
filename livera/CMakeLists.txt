@@ -129,8 +129,11 @@ if(LIVERA_WASM)
     -sSTACK_SIZE=2MB
     "SHELL:--post-js ${CMAKE_CURRENT_SOURCE_DIR}/src/wasm/solo_post.js"
     "SHELL:--embed-file ${CMAKE_CURRENT_SOURCE_DIR}/data@/data")
+  # Every data file, not the directory: a directory's time changes only when files come or go, so an
+  # edited file would otherwise leave the old data embedded.
+  file(GLOB_RECURSE LIVERA_DATA_FILES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/data/*)
   set_property(TARGET livera_solo APPEND PROPERTY LINK_DEPENDS
-    ${CMAKE_CURRENT_SOURCE_DIR}/data ${CMAKE_CURRENT_SOURCE_DIR}/src/wasm/solo_post.js)
+    ${LIVERA_DATA_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/src/wasm/solo_post.js)
 endif()
 
 if(NOT LIVERA_WASM)

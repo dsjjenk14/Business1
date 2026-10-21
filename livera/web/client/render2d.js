@@ -536,32 +536,38 @@ export class Renderer2D {
     if (night > 0.3 && this.scale > 0.5) this.glow(r.x + r.W / 2, r.bottom - r.H * 0.35, r.W * 0.6, 0.25 * night, 0.7);
     this.ctx.drawImage(this.bakedSprite(spr, r.W), r.x, r.y, r.W, r.H);
   }
-  // Road works to lay along the roads this frame: a road whose project is active and far enough
-  // along, with a picture of its site's framed stage (ROAD_WORKS says where along the road). The
-  // site is the construction-site place whose door lies on the road.
+  // Road works to lay along the roads this frame: a road whose project is active, with a picture of
+  // its site at the project's stage (ROAD_WORKS says where along the road). The site is the
+  // construction-site place whose door lies on the road.
   roadWorks(w) {
     const out = [];
     for (const r of ROADS) {
       const spot = r.project && ROAD_WORKS[r.project], proj = spot && w.projects.get(r.project);
-      if (!proj || proj.status !== "active" || (proj.progress_pct || 0) < SITE_FRAMED_PCT) continue;
+      if (!proj || proj.status !== "active") continue;
       const [[ax, ay], [bx, by]] = r.pts;
       if (ay !== by) continue;   // the picture is mirrored to run along x; no road along y has works
       const site = w.places.find(p => p.type === "construction_site" && Math.abs(p.door[1] - ay) <= KERB_W / 2 && p.door[0] >= Math.min(ax, bx) && p.door[0] <= Math.max(ax, bx));
-      const spr = site && spriteUrl(`${site.id}_framed`) && this.sprite(`${site.id}_framed`);
+      if (!site) continue;
+      const stage = (proj.progress_pct || 0) >= SITE_FRAMED_PCT ? "framed" : "bare", id = stage === "framed" ? `${site.id}_framed` : site.id;
+      const spr = spriteUrl(id) && this.sprite(id);
       if (!spr) continue;
-      out.push({ spr, spot, y: ay, depth: (spot.from + spot.to) / 2 + ay + 11, lot: { x0: spot.from - 4, x1: spot.to + 4, y0: ay - 13, y1: ay + 13 } });
+      out.push({ spr, spot, fit: spot[stage], y: ay, depth: (spot.from + spot.to) / 2 + ay + 11, lot: { x0: spot.from - 4, x1: spot.to + 4, y0: ay - 13, y1: ay + 13 } });
     }
     return out;
   }
-  // The works picture, mirrored, its road's centre line on the road's: the paved end at `to`.
-  drawWorks({ spr, spot, y }) {
-    const [nx, ny] = this.P(spot.to, y, 0), [fx, fy] = this.P(spot.from, y, 0), near = [1 - spot.near[0], spot.near[1]], far = [1 - spot.far[0], spot.far[1]];
-    const W = (nx - fx) / (near[0] - far[0]), H = (ny - fy) / (near[1] - far[1]);
+  // The works picture, mirrored, its road's centre line on the road's: its near end at `to`.
+  drawWorks({ spr, spot, fit, y }) {
+    const [nx, ny] = this.P(spot.to, y, 0), [fx, fy] = this.P(spot.from, y, 0), near = [1 - fit.near[0], fit.near[1]], far = [1 - fit.far[0], fit.far[1]];
+    const W = (nx - fx) / (near[0] - far[0]);
+    // Stretched to fit (no shear), or kept to its proportions times `stretch` and sheared by k.
+    const H = fit.stretch ? W * spr.img.naturalHeight / spr.img.naturalWidth * fit.stretch : (ny - fy) / (near[1] - far[1]);
+    const k = fit.stretch ? ((ny - fy) - (near[1] - far[1]) * H) / (nx - fx) : 0;
     if (!(W > 0 && H > 0)) return;
-    const x = nx - near[0] * W, top = ny - near[1] * H;
-    if (x > this.cw + 20 || x + W < -20 || top > this.ch + 20 || top + H < -20) return;
+    const x = nx - near[0] * W, top = ny - near[1] * H - near[0] * W * k;
+    const lo = Math.min(top, top + k * W), hi = Math.max(top, top + k * W) + H;
+    if (x > this.cw + 20 || x + W < -20 || lo > this.ch + 20 || hi < -20) return;
     const ctx = this.ctx;
-    ctx.save(); ctx.translate(x + W, top); ctx.scale(-1, 1);
+    ctx.save(); ctx.transform(1, k, 0, 1, x, top); ctx.translate(W, 0); ctx.scale(-1, 1);
     ctx.drawImage(this.bakedSprite(spr, W), 0, 0, W, H);
     ctx.restore();
   }
