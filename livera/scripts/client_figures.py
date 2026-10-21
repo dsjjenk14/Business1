@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Full-body cut-outs of the founders and the created residents, for the web client's map.
+"""Full-body cut-outs of the founders and the four residents with art, for the web client's map.
 
 Reads each character's model sheet (art/reference/characters/<id>.jpg, art/reference/residents/<id>.jpg),
 cuts every full-body view on it out of its background, and writes web/client/figures/<id>/<view>.webp
@@ -22,7 +22,7 @@ furnished lobby, not on a studio background.
 What the sheets have (layouts vary; the boxes below were measured on each sheet):
 - Dominique: a five-view turnaround on a grey studio background (front, three-quarter front, side,
   three-quarter back, back).
-- Dax and the four created residents (Kai Morgan, Rosa Delgado, Sol Rivera, Theo Grant): a four-view
+- Dax and the four residents (Kai Morgan, Rosa Delgado, Sol Rivera, Theo Grant): a four-view
   turnaround on grey (front, three-quarter, side, back).
 - Aaliyah, Andre, Graham, Harper, Julian, Leila, Maya, Naomi and Sienna: a walking shot toward the
   camera (used as "front") and a shot from behind looking back over the shoulder (used as "back34"),
@@ -37,8 +37,8 @@ the colours of the soft edge are decontaminated (the background's colour, estima
 figure, is taken back out of every half-transparent pixel, so hair keeps no grey or lobby-coloured
 halo); the alpha is tightened by a hair so no background fringe survives. The floor shadow is not
 part of the mask. Then every view of a character is scaled to one game height: REF_PX for a
-REF_CM person, each character at their real height (data/characters/*.json appearance.height_cm,
-or the name card for the residents), plus what their hat or heels add (EXTRA_CM), and their feet are
+REF_CM person, each character at their real height (data/characters/*.json appearance.height_cm, the
+residents' from their name cards since D-073), plus what their hat or heels add (EXTRA_CM), and their feet are
 found (the lowest rows of the mask): the manifest's `foot` is the point between the feet on the ground
 line, in pixels of the picture. Views from one turnaround share one scale (measured on its front view);
 the collage shots are each scaled on their own. `faces` says which way the figure looks on screen
@@ -69,9 +69,7 @@ SAND, NIGHT = (235, 215, 184), (6, 26, 34)   # art/STYLE.md sand stone; layout.j
 VIEWS = ("front", "front34", "side", "back34", "back")
 
 CHAR = ROOT / "art" / "reference" / "characters"
-RES = ROOT / "art" / "reference" / "residents"
-# Created residents live only in a save (D-044), so their heights come from their sheets' name cards.
-RESIDENT_CM = {"kai-morgan": 183, "rosa-delgado": 168, "sol-rivera": 170, "theo-grant": 170}
+RES = ROOT / "art" / "reference" / "residents"   # the four residents' sheets (data characters since D-073)
 # What the head of the figure adds above the person's height: hats, big hair, heels (cm, by eye).
 EXTRA_CM = {"dominique": 9, "aaliyah": 11, "maya": 11, "leila": 8, "naomi": 8, "sienna": 7, "harper": 6,
             "andre": 4, "kai-morgan": 6, "sol-rivera": 7}
@@ -93,7 +91,7 @@ SHEETS = {
     "kai-morgan": (RES / "kai-morgan.jpg", [
         ("front", (838, 600, 1016, 962), None, "t"), ("front34", (1020, 600, 1193, 962), "right", "t"),
         ("side", (1197, 600, 1369, 962), "right", "t"), ("back", (1373, 600, 1536, 962), None, "t")],
-        ["The red-and-white high-tops resemble a well-known real design (art/manifest.json)."]),
+        ["The red-and-white high-tops resemble a well-known real design (data/characters/kai-morgan.json art_notes)."]),
     "rosa-delgado": (RES / "rosa-delgado.jpg", [
         ("front", (834, 601, 1012, 964), None, "t"), ("front34", (1015, 601, 1192, 964), "right", "t"),
         ("side", (1195, 601, 1371, 964), "right", "t"), ("back", (1374, 601, 1536, 964), None, "t")], []),
@@ -272,8 +270,6 @@ def feet(a):
 
 
 def height_cm(cid):
-    if cid in RESIDENT_CM:
-        return RESIDENT_CM[cid]
     data = json.loads((ROOT / "data" / "characters" / f"{cid}.json").read_text())
     for c in data["characters"]:
         if c["id"] == cid:

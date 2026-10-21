@@ -1,0 +1,146 @@
+{
+  "characters": [
+    {
+      "id": "rafael-mendes",
+      "cast": "townsperson",
+      "first_name": "Rafael",
+      "last_name": "Mendes",
+      "pronouns": "he/him",
+      "gender": "man",
+      "age": 29,
+      "playable": true,
+      "personality": {
+        "ambition": 88,
+        "sociability": 66,
+        "empathy": 70,
+        "patience": 42,
+        "confidence": 64,
+        "risk_tolerance": 62,
+        "competitiveness": 78,
+        "impulsiveness": 58
+      },
+      "values": {
+        "family": 74,
+        "career": 92,
+        "wealth": 60,
+        "loyalty": 60,
+        "freedom": 50,
+        "status": 50,
+        "community": 55,
+        "romance": 66,
+        "creativity": 40
+      },
+      "traits": ["brilliant", "restless", "kind"],
+      "interests": ["fitness", "film", "gaming", "nightlife", "travel"],
+      "skills": {"athletics": 48},
+      "career": {"id": "medicine", "level": 0},
+      "degrees": ["high_school", "bachelors", "md"],
+      "fame": 2,
+      "finances": {"cash_cents": 3000, "bank_cents": 110000},
+      "home": {"property": "riverside_lofts_6", "tenure": "rent"},
+      "spawn_location": "riverside_lofts_6",
+      "relationships": [
+        {
+          "to": "tess-osei",
+          "history": "The charge nurse who brings him food at 20:00 and tells him he's doing fine. He believes her.",
+          "dimensions": {"familiarity": 34, "respect": 76, "trust": 64, "friendship": 40}
+        },
+        {
+          "to": "ngozi-adeyemi",
+          "history": "His attending's attending. Terrifying. He'd like to be her.",
+          "dimensions": {"familiarity": 24, "respect": 84}
+        },
+        {
+          "to": "julian",
+          "history": "They met at 6 a.m. in Founders Park, both pretending to jog. Julian keeps pitching him a health app.",
+          "dimensions": {"familiarity": 26, "friendship": 30, "respect": 34}
+        },
+        {
+          "to": "imani-clarke",
+          "history": "She draws him on his coffee sleeve every morning, asleep.",
+          "dimensions": {"familiarity": 22, "physical_attraction": 40, "romantic_attraction": 26, "friendship": 20}
+        }
+      ],
+      "memories": [
+        {
+          "type": "career",
+          "participants": ["rafael-mendes"],
+          "importance": 75,
+          "emotional_impact": -20,
+          "days_ago": 50,
+          "info": "His first night alone in Livéra General's ER: a crane operator, a fall, and nobody to call."
+        }
+      ],
+      "aspirations": ["get_promoted", "find_love"],
+      "profile": {
+        "tagline": "First-year resident, second coffee, third wind.",
+        "why_livera": "career_advancement",
+        "ethnicity": "Brazilian American",
+        "card": {
+          "occupation": "Medical Resident, Livéra General Hospital",
+          "height_cm": 178,
+          "build": "Athletic",
+          "skin_tone": "Light olive"
+        },
+        "appearance": {
+          "height_cm": 178,
+          "build": "athletic",
+          "skin": "light olive",
+          "eyes": "green-brown, tired",
+          "face": "a strong nose, two days of stubble, dark circles he calls character",
+          "hair": "dark brown curls, too long for a surgeon, pushed back",
+          "style": "navy scrubs, a grey zip hoodie over them, black running shoes, a stethoscope around his neck",
+          "jewelry": "a black sports watch, a thin leather bracelet",
+          "silhouette": "navy scrubs and a hoodie, curls pushed back",
+          "key_features": [
+            "Dark brown curls pushed back",
+            "Two days of stubble",
+            "Scrubs under a hoodie",
+            "Tired green-brown eyes"
+          ],
+          "stand_in": {
+            "skin": "#c99a74",
+            "hair": "#3a2618",
+            "hair_style": "curls",
+            "top": "#7d8085",
+            "bottom": "#24324f",
+            "shoes": "#1a1a1a"
+          }
+        },
+        "family_background": "Ironbound, Newark, son of a Brazilian restaurant owner and a Portuguese-American schoolteacher. First doctor in the family; they mention it at every meal.",
+        "education": "B.S. Biochemistry, Rutgers; M.D., Rutgers New Jersey Medical School",
+        "goals": [
+          "Survive intern year",
+          "Play Saturday soccer at Riverside Field",
+          "Ask Imani something besides 'the usual'"
+        ],
+        "ambitions": ["Emergency medicine attending, somewhere that needs one"],
+        "social_preferences": "A crowd after a shift, then his bed for fourteen hours.",
+        "secrets": [
+          {
+            "id": "rafael_mistake",
+            "truth": "He gave a patient the wrong dose on his third night. Tess caught it in time and never wrote it up.",
+            "known_by": ["tess-osei"]
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "15:30", "activity": "Livéra General Hospital", "work": true},
+            {"time": "21:45", "activity": "Home"}
+          ],
+          "saturday": [{"time": "14:00", "activity": "Riverside Field"}, {"time": "16:30", "activity": "Home"}]
+        },
+        "starting_inventory": ["phone", "stethoscope", "energy bars", "soccer boots", "pocket reference"],
+        "social_media": {"handle": "@rafa.md", "followers": 1500, "bio": "Resident. Newark. Pray for my sleep schedule."},
+        "reputation": {"professional": 58, "social": 56, "public": 12},
+        "life_history": [
+          "Bussed tables at his father's restaurant through college.",
+          "Matched to emergency medicine.",
+          "Chose Livéra General because nobody else would give him so many patients."
+        ],
+        "archetype": "The Resident"
+      },
+      "sex": "male"
+    }
+  ]
+}

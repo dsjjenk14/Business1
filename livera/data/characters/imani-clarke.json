@@ -1,0 +1,147 @@
+{
+  "characters": [
+    {
+      "id": "imani-clarke",
+      "cast": "townsperson",
+      "first_name": "Imani",
+      "last_name": "Clarke",
+      "pronouns": "she/her",
+      "gender": "woman",
+      "age": 23,
+      "playable": true,
+      "personality": {
+        "ambition": 58,
+        "sociability": 70,
+        "empathy": 72,
+        "patience": 54,
+        "confidence": 50,
+        "risk_tolerance": 56,
+        "competitiveness": 40,
+        "impulsiveness": 60
+      },
+      "values": {
+        "family": 70,
+        "career": 55,
+        "wealth": 40,
+        "loyalty": 66,
+        "freedom": 82,
+        "status": 30,
+        "community": 60,
+        "romance": 64,
+        "creativity": 96
+      },
+      "traits": ["artistic", "funny", "nosy"],
+      "interests": ["art", "photography", "fashion", "film", "music"],
+      "career": {"id": "cafe", "level": 0},
+      "degrees": ["high_school"],
+      "fame": 3,
+      "finances": {"cash_cents": 3000, "bank_cents": 82000},
+      "home": {"property": "riverside_lofts_1", "tenure": "rent"},
+      "spawn_location": "riverside_lofts_1",
+      "relationships": [
+        {
+          "to": "sol-rivera",
+          "history": "Roommate, shift lead, big sister she never had. She'd follow Sol into traffic, singing.",
+          "dimensions": {"familiarity": 70, "friendship": 74, "trust": 68, "loyalty": 62}
+        },
+        {
+          "to": "sienna",
+          "history": "Sienna reposted one of her sleeve drawings and Imani hasn't recovered.",
+          "dimensions": {"familiarity": 16, "respect": 72, "friendship": 12}
+        },
+        {
+          "to": "rafael-mendes",
+          "history": "The resident who falls asleep on the counter. She draws him every morning and he never notices.",
+          "dimensions": {"familiarity": 24, "friendship": 24, "romantic_attraction": 34, "physical_attraction": 36}
+        }
+      ],
+      "memories": [
+        {
+          "type": "career",
+          "participants": ["imani-clarke", "sienna"],
+          "importance": 60,
+          "emotional_impact": 55,
+          "days_ago": 15,
+          "info": "Sienna Brooks reposted a coffee-sleeve sketch: 1,400 likes overnight.",
+          "about": "sienna"
+        }
+      ],
+      "aspirations": ["get_famous", "find_love"],
+      "profile": {
+        "tagline": "Draws the whole town on coffee sleeves, one regular at a time.",
+        "why_livera": "adventure",
+        "ethnicity": "Black British (Jamaican English)",
+        "card": {
+          "occupation": "Barista, Heritage Coffee Co.",
+          "height_cm": 165,
+          "build": "Petite curvy",
+          "skin_tone": "Warm brown"
+        },
+        "appearance": {
+          "height_cm": 165,
+          "build": "petite, curvy",
+          "skin": "warm brown",
+          "eyes": "big, dark brown, mischievous",
+          "face": "round face, a gap in her front teeth, a tiny nose stud",
+          "hair": "box braids in a high bun with a yellow scarf",
+          "style": "a mustard cardigan over a striped tee, a canvas barista apron covered in pen marks, wide-leg jeans, yellow trainers",
+          "jewelry": "mismatched earrings, a nose stud, pens behind both ears",
+          "silhouette": "a high bun of braids with a yellow scarf, an apron covered in ink",
+          "key_features": [
+            "Box braids in a high bun with a yellow scarf",
+            "Gap-toothed grin",
+            "Pens behind her ears",
+            "Ink-stained apron"
+          ],
+          "stand_in": {
+            "skin": "#7b4a30",
+            "hair": "#1b1411",
+            "hair_style": "bun",
+            "top": "#c9952f",
+            "bottom": "#4a5f86",
+            "shoes": "#e6b422",
+            "headwear": "#e6b422",
+            "apron": "#c8b89a"
+          }
+        },
+        "family_background": "Chapeltown, Leeds. Her mum is a bus driver, her dad a carpenter from Kingston. She moved to America for art school, ran out of money, and kept going west.",
+        "education": "One year of illustration at Leeds Arts University",
+        "goals": [
+          "A show of the coffee-sleeve drawings",
+          "Get Sienna to notice her again",
+          "A visa that doesn't expire"
+        ],
+        "ambitions": ["Illustrate a book with her name on the spine"],
+        "social_preferences": "Everybody, briefly. Gossip, preferably.",
+        "secrets": [
+          {
+            "id": "imani_unfiltered",
+            "truth": "She sends photos from behind the counter to @livera.unfiltered's DMs. She has no idea who runs it.",
+            "known_by": []
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "11:00", "activity": "Heritage Coffee", "work": true},
+            {"time": "20:00", "activity": "Home, sketchbook out"}
+          ],
+          "saturday": [
+            {"time": "07:00", "activity": "Heritage Coffee", "work": true},
+            {"time": "16:00", "activity": "Home"}
+          ],
+          "sunday": [{"time": "12:00", "activity": "Founders Park"}]
+        },
+        "starting_inventory": ["phone", "sketchbook", "fine-liners", "yellow headscarf", "café apron"],
+        "social_media": {"handle": "@imani.on.sleeves", "followers": 3800, "bio": "Barista. I drew you. You're welcome."},
+        "reputation": {"professional": 44, "social": 60, "public": 20},
+        "life_history": [
+          "Drew her whole school, badly, on the back of exam papers.",
+          "Dropped out of art school when the money did.",
+          "Barista at Heritage Coffee; draws everyone on the sleeves."
+        ],
+        "archetype": "The Observer"
+      },
+      "sex": "female"
+    }
+  ]
+}

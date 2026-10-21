@@ -2,6 +2,7 @@
   "characters": [
     {
       "id": "julian",
+      "cast": "founder",
       "first_name": "Julian",
       "last_name": "Park",
       "pronouns": "he/him",

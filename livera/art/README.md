@@ -1,6 +1,6 @@
 # LIVÉRA art
 
-`PROMPT_PACK.md` has ready-to-paste image prompts for the art still missing: the residents made in the creator, babies and children, pets, items, buildings, the bus and icons. It ends with a prompt for adding the finished images to the repo.
+`PROMPT_PACK.md` has ready-to-paste image prompts for the art still missing: residents made in the creator, babies and children, pets, items, buildings, the bus and icons (the town's people in data are prompted from `data/characters` by `scripts/character_prompts.py`, below). It ends with a prompt for adding the finished images to the repo.
 
 ## The look (`STYLE.md`)
 
@@ -57,21 +57,24 @@ characters should read as interchangeable.
 ## Art for what lives in a save (`manifest.json`)
 
 Residents made in the character creator and named pets exist only in a save, so their art is
-listed in `manifest.json` (decision D-044) rather than in `data/characters`. The test
-"art: the manifest links to files that exist and to real ids" checks that every path exists, that no
-founder is listed as a created resident, that pet keys are `owner:name` with a real species, and that
+listed in `manifest.json` (decision D-044) rather than in `data/characters`. Kai Morgan, Rosa Delgado, Sol Rivera and
+Theo Grant were listed there until D-073 made them data characters: their sheets stay in `reference/residents/`, linked
+from their `profile.appearance` like a founder's, and the manifest's `residents` is empty. The test
+"art: the manifest links to files that exist and to real ids" checks that every path exists, that nobody in data is
+listed as a created resident, that pet keys are `owner:name` with a real species, and that
 place and stop ids are the game's.
 Each entry has `notes` for anything the picture gets wrong about the game, such as a pet's age
 on its card; read them before using a card as fact.
 
 | Folder | What it holds |
 |---|---|
-| `reference/residents/<id>.jpg` | Model sheets for created residents: Sol Rivera (The Free Spirit), Theo Grant (The Fresh Start), Rosa Delgado (The Guardian), Kai Morgan (The Upstart). |
-| `avatars/<id>.jpg` | Square head-and-shoulders crops from those sheets (native 450 px, not upscaled); the town preview uses them. |
+| `reference/residents/<id>.jpg` | Model sheets for the four residents, data characters since D-073 (linked from `data/characters/<id>.json`): Sol Rivera (The Free Spirit), Theo Grant (The Fresh Start), Rosa Delgado (The Guardian), Kai Morgan (The Upstart). |
+| `reference/townspeople/<id>.jpg` | Model sheets for the twelve townspeople (D-073), none made yet: prompted in `PROMPT_PACK_CHARACTERS.md` and `prompts_needed.html`. Until one exists the client draws that person as a labelled stand-in in their own colours (`profile.appearance.stand_in`). |
+| `avatars/<id>.jpg` | Square head-and-shoulders crops from the residents' sheets (native 450 px, not upscaled), linked as their `profile.appearance.avatar`; the town preview uses them. |
 | `pets/named/<owner>_<pet>.jpg` and `_face.jpg` | Sheets and square face crops (450–500 px) for Bramble (Aaliyah's rabbit), Rocky (Rosa's beagle) and Pepper (Harper's terrier mix); a single portrait and face crop for Shadow (Leila's Maine Coon mix), who has no sheet yet. |
 | `places/<location_id>.webp` (and `.jpg`) | Map sprites, one per place: isometric, golden hour, transparent, made from `PROMPT_PACK_TOWN.md` (52 places so far; some with an `_alt` version, construction sites with a `_framed` stage). Apartment and condo buildings (`lexington`, `maple_court`, `riverside_lofts`, `lakeview`) are listed under `unit_buildings` in the manifest with the units they stand for. Kept as WebP with transparency at full size (the 2 MB PNG masters stay outside the repository); the web client uses 640 px copies in `web/client/sprites/`. `body_balance.jpg` is an earlier photograph, kept as the gym's `photo`. |
 | `items/<item_id>.png` or `.jpg` | Product pictures: wireless headphones, the laptop, and the three Lyra phones. The phones' screens are decoration, not the game's phone UI. |
-| `sprites/characters/<id>/sheet.webp` | Each person's sprite sheet from `PROMPT_PACK_CHARACTERS.md` (4 × 3 cells: two walks, standing front and back, sitting on a chair and on a sofa), listed under `sprite_sheets` in the manifest; 10 of 15 so far. The game doesn't use them yet: it draws cut-outs of the model sheets (D-067). |
+| `sprites/characters/<id>/sheet.webp` | Each person's sprite sheet from `PROMPT_PACK_CHARACTERS.md` (4 × 3 cells: two walks, standing front and back, sitting on a chair and on a sofa), listed under `sprite_sheets` in the manifest; 10 of 27 so far. The game doesn't use them yet: it draws cut-outs of the model sheets (D-067). |
 | `transit/` | The Line 1 bus collage, a side view, the bus's front and rear three-quarter views (`bus_line_1_front.webp`, `bus_line_1_rear.webp`), the Livéra Transit mark, a transit card (branding only), a stylised route diagram, and a shelter per stop: full transparent sprites in `stops/<stop_id>.webp` for all seven stops, and `stops/<stop_id>.jpg`, the earlier small crops from the collage (Lexington Ave & River Rd's is a full picture). |
 | `tiles/<name>.webp` | Ground tiles (grass, sidewalk, straight road, corner, crossroad, gravel road, river edge), the tower crane and the sketch's arched bridge, from the prompt pack's "Ground tiles and the crane". The flat tiles are 2:1 diamonds; the client re-projects them. |
 | `city/` | Panoramas: `stage_1.jpg` (Founding Town), `stage_5.jpg` (Metropolis) and `construction.jpg` (a building site). Stages 2–4 are missing. |
@@ -79,7 +82,7 @@ on its card; read them before using a card as fact.
 | `_incoming/` | Where new images land before they are checked. Not committed; move the masters out once the JPEGs are made. |
 
 Sheets are JPEG copies at quality 90 with no metadata; keep the masters outside the repository.
-Card titles for created residents are proposals from `PROMPT_PACK.md`, not data.
+The residents' card titles were proposals from `PROMPT_PACK.md`; since D-073 they're their cards in `data/characters`.
 
 ## Town sprites for the map (`PROMPT_PACK_TOWN.md`, `prompts_town.html`)
 
@@ -145,8 +148,9 @@ python3 scripts/client_figures.py --preview /tmp/figs   # rebuild, and write eve
 
 ## Character sprites (`PROMPT_PACK_CHARACTERS.md`, `prompts_characters.html`)
 
-`scripts/character_prompts.py` prompts one sprite sheet per founder (from `data/characters`) and per named resident
-(from their sheets; they live only in a save): the person at the town sprites' camera and golden-hour light, a 4-frame
+`scripts/character_prompts.py` prompts, from `data/characters`, one sprite sheet for everyone in data (founders,
+residents, townspeople) and a model sheet for each townsperson who has none (`reference/townspeople/<id>.jpg`, made
+first, then attached to their sprite sheet prompt): the person at the town sprites' camera and golden-hour light, a 4-frame
 walk toward the camera's left and one away to its right (the other two by mirroring), standing, and sitting on a chair
 and a sofa, at one scale, with their model sheet attached as the reference. Files go to
 `art/sprites/characters/<id>/sheet.png`; the cut-outs above are used until they exist (the pack says how they'll replace
@@ -154,5 +158,5 @@ them).
 
 ```bash
 python3 scripts/character_prompts.py          # regenerate both files after editing data/characters
-python3 scripts/character_prompts.py --check  # fails if a founder or named resident has no prompt, or the files are stale
+python3 scripts/character_prompts.py --check  # fails if anyone in data has no prompt, or the files are stale
 ```

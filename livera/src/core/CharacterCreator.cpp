@@ -91,7 +91,7 @@ Result<StatMap> allocate(const Json& spec, const char* key, const std::vector<st
   return out;
 }
 
-// Readable, stable ids from names: "Sol Rivera" -> "sol-rivera". Common accented Latin
+// Readable, stable ids from names: "Nico Vale" -> "nico-vale". Common accented Latin
 // letters fold to ASCII; anything else becomes a separator.
 std::string slugify(const std::string& name) {
   static const char* kFold =  // UTF-8 C3 80..C3 BF -> ASCII (À..ÿ)
@@ -193,6 +193,13 @@ Result<CharacterId> World::createCharacter(const Json& spec) {
     return fail("invalid_character", "names use letters, spaces, hyphens and apostrophes (up to 24)");
   def.firstName = first;
   def.lastName = last;
+  // Someone by that name already lives in the town (a founder, a resident, a townsperson: D-073). Their art and their
+  // story are theirs; a second Kai Morgan would wear his face.
+  const std::string wanted = slugify(first + " " + last);
+  for (const auto& [cid, town] : db.characters()) {
+    if (slugify(town.fullName()) == wanted)
+      return fail("name_taken", town.fullName() + " already lives in Livéra: choose another name");
+  }
   // How old: a group (18, your twenties, your thirties), and within it an exact age or a rolled one.
   const AgeGroup* group = nullptr;
   for (const auto& g : opts.ageGroups) {

@@ -993,6 +993,61 @@ they like about today's game (the open map, chores as part of a life).
 **Trade-off:** Keeping chores and the full day means a session is longer than either studio proposed; the faster clock
 and a speed control are how a phone session still fits.
 
+## D-073 — More people in the town: the residents with art and twelve townspeople live in data, on autopilot, with evenings out and a beat
+**Decision:** The owner: "Add more people to the town." Every new town has 27 characters in `data/characters`, each
+with a `cast`: the 11 founders, the 4 **residents** whose sheets were drawn from the town-preview recording (Kai
+Morgan, Rosa Delgado, Sol Rivera, Theo Grant; their art links move from `art/manifest.json` into their data:
+`visual_reference`, `avatar`, `art_notes`), and 12 **townspeople** who keep the places the reviews found empty. Sol
+and Imani Clarke run Heritage Coffee's day, Bernie Walsh the Copper Tap's bar, Theo and Hamid Sultani Greenleaf,
+Rosa and Noor Haddad Thread & Co., Jean-Baptiste Moreau Lumière's floor; Dr Ngozi Adeyemi sees patients at
+Riverdale Clinic, Tess Osei and Dr Rafael Mendes cover Livéra General; Officer Aisha Farah has the day shift and
+Sergeant Marcus Bell the evening at the police station; Samuel Osei teaches at Founders School; Bo Thornton is Body &
+Balance's trainer, waiting for the gym to be built. Each has a home (twelve more units in the buildings already on
+the map, `data/world/town_homes.json`; the creator's vacancies stay free; Samuel and Tess are married, Kai and Theo
+cousins, Sol and Imani, and Rafael and Bo, roommates, each pair resident on one lease), a career from
+`data/careers`, a weekday work line and a life around it, three or four ties (nine founders gained one back),
+secrets, and a stand-in look (`appearance.stand_in`). A starting relationship may name a `status` (dating, engaged,
+married) that the other side names back; content checks casts, shared homes' bedrooms and statuses (`TownLife.cpp`).
+
+**Everyone is playable**, on the founders' rules: the autopilot plays whoever no person does, labelled `played_by:
+"autopilot"` (a `bot_` session's: `"script"`), and a person who picks them takes over at once. **Evenings out** are
+data (`data/society/town_life.json`, `evening_plans`): where, which nights, from when and for how long, who it suits
+(their own personality, values and interests), with a friend (their own friendship) or a partner (their own
+relationship status), and a chance drawn from a hash of the character (or the pair) and the day. The first plan that
+suits them and fits a free stretch at home from its start becomes the evening; their own schedule always wins, and
+bedtime moves later for it, never past 23:45 (D-050). Thursday's open mic and Friday night fill the Copper Tap,
+Wednesday is league night at Riverside Court, dinners fill Lumière, listening sessions Low End Studios, the last
+coffees Heritage Coffee. **Patrols** are data too (`patrols`): an officer on shift walks rounds of a beat of public
+places from the station, in uniform, and back. The autopilot also rests, eats and uses the bathroom before a shift or
+an evening out, takes a coffee or the break room when flagging on shift, eats at work without ending the shift, looks
+again in time to leave for what's next, and a bed after midnight no longer skips the next day.
+
+The creator refuses a town character's name (`name_taken`). Older saves need no migration (no save format changes):
+on load, content characters missing from the state move in as they always have, now with their ties from data (both
+ways, a marriage included) and their memories, and a character made in the save whose id is now a town character's
+(a Kai Morgan made in the creator) becomes that character, keeping everything they did. `--max-scripted` defaults to
+32 (the director plays every playable character, now 27). C++ clients read server lines up to 4 MB, as the gateway
+does, since `map` passed 16 KB with the new homes. The client draws a townsperson without art as a stand-in in their
+own colours, hair and height (`web/client/figures/standins.json`, made by `scripts/client_standins.py`), says so on
+their card, and groups the pick list by cast. The prompt pack asks for each townsperson's model sheet, then their
+sprite sheet.
+
+**Why:** Playable, because it's the town's rule that anyone in data can be played and people always win, the live
+server's director can only play characters `play` accepts, and the townspeople are written as people worth playing
+(a cop, a nurse, a bartender with a secret). The cost, that a person who takes the only officer takes them off duty,
+is the same as taking a founder off their job, and honest. Evenings as data drawn per day keep the town predictable
+and testable without anything scripted pretending: every step is a World command (walk, enter, buy, an activity) by a
+labelled autopilot, and a plan never overrides a character's own schedule. Pure draws (D-037, D-061) keep evenings out
+of the world's random stream. The energy care exists because a staffed evening needs people who aren't spent by six:
+needs fall by the game hour for the autopilot as for players.
+
+**Trade-off:** The town's people go to bed by 23:45 (D-050), so the Copper Tap (open to 02:00) and the hospital have
+nobody after that, nobody is at the police station on Sundays, and weekends are thinner. Over a two-week run on
+autopilot 286 of 290 weekday checks found the worker at work; the misses are people too tired late in the evening.
+Employers pay more wages, so they run down faster where revenue is thin. The pick list is longer (27, grouped).
+Nobody performs at the open mic unless a person does: the autopilot never writes or plays a song. The Python director
+doesn't know evening plans or patrols (it stays the alternative to `--autopilot`, D-053).
+
 ## D-075 — A faster clock: 2 game minutes per real second, walking at 10 m/s and the bus at 40 m/s
 **Decision:** `simulation.minutes_per_real_second` goes from 1 to 2 (a game day is 12 real minutes), with
 `walk_speed_mps` 6 → 10 and the bus line's `speed_mps` 24 → 40, all in data. Walking speed rises less than the clock,

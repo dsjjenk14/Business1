@@ -68,33 +68,9 @@ World World::createNew(std::shared_ptr<const ContentDatabase> content) {
   }
   s.city.stats = db.cityInitial();
 
-  // The constructor adds every content character (accounts, savings, home).
+  // The constructor adds every content character (accounts, savings, home) with their relationships and pre-founding
+  // memories from character data (seedFromContent).
   World w(std::move(content), std::move(s));
-  const ContentDatabase& c = w.content();
-
-  // Seed relationships and pre-founding memories from character data.
-  for (const auto& [id, def] : c.characters()) {
-    for (const auto& r : def.relationships) {
-      RelationshipState& rs = w.relationshipRef(id, r.to);
-      rs.dimensions["compatibility"] = w.compatibility(def, *w.definition(r.to));
-      for (const auto& [dim, v] : r.dimensions) rs.dimensions[dim] = clampd(v, kRelMin, kRelMax);
-      rs.firstMetAt = 0;  // they knew each other before Livéra; the epoch is the earliest representable time
-    }
-    for (const auto& m : def.memories) {
-      Memory mem;
-      mem.id = w.nextId("mem");
-      mem.owner = id;
-      mem.at = std::max<GameMinutes>(0, w.state_.now - m.daysAgo * kMinutesPerDay);
-      mem.participants = m.participants;
-      mem.type = m.type;
-      mem.emotionalImpact = m.emotionalImpact;
-      mem.importance = m.importance;
-      mem.about = m.about;
-      mem.info = m.info;
-      mem.isPublic = m.isPublic;
-      w.addMemory(std::move(mem));
-    }
-  }
   w.updateCityStage();
   w.events_.clear();
   return w;
@@ -113,10 +89,21 @@ World::World(std::shared_ptr<const ContentDatabase> content, WorldState state)
                                    state_.now);
   }
   for (const auto& [pid, p] : db.properties()) state_.properties.try_emplace(pid, PropertyState{pid, p.ownerAccount, ""});
-  // Founding characters missing from the state (a new world, or content added after the
-  // world was saved) move in now.
+  // A character made in a save whose id is now a town character's (D-073: the four residents with art were made in the
+  // creator before they were written into data) is that character from now on: the save keeps everything they did
+  // (money, home, job, ties, memories), and who they are (looks, personality, story) is the data's. Listing both would
+  // put two Kai Morgans in the town.
+  for (auto it = state_.createdCharacters.begin(); it != state_.createdCharacters.end();) {
+    if (db.character(it->first) && state_.characters.count(it->first)) it = state_.createdCharacters.erase(it);
+    else ++it;
+  }
+  // Content characters missing from the state (a new world, or people added to content after the world was saved)
+  // move in now, with their ties and memories from data (below).
+  std::set<CharacterId> arrived;
   for (const auto& [id, def] : db.characters()) {
-    if (!state_.characters.count(id)) addCharacterState(def, nullptr);
+    if (state_.characters.count(id)) continue;
+    addCharacterState(def, nullptr);
+    arrived.insert(id);
   }
   // Stats added to content later start at their defaults.
   for (auto& [id, c] : state_.characters) {
@@ -189,6 +176,45 @@ World::World(std::shared_ptr<const ContentDatabase> content, WorldState state)
 
   // m08:details on load { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
   // } m08:details
+  seedFromContent(arrived);
+}
+
+// Relationships in character data that the world has no record of yet start as the data says (a new world: all of
+// them; an older save: the ties of people added to content since, both ways); memories in data come with the people
+// who just arrived. A record the world already has is never touched: what happened in play stands.
+void World::seedFromContent(const std::set<CharacterId>& arrived) {
+  const ContentDatabase& db = *content_;
+  for (const auto& [id, def] : db.characters()) {
+    for (const auto& r : def.relationships) {
+      const CharacterDef* other = definition(r.to);
+      if (!other || !state_.characters.count(r.to) || state_.relationships.count({id, r.to})) continue;
+      RelationshipState& rs = relationshipRef(id, r.to);
+      rs.dimensions["compatibility"] = compatibility(def, *other);
+      for (const auto& [dim, v] : r.dimensions) rs.dimensions[dim] = clampd(v, kRelMin, kRelMax);
+      rs.firstMetAt = 0;  // they knew each other before Livéra; the epoch is the earliest representable time
+      if (!r.status.empty()) {  // already together (D-073): both sides say so, the content check makes sure
+        rs.status = r.status;
+        rs.statusSince = 0;
+      }
+    }
+  }
+  for (const auto& [id, def] : db.characters()) {
+    if (!arrived.count(id)) continue;
+    for (const auto& m : def.memories) {
+      Memory mem;
+      mem.id = nextId("mem");
+      mem.owner = id;
+      mem.at = std::max<GameMinutes>(0, state_.now - m.daysAgo * kMinutesPerDay);
+      mem.participants = m.participants;
+      mem.type = m.type;
+      mem.emotionalImpact = m.emotionalImpact;
+      mem.importance = m.importance;
+      mem.about = m.about;
+      mem.info = m.info;
+      mem.isPublic = m.isPublic;
+      addMemory(std::move(mem));
+    }
+  }
 }
 
 // Gives a character a body in the world: state, bank and cash accounts with their
@@ -241,6 +267,17 @@ void World::addCharacterState(const CharacterDef& def, const OriginDef* origin) 
     // A baby whose mother has no home now would otherwise be handed the lease on her old one.
     if (def.age < db.life().adultAge) p.tenant.clear();
     else if (std::find(p.residents.begin(), p.residents.end(), id) == p.residents.end()) p.residents.push_back(id);
+  } else if (home != state_.properties.end() && !origin && def.age >= db.life().adultAge && db.character(id)) {
+    // Town characters who start in one home (a married couple, cousins sharing a loft: D-073) live there together; the
+    // first to move in holds the lease. Only with someone the data says lives there, and only while there's room.
+    PropertyState& p = home->second;
+    const CharacterDef* holder = db.character(p.tenant);
+    const PropertyDef* pd = db.property(p.id);
+    const int capacity = pd ? std::max(1, pd->bedrooms) * db.homes().residentsPerBedroom : 1;
+    if (p.residents.empty() && p.owners.empty() && !p.tenant.empty()) p.residents.push_back(p.tenant);
+    if (holder && holder->homeProperty == p.id && static_cast<int>(p.residents.size()) < capacity &&
+        std::find(p.residents.begin(), p.residents.end(), id) == p.residents.end())
+      p.residents.push_back(id);
   }
   // } m08:homes
 

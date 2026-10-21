@@ -2,6 +2,7 @@
   "characters": [
     {
       "id": "dominique",
+      "cast": "founder",
       "first_name": "Dominique",
       "last_name": "Ashford",
       "pronouns": "she/her",
@@ -69,6 +70,11 @@
           "to": "harper",
           "history": "Dominique sees Harper every Thursday at 7 a.m., before anyone else is awake. Nobody knows.",
           "dimensions": {"familiarity": 42, "trust": 58, "respect": 55, "friendship": 20}
+        },
+        {
+          "to": "sol-rivera",
+          "history": "Oat latte, extra hot, ready at 8:09 for her 8:10. Dominique has never had to ask twice.",
+          "dimensions": {"familiarity": 24, "friendship": 20, "respect": 36}
         }
       ],
       "memories": [

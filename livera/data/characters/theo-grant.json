@@ -1,0 +1,150 @@
+{
+  "characters": [
+    {
+      "id": "theo-grant",
+      "cast": "resident",
+      "first_name": "Theo",
+      "last_name": "Grant",
+      "pronouns": "he/him",
+      "gender": "man",
+      "age": 24,
+      "playable": true,
+      "personality": {
+        "ambition": 66,
+        "sociability": 76,
+        "empathy": 62,
+        "patience": 58,
+        "confidence": 60,
+        "risk_tolerance": 50,
+        "competitiveness": 70,
+        "impulsiveness": 46
+      },
+      "values": {
+        "family": 84,
+        "career": 70,
+        "wealth": 52,
+        "loyalty": 86,
+        "freedom": 60,
+        "status": 35,
+        "community": 62,
+        "romance": 55,
+        "creativity": 70
+      },
+      "traits": ["creative", "outgoing", "witty"],
+      "interests": ["basketball", "fitness", "hip_hop", "cooking", "gaming"],
+      "skills": {"athletics": 52},
+      "career": {"id": "grocery", "level": 1},
+      "degrees": ["high_school"],
+      "fame": 1,
+      "finances": {"cash_cents": 5000, "bank_cents": 96000},
+      "home": {"property": "riverside_lofts_4", "tenure": "rent"},
+      "spawn_location": "riverside_lofts_4",
+      "relationships": [
+        {
+          "to": "kai-morgan",
+          "history": "His cousin and his roommate. Kai's the one who said 'come here' when nobody else did.",
+          "dimensions": {"familiarity": 90, "friendship": 76, "loyalty": 86, "trust": 72}
+        },
+        {
+          "to": "dax",
+          "history": "Saturday pickup. Dax guards him like it's a final and buys the smoothies after.",
+          "dimensions": {"familiarity": 34, "friendship": 40, "respect": 52}
+        },
+        {
+          "to": "bo-thornton",
+          "history": "Bo spotted him on the bench at Riverside Court and has been writing him programs since.",
+          "dimensions": {"familiarity": 30, "friendship": 36, "respect": 50, "trust": 40}
+        },
+        {
+          "to": "hamid-sultani",
+          "history": "Theo hands the store to Hamid every afternoon. Hamid counts the drawer twice.",
+          "dimensions": {"familiarity": 46, "respect": 58, "friendship": 30}
+        }
+      ],
+      "memories": [
+        {
+          "type": "life_change",
+          "participants": ["theo-grant", "kai-morgan"],
+          "importance": 85,
+          "emotional_impact": 50,
+          "days_ago": 120,
+          "info": "Got off the bus in Livéra with one bag and Kai waiting at the stop.",
+          "about": "kai-morgan"
+        }
+      ],
+      "aspirations": ["get_promoted", "buy_a_home"],
+      "profile": {
+        "tagline": "Better days, on his arm and on purpose.",
+        "why_livera": "fresh_start",
+        "ethnicity": "Black and Dominican American",
+        "card": {
+          "occupation": "Shift Supervisor, Greenleaf Market",
+          "height_cm": 170,
+          "build": "Lean",
+          "skin_tone": "Golden brown, warm"
+        },
+        "appearance": {
+          "height_cm": 170,
+          "build": "lean",
+          "skin": "golden brown, warm",
+          "eyes": "almond, amber",
+          "face": "heart-shaped face, full lips, stubble",
+          "hair": "a black buzz cut",
+          "style": "royal-blue fleece zip hoodie over a white tee, grey cargo joggers, white trainers",
+          "jewelry": "a thin gold chain necklace, pierced ears",
+          "silhouette": "a royal-blue hoodie, joggers and clean trainers",
+          "key_features": [
+            "Black buzz cut and stubble",
+            "Almond amber eyes",
+            "Heart-shaped face, full lips",
+            "'Better Days' forearm-script tattoo",
+            "Pierced ears and a chain necklace",
+            "Streetwear"
+          ],
+          "visual_reference": "art/reference/residents/theo-grant.jpg",
+          "avatar": "art/avatars/theo-grant.jpg",
+          "art_notes": [
+            "The card and the data agree: Shift Supervisor, Greenleaf Market. In the town-preview recording he later moved to Body & Balance's front desk; that move isn't in the data.",
+            "The shop sign behind him in the WORK LOOK panel is partly hidden and may be garbled; the card itself names Greenleaf Market correctly."
+          ],
+          "art_as_of": "Day 28 of the town-preview recording"
+        },
+        "family_background": "Atlanta, like Kai: his mother is Kai's mother's younger sister; his father was a Dominican line cook who taught him to make sancocho and left when he was twelve.",
+        "education": "High school diploma",
+        "goals": ["Store manager at Greenleaf by next year", "A place of his own", "Make the league's first five"],
+        "ambitions": ["Run his own corner store, with a kitchen in the back"],
+        "social_preferences": "Pickup games and kitchens. Talks more with a ball in his hands.",
+        "secrets": [
+          {
+            "id": "theo_atlanta",
+            "truth": "He left Atlanta owing money to the wrong people over a friend's debt he co-signed. They know where his mother lives, not where he does.",
+            "known_by": ["kai-morgan"]
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "07:00", "activity": "Greenleaf Market", "work": true},
+            {"time": "15:30", "activity": "Home"}
+          ],
+          "monday": [{"time": "19:30", "activity": "The Copper Tap"}],
+          "wednesday": [{"time": "17:40", "activity": "League night at Riverside Court"}],
+          "saturday": [
+            {"time": "09:00", "activity": "Pickup basketball at Riverside Court"},
+            {"time": "11:00", "activity": "Greenleaf Market", "work": true},
+            {"time": "17:00", "activity": "Home"}
+          ]
+        },
+        "starting_inventory": ["phone", "basketball", "gold chain", "store keys", "recipe notebook"],
+        "social_media": {"handle": "@theo.betterdays", "followers": 840, "bio": "greenleaf. ball. better days."},
+        "reputation": {"professional": 50, "social": 54, "public": 10},
+        "life_history": [
+          "Stocked shelves at a Kroger in East Point at seventeen.",
+          "Lost a year to a debt that wasn't his.",
+          "Shift supervisor at Greenleaf Market six weeks after arriving."
+        ],
+        "archetype": "The Fresh Start"
+      },
+      "sex": "male"
+    }
+  ]
+}

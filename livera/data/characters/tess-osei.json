@@ -1,0 +1,159 @@
+{
+  "characters": [
+    {
+      "id": "tess-osei",
+      "cast": "townsperson",
+      "first_name": "Tess",
+      "last_name": "Osei",
+      "pronouns": "she/her",
+      "gender": "woman",
+      "age": 36,
+      "playable": true,
+      "personality": {
+        "ambition": 70,
+        "sociability": 62,
+        "empathy": 86,
+        "patience": 66,
+        "confidence": 74,
+        "risk_tolerance": 50,
+        "competitiveness": 52,
+        "impulsiveness": 34
+      },
+      "values": {
+        "family": 94,
+        "career": 72,
+        "wealth": 40,
+        "loyalty": 88,
+        "freedom": 45,
+        "status": 25,
+        "community": 76,
+        "romance": 72,
+        "creativity": 30
+      },
+      "traits": ["capable", "funny", "tender"],
+      "interests": ["cooking", "dance", "film", "faith", "travel"],
+      "career": {"id": "nursing", "level": 1},
+      "degrees": ["high_school", "bsn"],
+      "fame": 4,
+      "finances": {"cash_cents": 5000, "bank_cents": 520000},
+      "home": {"property": "maple_court_2c", "tenure": "rent"},
+      "spawn_location": "maple_court_2c",
+      "relationships": [
+        {
+          "to": "samuel-osei",
+          "history": "Married eleven years. She keeps every note he's put in her lunch bag in a shoebox.",
+          "dimensions": {
+            "familiarity": 96,
+            "friendship": 86,
+            "trust": 90,
+            "loyalty": 92,
+            "romantic_attraction": 72,
+            "physical_attraction": 68
+          },
+          "status": "married"
+        },
+        {
+          "to": "ngozi-adeyemi",
+          "history": "They worked the same Houston ER for three years. Ngozi is the reason Tess applied here.",
+          "dimensions": {"familiarity": 66, "friendship": 70, "trust": 72, "respect": 74}
+        },
+        {
+          "to": "rafael-mendes",
+          "history": "Her new resident. Brilliant, exhausted, and she'll keep him alive until he learns to sleep.",
+          "dimensions": {"familiarity": 34, "respect": 50, "friendship": 36}
+        },
+        {
+          "to": "maya",
+          "history": "Maya's mother is a nurse too; Tess found that out and adopted Maya on the spot.",
+          "dimensions": {"familiarity": 26, "friendship": 40, "respect": 48}
+        }
+      ],
+      "memories": [
+        {
+          "type": "romance",
+          "participants": ["tess-osei", "samuel-osei"],
+          "importance": 90,
+          "emotional_impact": 80,
+          "days_ago": 4000,
+          "info": "Met Samuel at his grandmother's bedside in London. He brought the ward biscuits for a month.",
+          "about": "samuel-osei"
+        },
+        {
+          "type": "family",
+          "participants": ["tess-osei"],
+          "importance": 70,
+          "emotional_impact": -30,
+          "days_ago": 60,
+          "info": "Stopped telling her mother they were trying for a baby."
+        }
+      ],
+      "aspirations": ["start_a_family", "get_promoted"],
+      "profile": {
+        "tagline": "Runs the ER like a kitchen: loud, warm, and nobody leaves hungry.",
+        "why_livera": "new_job",
+        "ethnicity": "Filipino American",
+        "card": {
+          "occupation": "Charge Nurse, Livéra General Hospital",
+          "height_cm": 157,
+          "build": "Petite, strong",
+          "skin_tone": "Light tan, warm"
+        },
+        "appearance": {
+          "height_cm": 157,
+          "build": "petite, strong",
+          "skin": "light tan, warm",
+          "eyes": "dark, quick, smile lines",
+          "face": "round face, dimples",
+          "hair": "long black hair in a low bun, a pencil through it",
+          "style": "ceil-blue scrubs, a navy fleece vest, white nursing clogs, a lanyard of badges",
+          "jewelry": "a gold wedding band, small gold studs, a fob watch",
+          "silhouette": "a small woman in blue scrubs moving fast",
+          "key_features": ["Dimples", "Low bun with a pencil", "Ceil-blue scrubs", "Fob watch", "Moves fast"],
+          "stand_in": {
+            "skin": "#d6a982",
+            "hair": "#151212",
+            "hair_style": "bun",
+            "top": "#9cc3d9",
+            "bottom": "#9cc3d9",
+            "shoes": "#ecebe6",
+            "accent": "#22304a"
+          }
+        },
+        "family_background": "Daly City, California, the fourth of five, in a house where every aunt was a nurse. Travelled nursing for six years before London, Samuel, and Houston.",
+        "education": "B.S. Nursing, San Francisco State University",
+        "goals": ["Get Livéra General a real night shift", "A baby, if it happens", "Teach Rafael to sleep"],
+        "ambitions": ["Nurse manager of the ER Livéra will need"],
+        "social_preferences": "Karaoke, a crowded table, everyone fed.",
+        "secrets": [
+          {
+            "id": "tess_ivf",
+            "truth": "They've spent their savings on two rounds of IVF in Houston. Neither worked; nobody here knows they tried.",
+            "known_by": ["samuel-osei"]
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "07:00", "activity": "Livéra General Hospital", "work": true},
+            {"time": "15:00", "activity": "Home"}
+          ],
+          "saturday": [{"time": "11:00", "activity": "Greenleaf Market"}, {"time": "13:00", "activity": "Home"}],
+          "sunday": [{"time": "10:00", "activity": "Greater Hope service"}]
+        },
+        "starting_inventory": ["phone", "stethoscope", "fob watch", "badge reel", "snacks for the residents"],
+        "social_media": {
+          "handle": "@tessosei.rn",
+          "followers": 760,
+          "bio": "ER nurse. Lola-in-training. Feed your residents."
+        },
+        "reputation": {"professional": 78, "social": 66, "public": 16},
+        "life_history": [
+          "First job: night shift at Seton Medical Center.",
+          "Six years as a travelling nurse, four countries.",
+          "Charge nurse at Livéra General since its ER opened."
+        ],
+        "archetype": "The Rock"
+      },
+      "sex": "female"
+    }
+  ]
+}

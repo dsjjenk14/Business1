@@ -143,6 +143,38 @@ resident producer; Leila closing in on Graham through Maya; Naomi's label at ris
 deciding whether to say what he knows about Parallax; Sienna's account posting about
 all of them.
 
+## The town's people (D-073)
+
+The founders aren't alone. Every new town also has the four **residents** whose model sheets came from the
+town-preview recording (`art/reference/residents/`; made in the creator then, data characters now, their cards canon)
+and twelve **townspeople** who keep the places open. All of them are playable; whoever nobody plays lives their day
+on autopilot, labelled, and goes out in the evening from `data/society/town_life.json`.
+
+| Character | Cast | Work (in game) | Lives | A thread |
+|---|---|---|---|---|
+| **Kai Morgan**, 22, he/him · The Upstart | resident | Beatmaker, Low End Studios (2 pm–10 pm) | Riverside Lofts 4, with his cousin Theo | Found Andre's uncleared 'Golden Hour' session; quit Bernie's bar mid-shift |
+| **Rosa Delgado**, 27, she/her · The Guardian | resident | Assistant Manager, Thread & Co. (9–5) | Maple Court 3C | Wants the police academy; half her pay goes to her brother in prison |
+| **Sol Rivera**, 26, they/them · The Free Spirit | resident | Shift Lead, Heritage Coffee (5:45 am–2:45 pm) | Riverside Lofts 1, with Imani | Thursday open mic at the Copper Tap; their old band kept their song |
+| **Theo Grant**, 24, he/him · The Fresh Start | resident | Shift Supervisor, Greenleaf Market (7–3:30) | Riverside Lofts 4 | Left Atlanta owing the wrong people over a friend's debt |
+| **Bernie Walsh**, 54, she/her · The Keeper | townsperson | Bar Manager, The Copper Tap (3:45 pm–11:30 pm) | Maple Court 4B | Has seen the letter of intent: the Tap is being sold to a Whitaker-backed buyer |
+| **Marcus Bell**, 47, he/him · The Steady Hand | townsperson | Sergeant, Livéra PD (evenings, and the beat) | Maple Court 3A | Testified against his partner in Chicago; the partner is out and called |
+| **Aisha Farah**, 31, she/her · The Sentinel | townsperson | Police Officer, Livéra PD (days, and the beat) | The Lexington 0305 | Has an FBI application in |
+| **Samuel Osei**, 39, he/him · The Mentor | townsperson | Senior Teacher, Founders School | Maple Court 2C, married to Tess | Offered the principal's job if he backs the charter |
+| **Tess Osei**, 36, she/her · The Rock | townsperson | Charge Nurse, Livéra General (7–3) | Maple Court 2C | Two rounds of IVF; nobody here knows |
+| **Ngozi Adeyemi**, 41, she/her · The Healer | townsperson | Attending Physician, Riverdale Clinic | The Lexington 0602 | Treats people who can't pay and logs them as follow-ups |
+| **Rafael Mendes**, 29, he/him · The Resident | townsperson | Medical Resident, Livéra General (evenings) | Riverside Lofts 6, with Bo | Tess caught his wrong dose and never wrote it up |
+| **Imani Clarke**, 23, she/her · The Observer | townsperson | Barista, Heritage Coffee (11–8) | Riverside Lofts 1 | Sends photos from behind the counter to @livera.unfiltered |
+| **Hamid Sultani**, 41, he/him · The Survivor | townsperson | Cashier, Greenleaf Market (2–10) | Maple Court 1C | Pays a man in Peshawar who says he can get his brother out |
+| **Noor Haddad**, 20, she/her · The Hustler | townsperson | Sales Associate, Thread & Co. (1–9) | Maple Court 1B | Sells copies of Ellis Atelier pieces online |
+| **Jean-Baptiste Moreau**, 44, he/him · The Maître d' | townsperson | Restaurant Manager, Lumière Bistro (4:30–11:15) | The Lexington 1103 | Fired in Paris for refilling a famous vintage |
+| **Bo Thornton**, 35, he/him · The Comeback | townsperson | Personal Trainer, Body & Balance (when it opens) | Riverside Lofts 6 | Four years sober; called Bernie the night he nearly wasn't |
+
+Nine founders know one of them (Andre gave Kai the studio's late slot, Maya trusts Rosa with Common Ground's keys,
+Dax plays Saturday ball with Theo, Leila watches over Noor, Harper and Ngozi trade patients, Graham made Samuel an
+offer, Sienna reposted Imani, Sol makes Dominique's latte, Aaliyah books Jean-Baptiste's back room). The townspeople
+have no picture yet: the client draws them as a labelled stand-in in their own colours until their model sheets are
+made from `art/prompts_needed.html`.
+
 ## Locations in the founding town (data/world/founding_town.json)
 
 Built with gameplay: The Lexington (Dominique, Naomi, Graham, Aaliyah), Maple Court (Dax,

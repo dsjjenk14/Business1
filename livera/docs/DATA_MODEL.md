@@ -23,7 +23,7 @@ unknown stat names and dangling references fail the load with the file and id na
 | `properties` | `id, location, type, owner_account, rent_monthly_cents, market_value_cents, bedrooms, amenities[], tier` | Tenancy is state. `tier` (starter/luxury) decides which new arrivals can move in. |
 | `careers` | `id, name, workplaces[], employer_account, need_cost_per_hour{}, max_shift_hours, min_paid_minutes, entry_level, levels[] {title, hourly_cents, hours_to_promote, min_performance}` | Add a career = add data. Empty `workplaces` = not workable yet. |
 | `interactions` | `id, label, range_m, actor_needs{}, target_needs{}, actor_emotions{}, target_emotions{}, actor_to_target{}, target_to_actor{}, receptivity_trait, memory_type, importance, emotional_impact` | Relationship deltas are directional. |
-| `characters` | `id, first_name, last_name, pronouns, gender, age, playable, personality{}, values{}, traits[], interests[], career{id, level}, finances{cash_cents, bank_cents}, home{property, tenure}, spawn_location, relationships[] {to, dimensions{}, history}, memories[] {type, participants[], about, importance, emotional_impact, public, info, days_ago}, profile{}` | `profile` holds narrative: appearance, family background, education, goals, ambitions, social preferences, secrets, schedule, starting inventory, social media, reputation, life history, tagline, why_livera. |
+| `characters` | `id, cast, first_name, last_name, pronouns, gender, age, playable, personality{}, values{}, traits[], interests[], career{id, level}, finances{cash_cents, bank_cents}, home{property, tenure}, spawn_location, relationships[] {to, dimensions{}, history, status}, memories[] {type, participants[], about, importance, emotional_impact, public, info, days_ago}, profile{}` | `profile` holds narrative: appearance, family background, education, goals, ambitions, social preferences, secrets, schedule, starting inventory, social media, reputation, life history, tagline, why_livera. |
 | `construction_projects` | `id, name, site, opens_location, worker_hours_required, crew_size, work_hours [start, end], work_days [0..6], starts_after, city_effects{}` | Crews work only in their hours; `starts_after` chains projects. |
 | `city_stages` | `stage, name, min_population` | Increasing. |
 | `city_initial` | `{stat: value}` | Abstract city statistics. |
@@ -62,7 +62,7 @@ Money is always integer cents (`*_cents`). Coordinates are meters.
 
 ```json
 {
-  "first_name": "Sol", "last_name": "Rivera", "age_group": "twenties", "age": 26,
+  "first_name": "Nico", "last_name": "Vale", "age_group": "twenties", "age": 26,
   "pronouns": "they/them", "gender": "non-binary", "sex": "female",
   "appearance": {"skin_tone": "golden brown", "hair_style": "curly afro", "tattoos": ["wrist"], "height_cm": 170, "...": "every single-pick field"},
   "personality": {"sociability": 70, "...": "0-100, missing = 50, total within budget"},
@@ -73,7 +73,7 @@ Money is always integer cents (`*_cents`). Coordinates are meters.
 }
 ```
 
-A complete example: `scripts/demo/sol_rivera.json`.
+A complete example: `scripts/demo/nico_vale.json`.
 
 ### Character profile conventions
 
@@ -83,7 +83,7 @@ A complete example: `scripts/demo/sol_rivera.json`.
 - `life_stages[]`: `{age, stage, chapter, look{hair, outfit, carrying, jewelry}}`, oldest
   first. The last stage is the character's current age (tested for Dominique).
 - `secrets[]`: `{id, truth, known_by[]}`, ready to become Facts in the information system. The id is made from the name
-(`sol-rivera`, then `sol-rivera-2`...).
+(`nico-vale`, then `nico-vale-2`...).
 
 ## Runtime state (`WorldState`, src/core/World.h)
 
@@ -377,3 +377,18 @@ Character JSON key `street` (no SQL change): `{walk_away, fought: {character: da
 a save without it has never been in a fight and doesn't always walk away. A fight waiting for its answer
 (`WorldState::fights`) is session state. Memories `fight` and `saw_fight`; a witnessed fight adds a rumour to the
 `details` world part.
+
+### The town's people and town life (D-073)
+
+| Section | Fields | Notes |
+|---|---|---|
+| `characters` | gains `cast` (`founder`, `resident`, `townsperson`); `relationships[].status` (`dating`, `engaged`, `married`) | `cast` is required for data characters (made characters have none; the `characters` reply calls them `created`). A status must be named back by the other character, the same. Several characters may name one home: they start as residents of one lease (the first by id holds it), within `bedrooms` × `homes.residents_per_bedroom`, never a home for sale. |
+| `characters` `profile.appearance` | gains `avatar`, `art_notes[]`, `art_as_of` (the residents), `stand_in{skin, hair, hair_style, top, bottom, shoes, apron?, headwear?, accent?}` (townspeople) | Art links and notes for the residents, moved from `art/manifest.json`; `stand_in` colours are `#rrggbb`, `hair_style` one of short, buzz, curls, long, bun, bald, cap, hijab (`scripts/client_standins.py` checks them and writes `web/client/figures/standins.json`). |
+| `evening_plans` (`data/society/town_life.json`) | `id, label, place, activity?, offer?, days[] (monday…sunday), from (HH:MM), minutes, who{personality_min{}, values_min{}, interests_any[]}?, with? (friend, partner), min_friendship?, chance` | At most one section. Unknown keys refused; the place exists and is public; its activity and offer exist, never contraband; days named and not repeated; from 17:00 and over by midnight, 30–240 minutes; traits, values and interests (the creator's list) exist; `min_friendship` only with a friend; chance in (0, 1]. Order matters: the first plan that comes up for someone is their evening. |
+| `patrols` (same file) | `career, base, beat[], every_minutes, stops, linger_minutes` | At most one section, one patrol per career; the career works outdoors and `base` is one of its workplaces; the beat is two or more public places. |
+| `data/world/town_homes.json` | `locations`, `properties` | Twelve more units in Maple Court, Riverside Lofts and the Lexington (same doors as their buildings). |
+
+No save format change. On load, content characters missing from the state move in (as before) with their
+relationships from data seeded both ways where the world has no record yet (a status included) and their memories;
+a made character (`created_characters`) whose id is now a content character's is dropped from `created_characters`
+and keeps its state under the data's definition (D-073). The autopilot's plans, evenings and beats are memory only.

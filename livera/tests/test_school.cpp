@@ -33,7 +33,7 @@ World schoolWorld(std::shared_ptr<const ContentDatabase> db = schoolContent()) {
 }
 
 Json sheet(const std::string& first, const std::string& education) {
-  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/nico_vale.json");
   Json s = Json::parse(in);
   s["first_name"] = first;
   s["education"] = education;
@@ -204,7 +204,7 @@ TEST_CASE("jobs: a doctor on duty sees patients and earns a share of the care") 
   auto er = w.buy("dominique", "emergency_care", "card");  // the ER diagnoses and treats in one visit
   REQUIRE(er);
   CHECK(!w.hasCondition("dominique", "flu"));
-  CHECK(er.value().at("seen_by").at(0) == "Ana Rivera");
+  CHECK(er.value().at("seen_by").at(0) == "Ana Vale");
   CHECK(w.state().ledger.balance(bankAccountOf(ana)) == before + 45000 * 15 / 100);
   CHECK(w.state().ledger.sumOfBalances() == 0);
 }

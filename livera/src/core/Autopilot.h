@@ -21,6 +21,10 @@ namespace livera {
 // then starts a chat with someone it knows, and answers asks by the data's rules from its own feelings (never
 // intimacy; a kind with no rule is declined). People only: never another autopilot founder or a script. It never
 // sends asks and answers nothing at work.
+// Town life (D-073, data/society/town_life.json): a free evening may become an evening out (the first plan that suits
+// the character's own data and comes up in a pure draw of character or pair and day); an officer on shift walks the
+// beat, in uniform, and comes back; people rest and eat before a shift or an evening out, take a coffee or the break
+// room when flagging on shift, and eat at work without ending the shift where the workplace sells food.
 // Refusals back off with jitter drawn from the world's saved random stream; a character sends at
 // most one command every two real seconds. Plan state lives here, in memory only: a loaded world
 // re-plans. Humans win: release() drops a character without disconnecting them so the caller can

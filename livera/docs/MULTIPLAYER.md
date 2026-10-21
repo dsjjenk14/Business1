@@ -24,7 +24,8 @@
 
 ## Protocol (`livera/1`)
 
-Newline-delimited JSON over TCP. Lines over 16 KB disconnect the client. Browsers reach the
+Newline-delimited JSON over TCP. A request line over 16 KB disconnects the client; the server's lines can be longer
+(`map` lists every place, past 16 KB since D-073), and the C++ clients and the gateway read up to 4 MB. Browsers reach the
 same protocol through the WebSocket gateway (`web/gateway/`), one TCP connection per
 WebSocket: a WebSocket text message is one request line and each server line is one message.
 
@@ -381,7 +382,8 @@ labelled a script and a script never passes as a person.
 ## Caps
 
 `--max-players N` (default 16) counts people in the world; scripts don't take their places.
-`--max-scripted N` (default 16) caps script sessions in the world. Either refusal is
+`--max-scripted N` (default 32, room for every playable character in data, 27 since D-073) caps script sessions in
+the world. Either refusal is
 `server_full`. Taking over a script's character counts as a person joining.
 
 ## Admin commands
@@ -419,7 +421,7 @@ livera_server --db /var/lib/livera/world.db --release-character dax
   connection is dropped.
 - Login throttling per username and resume tokens instead of stored passwords (see the
   identity table). The web client keeps the token, never the password.
-- Line length limit (16 KB) and outbox limit (1 MB) so a client can't exhaust memory.
+- Request line limit (16 KB) and outbox limit (1 MB) so a client can't exhaust memory.
 - Interaction cooldowns per pair (no relationship farming by spam).
 - Ledger invariant (balances sum to zero) checked before every save; a broken ledger is
   never persisted.

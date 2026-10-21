@@ -2,6 +2,7 @@
   "characters": [
     {
       "id": "leila",
+      "cast": "founder",
       "first_name": "Leila",
       "last_name": "Rahal",
       "pronouns": "she/her",
@@ -57,6 +58,11 @@
           "to": "harper",
           "history": "College roommate, oldest friend, and the only person allowed to tell her to stop working.",
           "dimensions": {"familiarity": 82, "friendship": 64, "trust": 60, "loyalty": 62}
+        },
+        {
+          "to": "noor-haddad",
+          "history": "Her mother's best friend's youngest, from two doors down in Dearborn. Leila is supposed to be keeping an eye on her, and does, from a distance.",
+          "dimensions": {"familiarity": 44, "friendship": 30, "trust": 34}
         }
       ],
       "memories": [

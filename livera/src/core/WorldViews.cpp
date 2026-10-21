@@ -387,7 +387,9 @@ Json World::characterCard(const CharacterId& id) const {
               {"career", hasLevel ? career->levels.at(static_cast<std::size_t>(level)).title : ""},
               {"tagline", def->profile.value("tagline", "")},
               {"home", homeLoc ? Json(homeLoc->name) : Json()},
-              {"workplace", work ? Json(work->name) : Json()}};
+              {"workplace", work ? Json(work->name) : Json()},
+              // Who they are to the town (D-073): founder, resident, townsperson; "created" for one made in this save.
+              {"cast", def->cast.empty() ? "created" : def->cast}};
 }
 
 Json World::playableCharacters() const {

@@ -175,7 +175,7 @@ TEST_CASE("server: the founding vertical slice works over the network and surviv
     jax.ok({{"op", "login"}, {"username", "jax"}, {"password", "livera-pass-2"}});
 
     // Select characters; nobody can take a character someone else plays.
-    CHECK(dom.ok({{"op", "characters"}})["characters"].size() == 11);  // the founding cast
+    CHECK(dom.ok({{"op", "characters"}})["characters"].size() == 27);  // the town's people: founders, residents, townspeople
     CHECK(dom.refusal({{"op", "look"}}) == "not_playing");
     Json start = dom.ok({{"op", "play"}, {"character", "dominique"}});
     CHECK(start["you"]["inside"] == "lexington_1204");
@@ -327,51 +327,51 @@ TEST_CASE("server: make your own character, talk out loud, and play music for th
   std::string songId;
   {
     RunningServer server(db);
-    TestClient sol(server.port());
+    TestClient nico(server.port());
     TestClient dom(server.port());
-    sol.ok({{"op", "register"}, {"username", "sol"}, {"password", "sol-pass-123"}});
-    sol.ok({{"op", "login"}, {"username", "sol"}, {"password", "sol-pass-123"}});
-    CHECK(sol.ok({{"op", "characters"}})["can_create"] == true);
-    CHECK(sol.ok({{"op", "creator_options"}})["origins"].size() == 10);
+    nico.ok({{"op", "register"}, {"username", "nico"}, {"password", "nico-pass-123"}});
+    nico.ok({{"op", "login"}, {"username", "nico"}, {"password", "nico-pass-123"}});
+    CHECK(nico.ok({{"op", "characters"}})["can_create"] == true);
+    CHECK(nico.ok({{"op", "creator_options"}})["origins"].size() == 10);
 
-    std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+    std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/nico_vale.json");
     Json sheet = Json::parse(in);
     Json bad = sheet;
     bad["age"] = 12;
-    CHECK(sol.refusal({{"op", "create_character"}, {"character", bad}}) == "invalid_character");
-    Json made = sol.ok({{"op", "create_character"}, {"character", sheet}});
-    CHECK(made["id"] == "sol-rivera");
-    CHECK(sol.refusal({{"op", "create_character"}, {"character", sheet}}) == "already_has_character");
-    Json mine = sol.ok({{"op", "characters"}});
+    CHECK(nico.refusal({{"op", "create_character"}, {"character", bad}}) == "invalid_character");
+    Json made = nico.ok({{"op", "create_character"}, {"character", sheet}});
+    CHECK(made["id"] == "nico-vale");
+    CHECK(nico.refusal({{"op", "create_character"}, {"character", sheet}}) == "already_has_character");
+    Json mine = nico.ok({{"op", "characters"}});
     CHECK(mine["can_create"] == false);
-    CHECK(mine["characters"].back()["id"] == "sol-rivera");
-    sol.ok({{"op", "play"}});  // no id needed: plays your own character
+    CHECK(mine["characters"].back()["id"] == "nico-vale");
+    nico.ok({{"op", "play"}});  // no id needed: plays your own character
 
     dom.ok({{"op", "register"}, {"username", "dom"}, {"password", "dom-pass-123"}});
     dom.ok({{"op", "login"}, {"username", "dom"}, {"password", "dom-pass-123"}});
-    CHECK(dom.refusal({{"op", "play"}, {"character", "sol-rivera"}}) == "character_taken");
+    CHECK(dom.refusal({{"op", "play"}, {"character", "nico-vale"}}) == "character_taken");
     dom.ok({{"op", "play"}, {"character", "dominique"}});
 
-    for (TestClient* c : {&sol, &dom}) {
+    for (TestClient* c : {&nico, &dom}) {
       c->ok({{"op", "exit"}});
       c->walkTo("heritage_coffee");
       c->ok({{"op", "enter"}, {"location", "heritage_coffee"}});
     }
     // Talk.
     CHECK(dom.ok({{"op", "say"}, {"text", "Is that a keytar?"}})["heard_by"] == 1);
-    sol.pump(0.3);
-    CHECK(sol.sawEvent("speech"));
+    nico.pump(0.3);
+    CHECK(nico.sawEvent("speech"));
     // Make a song, play it for the room, get tipped.
     Json song = Json::parse(R"({"title": "Founders Groove", "bpm": 96, "tracks": [
         {"instrument": "drums", "notes": [[0,36,1],[4,38,1],[8,36,1],[12,38,1]]},
         {"instrument": "electric_piano", "notes": [[0,60,8],[0,64,8],[8,62,8]]}]})");
-    songId = sol.ok({{"op", "song_save"}, {"song", song}})["id"];
-    Json perf = sol.ok({{"op", "perform"}, {"song", songId}});
+    songId = nico.ok({{"op", "song_save"}, {"song", song}})["id"];
+    Json perf = nico.ok({{"op", "perform"}, {"song", songId}});
     CHECK(perf["audience"] == 1);
     dom.pump(0.3);
     CHECK(dom.sawEvent("performance"));
-    dom.ok({{"op", "tip"}, {"to", "sol-rivera"}, {"cents", 500}});
-    sol.ok({{"op", "song_release"}, {"song", songId}});
+    dom.ok({{"op", "tip"}, {"to", "nico-vale"}, {"cents", 500}});
+    nico.ok({{"op", "song_release"}, {"song", songId}});
     // Chat has its own flood limit.
     int limited = 0;
     for (int i = 0; i < 12; ++i) limited += dom.refusal({{"op", "say"}, {"text", "la"}}) == "chat_rate_limited" ? 1 : 0;
@@ -379,16 +379,16 @@ TEST_CASE("server: make your own character, talk out loud, and play music for th
   }
   {
     RunningServer server(db);
-    TestClient sol(server.port());
-    Json login = sol.ok({{"op", "login"}, {"username", "sol"}, {"password", "sol-pass-123"}});
-    CHECK(login["character"] == "sol-rivera");
-    Json back = sol.ok({{"op", "play"}});
-    CHECK(back["you"]["name"] == "Sol Rivera");
-    Json studio = sol.ok({{"op", "phone"}, {"app", "studio"}});
+    TestClient nico(server.port());
+    Json login = nico.ok({{"op", "login"}, {"username", "nico"}, {"password", "nico-pass-123"}});
+    CHECK(login["character"] == "nico-vale");
+    Json back = nico.ok({{"op", "play"}});
+    CHECK(back["you"]["name"] == "Nico Vale");
+    Json studio = nico.ok({{"op", "phone"}, {"app", "studio"}});
     REQUIRE(studio["yours"].size() == 1);
     CHECK(studio["yours"][0]["released"] == true);
     CHECK(studio["music_skill"].get<double>() > 0);
-    CHECK(sol.ok({{"op", "phone"}, {"app", "bank"}})["bank_cents"] == 800000 + 500);
+    CHECK(nico.ok({{"op", "phone"}, {"app", "bank"}})["bank_cents"] == 800000 + 500);
   }
 }
 
@@ -487,20 +487,20 @@ Json listed(TestClient& c, const std::string& id) {
 
 TEST_CASE("server: look carries effects and cooldowns, map the opening hours, characters homes and workplaces") {
   RunningServer server(tempPath("views_net.db").string());
-  TestClient sol(server.port());
-  sol.login("sol", "sol-pass-123");
+  TestClient nico(server.port());
+  nico.login("nico", "nico-pass-123");
   // The pick list: every founder's home and workplace, by name.
-  const Json dom = listed(sol, "dominique");
+  const Json dom = listed(nico, "dominique");
   CHECK(dom["home"].is_string());
   CHECK(dom["workplace"] == "Meridian Talent Partners");
   // Your own made character is listed with the same fields.
-  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
-  sol.ok({{"op", "create_character"}, {"character", Json::parse(in)}});
-  const Json mine = listed(sol, "sol-rivera");
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/nico_vale.json");
+  nico.ok({{"op", "create_character"}, {"character", Json::parse(in)}});
+  const Json mine = listed(nico, "nico-vale");
   CHECK(mine["created"] == true);
   CHECK(mine["home"].is_string());
   CHECK(mine["workplace"].is_string());
-  const Json here = sol.ok({{"op", "play"}})["here"];  // play answers look: Sol starts at home
+  const Json here = nico.ok({{"op", "play"}})["here"];  // play answers look: Nico starts at home
   REQUIRE(!here["activities"].empty());
   std::string used;
   for (const auto& a : here["activities"]) {
@@ -509,9 +509,9 @@ TEST_CASE("server: look carries effects and cooldowns, map the opening hours, ch
     if (used.empty() && a["id"] != "restroom") used = a["id"].get<std::string>();
   }
   REQUIRE(!used.empty());
-  sol.ok({{"op", "activity"}, {"activity", used}});
+  nico.ok({{"op", "activity"}, {"activity", used}});
   Json again;
-  const Json after = sol.ok({{"op", "look"}})["here"]["activities"];
+  const Json after = nico.ok({{"op", "look"}})["here"]["activities"];
   for (const auto& a : after) {
     if (a["id"] == used) again = a;
   }
@@ -519,7 +519,7 @@ TEST_CASE("server: look carries effects and cooldowns, map the opening hours, ch
   CHECK(again["ready_at"].is_number_integer());
   CHECK(again["ready_in_minutes"].get<int>() > 0);
   // The map: opening hours and days per place.
-  const Json places = sol.ok({{"op", "map"}})["places"];
+  const Json places = nico.ok({{"op", "map"}})["places"];
   int withHours = 0;
   for (const auto& p : places) {
     CHECK(p.contains("hours") && p.contains("open_days"));
@@ -1282,4 +1282,13 @@ TEST_CASE("server: street life: crime_risk, the wanted line in look, a fight ask
   if (told.contains("crime") && told["crime"].value("arrested", false)) CHECK(you["jailed_until"].is_number_integer());
   if (told.contains("crime") && told["crime"].value("wanted", false)) CHECK(you["wanted_for"] == "Assault");
   CHECK(dom.refusal({{"op", "fight"}, {"target", "dax"}}) != "(accepted)");  // once a pair a day
+}
+
+TEST_CASE("server: the default script cap has room for every playable character in data (D-073)") {
+  // The town director plays every character nobody has claimed, one bot_ session each; with the residents and the
+  // townspeople that's more than the old cap of 16.
+  std::size_t playable = 0;
+  for (const auto& [id, def] : realContent()->characters()) playable += def.playable ? 1 : 0;
+  CHECK(playable > 16);
+  CHECK(ServerConfig{}.maxScripted >= playable);
 }

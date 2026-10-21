@@ -2,6 +2,7 @@
   "characters": [
     {
       "id": "aaliyah",
+      "cast": "founder",
       "first_name": "Aaliyah",
       "last_name": "Baptiste",
       "pronouns": "she/her",
@@ -52,6 +53,11 @@
           "to": "sienna",
           "history": "Sienna styles every event Aaliyah throws. They make each other look good, on purpose.",
           "dimensions": {"familiarity": 46, "friendship": 42, "respect": 52, "trust": 38}
+        },
+        {
+          "to": "jean-baptiste-moreau",
+          "history": "She books his back room for every tasting and fights him on the wine list. He's usually right, which she hates.",
+          "dimensions": {"familiarity": 46, "friendship": 42, "respect": 58}
         }
       ],
       "memories": [

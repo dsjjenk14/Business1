@@ -10,7 +10,8 @@ enter lexington_1204
 walk heritage_coffee
 enter heritage_coffee
 look
-wait 16
+# Long enough for Dominique to finish her latte and come over to talk (about 10 s after he arrives).
+wait 20
 phone messages
 phone contacts
 logout

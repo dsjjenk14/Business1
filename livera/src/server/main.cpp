@@ -1,7 +1,7 @@
 // livera_server: the dedicated authoritative server.
 //
 //   livera_server --data ./data --db ./livera_world.db [--port 7777] [--bind 127.0.0.1]
-//                 [--autosave 30] [--max-players 16] [--max-scripted 16] [--dev] [--closed-registration]
+//                 [--autosave 30] [--max-players 16] [--max-scripted 32] [--dev] [--closed-registration]
 //                 [--test-payments] [--autopilot] [--night-skip] [--pause-when-empty]
 //
 // Admin commands (run and exit; safe while a server is running on the same database):
@@ -37,7 +37,7 @@ void usage() {
                "  --autopilot  founders no account has claimed live their day on the core's autopilot, labelled.\n"
                "  --night-skip  when everyone playing is asleep (the sleep op), the night is skipped to the morning.\n"
                "  --pause-when-empty  the clock stops while nobody (no person; scripts don't count) is in the world.\n"
-               "  --max-players  people in the world at once (default 16); --max-scripted  scripts (default 16).\n"
+               "  --max-players  people in the world at once (default 16); --max-scripted  scripts (default 32).\n"
                "  --add-account  makes an account (bot_ names are script accounts for the town director).\n"
                "  --release-character  frees a character from the account that claimed it.\n");
 }

@@ -39,7 +39,11 @@ console.log("--- a town for five");
 check(call("town_join", "dominique").error?.code === "no_world", "town_join before a town exists is no_world");
 check(call("solo_new").ok === true, "solo_new founds the town");
 const pilot = call("solo_autopilot_start", null);
-check(pilot.ok && pilot.data.running.length === 11, "every founder starts on autopilot", pilot);
+// Everyone in the pick list: the founders, the residents and the townspeople (D-073).
+const cast = call("solo_characters").data.characters.map(c => c.id).sort();
+check(cast.length === 27 && cast.includes("bernie-walsh"), "the town has its 27 people", cast);
+check(pilot.ok && JSON.stringify([...pilot.data.running].sort()) === JSON.stringify(cast),
+      "everyone in the town starts on autopilot", pilot);
 const five = ["aaliyah", "dominique", "graham", "naomi", "maya"];
 for (const id of five) {
   const j = call("town_join", id);

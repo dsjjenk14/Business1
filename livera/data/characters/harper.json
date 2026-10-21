@@ -2,6 +2,7 @@
   "characters": [
     {
       "id": "harper",
+      "cast": "founder",
       "first_name": "Harper",
       "last_name": "James",
       "pronouns": "she/her",
@@ -52,6 +53,11 @@
           "to": "leila",
           "history": "College roommates at Northwestern. Leila was the reason Harper heard about Livéra.",
           "dimensions": {"familiarity": 82, "friendship": 62, "trust": 56, "loyalty": 58, "conflict": 8}
+        },
+        {
+          "to": "ngozi-adeyemi",
+          "history": "They send each other patients and never say who. The only doctor in town who asks Harper how she is.",
+          "dimensions": {"familiarity": 34, "respect": 64, "trust": 58, "friendship": 34}
         }
       ],
       "memories": [

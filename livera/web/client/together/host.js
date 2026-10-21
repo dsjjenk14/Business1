@@ -392,7 +392,7 @@ export class TownHost {
   }
   reply(r) { return r && r.ok ? ok(r.data ?? {}) : { ok: false, error: (r && r.error) || { code: "internal", message: "no answer" } }; }
 
-  // The pick list as the server gives it: founders, plus your own made character; others' made characters aren't
+  // The pick list as the server gives it: the town's people, plus your own made character; others' made characters aren't
   // listed. `available` is false for a character someone else has claimed or is playing.
   characters(s) {
     const mine = this.claimOf(s.uid);

@@ -1,46 +1,7 @@
 {
-  "$comment": "Art for things that live in a save rather than in data/: residents made in the character creator (by character id) and named pets (by owner id and name), plus pictures of places, the bus, the city and concept posters. Paths are relative to the livera folder. tests/test_cast.cpp checks that every path exists, that no resident here is a founding character (their art is linked from data/characters), that each pet key is owner:name with a real species, and that place and stop ids are the game's. Facts on the cards were checked against the game's data; anything the card gets wrong is listed under notes so nobody mistakes it for the game's state.",
+  "$comment": "Art for things that live in a save rather than in data/: residents made in the character creator (by character id) and named pets (by owner id and name), plus pictures of places, the bus, the city and concept posters. Paths are relative to the livera folder. tests/test_cast.cpp checks that every path exists, that no resident here is a character in data/characters (their art is linked from there, the four residents' too since D-073), that each pet key is owner:name with a real species, and that place and stop ids are the game's. Facts on the cards were checked against the game's data; anything the card gets wrong is listed under notes so nobody mistakes it for the game's state.",
   "residents": {
-    "sol-rivera": {
-      "name": "Sol Rivera",
-      "card_title": "The Free Spirit",
-      "sheet": "art/reference/residents/sol-rivera.jpg",
-      "avatar": "art/avatars/sol-rivera.jpg",
-      "card_as_of": "Day 28 of the town-preview recording",
-      "notes": []
-    },
-    "theo-grant": {
-      "name": "Theo Grant",
-      "card_title": "The Fresh Start",
-      "sheet": "art/reference/residents/theo-grant.jpg",
-      "avatar": "art/avatars/theo-grant.jpg",
-      "card_as_of": "Day 28 of the town-preview recording",
-      "notes": [
-        "Card occupation is Shift Supervisor, Greenleaf Market; from Day 29 of the recording he works the front desk at Body & Balance.",
-        "The shop sign behind him in the WORK LOOK panel is partly hidden and may be garbled; the card itself names Greenleaf Market correctly."
-      ]
-    },
-    "rosa-delgado": {
-      "name": "Rosa Delgado",
-      "card_title": "The Guardian",
-      "sheet": "art/reference/residents/rosa-delgado.jpg",
-      "avatar": "art/avatars/rosa-delgado.jpg",
-      "card_as_of": "Day 28 of the town-preview recording",
-      "notes": [
-        "The square smartwatch on a black band resembles a well-known real product; the data says only 'watch'."
-      ]
-    },
-    "kai-morgan": {
-      "name": "Kai Morgan",
-      "card_title": "The Upstart",
-      "sheet": "art/reference/residents/kai-morgan.jpg",
-      "avatar": "art/avatars/kai-morgan.jpg",
-      "card_as_of": "Day 28 of the town-preview recording",
-      "notes": [
-        "The red-and-white high-top sneakers resemble a well-known real design; regenerate the turnaround with plain shoes before any commercial use.",
-        "The BAR SHIFT LOOK panel shows the Copper Tap barback job he left on Day 25; by Day 28 he works at Low End Studios."
-      ]
-    }
+    "$comment": "Characters made in the creator whose art exists, by character id (sheet, avatar, card_title, notes). Empty since D-073: Kai Morgan, Rosa Delgado, Sol Rivera and Theo Grant, the four whose sheets were drawn from the town-preview recording, are data characters now and link their art from data/characters (profile.appearance.visual_reference, avatar, art_notes)."
   },
   "pets": {
     "aaliyah:Bramble": {

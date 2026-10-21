@@ -1,10 +1,13 @@
 // The one way the game draws a whole person: on the map (render2d.js) and inside a building
-// (interior.js). Founders and the created residents with a model sheet are drawn with their
+// (interior.js). Founders and the four residents with a model sheet are drawn with their
 // full-body cut-outs (client/figures/<id>/<view>.webp, made by scripts/client_figures.py from
-// art/reference); everyone else (characters made in the creator, scripts' characters) is drawn
-// as a simple stylised body in canvas, which is a stand-in, not their look: the protocol doesn't
-// tell other players what anyone chose in the creator, so its colours are neutral and its outfit
-// colour is picked by the client from the person's id, only so two of them can be told apart.
+// art/reference); everyone else is drawn as a simple stylised body in canvas, which is a stand-in,
+// not their look, and their card says so (artStatus()). The townspeople (D-073), whose sheets aren't
+// drawn yet, wear their own colours from data (client/figures/standins.json, made by
+// scripts/client_standins.py: skin, hair and its style, top, bottom, shoes, an apron or headwear) at
+// their own height, so the barista and the sergeant read as who they are. Characters made in the
+// creator get neutral colours and an outfit colour picked from the person's id, only so two of them
+// can be told apart: the protocol doesn't tell other players what anyone chose in the creator.
 //
 //   drawFigure(ctx, person, x, y, {height, facing, mirror, pose, phase, night, selected, scripted})
 //
@@ -48,7 +51,7 @@ const NIGHT_COLOR = "#061a22";     // layout.js LIGHT's night ambient
 const NIGHT_MAX = 0.45;            // how dark a person gets at full night (the street lamps keep them readable)
 const SIT_SEAT = 0.26, SIT_HIP = 0.52;   // seat height and hip height, as fractions of a standing person
 
-let manifest = null, loading = null;
+let manifest = null, loading = null, standins = new Map();
 const pictures = new Map();        // "id/view" -> {img, ok}
 const baked = new Map();           // cache key -> canvas
 const BAKED_MAX = 360;
@@ -58,11 +61,30 @@ const num = (v, d) => (typeof v === "number" && isFinite(v) ? v : d);
 
 // The manifest of cut-outs: which characters and views exist, their sizes and feet. Only ids and
 // views listed here are ever requested. Called lazily by drawFigure(); call it yourself to start early.
+const HEX = /^#[0-9a-f]{6}$/i;
+const HAIR_STYLES = new Set(["short", "buzz", "curls", "long", "bun", "bald", "cap", "hijab"]);
+// The stand-in colours of the town characters with no art yet (scripts/client_standins.py). Anything malformed is
+// left out: that person gets the neutral stand-in.
+function readStandins(s) {
+  const out = new Map();
+  for (const [id, e] of Object.entries(s && typeof s === "object" ? s : {})) {
+    if (!isId(id) || !e || typeof e !== "object") continue;
+    if (!["skin", "hair", "top", "bottom", "shoes"].every(k => HEX.test(e[k] || ""))) continue;
+    const opt = k => (HEX.test(e[k] || "") ? e[k].toLowerCase() : null);
+    out.set(id, { key: `s:${id}`, cm: num(e.height_cm, DEFAULT_CM), skin: e.skin.toLowerCase(), hair: e.hair.toLowerCase(),
+      top: e.top.toLowerCase(), bottom: e.bottom.toLowerCase(), shoes: e.shoes.toLowerCase(),
+      style: HAIR_STYLES.has(e.hair_style) ? e.hair_style : "short", apron: opt("apron"), headwear: opt("headwear"), accent: opt("accent") });
+  }
+  return out;
+}
+
 export function loadFigureManifest() {
   if (!loading) {
+    const extra = fetch("figures/standins.json", { cache: "no-cache" }).then(r => (r.ok ? r.json() : {})).catch(() => ({}));
     loading = fetch("figures/manifest.json", { cache: "no-cache" })
       .then(r => (r.ok ? r.json() : {}))
-      .then(m => {
+      .then(async m => {
+        standins = readStandins(await extra);
         const out = new Map();
         for (const [id, e] of Object.entries(m && typeof m === "object" ? m : {})) {
           if (!isId(id) || !e || typeof e.views !== "object") continue;
@@ -117,8 +139,12 @@ export function figureReady(id) {
 }
 // Whether a character has cut-outs at all (false until the manifest has loaded).
 export const hasFigure = id => !!entry(id);
-// How tall a character is drawn, in cm (their sheet's height; created characters a neutral 172).
-export const figureHeightCm = person => (person && entry(person.id) ? entry(person.id).cm : num(person && person.height_cm, DEFAULT_CM));
+// How a character is drawn: "art" (their cut-outs), "standin" (the stand-in body in their own colours, until their
+// art is made), "plain" (the neutral stand-in), or "unknown" before the manifest has loaded.
+export const artStatus = id => (!manifest ? "unknown" : entry(id) ? "art" : standins.has(id) ? "standin" : "plain");
+// How tall a character is drawn, in cm (their sheet's height, or their stand-in's; created characters a neutral 172).
+export const figureHeightCm = person => (person && entry(person.id) ? entry(person.id).cm
+  : person && standins.has(person.id) ? standins.get(person.id).cm : num(person && person.height_cm, DEFAULT_CM));
 
 // The view and mirror for a movement on screen (dx, dy in screen units, y down). Walking along the
 // map's streets is a three-quarter view (front34 coming toward the camera, back34 going away).
@@ -189,12 +215,20 @@ function bakeArt(id, view, info, img, hd, nightStep, tint) {
 }
 
 // The stand-in body for someone without art, drawn into a canvas `hd` device pixels for a 1.75 m
-// person: neutral skin and hair, an outfit colour from the town's palette chosen by id, a soft side
-// shade and a thin dark outline so it reads on light paving and on dark grass alike.
+// person: a town character's own colours (standins.json), else neutral skin and hair and an outfit
+// colour from the town's palette chosen by id; a soft side shade and a thin dark outline so it reads
+// on light paving and on dark grass alike.
 const OUTFITS = [["#2e4636", "#3b3a36"], ["#884f2d", "#2f2a26"], ["#0b2b23", "#c9b48f"], ["#b48a4c", "#2b2f2d"], ["#5e4a66", "#3a3631"], ["#ad734e", "#26302c"], ["#e8dcc4", "#4a4038"]];
 const SKIN = "#b48e72", HAIR = "#3a2f29", SHOE = "#2a2420";
 function seededIndex(id, n) { let h = 0; for (const ch of String(id || "")) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h % n; }
-function bodyShape(g, H, W, view, outfit, frame, arms = "") {
+function lookOf(person) {
+  const id = person && person.id;
+  if (isId(id) && standins.has(id)) return standins.get(id);
+  const [top, bottom] = OUTFITS[seededIndex(id, OUTFITS.length)];
+  return { key: `${top}${bottom}`, top, bottom, skin: SKIN, hair: HAIR, shoes: SHOE, style: "short", apron: null, headwear: null, accent: null };
+}
+function bodyShape(g, H, W, view, look, frame, arms = "") {
+  const outfit = [look.top, look.bottom];
   const cx = W / 2, top = 2, u = H / 7.4;   // a head unit; adults are about 7.4 heads tall
   const side = view === "side", back = view === "back" || view === "back34", three = view === "front34" || view === "back34";
   const shoulder = side ? u * 0.6 : three ? u * 0.86 : u * 0.98, hip = side ? u * 0.56 : three ? u * 0.68 : u * 0.74;
@@ -207,7 +241,7 @@ function bodyShape(g, H, W, view, outfit, frame, arms = "") {
   for (const s of [-1, 1]) {
     g.fillStyle = s < 0 && side ? mixHex(outfit[1], "#000000", 0.2) : outfit[1];
     rr(legX(s), waistY - u * 0.1, legW, footY - waistY - u * 0.12 - lift(s), legW * 0.3);
-    g.fillStyle = SHOE;
+    g.fillStyle = look.shoes;
     rr(legX(s) - (side ? u * 0.02 : u * 0.03), footY - u * 0.2 - lift(s), legW + (side ? u * 0.26 : u * 0.06), u * 0.2, u * 0.09);
   }
   // Arms behind the torso in a side view; beside it otherwise, swinging against the legs.
@@ -215,7 +249,7 @@ function bodyShape(g, H, W, view, outfit, frame, arms = "") {
     const ax = side ? cx - u * 0.17 - s * swing * u * 0.32 : cx + s * (shoulder - u * 0.1) - u * 0.17 + (back ? 0 : 0);
     g.fillStyle = behind ? mixHex(outfit[0], "#000000", 0.25) : outfit[0];
     rr(ax, shY - u * 0.02, u * 0.34, u * 1.75, u * 0.17);
-    g.fillStyle = behind ? mixHex(SKIN, "#000000", 0.2) : SKIN;
+    g.fillStyle = behind ? mixHex(look.skin, "#000000", 0.2) : look.skin;
     g.beginPath(); g.ellipse(ax + u * 0.17, shY + u * 1.86, u * 0.15, u * 0.2, 0, 0, Math.PI * 2); g.fill();
   };
   // Raised arms (fight: fists up at the chin; flinch: forearms crossed over the face), as bent strokes.
@@ -226,7 +260,7 @@ function bodyShape(g, H, W, view, outfit, frame, arms = "") {
     const fy = arms === "cover" ? top + u * 0.62 : top + u * (behind ? 1.25 : 1.15);
     g.strokeStyle = behind ? mixHex(outfit[0], "#000000", 0.25) : outfit[0]; g.lineWidth = u * 0.32; g.lineCap = "round"; g.lineJoin = "round";
     g.beginPath(); g.moveTo(shx, shy); g.lineTo(elx, ely); g.lineTo(fx, fy + u * 0.12); g.stroke();
-    g.fillStyle = behind ? mixHex(SKIN, "#000000", 0.2) : SKIN;
+    g.fillStyle = behind ? mixHex(look.skin, "#000000", 0.2) : look.skin;
     g.beginPath(); g.arc(fx, fy, u * 0.17, 0, Math.PI * 2); g.fill();
   };
   if (side && !arms) arm(-1, true);
@@ -243,6 +277,14 @@ function bodyShape(g, H, W, view, outfit, frame, arms = "") {
   g.lineTo(cx - hip, waistY + u * 0.2);
   g.quadraticCurveTo(cx - hip * 0.86, waistY - u * 0.6, cx - shoulder, shY + u * 0.2);
   g.closePath(); g.fill();
+  // What they wear over it: an apron from chest to knee (from behind, only its ties at the waist), and a tie or a badge.
+  if (look.apron) {
+    g.fillStyle = look.apron;
+    if (back) rr(cx - hip, waistY - u * 0.12, hip * 2, u * 0.16, u * 0.05);
+    else if (side) rr(cx + u * 0.12, shY + u * 0.35, u * 0.3, waistY - shY + u * 1.3, u * 0.08);
+    else rr(cx - hip * 0.82, shY + u * 0.3, hip * 1.64, waistY - shY + u * 1.35, u * 0.12);
+  }
+  if (look.accent && !back && !side) { g.fillStyle = look.accent; rr(cx - u * 0.07, shY - u * 0.08, u * 0.14, u * 1.0, u * 0.05); }
   if (arms && !back) {
     // Neck and head go on first here: the raised arms come in front of them.
     headAndHair(); if (side) raised(1, false); else { raised(-1, false); raised(1, false); }
@@ -257,23 +299,54 @@ function bodyShape(g, H, W, view, outfit, frame, arms = "") {
   g.fillStyle = sh; g.fillRect(0, 0, W, footY + 2);
   g.globalCompositeOperation = "source-over";
   return { fx: cx, fy: footY };
-  // Neck and head; hair over the top (all of it from behind, the back of it from the side).
+  // Neck and head; hair over the top (all of it from behind, the back of it from the side), in its style.
   function headAndHair() {
-    g.fillStyle = SKIN;
-    rr(cx - u * 0.15 + (side ? u * 0.05 : 0), neckY - u * 0.15, u * 0.3, u * 0.45, u * 0.1);
     const hx = cx + (side ? u * 0.1 : three ? (back ? -u * 0.03 : u * 0.03) : 0), hy = top + u * 0.56;
+    const style = look.style;
+    // What hangs behind the head and neck: long hair, a hijab.
+    if (style === "long") { g.fillStyle = look.hair; rr(hx - u * 0.44 - (side ? u * 0.1 : 0), hy - u * 0.2, u * 0.88, u * 1.75, u * 0.3); }
+    if (style === "hijab") {
+      g.fillStyle = look.headwear || look.hair;
+      g.beginPath(); g.ellipse(hx, hy + u * 0.02, u * 0.5, u * 0.62, 0, 0, Math.PI * 2); g.fill();
+      rr(cx - shoulder * 0.62, neckY - u * 0.25, shoulder * 1.24, u * 0.75, u * 0.25);
+    }
+    g.fillStyle = look.skin;
+    if (style !== "hijab") rr(cx - u * 0.15 + (side ? u * 0.05 : 0), neckY - u * 0.15, u * 0.3, u * 0.45, u * 0.1);
+    if (style === "hijab") {
+      // Only the face shows (none from behind).
+      if (!back) { g.beginPath(); g.ellipse(hx + (side ? u * 0.12 : 0), hy + u * 0.06, u * (side ? 0.2 : 0.27), u * 0.36, 0, 0, Math.PI * 2); g.fill(); }
+      return;
+    }
     g.beginPath(); g.ellipse(hx, hy, u * (side ? 0.42 : 0.38), u * 0.5, 0, 0, Math.PI * 2); g.fill();
-    g.fillStyle = HAIR;
+    if (style === "bald") return;
+    g.fillStyle = look.hair;
     g.beginPath();
-    if (back) g.ellipse(hx, hy - u * 0.04, u * 0.42, u * 0.52, 0, 0, Math.PI * 2);
+    if (style === "buzz") {
+      if (back) g.ellipse(hx, hy - u * 0.05, u * 0.4, u * 0.47, 0, 0, Math.PI * 2);
+      else g.ellipse(hx - (side ? u * 0.06 : 0), hy - u * 0.12, u * 0.4, u * 0.4, 0, Math.PI * 1.02, Math.PI * 1.98);
+    } else if (style === "curls") {
+      if (back) g.ellipse(hx, hy - u * 0.08, u * 0.5, u * 0.58, 0, 0, Math.PI * 2);
+      else g.ellipse(hx - (side ? u * 0.1 : 0), hy - u * 0.18, u * 0.52, u * 0.46, 0, Math.PI * 0.9, Math.PI * 2.1);
+    } else if (back) g.ellipse(hx, hy - u * 0.04, u * 0.42, u * 0.52, 0, 0, Math.PI * 2);
     else if (side) g.ellipse(hx - u * 0.12, hy - u * 0.14, u * 0.4, u * 0.4, 0.3, Math.PI * 0.75, Math.PI * 2.1);
     else g.ellipse(hx, hy - u * 0.14, u * 0.42, u * 0.4, 0, Math.PI * 0.98, Math.PI * 2.02);
     g.fill();
+    if (style === "bun") {
+      g.beginPath(); g.arc(hx + (side ? -u * 0.32 : 0), hy - u * (side ? 0.36 : 0.5), u * 0.2, 0, Math.PI * 2); g.fill();
+      if (look.headwear) { g.fillStyle = look.headwear; rr(hx - u * 0.36, hy - u * 0.42, u * 0.72, u * 0.14, u * 0.06); }
+    }
+    if (style === "cap") {
+      g.fillStyle = look.headwear || look.hair;
+      g.beginPath(); g.ellipse(hx, hy - u * 0.2, u * 0.44, u * 0.32, 0, Math.PI, Math.PI * 2); g.fill();
+      // The brim: toward the camera from the front, forward from the side, none from behind.
+      if (side) rr(hx + u * 0.2, hy - u * 0.24, u * 0.42, u * 0.1, u * 0.05);
+      else if (!back) { g.beginPath(); g.ellipse(hx, hy - u * 0.2, u * 0.46, u * 0.1, 0, 0, Math.PI); g.fill(); }
+    }
   }
 }
 function bakeBody(person, view, cm, hd, nightStep, tint, frame, arms = "") {
-  const outfit = OUTFITS[seededIndex(person && person.id, OUTFITS.length)];
-  const near = `b|${outfit.join()}|${view}|${cm}|${frame}|${arms}`, key = `${near}|${nightStep}|${tint ? tint.join() : ""}|${hd}`;
+  const look = lookOf(person);
+  const near = `b|${look.key}|${view}|${cm}|${frame}|${arms}`, key = `${near}|${nightStep}|${tint ? tint.join() : ""}|${hd}`;
   let c = baked.get(key);
   if (c) return c;
   if (nearest.has(near) && !mayBake()) return nearest.get(near);
@@ -281,7 +354,7 @@ function bakeBody(person, view, cm, hd, nightStep, tint, frame, arms = "") {
   const shape = document.createElement("canvas");
   shape.width = W; shape.height = CH;
   const sg = shape.getContext("2d");
-  const { fx, fy } = bodyShape(sg, H, W, view, outfit, frame, arms);
+  const { fx, fy } = bodyShape(sg, H, W, view, look, frame, arms);
   // The outline: the silhouette in dark, nudged around, under the figure.
   c = document.createElement("canvas");
   c.width = W; c.height = CH;
@@ -318,7 +391,7 @@ export function drawFigure(ctx, person, x, y, { height, facing = "front", mirror
   if (!manifest) loadFigureManifest();
   const ref = Math.max(1, num(height, 60)), dev = deviceScale(ctx);
   const id = person && person.id, e = isId(id) ? entry(id) : null;
-  const cm = e ? e.cm : num(person && person.height_cm, DEFAULT_CM), h = ref * cm / REFERENCE_CM;
+  const cm = e ? e.cm : isId(id) && standins.has(id) ? standins.get(id).cm : num(person && person.height_cm, DEFAULT_CM), h = ref * cm / REFERENCE_CM;
   const nightStep = Math.round(Math.max(0, Math.min(1, num(night, 0))) * 12) / 12;
   const t = tint && typeof tint[0] === "string" && /^#[0-9a-f]{6}$/i.test(tint[0]) && tint[1] > 0.01 ? [tint[0].toLowerCase(), Math.round(Math.min(0.6, tint[1]) * 20) / 20] : null;
   const hd = bucket(ref * dev);

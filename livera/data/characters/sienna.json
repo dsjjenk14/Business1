@@ -2,6 +2,7 @@
   "characters": [
     {
       "id": "sienna",
+      "cast": "founder",
       "first_name": "Sienna",
       "last_name": "Brooks",
       "pronouns": "she/her",
@@ -52,6 +53,11 @@
           "to": "andre",
           "history": "She art-directed his last cover. He keeps finding reasons to send her things.",
           "dimensions": {"familiarity": 22, "respect": 32, "friendship": 12, "physical_attraction": 18}
+        },
+        {
+          "to": "imani-clarke",
+          "history": "Reposted one of her coffee-sleeve drawings on a whim. The kid can draw; Sienna is watching.",
+          "dimensions": {"familiarity": 14, "respect": 40, "friendship": 10}
         }
       ],
       "memories": [

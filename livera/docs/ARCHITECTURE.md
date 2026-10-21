@@ -63,7 +63,7 @@ recipients. The server drains events after each step and routes them to sessions
 ### Threading
 
 One thread owns the World, the store and every socket (`Server::run`). There are no
-locks because nothing is shared. At today's default caps (16 people, 16 scripts) this is
+locks because nothing is shared. At today's default caps (16 people, 32 scripts) this is
 simpler and faster than anything concurrent. Scaling path: see "Scaling" below.
 
 ## The game client (D-045)
@@ -116,7 +116,7 @@ web/gateway/  Node + ws: WebSocket ⇄ TCP, nothing else
 
 ## Scaling (later, not now)
 
-The target today is one world shard with up to 16 people plus up to 16 scripted sessions
+The target today is one world shard with up to 16 people plus up to 32 scripted sessions
 (`--max-players`, `--max-scripted`). Known paths when that's outgrown:
 1. Dirty tracking in the store (save only changed rows) instead of rewriting mutable tables.
 2. Spatial partitioning for `look`/presence (today they scan all characters).
@@ -141,6 +141,7 @@ The target today is one world shard with up to 16 people plus up to 16 scripted 
 | `src/core/LifeEvents.cpp` | Life events: scenario cards from `data/events/`, drawn at sensible moments, answered through the World's rules; the Story app (D-068). |
 | `src/core/Fights.cpp` | Fist fights: the person attacked chooses, the World scores it, injuries, assault, walking away (D-070). |
 | `src/core/Interiors.cpp` | Rooms you walk around in: the `interior` content and its checks, `moveInside` / `sit` / `stand`, spots taken by activities, purchases, performances and shifts, `look.here.room` and the `room` event (D-066). |
+| `src/core/TownLife.cpp` | The town's people (D-073): evening plans and patrols from `data/society/town_life.json` and their checks, the cast checks (casts, shared starting homes, starting partners). The autopilot uses them. |
 | `src/core/Away.cpp` | The away routine's work: scheduled blocks spent offline paid at a share (D-063). |
 | `src/core/Serialization.*` | JSON encoding of state records for the save format, and the whole world as one JSON document (the single-player save). |
 | `src/protocol/WorldOps.*` | The in-world op routing (`look`, `move`, `buy`...) shared by the server and the single-player build. |

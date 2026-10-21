@@ -71,7 +71,7 @@ bool LineBuffer::append(const char* data, std::size_t n) {
   buf_.append(data, n);
   const auto nl = buf_.find('\n');
   // Over the limit with no complete line in sight: the peer is misbehaving.
-  return !(buf_.size() > kMaxLineBytes && (nl == std::string::npos || nl > kMaxLineBytes));
+  return !(buf_.size() > max_ && (nl == std::string::npos || nl > max_));
 }
 
 std::optional<std::string> LineBuffer::nextLine() {

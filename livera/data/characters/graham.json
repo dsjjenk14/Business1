@@ -2,6 +2,7 @@
   "characters": [
     {
       "id": "graham",
+      "cast": "founder",
       "first_name": "Graham",
       "last_name": "Whitaker",
       "pronouns": "he/him",
@@ -62,6 +63,11 @@
           "to": "leila",
           "history": "The reporter who asks good questions at council meetings. He doesn't know how good yet.",
           "dimensions": {"familiarity": 12, "respect": 28, "trust": 10}
+        },
+        {
+          "to": "samuel-osei",
+          "history": "The teacher the consortium needs on side for the charter. Graham made him an offer; he hasn't said no.",
+          "dimensions": {"familiarity": 22, "respect": 42, "trust": 18}
         }
       ],
       "memories": [

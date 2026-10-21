@@ -1,13 +1,13 @@
-# Sol makes their own character, moves in, and plays the café's open mic.
-register sol livera-demo-3
-login sol livera-demo-3
+# Nico makes their own character, moves in, and plays the café's open mic.
+register nico livera-demo-3
+login nico livera-demo-3
 characters
-create sol_rivera.json
+create nico_vale.json
 play
 exit
 walk heritage_coffee
 enter heritage_coffee
-say Hi everyone! I'm Sol, I just moved here.
+say Hi everyone! I'm Nico, I just moved here.
 # Write a song on the phone: one bar of drums, looped to four bars...
 song new 96 Founders Groove
 song track drums kick:0,7,10 snare:4,12 hat:0,2,4,6,8,10,12,14:1:70
@@ -19,7 +19,8 @@ song track saxophone A4:0:3 C5:4:2 E5:6:6 D5:16:4 B4:20:2 G4:22:6 F4:32:3 A4:36:
 song repeat 2
 song save
 perform last
-wait 12
+# Stay for the applause: Dominique tips about 10 s after Nico arrives.
+wait 16
 song release last
 song export last founders_groove.mid
 song list

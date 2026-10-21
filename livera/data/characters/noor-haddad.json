@@ -1,0 +1,138 @@
+{
+  "characters": [
+    {
+      "id": "noor-haddad",
+      "cast": "townsperson",
+      "first_name": "Noor",
+      "last_name": "Haddad",
+      "pronouns": "she/her",
+      "gender": "woman",
+      "age": 20,
+      "playable": true,
+      "personality": {
+        "ambition": 86,
+        "sociability": 72,
+        "empathy": 54,
+        "patience": 30,
+        "confidence": 70,
+        "risk_tolerance": 74,
+        "competitiveness": 76,
+        "impulsiveness": 70
+      },
+      "values": {
+        "family": 70,
+        "career": 88,
+        "wealth": 70,
+        "loyalty": 50,
+        "freedom": 80,
+        "status": 74,
+        "community": 40,
+        "romance": 50,
+        "creativity": 90
+      },
+      "traits": ["ambitious", "stylish", "impatient"],
+      "interests": ["fashion", "art", "photography", "networking", "music"],
+      "career": {"id": "retail", "level": 0},
+      "degrees": ["high_school"],
+      "fame": 3,
+      "finances": {"cash_cents": 2500, "bank_cents": 64000},
+      "home": {"property": "maple_court_1b", "tenure": "rent"},
+      "spawn_location": "maple_court_1b",
+      "relationships": [
+        {
+          "to": "rosa-delgado",
+          "history": "Her boss. Rosa lets her redo the windows and calls her 'mija' when nobody's listening.",
+          "dimensions": {"familiarity": 52, "respect": 60, "friendship": 40, "trust": 44}
+        },
+        {
+          "to": "naomi",
+          "history": "Naomi Ellis is everything she wants to be. They have never spoken.",
+          "dimensions": {"familiarity": 6, "respect": 88}
+        },
+        {
+          "to": "leila",
+          "history": "Leila's mother and hers baked side by side in Dearborn. Leila is supposed to be keeping an eye on her.",
+          "dimensions": {"familiarity": 44, "friendship": 30, "respect": 46}
+        }
+      ],
+      "memories": [
+        {
+          "type": "career",
+          "participants": ["noor-haddad"],
+          "importance": 60,
+          "emotional_impact": 50,
+          "days_ago": 30,
+          "info": "Redid Thread & Co.'s front window overnight. Sales doubled that week."
+        }
+      ],
+      "aspirations": ["start_a_business", "get_famous"],
+      "profile": {
+        "tagline": "Sells you the outfit, then tells you how to wear it.",
+        "why_livera": "adventure",
+        "ethnicity": "Syrian American",
+        "card": {
+          "occupation": "Sales Associate, Thread & Co.",
+          "height_cm": 160,
+          "build": "Slim",
+          "skin_tone": "Light olive"
+        },
+        "appearance": {
+          "height_cm": 160,
+          "build": "slim",
+          "skin": "light olive",
+          "eyes": "dark, heavily lashed, winged liner",
+          "face": "a sharp chin, thick brows, a beauty mark",
+          "hair": "long dark waves with a centre part",
+          "style": "an oversized cream blazer over a black bodysuit, wide black trousers, chunky loafers, a tape measure around her neck",
+          "jewelry": "stacked gold rings, a name necklace in Arabic",
+          "silhouette": "a big blazer, long waves and a tape measure",
+          "key_features": [
+            "Long dark waves",
+            "Winged liner and thick brows",
+            "Oversized cream blazer",
+            "Tape measure around her neck",
+            "Arabic name necklace"
+          ],
+          "stand_in": {
+            "skin": "#d9b08c",
+            "hair": "#1d1512",
+            "hair_style": "long",
+            "top": "#e9e1cf",
+            "bottom": "#161616",
+            "shoes": "#1c1c1c"
+          }
+        },
+        "family_background": "Dearborn, Michigan, youngest of five in a family bakery. Leila Rahal's parents' bakery is two doors down; the mothers are best friends and rivals.",
+        "education": "High school diploma; night classes in pattern-making",
+        "goals": ["A job at Ellis Atelier", "Her own label by twenty-five", "Get her mother to stop calling Leila"],
+        "ambitions": ["A fashion house with a Dearborn address"],
+        "social_preferences": "Groups, music, everyone dressed up.",
+        "secrets": [
+          {
+            "id": "noor_knockoffs",
+            "truth": "She sells her own copies of Ellis Atelier pieces online under another name.",
+            "known_by": []
+          }
+        ],
+        "schedule": {
+          "weekdays": [{"time": "13:00", "activity": "Thread & Co.", "work": true}, {"time": "21:00", "activity": "Home"}],
+          "saturday": [{"time": "12:00", "activity": "Thread & Co.", "work": true}, {"time": "20:00", "activity": "Home"}]
+        },
+        "starting_inventory": ["phone", "tape measure", "sketchbook", "gold rings", "store lanyard"],
+        "social_media": {
+          "handle": "@noor.cuts",
+          "followers": 6200,
+          "bio": "Dearborn → Livéra. Thread & Co. Styling DMs open."
+        },
+        "reputation": {"professional": 46, "social": 62, "public": 22},
+        "life_history": [
+          "Sewed her first dress from a bakery flour sack.",
+          "Dropped out of community college to move west.",
+          "Sales associate at Thread & Co.; redoes the windows on her own time."
+        ],
+        "archetype": "The Hustler"
+      },
+      "sex": "female"
+    }
+  ]
+}

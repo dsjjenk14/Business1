@@ -573,11 +573,11 @@ TEST_CASE("characters: the pick list names each character's home and workplace")
   REQUIRE(w.moveOut("dominique"));
   CHECK(entry("dominique")["home"].is_null());
   // A made character's card has the same fields.
-  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
-  auto sol = w.createCharacter(Json::parse(in));
-  REQUIRE(sol);
-  const Json card = w.characterCard(sol.value());
-  CHECK(card["name"] == "Sol Rivera");
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/nico_vale.json");
+  auto nico = w.createCharacter(Json::parse(in));
+  REQUIRE(nico);
+  const Json card = w.characterCard(nico.value());
+  CHECK(card["name"] == "Nico Vale");
   CHECK(card["home"].is_string());
   CHECK(card["workplace"].is_string());
   CHECK(w.characterCard("nobody").is_null());
@@ -966,14 +966,14 @@ TEST_CASE("away: only time actually spent away, never without a job, from a brok
 
 TEST_CASE("away: someone made in the creator works the default block on weekdays") {
   World w = World::createNew(realContent());
-  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
-  auto sol = w.createCharacter(Json::parse(in));
-  REQUIRE(sol);
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/nico_vale.json");
+  auto nico = w.createCharacter(Json::parse(in));
+  REQUIRE(nico);
   // A barista with no schedule: 09:00-17:00 on weekdays (data), at the café's $21 an hour, paid as it ends.
   atHour(w, 16);
-  CHECK(awayPay(w, sol.value()).empty());
+  CHECK(awayPay(w, nico.value()).empty());
   atHour(w, 17);
-  const auto paid = awayPay(w, sol.value());
+  const auto paid = awayPay(w, nico.value());
   REQUIRE(paid.size() == 1);
   CHECK(paid[0].from == "org:heritage_coffee");
   CHECK(paid[0].amountCents == std::llround(8 * 2100 * 0.8));

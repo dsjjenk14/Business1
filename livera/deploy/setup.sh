@@ -279,7 +279,7 @@ say "Writing settings in $CONF"
 {
   echo "# Written by setup.sh. LIVERA_MAX_SCRIPTED caps the town director's characters."
   echo "LIVERA_MAX_PLAYERS=$MAX_PLAYERS"
-  echo "LIVERA_MAX_SCRIPTED=16"
+  echo "LIVERA_MAX_SCRIPTED=32"
 } >$CONF/server.env.new
 echo "ALLOWED_ORIGINS=$ORIGIN" >$CONF/gateway.env.new
 # The server and gateway read these only when they start, so a changed setting (--max-players,
