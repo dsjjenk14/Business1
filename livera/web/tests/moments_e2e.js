@@ -277,9 +277,11 @@ async function later(p) { const b = await p.page.$(".mo-card.mo-life:not(.mo-don
       // The first beat the attacker answers: the tell is over Dominique's head, the buttons live until the ring closes.
       await F.page.waitForSelector(".bb .bb-btn:not([disabled])", { timeout: 15000 });
       const tell = await F.page.textContent(".bb .bb-tell");
+      // Answer while the ring is still open (a beat is about a second), then take the pictures.
+      const answered = await F.page.click('.bb .bb-btn[data-answer="duck"]', { timeout: 1500 }).then(() => true, () => false);
       assert(/HOOK|JAB|SHOVE|OPEN/.test(tell), "no tell over the one throwing: " + tell);
       if (!day) { await shot(F, "fight_03_brawl_tell_phone.png"); await shot(H, "fight_04_brawl_desktop.png"); }
-      await F.page.click('.bb .bb-btn[data-answer="duck"]');
+      if (!day) assert(answered, "the answer buttons closed before a tap could land");
       // The rest go unanswered: every throw of whoever started it lands (assault); it ends in a knockout or on points.
       await H.page.waitForSelector('.mo-card[data-moment="fight-result"]', { timeout: 60000 });
       await F.page.waitForSelector('.mo-card[data-moment="fight-result"]', { timeout: 15000 });
