@@ -109,7 +109,7 @@ TEST_CASE("interiors: every room in data is a place you go inside, with its spot
     }
   }
   CHECK(db->interiorFor("heritage_coffee"));
-  CHECK(!db->interiorFor("lexington_1204"));  // a place with no room keeps the scene card
+  CHECK(!db->interiorFor("maple_court_3b"));  // a place with no room keeps the scene card
 }
 
 TEST_CASE("interiors: content that breaks a room's rules is refused at load") {
@@ -170,7 +170,7 @@ TEST_CASE("interiors: coming in puts you at the entrance, and look shows the roo
 
 TEST_CASE("interiors: move_inside walks you to a point of the floor; furniture, walls and outdoors are refused") {
   World w = twoOnline();
-  CHECK(code(w.moveInside("dominique", {600, 700})) == "no_room");   // she starts at home, which has no room
+  CHECK(code(w.moveInside("dax", {600, 700})) == "no_room");   // he starts at home, which has no room yet
   (void)w.exitBuilding("dominique");
   CHECK(code(w.moveInside("dominique", {600, 700})) == "not_inside");
   walkInto(w, "dominique", "heritage_coffee");
@@ -188,8 +188,8 @@ TEST_CASE("interiors: move_inside walks you to a point of the floor; furniture, 
   CHECK(code(w.moveInside("dominique", {std::nan(""), 700})) == "off_floor");
   CHECK(w.roomPlaceOf("dominique")->at == open);  // refusals change nothing
   World h = twoOnline();
-  CHECK(code(h.sit("dominique", "sofa_left")) == "no_room");
-  CHECK(code(h.stand("dominique")) == "no_room");
+  CHECK(code(h.sit("dax", "sofa_left")) == "no_room");
+  CHECK(code(h.stand("dax")) == "no_room");
   (void)h.exitBuilding("dominique");
   CHECK(code(h.sit("dominique", "sofa_left")) == "not_inside");
   CHECK(code(h.stand("dominique")) == "not_inside");
@@ -302,6 +302,20 @@ TEST_CASE("interiors: an activity is done at its spot: chatting with the regular
   const RoomPlace before = *w.roomPlaceOf("dominique");
   CHECK(code(w.useActivity("dominique", "restroom")) == "too_soon");
   CHECK(*w.roomPlaceOf("dominique") == before);
+}
+
+TEST_CASE("interiors: going to bed at home puts you in a free bed") {
+  World w = World::createNew(realContent());
+  REQUIRE(w.connect("dominique"));
+  w.advanceMinutes(14 * 60);  // 21:00, bedtime
+  walkInto(w, "dominique", "lexington_1204");
+  REQUIRE(w.sleep("dominique"));
+  const InteriorDef* room = w.content().interiorFor("lexington_1204");
+  REQUIRE(room);
+  const auto at = w.roomPlaceOf("dominique");
+  REQUIRE(at);
+  REQUIRE(room->spot(at->spot));
+  CHECK(room->spot(at->spot)->kind == "bed");
 }
 
 TEST_CASE("interiors: performing puts you on the stage") {

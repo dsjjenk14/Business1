@@ -271,12 +271,23 @@ async function later(p) { const b = await p.page.$(".mo-card.mo-life:not(.mo-don
       await later(H);
       if (!day) await shot(H, "fight_02_defender_desktop.png");
       await H.page.click('.mo-card[data-moment="fight"] [data-fight="fight_back"]');
-      await H.page.waitForSelector('.mo-card[data-moment="fight-result"]', { timeout: 15000 });
+      // Beat Brawl (D-077): both get the fight screen; the World throws for each in turn and judges every beat.
+      await H.page.waitForSelector(".bb", { timeout: 15000 });
+      await F.page.waitForSelector(".bb", { timeout: 15000 });
+      // The first beat the attacker answers: the tell is over Dominique's head, the buttons live until the ring closes.
+      await F.page.waitForSelector(".bb .bb-btn:not([disabled])", { timeout: 15000 });
+      const tell = await F.page.textContent(".bb .bb-tell");
+      assert(/HOOK|JAB|SHOVE|OPEN/.test(tell), "no tell over the one throwing: " + tell);
+      if (!day) { await shot(F, "fight_03_brawl_tell_phone.png"); await shot(H, "fight_04_brawl_desktop.png"); }
+      await F.page.click('.bb .bb-btn[data-answer="duck"]');
+      // The rest go unanswered: every throw of whoever started it lands (assault); it ends in a knockout or on points.
+      await H.page.waitForSelector('.mo-card[data-moment="fight-result"]', { timeout: 60000 });
       await F.page.waitForSelector('.mo-card[data-moment="fight-result"]', { timeout: 15000 });
+      assert(!(await F.page.$(".bb")) && !(await H.page.$(".bb")), "the fight screen stayed up after the result");
       const mine = await F.page.textContent('.mo-card[data-moment="fight-result"]'), theirs = await H.page.textContent('.mo-card[data-moment="fight-result"]');
       assert(/You won|You lost/.test(mine) && /You won|You lost/.test(theirs), `result cards: "${mine}" / "${theirs}"`);
       assert(/self-defence/.test(theirs), "the person attacked isn't told self-defence is no crime: " + theirs);
-      if (!day) { await shot(F, "fight_03_result_phone.png"); await shot(H, "fight_04_result_desktop.png"); }
+      if (!day) { await shot(F, "fight_05_result_phone.png"); await shot(H, "fight_06_result_desktop.png"); }
       console.log(`  day ${day}: attacker: ${mine}\n         defender: ${theirs}`);
       await F.page.click('.mo-card[data-moment="fight-result"] .btn.primary');
       await H.page.click('.mo-card[data-moment="fight-result"] .btn.primary');

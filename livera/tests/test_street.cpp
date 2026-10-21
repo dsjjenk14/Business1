@@ -63,6 +63,52 @@ void fair(Json& f) {
   f["winner"]["injury_chance"] = 0.0;
 }
 
+// A brawl run on real time until it's over (D-077). `answer` picks, for a beat someone is told to answer, the answer and
+// how many seconds into the window to give it ("" lets the beat go unanswered).
+struct Brawled {
+  Json attacker, defender;
+  std::vector<WorldEvent> events;
+  std::vector<Json> hits() const {
+    std::vector<Json> out;
+    for (const auto& e : events) {
+      if (e.type == "brawl_hit") out.push_back(e.data);
+    }
+    return out;
+  }
+};
+using Answerer = std::function<std::pair<std::string, double>(const CharacterId& who, const Json& beat)>;
+
+Brawled runBrawl(World& w, const Answerer& answer = {}, double maxSeconds = 60) {
+  Brawled out;
+  struct Due {
+    CharacterId who;
+    std::string fight, answer;
+    double at;
+  };
+  std::vector<Due> due;
+  constexpr double kStep = 0.05;
+  for (double t = 0; t < maxSeconds && !w.state().brawls.empty(); t += kStep) {
+    for (auto it = due.begin(); it != due.end();) {
+      if (it->at > t) {
+        ++it;
+        continue;
+      }
+      (void)w.fightBeat(it->who, it->fight, it->answer);
+      it = due.erase(it);
+    }
+    w.advanceRealTime(kStep);
+    for (auto& e : w.drainEvents()) {
+      if (e.type == "brawl_beat" && answer && e.data["you"] == "answer") {
+        const auto [a, delay] = answer(e.recipients.front(), e.data);
+        if (!a.empty()) due.push_back(Due{e.recipients.front(), e.data["fight"], a, t + delay});
+      }
+      if (e.type == "fight_result") (e.data["role"] == "attacker" ? out.attacker : out.defender) = e.data;
+      out.events.push_back(std::move(e));
+    }
+  }
+  return out;
+}
+
 std::string startedFight(World& w, const CharacterId& a, const CharacterId& d) {
   auto r = w.startFight(a, d);
   if (!r) throw std::runtime_error("fight refused: " + r.error().code);
@@ -324,19 +370,31 @@ TEST_CASE("fights: fighting back: the stronger wins; the loser's injury follows 
   w.advanceMinutes(1);  // the fight's first minute: nobody's needs move enough to matter
   auto r = w.respondToFight("dax", id, "fight_back");
   REQUIRE(r);
-  CHECK(r.value()["outcome"] == "defender_won");
-  CHECK(r.value()["won"] == true);
-  // A 35-point margin (athletics 100 x 0.35): the worst injury the data lists.
-  CHECK(w.hasCondition("dominique", "cracked_rib"));
+  CHECK(r.value()["status"] == "brawl");  // two people: fought beat by beat (D-077)
+  // Neither answers a beat: every blow lands, and his land far harder (athletics 100 x 0.35 in his score).
+  const Brawled out = runBrawl(w);
+  REQUIRE(out.defender.is_object());
+  CHECK(out.defender["won"] == true);
+  CHECK((out.defender["outcome"] == "knockout" || out.defender["outcome"] == "on_points"));
+  // The loser's injury is the last whose margin the composure between them (x margin_per_composure) reaches.
+  const auto& F = w.content().fights();
+  const double margin = (out.defender["brawl"]["composure"].get<double>() - out.defender["brawl"]["their_composure"].get<double>()) *
+                        F.brawl.marginPerComposure;
+  std::string expected;
+  for (const auto& i : F.injuries) {
+    if (margin >= i.margin) expected = i.condition;
+  }
+  REQUIRE(!expected.empty());
+  CHECK(w.hasCondition("dominique", expected));
   CHECK(!injured(w, "dax"));
   CHECK(w.character("dominique")->needs.at("energy") < energy);
   CHECK(w.character("dax")->record.empty());  // self-defence is never a crime
-  const ConditionState* rib = nullptr;
+  const ConditionState* hurt = nullptr;
   for (const auto& k : w.character("dominique")->conditions) {
-    if (k.id == "cracked_rib") rib = &k;
+    if (k.id == expected) hurt = &k;
   }
-  REQUIRE(rib);
-  CHECK(rib->diagnosed);
+  REQUIRE(hurt);
+  CHECK(hurt->diagnosed);
   // Both remember; he trusts her less.
   bool remembers = false;
   for (const Memory* m : w.memoriesOf("dax")) remembers |= m->type == "fight" && m->about == "dominique";
@@ -345,7 +403,7 @@ TEST_CASE("fights: fighting back: the stronger wins; the loser's injury follows 
   // The clinic treats it.
   walkInto(w, "dominique", "riverdale_clinic");
   REQUIRE(w.buy("dominique", "treatment", "card"));
-  CHECK(!w.hasCondition("dominique", "cracked_rib"));
+  CHECK(!w.hasCondition("dominique", expected));
 }
 
 TEST_CASE("fights: running: a clean break gets distance and nothing lands; a failed one is caught") {
@@ -392,10 +450,11 @@ TEST_CASE("fights: whoever starts it commits assault when a blow lands: caught i
       walkInto(w, "dominique", "heritage_coffee");
       walkInto(w, "dax", "heritage_coffee");
       const std::string id = startedFight(w, "dominique", "dax");
-      auto r = w.respondToFight("dax", id, "fight_back");
-      REQUIRE(r);
+      REQUIRE(w.respondToFight("dax", id, "fight_back"));
+      const Brawled out = runBrawl(w);  // she throws first and nobody answers: her blow lands
+      REQUIRE(out.defender.is_object());
       CHECK(w.character("dax")->record.empty());  // fighting back is self-defence
-      if (!r.value().contains("crime") || !r.value()["crime"].value("arrested", false)) continue;
+      if (!out.defender.contains("crime") || !out.defender["crime"].value("arrested", false)) continue;
       ++arrested;
       CHECK(w.inJail("dominique"));
       REQUIRE(w.character("dominique")->record.size() == 1);
@@ -476,7 +535,10 @@ TEST_CASE("fights: a founder a script plays answers at once, by its trait: fight
   w.setScripted("dax", true, "autopilot");
   auto fought = w.startFight("andre", "dominique");
   REQUIRE(fought);
-  CHECK((fought.value()["outcome"] == "attacker_won" || fought.value()["outcome"] == "defender_won"));
+  CHECK(fought.value()["status"] == "brawl");  // she fights back, beat by beat: Andre is a person (D-077)
+  const Brawled out = runBrawl(w);
+  REQUIRE(out.attacker.is_object());
+  CHECK((out.attacker["outcome"] == "knockout" || out.attacker["outcome"] == "on_points"));
   WorldState st = w.state();
   st.characters.at("andre").street.nextFightAt = -1;  // past the cooldown
   World x(w.contentPtr(), st);
@@ -501,4 +563,241 @@ TEST_CASE("fights: once a pair a game day, whoever starts it") {
   CHECK(w.startFight("dax", "dominique").error().code == "too_soon");
   w.advanceMinutes(kMinutesPerDay);
   REQUIRE(w.startFight("dax", "dominique"));
+}
+
+// ---- Beat Brawl (D-077) --------------------------------------------------------------------------
+namespace {
+
+// Every throw is `move`, tells never lie: the table, beat by beat.
+std::shared_ptr<const ContentDatabase> onlyMove(const std::string& move) {
+  return streetContent([](Json& c) { setCrime(c, "assault", 0.0); },
+                       [&](Json& f) {
+                         fair(f);
+                         f["report_chance"] = 0.0;
+                         f["witness_report_chance"] = 0.0;
+                         for (const char* m : {"hook", "jab", "shove"}) {
+                           f["brawl"]["moves"][m] = Json{{"base", m == move ? 1.0 : 0.0}};
+                         }
+                         f["brawl"]["feint_chance"] = 0.0;
+                         f["brawl"]["known_feint_chance"] = 0.0;
+                       });
+}
+
+// Andre (a person) starts it with Dominique, a founder the script plays who fights back: she throws every beat.
+World brawlingWithDominique(std::shared_ptr<const ContentDatabase> db) {
+  World w = streetWorld(std::move(db), {"dominique", "andre"});
+  walkInto(w, "dominique", "heritage_coffee");
+  walkInto(w, "andre", "heritage_coffee");
+  w.setScripted("dominique", true, "autopilot");
+  auto r = w.startFight("andre", "dominique");
+  REQUIRE(r);
+  REQUIRE(r.value()["status"] == "brawl");
+  (void)w.drainEvents();
+  return w;
+}
+
+// Andre's answers, beat by beat (1-based, across rounds): an answer and whether to wait for perfect timing.
+Answerer script(std::map<int, std::pair<std::string, bool>> plan) {
+  auto n = std::make_shared<int>(0);
+  return [plan, n](const CharacterId&, const Json& beat) -> std::pair<std::string, double> {
+    const auto it = plan.find(++*n);
+    if (it == plan.end()) return {"", 0};
+    const double window = beat["window_seconds"].get<double>();
+    return {it->second.first, it->second.second ? beat["perfect_after_seconds"].get<double>() + (window - beat["perfect_after_seconds"].get<double>()) / 2 : 0.0};
+  };
+}
+
+std::vector<std::string> outcomes(const Brawled& b, std::size_t n) {
+  std::vector<std::string> out;
+  for (const auto& h : b.hits()) {
+    if (out.size() < n) out.push_back(h["outcome"]);
+  }
+  return out;
+}
+
+}  // namespace
+
+TEST_CASE("beat brawl: fighting back with a person in it is fought beat by beat; every refusal") {
+  World w = streetWorld(streetContent([](Json& c) { setCrime(c, "assault", 0.0); }, [](Json& f) { f["report_chance"] = 0.0; }));
+  walkInto(w, "dominique", "heritage_coffee");
+  walkInto(w, "dax", "heritage_coffee");
+  const std::string id = startedFight(w, "dominique", "dax");
+  (void)w.drainEvents();
+  auto r = w.respondToFight("dax", id, "fight_back");
+  REQUIRE(r);
+  CHECK(r.value()["status"] == "brawl");
+  CHECK(r.value()["role"] == "defender");
+  CHECK(r.value()["rounds"].size() == w.content().fights().brawl.rounds.size());
+  CHECK(r.value()["composure"] == w.content().fights().brawl.composure);
+  const auto evs = w.drainEvents();
+  const auto told = eventsOf(evs, "dominique", "brawl");
+  REQUIRE(told.size() == 1);
+  CHECK(told[0]["role"] == "attacker");
+  CHECK(eventsOf(evs, "dax", "fight").back()["stage"] == "brawl");  // the room sees it start
+  CHECK(w.inBrawl("dominique"));
+  CHECK(w.inBrawl("dax"));
+  // Refusals: before the first tell, a fight that isn't theirs, an answer that isn't one, and nothing else meanwhile.
+  CHECK(w.fightBeat("dax", id, "duck").error().code == "no_tell_yet");
+  CHECK(w.fightBeat("dax", "fight-0", "duck").error().code == "unknown_fight");
+  CHECK(w.fightBeat("dax", id, "kick").error().code == "bad_answer");
+  CHECK(w.exitBuilding("dax").error().code == "in_fight");
+  CHECK(w.startFight("dominique", "dax").error().code == "in_fight");
+  // The first beat: whoever started it throws first; the tell shows a quarter into the beat (they don't know her).
+  Json beat;
+  for (int i = 0; i < 100 && beat.is_null(); ++i) {
+    w.advanceRealTime(0.05);
+    for (const auto& e : eventsOf(w.drainEvents(), "dax", "brawl_beat")) beat = e;
+  }
+  REQUIRE(beat.is_object());
+  CHECK(beat["striker"] == "dominique");
+  CHECK(beat["you"] == "answer");
+  CHECK((beat["tell"] == "hook" || beat["tell"] == "jab" || beat["tell"] == "shove"));
+  const auto& first = w.content().fights().brawl.rounds.front();
+  CHECK_NEAR(beat["window_seconds"].get<double>(), first.seconds * (1 - w.content().fights().brawl.tellAt), 0.011);
+  CHECK(w.fightBeat("dominique", id, "duck").error().code == "not_your_beat");
+  REQUIRE(w.fightBeat("dax", id, "block"));
+  CHECK(w.fightBeat("dax", id, "jab").error().code == "already_answered");
+  // The rest go unanswered; between two people the throws alternate.
+  const Brawled out = runBrawl(w);
+  REQUIRE(out.attacker.is_object());
+  REQUIRE(out.defender.is_object());
+  const auto hits = out.hits();
+  REQUIRE(hits.size() >= 2);
+  CHECK(hits[0]["striker"] == "dominique");
+  CHECK(hits[0]["answer"] == "block");
+  CHECK(hits[1]["striker"] == "dax");
+  CHECK(w.state().brawls.empty());
+  CHECK(!w.inBrawl("dax"));
+  CHECK(w.fightBeat("dax", id, "duck").error().code == "unknown_fight");
+}
+
+TEST_CASE("beat brawl: each answer meets each throw as the table says, and perfect timing counts") {
+  {
+    // Hooks: duck slips it (she's open: jab counters), block takes a chip, jab trades, nothing takes it all.
+    World w = brawlingWithDominique(onlyMove("hook"));
+    const Brawled b = runBrawl(w, script({{1, {"duck", false}}, {2, {"jab", false}}, {3, {"block", false}}, {4, {"jab", false}}}));
+    CHECK((outcomes(b, 5) == std::vector<std::string>{"slip", "counter", "chip", "trade", "hit"}));
+    const auto hits = b.hits();
+    CHECK(hits[0]["open"] == "dominique");
+    CHECK(hits[1]["striker"] == "dominique");
+    CHECK(hits[1]["move"] == "open");
+    CHECK(hits[1]["hits"][0]["to"] == "dominique");
+    CHECK(hits[2]["hits"][0]["to"] == "andre");
+    CHECK(hits[3]["hits"].size() == 2);  // both land
+    for (const auto& h : hits) CHECK((h["striker"] == "dominique"));  // a founder a script plays throws every beat
+  }
+  {
+    // Jabs: a duck in time slips it, too early it lands; a perfect block parries, an early one just blocks; jab clashes.
+    World w = brawlingWithDominique(onlyMove("jab"));
+    const Brawled b = runBrawl(w, script({{1, {"duck", false}}, {2, {"duck", true}}, {4, {"block", false}}, {5, {"block", true}},
+                                          {7, {"jab", false}}}));
+    CHECK((outcomes(b, 7) == std::vector<std::string>{"hit", "slip", "missed", "blocked", "parry", "missed", "clash"}));
+    const auto hits = b.hits();
+    CHECK(hits[0]["perfect"] == false);
+    CHECK(hits[1]["perfect"] == true);
+  }
+  {
+    // Shoves: duck and you're grabbed, block and you're pushed, jab stuffs it (harder in time).
+    World w = brawlingWithDominique(onlyMove("shove"));
+    const Brawled b = runBrawl(w, script({{1, {"duck", false}}, {2, {"block", false}}, {3, {"jab", false}}, {4, {"jab", true}}}));
+    CHECK((outcomes(b, 4) == std::vector<std::string>{"grabbed", "pushed", "stuffed", "stuffed"}));
+    const auto hits = b.hits();
+    CHECK(hits[2]["hits"][0]["to"] == "dominique");
+    CHECK(hits[3]["hits"][0]["damage"].get<double>() > hits[2]["hits"][0]["damage"].get<double>());  // perfect: x1.5
+  }
+}
+
+TEST_CASE("beat brawl: knowing how someone fights shows their tell at once") {
+  auto db = streetContent([](Json& c) { setCrime(c, "assault", 0.0); },
+                          [](Json& f) {
+                            f["report_chance"] = 0.0;
+                            f["attacker_cooldown_minutes"] = 0;
+                            f["protected_minutes"] = 0;
+                          });
+  World w = brawlingWithDominique(db);
+  const auto& B = w.content().fights().brawl;
+  CHECK(!w.knowsHowTheyFight("andre", "dominique"));
+  Json first;
+  const Brawled b = runBrawl(w, [&](const CharacterId&, const Json& beat) -> std::pair<std::string, double> {
+    if (first.is_null()) first = beat;
+    return {"", 0};
+  });
+  REQUIRE(first.is_object());
+  CHECK_NEAR(first["window_seconds"].get<double>(), B.rounds.front().seconds * (1 - B.tellAt), 0.011);
+  // Having fought her, he knows: her tell is there from the start of the beat.
+  CHECK(w.knowsHowTheyFight("andre", "dominique"));
+  w.advanceMinutes(kMinutesPerDay);
+  w.setScripted("dominique", true, "autopilot");
+  REQUIRE(w.startFight("andre", "dominique"));
+  Json again;
+  (void)runBrawl(w, [&](const CharacterId&, const Json& beat) -> std::pair<std::string, double> {
+    if (again.is_null()) again = beat;
+    return {"walk_away", 0};
+  });
+  REQUIRE(again.is_object());
+  CHECK_NEAR(again["window_seconds"].get<double>(), B.rounds.front().seconds, 0.011);
+}
+
+TEST_CASE("beat brawl: either can walk away at any beat; nothing landed means no crime") {
+  {
+    World w = streetWorld(streetContent([](Json& c) { setCrime(c, "assault", 1.0); }));
+    walkInto(w, "dominique", "heritage_coffee");
+    walkInto(w, "dax", "heritage_coffee");
+    const std::string id = startedFight(w, "dominique", "dax");
+    REQUIRE(w.respondToFight("dax", id, "fight_back"));
+    (void)w.drainEvents();
+    auto r = w.fightBeat("dax", id, "walk_away");  // before a single beat
+    REQUIRE(r);
+    CHECK(r.value()["outcome"] == "walked_away");
+    CHECK(!r.value().contains("won"));
+    CHECK(eventsOf(w.drainEvents(), "dominique", "fight_result").size() == 1);
+    CHECK(!w.inJail("dominique"));  // no blow, no assault
+    CHECK(w.character("dominique")->wantedFor.empty());
+    CHECK(!w.inBrawl("dax"));
+    REQUIRE(w.exitBuilding("dax"));
+  }
+  {
+    // After blows have landed, walking away gives it to the other.
+    World w = brawlingWithDominique(onlyMove("hook"));
+    for (int i = 0; i < 200 && w.state().brawls.front().count < 2; ++i) w.advanceRealTime(0.05);
+    auto r = w.fightBeat("andre", w.state().brawls.front().id, "walk_away");
+    REQUIRE(r);
+    CHECK(r.value()["outcome"] == "walked_off");
+    CHECK(r.value()["won"] == false);
+    CHECK(injured(w, "andre"));  // her hooks landed
+  }
+}
+
+TEST_CASE("beat brawl: a brawl ends if a fighter leaves, and a dev skip can't leave one hanging") {
+  World w = brawlingWithDominique(onlyMove("jab"));
+  w.disconnect("dominique");
+  w.advanceRealTime(0.1);
+  const auto told = eventsOf(w.drainEvents(), "andre", "fight_result");
+  REQUIRE(told.size() == 1);
+  CHECK((told[0]["outcome"] == "no_contact" || told[0]["outcome"] == "broke_off"));
+  CHECK(w.state().brawls.empty());
+  World x = brawlingWithDominique(onlyMove("jab"));
+  x.advanceMinutes(x.content().fights().brawl.maxGameMinutes + 1);
+  CHECK(x.state().brawls.empty());
+  CHECK(eventsOf(x.drainEvents(), "andre", "fight_result").size() == 1);
+}
+
+TEST_CASE("beat brawl: content that breaks its rules is refused at load") {
+  auto refused = [](const std::function<void(Json&)>& patch) {
+    try {
+      (void)streetContent({}, [&](Json& f) { patch(f["brawl"]); });
+      return std::string("(loaded)");
+    } catch (const std::exception& e) {
+      return std::string(e.what());
+    }
+  };
+  CHECK(refused([](Json&) {}) == "(loaded)");
+  CHECK(contains(refused([](Json& b) { b["rounds"] = Json::array(); }), "at least one round"));
+  CHECK(contains(refused([](Json& b) { b["rounds"][0]["seconds"] = 0.1; }), "0.4 to 5 s"));
+  CHECK(contains(refused([](Json& b) { b["damage"].erase("counter"); }), "damage needs counter"));
+  CHECK(contains(refused([](Json& b) { b["damage"]["kick"] = 5; }), "unknown blow"));
+  CHECK(contains(refused([](Json& b) { b["moves"]["hook"]["traits"]["rage"] = 1; }), "rage"));
+  CHECK(contains(refused([](Json& b) { b["moves"]["kick"] = Json{{"base", 1}}; }), "hook, jab and shove"));
+  CHECK(contains(refused([](Json& b) { b["feint_chance"] = 2; }), "0 to 1"));
+  CHECK(contains(refused([](Json& b) { b["edge_min"] = 2; }), "edge_min"));
 }

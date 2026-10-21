@@ -1256,7 +1256,17 @@ TEST_CASE("server: street life: crime_risk, the wanted line in look, a fight ask
   CHECK(asked["from"] == "dominique");
   CHECK(dom.refusal({{"op", "fight_respond"}, {"fight", asked["fight"]}, {"choice", "run"}}) == "unknown_fight");
   CHECK(dax.refusal({{"op", "fight_respond"}, {"fight", asked["fight"]}, {"choice", "dance"}}) == "bad_choice");
-  const Json mine = dax.ok({{"op", "fight_respond"}, {"fight", asked["fight"]}, {"choice", "fight_back"}});
+  // Fighting back is Beat Brawl (D-077): both are told, beats come as events, and either can walk away.
+  const Json brawl = dax.ok({{"op", "fight_respond"}, {"fight", asked["fight"]}, {"choice", "fight_back"}});
+  CHECK(brawl["status"] == "brawl");
+  CHECK(brawl["role"] == "defender");
+  CHECK(dax.refusal({{"op", "fight_beat"}, {"fight", asked["fight"]}, {"answer", "kick"}}) == "bad_answer");
+  CHECK(dom.refusal({{"op", "fight_beat"}, {"fight", "fight-0"}, {"answer", "duck"}}) == "unknown_fight");
+  dom.pump(0.2);
+  bool squaredUp = false;
+  for (const auto& e : dom.events) squaredUp |= e.value("event", "") == "brawl" && e["data"]["role"] == "attacker";
+  CHECK(squaredUp);
+  const Json mine = dax.ok({{"op", "fight_beat"}, {"fight", asked["fight"]}, {"answer", "walk_away"}});
   CHECK(mine["role"] == "defender");
   CHECK(mine["text"].is_string());
   dom.pump(0.2);

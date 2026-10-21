@@ -82,6 +82,7 @@ Event (server push): `{"event": "message", "data": {"from": "dax", "body": "..."
 | `crime_risk` | playing | `crime` (`shoplifting`, `pickpocketing`, `drug_purchase`, `fare_evasion`, `assault`), `target` (pickpocketing, assault); read-only (D-069) |
 | `fight` | playing, with them | `target` (D-070) |
 | `fight_respond` | playing, attacked | `fight` (id), `choice` (`fight_back`, `run`, `take_it`) |
+| `fight_beat` | playing, in a brawl | `fight` (id), `answer` (`duck`, `block`, `jab`, or `walk_away` at any beat) (D-077) |
 | `fight_prefs` | playing | `walk_away` (true / false) |
 | `event_answer` | playing | `event`, `option` (the choice's number in `life_event`) (D-068) |
 | `request` | playing | `kind` (date, kiss, propose, marry, intimacy), `target`, `protection` |
@@ -209,8 +210,23 @@ The person attacked gets `fight_started {fight, from, name, expires_in_minutes, 
 `fight_result`: `{fight, role, with, name, outcome (attacker_won, defender_won, ran, caught, took_it, froze,
 walked_away, got_away), won?, text, changes: {needs, emotions, injuries}, crime?}` (`crime`: the arrest, `{wanted,
 crime}`, `{reported, text}` or `{self_defence: true}`). Everyone present gets `fight {fight, attacker, defender, stage:
-"started" | "over", outcome?, winner?, position, inside}` to show it. `fight_prefs {walk_away}` replies
+"started" | "brawl" | "over", outcome?, winner?, position, inside}` to show it. `fight_prefs {walk_away}` replies
 `{walk_away_from_fights}`.
+
+**Beat Brawl (D-077).** Fighting back with a person in the fight (and `fights.brawl` in the data) is fought beat by
+beat: `fight_respond fight_back` (or `fight`, when a founder a script plays fights back at once) replies `{fight,
+status: "brawl", stage: "start", role, with, name, rounds: [{beats, seconds}], composure, edge, knows_them,
+starts_in_seconds, note}` and the other fighter gets the same as the event `brawl`. Each beat, when its tell shows,
+the one answering gets `brawl_beat {fight, round, rounds, beat, beats, striker, you: "answer", tell (hook, jab, shove,
+open), window_seconds, perfect_after_seconds}` and the one throwing gets `{…, you: "throw", move, window_seconds}`.
+`fight_beat` answers it (refusals: `unknown_fight`, `bad_answer`, `not_your_beat`, `no_tell_yet`,
+`already_answered`); the World stamps when it came in. When the beat ends both get `brawl_hit {fight, round, beat,
+striker, move, tell, answer, perfect, outcome (slip, counter, chip, trade, hit, blocked, parry, clash, grabbed, pushed,
+stuffed, wasted, missed), hits: [{to, from, damage}], composure: {id: left}, open?}`. It ends in a knockout, on points
+after the last round, when one walks away (`fight_beat walk_away` replies with their `fight_result`) or when a fighter
+leaves; both get `fight_result` with `outcome` `knockout`, `on_points`, `walked_off`, `broke_off` (or `walked_away` /
+`no_contact` when nothing landed) and `brawl {composure, their_composure, landed, took}`. While it lasts, anything else
+a fighter tries is refused `in_fight`.
 
 Any later engine client maps its calls to the same `World` commands (ARCHITECTURE.md), so
 this table stays the list of what a client can ask for.

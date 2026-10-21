@@ -1,0 +1,191 @@
+{
+  "interior": {
+    "id": "lexington_0807_1502",
+    "places": ["lexington_0807", "lexington_1502"],
+    "size": [1084, 724],
+    "person_px": 115,
+    "floor": [
+      [
+        [82, 381],
+        [305, 295],
+        [313, 262],
+        [310, 257],
+        [360, 237],
+        [375, 222],
+        [427, 252],
+        [467, 268],
+        [473, 290],
+        [537, 320],
+        [540, 337],
+        [577, 340],
+        [577, 252],
+        [660, 220],
+        [665, 186],
+        [1037, 346],
+        [1037, 410],
+        [880, 497],
+        [878, 442],
+        [850, 438],
+        [642, 327],
+        [605, 305],
+        [605, 368],
+        [643, 382],
+        [843, 500],
+        [845, 506],
+        [502, 676],
+        [500, 588],
+        [453, 570],
+        [428, 585],
+        [322, 528],
+        [325, 505],
+        [300, 500],
+        [293, 603],
+        [220, 563],
+        [215, 440],
+        [178, 424],
+        [150, 418]
+      ]
+    ],
+    "blocked": [
+      {
+        "label": "kitchen counter",
+        "poly": [[82, 381], [98, 395], [167, 385], [250, 345], [303, 320], [305, 295]],
+        "height": 65
+      },
+      {"label": "fridge", "poly": [[82, 381], [98, 395], [167, 385], [150, 366]], "height": 150},
+      {"label": "kitchen island", "poly": [[218, 413], [262, 434], [434, 346], [393, 323]], "height": 68},
+      {
+        "label": "bin",
+        "poly": [[247, 433], [243, 438], [233, 440], [223, 438], [219, 433], [223, 428], [233, 426], [243, 428]],
+        "height": 45
+      },
+      {"label": "sofa", "poly": [[343, 488], [531, 404], [574, 433], [386, 517]], "height": 55},
+      {"label": "sofa", "poly": [[343, 488], [395, 465], [497, 533], [447, 560]], "height": 50},
+      {
+        "label": "coffee table",
+        "poly": [[620, 528], [605, 544], [570, 550], [535, 544], [520, 528], [535, 512], [570, 506], [605, 512]],
+        "height": 40
+      },
+      {"label": "armchair", "poly": [[665, 470], [708, 448], [745, 465], [703, 488]], "height": 55},
+      {"label": "TV stand", "poly": [[600, 615], [757, 553], [745, 546], [588, 608]], "height": 40},
+      {"label": "TV", "poly": [[628, 604], [730, 563], [718, 556], [616, 597]], "height": 130},
+      {
+        "label": "plant",
+        "poly": [[772, 530], [768, 536], [757, 538], [746, 536], [742, 530], [746, 524], [757, 522], [768, 524]],
+        "height": 80
+      },
+      {
+        "label": "plant",
+        "poly": [[533, 667], [528, 673], [517, 675], [506, 673], [501, 667], [506, 661], [517, 659], [528, 661]],
+        "height": 90
+      },
+      {"label": "bed", "poly": [[733, 348], [838, 285], [948, 352], [843, 415]], "height": 45},
+      {"label": "bench", "poly": [[720, 362], [752, 348], [822, 388], [790, 405]], "height": 30},
+      {"label": "nightstand", "poly": [[942, 362], [962, 348], [985, 360], [965, 376]], "height": 40},
+      {"label": "nightstand", "poly": [[785, 272], [810, 258], [838, 272], [812, 287]], "height": 40},
+      {
+        "label": "plant",
+        "poly": [[792, 280], [788, 285], [778, 287], [768, 285], [764, 280], [768, 275], [778, 273], [788, 275]],
+        "height": 70
+      },
+      {
+        "label": "plant",
+        "poly": [[1026, 362], [1021, 368], [1010, 370], [999, 368], [994, 362], [999, 356], [1010, 354], [1021, 356]],
+        "height": 80
+      },
+      {
+        "label": "plant",
+        "poly": [
+          [1028, 410],
+          [1023, 416],
+          [1012, 418],
+          [1001, 416],
+          [996, 410],
+          [1001, 404],
+          [1012, 402],
+          [1023, 404]
+        ],
+        "height": 70
+      },
+      {"label": "dressing table", "poly": [[678, 258], [702, 240], [765, 262], [740, 280]], "height": 45}
+    ],
+    "entrance": {"at": [300, 470], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [258, 570], "facing": "w", "label": "Front door"},
+      {
+        "id": "toilet",
+        "kind": "door",
+        "at": [335, 250],
+        "facing": "n",
+        "label": "Toilet",
+        "activity": "toilet"
+      },
+      {"id": "stool_1", "kind": "stool", "at": [308, 420], "facing": "n", "label": "Island stool"},
+      {"id": "stool_2", "kind": "stool", "at": [357, 395], "facing": "n", "label": "Island stool"},
+      {"id": "stool_3", "kind": "stool", "at": [413, 368], "facing": "n", "label": "Island stool"},
+      {
+        "id": "stove",
+        "kind": "fixture",
+        "at": [285, 345],
+        "facing": "n",
+        "label": "Stove",
+        "activity": "cook"
+      },
+      {
+        "id": "trash",
+        "kind": "fixture",
+        "at": [250, 452],
+        "facing": "n",
+        "label": "Trash",
+        "activity": "take_out_trash"
+      },
+      {
+        "id": "shower",
+        "kind": "fixture",
+        "at": [455, 278],
+        "facing": "n",
+        "label": "Shower",
+        "activity": "shower"
+      },
+      {
+        "id": "sink",
+        "kind": "fixture",
+        "at": [390, 245],
+        "facing": "e",
+        "label": "Bathroom sink",
+        "activity": "brush_teeth"
+      },
+      {
+        "id": "vanity",
+        "kind": "seat",
+        "at": [700, 280],
+        "facing": "e",
+        "label": "Vanity stool",
+        "activity": "groom"
+      },
+      {"id": "sofa_1", "kind": "sofa", "at": [463, 539], "facing": "s", "label": "Sofa", "activity": "nap"},
+      {"id": "sofa_2", "kind": "sofa", "at": [397, 492], "facing": "s", "label": "Sofa"},
+      {"id": "sofa_3", "kind": "sofa", "at": [473, 474], "facing": "s", "label": "Sofa"},
+      {
+        "id": "sofa_4",
+        "kind": "sofa",
+        "at": [527, 442],
+        "facing": "s",
+        "label": "Sofa",
+        "activity": "watch_tv"
+      },
+      {"id": "armchair", "kind": "seat", "at": [703, 470], "facing": "w", "label": "Armchair"},
+      {
+        "id": "tidy",
+        "kind": "fixture",
+        "at": [645, 515],
+        "facing": "w",
+        "label": "Tidy up",
+        "activity": "clean_home"
+      },
+      {"id": "bed_1a", "kind": "bed", "at": [823, 327], "facing": "w", "label": "Bed"},
+      {"id": "bed_1b", "kind": "bed", "at": [878, 360], "facing": "w", "label": "Bed"},
+      {"id": "bench", "kind": "seat", "at": [771, 383], "facing": "w", "label": "Bench"}
+    ]
+  }
+}

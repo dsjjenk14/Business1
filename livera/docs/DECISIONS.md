@@ -1023,3 +1023,33 @@ seven) and recommended its frame with six of Ember's ideas; this keeps those six
 **Trade-off:** Beat Brawl replaces Square Up, so the fight becomes a timing game played beat by beat; the World judges
 each beat, which keeps it fair across phones but asks more of the Play together relay than a three-choice exchange.
 The work already in flight (figures, more people, the social app, the clock, rooms) serves both pitches and carries on.
+
+## D-077 — Beat Brawl: fighting back is played beat by beat, judged by the World, sharpened by what you know
+**Decision:** Golden Hour's fight (D-076) replaces the single roll when someone fights back and a person is in the
+fight. The World runs it in real seconds (`data/society/fights.json` `brawl`): a short lead-in, then three rounds of
+7, 8 and 8 beats of 1.3, 1.1 and 0.9 s. Each beat one fighter throws a hook, a jab or a shove; the other is shown the
+tell (`brawl_beat`) a quarter of the way into the beat, or at once if they know how the thrower fights, and answers
+duck, block or jab (`fight_beat`) before the beat ends. The World stamps the answer's time and judges the beat
+(`brawl_hit`): duck slips a hook (the thrower is open next beat: a jab is a counter), block takes a chip, jab trades;
+a jab lands on an early duck and is slipped by a late one, blocked early and parried late (open), clashes with a jab;
+a shove grabs a duck, pushes a block and is stuffed by a jab; no answer takes the blow. Late answers (the last 40% of
+the window) are perfect and your blows land 1.5 times harder. Every blow is scaled by the same score as before
+(athletics, energy, health, injuries), the thrower's over the receiver's, clamped to 0.6–1.6. A founder a script plays
+throws every beat in its traits' style (impulsive and competitive: hooks; patient and confident: jabs; risk-takers:
+shoves); between two people the throws alternate. Tells feint 20% of the time, 5% for someone you know how to read:
+you know how someone fights if your familiarity is 60 or more, or you've fought them or watched them fight (Talk of
+the Town's "knowledge sharpens tells"; the coming knowledge system will add being told). Composure 0 is a knockout;
+otherwise the higher composure after the last round wins. Either fighter can walk away at any beat (they lose if
+anything landed). Then everything D-070 does follows unchanged: the loser's injury from the composure margin × 0.5
+against the same injury margins, assault only if whoever started it landed a blow, witnesses, rumours, memories,
+protection. While it lasts the fighters can do nothing else (`in_fight`). Two founders a script plays, or a world
+without `brawl`, are still scored at once. Session state; a brawl nobody's clock moves ends on points after 180 game
+minutes. The client's fight screen is `web/client/brawl.js`.
+**Why:** The owner chose Golden Hour, whose fight is the reason the panel scored it higher, and asked for the best of
+Talk of the Town with it; knowledge sharpening tells is Ember's best idea and fits Beat Brawl directly. One answer per
+fighter per beat, judged by the World at the beat's end, keeps it fair on a slow phone and in Play together's relay,
+and keeps every outcome on the server.
+**Trade-off:** Between two people, neither chooses what they throw (the World draws it from their style), so each
+person answers every other beat; a later step can let the thrower pick. The game clock keeps running during a brawl
+(about 25 real seconds is 50 game minutes at D-075's rate). Fight sprite sheets (Golden Hour's art prompts) aren't
+drawn yet: the screen uses the figures' fight and flinch poses.

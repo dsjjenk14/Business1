@@ -15,6 +15,7 @@
 
 import { el, replace, money, firstName, titleCase, avatar } from "./dom.js";
 import { icon } from "./icons.js";
+import { BrawlScreen } from "./brawl.js";
 
 (function addStylesheet() {
   if (typeof document === "undefined" || document.querySelector("link[data-moments-css]")) return;
@@ -137,6 +138,7 @@ class Moments {
     this.queue = [];          // more that came up
     this.answered = new Set();
     this.fight = null;        // {fight, from, name, until}
+    this.brawl = null;        // the Beat Brawl screen while a fight is fought (brawl.js)
     this.jail = null;         // {until, at} while held
     this.wanted = null;
     this.walkAway = null;
@@ -207,6 +209,9 @@ class Moments {
       case "fight_started": this.fightStarted(d); return true;
       case "fight_result": this.fightResult(d); return true;
       case "fight": this.scuffle(d); return true;
+      case "brawl": this.brawlStart(d); return true;
+      case "brawl_beat": if (this.brawl) this.brawl.beat(d); return true;
+      case "brawl_hit": if (this.brawl) this.brawl.hit(d); return true;
       case "incident":
         if (d.character === this.world.selfId && d.kind === "arrest") { this.game.lastLook = 0; this.game.refreshLook(); }
         return false;   // the feed still says it
@@ -222,7 +227,11 @@ class Moments {
     this.refreshStory(true);
     this.refreshRecord();
   }
-  reset() { for (const k of [...this.cards.keys()]) this.closeLayer(k); this.offer = null; this.queue = []; this.pill.hidden = true; this.fight = null; this.jail = null; this.wanted = null; this.renderChips(); }
+  reset() {
+    for (const k of [...this.cards.keys()]) this.closeLayer(k);
+    if (this.brawl) { this.brawl.close(); this.brawl = null; }
+    this.offer = null; this.queue = []; this.pill.hidden = true; this.fight = null; this.jail = null; this.wanted = null; this.renderChips();
+  }
 
   async refreshStory(quiet) {
     this.lastStory = performance.now();
@@ -383,10 +392,27 @@ class Moments {
     const r = await this.game.req("fight_respond", { fight: f.fight, choice });
     if (!r.ok) { this.closeLayer("fight"); this.fight = null; if (r.error.code !== "unknown_fight") this.game.ui.refusal(r); return; }
     this.fight = null;
+    if (r.data.status === "brawl") { this.brawlStart(r.data); return; }
     this.fightResult(r.data);
+  }
+  // Fighting back with a person in it is Beat Brawl (brawl.js, D-077): its screen until the result comes.
+  brawlStart(d) {
+    if (!d || !d.fight) return;
+    this.closeLayer("fight"); this.fight = null;
+    this.closeLayer("life"); if (this.offer && !this.offer.result) this.minimize();
+    if (this.brawl && this.brawl.fight === d.fight && !this.brawl.closed) return;
+    if (this.brawl) this.brawl.close();
+    this.brawl = new BrawlScreen(this.game, d);
+    this.game.ui.announce(`A fight with ${firstName(d.name || this.world.nameOf(d.with))}. Duck, block or jab on every beat.`);
   }
   fightResult(d) {
     if (!d) return;
+    if (this.brawl && this.brawl.fight === d.fight) {
+      const b = this.brawl;
+      this.brawl = null;
+      b.finish(d, () => this.fightResult(d));
+      return;
+    }
     this.closeLayer("fight"); this.fight = null;
     const who = firstName(d.name || this.world.nameOf(d.with));
     const won = d.won === true ? "You won" : d.won === false ? (d.role === "attacker" ? "You lost" : "You lost") : null;
@@ -395,7 +421,7 @@ class Moments {
       : crime.wanted ? `It was reported. You're wanted for ${crime.crime || "assault"}.`
       : crime.reported ? crime.text
       : crime.self_defence ? "Nothing landed. Nobody committed a crime." : crime.wanted === false ? "Nobody reported it. This time." : null;
-    const selfDefence = d.role === "defender" && (d.outcome === "attacker_won" || d.outcome === "defender_won");
+    const selfDefence = d.role === "defender" && ["attacker_won", "defender_won", "knockout", "on_points", "broke_off", "walked_off"].includes(d.outcome);
     const fx = changesText(d.changes);
     const card = el("section", { class: `mo-card mo-fight mo-done${crime.arrested || crime.wanted ? " mo-danger" : ""}`, role: "dialog", "aria-modal": "false", "aria-label": "How the fight went", dataset: { moment: "fight-result", outcome: d.outcome || "" } },
       el("div", { class: "mo-eyebrow" }, d.role === "attacker" ? `You started it · ${who}` : `${who} started it`),
@@ -415,9 +441,10 @@ class Moments {
   scuffle(d) {
     const g = this.game;
     if (!d || !g.renderer) return;
-    const text = d.stage === "started" ? "scuffle!" : d.outcome === "walked_away" ? "walked away" : d.outcome === "ran" ? "ran off" : d.outcome === "got_away" ? "got away" : "fight!";
+    const text = d.stage === "started" ? "scuffle!" : d.stage === "brawl" ? "fight!" : d.outcome === "walked_away" ? "walked away" : d.outcome === "ran" ? "ran off" : d.outcome === "got_away" ? "got away" : d.outcome === "knockout" ? "down!" : "fight!";
     for (const id of [d.attacker, d.defender]) g.renderer.addFloater({ who: id, text, self: id === this.world.selfId });
-    this.burst = { a: d.attacker, b: d.defender, until: performance.now() + (d.stage === "started" ? 2600 : 1600) };
+    // A brawl lasts its rounds (about half a minute): the scuffle stays up until it's over.
+    this.burst = { a: d.attacker, b: d.defender, until: performance.now() + (d.stage === "brawl" ? 30000 : d.stage === "started" ? 2600 : 1600) };
     if (d.stage === "over" && d.attacker !== this.world.selfId && d.defender !== this.world.selfId)
       g.ui.line("", `${this.world.nameOf(d.attacker)} started a fight with ${this.world.nameOf(d.defender)}${d.winner ? `: ${firstName(this.world.nameOf(d.winner))} came out on top` : ""}.`, "note");
   }

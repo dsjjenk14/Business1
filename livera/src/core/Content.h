@@ -1153,8 +1153,40 @@ struct FightInjuryDef {
   double margin = 0;  // the loser's injury is the last one whose margin the winning score beat theirs by
 };
 
+// Beat Brawl (D-077): fighting back is played beat by beat. Each beat one fighter throws (hook, jab or shove; or is
+// open after a slip or a parry) and the other answers (duck, block or jab) before the beat ends.
+struct BrawlRoundDef {
+  int beats = 8;
+  double seconds = 1.0;  // real seconds a beat lasts
+};
+
+struct BrawlMoveDef {
+  double base = 1;
+  StatMap traits;  // weight added per trait point: a founder's style
+};
+
+struct BrawlConfig {
+  bool enabled = false;
+  std::vector<BrawlRoundDef> rounds;
+  double leadIn = 1.5;            // real seconds before the first beat (the screen opens, both square up)
+  double tellAt = 0.25;           // the share of a beat before the tell shows, unless you know how they fight
+  double perfectFrom = 0.6;       // answering after this share of what's left of the beat is perfect timing
+  double perfectMultiplier = 1.5;  // a perfectly timed answer hits this much harder
+  double feintChance = 0.2;       // the tell shows another move
+  double knownFeintChance = 0.05;  // ...when you know how they fight
+  double knownFamiliarity = 60;   // familiarity at which you know how someone fights (or you've seen them fight)
+  double composure = 100;
+  double edgeMin = 0.6, edgeMax = 1.6;  // a blow lands harder by the score of who throws it over who takes it
+  std::map<std::string, double> damage;  // hook, jab, shove, chip, pushed, counter, stuffed
+  double trade = 0.7;              // in a trade, the share of their blow you still take
+  std::map<std::string, BrawlMoveDef> moves;  // hook, jab, shove: how likely each is
+  double marginPerComposure = 0.5;  // the composure between them, times this, is the margin `injuries` reads
+  int maxGameMinutes = 180;         // a brawl nobody's clock moves (a dev skip) ends on points after this
+};
+
 struct FightsConfig {
   bool enabled = false;
+  BrawlConfig brawl;
   std::string crime = "assault";
   double rangeMeters = 3;
   int windowMinutes = 15;

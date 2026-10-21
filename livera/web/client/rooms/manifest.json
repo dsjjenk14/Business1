@@ -239,6 +239,66 @@
    514
   ]
  },
+ "lexington_0807_1502": {
+  "offset": [
+   8,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1068,
+   724
+  ],
+  "source": [
+   1084,
+   724
+  ]
+ },
+ "lexington_0904": {
+  "offset": [
+   8,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1066,
+   724
+  ],
+  "source": [
+   1082,
+   724
+  ]
+ },
+ "lexington_1204": {
+  "offset": [
+   1,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1535,
+   1024
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "lexington_ph1": {
+  "offset": [
+   0,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1535,
+   1022
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
  "little_sprouts": {
   "offset": [
    3,

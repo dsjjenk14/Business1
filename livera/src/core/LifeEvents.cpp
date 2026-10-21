@@ -325,7 +325,8 @@ const LifeEventDef* ContentDatabase::lifeEvent(const std::string& id) const {
 // A moment for a life event: a person (not a script) in the world, grown up, awake, out of a cell, not on a bus,
 // not in a study session or a fight. Shifts are the event's call (when.on_shift).
 bool World::lifeEventMoment(const CharacterState& c) const {
-  if (!c.online || isScripted(c.id) || c.asleepSince >= 0 || c.jailedUntil > state_.now || c.moveSpeedMps > 0) return false;
+  if (!c.online || isScripted(c.id) || c.asleepSince >= 0 || c.jailedUntil > state_.now || c.moveSpeedMps > 0 || inBrawl(c.id))
+    return false;
   if (c.education.sessionStartedAt) return false;
   if (ageOf(c.id) < content_->life().adultAge) return false;
   for (const auto& f : state_.fights) {

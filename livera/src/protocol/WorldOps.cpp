@@ -81,6 +81,7 @@ Result<Json> dispatchWorldOp(World& world, const CharacterId& me, const std::str
   if (op == "crime_risk") return world.crimeRisk(me, str(req, "crime"), str(req, "target"));
   if (op == "fight") return world.startFight(me, str(req, "target"));
   if (op == "fight_respond") return world.respondToFight(me, str(req, "fight"), str(req, "choice"));
+  if (op == "fight_beat") return world.fightBeat(me, str(req, "fight"), str(req, "answer"));  // Beat Brawl, D-077
   if (op == "fight_prefs") {
     const auto it = req.find("walk_away");
     if (it == req.end() || !it->is_boolean()) return fail("bad_request", "send \"walk_away\": true or false");

@@ -28,6 +28,7 @@ bool World::inJail(const CharacterId& id) const {
 Status World::freeToAct(const CharacterState& c) const {
   if (c.jailedUntil > state_.now)
     return fail("in_jail", "you're in a cell until " + formatDateTime(c.jailedUntil));
+  if (inBrawl(c.id)) return fail("in_fight", "you're in a fight: duck, block, jab or walk away");  // Fights.cpp, D-077
   return okStatus();
 }
 

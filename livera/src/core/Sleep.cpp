@@ -60,6 +60,7 @@ Result<Json> World::sleep(const CharacterId& actor) {
                                    hhmm(bed.openHour * kMinutesPerHour) + " until " +
                                    hhmm(bed.closeHour * kMinutesPerHour));
   c.asleepSince = state_.now;
+  (void)takeRoomSpot(c, [](const InteriorSpotDef& s) { return s.kind == "bed"; });  // interiors: into a free bed
   const GameMinutes wake = nextWakeAt();
   return Json{{"asleep", true},
               {"since", state_.now},

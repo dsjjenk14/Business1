@@ -364,7 +364,14 @@ have type `life_event`; money moves with ledger kind `life_event`.
 | `crime.shoplift_place_types` | `[place type]` | The kinds of shop where `steal` works (every type must exist); absent = any shop. |
 | `crime.crimes` | gains `assault` | Detection like any crime; fine and time when caught. |
 | `conditions` (`data/health/injuries.json`) | `bruises`, `black_eye`, `cracked_rib`, kind `injury` | Diagnosed when they happen; `treatment` at the clinic or the ER ends them. |
-| `fights` (`data/society/fights.json`) | `crime, range_m, window_minutes, attacker_cooldown_minutes, protected_minutes, no_fight_place_types[], autopilot{at_work, fight_back_trait, fight_back_at}, score{base, skills{}, needs{}, per_injury, noise}, run{base, per_point, min, max, distance_m}, injuries[] {condition, margin}, winner{needs, emotions, injury_chance, injury}, loser{…}, took_it{…, injury}, attacker_hit{…}, ran{…}, walked_away{…}, attacker_walked_away{…}, victim_relationship{}, attacker_relationship{}, witness_relationship{}, report_chance, witness_report_chance, importance, impact, witness_importance, witness_impact` | At most one. The crime, conditions, place types, trait, skills, needs, emotions and dimensions must exist; `range_m` within say range; chances 0–1; injury margins increase. Without the section there are no fights (`unavailable`). |
+| `fights` (`data/society/fights.json`) | `crime, range_m, window_minutes, attacker_cooldown_minutes, protected_minutes, no_fight_place_types[], autopilot{at_work, fight_back_trait, fight_back_at}, score{base, skills{}, needs{}, per_injury, noise}, run{base, per_point, min, max, distance_m}, injuries[] {condition, margin}, winner{needs, emotions, injury_chance, injury}, loser{…}, took_it{…, injury}, attacker_hit{…}, ran{…}, walked_away{…}, attacker_walked_away{…}, victim_relationship{}, attacker_relationship{}, witness_relationship{}, report_chance, witness_report_chance, importance, impact, witness_importance, witness_impact, brawl?` | At most one. The crime, conditions, place types, trait, skills, needs, emotions and dimensions must exist; `range_m` within say range; chances 0–1; injury margins increase. Without the section there are no fights (`unavailable`). |
+
+`fights.brawl` (Beat Brawl, D-077; optional: without it fighting back is scored at once): `lead_in_seconds, rounds[]
+{beats, seconds}, tell_at, perfect_from, perfect_multiplier, feint_chance, known_feint_chance, known_familiarity,
+composure, edge_min, edge_max, damage{hook, jab, shove, chip, pushed, counter, stuffed}, trade, moves{hook, jab, shove:
+{base, traits{}}}, margin_per_composure, max_game_minutes`. Rounds need a beat or more of 0.4 to 5 s; shares and
+chances are 0 to 1; every blow has a damage; the moves are exactly hook, jab and shove, with known traits and some
+weight. A brawl in progress (`WorldState::brawls`) is session state, never saved.
 
 Character JSON key `street` (no SQL change): `{walk_away, fought: {character: day}, next_fight_at, protected_until}`;
 a save without it has never been in a fight and doesn't always walk away. A fight waiting for its answer

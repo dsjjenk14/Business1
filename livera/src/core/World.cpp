@@ -268,6 +268,7 @@ void World::advanceRealTime(double seconds) {
   if (seconds <= 0) return;
   const ContentDatabase& db = *content_;
   moveEveryone(seconds);
+  stepBrawls(seconds);  // fights fought beat by beat run on real time (Fights.cpp, D-077)
   state_.clockCarry += seconds * db.sim().minutesPerRealSecond;
   const auto whole = static_cast<GameMinutes>(state_.clockCarry);
   state_.clockCarry -= static_cast<double>(whole);

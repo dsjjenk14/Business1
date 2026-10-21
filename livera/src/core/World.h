@@ -481,6 +481,26 @@ struct PendingFight {
   GameMinutes expires = 0;
 };
 
+// A fight being fought, beat by beat (Fights.cpp, D-077): session state, like the fight it came from.
+struct Brawl {
+  std::string id;                  // the fight's id
+  CharacterId attacker, defender;  // who started it, who was attacked
+  GameMinutes startedAt = 0;
+  int round = 0, beat = 0;         // where it is, from 0
+  int count = 0;                   // beats so far: between two people, whose turn it is to throw
+  double elapsed = 0;              // real seconds into this beat
+  double tellDelay = 0;            // real seconds into the beat when the tell shows
+  bool shown = false;              // the tell is out
+  CharacterId striker, actor;      // who throws this beat, who answers
+  std::string move;                // what the striker really throws: hook, jab, shove, or open
+  std::string tell;                // what the one answering is shown
+  std::string answer;              // duck, block, jab, or empty: no answer yet
+  double answeredAt = -1;          // real seconds into the beat
+  CharacterId open;                // who is open next beat (they were slipped or parried)
+  std::map<CharacterId, double> composure;
+  std::map<CharacterId, double> dealt;  // what each has landed
+};
+
 struct WorldState {
   GameMinutes now = 0;
   double clockCarry = 0;  // fractional game minutes not yet applied
@@ -500,6 +520,7 @@ struct WorldState {
   std::map<std::string, Song> songs;
   std::vector<PendingRequest> requests;  // session state: asks expire in minutes and aren't saved
   std::vector<PendingFight> fights;      // session state: fights waiting for an answer (Fights.cpp)
+  std::vector<Brawl> brawls;             // session state: fights being fought, beat by beat (Fights.cpp)
   // m08:homes world { Buying homes, mortgages, moving in together (Homes.cpp)
   // } m08:homes
 
@@ -679,6 +700,12 @@ class World {
   // choice: fight_back, run, take_it.
   Result<Json> respondToFight(const CharacterId& actor, const std::string& fight, const std::string& choice);
   Result<Json> setWalkAwayFromFights(const CharacterId& actor, bool walkAway);
+  // Beat Brawl (D-077): your answer to this beat's tell (duck, block, jab), or walk_away at any beat.
+  Result<Json> fightBeat(const CharacterId& actor, const std::string& fight, const std::string& answer);
+  bool inBrawl(const CharacterId& id) const;
+  // You know how someone fights (their tell shows at once, they hardly feint) if you know them well or have seen them
+  // fight before.
+  bool knowsHowTheyFight(const CharacterId& viewer, const CharacterId& fighter) const;
 
   // --- Romance and family (Romance.cpp) ---------------------------------------------------
   // kind: date, kiss, propose, marry, intimacy; buy_home, move_in, sell_home (Homes.cpp; `subject`
@@ -1094,6 +1121,26 @@ class World {
   void stepFightsMinute();  // fights nobody answered in time: they froze and took it
   Json resolveFight(const PendingFight& f, const std::string& choice);  // returns the defender's result
   double fightScore(const CharacterState& c);
+  // How a fight ended, for concludeFight: the outcome, who won (empty: nobody), whether whoever started it landed a
+  // blow (assault), each side's text and what changed for them.
+  struct FightEnd {
+    std::string outcome, winner, aText, dText;
+    bool landed = false;
+    Json aChanges = Json::object(), dChanges = Json::object();
+  };
+  Json concludeFight(const PendingFight& f, FightEnd end);  // memories, witnesses, rumour, crime; both results
+  void applyFightEffects(CharacterState& c, const FightEffectsDef& fx, Json& changes);
+  void injureInFight(CharacterState& c, const std::string& condition, Json& changes);
+  // Beat Brawl (D-077).
+  bool brawlFor(const PendingFight& f) const;  // fighting back is played beat by beat (a person is in it)
+  Json startBrawl(const PendingFight& f, const CharacterId& caller);  // the caller's view; the other is told
+  void stepBrawls(double seconds);             // real time: tells show, beats end, rounds speed up
+  void beginBeat(Brawl& b);
+  void showTell(Brawl& b);
+  std::string endBeat(Brawl& b);  // how it ends (ko, points), or empty to go on
+  Json finishBrawl(const Brawl& b, const std::string& how, const CharacterId& walker = "");
+  std::string drawBrawlMove(const CharacterId& id);
+  double brawlEdge(const CharacterId& hitter, const CharacterId& receiver);
 
   // m08:details helpers { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
   void stepDetailsHourly();  // called once a game hour from stepHourly (Life.cpp)

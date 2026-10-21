@@ -512,6 +512,7 @@ async function fight(game, target) {
   const r = await nearThen(game, target, 3, () => game.req("fight", { target }));
   if (!r.ok) return r;
   if (r.data.status === "waiting") r.summary = `You squared up to ${who}. They have a moment to react.`;
+  else if (r.data.status === "brawl") { r.summary = `${who} fights back.`; if (game.moments) game.moments.brawlStart(r.data); }
   else { r.announced = true; if (game.moments) game.moments.fightResult(r.data); }
   return r;
 }
