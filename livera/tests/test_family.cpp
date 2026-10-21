@@ -146,12 +146,12 @@ TEST_CASE("creator: you start at 18, in your twenties or in your thirties") {
   const Json options = w.creatorOptions();
   CHECK(options.at("age_groups").size() == 3);
   CHECK(options.at("sex").at("options").size() == 2);
-  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/nico_vale.json");
   Json sheet = Json::parse(in);
-  auto sol = w.createCharacter(sheet);
-  REQUIRE(sol);
-  CHECK(w.definition(sol.value())->age == 26);
-  CHECK(w.ageOf(sol.value()) == 26);
+  auto nico = w.createCharacter(sheet);
+  REQUIRE(nico);
+  CHECK(w.definition(nico.value())->age == 26);
+  CHECK(w.ageOf(nico.value()) == 26);
   sheet["first_name"] = "Rae";
   sheet.erase("age");
   auto rae = w.createCharacter(sheet);  // somewhere in their twenties
@@ -238,12 +238,12 @@ TEST_CASE("family: parents look after their children at home") {
 TEST_CASE("family: a nanny is hired by the family, works in their home and is paid by them") {
   World w = withChild(familyContent(), 2);
   for (const char* id : {"dominique", "dax"}) REQUIRE(w.connect(id));
-  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/nico_vale.json");
   Json sheet = Json::parse(in);
   sheet["career"] = "nanny";
-  auto sol = w.createCharacter(sheet);
-  REQUIRE(sol);
-  const CharacterId nanny = sol.value();
+  auto nico = w.createCharacter(sheet);
+  REQUIRE(nico);
+  const CharacterId nanny = nico.value();
   REQUIRE(w.connect(nanny));
   CHECK(w.startShift(nanny).error().code == "no_employer");
   walkTo(w, "dominique", "little_sprouts");

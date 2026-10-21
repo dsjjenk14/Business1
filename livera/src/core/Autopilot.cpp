@@ -1057,9 +1057,13 @@ struct Autopilot::Impl {
     b.committedSleepDay = -1;
     b.heading.clear();
     b.riding = false;
-    b.sleptOn = plan.day;
+    // Home after midnight, before this day's wake time: it's last night's bed, and today still starts at its wake time
+    // (marking today slept through would keep them out of the world until tomorrow).
+    const bool pastMidnight = static_cast<int>(w.now() % kMinutesPerDay) < plan.wake;
+    b.sleptOn = pastMidnight ? plan.day - 1 : plan.day;
     ++b.stats["nights"];
-    log(w, b, "bed", "goes to bed (" + where + "): leaves the world until " + hhmm(plan.wake) + " tomorrow");
+    log(w, b, "bed", "goes to bed (" + where + "): leaves the world until " + hhmm(plan.wake) +
+                         (pastMidnight ? " today" : " tomorrow"));
     pause(b, jittered(w, 20));
   }
 
@@ -1918,8 +1922,16 @@ struct Autopilot::Impl {
   // Nothing to do until this block ends: look again soon (a dev time skip moves the clock without warning).
   void idle(const World& w, Bot& b, const Goal& goal, GameMinutes now) {
     const double rate = std::max(w.content().sim().minutesPerRealSecond, 0.01);
-    const double left = goal.end ? (goal.end - static_cast<double>(now % kMinutesPerDay)) / rate : kIdleCapSeconds;
-    pause(b, std::max(2.0, std::min(kIdleCapSeconds, left - 2)));
+    double leftMinutes = goal.end ? goal.end - static_cast<double>(now % kMinutesPerDay) : kIdleCapSeconds * rate;
+    // Look again in time to leave for what comes next: the walk or the ride there takes game time, and a long pause
+    // would have them set off late (at two game minutes a real second, the cap alone is 40 minutes).
+    if (goal.end && b.plan.has(goal) && goal.index + 1 < static_cast<int>(b.plan.blocks.size())) {
+      const Goal& next = b.plan.blocks[static_cast<std::size_t>(goal.index) + 1];
+      const LocationDef* here = w.content().location(goal.place.empty() ? b.ctx.home : goal.place);
+      const LocationId there = next.place.empty() ? b.ctx.home : next.place;
+      if (here && there != here->id) leftMinutes -= etaMinutes(w, b, here->door, there, now) + kTravelSlack;
+    }
+    pause(b, std::max(2.0, std::min(kIdleCapSeconds, leftMinutes / rate - 2)));
   }
 
   // ------------------------------------------------------------------ one turn

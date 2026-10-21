@@ -148,17 +148,17 @@ TEST_CASE("persistence: created characters, skills and songs survive a round tri
   WorldState saved;
   {
     World w = World::createNew(realContent());
-    std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+    std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/nico_vale.json");
     REQUIRE(w.createCharacter(Json::parse(in)));
-    REQUIRE(w.connect("sol-rivera"));
-    walkTo(w, "sol-rivera", "founders_park");
-    auto song = w.saveSong("sol-rivera", Json::parse(R"({"title": "Park Bench", "bpm": 80,
+    REQUIRE(w.connect("nico-vale"));
+    walkTo(w, "nico-vale", "founders_park");
+    auto song = w.saveSong("nico-vale", Json::parse(R"({"title": "Park Bench", "bpm": 80,
         "tracks": [{"instrument": "guitar", "notes": [[0,52,4],[4,55,4],[8,59,8]]}]})"), "");
     REQUIRE(song);
     songId = song.value()["id"];
-    REQUIRE(w.perform("sol-rivera", songId));
-    REQUIRE(w.releaseSong("sol-rivera", songId));
-    w.disconnect("sol-rivera");
+    REQUIRE(w.perform("nico-vale", songId));
+    REQUIRE(w.releaseSong("nico-vale", songId));
+    w.disconnect("nico-vale");
     auto store = SqliteStore::open(path.string());
     REQUIRE(store);
     REQUIRE(store.value()->saveWorld(w.state()));
@@ -169,20 +169,20 @@ TEST_CASE("persistence: created characters, skills and songs survive a round tri
   auto loaded = store.value()->loadWorld();
   REQUIRE(loaded);
   World w(realContent(), std::move(loaded).value());
-  const CharacterDef* def = w.definition("sol-rivera");
+  const CharacterDef* def = w.definition("nico-vale");
   REQUIRE(def);
-  CHECK(def->profile == saved.createdCharacters.at("sol-rivera").profile);
-  CHECK(def->personality == saved.createdCharacters.at("sol-rivera").personality);
-  CHECK(w.character("sol-rivera")->skills.at("music") == saved.characters.at("sol-rivera").skills.at("music"));
-  CHECK(w.character("sol-rivera")->skills.at("music") > 0);
+  CHECK(def->profile == saved.createdCharacters.at("nico-vale").profile);
+  CHECK(def->personality == saved.createdCharacters.at("nico-vale").personality);
+  CHECK(w.character("nico-vale")->skills.at("music") == saved.characters.at("nico-vale").skills.at("music"));
+  CHECK(w.character("nico-vale")->skills.at("music") > 0);
   const Song& song = w.state().songs.at(songId);
   CHECK(song.title == "Park Bench");
   CHECK(song.released);
   CHECK(song.tracks.at(0).notes.size() == 3);
   CHECK(song.tracks.at(0).notes.at(2).length == 8);
-  CHECK(w.state().properties.at(def->homeProperty).tenant == "sol-rivera");
+  CHECK(w.state().properties.at(def->homeProperty).tenant == "nico-vale");
   CHECK(w.state().ledger.sumOfBalances() == 0);
-  REQUIRE(w.connect("sol-rivera"));  // and they can play again
+  REQUIRE(w.connect("nico-vale"));  // and they can play again
 }
 
 TEST_CASE("persistence: a save from before everyday life loads with bodies, degrees and fame filled in") {

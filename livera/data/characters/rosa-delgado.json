@@ -108,7 +108,13 @@
             "Wrist tattoo and pierced ears",
             "Athleisure and a watch"
           ],
-          "visual_reference": "art/reference/residents/rosa-delgado.jpg"
+          "visual_reference": "art/reference/residents/rosa-delgado.jpg",
+          "avatar": "art/avatars/rosa-delgado.jpg",
+          "art_notes": [
+            "The square smartwatch on a black band resembles a well-known real product; the data says only 'watch'.",
+            "The card says Police Academy trainee; in the data she hasn't enrolled yet: finishing the academy is in her goals, and her job is Thread & Co. (career retail, Assistant Manager)."
+          ],
+          "art_as_of": "Day 28 of the town-preview recording"
         },
         "family_background": "Eldest of four in San Antonio's West Side. Her father fixed elevators; her mother cleaned the buildings they were in. Her younger brother is doing three years in Huntsville.",
         "education": "High school diploma; retail management certificate; Livéra Police Academy (enrolling)",

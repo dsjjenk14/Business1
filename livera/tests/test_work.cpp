@@ -604,12 +604,12 @@ TEST_CASE("work: the phone shows today's decisions, results and progress, and re
 
 TEST_CASE("work: a nanny on shift gets nanny decisions") {
   World w = World::createNew(realContent());
-  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/nico_vale.json");
   Json sheet = Json::parse(in);
   sheet["career"] = "nanny";
-  auto sol = w.createCharacter(sheet);
-  REQUIRE(sol);
-  const CharacterId nanny = sol.value();
+  auto nico = w.createCharacter(sheet);
+  REQUIRE(nico);
+  const CharacterId nanny = nico.value();
   // Employed by Dominique's family (hiring itself is tested in test_family.cpp).
   WorldState s = w.state();
   s.characters.at(nanny).nannyFor = "dominique";

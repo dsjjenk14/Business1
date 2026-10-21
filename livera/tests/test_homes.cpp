@@ -739,12 +739,12 @@ TEST_CASE("homes: children move with their parents, and the nanny's key follows 
   World w = withChild(homesContent(), 7);
   for (const char* id : {"dominique", "dax"}) REQUIRE(w.connect(id));
   // The family's nanny (hired as in the family tests) has a key to the apartment.
-  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/nico_vale.json");
   Json sheet = Json::parse(in);
   sheet["career"] = "nanny";
-  auto sol = w.createCharacter(sheet);
-  REQUIRE(sol);
-  const CharacterId nanny = sol.value();
+  auto nico = w.createCharacter(sheet);
+  REQUIRE(nico);
+  const CharacterId nanny = nico.value();
   REQUIRE(w.connect(nanny));
   walkTo(w, "dominique", "little_sprouts");
   walkTo(w, nanny, "little_sprouts");
@@ -801,12 +801,12 @@ TEST_CASE("homes: a parent moves in with a partner, and the children and the nan
   startDating(w, "dax", "dominique");
   startDating(w, "dominique", "graham");
   // The family's nanny (hired as in the family tests) has a key to the apartment.
-  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/nico_vale.json");
   Json sheet = Json::parse(in);
   sheet["career"] = "nanny";
-  auto sol = w.createCharacter(sheet);
-  REQUIRE(sol);
-  const CharacterId nanny = sol.value();
+  auto nico = w.createCharacter(sheet);
+  REQUIRE(nico);
+  const CharacterId nanny = nico.value();
   REQUIRE(w.connect(nanny));
   walkTo(w, "dominique", "little_sprouts");
   walkTo(w, nanny, "little_sprouts");

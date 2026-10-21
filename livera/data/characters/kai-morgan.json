@@ -110,7 +110,13 @@
             "Pierced ears and a chain necklace",
             "Baseball cap and streetwear"
           ],
-          "visual_reference": "art/reference/residents/kai-morgan.jpg"
+          "visual_reference": "art/reference/residents/kai-morgan.jpg",
+          "avatar": "art/avatars/kai-morgan.jpg",
+          "art_notes": [
+            "The red-and-white high-top sneakers resemble a well-known real design; regenerate the turnaround with plain shoes before any commercial use.",
+            "The BAR SHIFT LOOK panel shows the Copper Tap barback job he left before he started at Low End Studios; the data has him as a beatmaker there (career music_production)."
+          ],
+          "art_as_of": "Day 28 of the town-preview recording"
         },
         "family_background": "Raised in southwest Atlanta by his mother, a MARTA bus driver, with three sisters and one pair of headphones between them.",
         "education": "High school diploma; YouTube for everything after",

@@ -306,8 +306,8 @@ TEST_CASE("localtown: made characters: one per town when asked, listed with crea
   CHECK(code(solo.createCharacter(Json{{"first_name", ""}})) != "(accepted)");
   CHECK(opts.value().is_object());
 
-  // The demo sheet the creator tests use (scripts/demo/sol_rivera.json).
-  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+  // The demo sheet the creator tests use (scripts/demo/nico_vale.json).
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/nico_vale.json");
   const Json sheet = Json::parse(in);
   auto made = solo.createCharacter(sheet);
   if (!made) std::fprintf(stderr, "    create_character: %s %s\n", made.error().code.c_str(), made.error().message.c_str());

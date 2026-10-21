@@ -128,7 +128,8 @@ TEST_CASE("autopilot: a closed shop is not entered: she waits at the door when i
   {
     Town t(coffeeContent(9));  // opens at 09:00, too long to wait: the visit is skipped and she stays home
     t.pilot.start(t.world, {"dominique"});
-    CHECK(!t.runUntil(110, [&] { return t.you("dominique")["inside"] != "lexington_1204"; }));
+    // Home until she sets off for her 09:00 shift (in time for it: about 08:50).
+    CHECK(!t.runUntil(100, [&] { return t.you("dominique")["inside"] != "lexington_1204"; }));
     CHECK(toDateTime(t.world.now()).hour == 8);
     CHECK(t.logged("skips Heritage Coffee"));
     CHECK(t.stat("dominique", "enters") == 0);
@@ -316,15 +317,15 @@ TEST_CASE("autopilot manners: a founder greets a person once per game day, by na
   CHECK(t.logged("greet"));
   CHECK(t.stat("dax", "greetings") == 1);
   // A stranger is greeted without a name (while Dax is still at the café: the walk over takes game time).
-  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
-  auto sol = t.world.createCharacter(Json::parse(in));
-  REQUIRE(sol);
-  REQUIRE(t.world.connect(sol.value()));
-  walkInto(t.world, sol.value(), "heritage_coffee");
-  REQUIRE(t.runUntil(45, [&] { return !heard(t.events, sol.value(), "dax").empty(); }));  // his next turn: up to kIdleCapSeconds of real time
-  for (const auto& line : heard(t.events, sol.value(), "dax"))
-    CHECK(line["text"].get<std::string>().find("Sol") == std::string::npos);
-  // The rest of the morning together: no second greeting the same day (Dominique overheard the one to Sol).
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/nico_vale.json");
+  auto nico = t.world.createCharacter(Json::parse(in));
+  REQUIRE(nico);
+  REQUIRE(t.world.connect(nico.value()));
+  walkInto(t.world, nico.value(), "heritage_coffee");
+  REQUIRE(t.runUntil(45, [&] { return !heard(t.events, nico.value(), "dax").empty(); }));  // his next turn: up to kIdleCapSeconds of real time
+  for (const auto& line : heard(t.events, nico.value(), "dax"))
+    CHECK(line["text"].get<std::string>().find("Nico") == std::string::npos);
+  // The rest of the morning together: no second greeting the same day (Dominique overheard the one to Nico).
   t.runUntil(30, [] { return false; });
   CHECK(t.stat("dax", "greetings") == 2);
   // Another day, another greeting. The town lives through the night, as the server runs it, so the autopilot puts

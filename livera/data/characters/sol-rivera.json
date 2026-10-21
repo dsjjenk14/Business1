@@ -101,7 +101,10 @@
             "Fine-line floral and wrist tattoos",
             "Rings and a bucket hat"
           ],
-          "visual_reference": "art/reference/residents/sol-rivera.jpg"
+          "visual_reference": "art/reference/residents/sol-rivera.jpg",
+          "avatar": "art/avatars/sol-rivera.jpg",
+          "art_notes": [],
+          "art_as_of": "Day 28 of the town-preview recording"
         },
         "family_background": "Grew up in the Bronx between their abuela's kitchen and their father's church choir. Left New York after a band, a lease and a relationship ended in the same month.",
         "education": "High school diploma; two semesters of music school",

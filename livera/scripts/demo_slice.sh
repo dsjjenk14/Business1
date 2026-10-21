@@ -5,7 +5,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BUILD="$(cd "${1:-$ROOT/build}" && pwd)"
 WORK="$(mktemp -d)"
-cp "$ROOT/scripts/demo/sol_rivera.json" "$WORK/"
+cp "$ROOT/scripts/demo/nico_vale.json" "$WORK/"
 cd "$WORK"  # clients read the character sheet and write the song's MIDI file here
 PORT="${LIVERA_PORT:-7791}"
 DB="$WORK/demo_world.db"
@@ -25,7 +25,7 @@ DOM=$!
 sleep 1
 "$BUILD/livera_cli" --port "$PORT" --script "$ROOT/scripts/demo/dax_day1.txt" > "$WORK/jax.out" &
 JAX=$!
-"$BUILD/livera_cli" --port "$PORT" --script "$ROOT/scripts/demo/sol_day1.txt" > "$WORK/sol.out" &
+"$BUILD/livera_cli" --port "$PORT" --script "$ROOT/scripts/demo/nico_day1.txt" > "$WORK/nico.out" &
 SOL=$!
 STATUS=0
 wait $DOM || STATUS=1
@@ -33,10 +33,10 @@ wait $JAX || STATUS=1
 wait $SOL || STATUS=1
 echo "--- Dominique ---"; cat "$WORK/dom.out"
 echo "--- Dax ---"; cat "$WORK/jax.out"
-echo "--- Sol (made their own character) ---"; cat "$WORK/sol.out"
+echo "--- Nico (made their own character) ---"; cat "$WORK/nico.out"
 if [ -n "${LIVERA_DEMO_OUT:-}" ] && [ -f founders_groove.mid ]; then
   mkdir -p "$LIVERA_DEMO_OUT" && cp founders_groove.mid "$LIVERA_DEMO_OUT/"
-  echo "(Sol's song saved to $LIVERA_DEMO_OUT/founders_groove.mid)"
+  echo "(Nico's song saved to $LIVERA_DEMO_OUT/founders_groove.mid)"
 fi
 
 echo "=== Restarting the server ==="

@@ -62,7 +62,7 @@ Money is always integer cents (`*_cents`). Coordinates are meters.
 
 ```json
 {
-  "first_name": "Sol", "last_name": "Rivera", "age_group": "twenties", "age": 26,
+  "first_name": "Nico", "last_name": "Vale", "age_group": "twenties", "age": 26,
   "pronouns": "they/them", "gender": "non-binary", "sex": "female",
   "appearance": {"skin_tone": "golden brown", "hair_style": "curly afro", "tattoos": ["wrist"], "height_cm": 170, "...": "every single-pick field"},
   "personality": {"sociability": 70, "...": "0-100, missing = 50, total within budget"},
@@ -73,7 +73,7 @@ Money is always integer cents (`*_cents`). Coordinates are meters.
 }
 ```
 
-A complete example: `scripts/demo/sol_rivera.json`.
+A complete example: `scripts/demo/nico_vale.json`.
 
 ### Character profile conventions
 
@@ -83,7 +83,7 @@ A complete example: `scripts/demo/sol_rivera.json`.
 - `life_stages[]`: `{age, stage, chapter, look{hair, outfit, carrying, jewelry}}`, oldest
   first. The last stage is the character's current age (tested for Dominique).
 - `secrets[]`: `{id, truth, known_by[]}`, ready to become Facts in the information system. The id is made from the name
-(`sol-rivera`, then `sol-rivera-2`...).
+(`nico-vale`, then `nico-vale-2`...).
 
 ## Runtime state (`WorldState`, src/core/World.h)
 

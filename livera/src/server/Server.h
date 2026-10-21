@@ -71,7 +71,7 @@ class Server {
   struct Session {
     int id = 0;
     net::Fd fd;
-    net::LineBuffer in;
+    net::LineBuffer in{net::kMaxLineBytes};  // a client's request lines: small
     std::string out;
     std::string username;
     std::string token;  // the resume token this session logged in with; logout revokes it

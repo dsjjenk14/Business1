@@ -1,9 +1,11 @@
-// The founding cast: every character in data/characters must be complete, match their
-// reference art, and actually be able to live in the town (home, job, ties).
+// The town's people: every character in data/characters (the founders, the four residents with art, the
+// townspeople: D-073) must be complete, match their reference art where it exists, and actually be able to live in
+// the town (home, job, ties).
 
 #include <filesystem>
 #include <fstream>
 #include <functional>
+#include <map>
 #include <set>
 
 #include "TestSupport.h"
@@ -13,21 +15,38 @@ using namespace livera::test;
 
 namespace {
 
-const std::vector<std::string> kCast = {"dominique", "dax",    "harper", "andre",   "naomi", "graham",
-                                        "maya",      "julian", "leila",  "aaliyah", "sienna"};
+const std::vector<std::string> kFounders = {"dominique", "dax",    "harper", "andre",   "naomi", "graham",
+                                            "maya",      "julian", "leila",  "aaliyah", "sienna"};
+// The four made in the creator for the town-preview recording, whose sheets are art/reference/residents (D-073).
+const std::vector<std::string> kResidents = {"kai-morgan", "rosa-delgado", "sol-rivera", "theo-grant"};
+// The people who keep the town's places open (D-073). No art yet: the client draws them as a labelled stand-in.
+const std::vector<std::string> kTownspeople = {"bernie-walsh",  "marcus-bell", "aisha-farah",   "samuel-osei",
+                                               "tess-osei",     "ngozi-adeyemi", "rafael-mendes", "imani-clarke",
+                                               "hamid-sultani", "noor-haddad", "jean-baptiste-moreau", "bo-thornton"};
+
+std::vector<std::string> everyone() {
+  std::vector<std::string> all = kFounders;
+  all.insert(all.end(), kResidents.begin(), kResidents.end());
+  all.insert(all.end(), kTownspeople.begin(), kTownspeople.end());
+  return all;
+}
 
 }  // namespace
 
-TEST_CASE("cast: the founding cast is exactly the eleven characters on the art sheets") {
+TEST_CASE("cast: the town's people are the eleven founders, the four residents with art and the townspeople") {
   std::set<std::string> ids;
   for (const auto& [id, def] : realContent()->characters()) ids.insert(id);
-  CHECK(ids == std::set<std::string>(kCast.begin(), kCast.end()));
+  const auto all = everyone();
+  CHECK(ids == std::set<std::string>(all.begin(), all.end()));
+  for (const auto& id : kFounders) CHECK(realContent()->character(id)->cast == "founder");
+  for (const auto& id : kResidents) CHECK(realContent()->character(id)->cast == "resident");
+  for (const auto& id : kTownspeople) CHECK(realContent()->character(id)->cast == "townsperson");
 }
 
-TEST_CASE("cast: every character is complete and linked to art that exists") {
+TEST_CASE("cast: every character is complete, and founders and residents link art that exists") {
   const auto root = std::filesystem::path(LIVERA_DATA_DIR).parent_path();
   const SimulationConfig& sim = realContent()->sim();
-  for (const auto& id : kCast) {
+  for (const auto& id : everyone()) {
     const CharacterDef* d = realContent()->character(id);
     REQUIRE(d);
     CHECK(d->playable);
@@ -37,16 +56,26 @@ TEST_CASE("cast: every character is complete and linked to art that exists") {
     const Json& p = d->profile;
     for (const char* key : {"tagline", "archetype", "why_livera", "appearance", "family_background", "education", "goals",
                             "ambitions", "social_preferences", "secrets", "schedule", "starting_inventory", "social_media",
-                            "reputation", "life_history"}) {
+                            "reputation", "life_history", "card"}) {
       if (!p.contains(key)) std::fprintf(stderr, "    %s is missing %s\n", id.c_str(), key);
       CHECK(p.contains(key));
     }
     CHECK(!p["secrets"].empty());
     const Json& look = p["appearance"];
     CHECK(look["key_features"].size() >= 4);
+    CHECK(look.value("height_cm", 0) == p["card"].value("height_cm", -1));  // the prompt pack draws them at this height
+    // Every schedule has a weekday work line (the away routine pays it, the autopilot clocks on with it).
+    bool works = false;
+    for (const auto& e : p["schedule"].value("weekdays", Json::array())) works |= e.value("work", false);
+    CHECK(works);
     const std::string art = look.value("visual_reference", "");
+    if (d->cast == "townsperson") {
+      CHECK(art.empty());  // until their sheet is drawn (scripts/character_prompts.py asks for it)
+      continue;
+    }
     if (!std::filesystem::exists(root / art)) std::fprintf(stderr, "    %s: art not found at %s\n", id.c_str(), art.c_str());
     CHECK(std::filesystem::exists(root / art));
+    if (look.contains("avatar")) CHECK(std::filesystem::exists(root / look["avatar"].get<std::string>()));
     const Json sheets = look.value("reference_sheets", Json::object());  // a local: items() must not outlive it
     for (const auto& [kind, sheet] : sheets.items()) {
       if (!std::filesystem::exists(root / sheet.get<std::string>())) std::fprintf(stderr, "    %s: %s sheet missing\n", id.c_str(), kind.c_str());
@@ -55,27 +84,57 @@ TEST_CASE("cast: every character is complete and linked to art that exists") {
   }
 }
 
-TEST_CASE("cast: everyone has their own home and a job they can actually work") {
+TEST_CASE("cast: everyone has a home of their own or shared as the data says, and a job they can actually work") {
   World w = World::createNew(realContent());
-  std::set<std::string> homes;
-  for (const auto& id : kCast) {
-    const CharacterDef* d = w.definition(id);
-    CHECK(homes.insert(d->homeProperty).second);  // nobody shares a home
-    CHECK(w.state().properties.at(d->homeProperty).tenant == id);
-    CHECK(w.character(id)->inside == d->spawnLocation);
+  std::map<std::string, std::vector<std::string>> homes;
+  for (const auto& id : everyone()) homes[w.definition(id)->homeProperty].push_back(id);
+  for (auto& [pid, who] : homes) {
+    std::sort(who.begin(), who.end());
+    const PropertyState& p = w.state().properties.at(pid);
+    CHECK(p.tenant == who.front());  // the first to move in (by id) holds the lease
+    CHECK(p.residents.size() == who.size());
+    for (const auto& id : who) CHECK(std::find(p.residents.begin(), p.residents.end(), id) != p.residents.end());
+    // Only a couple, cousins or roommates the data put together share: never a founder.
+    if (who.size() > 1) {
+      for (const auto& id : who) CHECK(w.definition(id)->cast != "founder");
+    }
+  }
+  for (const auto& id : everyone()) {
+    CHECK(w.character(id)->inside == w.definition(id)->spawnLocation);
     REQUIRE(w.connect(id));
   }
-  for (const auto& id : kCast) {
-    const CharacterDef* d = w.definition(id);
-    const CareerDef* career = w.content().career(d->careerId);
+  // Everyone walks to work at once (one after another, the first would have worked past their longest shift).
+  std::vector<std::string> working;
+  std::map<std::string, LocationId> workplace;
+  for (const auto& id : everyone()) {
+    const CareerDef* career = w.content().career(w.definition(id)->careerId);
     REQUIRE(career);
     REQUIRE(!career->workplaces.empty());
-    // It's 07:00: shops like Low End Studios are closed, but staff can always get in.
-    walkInto(w, id, career->workplaces.front());
-    REQUIRE(w.startShift(id));
+    workplace[id] = career->workplaces.front();
+    REQUIRE(w.exitBuilding(id));
+    REQUIRE(w.moveTo(id, w.content().location(workplace[id])->door));
   }
+  for (int i = 0; i < 4000; ++i) {
+    bool moving = false;
+    for (const auto& id : everyone()) moving |= w.character(id)->moveTarget.has_value();
+    if (!moving) break;
+    w.advanceRealTime(0.1);
+  }
+  for (const auto& id : everyone()) {
+    const LocationId& where = workplace[id];
+    // Body & Balance is still being built in a new town: its trainer can't get in until it opens.
+    if (w.locationStatus(*w.content().location(where)) == "under_construction") {
+      CHECK(w.enter(id, where).error().code == "under_construction");
+      continue;
+    }
+    // Shops like Low End Studios are closed this early, but staff can always get in.
+    REQUIRE(w.enter(id, where));
+    REQUIRE(w.startShift(id));
+    working.push_back(id);
+  }
+  CHECK(working.size() == everyone().size() - 1);  // everyone but the trainer
   w.advanceMinutes(60);
-  for (const auto& id : kCast) {
+  for (const auto& id : working) {
     const CharacterDef* d = w.definition(id);
     const Cents hourly = w.content().career(d->careerId)->levels.at(static_cast<std::size_t>(d->careerLevel)).hourlyCents;
     auto r = w.endShift(id);
@@ -86,6 +145,20 @@ TEST_CASE("cast: everyone has their own home and a job they can actually work") 
     CHECK(r.value()["pay_cents"].get<Cents>() == std::llround(static_cast<double>(minutes) / 60.0 * static_cast<double>(hourly)));
   }
   CHECK(w.state().ledger.sumOfBalances() == 0);
+}
+
+TEST_CASE("cast: Samuel and Tess Osei start married, on both sides, and live together") {
+  World w = World::createNew(realContent());
+  REQUIRE(w.relationship("samuel-osei", "tess-osei"));
+  CHECK(w.relationship("samuel-osei", "tess-osei")->status == "married");
+  CHECK(w.relationship("tess-osei", "samuel-osei")->status == "married");
+  REQUIRE(w.connect("tess-osei"));
+  const Json romance = w.openPhoneApp("tess-osei", "romance").value();
+  REQUIRE(romance["relationships"].size() == 1);
+  CHECK(romance["relationships"][0]["id"] == "samuel-osei");
+  CHECK(romance["relationships"][0]["status"] == "married");
+  // Kai and Theo are cousins, not a couple: no status.
+  CHECK(w.relationship("kai-morgan", "theo-grant")->status.empty());
 }
 
 TEST_CASE("cast: their history is directional, as written") {
@@ -146,7 +219,7 @@ TEST_CASE("cast: Dominique's life stages follow her reference sheet (19, 24, 29)
 }
 
 // Art for what lives in a save (created residents, named pets) and for places is listed in
-// art/manifest.json (D-044). Every path must exist, nobody listed as a resident may be a founder,
+// art/manifest.json (D-044). Every path must exist, nobody listed as a resident may be a data character,
 // and place and stop ids must be the game's own.
 TEST_CASE("art: the manifest links to files that exist and to real ids") {
   const auto root = std::filesystem::path(LIVERA_DATA_DIR).parent_path();
@@ -176,7 +249,7 @@ TEST_CASE("art: the manifest links to files that exist and to real ids") {
   const auto isEntry = [](const std::string& key) { return key != "notes" && key.rfind("$", 0) != 0; };
   for (const auto& [id, r] : m["residents"].items()) {
     if (!isEntry(id)) continue;
-    CHECK(content->character(id) == nullptr);  // founders link their art from data/characters
+    CHECK(content->character(id) == nullptr);  // data characters link their art from data/characters
     CHECK(r.contains("sheet"));
     CHECK(r.contains("avatar"));
   }

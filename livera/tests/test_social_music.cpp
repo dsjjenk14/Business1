@@ -10,9 +10,9 @@ namespace {
 
 World threeOnline() {
   World w = World::createNew(realContent());
-  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/nico_vale.json");
   REQUIRE(w.createCharacter(Json::parse(in)));
-  for (const char* id : {"dominique", "dax", "sol-rivera"}) REQUIRE(w.connect(id));
+  for (const char* id : {"dominique", "dax", "nico-vale"}) REQUIRE(w.connect(id));
   (void)w.drainEvents();
   return w;
 }
@@ -43,7 +43,7 @@ TEST_CASE("speech: people in the same building hear you; people elsewhere don't"
   World w = threeOnline();
   walkInto(w, "dominique", "heritage_coffee");
   walkInto(w, "dax", "heritage_coffee");
-  (void)w.drainEvents();  // sol-rivera is still at home
+  (void)w.drainEvents();  // nico-vale is still at home
   auto r = w.say("dominique", "Morning, everyone!", "say");
   REQUIRE(r);
   CHECK(r.value()["heard_by"] == 1);
@@ -52,16 +52,16 @@ TEST_CASE("speech: people in the same building hear you; people elsewhere don't"
 
 TEST_CASE("speech: outdoors, how far you're heard depends on how loud you are") {
   World w = threeOnline();
-  for (const char* id : {"dominique", "dax", "sol-rivera"}) REQUIRE(w.exitBuilding(id));
+  for (const char* id : {"dominique", "dax", "nico-vale"}) REQUIRE(w.exitBuilding(id));
   walkTo(w, "dominique", "founders_park");
   REQUIRE(w.moveTo("dax", {415, 350}));  // 15 m from the park's centre
-  REQUIRE(w.moveTo("sol-rivera", {450, 350}));  // 50 m away
+  REQUIRE(w.moveTo("nico-vale", {450, 350}));  // 50 m away
   for (int i = 0; i < 1000; ++i) w.advanceRealTime(0.1);
   (void)w.drainEvents();
   REQUIRE(w.say("dominique", "Over here", "say"));
   CHECK(heard(w, "speech") == std::vector<CharacterId>{"dax"});
   REQUIRE(w.say("dominique", "OVER HERE", "shout"));
-  CHECK(heard(w, "speech") == (std::vector<CharacterId>{"dax", "sol-rivera"}));
+  CHECK(heard(w, "speech") == (std::vector<CharacterId>{"dax", "nico-vale"}));
   CHECK(w.say("dominique", "psst", "whisper", "dax").error().code == "too_far");  // 15 m is not a whisper
 }
 
@@ -69,7 +69,7 @@ TEST_CASE("speech: whispers reach one person; bad lines are refused") {
   World w = threeOnline();
   walkInto(w, "dominique", "heritage_coffee");
   walkInto(w, "dax", "heritage_coffee");
-  walkInto(w, "sol-rivera", "heritage_coffee");
+  walkInto(w, "nico-vale", "heritage_coffee");
   (void)w.drainEvents();
   REQUIRE(w.say("dominique", "Don't tell anyone.", "whisper", "dax"));
   CHECK(heard(w, "speech") == std::vector<CharacterId>{"dax"});
@@ -86,13 +86,13 @@ TEST_CASE("speech: whispers reach one person; bad lines are refused") {
 
 TEST_CASE("tips: money moves between people who are together") {
   World w = threeOnline();
-  CHECK(w.tip("dominique", "sol-rivera", 500).error().code == "too_far");
+  CHECK(w.tip("dominique", "nico-vale", 500).error().code == "too_far");
   walkInto(w, "dominique", "heritage_coffee");
-  walkInto(w, "sol-rivera", "heritage_coffee");
-  const Cents before = w.state().ledger.balance(bankAccountOf("sol-rivera"));
-  REQUIRE(w.tip("dominique", "sol-rivera", 500));
-  CHECK(w.state().ledger.balance(bankAccountOf("sol-rivera")) == before + 500);
-  CHECK(w.tip("dominique", "sol-rivera", 50).error().code == "invalid_amount");
+  walkInto(w, "nico-vale", "heritage_coffee");
+  const Cents before = w.state().ledger.balance(bankAccountOf("nico-vale"));
+  REQUIRE(w.tip("dominique", "nico-vale", 500));
+  CHECK(w.state().ledger.balance(bankAccountOf("nico-vale")) == before + 500);
+  CHECK(w.tip("dominique", "nico-vale", 50).error().code == "invalid_amount");
   CHECK(w.tip("dominique", "dominique", 500).error().code == "invalid_target");
   CHECK(w.state().ledger.sumOfBalances() == 0);
 }
@@ -101,7 +101,7 @@ TEST_CASE("tips: money moves between people who are together") {
 
 TEST_CASE("music: songs are validated and owned") {
   World w = threeOnline();
-  auto saved = w.saveSong("sol-rivera", groove(), "");
+  auto saved = w.saveSong("nico-vale", groove(), "");
   REQUIRE(saved);
   const std::string id = saved.value()["id"];
   CHECK(saved.value()["notes"] == 7);
@@ -112,7 +112,7 @@ TEST_CASE("music: songs are validated and owned") {
   auto bad = [&](const char* patch) {
     Json s = groove();
     s.merge_patch(Json::parse(patch));
-    return w.saveSong("sol-rivera", s, "");
+    return w.saveSong("nico-vale", s, "");
   };
   CHECK(!bad(R"({"bpm": 400})"));
   CHECK(!bad(R"({"title": ""})"));
@@ -127,11 +127,11 @@ TEST_CASE("music: songs are validated and owned") {
 TEST_CASE("music: releasing makes a song public, final, and news") {
   World w = threeOnline();
   walkInto(w, "dominique", "heritage_coffee");
-  walkInto(w, "sol-rivera", "heritage_coffee");
-  REQUIRE(w.interact("dominique", "chat", "sol-rivera"));  // now they know each other
-  const std::string id = w.saveSong("sol-rivera", groove(), "").value()["id"];
-  REQUIRE(w.releaseSong("sol-rivera", id));
-  CHECK(w.saveSong("sol-rivera", groove(), id).error().code == "song_released");
+  walkInto(w, "nico-vale", "heritage_coffee");
+  REQUIRE(w.interact("dominique", "chat", "nico-vale"));  // now they know each other
+  const std::string id = w.saveSong("nico-vale", groove(), "").value()["id"];
+  REQUIRE(w.releaseSong("nico-vale", id));
+  CHECK(w.saveSong("nico-vale", groove(), id).error().code == "song_released");
   auto heardIt = w.openSong("dominique", id);
   REQUIRE(heardIt);
   CHECK(heardIt.value()["tracks"].size() == 2);
@@ -144,31 +144,31 @@ TEST_CASE("music: releasing makes a song public, final, and news") {
 
 TEST_CASE("music: performing on a stage entertains the room and builds skill") {
   World w = threeOnline();
-  const std::string id = w.saveSong("sol-rivera", groove(), "").value()["id"];
-  CHECK(w.perform("sol-rivera", id).error().code == "no_stage");  // their apartment isn't a stage
-  walkInto(w, "sol-rivera", "heritage_coffee");
+  const std::string id = w.saveSong("nico-vale", groove(), "").value()["id"];
+  CHECK(w.perform("nico-vale", id).error().code == "no_stage");  // their apartment isn't a stage
+  walkInto(w, "nico-vale", "heritage_coffee");
   walkInto(w, "dominique", "heritage_coffee");
   walkInto(w, "dax", "heritage_coffee");
   (void)w.drainEvents();
   const double fun = w.character("dominique")->needs.at("recreation");
-  const double respect = w.relationshipValue("dominique", "sol-rivera", "respect");
-  auto r = w.perform("sol-rivera", id);
+  const double respect = w.relationshipValue("dominique", "nico-vale", "respect");
+  auto r = w.perform("nico-vale", id);
   REQUIRE(r);
   CHECK(r.value()["audience"] == 2);
   CHECK(heard(w, "performance") == (std::vector<CharacterId>{"dax", "dominique"}));
   CHECK(w.character("dominique")->needs.at("recreation") > fun);
-  CHECK(w.relationshipValue("dominique", "sol-rivera", "respect") > respect);
-  CHECK(w.character("sol-rivera")->skills.at("music") > 0);
+  CHECK(w.relationshipValue("dominique", "nico-vale", "respect") > respect);
+  CHECK(w.character("nico-vale")->skills.at("music") > 0);
   CHECK(w.state().songs.at(id).plays == 2);
-  CHECK(w.perform("sol-rivera", id).error().code == "too_soon");
+  CHECK(w.perform("nico-vale", id).error().code == "too_soon");
   // Practice makes better: quality rises with skill.
   const double first = r.value()["quality"];
   for (int i = 0; i < 20; ++i) {
     w.advanceMinutes(5);
-    REQUIRE(w.perform("sol-rivera", id));
+    REQUIRE(w.perform("nico-vale", id));
   }
   w.advanceMinutes(5);
-  CHECK(w.perform("sol-rivera", id).value()["quality"].get<double>() > first);
+  CHECK(w.perform("nico-vale", id).value()["quality"].get<double>() > first);
   // Others can't perform your unreleased song.
   CHECK(w.perform("dominique", id).error().code == "unknown_song");
 }

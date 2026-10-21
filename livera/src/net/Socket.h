@@ -11,7 +11,11 @@
 // same protocol through the WebSocket gateway in web/gateway/; see docs/MULTIPLAYER.md.
 namespace livera::net {
 
+// What the server accepts from a client in one line (a request is small).
 inline constexpr std::size_t kMaxLineBytes = 16 * 1024;
+// What a client accepts from the server in one line: replies like `map` (every place in town) and `characters` grow
+// with the town's content and passed 16 KB with D-073's homes. The same bound the web gateway uses.
+inline constexpr std::size_t kMaxServerLineBytes = 4 * 1024 * 1024;
 
 class Fd {
  public:
@@ -42,15 +46,17 @@ std::uint16_t localPort(const Fd& fd);
 Result<Fd> connectTcp(const std::string& host, std::uint16_t port);
 Status setNonBlocking(const Fd& fd);
 
-// Accumulates bytes and splits them into lines. Rejects lines over kMaxLineBytes so a
-// client cannot make the server buffer unbounded data.
+// Accumulates bytes and splits them into lines. Rejects lines over its limit so a peer cannot make the reader
+// buffer unbounded data: the server reads clients with kMaxLineBytes, clients read the server with kMaxServerLineBytes.
 class LineBuffer {
  public:
+  explicit LineBuffer(std::size_t maxLineBytes = kMaxServerLineBytes) : max_(maxLineBytes) {}
   // Returns false if the peer exceeded the line limit.
   bool append(const char* data, std::size_t n);
   std::optional<std::string> nextLine();
 
  private:
+  std::size_t max_;
   std::string buf_;
 };
 

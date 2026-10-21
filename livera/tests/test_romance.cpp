@@ -339,11 +339,11 @@ TEST_CASE("fame: performing makes you known; celebrities turn heads") {
 
 TEST_CASE("family: the creator asks whether you are female or male") {
   World w = World::createNew(romanceContent());
-  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/nico_vale.json");
   Json sheet = Json::parse(in);
-  auto sol = w.createCharacter(sheet);
-  REQUIRE(sol);
-  CHECK(w.definition(sol.value())->sex == "female");
+  auto nico = w.createCharacter(sheet);
+  REQUIRE(nico);
+  CHECK(w.definition(nico.value())->sex == "female");
   sheet["first_name"] = "Rae";
   sheet["sex"] = "male";
   auto rae = w.createCharacter(sheet);

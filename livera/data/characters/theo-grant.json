@@ -101,7 +101,13 @@
             "Pierced ears and a chain necklace",
             "Streetwear"
           ],
-          "visual_reference": "art/reference/residents/theo-grant.jpg"
+          "visual_reference": "art/reference/residents/theo-grant.jpg",
+          "avatar": "art/avatars/theo-grant.jpg",
+          "art_notes": [
+            "The card and the data agree: Shift Supervisor, Greenleaf Market. In the town-preview recording he later moved to Body & Balance's front desk; that move isn't in the data.",
+            "The shop sign behind him in the WORK LOOK panel is partly hidden and may be garbled; the card itself names Greenleaf Market correctly."
+          ],
+          "art_as_of": "Day 28 of the town-preview recording"
         },
         "family_background": "Atlanta, like Kai: his mother is Kai's mother's younger sister; his father was a Dominican line cook who taught him to make sancocho and left when he was twelve.",
         "education": "High school diploma",

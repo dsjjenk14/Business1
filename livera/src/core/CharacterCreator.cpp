@@ -91,7 +91,7 @@ Result<StatMap> allocate(const Json& spec, const char* key, const std::vector<st
   return out;
 }
 
-// Readable, stable ids from names: "Sol Rivera" -> "sol-rivera". Common accented Latin
+// Readable, stable ids from names: "Nico Vale" -> "nico-vale". Common accented Latin
 // letters fold to ASCII; anything else becomes a separator.
 std::string slugify(const std::string& name) {
   static const char* kFold =  // UTF-8 C3 80..C3 BF -> ASCII (À..ÿ)

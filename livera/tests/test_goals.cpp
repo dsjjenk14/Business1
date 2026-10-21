@@ -83,8 +83,8 @@ void nextDay(World& w, int hour = 9) {
   w.advanceMinutes(target - w.now());
 }
 
-Json solSheet() {
-  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
+Json nicoSheet() {
+  std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/nico_vale.json");
   return Json::parse(in);
 }
 
@@ -316,15 +316,15 @@ TEST_CASE("goals: memories, promotions, people, messages and work calls") {
   {
     World w = World::createNew(oneGoal(Json{{"type", "memories_today"}, {"memory", "first_meeting"}}));
     REQUIRE(w.connect("dominique"));
-    auto sol = w.createCharacter(solSheet());
-    REQUIRE(sol);
-    REQUIRE(w.connect(sol.value()));
+    auto nico = w.createCharacter(nicoSheet());
+    REQUIRE(nico);
+    REQUIRE(w.connect(nico.value()));
     walkInto(w, "dominique", "heritage_coffee");
-    walkInto(w, sol.value(), "heritage_coffee");
+    walkInto(w, nico.value(), "heritage_coffee");
     CHECK(!done(w, "dominique"));
-    REQUIRE(w.interact("dominique", "chat", sol.value()).value().at("first_meeting") == true);
+    REQUIRE(w.interact("dominique", "chat", nico.value()).value().at("first_meeting") == true);
     CHECK(done(w, "dominique"));
-    CHECK(done(w, sol.value()));  // both remember meeting
+    CHECK(done(w, nico.value()));  // both remember meeting
   }
   {
     // Promotions count the promotion memories the World keeps; until then, the next title's hours.
@@ -489,12 +489,12 @@ TEST_CASE("goals: aspirations come from a founder's data or the creator; untrack
   CHECK(contains(give["reason"].get<std::string>(), "aren't recorded yet"));
   CHECK(!give.contains("steps"));
   // A made character's aspirations are the goals picked in the creator.
-  Json sheet = solSheet();
+  Json sheet = nicoSheet();
   sheet["goals"] = {"start a business", "get rich"};
-  auto sol = w.createCharacter(sheet);
-  REQUIRE(sol);
-  REQUIRE(w.connect(sol.value()));
-  const Json mine = goalsOf(w, sol.value());
+  auto nico = w.createCharacter(sheet);
+  REQUIRE(nico);
+  REQUIRE(w.connect(nico.value()));
+  const Json mine = goalsOf(w, nico.value());
   CHECK(mine["from"] == "creator");
   REQUIRE(mine["aspirations"].size() == 2);
   CHECK(mine["aspirations"][0]["id"] == "start_a_business");
