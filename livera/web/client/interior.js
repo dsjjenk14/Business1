@@ -41,6 +41,9 @@ export function loadRoomManifest() {
   return manifestLoad;
 }
 
+// The owner's picture of a place's room, once the manifest has loaded (the social app's post pictures, D-074).
+export const roomUrl = id => (rooms.has(id) ? `rooms/${encodeURIComponent(id)}.webp` : null);
+
 // ------------------------------------------------------------------ light, as the map has it (LIGHT in layout.js)
 const hex = h => h.match(/\w\w/g).map(x => parseInt(x, 16));
 function lightAt(m) {

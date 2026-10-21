@@ -11,6 +11,7 @@ std::map<std::string, Json> worldPartsToJson(const WorldState& s) {
   out["leisure"] = leisurePartToJson(s);
   out["pets"] = petsPartToJson(s);
   out["details"] = detailsPartToJson(s);
+  out["social"] = socialPartToJson(s);  // D-074
   return out;
 }
 
@@ -25,6 +26,7 @@ void worldPartsFromJson(WorldState& s, const std::map<std::string, Json>& parts)
   leisurePartFromJson(s, part("leisure"));
   petsPartFromJson(s, part("pets"));
   detailsPartFromJson(s, part("details"));
+  socialPartFromJson(s, part("social"));  // D-074: an older save has none (World's constructor seeds the follows)
 }
 
 }  // namespace livera

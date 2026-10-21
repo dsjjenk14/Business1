@@ -1093,6 +1093,62 @@ Employers pay more wages, so they run down faster where revenue is thin. The pic
 Nobody performs at the open mic unless a person does: the autopilot never writes or plays a song. The Python director
 doesn't know evening plans or patrols (it stays the alternative to `--autopilot`, D-053).
 
+## D-074 — Social media is World state built from real events, and the phone leads with what you use every day
+**Decision:** The town's story comes back through a social app on the phone (D-071's "social media, not a morning
+paper"; `core/Social.cpp`, `data/society/social.json`). A post is World state (the world part `social`): an author (a
+character, or the anonymous gossip account @livera.unfiltered), a time, text, maybe the place it was posted from and
+tagged people, and what it's about (the author's memory, or the rumour). **Who writes them:** a person, with `post
+{text, place?, tags?|tag?, about?, as?}` (text 1–280 characters, from where you are, tagging only people you know,
+`about` one of your own memories; refusals `invalid_text`, `too_long`, `not_there`, `unknown_person`, `not_known`,
+`too_many_tags`, `unknown_event`, `too_soon`, `daily_limit`, `duplicate`, `not_your_account`, `no_phone`/`phone_dead`,
+`in_jail`); and the game, for **characters a script plays only**, from what really happened to them: every memory the
+World writes passes `addMemory`, and one of a type social.json lists (a promotion, a new job, a graduation, a new
+home, moving in, a pet, a date, getting together, an engagement, a wedding, a set they heard live, a match, a status
+purchase) or a check-in (walking into a place of a listed type, posted only if they're still there) becomes a moment,
+posted a few minutes later with the data's chance (scaled by a trait), at most a few a day, in the author's voice
+(the first voice whose trait bounds their personality meets) from data lines with `{first}`, `{place}`, `{with}`,
+`{title}`, `{pet}`, `{item}`. Rules are by memory type and trait, never by named character. A person gets the same
+moments as "Share it?" suggestions in their own voice, never posted for them. **The gossip account** posts what
+people witnessed, from the rumours the World already spreads (Details.cpp, now with an id, a kind, the other person
+and the place): fights, arrests, arguments (the interactions the data names) and kisses in the kinds of place the data
+names; once `min_heard` people know and `delay_minutes` have passed, with the kind's chance, `per_day` at most;
+`twist_chance` of its posts aren't what happened. Every gossip post shows "Heard by N" (the rumour's count, updated
+hourly as it spreads); whether it's true is shown only to someone who was there (a witness or someone in it). It is run
+by whoever holds the secret `sienna_unfiltered` in their data: only that person may post as it (`as`), and only their
+own view says so. **Follow, like, comment:** `follow`/`unfollow {account}`, `like`/`unlike {post}`, `comment {post,
+text}` with stable refusals (`unknown_account`, `invalid_target`, `already_following`, `not_following`, `too_many`,
+`unknown_post`, `own_post`, `already_liked`, `not_liked`, `post_full`, `daily_limit`, `too_soon`). A follower or a like
+the account or post never had before adds a little fame (capped a day) and moves the author's side of the
+relationship a little; unfollowing and following again, or unliking and liking again, add nothing. A new world (or a
+save from before this) starts with people following who they already know well. **What a person may see (rule 5):**
+every post is public (the Town tab, `social_feed {tab: "town"}`); the Following tab holds the people you follow, you,
+posts you're in, and gossip you follow or that reached you; no view ever carries a message, a feeling, who heard or who
+was there, or who runs the gossip account. **Notifications:** a like, comment, follow, tag or gossip about you is a
+`social` event (a toast), at most `notify.per_hour` an hour and at most `notify.game_per_day` a day of them caused by
+the game (D-076); the rest wait in the app's Activity list. In the morning the feed opens with Last night in Livéra:
+the night's most liked public posts and the gossip account's (D-076). **The phone:** the home screen is Social,
+Messages, Map, Bank, Work, Calendar and People; everything else is under More apps. Messages are a thread per person
+with "Seen" (the server's read flag; reading sends `message_seen` to the writer) and labels for someone a script plays
+or who is away; people the autopilot plays read a message a few game minutes after it arrives (a hash of who and when),
+when awake, in the world and off shift, and answer once by the first reply rule in `manners.json` their own side of
+the relationship meets, never a script. The Map app returns `{open_now, people}`: the places open to the public right
+now, and your people where your character could know they are (in sight, by the people stream's rule, or where they
+last posted from, which is public); the town itself is the `map` op's. Saved: the world part `social` (no SQL change:
+world parts are rows of `world_parts`); a save without it loads with no posts and the founding follows.
+**Why:** The owner's words: "Add social media, not a morning paper" and "Phone more useful." Building posts from the
+World's own records (memories, rumours, the witnesses) means nothing on the feed is invented: a promotion post means
+someone was promoted; a gossip post means people saw it. Hooking `addMemory` makes every system that remembers
+something a source without each one knowing about social media, and keeps the new townspeople (who arrive with their
+own traits and schedules) covered by the same rules. Chances come from a hash of what's decided, never the world's
+random stream, so a phone app or a post never changes anyone's dice. Showing whether gossip is true only to witnesses
+is the pitch's "only the people who were there know", enforced by the server.
+**Trade-off:** In today's town the autopilot founders rarely go out, so the game posts only a few times a day; their
+evening plans (the people workstream) will make the feed busier with no change here. The gossip account posts by the
+data's rule, not because a person playing Sienna chose to (she can post as it too). Posts are kept to `kept_posts`
+(oldest go first). Liking someone a script plays notifies nobody who'd react; their side of the relationship still
+moves. The `map` reply sits just under the 16 KiB line limit C++ clients read with (`net::kMaxLineBytes`), which is
+why the Map app doesn't repeat it.
+
 ## D-075 — A faster clock: 2 game minutes per real second, walking at 10 m/s and the bus at 40 m/s
 **Decision:** `simulation.minutes_per_real_second` goes from 1 to 2 (a game day is 12 real minutes), with
 `walk_speed_mps` 6 → 10 and the bus line's `speed_mps` 24 → 40, all in data. Walking speed rises less than the clock,

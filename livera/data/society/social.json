@@ -1,0 +1,301 @@
+{
+  "$comment": "Social media on the phone (D-074, core/Social.cpp). Posts are World state: an author (a character, or the anonymous gossip account), a time, text, maybe a place and tagged people, and what it's about (the memory or rumour it came from). Characters a script plays post from what really happened to them: a moment is one of their own memories of a type listed under auto.moments (or a check-in when they walk into a place of a listed type), posted after a delay with the chance base + per_trait x trait/100 times the moment's chance, at most per_day a day and min_gap_minutes apart, in their voice (the first voice whose minimums their personality meets; 'default' lines are the fallback). Lines may use {first} (the author), {place}, {with} (the other person), {title}, {pet}, {item}; a line whose placeholders can't be filled isn't used. People post with the post op. The gossip account posts what people witnessed, from the rumours the World keeps: once at least min_heard people know and delay_minutes have passed, with the kind's chance, at most per_day a day; twist_chance of its posts aren't what happened, and only the people who were there can tell. It is run by whoever holds the secret run_by_secret (Sienna, in her data). Likes and new followers add fame (at most fame.max_per_day a day per person) and move the author's side of the relationship by these small amounts. Notifications reach a person at most notify.per_hour an hour, and at most notify.game_per_day a day of them come from the game (a post the game wrote that tags you, the gossip account); the rest wait in the app's activity list. In the morning (until last_night.shown_until_hour) the feed opens with Last night in Livéra: the most liked and commented public posts from from_hour last night to to_hour this morning, and the gossip account's.",
+  "social": {
+    "post": {"max_length": 280, "min_gap_minutes": 10, "per_day": 12, "max_tags": 4},
+    "comment": {"max_length": 200, "min_gap_minutes": 1, "per_day": 40, "per_post": 40},
+    "like": {"per_day": 150},
+    "follow": {"max_following": 200},
+    "feed": {"limit": 40, "kept_posts": 600, "comments_shown": 3, "activity_kept": 60, "map_post_hours": 6},
+    "last_night": {"from_hour": 18, "to_hour": 6, "shown_until_hour": 12, "top": 3},
+    "fame": {"per_follower": 0.4, "per_like": 0.05, "max_per_day": 2},
+    "relationship": {
+      "like": {"familiarity": 0.5, "friendship": 0.3},
+      "comment": {"familiarity": 1, "friendship": 0.6},
+      "follow": {"familiarity": 1}
+    },
+    "notify": {"per_hour": 4, "game_per_day": 1},
+    "seed_follows": {"min": {"familiarity": 30}},
+    "status_purchase": {
+      "min_price_cents": 40000,
+      "categories": ["jewelry", "accessory", "clothing", "phone", "electronics"],
+      "except": ["engagement_ring"]
+    },
+    "topics": {
+      "promotion": "Promotion",
+      "new_job": "New job",
+      "graduation": "Graduation",
+      "new_home": "New home",
+      "moved_in": "Moving in",
+      "pet": "New pet",
+      "date": "Date night",
+      "together": "Official",
+      "engaged": "Engaged",
+      "married": "Married",
+      "performance": "Live music",
+      "match": "Game day",
+      "purchase": "New in",
+      "out": "Out and about",
+      "fight": "A fight",
+      "argument": "A scene",
+      "arrest": "An arrest",
+      "kiss": "A kiss"
+    },
+    "auto": {
+      "per_day": 3,
+      "min_gap_minutes": 90,
+      "delay_minutes": [8, 75],
+      "keep_hours": 18,
+      "trait": "sociability",
+      "base": 0.3,
+      "per_trait": 0.6,
+      "checkin_place_types": [
+        "bar",
+        "coffee_shop",
+        "restaurant",
+        "nightclub",
+        "cinema",
+        "gym",
+        "salon",
+        "boutique",
+        "sports_court",
+        "wellness_studio",
+        "jeweler",
+        "grocery"
+      ],
+      "checkin_tag_min_friendship": 30,
+      "voices": [
+        {"id": "showy", "min": {"sociability": 80, "confidence": 80}},
+        {"id": "warm", "min": {"empathy": 75}},
+        {"id": "driven", "min": {"ambition": 85}},
+        {"id": "cool", "max": {"sociability": 55}}
+      ],
+      "moments": [
+        {
+          "memory": "promotion",
+          "topic": "promotion",
+          "chance": 1,
+          "lines": {
+            "default": ["New title: {title}. Thank you to everyone at {place}.", "Some news: I'm {title} now."],
+            "showy": ["YOU ARE LOOKING AT THE NEW {title} 🥂", "{title}. Say it with me. {title}! ✨"],
+            "warm": ["Grateful doesn't cover it. {title}, starting today. Thank you, {place} family. 💛"],
+            "driven": ["Promoted to {title}. Back to work tomorrow.", "{title}. On to the next one."],
+            "cool": ["{title}."]
+          }
+        },
+        {
+          "memory": "new_job",
+          "topic": "new_job",
+          "chance": 0.9,
+          "lines": {
+            "default": ["Starting as {title} at {place}. New chapter."],
+            "showy": ["New job, who dis? {title} at {place} 💼✨"],
+            "driven": ["Joined {place} as {title}. Let's build."],
+            "cool": ["{place}. {title}."]
+          }
+        },
+        {
+          "memory": "graduation",
+          "topic": "graduation",
+          "chance": 1,
+          "lines": {
+            "default": ["Graduated. It's official. 🎓"],
+            "showy": ["CAP. GOWN. DONE. 🎓🎉"],
+            "warm": ["Graduated today. Thank you to everyone who got me here. 🎓"]
+          }
+        },
+        {
+          "memory": "bought_home",
+          "topic": "new_home",
+          "chance": 1,
+          "lines": {
+            "default": ["Keys in hand. {place} is home now. 🔑", "Bought a place: {place}."],
+            "showy": ["HOMEOWNER 🔑🏡 {place}, you're mine.", "Housewarming at {place} soon. You know who you are. 🥂"],
+            "warm": ["We have a home. {place}. 🏡💛"],
+            "driven": ["Closed on {place} today."],
+            "cool": ["{place}. 🔑"]
+          }
+        },
+        {
+          "memory": "moved_in_together",
+          "topic": "moved_in",
+          "chance": 1,
+          "lines": {
+            "default": ["Moved in with {with} at {place}. One closet, two people. 📦"],
+            "showy": ["{with} and I live together now?! {place}, here we come 📦💕"],
+            "warm": ["Home is wherever {with} is. Today that's {place}. 💛"],
+            "cool": ["Living with {with} now."]
+          }
+        },
+        {
+          "memory": "adopted_pet",
+          "topic": "pet",
+          "chance": 1,
+          "lines": {
+            "default": ["Everyone, meet {pet}. 🐾", "{pet} came home with me today. 🐾"],
+            "showy": ["NEW BABY ALERT 🐾 {pet} is the cutest thing in Livéra and I will not be taking questions."],
+            "warm": ["{pet} picked me at the shelter today. We're a family now. 🐾💛"],
+            "cool": ["{pet}. 🐾"]
+          }
+        },
+        {
+          "memory": "date",
+          "topic": "date",
+          "chance": 0.7,
+          "lines": {
+            "default": ["{place} with {with}. 🍷", "Good night at {place}. Good company too."],
+            "showy": ["Date night at {place} with {with} 🍷✨ ten out of ten, no notes."],
+            "warm": ["Slow evening at {place} with {with}. Exactly what I needed. 💛"],
+            "driven": ["Took a night off. {place}, with {with}."],
+            "cool": ["{place}. 🍷"]
+          }
+        },
+        {
+          "memory": "started_dating",
+          "topic": "together",
+          "chance": 0.8,
+          "lines": {
+            "default": ["So, {with} and me. It's a thing. 💕"],
+            "showy": ["Soft launch? No. HARD launch. Me and {with}. 💕💕"],
+            "warm": ["Something good is happening, and its name is {with}. 💛"],
+            "cool": ["{with}. 💕"]
+          }
+        },
+        {
+          "memory": "engagement",
+          "topic": "engaged",
+          "chance": 1,
+          "lines": {
+            "default": ["{with} asked. I said yes. 💍"],
+            "showy": ["I'M ENGAGED 💍💍💍 {with}, forever!!"],
+            "warm": ["Engaged to my favourite person. {with}, always. 💍💛"],
+            "cool": ["Engaged. 💍"]
+          }
+        },
+        {
+          "memory": "wedding",
+          "topic": "married",
+          "chance": 1,
+          "lines": {
+            "default": ["Married {with} today. 💍"],
+            "showy": ["MR & MRS? MRS & MRS? MARRIED. {with}, my forever 💍🥂"],
+            "warm": ["I married {with} today, surrounded by people we love. 💛"]
+          }
+        },
+        {
+          "memory": "performance",
+          "topic": "performance",
+          "chance": 0.6,
+          "lines": {
+            "default": ["Caught {with}'s set at {place}. 🎶", "{with} live at {place}. Worth it."],
+            "showy": ["{with} just SHUT DOWN {place} 🔥🎤"],
+            "warm": ["{with} played at {place} tonight and the whole room went quiet. Beautiful. 🎶"],
+            "cool": ["{with}, live. {place}. 🎶"]
+          }
+        },
+        {
+          "memory": "match",
+          "topic": "match",
+          "chance": 0.5,
+          "lines": {
+            "default": ["Game day at {place}. Legs are done. 🏀"],
+            "showy": ["Left it ALL on the court at {place} today 🏀🔥"],
+            "driven": ["Played at {place}. Rematch next week."]
+          }
+        },
+        {
+          "memory": "status_purchase",
+          "topic": "purchase",
+          "chance": 0.9,
+          "lines": {
+            "default": ["Treated myself: {item}. ✨"],
+            "showy": ["New {item}, who dis ✨ (yes it was worth it)"],
+            "driven": ["Bought the {item}. Earned it."],
+            "cool": ["{item}."]
+          }
+        },
+        {
+          "memory": "checkin",
+          "topic": "out",
+          "chance": 0.6,
+          "lines": {
+            "default": ["At {place}.", "{place}, again. 📍", "{place} with {with}. 📍"],
+            "showy": ["{place} tonight! Who's coming? ✨", "Me at {place}: thriving 💅", "{place} with {with} 🥂"],
+            "warm": ["Little break at {place}. 💛", "{place} with {with}. Good people. 💛"],
+            "driven": ["Working from {place} for an hour.", "Quick stop at {place}."],
+            "cool": ["{place}.", "📍 {place}"]
+          }
+        }
+      ]
+    },
+    "unfiltered": {
+      "handle": "livera.unfiltered",
+      "name": "Livéra Unfiltered",
+      "bio": "What Livéra saw, and what it's saying. Anonymous. Tips welcome.",
+      "run_by_secret": "sienna_unfiltered",
+      "min_heard": 1,
+      "delay_minutes": 30,
+      "per_day": 5,
+      "twist_chance": 0.3,
+      "kinds": [
+        {
+          "kind": "fight",
+          "topic": "fight",
+          "chance": 1,
+          "relationship": {"respect": -5},
+          "lines": [
+            "Fists at {place}. {about} started it with {with}. Heard it from someone who was there. 👀",
+            "{about} vs {with} at {place}. Not a debate. An actual fight. 👀"
+          ],
+          "twisted": [
+            "Word is {with} threw the first punch at {place} and {about} only finished it. 👀",
+            "{about} and {with} at {place}: three punches, one ambulance, zero apologies. Allegedly. 👀"
+          ]
+        },
+        {
+          "kind": "argument",
+          "topic": "argument",
+          "interactions": ["argue"],
+          "chance": 1,
+          "relationship": {"respect": -2},
+          "lines": [
+            "Raised voices at {place} tonight: {about} and {with}. Everyone heard. 👀",
+            "{about} had words with {with} at {place}. The whole room went quiet. 👀"
+          ],
+          "twisted": [
+            "{about} threw a drink at {with} at {place}. Sources are very sure. 🍸👀",
+            "{about} and {with}, screaming at {place}, and it was about money. 👀"
+          ]
+        },
+        {
+          "kind": "arrest",
+          "topic": "arrest",
+          "chance": 1,
+          "relationship": {"respect": -4, "trust": -3},
+          "lines": [
+            "Police walked {about} out of {place}. Make of that what you want. 🚓",
+            "{about} left {place} with an escort today. The blue kind. 🚓"
+          ],
+          "twisted": [
+            "{about} was led out of {place} in handcuffs, and it's not the first time. 🚓",
+            "{about} got arrested at {place} and tried to bribe the officer. Allegedly. 🚓"
+          ]
+        },
+        {
+          "kind": "kiss",
+          "topic": "kiss",
+          "place_types": ["bar", "nightclub", "restaurant", "coffee_shop", "cinema"],
+          "chance": 0.9,
+          "relationship": {},
+          "lines": [
+            "{about} and {with}. {place}. A kiss. In public. 💋👀",
+            "Spotted: {about} kissing {with} at {place}. 💋"
+          ],
+          "twisted": [
+            "{about} and {with} left {place} together and didn't come back. 💋👀",
+            "{about} kissed {with} at {place}, and someone isn't going to like that. 💋👀"
+          ]
+        }
+      ]
+    }
+  }
+}

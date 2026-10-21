@@ -180,6 +180,18 @@ async function closeSheet(p) {
   const b = await p.page.$('#sheet:not([hidden]) .sheet-head [aria-label="Close"]');
   if (b) await b.click();
 }
+// The phone (D-074): the everyday apps are on the home screen, the rest one tap deeper under More apps.
+async function phoneApp(p, app) {
+  await p.page.waitForSelector("#phone .app");
+  if (!(await p.page.$(`#phone [data-app="${app}"]`))) await p.page.click("#phone [data-more]");
+  await p.page.click(`#phone [data-app="${app}"]`);
+}
+// A place from the Map app: every place is under All places (folded), each with Show.
+async function showOnMap(p, name) {
+  await p.page.waitForSelector("#phone svg.minimap");
+  if (!(await p.page.$("#phone .all-places[open]"))) await p.page.click("#phone .all-places > summary");
+  await p.page.click(`#phone .all-places li:has-text("${name}") >> text="Show"`);
+}
 const shot = (p, name) => p.page.screenshot({ path: path.join(SHOTS, name) });
 async function openTalk(p) { if (await p.page.$("#chatbar[hidden]")) await p.page.click("#talk-btn"); await p.page.waitForSelector("#chatbar:not([hidden])"); }
 // The person card folds its asks away under "Ask…".
@@ -283,8 +295,8 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
       // With no Exit on screen, the way back is the place card's "Go inside" (it reopens the scene).
       if (!(await A.page.$("#exit-btn, #sheet:not([hidden]) .mini-pill"))) {
         await A.page.click("#phone-btn");
-        await A.page.click('#phone [data-app="map"]');
-        await A.page.click('#phone li:has-text("Heritage Coffee") >> text="Show"');
+        await phoneApp(A, "map");
+        await showOnMap(A, "Heritage Coffee");
         await A.page.click('#sheet >> text="Go inside"');
         await A.page.waitForSelector("#exit-btn");
       }
@@ -435,7 +447,7 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     await closeSheet(B);   // closed without answering
     try {
       await B.page.click("#phone-btn");
-      await B.page.click('#phone [data-app="romance"]');
+      await phoneApp(B, "romance");
       await B.page.click('#phone [data-ask] >> text="Decline"', { timeout: 8000 });
       await B.page.waitForSelector('#phone >> text="No asks waiting."', { timeout: 8000 });   // answered: the list refreshed
     } finally {
@@ -543,9 +555,15 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
   await test("the phone opens every app card, the bank and messages", async () => {
     await A.page.click("#phone-btn");
     await A.page.waitForSelector("#phone .app");
+    // The everyday seven on the home screen (D-074), every other app under More apps.
     const apps = await A.page.$$eval("#phone .app", x => x.length);
-    assert(apps >= 26, `expected the phone's apps (26 or more), got ${apps}`);
+    assert(apps === 7, `expected the seven everyday apps on the home screen, got ${apps}`);
     await shot(A, "phone_10_phone_home.png");
+    await A.page.click("#phone [data-more]");
+    await A.page.waitForSelector('#phone [data-app="story"]');
+    const more = await A.page.$$eval("#phone .app", x => x.length);
+    assert(more >= 20, `expected the other apps under More apps (20 or more), got ${more}`);
+    await A.page.click('#phone [aria-label="Back to apps"]');
     await A.page.click('#phone [data-app="bank"]');
     await A.page.waitForSelector('#phone >> text="Balances"');
     await shot(A, "phone_11_bank.png");
@@ -562,7 +580,7 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     for (const p of [A, B]) assert((await W(p, () => document.querySelectorAll('img[src="x"]').length)) === 0, `${p.label}: message text became HTML`);
     // Another app as cards.
     await A.page.click('#phone [aria-label="Back to apps"]');
-    await A.page.click('#phone [data-app="weather"]');
+    await phoneApp(A, "weather");
     await A.page.waitForSelector("#phone .kv");
     await A.page.click('#phone [aria-label="Close phone"]');
   });
@@ -572,23 +590,38 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     try {
       await A.page.click("#phone-btn");
       await A.page.click('#phone [data-app="messages"]');
+      // In a thread (D-074: a thread per person): half a reply, focused, when someone else writes.
+      await A.page.click('#phone .convo[data-convo="dominique"]');
       const reply = '#phone [data-thread="dominique"] input[aria-label="Reply"]';
       await A.page.waitForSelector(reply);
-      await A.page.fill('#phone input[aria-label="To"]', "leila");
-      await A.page.fill('#phone input[aria-label="Message"]', "a long draft");
       await A.page.fill(reply, "half a reply");
       await A.page.focus(reply);
       const m = await maya.req("message", { to: "aaliyah", text: "are you around?" });
       assert(m.ok, "maya's message failed: " + JSON.stringify(m.error));
-      await A.page.waitForSelector('#phone [data-thread="maya"] >> text="are you around?"', { timeout: 8000 });
-      const after = await W(A, () => {
-        const v = sel => (document.querySelector(sel) || {}).value;
+      await feedHas(A, "are you around?");
+      await sleep(400);
+      const inThread = await W(A, () => {
         const f = document.activeElement;
-        return { to: v('#phone input[aria-label="To"]'), msg: v('#phone input[aria-label="Message"]'), reply: v('#phone [data-thread="dominique"] input[aria-label="Reply"]'),
+        return { reply: (document.querySelector('#phone [data-thread="dominique"] input[aria-label="Reply"]') || {}).value,
                  focus: f && f.closest("[data-thread]") ? f.closest("[data-thread]").dataset.thread + ":" + f.getAttribute("aria-label") : f && f.tagName };
       });
-      assert(after.to === "leila" && after.msg === "a long draft" && after.reply === "half a reply", "drafts were wiped: " + JSON.stringify(after));
-      assert(after.focus === "dominique:Reply", "the field being typed in lost focus: " + after.focus);
+      assert(inThread.reply === "half a reply", "the reply was wiped: " + JSON.stringify(inThread));
+      assert(inThread.focus === "dominique:Reply", "the field being typed in lost focus: " + inThread.focus);
+      // In the list: a new message half-written, focused, when another arrives; the conversations update around it.
+      await A.page.click('#phone button:has-text("All messages")');
+      await A.page.waitForSelector('#phone .convo[data-convo="maya"]');
+      await A.page.fill('#phone input[aria-label="To"]', "leila");
+      await A.page.fill('#phone input[aria-label="Message"]', "a long draft");
+      await A.page.focus('#phone input[aria-label="Message"]');
+      const m2 = await maya.req("message", { to: "aaliyah", text: "hello again" });
+      assert(m2.ok, "maya's second message failed: " + JSON.stringify(m2.error));
+      await A.page.waitForSelector('#phone .convo[data-convo="maya"] >> text="hello again"', { timeout: 8000 });
+      const after = await W(A, () => {
+        const v = sel => (document.querySelector(sel) || {}).value, f = document.activeElement;
+        return { to: v('#phone input[aria-label="To"]'), msg: v('#phone input[aria-label="Message"]'), focus: f && f.getAttribute("aria-label") };
+      });
+      assert(after.to === "leila" && after.msg === "a long draft", "drafts were wiped: " + JSON.stringify(after));
+      assert(after.focus === "Message", "the field being typed in lost focus: " + after.focus);
     } finally {
       maya.close();
       const close = await A.page.$('#phone:not([hidden]) [aria-label="Close phone"]');
@@ -724,8 +757,8 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     await S.page.click("#exit-btn");
     await waitFor(S, () => window.__livera.world.self.inside === "");
     await S.page.click("#phone-btn");
-    await S.page.click('#phone [data-app="map"]');
-    await S.page.click('#phone li:has-text("Livéra University") >> text="Show"');
+    await phoneApp(S, "map");
+    await showOnMap(S, "Livéra University");
     await S.page.click('#sheet >> text="Go inside"');
     await waitFor(S, () => window.__livera.world.self.inside === "livera_university", null, 150000);
     await S.page.waitForSelector('#sheet[data-kind="scene"] [data-enroll="law_school"]');
@@ -808,8 +841,8 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     const clock = await tcpPlayer(`e2e_k_${RUN}`, null);
     try {
       await B.page.click("#phone-btn");
-      await B.page.click('#phone [data-app="map"]');
-      await B.page.click('#phone li:has-text("Heritage Coffee") >> text="Show"');
+      await phoneApp(B, "map");
+      await showOnMap(B, "Heritage Coffee");
       await B.page.waitForSelector('#sheet[data-kind="place"]');
       const s = await W(B, () => ({ status: window.__livera.world.placeById.get("heritage_coffee").status, minute: window.__livera.world.minute() }));
       const open = s.status === "open", want = open ? "closed" : "open";

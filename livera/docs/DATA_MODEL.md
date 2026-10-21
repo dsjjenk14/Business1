@@ -319,7 +319,7 @@ Ledger kind `salary_away`: away pay, employer to the character's bank.
 
 | Section | Fields | Notes |
 |---|---|---|
-| `autopilot_manners` | `greet{range_m, known[], stranger[]}, chat{interaction, trait, base, per_trait, per_friendship}, asks[] {kind, min{dimension: value}}` | data/society/manners.json; at most one; absent = founders keep to themselves and decline every ask. `range_m` within `hearing_range_m`; greeting lines for people they know (`{first}` = the person's first name) and strangers, both or neither; `interaction` and `trait` must exist; chances 0–1; ask kinds are request kinds except `intimacy`, which is refused; dimensions are relationship dimensions. |
+| `autopilot_manners` | `greet{range_m, known[], stranger[]}, chat{interaction, trait, base, per_trait, per_friendship}, asks[] {kind, min{dimension: value}}, messages{read_after_minutes [min, max], replies_per_day, replies[] {min{dimension: value}, known, lines[]}}` | data/society/manners.json; at most one; absent = founders keep to themselves and decline every ask. `range_m` within `hearing_range_m`; greeting lines for people they know (`{first}` = the person's first name) and strangers, both or neither; `interaction` and `trait` must exist; chances 0–1; ask kinds are request kinds except `intimacy`, which is refused; dimensions are relationship dimensions. `messages` (D-074): 0 ≤ min ≤ max; every reply rule has lines short enough to send; no rules = messages are read (seen) and never answered. |
 
 ### Rooms you walk around in (D-066)
 
@@ -377,6 +377,39 @@ Character JSON key `street` (no SQL change): `{walk_away, fought: {character: da
 a save without it has never been in a fight and doesn't always walk away. A fight waiting for its answer
 (`WorldState::fights`) is session state. Memories `fight` and `saw_fight`; a witnessed fight adds a rumour to the
 `details` world part.
+
+## Release 5 content (`docs/proposals/golden_hour_build.md`)
+
+### Social media (D-074)
+
+`data/society/social.json`, one `social` section (at most one; absent = no social media: the ops answer `unavailable`).
+Unknown top-level keys are refused.
+
+| Key | Fields | Notes |
+|---|---|---|
+| `post` | `max_length, min_gap_minutes, per_day, max_tags` | Defaults 280, 10, 12, 4. Lengths are characters (UTF-8 code points), 1–2000. |
+| `comment` | `max_length, min_gap_minutes, per_day, per_post` | 200, 1, 40, 40. |
+| `like`, `follow` | `per_day`; `max_following` | 150; 200. |
+| `feed` | `limit, kept_posts, comments_shown, activity_kept, map_post_hours` | 40 posts a view, 600 kept (oldest go), 3 comments on a card, 60 activity entries, a post names where someone is for 6 hours on the Map. |
+| `last_night` | `from_hour, to_hour, shown_until_hour, top` | 18 → 6, shown until 12, top 3 (D-076). |
+| `fame` | `per_follower, per_like, max_per_day` | 0–100; only a new high of followers or likes counts. |
+| `relationship` | `like{}, comment{}, follow{}` | The author's (or followed person's) side toward who did it; relationship dimensions. |
+| `notify` | `per_hour, game_per_day` | Toasts a person gets an hour, and how many a day the game may cause. |
+| `seed_follows` | `min{dimension: value}` | At a world's founding, who follows whom. |
+| `status_purchase` | `min_price_cents, categories[], except[]` | A purchase of an item in these categories at this price or more is a `status_purchase` memory; categories must have items, `except` items must exist. |
+| `topics` | `{topic: label}` | Every moment's and gossip kind's topic must be here. |
+| `auto` | `per_day, min_gap_minutes, delay_minutes [min, max], keep_hours, trait, base, per_trait, checkin_place_types[], checkin_tag_min_friendship, voices[] {id, min{trait}, max{trait}}, moments[] {memory, topic, chance, lines{voice: [line]}}` | Posts the game writes for characters a script plays: chance = moment chance × clamp(base + per_trait × trait/100). Voice ids unique, not `default`; traits are personality traits; place types must exist. A moment's `memory` is a memory type or `checkin`; it needs `default` lines; other keys must be voices; lines use only `{first}`, `{place}`, `{with}`, `{title}`, `{pet}`, `{item}`. |
+| `unfiltered` | `handle, name, bio, run_by_secret, min_heard, delay_minutes, per_day, twist_chance, kinds[] {kind, topic, chance, interactions[], place_types[], relationship{}, lines[], twisted[]}` | The handle has a dot and no `@` (never a character id); `run_by_secret` must be a secret id in some character's `profile.secrets` (that character runs it). Kinds are the scenes the World reports: `fight`, `argument`, `arrest`, `kiss`, `accident`; interactions and place types must exist; `relationship` is what hearing the rumour does to the hearer's side toward whoever did it (else `details.accident.gossip.relationship`); lines use `{about}`, `{with}`, `{place}`. |
+
+World part `social` (a row of `world_parts`, no SQL change): `{seeded, gossip_day, gossip_today, posts: [{id, author,
+at, text, place, tags, topic, about, automatic, likes, likes_peak, comments: [{id, author, at, text}], heard_by, there,
+truthful}], accounts: {character: {following, followers_peak, moments: [{memory, type, place, with, facts, at, post_at,
+until}], activity: [{kind, from, post, at, seen, count}], day, posts_today, comments_today, likes_today, auto_today,
+fame_today, last_post_at, last_comment_at, last_auto_at, last_post_text, game_notify_day, game_notified}]}`. A save
+without it loads with no posts and `seeded` false, and the World's constructor makes the founding follows. Rumours in
+the `details` part gain `{id, kind, with, place, post}` (defaults empty: an older rumour is never posted). Memories
+gain the type `status_purchase`. Messages are unchanged in the save; the Messages app adds `seen` to your own messages
+and `people: {id: {name, scripted, played_by?, online}}`.
 
 ### The town's people and town life (D-073)
 

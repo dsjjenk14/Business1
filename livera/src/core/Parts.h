@@ -53,6 +53,10 @@ void readLifeEventsCharacter(CharacterState& c, const Json& j);
 void writeStreetCharacter(const CharacterState& c, Json& j);
 void readStreetCharacter(CharacterState& c, const Json& j);
 
+// Social.cpp (D-074): the world part "social" (posts, follows, moments, activity); no character key.
+Json socialPartToJson(const WorldState& s);
+void socialPartFromJson(WorldState& s, const Json& j);
+
 // All parts by key, for the store.
 std::map<std::string, Json> worldPartsToJson(const WorldState& s);
 void worldPartsFromJson(WorldState& s, const std::map<std::string, Json>& parts);

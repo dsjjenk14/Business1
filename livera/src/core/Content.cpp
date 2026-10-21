@@ -99,6 +99,7 @@ Result<std::shared_ptr<const ContentDatabase>> ContentDatabase::loadFromDocument
   }
   Status v = db->validate();
   if (!v) return v.error();
+  if (Status s = db->validateSocial(); !s) return s.error();  // D-074 (it also finds who runs the gossip account)
   return std::shared_ptr<const ContentDatabase>(std::move(db));
 }
 

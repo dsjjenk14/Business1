@@ -43,7 +43,7 @@ Every player-caused change goes through a `World` command method:
 ```
 moveTo · enter · exitBuilding · interact · buy · useActivity · startShift · endShift ·
 sendMessage · say · tip · createCharacter · saveSong · releaseSong · openSong · perform ·
-openPhoneApp · sleep · moveInside · sit · stand · connect · disconnect
+openPhoneApp · sleep · moveInside · sit · stand · post · comment · like · follow · connect · disconnect
 ```
 
 Each validates against current state (is the character in the world? at the door? allowed
@@ -139,6 +139,7 @@ The target today is one world shard with up to 16 people plus up to 32 scripted 
 | `src/core/Goals.cpp` | Daily goals and aspirations, read from the character's own records (D-061). |
 | `src/core/Sleep.cpp` | Going to bed, waking, and `World::skipNight`, the night skip every host calls (D-062). |
 | `src/core/LifeEvents.cpp` | Life events: scenario cards from `data/events/`, drawn at sensible moments, answered through the World's rules; the Story app (D-068). |
+| `src/core/Social.cpp` | Social media (D-074): posts, follows, likes and comments as World state; posts the game writes for characters a script plays from their memories (the `addMemory` hook) and check-ins; the gossip account's posts from witnessed rumours (`World::witnessed`); what each person's feed may hold; the Map app's people; the world part `social`. |
 | `src/core/Fights.cpp` | Fist fights: the person attacked chooses, the World scores it, injuries, assault, walking away (D-070). |
 | `src/core/Interiors.cpp` | Rooms you walk around in: the `interior` content and its checks, `moveInside` / `sit` / `stand`, spots taken by activities, purchases, performances and shifts, `look.here.room` and the `room` event (D-066). |
 | `src/core/TownLife.cpp` | The town's people (D-073): evening plans and patrols from `data/society/town_life.json` and their checks, the cast checks (casts, shared starting homes, starting partners). The autopilot uses them. |

@@ -554,17 +554,7 @@ Json World::concludeFight(const PendingFight& f, FightEnd e) {
     m.isPublic = true;
     addMemory(std::move(m));
   }
-  if (!witnesses.empty()) {
-    const DetailsConfig& D = content_->details();
-    Rumor rumor;
-    rumor.about = a.id;
-    rumor.what = "started a fight at " + where;
-    rumor.at = state_.now;
-    rumor.until = state_.now + static_cast<GameMinutes>(D.gossipHours * 60);
-    rumor.tellers = witnesses;
-    rumor.knows = witnesses;
-    state_.details.rumors.push_back(std::move(rumor));
-  }
+  witnessed("fight", a.id, d.id, d.inside, witnesses, "started a fight at " + where);  // the rumour (Social.cpp)
   d.street.protectedUntil = state_.now + F.protectedMinutes;
 
   // A blow that landed is assault by whoever started it: caught in the act, or reported and wanted.

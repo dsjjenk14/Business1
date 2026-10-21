@@ -81,6 +81,7 @@ add_library(livera_core
   src/core/Interiors.cpp
   src/core/LifeEvents.cpp
   src/core/Fights.cpp
+  src/core/Social.cpp
   src/core/WorkTasks.cpp
   src/core/Wallet.cpp
   src/core/Leisure.cpp
@@ -195,6 +196,7 @@ add_executable(livera_tests
   tests/test_interiors.cpp
   tests/test_events.cpp
   tests/test_street.cpp
+  tests/test_social.cpp
   tests/test_townspeople.cpp
   src/client/MusicText.cpp)
 target_link_libraries(livera_tests PRIVATE livera_server_lib)

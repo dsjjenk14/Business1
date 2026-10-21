@@ -159,6 +159,26 @@ Result<Json> dispatchWorldOp(World& world, const CharacterId& me, const std::str
     if (!id) return id.error();
     return Json{{"id", id.value()}};
   }
+  // Social media (D-074). Posts are named by "post", accounts by "account" ("id" is the protocol's).
+  if (op == "post") {
+    std::vector<CharacterId> tags;
+    if (const auto it = req.find("tags"); it != req.end()) {
+      if (!it->is_array()) return fail("bad_request", "send \"tags\" as a list of people");
+      for (const auto& t : *it) {
+        if (!t.is_string()) return fail("bad_request", "send \"tags\" as a list of people");
+        tags.push_back(t.get<std::string>());
+      }
+    }
+    if (const std::string tag = str(req, "tag"); !tag.empty()) tags.push_back(tag);
+    return world.post(me, str(req, "text"), str(req, "place"), tags, str(req, "about"), str(req, "as"));
+  }
+  if (op == "comment") return world.comment(me, str(req, "post"), str(req, "text"));
+  if (op == "like") return world.like(me, str(req, "post"), true);
+  if (op == "unlike") return world.like(me, str(req, "post"), false);
+  if (op == "follow") return world.follow(me, str(req, "account"), true);
+  if (op == "unfollow") return world.follow(me, str(req, "account"), false);
+  if (op == "social_feed") return world.socialFeed(me, req.value("tab", std::string("following")));
+  if (op == "social_profile") return world.socialProfile(me, str(req, "account"));
   return fail("unknown_op", "unknown op '" + op + "'");
 }
 

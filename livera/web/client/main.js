@@ -69,6 +69,7 @@ export class Game {
       tapPoint: (kind, id) => { const h = this.renderer.hit.find(x => x.kind === kind && x.id === id && x.circle); return h ? canvasXY(h.circle[0], h.circle[1]) : null; },
       selfPos: () => this.world.selfPos(), streaming: () => this.world.streaming, scale: () => this.renderer.scale,
       look: () => this.transport.request("look"),
+      social: tab => this.transport.request("social_feed", { tab: tab || "town" }),  // read-only, like look (D-074)
       drop: () => { if (this.transport.ws) this.transport.ws.close(); },   // simulate a dropped connection
       welcomes: () => this.welcomes, bubbles: () => this.renderer.bubbleRects.map(b => ({ ...b })),
       next: () => (this.ui.nextItem ? { kind: this.ui.nextItem.kind, title: this.ui.nextItem.title, target: this.ui.nextItem.target || null, source: this.ui.nextItem.source } : null),
@@ -293,12 +294,26 @@ export class Game {
         ui.line("", `${d.from_name || name(d.from)} whispers to ${d.to_name || name(d.to)}`, "whispering");
         w.addBubble({ who: d.from, kind: "whispering", toName: firstName(d.to_name || name(d.to)) });
         return;
-      case "message":
-        ui.toast(`Message from ${name(d.from)}: ${String(d.body ?? "")}`);
-        this.phoneUI.unread++; this.setPhoneBadge(this.phoneUI.unread);
+      case "message": {
+        const reading = this.phoneUI.open && this.phoneUI.app === "messages";
+        if (!(reading && this.phoneUI.thread === d.from))
+          ui.toast(`Message from ${name(d.from)}: ${String(d.body ?? "")}`, false, { action: { label: "Reply", run: () => this.openPhone("messages", { to: d.from }) } });
+        this.phoneUI.unread++; this.setPhoneBadge();
         // Refresh the threads in place: what the player is typing stays, and so does the keyboard.
-        if (this.phoneUI.open && this.phoneUI.app === "messages") this.phoneUI.refreshMessages();
+        if (reading) this.phoneUI.refreshMessages();
         return;
+      }
+      // They read what you sent (D-074): the thread says Seen.
+      case "message_seen": if (this.phoneUI.open && this.phoneUI.app === "messages") this.phoneUI.refreshMessages(); return;
+      // Social media (D-074): a like, a comment, a follow, a post you're in. The server keeps these to a few an hour;
+      // the rest wait in the app's Activity tab.
+      case "social": {
+        if (this.phoneUI.open && this.phoneUI.app === "social") { this.phoneUI.socialChanged(); return; }
+        this.phoneUI.socialNew++; this.setPhoneBadge();
+        ui.toast(String(d.text ?? ""), false, { action: { label: "View", run: () => this.openPhone("social", { tab: "activity" }) } });
+        return;
+      }
+      case "post": this.phoneUI.socialChanged(); return;   // someone you follow posted: the open feed shows it
       case "notification": {
         const text = withoutCliHint(d.text), now = performance.now();
         // One thing, one card: the pay stub already says the paycheck, the banner the promotion.
@@ -757,9 +772,11 @@ export class Game {
   message(to, text) { return this.req("message", { to, text }); }
   // On a phone the phone covers the screen, so the card closes; wider screens keep it beside the phone.
   openPhone(app, opts) { if (this.ui.narrow()) this.ui.closeSheet(); this.phoneUI.show(app, opts); }
+  // The phone button's count: new messages and new social activity (D-074), unless a number is given.
   setPhoneBadge(n) {
+    if (typeof n !== "number") n = (this.phoneUI.unread || 0) + (this.phoneUI.socialNew || 0);
     const b = document.getElementById("phone-btn"), c = document.getElementById("phone-count");
-    b.setAttribute("aria-label", n ? `Phone, ${n} new message${n > 1 ? "s" : ""}` : "Phone");
+    b.setAttribute("aria-label", n ? `Phone, ${n} new` : "Phone");
     b.classList.toggle("on", n > 0);
     if (c) { c.hidden = !n; c.textContent = n > 99 ? "99+" : String(n || ""); }
   }

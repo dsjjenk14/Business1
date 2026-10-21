@@ -252,14 +252,7 @@ void World::wetYourself(CharacterState& c) {
     notify(w, "social", name + " just " + what + ". Everyone saw.");
   }
   if (!witnesses.empty()) {
-    Rumor r;
-    r.about = c.id;
-    r.what = what;
-    r.at = state_.now;
-    r.until = state_.now + static_cast<GameMinutes>(D.gossipHours * 60);
-    r.tellers = witnesses;
-    r.knows = witnesses;
-    state_.details.rumors.push_back(std::move(r));
+    witnessed("accident", c.id, "", c.inside, witnesses, what);  // the rumour (Social.cpp)
     consequences += " " + std::to_string(witnesses.size()) + (witnesses.size() == 1 ? " person" : " people") +
                     " saw it, and they'll tell their friends.";
   }
@@ -516,9 +509,12 @@ void World::stepDetailsHourly() {
         if (roll() < D.gossipChancePerHour) told.emplace_back(teller, key.second);
       }
     }
+    // What hearing it does to the hearer's view: by the kind of scene (social.json, D-074), else the accident's.
+    const SocialGossipKindDef* kind = content_->social().gossipKind(r.kind);
+    const StatMap& heard = kind ? kind->relationship : D.gossipRelationship;
     for (const auto& [teller, friendId] : told) {
       r.knows.push_back(friendId);
-      for (const auto& [dim, delta] : D.gossipRelationship) adjustRelationship(friendId, r.about, dim, delta);
+      for (const auto& [dim, delta] : heard) adjustRelationship(friendId, r.about, dim, delta);
       const CharacterDef* t = definition(teller);
       Memory m;
       m.id = nextId("mem");
@@ -552,7 +548,8 @@ Json detailsPartToJson(const WorldState& s) {
   const DetailsWorldState& W = s.details;
   Json rumors = Json::array();
   for (const auto& r : W.rumors)
-    rumors.push_back(Json{{"about", r.about}, {"what", r.what}, {"at", r.at}, {"until", r.until}, {"tellers", r.tellers}, {"knows", r.knows}});
+    rumors.push_back(Json{{"about", r.about}, {"what", r.what}, {"at", r.at}, {"until", r.until}, {"tellers", r.tellers}, {"knows", r.knows},
+                          {"id", r.id}, {"kind", r.kind}, {"with", r.with}, {"place", r.place}, {"post", r.post}});  // D-074
   return Json{{"weather_day", W.weatherDay},
               {"today", Json{{"kind", W.today.kind}, {"temp_c", W.today.tempC}}},
               {"tomorrow", Json{{"kind", W.tomorrow.kind}, {"temp_c", W.tomorrow.tempC}}},
@@ -582,6 +579,12 @@ void detailsPartFromJson(WorldState& s, const Json& j) {
     x.until = r.value("until", GameMinutes{0});
     x.tellers = r.value("tellers", std::vector<std::string>{});
     x.knows = r.value("knows", std::vector<std::string>{});
+    // D-074: a rumour saved before social media has no id or kind, and is never posted.
+    x.id = r.value("id", "");
+    x.kind = r.value("kind", "");
+    x.with = r.value("with", "");
+    x.place = r.value("place", "");
+    x.post = r.value("post", "");
     W.rumors.push_back(std::move(x));
   }
 }

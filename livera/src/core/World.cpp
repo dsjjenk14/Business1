@@ -72,6 +72,7 @@ World World::createNew(std::shared_ptr<const ContentDatabase> content) {
   // memories from character data (seedFromContent).
   World w(std::move(content), std::move(s));
   w.updateCityStage();
+  w.seedSocial();  // people follow who they already know (Social.cpp, D-074)
   w.events_.clear();
   return w;
 }
@@ -177,6 +178,9 @@ World::World(std::shared_ptr<const ContentDatabase> content, WorldState state)
   // m08:details on load { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
   // } m08:details
   seedFromContent(arrived);
+  // Social media (D-074): a save from before it has nobody following anybody; they follow who they know now. Here,
+  // after the ties in data are seeded, so a new world's people follow who they know too.
+  if (!state_.social.seeded && !state_.relationships.empty()) seedSocial();
 }
 
 // Relationships in character data that the world has no record of yet start as the data says (a new world: all of
@@ -345,6 +349,7 @@ void World::advanceMinutes(GameMinutes minutes) {
     stepWorkMinute();  // after the hourly step, which rolls the work day over at midnight (WorkTasks.cpp)
     stepLifeEventsMinute();  // life events come up and lapse (LifeEvents.cpp, D-068)
     stepFightsMinute();      // fights nobody answered in time (Fights.cpp, D-070)
+    stepSocialMinute();      // posts for people a script plays, and the gossip account's (Social.cpp, D-074)
   }
 }
 
@@ -576,6 +581,7 @@ Status World::enter(const CharacterId& actor, const LocationId& locationId) {
     const CharacterDef* def = definition(actor);
     for (const auto& id : here) notify(id, "fame", (def ? def->fullName() : actor) + " (" + fameTierOf(actor) + ") just walked in.");
   }
+  socialCheckin(c, *loc);  // someone a script plays may post that they're here (Social.cpp, D-074)
   return okStatus();
 }
 
@@ -698,6 +704,7 @@ Result<Json> World::interact(const CharacterId& actor, const std::string& intera
     }
   }
 
+  socialInteraction(a, *t, def->id);  // a scene others saw: a rumour, maybe the gossip account (Social.cpp, D-074)
   emit({targetId}, "interaction", Json{{"from", actor}, {"interaction", def->id}, {"label", def->label}});
 
   // The actor learns only their own side. The target's private feelings stay private.
@@ -783,6 +790,7 @@ Result<Json> World::buy(const CharacterId& actor, const std::string& offerId, co
     c.inventory[offer->item] += offer->quantity;
     out["owned"] = c.inventory[offer->item];
     fillPrescription(c, *offer, out);  // m08:pets: each fill uses a refill (Pets.cpp)
+    socialPurchase(c, *offer, *loc);   // a status symbol is remembered, and worth a post (Social.cpp, D-074)
   }
   if (!offer->substance.empty()) out["effect"] = takeSubstance(c, offer->substance);
   applyConditionRecovery(c, offer->conditionRecovery);
@@ -948,7 +956,7 @@ Result<Json> World::endShift(const CharacterId& actor) {
     m.importance = 70;
     m.emotionalImpact = 60;
     m.info = "Promoted to " + title;
-    addMemory(std::move(m));
+    addMemory(std::move(m), Json{{"title", title}});
   }
   return out;
 }
@@ -1057,7 +1065,16 @@ Result<Json> World::openPhoneApp(const CharacterId& actor, const std::string& ap
   if (app == "messages") return phoneMessages(c);
   if (app == "contacts") return phoneContacts(c);
   if (app == "calendar") return phoneCalendar(c);
-  if (app == "map") return mapView();
+  if (app == "map") {
+    // D-074: the places anyone may walk into that are open right now, and your people where you could know they are
+    // (in sight, or where they last posted from). The town itself is the `map` op's (clients have it already).
+    Json open = Json::array();
+    for (const auto& [id, loc] : content_->locations()) {
+      if (loc.access == AccessRule::Public && locationStatus(loc) == "open") open.push_back(id);
+    }
+    return Json{{"open_now", open}, {"people", phoneMapPeople(c)}};
+  }
+  if (app == "social") return phoneSocial(c);  // social media (Social.cpp, D-074)
   if (app == "career") return phoneCareer(c);
   if (app == "property") return phoneProperty(c);
   if (app == "notifications") return phoneNotifications(c);
@@ -1166,7 +1183,10 @@ std::vector<const Memory*> World::memoriesOf(const CharacterId& owner) const {
   return out;
 }
 
-void World::addMemory(Memory m) { state_.memories.push_back(std::move(m)); }
+void World::addMemory(Memory m, const Json& facts) {
+  state_.memories.push_back(std::move(m));
+  socialMemory(state_.memories.back(), facts);  // something worth posting about (Social.cpp, D-074)
+}
 
 void World::applyNeeds(CharacterState& c, const StatMap& deltas) {
   for (const auto& [k, d] : deltas) c.needs[k] = clampd(c.needs[k] + d, kStatMin, kStatMax);

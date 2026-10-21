@@ -255,6 +255,7 @@ void World::stepHourly() {
   stepLeisureHourly();
   stepPetsHourly();
   stepDetailsHourly();
+  stepSocialHourly();  // after the gossip has spread for the hour (Social.cpp, D-074)
   const LifeConfig& L = content_->life();
   for (auto& [id, c] : state_.characters) {
     // Conditions that have run their course.

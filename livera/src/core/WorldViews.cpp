@@ -426,15 +426,30 @@ Json World::phoneBank(const CharacterState& c) const {
 
 Json World::phoneMessages(const CharacterState& c) {
   Json threads = Json::object();
+  std::set<CharacterId> readNow;  // whose messages you've just read: they see them as seen (D-074)
   for (auto& m : state_.messages) {
     if (m.from != c.id && m.to != c.id) continue;
     const CharacterId other = m.from == c.id ? m.to : m.from;
     Json entry{{"id", m.id}, {"from", m.from}, {"body", m.body}, {"at", m.at}, {"when", formatDateTime(m.at)},
                {"unread", m.to == c.id && !m.read}};
+    if (m.from == c.id) entry["seen"] = m.read;  // your own: whether they've read it
     threads[other].push_back(entry);
-    if (m.to == c.id) m.read = true;
+    if (m.to == c.id && !m.read) {
+      m.read = true;
+      readNow.insert(m.from);
+    }
   }
-  return Json{{"threads", threads}};
+  // Who each thread is with, and whether a script plays them (the honest label): what anyone who saw them would see.
+  Json people = Json::object();
+  for (const auto& [other, list] : threads.items()) {
+    const CharacterDef* d = definition(other);
+    const CharacterState* os = character(other);
+    Json p{{"name", d ? d->fullName() : other}, {"scripted", isScripted(other)}, {"online", os && os->online}};
+    if (isScripted(other)) p["played_by"] = playedBy(other);
+    people[other] = p;
+  }
+  for (const auto& from : readNow) emit({from}, "message_seen", Json{{"by", c.id}, {"at", state_.now}});
+  return Json{{"threads", threads}, {"people", people}};
 }
 
 Json World::phoneContacts(const CharacterState& c) const {

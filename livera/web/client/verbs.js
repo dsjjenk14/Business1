@@ -27,7 +27,7 @@ import { confirmCrime } from "./moments.js";
 // ------------------------------------------------------------------ words
 
 export const APP_NAMES = {
-  bank: "Bank", messages: "Messages", map: "Map", transit: "Transit", career: "Career", contacts: "Contacts", calendar: "Calendar",
+  social: "Social", bank: "Bank", messages: "Messages", map: "Map", transit: "Transit", career: "Career", contacts: "People", calendar: "Calendar",
   notifications: "Alerts", wallet: "Wallet", work: "Work", jobs: "Jobs", homes: "Homes", property: "Property", health: "Health",
   items: "Items", store: "Store", school: "School", studio: "Studio", record: "Record", romance: "Romance", family: "Family",
   fame: "Fame", sports: "Sports", pets: "Pets", weather: "Weather", city: "City", goals: "Goals", story: "Story",

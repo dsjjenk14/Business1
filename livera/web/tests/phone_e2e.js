@@ -70,12 +70,16 @@ async function closeSheets(p) {
   const b = await p.page.$('#sheet:not([hidden]) .sheet-head [aria-label="Close"]');
   if (b) await b.click().catch(() => {});
 }
+// The home screen has the everyday apps; the rest are under More apps (D-074).
+const DAILY = ["social", "messages", "map", "bank", "work", "calendar", "contacts"];
 async function openPhone(p, app) {
   if (!(await p.page.$("#phone:not([hidden])"))) { await closeSheets(p); await p.page.click("#phone-btn"); }
   await p.page.waitForSelector("#phone .app, #phone .phone-head");
-  if (await p.page.$('#phone [aria-label="Back to apps"]')) { await p.page.click('#phone [aria-label="Back to apps"]'); }
+  for (let i = 0; i < 3 && (await p.page.$('#phone [aria-label="Back to apps"]')); i++) await p.page.click('#phone [aria-label="Back to apps"]');
   await p.page.waitForSelector("#phone .app");
-  if (app) { await p.page.click(`#phone [data-app="${app}"]`); await waitOpened(p); }
+  if (!app) return;
+  if (!(await p.page.$(`#phone [data-app="${app}"]`))) { await p.page.click("#phone [data-more]"); await p.page.waitForSelector(`#phone [data-app="${app}"]`); }
+  await p.page.click(`#phone [data-app="${app}"]`); await waitOpened(p);
 }
 const waitOpened = p => waitFor(p, () => !document.querySelector("#phone .phone-inner > .stack > .hint:only-child") || !/Opening…/.test(document.querySelector("#phone .phone-inner").textContent), null, 10000);
 async function closePhone(p) { const c = await p.page.$('#phone:not([hidden]) [aria-label="Close phone"]'); if (c) await c.click(); }
@@ -137,25 +141,36 @@ async function screenProblems(p) {
   const A = await newPlayer(browser, PHONE, "A (phone, Dominique)");
   const apps = [];
 
-  await test("phone home: four groups, an icon for every app, no coin store in single-player", async () => {
+  await test("phone home: the everyday apps first (Social, Messages, Map, Bank, Work, Calendar, People), the rest under More apps", async () => {
     await newTownAs(A, "dominique");
     await openPhone(A);
-    const home = await W(A, () => ({
+    const read = () => W(A, () => ({
       groups: [...document.querySelectorAll("#phone .app-group > .eyebrow")].map(n => n.textContent.trim()),
       apps: [...document.querySelectorAll("#phone .app")].map(n => n.dataset.app),
+      labels: [...document.querySelectorAll("#phone .app")].map(n => n.textContent.trim()),
       icons: [...document.querySelectorAll("#phone .app .tile svg")].map(s => [...s.querySelectorAll("path")].map(x => x.getAttribute("d")).join("|")),
       text: document.getElementById("phone").innerText,
     }));
-    assert(JSON.stringify(home.groups) === JSON.stringify(["Everyday", "Life", "Ambition", "Town"]), "groups: " + home.groups);
-    assert(!home.apps.includes("store"), "the coin store is on a single-player phone");
-    // 25 apps, the Story app (moments.js, D-068), and Goals when the server has it.
-    assert(home.apps.includes("story") && (home.apps.length === 26 || (home.apps.length === 27 && home.apps.includes("goals"))), `expected 26 apps (27 with goals), got ${home.apps.length}: ${home.apps}`);
-    assert(/No coin store here/.test(home.text), "the phone doesn't say why there's no coin store");
-    assert(home.icons.length === home.apps.length, `${home.icons.length} icons for ${home.apps.length} apps`);
-    assert(new Set(home.icons).size === home.icons.length, "two apps share an icon");
-    apps.push(...home.apps);
+    const home = await read();
+    assert(JSON.stringify(home.apps) === JSON.stringify(DAILY), "the home screen: " + home.apps);
+    assert(JSON.stringify(home.labels) === JSON.stringify(["Social", "Messages", "Map", "Bank", "Work", "Calendar", "People"]), "labels: " + home.labels);
     await sleep(400);
     await shot(A, "phone_home_390.png");
+    await A.page.click("#phone [data-more]");
+    await A.page.waitForSelector("#phone .app-group > .eyebrow");
+    await sleep(300);
+    const more = await read();
+    assert(JSON.stringify(more.groups) === JSON.stringify(["Everyday", "Life", "Ambition", "Town"]), "groups: " + more.groups);
+    assert(!more.apps.includes("store"), "the coin store is on a single-player phone");
+    assert(!more.apps.some(a => DAILY.includes(a)), "an everyday app is under More apps too");
+    // 26 apps besides the everyday seven: 20 here, the Story app (moments.js, D-068), and Goals when the server has it.
+    assert(more.apps.includes("story") && (more.apps.length === 20 || (more.apps.length === 21 && more.apps.includes("goals"))), `expected 20 more apps (21 with goals), got ${more.apps.length}: ${more.apps}`);
+    assert(/No coin store here/.test(more.text), "the phone doesn't say why there's no coin store");
+    const icons = [...home.icons, ...more.icons];
+    assert(icons.length === home.apps.length + more.apps.length, `${icons.length} icons for ${home.apps.length + more.apps.length} apps`);
+    assert(new Set(icons).size === icons.length, "two apps share an icon");
+    apps.push(...home.apps, ...more.apps);
+    await shot(A, "phone_more_apps_390.png");
   });
 
   await test("every app opens readable at 390 px: no raw ids, nothing a letter per line, no sideways scroll", async () => {
@@ -247,21 +262,26 @@ async function screenProblems(p) {
     console.log(`  (the place card ${card ? "renders" : "doesn't render yet"} the verbs)`);
   });
 
-  await test("Contacts shows only your side with bars; Message picks them in Messages; a message stays text", async () => {
+  await test("People shows only your side with bars; Message opens a thread with them; a message stays text", async () => {
     await openPhone(A, "contacts");
     const c = await W(A, () => {
       const card = document.querySelector("#phone [data-contact]");
       return card && { id: card.dataset.contact, bars: card.querySelectorAll(".meter-row").length, text: document.getElementById("phone").innerText };
     });
     assert(c && c.bars >= 3, "a contact card has no relationship bars: " + JSON.stringify(c));
-    assert(/only your side/i.test(c.text), "Contacts doesn't say it shows only your side");
+    assert(/only your side/i.test(c.text), "People doesn't say it shows only your side");
     await shot(A, "contacts_390.png");
     await A.page.click(`#phone [data-contact="${c.id}"] button:has-text("Message")`);
-    await A.page.waitForSelector(`#phone .picker [data-person="${c.id}"][aria-pressed="true"]`);
-    await A.page.fill('#phone input[aria-label="Message"]', `Hi ${XSS}`);
-    await A.page.click('#phone button[type="submit"]');
     await A.page.waitForSelector(`#phone [data-thread="${c.id}"]`);
+    await A.page.fill('#phone input[aria-label="Reply"]', `Hi ${XSS}`);
+    await A.page.click('#phone .thread-form button[type="submit"]');
+    await waitFor(A, () => [...document.querySelectorAll("#phone .thread .msg.me")].some(n => n.textContent.includes("<img src=x")), null, 10000);
     assert((await W(A, () => document.querySelectorAll('img[src="x"]').length)) === 0, "message text became HTML");
+    assert(await A.page.$("#phone .thread .seen"), "your last message doesn't say Delivered or Seen");
+    await shot(A, "messages_thread_390.png");
+    // Back to the conversations: one with them, newest first.
+    await A.page.click('#phone button:has-text("All messages")');
+    await A.page.waitForSelector(`#phone .convo[data-convo="${c.id}"]`);
     await shot(A, "messages_390.png");
   });
 
@@ -345,7 +365,7 @@ async function screenProblems(p) {
     await openPhone(D);
     await sleep(300);
     await shot(D, "desktop_phone_home_1440.png");
-    for (const app of ["work", "calendar", "contacts", "jobs", "homes", "sports", "items", "pets", "studio", "messages", "notifications", "wallet", "career", "transit"]) {
+    for (const app of ["social", "map", "work", "calendar", "contacts", "jobs", "homes", "sports", "items", "pets", "studio", "messages", "notifications", "wallet", "career", "transit"]) {
       await openPhone(D, app);
       await sleep(200);
       const bad = await screenProblems(D);

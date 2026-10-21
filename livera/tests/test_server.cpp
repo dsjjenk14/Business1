@@ -1292,3 +1292,52 @@ TEST_CASE("server: the default script cap has room for every playable character 
   CHECK(playable > 16);
   CHECK(ServerConfig{}.maxScripted >= playable);
 }
+
+TEST_CASE("server: social media over the wire: post, like, comment, follow, the feeds, a toast, and messages seen") {
+  RunningServer server(tempPath("social_net.db").string());
+  TestClient dom(server.port()), dax(server.port());
+  dom.login("domsocial", "dom-pass-123");
+  dax.login("daxsocial", "dax-pass-123");
+  dom.ok({{"op", "play"}, {"character", "dominique"}});
+  dax.ok({{"op", "play"}, {"character", "dax"}});
+  const Json posted = dom.ok({{"op", "post"}, {"text", "Hello, Livéra"}, {"tags", {"dax"}}});
+  const std::string pid = posted["post"]["post"].get<std::string>();
+  CHECK(posted["post"]["author"]["handle"] == "dom.ashford");
+  CHECK(posted["post"]["tags"][0]["account"] == "dax");
+  CHECK(dom.refusal({{"op", "post"}, {"text", "Again"}}) == "too_soon");
+  CHECK(dom.refusal({{"op", "post"}, {"text", "x"}, {"tags", "dax"}}) == "bad_request");
+  CHECK(dom.refusal({{"op", "post"}, {"text", "Hi"}, {"place", "copper_tap"}}) == "not_there");
+  CHECK(dax.ok({{"op", "like"}, {"post", pid}})["likes"] == 1);
+  CHECK(dax.refusal({{"op", "like"}, {"post", pid}}) == "already_liked");
+  CHECK(dom.refusal({{"op", "like"}, {"post", pid}}) == "own_post");
+  CHECK(dax.refusal({{"op", "unlike"}, {"post", "post-0"}}) == "unknown_post");
+  CHECK(dax.ok({{"op", "comment"}, {"post", pid}, {"text", "Welcome!"}})["post"]["comments"] == 1);
+  CHECK(dax.refusal({{"op", "comment"}, {"post", pid}, {"text", ""}}) == "invalid_text");
+  CHECK(dax.ok({{"op", "follow"}, {"account", "dominique"}})["following"] == true);
+  CHECK(dax.refusal({{"op", "follow"}, {"account", "dominique"}}) == "already_following");
+  CHECK(dax.refusal({{"op", "follow"}, {"account", "nobody"}}) == "unknown_account");
+  CHECK(dax.refusal({{"op", "unfollow"}, {"account", "livera.unfiltered"}}) == "not_following");
+  const Json following = dax.ok({{"op", "social_feed"}, {"tab", "following"}});
+  CHECK(following["tab"] == "following");
+  CHECK(std::any_of(following["posts"].begin(), following["posts"].end(), [&](const Json& p) { return p["post"] == pid; }));
+  CHECK(!dax.ok({{"op", "social_feed"}, {"tab", "town"}})["posts"].empty());
+  CHECK(dax.refusal({{"op", "social_feed"}, {"tab", "secret"}}) == "bad_tab");
+  CHECK(dax.ok({{"op", "social_profile"}, {"account", "livera.unfiltered"}})["account"]["gossip"] == true);
+  CHECK(dax.refusal({{"op", "social_profile"}, {"account", "nobody"}}) == "unknown_account");
+  // Dominique heard about the like, the comment and the follow: toasts within the hour's limit.
+  dom.pump(0.3);
+  int toasts = 0;
+  for (const auto& e : dom.events) toasts += e.value("event", "") == "social" ? 1 : 0;
+  CHECK(toasts >= 3);
+  const Json app = dom.ok({{"op", "phone"}, {"app", "social"}});
+  CHECK(app["you"]["handle"] == "dom.ashford");
+  CHECK(app["activity"].size() == 3);
+  // The map app carries her people; Messages say when something was seen.
+  CHECK(dom.ok({{"op", "phone"}, {"app", "map"}})["people"].is_array());
+  dax.ok({{"op", "message"}, {"to", "dominique"}, {"text", "Coffee?"}});
+  CHECK(dax.ok({{"op", "phone"}, {"app", "messages"}})["threads"]["dominique"][0]["seen"] == false);
+  dom.ok({{"op", "phone"}, {"app", "messages"}});
+  dax.pump(0.3);
+  CHECK(dax.sawEvent("message_seen"));
+  CHECK(dax.ok({{"op", "phone"}, {"app", "messages"}})["threads"]["dominique"][0]["seen"] == true);
+}
