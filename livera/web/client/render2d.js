@@ -33,6 +33,9 @@ const MAX_ZOOM = 14;
 const ART_M = 2.2, PERSON_M = 1.75;
 // The smallest a person is drawn at the usual zooms (see personHeight).
 const MIN_PERSON_PX = 26;
+// A walk cycle (two steps) covers about 0.86 of a person's height; the cadence stays between a stroll's and
+// a run's (cycles a second), so a fast clock or a close zoom never turns the steps into a blur.
+const WALK_CYCLE_HEIGHTS = 0.86, WALK_CADENCE = [0.8, 2.6];
 // Places whose names are always shown when they're open and in view: where everyday needs are met.
 const EVERYDAY = new Set(["coffee_shop", "grocery", "pharmacy", "clinic", "restaurant"]);
 const FLOAT_MS = 2400;
@@ -1296,11 +1299,12 @@ export class Renderer2D {
     return Math.max(real, Math.min(MIN_PERSON_PX, real * 3));
   }
   peopleToDraw(now, dt) {
-    const w = this.world, out = [], P = this.P.bind(this);
+    const w = this.world, out = [], P = this.P.bind(this), stride = this.personHeight() * WALK_CYCLE_HEIGHTS;
     const add = (e, isSelf) => {
       const truth = this.standingPoint(e, now);
       if (!truth) return;
       let s = this.shown.get(e.id);
+      const was = s;
       if (!s || dist(s, truth) > 40) s = truth.slice();
       else { const k = 1 - Math.exp(-dt * 12); s = [s[0] + (truth[0] - s[0]) * k, s[1] + (truth[1] - s[1]) * k]; }
       this.shown.set(e.id, s);
@@ -1312,7 +1316,12 @@ export class Renderer2D {
       if (walking) {
         const [ax, ay] = P(here[0], here[1]), [bx, by] = P(e.target[0], e.target[1]), f = facingFor(bx - ax, by - ay, g);
         g.facing = f.facing; g.mirror = f.mirror;
-        g.phase = (g.phase + dt * 1.15) % 1;   // about two steps a second
+        // The steps follow how fast they move on screen against how big they're drawn (D-072): one cycle, two
+        // steps, per WALK_CYCLE_HEIGHTS of their drawn height covered, so the feet keep pace with the ground
+        // whatever the clock's speed or the zoom; kept between a stroll and a run's cadence so it still reads.
+        const [px, py] = was ? P(was[0], was[1]) : [0, 0], [qx, qy] = was ? P(s[0], s[1]) : [0, 0];
+        const cycles = Math.hypot(qx - px, qy - py) / Math.max(1, stride);
+        g.phase = (g.phase + Math.max(dt * WALK_CADENCE[0], Math.min(dt * WALK_CADENCE[1], cycles))) % 1;
       }
       const name = isSelf ? "You" : firstName(e.name) + (e.scripted ? " · script" : "");
       out.push({ id: e.id, x: s[0], y: s[1], inside: e.inside, self: isSelf, scripted: !!e.scripted, name: e.name, label: name,

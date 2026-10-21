@@ -132,18 +132,33 @@ python3 scripts/interior_prompts.py          # regenerate both files after editi
 python3 scripts/interior_prompts.py --check  # fails if a place someone can enter has no prompt, or the files are stale
 ```
 
-## Full-body figures for the map (`web/client/figures/`)
+## Whole-body figures for the map and the rooms (`web/client/figures/`)
 
-`scripts/client_figures.py` cuts every full-body view off the model sheets (`reference/characters/`,
-`reference/residents/`) for the web client, which draws people whole with them (`web/client/figures.js`, D-067):
-each view cut out of its background (BiRefNet through `rembg`, run offline once its model is downloaded; the hair
-keeps its edge with no background halo), scaled to one game height (360 px for a 1.75 m person, everyone at their
-real height), feet found and written to `web/client/figures/<id>/<view>.webp` and `manifest.json`. Dominique has a
-five-view turnaround; Dax and the four residents four views; the other nine founders' sheets are photo collages, so
-they have a walking shot ("front") and a shot from behind ("back34") only. The masters stay outside the repository.
+`scripts/client_figures.py` makes the pictures the web client draws people with (`web/client/figures.js`), one
+source per character:
+
+- **A sprite sheet** (`sprites/characters/<id>/sheet.webp`, D-072), where there is one: its 4 × 3 cells become
+  `web/client/figures/<id>/<frame>.webp` (`walk_front34_1..4`, `walk_back34_1..4`, `idle_front34`, `idle_back34`,
+  `sit_chair`, `sit_sofa`). Each cell is cut out with BiRefNet (through `rembg`); the chair and sofa the generator drew
+  in the seated cells are taken out (rembg's person model and Segment Anything, colour rules for the chair's back and
+  legs, and `ERASE` in the script for what is left), because the room's own seat is under the person in the game.
+  Standing and walking frames are anchored at the feet, seated ones at the seat point (where the seat is under the
+  hips). Ten sheets are filed: Aaliyah, Andre, Dax, Dominique, Graham, Harper, Julian, Leila, Sienna and Theo
+  Grant. Dax's and Harper's standing cell is drawn seated, so a walking frame stands in for it (`STAND_INS`).
+- **Otherwise the model sheet** (`reference/characters/`, `reference/residents/`, D-067): every full-body view cut
+  out (the hair keeps its edge with no background halo) to `web/client/figures/<id>/<view>.webp`. Maya and Naomi have
+  a walking shot ("front") and a shot from behind ("back34"); Kai Morgan, Rosa Delgado and Sol Rivera four views.
+
+Everything is scaled to one game height (360 px for a 1.75 m person, everyone at their real height) and listed in
+`manifest.json`, whose `"$seats"` also holds how high each kind of seat is and how the seated frames sit on it. The
+models (BiRefNet 224 MB, the person model 168 MB, Segment Anything 110 MB) download once and then run offline; the
+masters stay outside the repository. A new sheet needs its preview looked at before it's committed: a seated frame
+with a bit of chair left in it gets an `ERASE` polygon.
 
 ```bash
-python3 scripts/client_figures.py --preview /tmp/figs   # rebuild, and write every view on sand and night to look at
+python3 scripts/client_figures.py --preview /tmp/figs   # rebuild, and write every picture on sand and night to look at
+python3 scripts/client_figures.py --only leila          # just one character (the manifest keeps the others)
+python3 scripts/client_figures.py --check               # fails if a sheet changed since its frames were cut, or files are missing or stray
 ```
 
 ## Character sprites (`PROMPT_PACK_CHARACTERS.md`, `prompts_characters.html`)
@@ -153,8 +168,8 @@ residents, townspeople) and a model sheet for each townsperson who has none (`re
 first, then attached to their sprite sheet prompt): the person at the town sprites' camera and golden-hour light, a 4-frame
 walk toward the camera's left and one away to its right (the other two by mirroring), standing, and sitting on a chair
 and a sofa, at one scale, with their model sheet attached as the reference. Files go to
-`art/sprites/characters/<id>/sheet.png`; the cut-outs above are used until they exist (the pack says how they'll replace
-them).
+`art/sprites/characters/<id>/sheet.png`; once filed, `client_figures.py` cuts them into the game's frames (above, and
+the pack's "How a sheet replaces the cut-outs"); the cut-outs are used until a character has one.
 
 ```bash
 python3 scripts/character_prompts.py          # regenerate both files after editing data/characters

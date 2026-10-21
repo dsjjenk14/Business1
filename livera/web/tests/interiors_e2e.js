@@ -4,10 +4,12 @@
 //   livera/web/tests/run_solo_e2e.sh interiors_e2e.js
 //
 // Phone (390x844, touch) then desktop (1440x900): New town → Dominique → Heritage Coffee from Places → the room
-// covers the town, lit by the clock → tap a chair (the server seats her: look.here.room) → tap the counter (the
-// scene card's Buy) → buy (served at the counter) → tap the floor (move_inside) → Stand up → the map button shows
-// the town and back → the stage asks for a song → Exit by tapping the door → the town again. Then two people in one
-// room through Play together's stand-in platform: one sits, the other sees it and is refused that chair until she
+// covers the town, lit by the clock → tap a chair (the server seats her: look.here.room; it faces away from the
+// camera, so she's her standing back frame lowered onto it) → tap the Chesterfield (her seated sofa frame from her
+// sprite sheet, anchored on the seat, legs and all: D-072) → tap the counter (the scene card's Buy) → buy (served at
+// the counter) → tap the floor (move_inside) → Stand up → the map button shows the town and back → the stage asks for
+// a song → Exit by tapping the door → the town again. Then two people in one room through Play together's stand-in
+// platform: one sits (the other sees her seated chair frame), the other sees it and is refused that chair until she
 // leaves. No console errors.
 
 const { chromium } = require("playwright");
@@ -75,6 +77,16 @@ async function goInside(p, place) {
   throw new Error(`never got inside ${place.id}`);
 }
 const roomActive = p => waitFor(p, () => window.__liveraRoom && window.__liveraRoom.active(), null, 15000);
+// A life event's card (moments.js, D-068) can come up whenever the clock allows (sooner since D-075): "Later" keeps it
+// in the phone and out of the way of the taps this test is about.
+async function later(p) {
+  for (let i = 0; i < 3; i++) {
+    const b = await p.page.$("#moments .mo-later-x");
+    if (!b || !(await b.isVisible().catch(() => false))) return;
+    await b.click().catch(() => {});
+    await sleep(400);
+  }
+}
 // The room eases into place when a card opens or closes: wait until it holds still before aiming a tap.
 async function settled(p) {
   let last = null;
@@ -87,6 +99,7 @@ async function settled(p) {
 // A point is tappable when the room itself is what's under it (toasts and cards come and go over it).
 const onRoom = (p, pt) => W(p, ([x, y]) => { const e = document.elementFromPoint(x, y); return !!e && e.id === "room"; }, pt);
 async function tapSpot(p, id) {
+  await later(p);
   await settled(p);
   // Off the edge of a phone's screen: pan to it first, as a drag would.
   const vis = await W(p, id => { const q = window.__liveraRoom.spotPoint(id); return q && q[0] > 30 && q[1] > 120 && q[0] < innerWidth - 30 && q[1] < innerHeight - 260; }, id);
@@ -96,12 +109,14 @@ async function tapSpot(p, id) {
     pt = await W(p, id => window.__liveraRoom.spotPoint(id), id);
     assert(pt, `${id} isn't on screen`);
     if (await onRoom(p, pt)) break;
+    await later(p);
     await sleep(250);
   }
   await tap(p, pt);
 }
 // Open floor the finger can reach: the first of these room points that is walkable and not under a card or a toast.
 async function floorTap(p, candidates) {
+  await later(p);
   await settled(p);
   for (let i = 0; i < 40; i++) {
     for (const [x, y] of candidates) {
@@ -110,6 +125,7 @@ async function floorTap(p, candidates) {
       const h = await W(p, ([cx, cy]) => window.__liveraRoom.hitAt(cx, cy), pt);
       if (h && h.kind === "floor" && (await onRoom(p, pt))) { await tap(p, pt); return [x, y]; }
     }
+    await later(p);
     await sleep(250);
   }
   throw new Error("no open floor under the finger");
@@ -138,13 +154,33 @@ async function flow(p, tag) {
     await waitFor(p, () => !document.getElementById("room-stand").hidden);
     await sleep(3200);
     await p.page.screenshot({ path: path.join(SHOTS, `room_${tag}_02_seated.png`) });
+    // That chair faces the table, away from the camera: the sheets have no seated frame from behind, so her standing
+    // back frame is lowered onto the seat (D-072).
+    await waitFor(p, () => { const d = window.__liveraRoom.drawn(window.__livera.world.selfId); return d && d.frame === "idle_back34" && d.mode === "lowered"; });
+  });
+
+  await test(`${tag}: tap the Chesterfield → she sits on it in her seated sofa frame, anchored on the seat (D-072)`, async () => {
+    await tapSpot(p, "sofa_right");
+    await waitFor(p, () => (window.__liveraRoom.people().find(x => x.id === window.__livera.world.selfId) || {}).spot === "sofa_right");
+    await sleep(3200);   // the walk to the sofa, drawn
+    await waitFor(p, () => { const d = window.__liveraRoom.drawn(window.__livera.world.selfId); return d && d.pose === "sit" && d.frame === "sit_sofa" && d.mode === "seat"; });
+    // The seated frame is drawn whole (legs and all), not a standing picture clipped at the seat: its box reaches
+    // below the seat, down past the floor point it sits over.
+    const r = await W(p, () => { const id = window.__livera.world.selfId, d = window.__liveraRoom.drawn(id), s = window.__livera.world.here.room.interior.spots.find(x => x.id === "sofa_right"), q = window.__liveraRoom.floorPoint(s.at[0], s.at[1]), c = document.getElementById("room").getBoundingClientRect(); return { box: d.box, floorY: q[1] - c.top }; });
+    assert(r.box[1] + r.box[3] > r.floorY - 4, "the seated frame stops at the seat: " + JSON.stringify(r));
+    await p.page.screenshot({ path: path.join(SHOTS, `room_${tag}_02b_on_the_sofa.png`) });
+    // The scene card back to its pill, so the next tap lands on the room.
+    await p.page.click('#sheet:not([hidden]) .sheet-head [aria-label="Shrink to a pill"]', { timeout: 3000 }).catch(() => {});
   });
 
   await test(`${tag}: tap the counter → the card's Buy; buying serves you at the counter`, async () => {
     await tapSpot(p, "counter");
     await p.page.waitForSelector('#sheet[data-kind="scene"] [data-buy]');
     const before = (await W(p, () => window.__livera.world.money)) || {};
-    await p.page.click('#sheet [data-buy="latte"][data-method="card"]');
+    for (let i = 0; ; i++) {
+      await later(p);
+      try { await p.page.click('#sheet [data-buy="latte"][data-method="card"]', { timeout: 4000 }); break; } catch (e) { if (i >= 4) throw e; }
+    }
     await waitFor(p, () => (window.__liveraRoom.people().find(x => x.id === window.__livera.world.selfId) || {}).spot === "counter");
     const me = await meInRoom(p);
     assert(me.spot === "counter", "not served at the counter: " + JSON.stringify(me));
@@ -220,6 +256,8 @@ async function twoPeople(browser) {
     await waitFor(H, () => (window.__liveraRoom.people().find(x => x.id === "dominique") || {}).spot === "table_far_2");
     await waitFor(F, () => (window.__liveraRoom.people().find(x => x.id === "dominique") || {}).spot === "table_far_2");
     await sleep(3200);  // her walk to the chair, drawn
+    // The friend sees her in her seated chair frame: that chair faces the camera (D-072).
+    await waitFor(F, () => { const d = window.__liveraRoom.drawn("dominique"); return d && d.frame === "sit_chair" && d.mode === "seat"; });
     await F.page.screenshot({ path: path.join(SHOTS, "room_two_people_friend_sees_host_seated.png") });
     // Her chair, tapped, is her: the person card opens. Asking the server for the chair anyway is refused.
     await tapSpot(F, "table_far_2");

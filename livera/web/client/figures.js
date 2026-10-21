@@ -1,15 +1,18 @@
 // The one way the game draws a whole person: on the map (render2d.js) and inside a building
-// (interior.js). Founders and the four residents with a model sheet are drawn with their
-// full-body cut-outs (client/figures/<id>/<view>.webp, made by scripts/client_figures.py from
-// art/reference); everyone else is drawn as a simple stylised body in canvas, which is a stand-in,
-// not their look, and their card says so (artStatus()). The townspeople (D-073), whose sheets aren't
-// drawn yet, wear their own colours from data (client/figures/standins.json, made by
-// scripts/client_standins.py: skin, hair and its style, top, bottom, shoes, an apron or headwear) at
-// their own height, so the barista and the sergeant read as who they are. Characters made in the
-// creator get neutral colours and an outfit colour picked from the person's id, only so two of them
-// can be told apart: the protocol doesn't tell other players what anyone chose in the creator.
+// (interior.js). Characters with a sprite sheet from the owner (art/sprites/characters/<id>/sheet.webp)
+// are drawn with its frames (client/figures/<id>/<frame>.webp, cut by scripts/client_figures.py, D-072):
+// a four-frame walk toward the camera and one away from it, standing, and seated on a chair and on a sofa,
+// all at the town's camera. The other founders and residents with a model sheet are drawn with their
+// full-body cut-outs (client/figures/<id>/<view>.webp, cut from art/reference); everyone else is drawn as
+// a simple stylised body in canvas, which is a stand-in, not their look, and their card says so
+// (artStatus()). The townspeople (D-073), whose sheets aren't drawn yet, wear their own colours from data
+// (client/figures/standins.json, made by scripts/client_standins.py: skin, hair and its style, top,
+// bottom, shoes, an apron or headwear) at their own height, so the barista and the sergeant read as who
+// they are. Characters made in the creator get neutral colours and an outfit colour picked from the
+// person's id, only so two of them can be told apart: the protocol doesn't tell other players what anyone
+// chose in the creator.
 //
-//   drawFigure(ctx, person, x, y, {height, facing, mirror, pose, phase, night, selected, scripted})
+//   drawFigure(ctx, person, x, y, {height, facing, mirror, pose, phase, night, selected, scripted, seat, seatKind})
 //
 // person: the client's person object ({id, name, …}). (x, y): where the feet stand, in the
 // context's current units. height: how tall a 1.75 m person stands there, in the same units;
@@ -21,18 +24,30 @@
 // how far through a flinch (0 → 1: the shake dies away). night: 0..1, how far the light has
 // gone to the map's night. selected: a gold ring on the ground. scripted: the dashed ring that says
 // a script plays them. Extra, optional: tint ([hex, 0..1], the hour's warm light at golden hour),
-// seat (sit: how far above the feet the seat is, default 0.26 of the height).
+// seat (sit: how far above the feet the seat is, default 0.26 of the height), seatKind (sit: the kind
+// of seat, as the rooms name them: seat, stool, sofa, bed).
 //
-// Sitting is an approximation with standing art: the figure is lowered so its hips meet the seat
-// and clipped at the seat line, so whatever is drawn in front of it afterwards (a chair's front, a
-// table, a sofa's arm) reads as the seat; the legs aren't drawn. Proper sitting sprites are asked
-// for in art/PROMPT_PACK_CHARACTERS.md. Fighting and flinching are the same kind of approximation:
-// a photograph can't raise its fists, so "fight" squares the standing figure up (a slight crouch, a
-// lean toward the way they face, a boxer's bounce) and "flinch" recoils it (a crouch, a lean away,
-// a shake that dies away); the stand-in body does raise its fists, or its arms over its face.
+// A sprite sheet's frames are three-quarter views: walking and standing toward the camera use the
+// front frames, away from it the back ones, each mirrored for the other diagonal (a straight-on or side
+// direction takes the nearer three-quarter one). Walking steps through the walk frames, four to a step.
+// Sitting facing the camera is the real seated frame, its seat point (where the seat is under the hips,
+// found by the script) put on the seat: sit_chair on chairs, stools and seats, sit_sofa on sofas and beds.
+// The sheets have no seated frame from behind, so someone sitting with their back to the camera (at a
+// bar, a desk, the near side of a table) is the standing back frame lowered onto the seat and clipped at
+// the seat line, the furniture drawn in front reading as the seat; from behind, the back and the seat
+// hide the legs anyway. The seat height for each kind of seat and any nudge of the seated frames are in
+// the manifest's "$seats" (from the script), not per room.
 //
-// Scaled, lit pictures are cached per (id, view, height bucket, light step), so a frame costs one
-// drawImage per person (16 people: about 0.15 ms); while zooming, at most four are baked again per
+// The cut-outs approximate everything but standing: walking is a bob and a sway; sitting lowers the
+// figure so its hips meet the seat and clips it at the seat line, so whatever is drawn in front of it
+// afterwards (a chair's front, a table, a sofa's arm) reads as the seat; the legs aren't drawn.
+// Fighting and flinching are the same kind of approximation for every picture: a picture can't raise
+// its fists, so "fight" squares the standing figure up (a slight crouch, a lean toward the way they
+// face, a boxer's bounce) and "flinch" recoils it (a crouch, a lean away, a shake that dies away);
+// the stand-in body does raise its fists, or its arms over its face.
+//
+// Scaled, lit pictures are cached per (id, view or frame, height bucket, light step), so a frame costs
+// one drawImage per person (16 people: about 0.15 ms); while zooming, at most four are baked again per
 // frame and the rest draw their last bake scaled.
 
 export const REFERENCE_CM = 175;
@@ -50,6 +65,17 @@ const FALLBACK = {
 const NIGHT_COLOR = "#061a22";     // layout.js LIGHT's night ambient
 const NIGHT_MAX = 0.45;            // how dark a person gets at full night (the street lamps keep them readable)
 const SIT_SEAT = 0.26, SIT_HIP = 0.52;   // seat height and hip height, as fractions of a standing person
+// A sprite sheet's frames (art/PROMPT_PACK_CHARACTERS.md, "How a sheet replaces the cut-outs").
+const WALK = n => Array.from({ length: n }, (_, i) => i + 1);
+const FRAMES = [...WALK(4).map(i => `walk_front34_${i}`), ...WALK(4).map(i => `walk_back34_${i}`), "idle_front34", "idle_back34", "sit_chair", "sit_sofa"];
+const SOFT_SEATS = new Set(["sofa", "bed"]);   // sit_sofa; every other seat (seat, stool, chair) sit_chair
+// Per kind of seat: how high the seat is (fraction of a standing 1.75 m person), a nudge of the seated frame's seat
+// point (fractions of the person's height: dx toward the way they face, dy down), and how far ahead of the seat the
+// furniture it belongs to covers the legs (reach, fraction of the height: a booth's own table; interior.js). The
+// manifest's "$seats" replaces these defaults; a kind it doesn't name (a new kind of spot) is a plain seat.
+const SEAT_DEFAULTS = { seat: { height: 0.26, dx: 0, dy: 0, reach: 0.22 }, stool: { height: 0.42, dx: 0, dy: 0, reach: 0.22 },
+  sofa: { height: 0.24, dx: 0, dy: 0, reach: 0.22 }, bed: { height: 0.3, dx: 0, dy: 0, reach: 0.22 } };
+let seats = SEAT_DEFAULTS;
 
 let manifest = null, loading = null, standins = new Map();
 const pictures = new Map();        // "id/view" -> {img, ok}
@@ -86,17 +112,34 @@ export function loadFigureManifest() {
       .then(async m => {
         standins = readStandins(await extra);
         const out = new Map();
+        const pt = a => (Array.isArray(a) && a.length === 2 && a.every(v => isFinite(Number(v))) ? a.map(Number) : null);
+        const pictureOf = d => {
+          if (!d || !Array.isArray(d.size)) return null;
+          const [w, h] = d.size.map(Number), foot = pt(d.foot), seat = pt(d.seat);
+          if (!(w > 0 && h > 0) || !(foot || seat)) return null;
+          const [fx, fy] = seat || foot;
+          return { w, h, fx, fy, seat: !!seat, faces: d.faces === "left" || d.faces === "right" ? d.faces : null };
+        };
         for (const [id, e] of Object.entries(m && typeof m === "object" ? m : {})) {
-          if (!isId(id) || !e || typeof e.views !== "object") continue;
-          const views = {};
-          for (const v of VIEWS) {
-            const d = e.views[v];
-            if (!d || !Array.isArray(d.size) || !Array.isArray(d.foot)) continue;
-            const [w, h] = d.size.map(Number), [fx, fy] = d.foot.map(Number);
-            if (!(w > 0 && h > 0 && isFinite(fx) && isFinite(fy))) continue;
-            views[v] = { w, h, fx, fy, faces: d.faces === "left" || d.faces === "right" ? d.faces : null };
+          if (!isId(id) || !e || typeof e !== "object") continue;
+          const views = {}, frames = {};
+          for (const v of VIEWS) { const p = e.views && typeof e.views === "object" ? pictureOf(e.views[v]) : null; if (p && !p.seat) views[v] = p; }
+          for (const f of FRAMES) { const p = e.frames && typeof e.frames === "object" ? pictureOf(e.frames[f]) : null; if (p && p.seat === f.startsWith("sit_")) frames[f] = p; }
+          const sheet = !!(frames.idle_front34 || frames.idle_back34);
+          if (Object.keys(views).length || sheet) {
+            out.set(id, { cm: num(e.height_cm, DEFAULT_CM), pxPerCm: num(e.px_per_cm, 360 / REFERENCE_CM), views, frames: sheet ? frames : null });
           }
-          if (Object.keys(views).length) out.set(id, { cm: num(e.height_cm, DEFAULT_CM), pxPerCm: num(e.px_per_cm, 360 / REFERENCE_CM), views });
+        }
+        const sm = m && m.$seats;
+        if (sm && typeof sm === "object") {
+          seats = {};
+          for (const [k, d] of Object.entries({ ...SEAT_DEFAULTS, ...sm })) {
+            if (!/^[a-z_]{1,20}$/.test(k) || !d || typeof d !== "object") continue;
+            const def = SEAT_DEFAULTS[k] || SEAT_DEFAULTS.seat;
+            const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+            seats[k] = { height: clamp(num(d.height, def.height), 0.05, 0.8), dx: clamp(num(d.dx, 0), -0.3, 0.3), dy: clamp(num(d.dy, 0), -0.3, 0.3),
+              reach: clamp(num(d.reach, def.reach), 0, 2) };
+          }
         }
         manifest = out;
       })
@@ -104,6 +147,10 @@ export function loadFigureManifest() {
   }
   return loading;
 }
+// How high a kind of seat is, as a fraction of a standing 1.75 m person (the rooms put people on seats with it).
+export const seatHeight = kind => seatTune(kind).height;
+// Everything the manifest says about a kind of seat: {height, dx, dy, reach}.
+export const seatTune = kind => seats[kind] || seats.seat || SEAT_DEFAULTS.seat;
 
 function entry(id) { return manifest && manifest.get(id) || null; }
 
@@ -127,6 +174,7 @@ function prefetch(id, e) {
   if (fetched.has(id)) return;
   fetched.add(id);
   for (const v of Object.keys(e.views)) picture(id, v);
+  for (const f of Object.keys(e.frames || {})) picture(id, f);
 }
 // Has this character's art loaded (their front view, or the first they have)? Starts loading it.
 export function figureReady(id) {
@@ -134,7 +182,7 @@ export function figureReady(id) {
   const e = entry(id);
   if (!e) return false;
   prefetch(id, e);
-  const first = e.views.front ? "front" : Object.keys(e.views)[0];
+  const first = e.frames ? (e.frames.idle_front34 ? "idle_front34" : "idle_back34") : e.views.front ? "front" : Object.keys(e.views)[0];
   return !!picture(id, first);
 }
 // Whether a character has cut-outs at all (false until the manifest has loaded).
@@ -384,10 +432,30 @@ function groundRings(ctx, x, y, h, selected, scripted) {
   }
 }
 
+// Which of a sprite sheet's frames shows a pose, and how it is anchored: "foot" (the point between the
+// feet on the ground), "seat" (a seated frame's seat point on the seat), or "lowered" (the standing frame
+// lowered onto the seat and clipped there: sitting with the back to the camera, which no frame shows).
+function sheetFrame(frames, pose, want, cyc, seatKind) {
+  const back = want === "back34" || want === "back", side = back ? "back34" : "front34";
+  const idle = frames[`idle_${side}`] ? `idle_${side}` : frames.idle_front34 ? "idle_front34" : "idle_back34";
+  if (pose === "sit") {
+    const f = SOFT_SEATS.has(seatKind) ? "sit_sofa" : "sit_chair";
+    if (!back && frames[f]) return { name: f, mode: "seat" };
+    if (!back && frames.sit_chair) return { name: "sit_chair", mode: "seat" };
+    return { name: idle, mode: "lowered" };
+  }
+  if (pose === "walk") {
+    const f = `walk_${side}_${1 + (Math.floor(cyc * 8) % 4)}`;   // four frames a step, two steps a cycle
+    if (frames[f]) return { name: f, mode: "foot" };
+  }
+  return { name: idle, mode: "foot" };
+}
+
 // Draws `person` with their feet at (x, y). Returns where it went: {x0, y0, x1, y1} (the figure's
-// box, for tap targets) and `head` (the top of the head), in the context's units.
+// box, for tap targets), `head` (the top of the head), in the context's units, and for a sprite sheet the
+// frame drawn (`frame`) and how it was anchored (`mode`: foot, seat or lowered).
 export function drawFigure(ctx, person, x, y, { height, facing = "front", mirror = false, pose = "stand", phase = 0, night = 0,
-  selected = false, scripted = false, tint = null, seat = null } = {}) {
+  selected = false, scripted = false, tint = null, seat = null, seatKind = null } = {}) {
   if (!manifest) loadFigureManifest();
   const ref = Math.max(1, num(height, 60)), dev = deviceScale(ctx);
   const id = person && person.id, e = isId(id) ? entry(id) : null;
@@ -396,23 +464,34 @@ export function drawFigure(ctx, person, x, y, { height, facing = "front", mirror
   const t = tint && typeof tint[0] === "string" && /^#[0-9a-f]{6}$/i.test(tint[0]) && tint[1] > 0.01 ? [tint[0].toLowerCase(), Math.round(Math.min(0.6, tint[1]) * 20) / 20] : null;
   const hd = bucket(ref * dev);
   const want = VIEWS.includes(facing) ? facing : "front";
-  // Walking: a step's bob and a slight sway about the feet; sitting: lowered to the seat, clipped there.
-  const cyc = ((num(phase, 0) % 1) + 1) % 1, walking = pose === "walk";
-  const bob = walking ? -Math.abs(Math.sin(cyc * Math.PI * 2)) * h * 0.014 : 0;
-  const sway = walking ? Math.sin(cyc * Math.PI * 2) * 0.018 : 0;
-  const sitting = pose === "sit", seatH = sitting ? num(seat, ref * SIT_SEAT) : 0, drop = sitting ? h * SIT_HIP - seatH : 0;
+  const cyc = ((num(phase, 0) % 1) + 1) % 1, walking = pose === "walk", sitting = pose === "sit";
+  const seatH = sitting ? num(seat, ref * SIT_SEAT) : 0;
   // Fighting: squared up and bouncing on the toes; flinching: recoiling, with a shake that dies away.
   const fighting = pose === "fight", flinching = pose === "flinch", turned = want !== "front" && want !== "back", toward = mirror ? -1 : 1;
   const squash = fighting ? 0.97 : flinching ? 0.95 : 1;
-  const lean = fighting ? (turned ? 0.05 : 0) * toward : flinching ? (turned ? -0.09 : 0) * toward : 0;
   const hop = fighting ? -Math.abs(Math.sin(cyc * Math.PI * 4)) * h * 0.015 : 0;
   const shake = flinching ? Math.sin(cyc * Math.PI * 6) * h * 0.015 * (1 - cyc) : 0;
-  let img = null, view = want, info = null;
+  let img = null, view = want, info = null, mode = sitting ? "lowered" : "foot";
   if (e) {
     prefetch(id, e);
-    for (const v of FALLBACK[want]) if (e.views[v]) { const im = picture(id, v); if (im) { img = im; view = v; break; } }
-    if (img) info = { v: e.views[view], pxPerCm: e.pxPerCm };
+    if (e.frames) {
+      // The frame the pose wants; while it loads, the standing frame that side (or any loaded one) rather than a gap.
+      const f = sheetFrame(e.frames, pose, want, cyc, seatKind), still = sheetFrame(e.frames, "stand", want, 0);
+      const tries = [f, { name: still.name, mode: sitting ? "lowered" : "foot" },
+        ...Object.keys(e.frames).filter(n => !n.startsWith("sit_")).map(n => ({ name: n, mode: sitting ? "lowered" : "foot" }))];
+      for (const c of tries) { const im = picture(id, c.name); if (im) { img = im; view = c.name; mode = c.mode; break; } }
+      if (img) info = { v: e.frames[view], pxPerCm: e.pxPerCm };
+    } else {
+      for (const v of FALLBACK[want]) if (e.views[v]) { const im = picture(id, v); if (im) { img = im; view = v; break; } }
+      if (img) info = { v: e.views[view], pxPerCm: e.pxPerCm };
+    }
   }
+  const sheet = !!(e && e.frames && img);
+  // The cut-outs and the stand-in walk with a step's bob and a slight sway about the feet; a sheet's frames walk.
+  const bob = walking && !sheet ? -Math.abs(Math.sin(cyc * Math.PI * 2)) * h * 0.014 : 0;
+  const sway = walking && !sheet ? Math.sin(cyc * Math.PI * 2) * 0.018 : 0;
+  const lean = fighting ? (turned ? 0.05 : 0) * toward : flinching ? (turned ? -0.09 : 0) * toward : 0;
+  const drop = mode === "lowered" ? h * SIT_HIP - seatH : 0;
   // A soft contact shadow (none while seated: the seat has its own).
   if (!sitting) {
     const sw = h * (view === "side" ? 0.2 : 0.26), sh = Math.max(1.5, h * 0.055);
@@ -422,7 +501,7 @@ export function drawFigure(ctx, person, x, y, { height, facing = "front", mirror
   if (selected || scripted) groundRings(ctx, x, y, h, selected, scripted);
   // Art that is still on its way (or the manifest saying who has art): just the shadow for a moment,
   // rather than a stand-in body that then turns into the person. Art that failed to load: the stand-in.
-  const loadingArt = e && Object.keys(e.views).some(v => !pictures.get(`${id}/${v}`)?.failed);
+  const loadingArt = e && [...Object.keys(e.views), ...Object.keys(e.frames || {})].some(v => !pictures.get(`${id}/${v}`)?.failed);
   if (!img && (!manifest || loadingArt)) {
     return { x0: x - h * 0.15, y0: y - h, x1: x + h * 0.15, y1: y, head: [x, y - h], height: h, view: want, art: false, pending: true };
   }
@@ -441,15 +520,23 @@ export function drawFigure(ctx, person, x, y, { height, facing = "front", mirror
   // Which way the picture looks, against which way the person faces.
   const faces = info ? info.v.faces : (view === "side" || view === "front34" || view === "back34" ? "right" : null);
   const flip = faces ? (faces === "right") === !!mirror : false;
+  // Where the picture's anchor goes: the feet on (x, y), or a seated frame's seat point on the seat, nudged as
+  // the manifest says for this kind of seat (its dx is toward the way the person faces).
+  let ax = x + shake, ay = y + drop + bob + hop;
+  if (mode === "seat") {
+    const tune = seatTune(seatKind);
+    ax = x + tune.dx * h * (mirror ? -1 : 1); ay = y - seatH + tune.dy * h;
+  }
   const w = c.width * k, hh = c.height * k;
   ctx.save();
-  if (sitting) { ctx.beginPath(); ctx.rect(x - w, y - hh - 2, w * 2, hh + 2 - seatH); ctx.clip(); }
-  ctx.translate(x + shake, y + drop + bob + hop);
+  if (mode === "lowered") { ctx.beginPath(); ctx.rect(x - w, y - hh - h - 2, w * 2, hh + h + 2 - seatH); ctx.clip(); }
+  ctx.translate(ax, ay);
   if (sway || lean) ctx.rotate(sway + lean);
   if (flip || squash !== 1) ctx.scale(flip ? -1 : 1, squash);
   ctx.imageSmoothingEnabled = true;
   ctx.drawImage(c, -fx * k, -fy * k, w, hh);
   ctx.restore();
-  const x0 = x + shake - (flip ? w - fx * k : fx * k), y0 = y + drop + bob + hop - fy * k * squash;
-  return { x0, y0, x1: x0 + w, y1: sitting ? y - seatH : y0 + hh, head: [x, y0], height: h, view, art: !!img };
+  const x0 = ax - (flip ? w - fx * k : fx * k), y0 = ay - fy * k * squash;
+  return { x0, y0, x1: x0 + w, y1: mode === "lowered" ? y - seatH : y0 + hh * squash, head: [x, y0], height: h, view,
+    art: !!img, frame: sheet ? view : null, mode: sheet ? mode : null };
 }

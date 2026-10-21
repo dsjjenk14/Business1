@@ -9,13 +9,11 @@
 import { el, firstName } from "./dom.js";
 import { icon } from "./icons.js";
 import { LIGHT } from "./layout.js";
-import { drawFigure } from "./figures.js";
+import { drawFigure, seatHeight, seatTune } from "./figures.js";
 
 const SEATS = new Set(["seat", "sofa", "bed", "stool"]);
 // Where you sit: a seat you chose, or the bench of the cell an arrest put you in (nobody takes a cell by choice).
 const SITS = new Set([...SEATS, "cell"]);
-// How high each kind of seat is, as a fraction of a standing person (figures.js lowers a sitter's hips onto it).
-const SEAT_HEIGHT = { seat: 0.26, sofa: 0.24, bed: 0.3, stool: 0.42, cell: 0.26 };
 const ISO = { n: [-1, -0.5], e: [1, -0.5], s: [1, 0.5], w: [-1, 0.5] };
 // How a facing in the picture is drawn (figures.js: mirror = facing screen-left): s and w face the viewer,
 // n and e face away; w and n look to the left of the screen.
@@ -105,6 +103,7 @@ export class RoomView {
     this.label = null;         // {text, at, until}
     this.hover = null;
     this.hits = [];
+    this.drawn = new Map();    // id -> how drawFigure drew them last frame ({pose, frame, mode}), for the tests
     this.shownFor = null;      // the place the room was last shown for (compacts the card once per visit)
     // Attach once the game has built its transport, renderer and UI (the constructor that holds this hasn't yet).
     const tryAttach = () => { if (game.transport && game.renderer && game.ui && game.world) this.attach(); else setTimeout(tryAttach, 30); };
@@ -138,6 +137,8 @@ export class RoomView {
       active: () => this.covering(), interior: () => (this.room ? this.room.id : null), mapMode: () => this.mapMode,
       spotPoint: id => this.spotScreen(id), floorPoint: (x, y) => this.toScreen([x, y]), personPoint: id => this.personScreen(id),
       people: () => [...this.people.entries()].map(([id, p]) => ({ id, at: p.at.slice(), spot: p.spot })),
+      // How each person was drawn last frame: the pose, and for a sprite sheet the frame and its anchor (D-072).
+      drawn: id => { const d = this.drawn.get(id); return d ? { ...d, box: d.box.slice() } : null; },
       label: () => (this.label ? this.label.text : null),
       view: () => (this.view ? { s: this.view.s, ox: this.view.ox, oy: this.view.oy } : null),
       hitAt: (x, y) => { const h = this.hitAt(x, y); return h ? { kind: h.kind, id: h.id || (h.spot && h.spot.id) || null } : null; },
@@ -353,10 +354,13 @@ export class RoomView {
       const s = p.spot && !walking ? this.spot(p.spot) : null;
       const pose = walking ? "walk" : s && SITS.has(s.kind) ? "sit" : "stand";
       const facing = s && !walking ? s.facing : p.facing;
-      list.push({ id, at, pose, facing, kind: s ? s.kind : null, phase: walking ? (now - p.t0) / 1000 * 1.6 : 0 });
+      // The steps follow the ground covered: a cycle (two steps) per 0.86 of a person's height walked.
+      const walked = walking ? Math.hypot(at[0] - p.from[0], at[1] - p.from[1]) : 0;
+      list.push({ id, at, pose, facing, kind: s ? s.kind : null, phase: walked / ((this.room.person_px || 120) * 0.86) });
     }
     list.sort((a, b) => a.at[1] - b.at[1]);
     this.hits = [];
+    this.drawn.clear();
     const names = [];
     const blocked = Array.isArray(this.room.blocked) ? this.room.blocked : [];
     for (const it of list) {
@@ -365,12 +369,22 @@ export class RoomView {
       const f = FACING[it.facing] || FACING.s;
       const got = drawFigure(ctx, person, sx, sy, { height: P, facing: f.facing, mirror: f.mirror, pose: it.pose, phase: it.phase,
         night, selected: self, scripted: !!person.scripted, tint: L.gold > 0.05 ? ["#ffc070", 0.14 * L.gold] : null,
-        seat: it.pose === "sit" ? P * (SEAT_HEIGHT[it.kind] || SEAT_HEIGHT.seat) : null });
+        // How high the seat is for its kind (figures/manifest.json "$seats"): a seated frame sits on it.
+        seat: it.pose === "sit" ? P * seatHeight(it.kind) : null, seatKind: it.pose === "sit" ? it.kind : null });
       const box = [got.x0, got.y0, got.x1 - got.x0, got.y1 - got.y0], top = got.y0;
-      // Furniture in front of them: the picture again, clipped to that furniture, over the box they're drawn in.
+      // Furniture in front of them: the picture again, clipped to that furniture, over the box they're drawn in. A
+      // seated frame's legs reach forward (D-072): furniture in front of their knees (a table the legs go under) counts
+      // as in front of them, and so does the far part of the footprint their own seat belongs to (a booth and its table
+      // are one footprint): what lies further ahead of the seat on the floor than the kind's reach ("$seats").
+      const P0 = this.room.person_px || 120, reach = got.mode === "seat" ? seatTune(it.kind).reach * P0 : 0;
+      const knee = reach > 0 ? this.ahead(it.at, it.facing, reach) : null;
       for (const b of blocked) {
-        if (!(b.height > 0) || !Array.isArray(b.poly) || !inFront(b.poly, it.at)) continue;
-        const shape = hull(b.poly.concat(b.poly.map(q => [q[0], q[1] - b.height])));
+        if (!(b.height > 0) || !Array.isArray(b.poly)) continue;
+        const own = inPoly(it.at, b.poly);
+        const front = inFront(b.poly, it.at) || (!!knee && !own && (inFront(b.poly, knee) || inPoly(knee, b.poly)));
+        const foot = front ? b.poly : own && knee ? this.beyond(b.poly, knee, it.facing) : null;
+        if (!foot || foot.length < 3) continue;
+        const shape = hull(foot.concat(foot.map(q => [q[0], q[1] - b.height])));
         ctx.save();
         ctx.beginPath(); ctx.rect(box[0] - 2, box[1] - 2, box[2] + 4, box[3] + 4); ctx.clip();
         ctx.beginPath(); shape.forEach((q, i) => { const [qx, qy] = this.toScreen(q); if (i) ctx.lineTo(qx, qy); else ctx.moveTo(qx, qy); }); ctx.closePath(); ctx.clip();
@@ -379,9 +393,25 @@ export class RoomView {
       }
       if (!self && P > 26) names.push({ x: sx, y: top - 4, text: firstName(person.name || it.id), near: sy });
       this.hits.push({ kind: "person", id: it.id, box });
+      this.drawn.set(it.id, { pose: it.pose, frame: got.frame || null, mode: got.mode || null, box: box.map(v => Math.round(v)) });
     }
     this.drawNames(ctx, names, P);
     this.drawBubbles(ctx, now);
+  }
+  // The point on the floor `dist` ahead of `at` the way a seat faces (room pixels).
+  ahead(at, facing, dist) {
+    const d = ISO[facing] || ISO.s, n = Math.hypot(d[0], d[1]);
+    return [at[0] + d[0] / n * dist, at[1] + d[1] / n * dist];
+  }
+  // The part of a footprint beyond a point on the floor, the way a seat faces (a polygon clipped by a half-plane).
+  beyond(poly, from, facing) {
+    const d = ISO[facing] || ISO.s, side = q => (q[0] - from[0]) * d[0] + (q[1] - from[1]) * d[1], out = [];
+    for (let i = 0; i < poly.length; i++) {
+      const a = poly[i], b = poly[(i + 1) % poly.length], sa = side(a), sb = side(b);
+      if (sa >= 0) out.push(a);
+      if ((sa >= 0) !== (sb >= 0)) { const k = sa / (sa - sb); out.push([a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]); }
+    }
+    return out;
   }
   // First names over heads, last so furniture never covers them; the nearer of two that would overlap wins.
   drawNames(ctx, names, P) {
@@ -465,6 +495,9 @@ export class RoomView {
     cv.addEventListener("pointerup", end);
     cv.addEventListener("pointercancel", end);
     cv.addEventListener("pointerleave", () => { this.hover = null; });
+    // A tap can open the scene card right under the finger (the counter's Buy); without this the browser's follow-up
+    // click lands on whatever the card put there (as on the map, render2d.js).
+    cv.addEventListener("touchend", e => { if (e.cancelable) e.preventDefault(); }, { passive: false });
     cv.addEventListener("wheel", e => {
       if (!this.view) return;
       e.preventDefault();
