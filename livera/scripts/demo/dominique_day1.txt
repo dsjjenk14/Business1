@@ -9,8 +9,8 @@ exit
 walk heritage_coffee
 enter heritage_coffee
 buy latte card
-# Dax and Nico are still walking over from Maple Court; Nico plays the open mic.
-wait 30
+# Dax and Nico are still walking over from Maple Court (about 20 s at D-075's pace); Nico plays the open mic.
+wait 24
 look
 say Welcome to Livéra, Nico! That was beautiful.
 tip nico-vale 5
