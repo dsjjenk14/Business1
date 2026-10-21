@@ -117,8 +117,8 @@
         ],
         "schedule": {
           "weekdays": [
-            {"time": "14:00", "activity": "Livéra General Hospital", "work": true},
-            {"time": "22:30", "activity": "Home"}
+            {"time": "15:30", "activity": "Livéra General Hospital", "work": true},
+            {"time": "21:45", "activity": "Home"}
           ],
           "saturday": [{"time": "14:00", "activity": "Riverside Field"}, {"time": "16:30", "activity": "Home"}]
         },

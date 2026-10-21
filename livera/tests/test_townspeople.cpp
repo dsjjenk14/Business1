@@ -84,7 +84,7 @@ const std::vector<Shift> kWeekdayShifts = {
     {"jean-baptiste-moreau", "lumiere_bistro", 16 * 60 + 30, 23 * 60 + 15},
     {"ngozi-adeyemi", "riverdale_clinic", 8 * 60 + 30, 17 * 60 + 30},
     {"tess-osei", "livera_general", 7 * 60, 15 * 60},
-    {"rafael-mendes", "livera_general", 14 * 60, 22 * 60 + 30},
+    {"rafael-mendes", "livera_general", 15 * 60 + 30, 21 * 60 + 45},
     {"samuel-osei", "founders_school", 7 * 60 + 30, 15 * 60 + 30},
     {"kai-morgan", "low_end_studios", 14 * 60, 22 * 60},
 };

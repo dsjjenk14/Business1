@@ -44,7 +44,7 @@ struct ServerConfig {
   // } m08:wallet
   int passwordIterations = kDefaultPasswordIterations;
   std::size_t maxPlayers = 16;    // people in the world; scripts don't count against it
-  std::size_t maxScripted = 16;   // script sessions (bot_* accounts) in the world
+  std::size_t maxScripted = 32;   // script sessions (bot_* accounts) in the world: every playable character in data (D-073)
   double requestsPerSecond = 20;
   double requestBurst = 40;
   double tokenLifetimeSeconds = 7 * 24 * 3600.0;  // resume tokens (in memory only)

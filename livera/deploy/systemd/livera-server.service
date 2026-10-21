@@ -11,7 +11,7 @@ Type=simple
 User=livera
 Group=livera
 Environment=LIVERA_MAX_PLAYERS=16
-Environment=LIVERA_MAX_SCRIPTED=16
+Environment=LIVERA_MAX_SCRIPTED=32
 EnvironmentFile=-/etc/livera/server.env
 # No --dev (no time skips) and no --test-payments on a public server. Registration is closed:
 # the operator adds players with livera-add-player (livera_server --add-account).

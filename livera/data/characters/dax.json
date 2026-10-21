@@ -60,6 +60,11 @@
           "to": "andre",
           "history": "Saturday pickup partners. Andre talks trash; Dax wins.",
           "dimensions": {"familiarity": 48, "friendship": 45, "respect": 35}
+        },
+        {
+          "to": "theo-grant",
+          "history": "Saturday pickup. Fast first step, no left hand yet; Dax is working on it, and on the smoothies.",
+          "dimensions": {"familiarity": 34, "friendship": 38, "respect": 40}
         }
       ],
       "memories": [

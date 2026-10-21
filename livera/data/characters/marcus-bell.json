@@ -136,11 +136,11 @@
             {"time": "14:30", "activity": "Livéra Police Station", "work": true},
             {"time": "23:00", "activity": "Home"}
           ],
-          "sunday": [
-            {"time": "10:00", "activity": "Greater Hope service"},
-            {"time": "14:00", "activity": "Livéra Police Station", "work": true},
-            {"time": "22:00", "activity": "Home"}
-          ]
+          "saturday": [
+            {"time": "14:30", "activity": "Livéra Police Station", "work": true},
+            {"time": "23:00", "activity": "Home"}
+          ],
+          "sunday": [{"time": "10:00", "activity": "Greater Hope service"}]
         },
         "starting_inventory": ["phone", "badge", "radio", "notebook", "reading glasses"],
         "social_media": {"handle": "@livera.pd", "followers": 3400, "bio": "Livéra Police Department. Emergencies: call."},

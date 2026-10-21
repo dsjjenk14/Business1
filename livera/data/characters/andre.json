@@ -54,6 +54,11 @@
           "to": "sienna",
           "history": "She art-directed his last cover. He hasn't stopped thinking about her since.",
           "dimensions": {"familiarity": 22, "physical_attraction": 42, "respect": 36, "friendship": 15}
+        },
+        {
+          "to": "kai-morgan",
+          "history": "The kid from the Copper Tap's storeroom has ears. Andre gave him the B room and checks his sessions more often than he admits.",
+          "dimensions": {"familiarity": 40, "respect": 52, "friendship": 34, "trust": 40}
         }
       ],
       "memories": [

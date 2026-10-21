@@ -115,7 +115,7 @@ const std::map<std::string, double> kHomeCare{
 // Energy care (D-073): a rest at home before a shift or an evening out, a coffee or the break room on a long shift,
 // the restroom at work. A town staffed in the evening needs people who aren't spent by six.
 const std::map<std::string, double> kRestBefore{{"energy", 70}, {"hunger", 60}, {"bladder", 70}};
-constexpr int kRestWithinMinutes = 120;   // the next shift or evening out starts within this
+constexpr int kRestWithinMinutes = 180;   // the next shift or evening out starts within this (two naps)
 constexpr double kPickMeUpBelow = 35;     // on shift: a coffee or the break room under this energy
 constexpr double kPatrolCoffeeBelow = 50; // on the beat: in for a coffee under this energy, where one is sold
 constexpr int kPickMeUpEveryMinutes = 45; // game minutes between pick-me-ups

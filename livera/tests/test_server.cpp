@@ -1273,3 +1273,12 @@ TEST_CASE("server: street life: crime_risk, the wanted line in look, a fight ask
   if (told.contains("crime") && told["crime"].value("wanted", false)) CHECK(you["wanted_for"] == "Assault");
   CHECK(dom.refusal({{"op", "fight"}, {"target", "dax"}}) != "(accepted)");  // once a pair a day
 }
+
+TEST_CASE("server: the default script cap has room for every playable character in data (D-073)") {
+  // The town director plays every character nobody has claimed, one bot_ session each; with the residents and the
+  // townspeople that's more than the old cap of 16.
+  std::size_t playable = 0;
+  for (const auto& [id, def] : realContent()->characters()) playable += def.playable ? 1 : 0;
+  CHECK(playable > 16);
+  CHECK(ServerConfig{}.maxScripted >= playable);
+}

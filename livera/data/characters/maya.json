@@ -53,6 +53,11 @@
           "to": "leila",
           "history": "Maya tells Leila what the construction crews tell her. Leila checks all of it.",
           "dimensions": {"familiarity": 35, "friendship": 36, "trust": 42, "respect": 48}
+        },
+        {
+          "to": "rosa-delgado",
+          "history": "Runs the Saturday clothing drive like a store, to the sock. Maya trusts her with the keys.",
+          "dimensions": {"familiarity": 40, "friendship": 44, "trust": 58, "respect": 62}
         }
       ],
       "memories": [
