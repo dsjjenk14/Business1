@@ -195,6 +195,7 @@ add_executable(livera_tests
   tests/test_interiors.cpp
   tests/test_events.cpp
   tests/test_street.cpp
+  tests/test_social.cpp
   src/client/MusicText.cpp)
 target_link_libraries(livera_tests PRIVATE livera_server_lib)
 target_compile_definitions(livera_tests PRIVATE LIVERA_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
