@@ -233,6 +233,7 @@ TEST_CASE("pets: care at home has cooldowns; the bond grows and you feel less lo
 TEST_CASE("pets: a dog walk is outdoors near home, and good exercise; cats don't do walks") {
   World w = morningWorld(petContent());
   const std::string dog = adopt(w, "dominique", "dog");
+  const std::string cat = adopt(w, "dominique", "cat");  // while the shelter is open
   walkInto(w, "dominique", "lexington_1204");
   CHECK(code(w.careForPet("dominique", dog, "walk")) == "go_outside");
   REQUIRE(w.exitBuilding("dominique"));
@@ -249,7 +250,6 @@ TEST_CASE("pets: a dog walk is outdoors near home, and good exercise; cats don't
   walkToPoint(w, "dominique", {900, 100});
   CHECK(code(w.careForPet("dominique", dog, "walk")) == "too_far");
 
-  const std::string cat = adopt(w, "dominique", "cat");
   walkToPoint(w, "dominique", w.content().location("lexington_1204")->door);
   CHECK(code(w.careForPet("dominique", cat, "walk")) == "wrong_species");
 }
@@ -655,14 +655,14 @@ TEST_CASE("pets and medicine: saved and loaded with the world; older saves load 
   World w = morningWorld(db);
   const std::string dog = adopt(w, "dominique", "dog");
   REQUIRE(w.buy("dominique", "pet_food", "card"));
-  walkInto(w, "dominique", "lexington_1204");
-  REQUIRE(w.careForPet("dominique", dog, "feed"));
   REQUIRE(w.devAddCondition("dominique", "strep_throat"));
   walkInto(w, "dominique", "riverdale_clinic");
   REQUIRE(w.buy("dominique", "checkup", "card"));
   walkInto(w, "dominique", "riverdale_pharmacy");
   REQUIRE(w.buy("dominique", "antibiotics", "card"));
   REQUIRE(w.useItem("dominique", "antibiotics"));
+  walkInto(w, "dominique", "lexington_1204");
+  REQUIRE(w.careForPet("dominique", dog, "feed"));  // last, so the dog was just fed when the world is saved
   w.disconnect("dominique");
 
   auto path = tempPath("pets.db");

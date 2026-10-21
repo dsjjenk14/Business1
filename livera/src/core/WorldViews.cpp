@@ -19,9 +19,12 @@ constexpr double kLandmarkRange = 120;    // buildings and sites listed by `look
 // the onlookers' clients are told. Smaller drifts are rounding, not news.
 constexpr double kStillMoveThreshold = 0.5;
 // Someone else's far destination is cut where their path leaves the viewer's sight, plus this margin: about what a bus
-// covers in one capped tick (Server::tick), so the client is told they've gone before its prediction would stop them
-// short, and a viewer on the move isn't sent a new cut every tick.
-constexpr double kSightCutMarginMeters = 25;
+// covers in one capped tick (Server::tick; data/transit speed_mps 40), so the client is told they've gone before its
+// prediction would stop them short, and a viewer on the move isn't sent a new cut every tick.
+constexpr double kSightCutMarginMeters = 40;
+// A cut is renewed this far before the viewer could see the cut point: the stream is computed once a tick, so a
+// viewer walking toward it at walking speed would otherwise see it for the rest of that tick.
+constexpr double kSightCutLookaheadMeters = 2;
 
 Json point(Vec2 p) { return Json::array({std::round(p.x * 10) / 10, std::round(p.y * 10) / 10}); }
 
@@ -56,7 +59,7 @@ Vec2 leaveCircle(Vec2 centre, double radius, Vec2 from, Vec2 to) {
 // see that spot, or the walker gets there, it no longer says where they stop and is cut again from where both are now.
 bool cutTargetStale(const SeenPerson& was, Vec2 walker, Vec2 viewer, double sight) {
   if (!was.target || !was.trueTarget || *was.target == *was.trueTarget) return false;
-  return distance(viewer, *was.target) <= sight ||
+  return distance(viewer, *was.target) <= sight + kSightCutLookaheadMeters ||
          distance(walker, *was.trueTarget) <= distance(*was.target, *was.trueTarget);
 }
 

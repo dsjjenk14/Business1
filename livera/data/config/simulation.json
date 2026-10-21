@@ -1,9 +1,9 @@
 {
   "$comment": "Global simulation tuning. Every stat name used anywhere in data/ must be declared here. A new world starts in spring: start_minute 121380 is Year 1, Month 4, Day 1, a Monday, at 07:00 (docs/proposals/redesign.md).",
   "simulation": {
-    "minutes_per_real_second": 1.0,
+    "minutes_per_real_second": 2.0,
     "start_minute": 121380,
-    "walk_speed_mps": 6.0,
+    "walk_speed_mps": 10.0,
     "entry_radius_m": 5.0,
     "world_bounds": {"min": [0, 0], "max": [1000, 800]},
     "needs": [
