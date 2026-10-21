@@ -238,7 +238,7 @@
           "kind": "argument",
           "topic": "argument",
           "interactions": ["argue"],
-          "chance": 0.8,
+          "chance": 1,
           "relationship": {"respect": -2},
           "lines": [
             "Raised voices at {place} tonight: {about} and {with}. Everyone heard. 👀",

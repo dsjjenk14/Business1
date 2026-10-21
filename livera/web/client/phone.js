@@ -372,8 +372,11 @@ export class Phone {
     });
     const where = p => p.where === "in_sight" ? (p.inside ? `Here with you at ${(w.placeById.get(p.inside) || {}).name || "this place"}` : `In sight, ${me && p.position ? `${Math.round(dist(me, p.position))} m away` : "nearby"}`)
       : p.where === "posted" ? `Posted from ${p.place.name} ${shortWhen(p.when || "")}`.trim() : "Not where you can see them";
-    // The plan: places at their doors, scaled into the box the server's bounds give.
-    const b = w.bounds || { min: [0, 0], max: [1000, 1000] }, [x0, y0] = b.min, [x1, y1] = b.max;
+    // The plan: places at their doors, fitted to where the town's places are (with a margin).
+    const doors = w.places.filter(p => p.door).map(p => p.door);
+    const b = doors.length ? { min: [Math.min(...doors.map(p => p[0])), Math.min(...doors.map(p => p[1]))], max: [Math.max(...doors.map(p => p[0])), Math.max(...doors.map(p => p[1]))] }
+      : (w.bounds || { min: [0, 0], max: [1000, 1000] });
+    const pad = Math.max(30, (b.max[0] - b.min[0]) * 0.06), x0 = b.min[0] - pad, y0 = b.min[1] - pad, x1 = b.max[0] + pad, y1 = b.max[1] + pad;
     const W = 340, k = W / Math.max(1, x1 - x0), H = Math.max(160, Math.round((y1 - y0) * k));
     const P = pt => [Math.round((pt[0] - x0) * k * 10) / 10, Math.round((pt[1] - y0) * k * 10) / 10];
     const NS = "http://www.w3.org/2000/svg", svgEl = (tag, attrs) => { const n = document.createElementNS(NS, tag); for (const [a, v] of Object.entries(attrs)) n.setAttribute(a, String(v)); return n; };
@@ -388,7 +391,7 @@ export class Phone {
     for (const pl of w.places) {
       if (!pl.door || ["apartment", "condo", "house", "townhouse", "construction_site"].includes(pl.type)) continue;
       const [cx, cy] = P(pl.door);
-      const dot = svgEl("circle", { cx, cy, r: 4, class: `pl${isOpen(pl) ? " open" : ""}` });
+      const dot = svgEl("circle", { cx, cy, r: 5, class: `pl${isOpen(pl) ? " open" : ""}` });
       const t = svgEl("title", {}); t.textContent = pl.name; dot.appendChild(t);
       dot.addEventListener("click", () => pick(pl));
       svg.appendChild(dot);
@@ -642,6 +645,7 @@ export class Phone {
           bars,
           el("div", { class: "row" },
             button("Message", () => this.openApp("messages", { to: c.id }), { primary: true }),
+            button("Profile", () => this.socialProfile(c.id)),  // their posts (D-074)
             inSight ? button("Show on map", () => { this.close(); const pos = w.personPos(c.id); if (pos && this.game.renderer) this.game.renderer.centerOn(pos[0], pos[1]); this.ui.sheetPerson(c.id); }) : null));
       })];
   }

@@ -84,6 +84,8 @@ std::string fillLine(const std::string& line, const std::map<std::string, std::s
     if (it == values.end() || it->second.empty()) return "";
     out += line.substr(from, at - from) + it->second;
     from = end + 1;
+    // "Heritage Coffee Co." before a full stop: one stop, not two.
+    if (it->second.back() == '.' && from < line.size() && line[from] == '.') ++from;
   }
   return out + line.substr(from);
 }

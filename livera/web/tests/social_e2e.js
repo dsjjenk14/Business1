@@ -183,6 +183,7 @@ const toastHas = (p, re, timeout = 15000) => waitFor(p, src => [...document.quer
   });
 
   await test("Dax likes, comments and follows through his app; Dominique gets toasts and an Activity list", async () => {
+    await closePhone(H);  // with the Social app open, it refreshes instead: a toast is for when you're elsewhere
     await socialTab(D, "town");
     await D.page.waitForSelector(`#phone .post[data-post="${mine}"]`);
     await D.page.click(`#phone .post[data-post="${mine}"] [data-like]`);
@@ -205,33 +206,6 @@ const toastHas = (p, re, timeout = 15000) => waitFor(p, src => [...document.quer
     const acts = await W(H, () => [...document.querySelectorAll("#phone .activity li")].map(n => n.textContent));
     assert(acts.some(t => /liked your post/.test(t)) && acts.some(t => /commented/.test(t)) && acts.some(t => /followed you/.test(t)), "activity: " + acts.join(" / "));
     await shot(H, "social_05_activity_390.png");
-  });
-
-  await test("a script's own post arrives (written by the game from what really happened), labelled; you like it and follow them", async () => {
-    let auto = null;
-    await advanceUntil(async () => {
-      const r = await W(H, () => window.__livera.social("town"));
-      auto = r.ok && r.data.posts.find(p => p.automatic && p.author && p.author.scripted);
-      return !!auto;
-    }, { step: 4, max: 480, what: "an automatic post by someone a script plays" });
-    console.log(`  (${auto.author.name}: "${auto.text}")`);
-    await socialTab(H, "town");
-    const sel = `#phone .post[data-post="${auto.post}"]`;
-    await H.page.waitForSelector(sel);
-    const card = await W(H, s => { const n = document.querySelector(s); return { badge: n.querySelector(".badge.script")?.textContent, note: n.querySelector(".post-note")?.textContent }; }, sel);
-    assert(/Played by a script/.test(card.badge || ""), "the script's post isn't labelled: " + JSON.stringify(card));
-    assert(/Written by the game/.test(card.note || ""), "the script's post doesn't say the game wrote it: " + JSON.stringify(card));
-    await H.page.$eval(sel, n => n.scrollIntoView({ block: "center" }));
-    await H.page.click(`${sel} [data-like]`);
-    await waitFor(H, s => document.querySelector(`${s} [data-like]`)?.getAttribute("aria-pressed") === "true", sel);
-    await shot(H, "social_06_script_post_390.png");
-    await H.page.click(`${sel} .post-who`);
-    await H.page.waitForSelector(`#phone .account.big [data-follow="${auto.author.account}"]`);
-    const already = await W(H, a => /Following/.test(document.querySelector(`#phone .account.big [data-follow="${a}"]`).textContent), auto.author.account);
-    if (!already) {
-      await H.page.click(`#phone .account.big [data-follow="${auto.author.account}"]`);
-      await waitFor(H, a => /Following/.test(document.querySelector(`#phone .account.big [data-follow="${a}"]`)?.textContent || ""), auto.author.account);
-    }
   });
 
   await test("a scene at Heritage Coffee becomes an @livera.unfiltered post: heard by, the truth only for those who were there", async () => {
@@ -281,6 +255,26 @@ const toastHas = (p, re, timeout = 15000) => waitFor(p, src => [...document.quer
     await shot(L, "social_08_gossip_away.png");
   });
 
+  await test("Map: your people where you could know they are, the places open now, and Walk there walks", async () => {
+    await openApp(H, "map");
+    await H.page.waitForSelector("#phone svg.minimap");
+    const m = await W(H, () => ({
+      people: [...document.querySelectorAll("#phone .people-list li")].map(n => `${n.dataset.person}: ${n.querySelector(".hint")?.textContent}`),
+      open: document.querySelectorAll("#phone .open-list [data-go]").length,
+    }));
+    assert(m.people.some(t => /^dax: Here with you at Heritage Coffee/.test(t)), "Dax isn't shown where she can see him: " + m.people.join(" / "));
+    assert(!m.people.some(t => /^leila: Here with you/.test(t)), "Leila is shown where Dominique can't see her: " + m.people.join(" / "));
+    assert(m.open > 0, "no place open now");
+    const bad = await screenProblems(H);
+    assert(!bad.length, bad.join(" | "));
+    await shot(H, "social_11_map_390.png");
+    const target = await W(H, () => [...document.querySelectorAll("#phone .open-list [data-go]")].map(b => b.dataset.go).find(id => id !== window.__livera.world.self.inside));
+    assert(target, "nowhere else open to walk to");
+    await H.page.click(`#phone .open-list [data-go="${target}"]`);
+    assert(await H.page.$("#phone[hidden]"), "the phone stayed open to walk");
+    await advanceUntil(() => W(H, t => window.__livera.world.self.inside === t, target), { step: 1, max: 120, what: `walking into ${target}` });
+  });
+
   await test("Messages: a thread per person with Seen; someone a script plays reads and answers, labelled", async () => {
     await openApp(H, "messages");
     // To Dax, a person: Delivered, then Seen once he opens his Messages.
@@ -309,26 +303,55 @@ const toastHas = (p, re, timeout = 15000) => waitFor(p, src => [...document.quer
     await shot(H, "social_10_script_reply_390.png");
   });
 
-  await test("Map: your people where you could know they are, the places open now, and Walk there walks", async () => {
-    await openApp(H, "map");
-    await H.page.waitForSelector("#phone svg.minimap");
-    const m = await W(H, () => ({
-      people: [...document.querySelectorAll("#phone .people-list li")].map(n => `${n.dataset.person}: ${n.querySelector(".hint")?.textContent}`),
-      open: document.querySelectorAll("#phone .open-list [data-go]").length,
-    }));
-    assert(m.people.some(t => /^dax: Here with you at Heritage Coffee/.test(t)), "Dax isn't shown where she can see him: " + m.people.join(" / "));
-    assert(!m.people.some(t => /^leila: Here with you/.test(t)), "Leila is shown where Dominique can't see her: " + m.people.join(" / "));
-    assert(m.open > 0, "no place open now");
-    const bad = await screenProblems(H);
-    assert(!bad.length, bad.join(" | "));
-    await shot(H, "social_11_map_390.png");
-    const target = await W(H, () => [...document.querySelectorAll("#phone .open-list [data-go]")].map(b => b.dataset.go).find(id => id !== window.__livera.world.self.inside));
-    assert(target, "nowhere else open to walk to");
-    await H.page.click(`#phone .open-list [data-go="${target}"]`);
-    assert(await H.page.$("#phone[hidden]"), "the phone stayed open to walk");
-    await advanceUntil(() => W(H, t => window.__livera.world.self.inside === t, target), { step: 1, max: 120, what: `walking into ${target}` });
+  await test("a script's own post arrives (written by the game from what really happened), labelled; you like it and follow them", async () => {
+    let auto = null;
+    await advanceUntil(async () => {
+      const r = await W(H, () => window.__livera.social("town"));
+      auto = r.ok && r.data.posts.find(p => p.automatic && p.author && p.author.scripted);
+      return !!auto;
+    }, { step: 4, max: 1200, what: "an automatic post by someone a script plays" });  // up to a day and a half
+    console.log(`  (${auto.author.name}: "${auto.text}")`);
+    await socialTab(H, "town");
+    const sel = `#phone .post[data-post="${auto.post}"]`;
+    await H.page.waitForSelector(sel);
+    const card = await W(H, s => { const n = document.querySelector(s); return { badge: n.querySelector(".badge.script")?.textContent, note: n.querySelector(".post-note")?.textContent }; }, sel);
+    assert(/Played by a script/.test(card.badge || ""), "the script's post isn't labelled: " + JSON.stringify(card));
+    assert(/Written by the game/.test(card.note || ""), "the script's post doesn't say the game wrote it: " + JSON.stringify(card));
+    await H.page.$eval(sel, n => n.scrollIntoView({ block: "center" }));
+    await H.page.click(`${sel} [data-like]`);
+    await waitFor(H, s => document.querySelector(`${s} [data-like]`)?.getAttribute("aria-pressed") === "true", sel);
+    await shot(H, "social_06_script_post_390.png");
+    await H.page.click(`${sel} .post-who`);
+    await H.page.waitForSelector(`#phone .account.big [data-follow="${auto.author.account}"]`);
+    const already = await W(H, a => /Following/.test(document.querySelector(`#phone .account.big [data-follow="${a}"]`).textContent), auto.author.account);
+    if (!already) {
+      await H.page.click(`#phone .account.big [data-follow="${auto.author.account}"]`);
+      await waitFor(H, a => /Following/.test(document.querySelector(`#phone .account.big [data-follow="${a}"]`)?.textContent || ""), auto.author.account);
+    }
   });
 
+  await test("the next morning, Social opens with Last night in Livéra: the night's top posts", async () => {
+    const hour = () => W(H, () => Math.floor((window.__livera.world.minute() % 1440) / 60));
+    await advanceUntil(async () => { const h = await hour(); return h >= 20 || h < 5; }, { step: 4, max: 600, what: "the evening" });
+    await closePhone(H);
+    const r = await req(H, "post", { text: "Nightcap with the best people in Livéra" });
+    assert(r.ok, "the night post: " + JSON.stringify(r.error));
+    const night = r.data.post.post;
+    const liked = await req(D, "like", { post: night });
+    assert(liked.ok, "Dax's like: " + JSON.stringify(liked.error));
+    await advanceUntil(async () => { const h = await hour(); return h >= 8 && h < 11; }, { step: 4, max: 900, what: "the morning" });
+    await socialTab(H, "feed");
+    await H.page.waitForSelector("#phone .last-night");
+    const section = await W(H, () => ({ head: document.querySelector("#phone .last-night .eyebrow").textContent, posts: [...document.querySelectorAll("#phone .last-night .post")].map(n => n.dataset.post),
+      first: document.querySelector("#phone .phone-inner > .stack > :nth-child(2)")?.className }));
+    assert(/Last night in Livéra/.test(section.head), "no Last night in Livéra: " + JSON.stringify(section));
+    assert(section.posts.includes(night), "last night's post isn't in it: " + JSON.stringify(section));
+    assert(/last-night/.test(section.first || ""), "the feed doesn't open with it: " + JSON.stringify(section));
+    const bad = await screenProblems(H);
+    assert(!bad.length, bad.join(" | "));
+    await sleep(500);
+    await shot(H, "social_12_last_night_390.png");
+  });
   await test("no console errors and no dialogs in any page", async () => {
     const bad = people.flatMap(p => [...p.errors.map(e => `${p.name}: ${e}`), ...p.dialogs.map(d => `${p.name}: dialog ${d}`)]);
     assert(!bad.length, bad.join("\n"));

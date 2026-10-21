@@ -640,6 +640,7 @@ TEST_CASE("social: the gossip account posts only scenes people witnessed, with h
   CHECK(has(p.tags, "julian"));
   CHECK(contains(p.text, "Dominique"));
   CHECK(contains(p.text, "Heritage Coffee"));
+  CHECK(!contains(p.text, "Co.."));  // "Heritage Coffee Co." before a full stop: one stop
   CHECK(w.state().details.rumors[0].post == p.id);
   // Dominique and Julian were told they're in it.
   const auto evs = w.drainEvents();

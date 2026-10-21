@@ -841,6 +841,10 @@ export class UI {
       body.push(el("p", { class: "hint" }, "Too far? You'll walk over first."));
     } else body.push(el("p", { class: "notice" }, "This server doesn't publish its list of interactions yet (it arrives with the newer protocol)."));
     body.push(el("button", { type: "button", class: "btn block", onclick: () => { this.closeSheet(); this.whisperToPerson(id); } }, `Whisper to ${firstName(p.name)}`));
+    // Their posts, and a message (D-074): what anyone could read about them, and a private thread.
+    body.push(el("div", { class: "row" },
+      el("button", { type: "button", class: "btn grow", dataset: { profile: id }, onclick: () => g.openPhone("social", { profile: id }) }, `${firstName(p.name)}'s posts`),
+      el("button", { type: "button", class: "btn grow", onclick: () => g.openPhone("messages", { to: id }) }, "Message")));
 
     // Give or pay: a tip from your bank, LivPay from your phone, or something you own.
     const amount = el("input", { type: "number", inputmode: "decimal", min: "1", step: "1", class: "input", value: "5", "aria-label": "Dollars" });
