@@ -249,8 +249,8 @@ export class BrawlScreen {
     const themBox = draw(this.them, w / 2 + gap, true);
     // The tell sits over whoever throws; the ring closes with the beat and turns gold for perfect timing.
     const turn = this.turn, box = turn && turn.you === "throw" ? meBox : themBox;
-    if (box && box.head !== undefined) {
-      const hx = (box.x0 + box.x1) / 2 + sx, hy = Math.max(26, box.head - 18) + sy;
+    if (box && Array.isArray(box.head)) {
+      const hx = box.head[0] + sx, hy = Math.max(70, box.head[1] - 12) + sy;
       this.tellNode.style.transform = `translate(${hx}px, ${hy}px) translate(-50%, -100%)`;
       this.ring.style.transform = `translate(${hx}px, ${hy - 26}px) translate(-50%, -50%)`;
       this.hint.style.transform = `translate(${hx}px, ${hy + 8}px) translate(-50%, 0)`;

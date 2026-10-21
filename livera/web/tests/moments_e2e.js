@@ -320,7 +320,7 @@ async function later(p) { const b = await p.page.$(".mo-card.mo-life:not(.mo-don
     await F.page.click('#sheet [data-pref="walk_away"] input');
     await waitFor(F, () => [...document.querySelectorAll("#feed .line")].some(n => /always walk away/.test(n.textContent)), null, 10000);
     const rec = await req(F, "phone", { app: "record" });
-    assert(rec.data.walk_away_from_fights === true, "the server didn't keep it: " + JSON.stringify(rec.data));
+    assert(rec.ok && rec.data.walk_away_from_fights === true, "the server didn't keep it: " + JSON.stringify(rec));
   });
 
   await test("no console errors", async () => {
