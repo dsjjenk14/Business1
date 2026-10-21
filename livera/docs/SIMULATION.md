@@ -10,7 +10,7 @@ How the world moves forward, and what is (and isn't) simulated today. Numbers li
   (`start_minute` 121380).
 - Calendar: 60-minute hours, 24-hour days, 7-day weeks, **28-day months**, 12-month years
   (DECISIONS.md D-007).
-- Rate: `minutes_per_real_second` (default 1.0, so a game day is 24 real minutes).
+- Rate: `minutes_per_real_second` (2.0 since D-075, so a game day is 12 real minutes).
 - The server converts real time into whole game minutes, carrying fractions, and steps
   the world **one minute at a time**. Each step simulates the minute `[now, now+1)`; then
   instants fire (rent on the 1st at 00:00). Per-minute stepping keeps schedules exact: a

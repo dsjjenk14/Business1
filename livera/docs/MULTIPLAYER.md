@@ -308,7 +308,7 @@ changed:
 {"event": "people", "data": {"changes": [
   {"character": "dax", "name": "Dax Hendrix", "known": true, "scripted": true, "self": false,
    "state": "here", "position": [318.6, 513.1], "inside": "", "moving": true,
-   "target": [431.0, 471.0], "speed_mps": 6.0, "mode": "walk"},
+   "target": [431.0, 471.0], "speed_mps": 10.0, "mode": "walk"},
   {"character": "naomi", "state": "gone", "reason": "went_inside", "location": "heritage_coffee"}
 ]}}
 ```

@@ -241,9 +241,10 @@ TEST_CASE("life: contagious illnesses spread to people nearby") {
 TEST_CASE("life: offline, a character looks after themself for three real weeks, then gets depressed") {
   const auto& life = realContent()->life();
   CHECK(life.selfCareRealDays == 21);
-  // Three real weeks is 1.8 million game minutes; test the rule at 0.05 real days (72 game hours).
-  auto db = patchedContent([](Json& doc, const std::string& file) {
-    if (file == "life.json") doc["life"]["offline"]["self_care_real_days"] = 0.05;
+  // Three real weeks is millions of game minutes; test the rule at the real time 72 game hours stand for.
+  const double rate = realContent()->sim().minutesPerRealSecond;
+  auto db = patchedContent([&](Json& doc, const std::string& file) {
+    if (file == "life.json") doc["life"]["offline"]["self_care_real_days"] = 72.0 * 60 / (86400.0 * rate);
     if (file == "conditions.json") {
       for (auto& c : doc["conditions"]) {
         if (c.contains("catch")) c["catch"]["hourly_chance"] = 0.0, c["catch"]["contagion_per_hour"] = 0.0;
@@ -270,8 +271,9 @@ TEST_CASE("life: offline, a character looks after themself for three real weeks,
 }
 
 TEST_CASE("life: depression lifts with care") {
-  auto db = patchedContent([](Json& doc, const std::string& file) {
-    if (file == "life.json") doc["life"]["offline"]["self_care_real_days"] = 0.01;
+  const double rate = realContent()->sim().minutesPerRealSecond;
+  auto db = patchedContent([&](Json& doc, const std::string& file) {
+    if (file == "life.json") doc["life"]["offline"]["self_care_real_days"] = 14.4 * 60 / (86400.0 * rate);  // 14.4 game hours
   });
   World w = World::createNew(db);
   REQUIRE(w.connect("dominique"));

@@ -814,7 +814,7 @@ TEST_CASE("sleep: skipping the night lives it out: the awake minute by minute, s
   // The people stream comes once, at the end, not once a minute.
   CHECK(eventsOf(events, "people", "dax").size() <= 1);
   // The clock goes on normally afterwards.
-  w.advanceRealTime(1.0);
+  w.advanceRealTime(1.0 / w.content().sim().minutesPerRealSecond);  // one game minute of real time
   CHECK(w.now() == out["to"].get<GameMinutes>() + 1);
 }
 
@@ -1119,7 +1119,7 @@ TEST_CASE("people: someone walking into sight appears with their target; walking
   CHECK(told[0]["name"] == "Dax Hendrix");
   CHECK(told[0]["moving"] == true);
   CHECK(told[0]["target"] == Json::array({450.0, 470.0}));
-  CHECK(told[0]["speed_mps"] == 6.0);
+  CHECK(told[0]["speed_mps"] == w.content().sim().walkSpeedMetersPerSecond);
   CHECK(told[0]["mode"] == "walk");
   CHECK(told[0]["inside"] == "");
   CHECK(whenApart[0] <= sight);
@@ -1242,7 +1242,7 @@ TEST_CASE("people: someone else's far destination shows only to the edge of your
   const Vec2 cut = targetOf(seen[0]);
   CHECK(cut != door);
   CHECK(distance(dom, cut) > sight);         // past where Dominique can see her...
-  CHECK(distance(dom, cut) < sight + 30);    // ...but nowhere near the house
+  CHECK(distance(dom, cut) < sight + 45);    // ...but nowhere near the house
   CHECK(offLine(from, door, cut) < 0.5);     // on her way, which Dominique can see
   CHECK(distance(cut, door) < distance(from, door));
   const Json people = w.look("dominique").value()["people"];
@@ -1356,7 +1356,7 @@ TEST_CASE("people: a bus rider shows as mode bus at the line's speed; you can't 
   auto dax = about(changesFor(evs, "dominique"), "dax");
   REQUIRE(dax.size() == 1);
   CHECK(dax[0]["mode"] == "bus");
-  CHECK(dax[0]["speed_mps"] == 24.0);
+  CHECK(dax[0]["speed_mps"] == w.content().transit().lines.at(0).speedMps);
   CHECK(dax[0]["moving"] == true);
   CHECK(dax[0]["target"] == Json::array({465.0, 575.0}));
   const auto self = about(changesFor(evs, "dax"), "dax");
@@ -1364,7 +1364,7 @@ TEST_CASE("people: a bus rider shows as mode bus at the line's speed; you can't 
   CHECK(self[0]["mode"] == "bus");
   const Json you = w.look("dax").value()["you"];
   CHECK(you["mode"] == "bus");
-  CHECK(you["speed_mps"] == 24.0);
+  CHECK(you["speed_mps"] == w.content().transit().lines.at(0).speedMps);
   CHECK(you["target"] == Json::array({465.0, 575.0}));
   CHECK(w.enter("dax", "fade_glow").error().code == "riding");
   evs = tickUntil(w, [&] { return stopped(w, "dax"); });
@@ -1468,7 +1468,7 @@ TEST_CASE("map: the public rules, transit lines and interactions come from data"
   const Json& line = m["transit"]["lines"][0];
   CHECK(line["id"] == "line_1");
   CHECK(line["fare_cents"] == 275);
-  CHECK(line["speed_mps"] == 24.0);
+  CHECK(line["speed_mps"] == db.transit().lines.at(0).speedMps);
   CHECK(line["first_hour"] == 5);
   CHECK(line["last_hour"] == 1);
   CHECK(line["stops"].size() == db.transit().lines[0].stops.size());
