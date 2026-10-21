@@ -18,6 +18,7 @@
 
 #include "core/Clock.h"
 #include "core/ContentParse.h"
+#include "core/DayHash.h"
 #include "core/Schedule.h"
 
 namespace livera {
@@ -110,7 +111,15 @@ constexpr double kHeldSeconds = 30;            // in a cell: look again about th
 const std::map<std::string, double> kNeedUrgent{{"bladder", 30}, {"hunger", 25}, {"energy", 10}};
 const std::map<std::string, double> kNeedRecovered{{"bladder", 60}, {"hunger", 50}, {"energy", 30}};
 const std::map<std::string, double> kHomeCare{
-    {"bladder", 50}, {"hunger", 50}, {"hygiene", 45}, {"energy", 30}, {"dental", 40}};
+    {"bladder", 50}, {"hunger", 50}, {"hygiene", 45}, {"energy", 40}, {"dental", 40}};
+// Energy care (D-073): a rest at home before a shift or an evening out, a coffee or the break room on a long shift,
+// the restroom at work. A town staffed in the evening needs people who aren't spent by six.
+const std::map<std::string, double> kRestBefore{{"energy", 70}, {"hunger", 60}, {"bladder", 70}};
+constexpr int kRestWithinMinutes = 120;   // the next shift or evening out starts within this
+constexpr double kPickMeUpBelow = 35;     // on shift: a coffee or the break room under this energy
+constexpr double kPatrolCoffeeBelow = 50; // on the beat: in for a coffee under this energy, where one is sold
+constexpr int kPickMeUpEveryMinutes = 45; // game minutes between pick-me-ups
+const std::map<std::string, double> kShiftCare{{"bladder", 40}};
 const std::map<std::string, double> kMorningCare{{"bladder", 95}, {"dental", 90}, {"hygiene", 80}, {"hunger", 80}};
 const std::map<std::string, double> kBedCare{{"bladder", 95}, {"dental", 90}};
 
@@ -127,6 +136,8 @@ struct Goal {
   int index = -1;      // its position in the day's blocks; -1 when it isn't one of them
   bool habit = false;  // a director habit, not character data
   bool errand = false;  // an urgent need being dealt with
+  bool evening = false;  // an evening out from data/society/town_life.json (D-073)
+  std::string offer;     // an offer to buy there (an evening's dinner, a film)
   std::string ident() const {
     return std::to_string(static_cast<int>(kind)) + ":" + place + ":" + activity + ":" + std::to_string(start);
   }
@@ -446,9 +457,24 @@ struct Autopilot::Impl {
     double maxShiftHours = 8;
     std::set<LocationId> underConstruction;
     bool statusKnown = false;
+    const PatrolDef* patrol = nullptr;           // the beat their career walks on shift (D-073), if any
+    bool worksOutdoors = false;                  // their shift carries on outside the workplace
+    std::map<CharacterId, double> friendship;    // their own friendship toward each contact (the contacts app)
+    std::vector<CharacterId> partners;           // dating, engaged or married (the romance app)
     bool isWorkplace(const LocationId& lid) const {
       return std::find(workplaces.begin(), workplaces.end(), lid) != workplaces.end();
     }
+  };
+
+  // A round of the beat (D-073): out of the base, past `left` more places, back.
+  struct PatrolState {
+    bool active = false;
+    int stop = 0;                  // index into the beat
+    int left = 0;                  // places still to walk past this round
+    GameMinutes lingerUntil = -1;  // at the current place until then
+    GameMinutes lastEnd = -1;      // when the last round ended, or the shift started
+    int round = 0;
+    bool coffee = false;           // went in for a coffee at this place
   };
 
   struct Bot {
@@ -477,6 +503,8 @@ struct Autopilot::Impl {
     std::map<CharacterId, std::int64_t> greeted;     // person -> the game day they were last greeted
     std::map<CharacterId, std::int64_t> chatRolled;  // person -> the game day a chat with them was last considered
     std::map<std::string, int> stats;
+    PatrolState patrol;
+    std::string tonight;  // today's evening out (an evening plan id), or ""
     std::string lastOnce;
     std::set<std::string> unmatchedLogged;
     bool finished = false;
@@ -613,6 +641,7 @@ struct Autopilot::Impl {
       else out += std::string(b.kind == Kind::Work ? "work at " : "") + nameOf(w, b.place);
       if (!b.activity.empty()) out += " (" + b.activity + ")";
       if (b.habit) out += " [autopilot habit]";
+      if (b.evening) out += " [evening out: " + b.why + "]";
     }
     return out;
   }
@@ -767,7 +796,114 @@ struct Autopilot::Impl {
       }
     }
     for (std::size_t i = 0; i < blocks.size(); ++i) blocks[i].index = static_cast<int>(i);
+    b.tonight.clear();
+    addEvening(w, b, plan);
+    for (std::size_t i = 0; i < blocks.size(); ++i) blocks[i].index = static_cast<int>(i);
     return plan;
+  }
+
+  // ------------------------------------------------------------------ evenings out (D-073)
+  // A number in [0, 1) from a hash: the same all day, after a restart, and for both of a pair.
+  static double unitDraw(const std::string& who, std::int64_t day, const std::string& what) {
+    return static_cast<double>(dayhash::dayKey(who, day, what) >> 11) * (1.0 / 9007199254740992.0);
+  }
+
+  static bool suits(const CharacterDef& def, const EveningPlanDef& e) {
+    for (const auto& [trait, min] : e.personalityMin) {
+      const auto it = def.personality.find(trait);
+      if (it == def.personality.end() || it->second < min) return false;
+    }
+    for (const auto& [value, min] : e.valuesMin) {
+      const auto it = def.values.find(value);
+      if (it == def.values.end() || it->second < min) return false;
+    }
+    if (e.interestsAny.empty()) return true;
+    return std::any_of(e.interestsAny.begin(), e.interestsAny.end(), [&](const std::string& i) {
+      return std::find(def.interests.begin(), def.interests.end(), i) != def.interests.end();
+    });
+  }
+
+  // Who they'd go with, if anyone: for a pair, the first (by id) whose pair draw comes up; "" alone. False if the plan
+  // doesn't happen for them today.
+  bool drawEvening(const Bot& b, const EveningPlanDef& e, std::int64_t day, CharacterId& with) const {
+    with.clear();
+    const std::string what = "evening:" + e.id;
+    if (e.with.empty()) return unitDraw(b.id, day, what) < e.chance;
+    std::vector<CharacterId> candidates;
+    if (e.with == "partner") {
+      candidates = b.ctx.partners;
+    } else {
+      for (const auto& [other, f] : b.ctx.friendship) {
+        if (f >= e.minFriendship) candidates.push_back(other);
+      }
+    }
+    std::sort(candidates.begin(), candidates.end());
+    for (const auto& other : candidates) {
+      const std::string pair = std::min(b.id, other) + "+" + std::max(b.id, other);
+      if (unitDraw(pair, day, what) < e.chance) {
+        with = other;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // The first evening plan for today that suits them, fits a free stretch at home from its start (their own schedule
+  // always wins) and comes up in its draw. Bedtime moves later for it, never past the latest bedtime.
+  void addEvening(const World& w, Bot& b, DayPlan& plan) {
+    const ContentDatabase& db = w.content();
+    const CharacterDef* def = w.definition(b.id);
+    if (!def) return;
+    auto& blocks = plan.blocks;
+    for (const auto& e : db.townLife().evenings) {
+      if (std::find(e.days.begin(), e.days.end(), plan.weekday) == e.days.end() || !suits(*def, e)) continue;
+      const LocationDef* loc = db.location(e.place);
+      if (!loc || b.ctx.underConstruction.count(e.place)) continue;
+      if (!loc->constructionProject.empty() && !b.ctx.statusKnown) continue;
+      if (!isOpen(*loc, plan.day * kMinutesPerDay + e.from)) continue;
+      int end = e.from + e.minutes;
+      if (loc->hours && loc->hours->openHour < loc->hours->closeHour) end = std::min(end, loc->hours->closeHour * 60);
+      const int bed = std::max(plan.bed, std::min(kBedLatest, end + 30));
+      const auto at = std::find_if(blocks.begin(), blocks.end(), [&](const Goal& g) {
+        const int blockEnd = &g == &blocks.back() && g.end == plan.bed ? bed : g.end;
+        return g.kind == Kind::Home && !g.habit && g.start <= e.from && blockEnd >= std::min(end, e.from + 45);
+      });
+      if (at == blocks.end()) continue;
+      CharacterId with;
+      if (!drawEvening(b, e, plan.day, with)) continue;
+      // Taken: split the stretch at home around it.
+      const bool last = at + 1 == blocks.end();
+      if (last && at->end == plan.bed) {
+        plan.bed = bed;
+        at->end = bed;
+      }
+      end = std::min(end, at->end);
+      Goal before = *at, out, after = *at;
+      before.end = e.from;
+      out.kind = Kind::Place;
+      out.place = e.place;
+      out.activity = e.activity;
+      out.offer = e.offer;
+      out.evening = true;
+      const CharacterDef* other = with.empty() ? nullptr : w.definition(with);
+      out.why = e.label + (other ? " with " + other->firstName : "");
+      out.start = e.from;
+      out.end = end;
+      after.start = end;
+      std::vector<Goal> parts;
+      if (before.end > before.start) parts.push_back(before);
+      parts.push_back(out);
+      if (after.end > after.start) parts.push_back(after);
+      const auto pos = blocks.erase(at);
+      blocks.insert(pos, parts.begin(), parts.end());
+      b.tonight = e.id;
+      return;
+    }
+  }
+
+  // Real seconds for this many game minutes at the world's clock rate.
+  static double realSeconds(const World& w, double gameMinutes) {
+    return gameMinutes / std::max(w.content().sim().minutesPerRealSecond, 0.01);
   }
 
   void defaultContext(const World& w, Bot& b) {
@@ -779,6 +915,8 @@ struct Autopilot::Impl {
     if (const CareerDef* career = w.content().career(def->careerId)) {
       b.ctx.workplaces = career->workplaces;
       b.ctx.maxShiftHours = career->maxShiftHours;
+      b.ctx.worksOutdoors = career->worksOutdoors;
+      b.ctx.patrol = w.content().patrolFor(career->id);
     }
   }
 
@@ -822,6 +960,21 @@ struct Autopilot::Impl {
     for (const auto& [lid, loc] : db.locations()) {
       if (w.locationStatus(loc) == "under_construction") building.insert(lid);  // what `map` shows
     }
+    // Who they'd spend an evening with (D-073): their own side only, as their phone shows it.
+    std::map<CharacterId, double> friendship;
+    if (auto contacts = w.openPhoneApp(b.id, "contacts")) {
+      for (const auto& c : contacts.value().value("contacts", Json::array())) {
+        const Json feelings = c.value("your_feelings", Json::object());
+        friendship[c.value("id", std::string())] = feelings.value("friendship", 0.0);
+      }
+    }
+    std::vector<CharacterId> partners;
+    if (auto romance = w.openPhoneApp(b.id, "romance")) {
+      for (const auto& r : romance.value().value("relationships", Json::array())) {
+        const std::string status = r.value("status", std::string());
+        if (status == "dating" || status == "engaged" || status == "married") partners.push_back(r.value("id", ""));
+      }
+    }
     const Context old = b.ctx;
     b.ctx.known = true;
     b.ctx.home = home;
@@ -829,6 +982,10 @@ struct Autopilot::Impl {
     b.ctx.maxShiftHours = maxH;
     b.ctx.underConstruction = building;
     b.ctx.statusKnown = true;
+    b.ctx.worksOutdoors = career && career->worksOutdoors;
+    b.ctx.patrol = career ? db.patrolFor(career->id) : nullptr;
+    b.ctx.friendship = friendship;
+    b.ctx.partners = partners;
     if (!old.known || !old.statusKnown) {
       b.plan = DayPlan{};  // now we know which places are still being built
     } else if (old.home != home || old.workplaces != workplaces || old.maxShiftHours != maxH) {
@@ -1167,7 +1324,18 @@ struct Autopilot::Impl {
     const std::string inside = you.value("inside", std::string());
     const Vec2 pos = positionOf(you);
     const LocationId target = goal.place.empty() ? b.ctx.home : goal.place;
-    if (you.value("on_shift", false) && !(goal.kind == Kind::Work && inside == target)) {
+    const bool onShift = you.value("on_shift", false);
+    if (b.patrol.active) {
+      if (goal.kind == Kind::Work && onShift) {
+        walkBeat(w, b, look, now);
+        return;
+      }
+      b.patrol.active = false;  // the shift is over (or the World ended it): the beat ends where they are
+    }
+    // A shift carries on through an errand at the workplace (lunch at the café you work in) and, for a job that works
+    // outdoors, through any errand; anything else ends it.
+    const bool keepsShift = goal.errand && (b.ctx.worksOutdoors || (inside == target && b.ctx.isWorkplace(target)));
+    if (onShift && !(goal.kind == Kind::Work && (inside == target || b.ctx.worksOutdoors)) && !keepsShift) {
       endShift(w, b);
       return;
     }
@@ -1447,6 +1615,176 @@ struct Autopilot::Impl {
     return true;
   }
 
+  // An evening's offer (a dinner, a film ticket), by card. Affordability is the world's call.
+  bool buyOffer(World& w, Bot& b, const LocationDef& place, const std::string& offer, const std::string& why,
+                std::int64_t day) {
+    if (cooling(b, "buy", place.id)) return false;
+    ++b.stats["commands"];
+    auto r = w.buy(b.id, offer, "card");
+    if (!r) {
+      refused(w, b, "buy", place.id, r.error(), 30, 900);
+      return true;
+    }
+    succeeded(b, "buy", place.id);
+    ++b.stats["buys"];
+    b.boughtOn = day;
+    log(w, b, "buy", "buys " + r.value().value("item", offer) + " at " + place.name + " (" + why + "): " +
+                         formatMoney(r.value().value("price_cents", Cents{0})) + " by card");
+    pause(b, jittered(w, 1.5));
+    return true;
+  }
+
+  // On shift and flagging (D-073): the workplace's own energy activity (a break-room coffee), else the cheapest
+  // everyday offer it sells that gives energy (a barista's own latte). At most one every kPickMeUpEveryMinutes.
+  bool pickMeUp(World& w, Bot& b, const LocationDef& place, const Json& needs, const std::string& why,
+                double below = kPickMeUpBelow) {
+    if (needOf(needs, "energy") >= below || cooling(b, "pickmeup", "")) return false;
+    const std::string act = activityFor(place, "energy");
+    if (!act.empty() && !cooling(b, "activity", act)) {
+      b.cooldown[ckey("pickmeup", "")] = clock + realSeconds(w, kPickMeUpEveryMinutes);
+      if (doActivity(w, b, act, why)) return true;
+    }
+    const Offer* best = nullptr;
+    for (const Offer* o : everydayOffers(place)) {
+      const auto it = o->needEffects.find("energy");
+      if (it == o->needEffects.end() || it->second <= 0) continue;
+      if (!best || it->second > best->needEffects.at("energy")) best = o;
+    }
+    if (!best || cooling(b, "buy", place.id)) return false;
+    b.cooldown[ckey("pickmeup", "")] = clock + realSeconds(w, kPickMeUpEveryMinutes);
+    ++b.stats["commands"];
+    auto r = w.buy(b.id, best->id, "card");
+    if (!r) {
+      refused(w, b, "buy", place.id, r.error(), 30, 900);
+      return true;
+    }
+    succeeded(b, "buy", place.id);
+    ++b.stats["buys"];
+    log(w, b, "buy", "buys " + r.value().value("item", best->id) + " at " + place.name + " (" + why + ")");
+    pause(b, jittered(w, 1.5));
+    return true;
+  }
+
+  // ------------------------------------------------------------------ the beat (D-073)
+  // At the base on shift: a round starts once the last one ended `every_minutes` ago and an hour of the shift is left.
+  bool startRound(World& w, Bot& b, const Goal& goal, GameMinutes now) {
+    const PatrolDef* beat = b.ctx.patrol;
+    if (!beat || beat->beat.empty() || !b.ctx.worksOutdoors) return false;
+    const int mod = static_cast<int>(now % kMinutesPerDay);
+    if (b.patrol.lastEnd < 0 || b.patrol.lastEnd > now) b.patrol.lastEnd = now;
+    if (now - b.patrol.lastEnd < beat->everyMinutes || goal.end - mod < 60) return false;
+    const std::int64_t day = now / kMinutesPerDay;
+    b.patrol.active = true;
+    b.patrol.left = beat->stops;
+    b.patrol.stop = static_cast<int>(dayhash::dayKey(b.id, day, "patrol:" + std::to_string(b.patrol.round)) %
+                                     beat->beat.size());
+    b.patrol.lingerUntil = -1;
+    b.patrol.coffee = false;
+    ++b.patrol.round;
+    ++b.stats["patrols"];
+    log(w, b, "patrol", "starts a round of the beat at " + nameOf(w, beat->beat[static_cast<std::size_t>(b.patrol.stop)]));
+    leaveBuilding(w, b, "on the beat");
+    return true;
+  }
+
+  // One turn of a round: walk to the next place on the beat, stay a few minutes on foot (in for a coffee if they need
+  // one and it's sold there), then the next; after the last, back to the base. The shift carries on throughout: the
+  // career works outdoors (World::exitBuilding keeps it), and that's what puts an officer in uniform on the street.
+  void walkBeat(World& w, Bot& b, const Json& look, GameMinutes now) {
+    const PatrolDef& beat = *b.ctx.patrol;
+    const Json& you = look["you"];
+    const Json needs = you.value("needs", Json::object());
+    const std::string inside = you.value("inside", std::string());
+    const Vec2 pos = positionOf(you);
+    const ContentDatabase& db = w.content();
+    if (b.patrol.left <= 0) {
+      if (inside == beat.base) {
+        b.patrol.active = false;
+        b.patrol.lastEnd = now;
+        log(w, b, "patrol", "back at " + nameOf(w, beat.base) + " from the beat");
+        pause(b, 2);
+        return;
+      }
+      if (!inside.empty()) {
+        leaveBuilding(w, b, "back to " + nameOf(w, beat.base));
+        return;
+      }
+      const LocationDef* base = db.location(beat.base);
+      if (!base) {
+        b.patrol.active = false;
+        return;
+      }
+      if (distance(pos, base->door) <= db.sim().entryRadiusMeters - 0.5) {
+        if (waiting(b, "enter", beat.base)) return;
+        ++b.stats["commands"];
+        if (Status st = w.enter(b.id, beat.base); !st) refused(w, b, "enter", beat.base, st.error(), 5);
+        else pause(b, jittered(w, 1.5));
+        return;
+      }
+      if (you.value("moving", false) && b.heading == beat.base) {
+        pause(b, 10);
+        return;
+      }
+      walkTo(w, b, pos, base->door, beat.base, base->name + " (back from the beat)");
+      return;
+    }
+    const LocationId stopId = beat.beat[static_cast<std::size_t>(b.patrol.stop) % beat.beat.size()];
+    const LocationDef* stop = db.location(stopId);
+    if (!inside.empty()) {
+      // In for a coffee: buy it, then straight back out.
+      if (inside == stopId && b.patrol.coffee && stop) {
+        b.patrol.coffee = false;
+        if (pickMeUp(w, b, *stop, needs, "a coffee on the beat", 101)) return;
+      }
+      leaveBuilding(w, b, "back on the beat");
+      return;
+    }
+    if (!stop) {
+      b.patrol.left = 0;
+      return;
+    }
+    const double reach = stop->enterable ? db.sim().entryRadiusMeters : stop->outdoorRadius;
+    if (distance(pos, stop->door) > reach) {
+      if (you.value("moving", false) && b.heading == stopId) {
+        pause(b, 10);
+        return;
+      }
+      walkTo(w, b, pos, stop->door, stopId, stop->name + " (on the beat)");
+      return;
+    }
+    if (b.patrol.lingerUntil < 0) {
+      b.patrol.lingerUntil = now + beat.lingerMinutes;
+      log(w, b, "patrol", "walks the beat past " + stop->name);
+    }
+    // A coffee if they're flagging and it's sold here, open now.
+    if (needOf(needs, "energy") < kPatrolCoffeeBelow && stop->enterable && isOpen(*stop, now) &&
+        !cooling(b, "pickmeup", "") && !cooling(b, "enter", stopId)) {
+      const auto offers = everydayOffers(*stop);
+      const bool sells = std::any_of(offers.begin(), offers.end(), [](const Offer* o) {
+        const auto it = o->needEffects.find("energy");
+        return it != o->needEffects.end() && it->second > 0;
+      });
+      if (sells) {
+        ++b.stats["commands"];
+        if (Status st = w.enter(b.id, stopId)) {
+          b.patrol.coffee = true;
+          pause(b, jittered(w, 1.5));
+        } else {
+          refused(w, b, "enter", stopId, st.error(), 10);
+        }
+        return;
+      }
+    }
+    if (now < b.patrol.lingerUntil) {
+      pause(b, std::max(2.0, std::min(kIdleCapSeconds, realSeconds(w, static_cast<double>(b.patrol.lingerUntil - now)))));
+      return;
+    }
+    b.patrol.stop = (b.patrol.stop + 1) % static_cast<int>(beat.beat.size());
+    --b.patrol.left;
+    b.patrol.lingerUntil = -1;
+    pause(b, 2);
+  }
+
   // One activity for the lowest need under its threshold that this place helps with.
   bool care(World& w, Bot& b, const LocationDef& place, const Json& needs,
             const std::map<std::string, double>& thresholds, const std::string& why) {
@@ -1514,6 +1852,9 @@ struct Autopilot::Impl {
           succeeded(b, "work_start", placeId);
           ++b.stats["shift_starts"];
           log(w, b, "work", "starts a shift at " + place->name + " (until about " + hhmm(goal.end) + ")");
+          b.patrol = PatrolState{};
+          // The first round of a beat starts a little into the shift.
+          if (b.ctx.patrol) b.patrol.lastEnd = now - std::max(0, b.ctx.patrol->everyMinutes - 20);
           pause(b, 2);
           return;
         } else {
@@ -1524,6 +1865,10 @@ struct Autopilot::Impl {
           return;
         }
       }
+      // On shift (D-073): the restroom at work, a pick-me-up when they're flagging, and the beat for a job that walks one.
+      if (care(w, b, *place, needs, kShiftCare, "on a break")) return;
+      if (pickMeUp(w, b, *place, needs, "a pick-me-up on shift")) return;
+      if (startRound(w, b, goal, now)) return;
       idle(w, b, goal, now);
       return;
     }
@@ -1532,14 +1877,29 @@ struct Autopilot::Impl {
         if (care(w, b, *place, needs, kMorningCare, "morning")) return;
         b.routineDone.insert(dayKey + "/morning");
       }
+      // A rest, a meal and the bathroom before a shift or an evening out that starts soon (D-073).
+      const int mod = static_cast<int>(now % kMinutesPerDay);
+      for (const auto& next : plan.blocks) {
+        if (next.start <= mod) continue;
+        if ((next.kind == Kind::Work || next.kind == Kind::Place) && next.start - mod <= kRestWithinMinutes &&
+            !plan.skipped.count(next.index) && care(w, b, *place, needs, kRestBefore, "before " + nameOf(w, next.place)))
+          return;
+        break;
+      }
       if (care(w, b, *place, needs, kHomeCare, "at home")) return;
       idle(w, b, goal, now);
       return;
     }
-    // A scheduled place: what the schedule names there, the day's everyday purchase, the restroom.
+    // A scheduled place: what the schedule names there, an evening's offer (D-073), the day's everyday purchase, the
+    // restroom.
     if (!goal.activity.empty() && !done.count(goal.activity)) {
       done.insert(goal.activity);
       if (doActivity(w, b, goal.activity, goal.why)) return;
+    }
+    if (!goal.offer.empty() && !done.count("offer")) {
+      done.insert("offer");
+      done.insert("buy");  // it's the day's purchase
+      if (buyOffer(w, b, *place, goal.offer, goal.why, plan.day)) return;
     }
     if (!done.count("buy")) {
       done.insert("buy");
@@ -1671,6 +2031,8 @@ Json Autopilot::status() const {
                    {"asleep", !b.playing && b.sleptOn >= 0},
                    {"plan", b.plan.day < 0 ? "" : "wake " + hhmm(b.plan.wake) + ", bed " + hhmm(b.plan.bed)},
                    {"blocks", b.plan.blocks.size()},
+                   {"tonight", b.tonight},
+                   {"on_patrol", b.patrol.active},
                    {"heading", b.heading},
                    {"stats", stats}};
   }

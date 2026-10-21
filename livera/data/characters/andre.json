@@ -2,6 +2,7 @@
   "characters": [
     {
       "id": "andre",
+      "cast": "founder",
       "first_name": "Andre",
       "last_name": "Campbell",
       "pronouns": "he/him",

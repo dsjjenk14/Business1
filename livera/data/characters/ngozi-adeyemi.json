@@ -1,0 +1,138 @@
+{
+  "characters": [
+    {
+      "id": "ngozi-adeyemi",
+      "cast": "townsperson",
+      "first_name": "Ngozi",
+      "last_name": "Adeyemi",
+      "pronouns": "she/her",
+      "gender": "woman",
+      "age": 41,
+      "playable": true,
+      "personality": {
+        "ambition": 84,
+        "sociability": 52,
+        "empathy": 76,
+        "patience": 64,
+        "confidence": 82,
+        "risk_tolerance": 44,
+        "competitiveness": 66,
+        "impulsiveness": 20
+      },
+      "values": {
+        "family": 80,
+        "career": 86,
+        "wealth": 50,
+        "loyalty": 74,
+        "freedom": 50,
+        "status": 55,
+        "community": 80,
+        "romance": 35,
+        "creativity": 30
+      },
+      "traits": ["exacting", "generous", "dry"],
+      "interests": ["reading", "faith", "gospel", "travel", "cooking"],
+      "career": {"id": "medicine", "level": 1},
+      "degrees": ["high_school", "bachelors", "md"],
+      "fame": 10,
+      "finances": {"cash_cents": 12000, "bank_cents": 2400000},
+      "home": {"property": "lexington_0602", "tenure": "rent"},
+      "spawn_location": "lexington_0602",
+      "relationships": [
+        {
+          "to": "tess-osei",
+          "history": "The best charge nurse she's ever worked with. She lured her here with a job ad and a pot of jollof.",
+          "dimensions": {"familiarity": 66, "friendship": 72, "trust": 76, "respect": 80}
+        },
+        {
+          "to": "harper",
+          "history": "They send each other patients and never say who.",
+          "dimensions": {"familiarity": 34, "respect": 66, "trust": 60, "friendship": 36}
+        },
+        {
+          "to": "dax",
+          "history": "His mother and hers sat in the same pew in Houston's Third Ward. She has been told to check on him.",
+          "dimensions": {"familiarity": 28, "friendship": 30, "trust": 40}
+        },
+        {
+          "to": "graham",
+          "history": "He wants to sell Riverdale Clinic to a hospital group. She wants it to stay a clinic people can walk into.",
+          "dimensions": {"familiarity": 24, "respect": 36, "trust": 16, "conflict": 22}
+        }
+      ],
+      "memories": [
+        {
+          "type": "career",
+          "participants": ["ngozi-adeyemi"],
+          "importance": 80,
+          "emotional_impact": 40,
+          "days_ago": 300,
+          "info": "Opened Riverdale Clinic's doors on a Monday and saw forty-one construction workers by Friday."
+        }
+      ],
+      "aspirations": ["build_something_that_lasts", "give_back"],
+      "profile": {
+        "tagline": "Sees forty patients a day and remembers their mothers' names.",
+        "why_livera": "business_opportunity",
+        "ethnicity": "Nigerian American",
+        "card": {
+          "occupation": "Attending Physician, Riverdale Clinic",
+          "height_cm": 174,
+          "build": "Tall, upright",
+          "skin_tone": "Deep brown, warm"
+        },
+        "appearance": {
+          "height_cm": 174,
+          "build": "tall, upright",
+          "skin": "deep brown, warm",
+          "eyes": "dark, direct",
+          "face": "high forehead, small gold-rimmed glasses",
+          "hair": "short natural hair, tapered, with a silver streak at the front",
+          "style": "a long white coat over a teal ankara-print dress, flat brown loafers, a stethoscope",
+          "jewelry": "small gold hoops, a gold cross",
+          "silhouette": "a tall woman in a white coat with a flash of teal print",
+          "key_features": [
+            "Silver streak at the front",
+            "Gold-rimmed glasses",
+            "White coat over ankara print",
+            "Stethoscope",
+            "Upright posture"
+          ]
+        },
+        "family_background": "Born in Ibadan, raised in Houston's Alief by a pharmacist father and a mother who ran a church choir. Divorced, no children, three godchildren she spoils.",
+        "education": "B.S. Biology, Rice University; M.D., Baylor College of Medicine",
+        "goals": [
+          "Keep Riverdale Clinic a walk-in clinic",
+          "A night clinic for the construction crews",
+          "Make Rafael a real doctor"
+        ],
+        "ambitions": ["Riverdale Medical Center, on her terms"],
+        "social_preferences": "Sunday service, Sunday lunch, and nothing else on Sunday.",
+        "secrets": [
+          {
+            "id": "ngozi_free_care",
+            "truth": "She sees patients who can't pay and logs them as follow-ups. Riverdale Health would fire her for it.",
+            "known_by": ["tess-osei"]
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "08:30", "activity": "Riverdale Clinic", "work": true},
+            {"time": "17:30", "activity": "Home"}
+          ],
+          "sunday": [{"time": "10:00", "activity": "Greater Hope service"}, {"time": "13:00", "activity": "Home"}]
+        },
+        "starting_inventory": ["phone", "stethoscope", "white coat", "prescription pad", "a Bible"],
+        "social_media": {"handle": "@dr.ngozi", "followers": 4200, "bio": "Family medicine. Riverdale Clinic. Drink water."},
+        "reputation": {"professional": 86, "social": 54, "public": 40},
+        "life_history": [
+          "Residency at Ben Taub, Houston's county hospital.",
+          "Ten years of emergency and family medicine.",
+          "Opened Riverdale Clinic the month the first crews arrived."
+        ],
+        "archetype": "The Healer"
+      },
+      "sex": "female"
+    }
+  ]
+}

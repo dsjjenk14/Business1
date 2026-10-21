@@ -1,0 +1,151 @@
+{
+  "$comment": "Town life (D-073): what the autopilot's people do with a free evening, and the beat a police officer walks on shift. An evening plan is taken only when the character's own schedule leaves that evening free (a Home block from 'from' for at least 45 minutes), the place is open and built, the character suits it (their own personality, values and interests) and a pure draw of (character, day, plan) comes under 'chance'; 'with: friend' and 'with: partner' draw once per pair (their own friendship, their own relationship status), so both go. The first plan in this list that passes is the evening; a plan's 'offer' is bought there. Nothing here is a person deciding: the autopilot's people stay labelled 'played_by: autopilot' (D-053, D-064).",
+  "evening_plans": [
+    {
+      "id": "date_night",
+      "label": "Date night at Lumière",
+      "place": "lumiere_bistro",
+      "offer": "dinner",
+      "days": ["friday"],
+      "from": "19:30",
+      "minutes": 120,
+      "with": "partner",
+      "chance": 0.85
+    },
+    {
+      "id": "open_mic",
+      "label": "Open mic night at the Copper Tap",
+      "place": "copper_tap",
+      "days": ["thursday"],
+      "from": "20:00",
+      "minutes": 150,
+      "who": {"interests_any": ["music", "hip_hop", "rnb_music", "jazz", "gospel", "nightlife"]},
+      "chance": 0.7
+    },
+    {
+      "id": "league_night",
+      "label": "League night: basketball at Riverside Court",
+      "place": "riverside_court",
+      "days": ["wednesday"],
+      "from": "17:40",
+      "minutes": 100,
+      "who": {"interests_any": ["basketball", "fitness"]},
+      "chance": 0.7
+    },
+    {
+      "id": "community_dinner",
+      "label": "Sunday dinner at Common Ground",
+      "place": "common_ground",
+      "activity": "community_dinner",
+      "days": ["sunday"],
+      "from": "18:00",
+      "minutes": 120,
+      "who": {"values_min": {"community": 75}},
+      "chance": 0.7
+    },
+    {
+      "id": "darts_night",
+      "label": "Darts at the Copper Tap",
+      "place": "copper_tap",
+      "activity": "darts",
+      "days": ["tuesday"],
+      "from": "19:30",
+      "minutes": 150,
+      "who": {"personality_min": {"competitiveness": 60}},
+      "chance": 0.5
+    },
+    {
+      "id": "friends_round",
+      "label": "A round with a friend at the Copper Tap",
+      "place": "copper_tap",
+      "days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"],
+      "from": "19:45",
+      "minutes": 135,
+      "with": "friend",
+      "min_friendship": 45,
+      "chance": 0.15
+    },
+    {
+      "id": "dinner_out",
+      "label": "Dinner at Lumière",
+      "place": "lumiere_bistro",
+      "offer": "dinner",
+      "days": ["thursday", "friday", "saturday"],
+      "from": "19:00",
+      "minutes": 120,
+      "who": {"values_min": {"status": 55}},
+      "chance": 0.35
+    },
+    {
+      "id": "friday_night",
+      "label": "Friday night at the Copper Tap",
+      "place": "copper_tap",
+      "days": ["friday", "saturday"],
+      "from": "20:30",
+      "minutes": 150,
+      "who": {"interests_any": ["nightlife", "music", "hip_hop", "rnb_music"]},
+      "chance": 0.5
+    },
+    {
+      "id": "movie_night",
+      "label": "A film at the Starlight",
+      "place": "starlight_cinema",
+      "offer": "movie_ticket",
+      "days": ["friday", "saturday", "sunday"],
+      "from": "19:30",
+      "minutes": 150,
+      "who": {"interests_any": ["film"]},
+      "chance": 0.4
+    },
+    {
+      "id": "after_work_drink",
+      "label": "A drink after work at the Copper Tap",
+      "place": "copper_tap",
+      "days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+      "from": "18:30",
+      "minutes": 120,
+      "who": {"personality_min": {"sociability": 65}},
+      "chance": 0.3
+    },
+    {
+      "id": "cafe_evening",
+      "label": "A notebook and a coffee at Heritage Coffee",
+      "place": "heritage_coffee",
+      "days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+      "from": "17:15",
+      "minutes": 90,
+      "who": {"interests_any": ["reading", "art", "photography"]},
+      "chance": 0.25
+    },
+    {
+      "id": "stargazing",
+      "label": "Stargazing at Willow Lake",
+      "place": "willow_lake_park",
+      "activity": "stargazing",
+      "days": ["saturday"],
+      "from": "21:00",
+      "minutes": 90,
+      "who": {"values_min": {"romance": 70}},
+      "chance": 0.25
+    }
+  ],
+  "patrols": [
+    {
+      "career": "police",
+      "base": "police_station",
+      "beat": [
+        "livera_general",
+        "heritage_coffee",
+        "founders_park",
+        "greenleaf_market",
+        "copper_tap",
+        "lumiere_bistro",
+        "thread_co",
+        "riverdale_pharmacy"
+      ],
+      "every_minutes": 60,
+      "stops": 3,
+      "linger_minutes": 8
+    }
+  ]
+}

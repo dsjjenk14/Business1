@@ -112,6 +112,7 @@ Result<CharacterDef> ContentDatabase::parseCharacter(const Json& j) {
     c.gender = j.value("gender", "");
     c.age = j.at("age").get<int>();
     c.playable = j.value("playable", false);
+    c.cast = j.value("cast", "");
     c.personality = readStats(j, "personality");
     c.values = readStats(j, "values");
     c.traits = readStrings(j, "traits");
@@ -133,8 +134,8 @@ Result<CharacterDef> ContentDatabase::parseCharacter(const Json& j) {
     c.fame = j.value("fame", 0.0);
     if (j.contains("relationships")) {
       for (const auto& r : j.at("relationships")) {
-        c.relationships.push_back(
-            StartingRelationship{r.at("to").get<std::string>(), readStats(r, "dimensions"), r.value("history", "")});
+        c.relationships.push_back(StartingRelationship{r.at("to").get<std::string>(), readStats(r, "dimensions"),
+                                                       r.value("history", ""), r.value("status", "")});
       }
     }
     if (j.contains("memories")) {

@@ -1,0 +1,151 @@
+{
+  "characters": [
+    {
+      "id": "bernie-walsh",
+      "cast": "townsperson",
+      "first_name": "Bernie",
+      "last_name": "Walsh",
+      "pronouns": "she/her",
+      "gender": "woman",
+      "age": 54,
+      "playable": true,
+      "personality": {
+        "ambition": 50,
+        "sociability": 78,
+        "empathy": 70,
+        "patience": 72,
+        "confidence": 84,
+        "risk_tolerance": 45,
+        "competitiveness": 48,
+        "impulsiveness": 30
+      },
+      "values": {
+        "family": 90,
+        "career": 60,
+        "wealth": 40,
+        "loyalty": 92,
+        "freedom": 55,
+        "status": 20,
+        "community": 80,
+        "romance": 30,
+        "creativity": 35
+      },
+      "traits": ["blunt", "warm", "unflappable"],
+      "interests": ["nightlife", "music", "reading", "faith"],
+      "career": {"id": "bartending", "level": 2},
+      "degrees": ["high_school"],
+      "fame": 8,
+      "finances": {"cash_cents": 22000, "bank_cents": 560000},
+      "home": {"property": "maple_court_4b", "tenure": "rent"},
+      "spawn_location": "maple_court_4b",
+      "relationships": [
+        {
+          "to": "kai-morgan",
+          "history": "Her best barback in twenty years walked out on a Friday. She's proud of him and she'll never say it.",
+          "dimensions": {"familiarity": 46, "respect": 48, "friendship": 34, "conflict": 20}
+        },
+        {
+          "to": "maya",
+          "history": "Her son Liam is on the same Forge crew as Maya's brother. They compare notes on the site's overtime.",
+          "dimensions": {"familiarity": 38, "friendship": 44, "trust": 50, "respect": 56}
+        },
+        {
+          "to": "graham",
+          "history": "His lawyers drink at the end of the bar and talk like she isn't there.",
+          "dimensions": {"familiarity": 28, "respect": 22, "trust": 6, "conflict": 14}
+        },
+        {
+          "to": "marcus-bell",
+          "history": "The last stop on his evening walk. Club soda with lime, and whatever she's heard.",
+          "dimensions": {"familiarity": 44, "friendship": 46, "trust": 52}
+        }
+      ],
+      "memories": [
+        {
+          "type": "career",
+          "participants": ["bernie-walsh"],
+          "importance": 75,
+          "emotional_impact": -30,
+          "days_ago": 500,
+          "info": "Pulled the last pint at Walsh's of Dorchester Avenue the night the building was sold."
+        },
+        {
+          "type": "community",
+          "participants": ["bernie-walsh", "sol-rivera"],
+          "importance": 50,
+          "emotional_impact": 40,
+          "days_ago": 20,
+          "info": "Stood up on a chair for Sol's first open mic.",
+          "about": "sol-rivera"
+        }
+      ],
+      "aspirations": ["build_something_that_lasts", "make_friends"],
+      "profile": {
+        "tagline": "Pours them straight, remembers everything, tells nobody.",
+        "why_livera": "family",
+        "ethnicity": "Irish American",
+        "card": {
+          "occupation": "Bar Manager, The Copper Tap",
+          "height_cm": 163,
+          "build": "Sturdy",
+          "skin_tone": "Fair, ruddy"
+        },
+        "appearance": {
+          "height_cm": 163,
+          "build": "sturdy",
+          "skin": "fair, ruddy cheeks, freckled forearms",
+          "eyes": "sharp blue",
+          "face": "square jaw, laugh lines, reading glasses pushed up into her hair",
+          "hair": "silver-blonde hair in a messy clip",
+          "style": "black button-down with the sleeves rolled, a copper-brown bar apron, dark jeans, black work boots",
+          "jewelry": "a claddagh ring, a plain watch",
+          "silhouette": "a short, solid woman behind a long apron, sleeves rolled to the elbow",
+          "key_features": [
+            "Silver-blonde hair in a clip",
+            "Reading glasses on her head",
+            "Rolled sleeves and a bar apron",
+            "Claddagh ring",
+            "Laugh lines"
+          ]
+        },
+        "family_background": "Grew up over her father's bar in Dorchester. Widowed at forty. Her son Liam pours concrete for Forge Builders; she followed him here when the bar back home was sold.",
+        "education": "High school diploma; twenty-two years behind a bar",
+        "goals": ["Keep the Copper Tap the Copper Tap", "Get Liam to call his mother", "Hear Kai say sorry"],
+        "ambitions": ["Her own bar, again, with her name over the door"],
+        "social_preferences": "Everyone at the bar, nobody behind it.",
+        "secrets": [
+          {
+            "id": "bernie_sale",
+            "truth": "The Copper Tap's owner is selling to a buyer backed by Whitaker Capital. Bernie has seen the letter of intent and hasn't told the staff.",
+            "known_by": []
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "15:45", "activity": "The Copper Tap", "work": true},
+            {"time": "23:30", "activity": "Home"}
+          ],
+          "saturday": [
+            {"time": "15:45", "activity": "The Copper Tap", "work": true},
+            {"time": "23:30", "activity": "Home"}
+          ],
+          "sunday": [{"time": "11:00", "activity": "Founders Park"}]
+        },
+        "starting_inventory": ["phone", "reading glasses", "tab book", "bottle opener", "bar keys"],
+        "social_media": {
+          "handle": "@coppertap",
+          "followers": 1900,
+          "bio": "The Copper Tap. Founders Way. Be nice or be outside."
+        },
+        "reputation": {"professional": 74, "social": 70, "public": 30},
+        "life_history": [
+          "Pulled her first pint at fourteen, illegally, for her father.",
+          "Ran Walsh's for twenty-two years.",
+          "Bar manager of the Copper Tap since the week it opened."
+        ],
+        "archetype": "The Keeper"
+      },
+      "sex": "female"
+    }
+  ]
+}

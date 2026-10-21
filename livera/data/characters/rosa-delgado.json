@@ -1,0 +1,151 @@
+{
+  "characters": [
+    {
+      "id": "rosa-delgado",
+      "cast": "resident",
+      "first_name": "Rosa",
+      "last_name": "Delgado",
+      "pronouns": "she/her",
+      "gender": "woman",
+      "age": 27,
+      "playable": true,
+      "personality": {
+        "ambition": 80,
+        "sociability": 58,
+        "empathy": 84,
+        "patience": 76,
+        "confidence": 66,
+        "risk_tolerance": 40,
+        "competitiveness": 55,
+        "impulsiveness": 22
+      },
+      "values": {
+        "family": 92,
+        "career": 74,
+        "wealth": 40,
+        "loyalty": 88,
+        "freedom": 50,
+        "status": 30,
+        "community": 86,
+        "romance": 45,
+        "creativity": 40
+      },
+      "traits": ["driven", "caring", "calm"],
+      "interests": ["fitness", "fashion", "volunteering", "faith", "cooking"],
+      "skills": {"athletics": 44},
+      "career": {"id": "retail", "level": 1},
+      "degrees": ["high_school"],
+      "fame": 1,
+      "finances": {"cash_cents": 9000, "bank_cents": 410000},
+      "home": {"property": "maple_court_3c", "tenure": "rent"},
+      "spawn_location": "maple_court_3c",
+      "relationships": [
+        {
+          "to": "maya",
+          "history": "Rosa runs the Saturday clothing drive at Common Ground. Maya says she's the only volunteer who never needs to be asked twice.",
+          "dimensions": {"familiarity": 40, "friendship": 46, "respect": 66, "trust": 54}
+        },
+        {
+          "to": "marcus-bell",
+          "history": "Her academy instructor. He makes her run the stairs twice because she can.",
+          "dimensions": {"familiarity": 34, "respect": 72, "trust": 50}
+        },
+        {
+          "to": "noor-haddad",
+          "history": "Her best salesperson and her biggest worry: nineteen going on forty.",
+          "dimensions": {"familiarity": 52, "friendship": 44, "respect": 40, "trust": 36}
+        },
+        {
+          "to": "naomi",
+          "history": "Naomi came in for socks once and fixed a window display without asking. Rosa left it up.",
+          "dimensions": {"familiarity": 12, "respect": 58}
+        }
+      ],
+      "memories": [
+        {
+          "type": "career",
+          "participants": ["rosa-delgado"],
+          "importance": 70,
+          "emotional_impact": 45,
+          "days_ago": 40,
+          "info": "Passed the Livéra Police Academy's entrance test on her second try."
+        },
+        {
+          "type": "family",
+          "participants": ["rosa-delgado"],
+          "importance": 75,
+          "emotional_impact": -40,
+          "days_ago": 400,
+          "info": "Her brother Mateo's sentencing in Bexar County. She was the only one who went."
+        }
+      ],
+      "aspirations": ["get_promoted", "give_back"],
+      "profile": {
+        "tagline": "Keeps the store open, the books straight, and an eye on everyone.",
+        "why_livera": "career_advancement",
+        "ethnicity": "Mexican American",
+        "card": {
+          "occupation": "Assistant Manager, Thread & Co.; Police Academy trainee",
+          "height_cm": 168,
+          "build": "Athletic",
+          "skin_tone": "Olive, warm"
+        },
+        "appearance": {
+          "height_cm": 168,
+          "build": "athletic",
+          "skin": "olive, warm",
+          "eyes": "almond, dark brown",
+          "face": "oval face, full lips, natural makeup",
+          "hair": "a sleek, long black high ponytail",
+          "style": "olive-green zip track jacket over a white crop top, black leggings, white trainers",
+          "jewelry": "a plain black smartwatch, small studs",
+          "silhouette": "a high ponytail and a fitted track jacket",
+          "key_features": [
+            "Sleek black ponytail",
+            "Almond dark-brown eyes",
+            "Oval face, full lips",
+            "Natural makeup",
+            "Wrist tattoo and pierced ears",
+            "Athleisure and a watch"
+          ],
+          "visual_reference": "art/reference/residents/rosa-delgado.jpg"
+        },
+        "family_background": "Eldest of four in San Antonio's West Side. Her father fixed elevators; her mother cleaned the buildings they were in. Her younger brother is doing three years in Huntsville.",
+        "education": "High school diploma; retail management certificate; Livéra Police Academy (enrolling)",
+        "goals": [
+          "Finish the Livéra Police Academy",
+          "Run Thread & Co. until she does",
+          "Get Mateo a job here when he's out"
+        ],
+        "ambitions": ["Livéra's first community policing unit"],
+        "social_preferences": "A run before work, one good friend after it.",
+        "secrets": [
+          {
+            "id": "rosa_brother",
+            "truth": "Half of every paycheck goes to her brother's commissary and lawyer. The academy doesn't know he exists.",
+            "known_by": []
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "06:30", "activity": "A run in Founders Park"},
+            {"time": "09:00", "activity": "Thread & Co.", "work": true},
+            {"time": "17:00", "activity": "Home"}
+          ],
+          "saturday": [{"time": "09:00", "activity": "Volunteer at Common Ground"}, {"time": "13:00", "activity": "Home"}],
+          "sunday": [{"time": "10:00", "activity": "Greater Hope service"}]
+        },
+        "starting_inventory": ["phone", "smartwatch", "store keys", "running shoes", "academy handbook"],
+        "social_media": {"handle": "@rosa.delgado", "followers": 610, "bio": "Thread & Co. Future LPD. SATX."},
+        "reputation": {"professional": 62, "social": 50, "public": 18},
+        "life_history": [
+          "Worked the stockroom at a San Antonio Target at sixteen.",
+          "Assistant manager at twenty-three.",
+          "Took the Thread & Co. job in Livéra because the town was hiring police."
+        ],
+        "archetype": "The Guardian"
+      },
+      "sex": "female"
+    }
+  ]
+}

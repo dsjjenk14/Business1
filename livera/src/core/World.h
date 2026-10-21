@@ -1130,6 +1130,7 @@ class World {
   std::vector<CharacterId> presentWith(const CharacterState& c, double outdoorRange = 40) const;
   bool together(const CharacterState& a, const CharacterState& b, double outdoorRange) const;
   void addCharacterState(const CharacterDef& def, const OriginDef* origin);
+  void seedFromContent(const std::set<CharacterId>& arrived);  // ties and memories from character data (D-073)
   Json songsView(const CharacterState& c) const;
   Json phoneBank(const CharacterState& c) const;
   Json phoneMessages(const CharacterState& c);

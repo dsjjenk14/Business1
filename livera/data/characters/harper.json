@@ -2,6 +2,7 @@
   "characters": [
     {
       "id": "harper",
+      "cast": "founder",
       "first_name": "Harper",
       "last_name": "James",
       "pronouns": "she/her",

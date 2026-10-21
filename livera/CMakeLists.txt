@@ -98,6 +98,7 @@ add_library(livera_core
   src/core/Substances.cpp
   src/core/Serialization.cpp
   src/core/Autopilot.cpp
+  src/core/TownLife.cpp
   src/core/World.cpp
   src/core/WorldViews.cpp)
 target_include_directories(livera_core PUBLIC src)

@@ -2,6 +2,7 @@
   "characters": [
     {
       "id": "graham",
+      "cast": "founder",
       "first_name": "Graham",
       "last_name": "Whitaker",
       "pronouns": "he/him",

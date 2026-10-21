@@ -1,0 +1,147 @@
+{
+  "characters": [
+    {
+      "id": "samuel-osei",
+      "cast": "townsperson",
+      "first_name": "Samuel",
+      "last_name": "Osei",
+      "pronouns": "he/him",
+      "gender": "man",
+      "age": 39,
+      "playable": true,
+      "personality": {
+        "ambition": 60,
+        "sociability": 66,
+        "empathy": 80,
+        "patience": 82,
+        "confidence": 62,
+        "risk_tolerance": 34,
+        "competitiveness": 46,
+        "impulsiveness": 26
+      },
+      "values": {
+        "family": 94,
+        "career": 64,
+        "wealth": 30,
+        "loyalty": 86,
+        "freedom": 45,
+        "status": 30,
+        "community": 84,
+        "romance": 78,
+        "creativity": 60
+      },
+      "traits": ["thoughtful", "romantic", "earnest"],
+      "interests": ["reading", "jazz", "film", "cooking", "travel"],
+      "career": {"id": "school_teaching", "level": 1},
+      "degrees": ["high_school", "bachelors", "masters"],
+      "fame": 6,
+      "finances": {"cash_cents": 6000, "bank_cents": 720000},
+      "home": {"property": "maple_court_2c", "tenure": "rent"},
+      "spawn_location": "maple_court_2c",
+      "relationships": [
+        {
+          "to": "tess-osei",
+          "history": "Married eleven years. He still writes her a note for her lunch bag.",
+          "dimensions": {
+            "familiarity": 96,
+            "friendship": 84,
+            "trust": 88,
+            "loyalty": 92,
+            "romantic_attraction": 76,
+            "physical_attraction": 66
+          },
+          "status": "married"
+        },
+        {
+          "to": "aisha-farah",
+          "history": "The officer at the crossing. Friday tea, and she remembers which students are struggling.",
+          "dimensions": {"familiarity": 40, "friendship": 44, "respect": 62}
+        },
+        {
+          "to": "leila",
+          "history": "He writes letters to the Ledger about school funding. She prints every one and calls him for quotes.",
+          "dimensions": {"familiarity": 28, "respect": 54, "friendship": 24}
+        },
+        {
+          "to": "graham",
+          "history": "The consortium wants Founders School to become a charter. Graham calls it an opportunity.",
+          "dimensions": {"familiarity": 20, "respect": 26, "trust": 12, "conflict": 16}
+        }
+      ],
+      "memories": [
+        {
+          "type": "romance",
+          "participants": ["samuel-osei", "tess-osei"],
+          "importance": 90,
+          "emotional_impact": 80,
+          "days_ago": 4000,
+          "info": "Met Tess at a hospital bedside in London: his grandmother's, her patient.",
+          "about": "tess-osei"
+        }
+      ],
+      "aspirations": ["start_a_family", "give_back"],
+      "profile": {
+        "tagline": "Teaches history like it's gossip. It works.",
+        "why_livera": "family",
+        "ethnicity": "Ghanaian British",
+        "card": {
+          "occupation": "Senior Teacher, Founders School",
+          "height_cm": 180,
+          "build": "Slim",
+          "skin_tone": "Dark brown"
+        },
+        "appearance": {
+          "height_cm": 180,
+          "build": "slim",
+          "skin": "dark brown, warm",
+          "eyes": "brown, behind round tortoiseshell glasses",
+          "face": "a neat moustache, an easy grin",
+          "hair": "short and neat, a sharp part",
+          "style": "a mustard knit tie on a pale blue shirt, a brown tweed jacket with elbow patches, chinos, brown brogues",
+          "jewelry": "a gold wedding band, a vintage watch",
+          "silhouette": "tweed and round glasses, a satchel on one shoulder",
+          "key_features": [
+            "Round tortoiseshell glasses",
+            "Neat moustache",
+            "Tweed jacket with elbow patches",
+            "A mustard knit tie"
+          ]
+        },
+        "family_background": "Peckham, London, son of a Ghanaian minister and a midwife. Met Tess in London when she was a travelling nurse; they followed a teaching post to Houston, then a job ad to Livéra.",
+        "education": "B.A. History, King's College London; M.Ed., University of Houston",
+        "goals": ["Keep Founders School public", "A debate team that beats the city schools", "A family, if it comes"],
+        "ambitions": ["Principal of a school he'd send his own children to"],
+        "social_preferences": "Dinner for four, an argument about history, Tess laughing at him.",
+        "secrets": [
+          {
+            "id": "samuel_principal",
+            "truth": "The consortium offered him the principal's job if he backs the charter plan. He hasn't said no.",
+            "known_by": ["graham"]
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "07:30", "activity": "Founders School", "work": true},
+            {"time": "15:30", "activity": "Home, marking"}
+          ],
+          "saturday": [{"time": "10:00", "activity": "Greenleaf Market"}, {"time": "12:00", "activity": "Home"}],
+          "sunday": [{"time": "10:00", "activity": "Greater Hope service"}]
+        },
+        "starting_inventory": ["phone", "leather satchel", "red pens", "a paperback", "school keys"],
+        "social_media": {
+          "handle": "@mrosei_history",
+          "followers": 1200,
+          "bio": "History teacher. Founders School. Opinions mine."
+        },
+        "reputation": {"professional": 72, "social": 60, "public": 24},
+        "life_history": [
+          "Taught at a Peckham comprehensive for six years.",
+          "Coached a Houston debate team to the state final.",
+          "Founders School's first senior teacher."
+        ],
+        "archetype": "The Mentor"
+      },
+      "sex": "male"
+    }
+  ]
+}

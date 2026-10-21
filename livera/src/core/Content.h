@@ -411,6 +411,7 @@ struct StartingRelationship {
   CharacterId to;
   StatMap dimensions;
   std::string history;
+  std::string status;  // "dating", "engaged" or "married" when they already are (D-073); the other side says the same
 };
 
 struct SeedMemory {
@@ -452,6 +453,10 @@ struct CharacterDef {
   // a made character's come from the goals picked in the creator.
   std::vector<std::string> aspirations;
   Json profile;  // narrative: appearance, background, goals, secrets, schedule, social media...
+
+  // Who they are to the town (D-073): "founder", "resident" (made in the creator before they were written into data)
+  // or "townsperson" (the people who keep its places open). Empty for a character made in a save.
+  std::string cast;
 
   std::string fullName() const { return firstName + " " + lastName; }
 };
@@ -1015,6 +1020,42 @@ struct AutopilotMannersConfig {
   std::vector<AutopilotAskRule> asks;        // kinds not listed are declined
 };
 
+// --- town life: evenings out and patrols (TownLife.cpp, D-073) ---
+// An evening out the autopilot's people may take when their own day leaves the evening free: where, when, who it
+// suits (from their own data) and how likely, drawn once per character (or pair) and day from a hash, as the day's
+// goals are (D-061), so it never touches the world's random stream.
+struct EveningPlanDef {
+  std::string id;
+  std::string label;                       // what it is, for the log ("Open mic night at the Copper Tap")
+  LocationId place;                        // a public place
+  std::string activity;                    // the place's activity done there ("" = none)
+  std::string offer;                       // the place's offer bought there ("" = the day's everyday purchase)
+  std::vector<int> days;                   // weekdays (0 = Monday)
+  int from = 0;                            // minute of the day they head out for it
+  int minutes = 120;                       // how long they stay
+  StatMap personalityMin;                  // it suits someone with all of these at least...
+  StatMap valuesMin;
+  std::vector<std::string> interestsAny;   // ...and one of these interests (empty: any)
+  std::string with;                        // "" alone, "friend" or "partner": drawn once per pair, so both go
+  double minFriendship = 0;                // with a friend: their own friendship toward them at least this
+  double chance = 0;                       // 0-1, per character (or pair) and day
+};
+
+// A beat walked on shift by a career that works outdoors (the police): out of the base, past these places, back.
+struct PatrolDef {
+  std::string career;
+  LocationId base;                         // a workplace of the career, where a round starts and ends
+  std::vector<LocationId> beat;            // public places, walked past in order from a stop drawn by the day
+  int everyMinutes = 90;                   // a round starts this long after the last one ended
+  int stops = 3;                           // places per round
+  int lingerMinutes = 6;                   // time on foot at each one
+};
+
+struct TownLifeConfig {
+  std::vector<EveningPlanDef> evenings;
+  std::vector<PatrolDef> patrols;
+};
+
 // --- interiors: rooms you walk around in (Interiors.cpp, D-066) ---
 // A place's room, traced from its picture (data/interiors/<id>.json). Coordinates are the picture's pixels, so a
 // client draws people straight onto it. `facing` is one of the picture's four iso directions, named for the walls
@@ -1265,6 +1306,8 @@ class ContentDatabase {
   // } m08:details
   // Redesign: goals (Goals.cpp) and the autopilot's manners (Autopilot.cpp).
   const AutopilotMannersConfig& autopilotManners() const { return manners_; }
+  const TownLifeConfig& townLife() const { return townLife_; }  // evenings out and patrols (D-073)
+  const PatrolDef* patrolFor(const std::string& careerId) const;
   // life events (LifeEvents.cpp, D-068) and fist fights (Fights.cpp, D-070)
   const LifeEventsConfig& lifeEventsConfig() const { return lifeEvents_; }
   const std::map<std::string, LifeEventDef>& lifeEvents() const { return lifeEventDefs_; }
@@ -1328,6 +1371,9 @@ class ContentDatabase {
   Status validateGoals() const;
   Status ingestManners(const std::string& source, const std::string& section, const Json& body, bool& handled);
   Status validateManners() const;
+  Status ingestTownLife(const std::string& source, const std::string& section, const Json& body, bool& handled);
+  Status validateTownLife() const;
+  Status validateCast() const;  // casts, shared homes and starting partners (D-073)
   Status ingestInteriors(const std::string& source, const std::string& section, const Json& body, bool& handled);
   Status ingestLifeEvents(const std::string& source, const std::string& section, const Json& body, bool& handled);
   Status validateLifeEvents() const;
@@ -1399,6 +1445,9 @@ class ContentDatabase {
   GoalsConfig goals_;
   bool haveManners_ = false;
   AutopilotMannersConfig manners_;
+  bool haveEvenings_ = false;
+  bool havePatrols_ = false;
+  TownLifeConfig townLife_;
   std::map<std::string, InteriorDef> interiors_;            // interiors (Interiors.cpp)
   std::map<LocationId, std::string> interiorByPlace_;
   bool haveLifeEvents_ = false;                              // life events (LifeEvents.cpp)

@@ -1,0 +1,137 @@
+{
+  "characters": [
+    {
+      "id": "aisha-farah",
+      "cast": "townsperson",
+      "first_name": "Aisha",
+      "last_name": "Farah",
+      "pronouns": "she/her",
+      "gender": "woman",
+      "age": 31,
+      "playable": true,
+      "personality": {
+        "ambition": 78,
+        "sociability": 56,
+        "empathy": 74,
+        "patience": 70,
+        "confidence": 72,
+        "risk_tolerance": 46,
+        "competitiveness": 60,
+        "impulsiveness": 24
+      },
+      "values": {
+        "family": 86,
+        "career": 80,
+        "wealth": 35,
+        "loyalty": 84,
+        "freedom": 55,
+        "status": 40,
+        "community": 82,
+        "romance": 40,
+        "creativity": 30
+      },
+      "traits": ["patient", "observant", "devout"],
+      "interests": ["fitness", "faith", "reading", "basketball"],
+      "skills": {"athletics": 56},
+      "career": {"id": "police", "level": 0},
+      "degrees": ["high_school", "bachelors", "police_academy"],
+      "fame": 4,
+      "finances": {"cash_cents": 8000, "bank_cents": 340000},
+      "home": {"property": "lexington_0305", "tenure": "rent"},
+      "spawn_location": "lexington_0305",
+      "relationships": [
+        {
+          "to": "marcus-bell",
+          "history": "Her sergeant. He told her about the call from Chicago; she hasn't told anyone, and won't.",
+          "dimensions": {"familiarity": 58, "respect": 78, "trust": 74, "loyalty": 66}
+        },
+        {
+          "to": "samuel-osei",
+          "history": "She works the school crossing at 07:30. He brings her tea in a travel mug every Friday.",
+          "dimensions": {"familiarity": 40, "friendship": 46, "trust": 48}
+        },
+        {
+          "to": "dominique",
+          "history": "They pass each other on the 06:30 run through Founders Park. A nod, every day, nothing else yet.",
+          "dimensions": {"familiarity": 14, "respect": 34}
+        },
+        {
+          "to": "maya",
+          "history": "Maya asked her to coach the girls' basketball night at Common Ground. She said yes before Maya finished.",
+          "dimensions": {"familiarity": 30, "friendship": 38, "respect": 56}
+        }
+      ],
+      "memories": [
+        {
+          "type": "career",
+          "participants": ["aisha-farah"],
+          "importance": 70,
+          "emotional_impact": 50,
+          "days_ago": 200,
+          "info": "First week on patrol in Minneapolis: talked a man down off the Lake Street bridge."
+        }
+      ],
+      "aspirations": ["get_promoted", "give_back"],
+      "profile": {
+        "tagline": "Knows every kid at the crossing by name, and every car by its plate.",
+        "why_livera": "new_job",
+        "ethnicity": "Somali American",
+        "card": {
+          "occupation": "Police Officer, Livéra Police Department",
+          "height_cm": 171,
+          "build": "Slim athletic",
+          "skin_tone": "Rich brown, warm"
+        },
+        "appearance": {
+          "height_cm": 171,
+          "build": "slim athletic",
+          "skin": "rich brown, warm",
+          "eyes": "dark brown, steady",
+          "face": "high cheekbones, a quick smile she rations",
+          "hair": "a navy hijab pinned neatly under her cap on duty, a sand-coloured one off duty",
+          "style": "on duty: navy Livéra PD uniform shirt and trousers, black duty boots; off duty: a long olive coat over running gear",
+          "jewelry": "a slim silver watch",
+          "silhouette": "a slim officer in navy with a neat hijab",
+          "key_features": ["Neatly pinned hijab", "High cheekbones", "A rationed smile", "Uniform worn exactly right"]
+        },
+        "family_background": "Born in Mogadishu, raised in Minneapolis's Cedar-Riverside towers. Her mother runs a tailoring shop; her four brothers all think she should have been a pharmacist.",
+        "education": "B.S. Criminology, University of Minnesota; Minneapolis police academy",
+        "goals": ["Make detective", "Start a girls' basketball night at Common Ground", "Run the Livéra half-marathon"],
+        "ambitions": ["Training officer for the academy's next classes"],
+        "social_preferences": "Early mornings, small circles, long walks.",
+        "secrets": [
+          {
+            "id": "aisha_fbi",
+            "truth": "She has an FBI application in. If they call, she'll go, and Marcus doesn't know.",
+            "known_by": []
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "06:30", "activity": "Livéra Police Station", "work": true},
+            {"time": "15:00", "activity": "Home"}
+          ],
+          "tuesday": [{"time": "18:30", "activity": "A run in Founders Park"}],
+          "saturday": [
+            {"time": "10:00", "activity": "Livéra Police Station", "work": true},
+            {"time": "18:00", "activity": "Home"}
+          ]
+        },
+        "starting_inventory": ["phone", "badge", "radio", "running shoes", "prayer mat"],
+        "social_media": {
+          "handle": "@officer.farah",
+          "followers": 920,
+          "bio": "LPD. Crossing guard of the year (self-awarded)."
+        },
+        "reputation": {"professional": 68, "social": 52, "public": 26},
+        "life_history": [
+          "Translated for her mother's customers from age nine.",
+          "Four years with Minneapolis police.",
+          "Lateral hire to Livéra's department, badge number 2."
+        ],
+        "archetype": "The Sentinel"
+      },
+      "sex": "female"
+    }
+  ]
+}

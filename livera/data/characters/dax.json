@@ -2,6 +2,7 @@
   "characters": [
     {
       "id": "dax",
+      "cast": "founder",
       "first_name": "Dax",
       "last_name": "Hendrix",
       "pronouns": "he/him",
