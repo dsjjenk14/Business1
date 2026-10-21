@@ -44,6 +44,21 @@
    1024
   ]
  },
+ "copper_tap": {
+  "offset": [
+   4,
+   2
+  ],
+  "scale": 1.0,
+  "size": [
+   1531,
+   1001
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
  "fade_glow": {
   "offset": [
    11,

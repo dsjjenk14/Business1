@@ -455,6 +455,13 @@
         "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
         "The fourth Willow Lane house, carrying the number 8 by the door: porch, shutters, a young tree and a fenced back patio. The data's garage isn't shown."
       ]
+    },
+    "riverdale_clinic": {
+      "sprite": "art/places/riverdale_clinic.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A single-storey stone clinic with a green cross over the door and the RIVERDALE CLINIC sign, as asked; the awnings, planters and rooftop units are the picture's own. It came in one picture with the bus's front view and was cut out."
+      ]
     }
   },
   "unit_buildings": {
@@ -676,7 +683,152 @@
       "picture": "art/interiors/meridian_talent.webp",
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
-        "The open floor of desks (eight seats, four each side of the bank), the glass meeting room, the reception desk and the lounge corner's sofa match the data; the small meeting table by the shelves is the picture's own. The glass room has no door in the picture, so nobody walks in. There's no coffee machine: the break room's coffee is at the sideboard by the restroom."
+        "The open floor of desks (eight seats, four each side of the bank), the glass meeting room, the reception desk and the lounge corner's sofa match the data; the small meeting table by the shelves is the picture's own. The glass room has no door in the picture, so nobody walks in. There's no coffee machine: the break room's coffee is at the sideboard by the restroom.",
+        "A second version (cut out of one picture of three offices, with Hale & Partners and James Wellness) is kept as the alternate."
+      ],
+      "alternate": "art/interiors/meridian_talent_alt.webp"
+    },
+    "copper_tap": {
+      "picture": "art/interiors/copper_tap.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The copper bar with nine stools and the bottle wall behind it, the small stage with a mic and a guitar, four high tables, booths along the windows and in the corner, two leather armchairs and the dartboard by the restroom match the data (a bar with a stage and darts)."
+      ]
+    },
+    "eclat": {
+      "picture": "art/interiors/eclat.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The bar along the left, the lit dance floor, the DJ booth and a raised stage under lights, booths, high tables, velvet ropes and a terrace of sofas over the river match the data's nightclub with a stage. It came in one picture with the Forge site office and was cut out.",
+        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+      ]
+    },
+    "forge_site_office": {
+      "picture": "art/interiors/forge_site_office.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Two storeys in one cutaway: desks, filing cabinets and a copier on the upper deck, an outside stair, and a plan table with stools and a whiteboard below, as the data's site office. It came in one picture with ÉCLAT and was cut out.",
+        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+      ]
+    },
+    "thread_co": {
+      "picture": "art/interiors/thread_co.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Racks of everyday clothes, folding tables, fitting rooms with green curtains, the mirror wall and the checkout match the data. It came in one picture with the Riverside Clubhouse and was cut out.",
+        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+      ]
+    },
+    "riverside_clubhouse": {
+      "picture": "art/interiors/riverside_clubhouse.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The locker room: rows of green lockers with benches, shower stalls, towel cubbies, a drinks fridge and the trophy shelf, matching the data's locker shower and sports drinks. It came in one picture with Thread & Co. and was cut out.",
+        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+      ]
+    },
+    "circuit_electronics": {
+      "picture": "art/interiors/circuit_electronics.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Display tables of laptops and phones, a watch table, headphones on the wall and the long counter match what the data sells. The wooden door at the back is a staff door: the store has no restroom in the data.",
+        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+      ]
+    },
+    "paws_whiskers": {
+      "picture": "art/interiors/paws_whiskers.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Reception, shelves of pet food, kennels, a fenced indoor play yard with benches, cat trees and a small-animal pen match the data's shelter (visiting the animals, pet food).",
+        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+      ]
+    },
+    "suds_spin": {
+      "picture": "art/interiors/suds_spin.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Rows of washers and stacked dryers, a folding table, a long bench, a payment kiosk and a sink match the data's laundromat.",
+        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+      ]
+    },
+    "police_station": {
+      "picture": "art/interiors/police_station.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The front desk, a waiting row, an office of desks, three holding cells with bars and the academy classroom in the back match the data.",
+        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+      ]
+    },
+    "hale_partners": {
+      "picture": "art/interiors/hale_partners.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Partners' desks, the glass conference room with a black marble table, the statute library with armchairs and a marble reception match the data. Cut out of one picture of three offices (with James Wellness and a second Meridian Talent).",
+        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+      ]
+    },
+    "james_wellness": {
+      "picture": "art/interiors/james_wellness.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Two leather chairs in the therapy corner, a waiting sofa and armchairs, a tea counter and stairs up to the yoga room match the data. Cut out of one picture of three offices.",
+        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+      ]
+    },
+    "ellis_atelier": {
+      "picture": "art/interiors/ellis_atelier.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The sofa and armchair for clients, the design desk under the mood board, the cutting table, dress forms and the rail of finished pieces match the data. It came in one picture with Founders School and was cut out.",
+        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+      ]
+    },
+    "founders_school": {
+      "picture": "art/interiors/founders_school.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "A classroom of small desks facing the teacher's desk and board, beside the gym that doubles as the auditorium (a court, rows of folding chairs, a curtained stage), as the data says. The stage is scenery: the school isn't a stage in the game. It came in one picture with Ellis Atelier and was cut out.",
+        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+      ]
+    },
+    "lexington_1204": {
+      "picture": "art/interiors/lexington_1204.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Dominique's apartment: an L-sofa facing the TV, an island kitchen with three stools, a bedroom with a double bed, a bathroom with a glass shower, and steps up to the front door. A home: the room lets its residents walk, sit, sleep and do their chores where they happen once it's traced.",
+        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+      ]
+    },
+    "lexington_0904": {
+      "picture": "art/interiors/lexington_0904.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "A curved sofa, white stools at the island, flowers, a walk-in closet sorted by colour, a vanity and a double bed, matching the data's fresh flowers and sorted closet. It came in one picture with the shared Lexington one-bedroom and was cut out. A home: the room lets its residents walk, sit, sleep and do their chores where they happen once it's traced.",
+        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+      ]
+    },
+    "lexington_0807": {
+      "picture": "art/interiors/lexington_0807_1502.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The shared one-bedroom (Apt 0807 and Apt 1502, which the data describes alike, so nothing personal): an island kitchen, a sofa and the TV, a walk-in closet, a vanity, a double bed and a bathroom. It came in one picture with Apt 0904 and was cut out. A home: the room lets its residents walk, sit, sleep and do their chores where they happen once it's traced.",
+        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+      ]
+    },
+    "lexington_1502": {
+      "picture": "art/interiors/lexington_0807_1502.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The shared one-bedroom (Apt 0807 and Apt 1502, which the data describes alike, so nothing personal): an island kitchen, a sofa and the TV, a walk-in closet, a vanity, a double bed and a bathroom. It came in one picture with Apt 0904 and was cut out. A home: the room lets its residents walk, sit, sleep and do their chores where they happen once it's traced.",
+        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+      ]
+    },
+    "lexington_ph1": {
+      "picture": "art/interiors/lexington_ph1.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The penthouse: an island kitchen, a dining table for eight, an L-sectional and armchairs with the TV, three bedrooms, two bathrooms, a walk-in closet and a terrace with an outdoor table. The data says 'very little furniture yet'; the picture is furnished. A home: the room lets its residents walk, sit, sleep and do their chores where they happen once it's traced.",
+        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
       ]
     }
   },
@@ -721,12 +873,14 @@
       "The transit card is branding only: fares in the game are paid by card, cash or LivPay, and there is no transit-card item.",
       "The side view is a crop on a grey studio background, not a transparent sprite.",
       "The Founders Way & Main totem reads FOUNDERS WAY, as its prompt asked: the stop's name in the data is longer than a totem holds. Every totem's gold 1 is the line number, not the stop's place in the route.",
-      "bus_line_1_rear.webp is the rear three-quarter view (the rear and the left side): emerald livery, gold stripe, LIVÉRA TRANSIT and the 1 badge front and back, as asked. The client still draws its own shuttle on the map."
+      "bus_line_1_rear.webp is the rear three-quarter view (the rear and the left side): emerald livery, gold stripe, LIVÉRA TRANSIT and the 1 badge front and back, as asked. The client still draws its own shuttle on the map.",
+      "bus_line_1_front.webp is the front three-quarter view (the front and the right side with both doors): the destination sign reads 1 RIVERSIDE LOOP, LIVÉRA TRANSIT and the lotus along the side, the gold 1 badge, as asked. It came in one picture with the clinic and was cut out. The client still draws its own shuttle on the map."
     ],
     "livera_transit_mark": "art/transit/livera_transit_mark.png",
     "transit_card": "art/transit/transit_card.png",
     "route_line_1": "art/transit/route_line_1.jpg",
-    "bus_line_1_rear": "art/transit/bus_line_1_rear.webp"
+    "bus_line_1_rear": "art/transit/bus_line_1_rear.webp",
+    "bus_line_1_front": "art/transit/bus_line_1_front.webp"
   },
   "tiles": {
     "notes": [
@@ -805,5 +959,94 @@
       "The phones show an invented Livéra home screen with Messages, Transit, Pay and so on; the game's phone has 26 apps with other names, so the screens are decoration, not the real UI.",
       "The headphones and phones carry a lyre mark: the Lyra brand is the game's own."
     ]
+  },
+  "sprite_sheets": {
+    "$comment": "One sheet per person (founders by character id, created residents by their id under residents): art/sprites/characters/<id>/sheet.webp, from art/PROMPT_PACK_CHARACTERS.md.",
+    "theo-grant": {
+      "sheet": "art/sprites/characters/theo-grant/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The royal-blue zip hoodie, white tee, grey cargo joggers and white trainers match his sheet.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    },
+    "sienna": {
+      "sheet": "art/sprites/characters/sienna/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The burgundy moto jacket, black tank, black high-waisted trousers, black ankle boots and the black quilted bag match the data.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    },
+    "graham": {
+      "sheet": "art/sprites/characters/graham/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The navy V-neck over a light-blue collar, charcoal trousers, brown belt, brown oxfords and a strap watch match the data.",
+        "It came as one picture with Harper's sheet and was cut in half.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    },
+    "harper": {
+      "sheet": "art/sprites/characters/harper/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The mustard cardigan, floral blouse, dark jeans, cognac boots, brown tote and glasses match the data.",
+        "It came as one picture with Graham's sheet and was cut in half.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    },
+    "julian": {
+      "sheet": "art/sprites/characters/julian/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The black leather jacket, charcoal crewneck, black trousers, white sneakers, black watch and the laptop match the data.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    },
+    "leila": {
+      "sheet": "art/sprites/characters/leila/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The camel trench, black midi dress with a slit, black ankle boots and the oxblood bag match the data; in the two seated cells the dress is drawn as black trousers.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    },
+    "dominique": {
+      "sheet": "art/sprites/characters/dominique/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The black double-breasted blazer, blush-pink wrap blouse, black wide-leg trousers, patent pumps and the burgundy top-handle bag match the data.",
+        "It came as one picture with Dax's sheet and was cut in half.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    },
+    "dax": {
+      "sheet": "art/sprites/characters/dax/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The black fitted polo, black trousers, silver watch and the laptop under his arm match the data.",
+        "It came as one picture with Dominique's sheet and was cut in half.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    },
+    "aaliyah": {
+      "sheet": "art/sprites/characters/aaliyah/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The emerald satin blouse, black wide-leg trousers, gold cuffs and hoops, black bag and pumps match the data; the glass of champagne in her hand is the picture's own.",
+        "It came as one picture with Andre's sheet and was cut in half.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    },
+    "andre": {
+      "sheet": "art/sprites/characters/andre/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The olive suede bomber, black tank, black cargo pants and olive-and-white sneakers match the data.",
+        "It came as one picture with Aaliyah's sheet and was cut in half.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    }
   }
 }

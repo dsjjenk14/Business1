@@ -497,9 +497,9 @@ Parallax Labs: a tech startup office in the Downtown district. The game describe
 Size 1024×1024, transparent background. Save as art/places/parallax_labs.png
 ```
 
-#### Riverdale Clinic
+#### Riverdale Clinic (in the game)
 
-Save as `art/places/riverdale_clinic.png` · 1024×1024 · sign: RIVERDALE CLINIC
+Save as `art/places/riverdale_clinic.png` · 1024×1024 · sign: RIVERDALE CLINIC · filed as `art/places/riverdale_clinic.webp`
 
 Facts from the data:
 
@@ -1637,9 +1637,9 @@ Size 1536×1024, transparent background. Save as art/places/founders_way_site_fr
 
 ## Transit
 
-#### Bus: Line 1 · Riverside Loop, front view
+#### Bus: Line 1 · Riverside Loop, front view (in the game)
 
-Save as `art/transit/bus_line_1_front.png` · 1024×1024 · sign: LIVÉRA TRANSIT · 1
+Save as `art/transit/bus_line_1_front.png` · 1024×1024 · sign: LIVÉRA TRANSIT · 1 · filed as `art/transit/bus_line_1_front.webp`
 
 Facts from the data:
 

@@ -76,9 +76,9 @@ once its picture has data in `data/interiors/`.
 
 ### Civic Row
 
-#### Livéra Police Station
+#### Livéra Police Station (filed)
 
-Save as `art/interiors/police_station.png` · 1536×1024
+Save as `art/interiors/police_station.png` · 1536×1024 · filed as `art/interiors/police_station.webp`
 
 Facts from the data:
 
@@ -203,9 +203,9 @@ Body & Balance: the inside of a gym in the Downtown district. The game describes
 Size 1536×1024, transparent background. Save as art/interiors/body_balance.png
 ```
 
-#### Ellis Atelier
+#### Ellis Atelier (filed)
 
-Save as `art/interiors/ellis_atelier.png` · 1536×1024
+Save as `art/interiors/ellis_atelier.png` · 1536×1024 · filed as `art/interiors/ellis_atelier.webp`
 
 Facts from the data:
 
@@ -228,9 +228,9 @@ Ellis Atelier: the inside of a boutique in the Downtown district. The game descr
 Size 1536×1024, transparent background. Save as art/interiors/ellis_atelier.png
 ```
 
-#### Founders School
+#### Founders School (filed)
 
-Save as `art/interiors/founders_school.png` · 1536×1024
+Save as `art/interiors/founders_school.png` · 1536×1024 · filed as `art/interiors/founders_school.webp`
 
 Facts from the data:
 
@@ -277,9 +277,9 @@ Greenleaf Market: the inside of a grocery store in the Downtown district. The ga
 Size 1536×1024, transparent background. Save as art/interiors/greenleaf_market.png
 ```
 
-#### Hale & Partners
+#### Hale & Partners (filed)
 
-Save as `art/interiors/hale_partners.png` · 1536×1024
+Save as `art/interiors/hale_partners.png` · 1536×1024 · filed as `art/interiors/hale_partners.webp`
 
 Facts from the data:
 
@@ -328,9 +328,9 @@ Heritage Coffee Co.: the inside of a café in the Downtown district. The game de
 Size 1536×1024, transparent background. Save as art/interiors/heritage_coffee.png
 ```
 
-#### James Wellness
+#### James Wellness (filed)
 
-Save as `art/interiors/james_wellness.png` · 1536×1024
+Save as `art/interiors/james_wellness.png` · 1536×1024 · filed as `art/interiors/james_wellness.webp`
 
 Facts from the data:
 
@@ -502,9 +502,9 @@ Size 1536×1024, transparent background. Save as art/interiors/riverdale_clinic.
 
 ### Founders Way
 
-#### Circuit Electronics
+#### Circuit Electronics (filed)
 
-Save as `art/interiors/circuit_electronics.png` · 1536×1024
+Save as `art/interiors/circuit_electronics.png` · 1536×1024 · filed as `art/interiors/circuit_electronics.webp`
 
 Facts from the data:
 
@@ -597,9 +597,9 @@ Lumière Bistro: the inside of a restaurant in the Founders Way district. The ga
 Size 1536×1024, transparent background. Save as art/interiors/lumiere_bistro.png
 ```
 
-#### Paws & Whiskers Adoption Center
+#### Paws & Whiskers Adoption Center (filed)
 
-Save as `art/interiors/paws_whiskers.png` · 1536×1024
+Save as `art/interiors/paws_whiskers.png` · 1536×1024 · filed as `art/interiors/paws_whiskers.webp`
 
 Facts from the data:
 
@@ -670,9 +670,9 @@ Starlight Cinema: the inside of a cinema in the Founders Way district. The game 
 Size 1536×1024, transparent background. Save as art/interiors/starlight_cinema.png
 ```
 
-#### Suds & Spin Laundromat
+#### Suds & Spin Laundromat (filed)
 
-Save as `art/interiors/suds_spin.png` · 1536×1024
+Save as `art/interiors/suds_spin.png` · 1536×1024 · filed as `art/interiors/suds_spin.webp`
 
 Facts from the data:
 
@@ -693,9 +693,9 @@ Suds & Spin Laundromat: the inside of a laundromat in the Founders Way district.
 Size 1536×1024, transparent background. Save as art/interiors/suds_spin.png
 ```
 
-#### The Copper Tap
+#### The Copper Tap (filed)
 
-Save as `art/interiors/copper_tap.png` · 1536×1024
+Save as `art/interiors/copper_tap.png` · 1536×1024 · filed as `art/interiors/copper_tap.webp`
 
 Facts from the data:
 
@@ -719,9 +719,9 @@ The Copper Tap: the inside of a bar in the Founders Way district. The game descr
 Size 1536×1024, transparent background. Save as art/interiors/copper_tap.png
 ```
 
-#### Thread & Co.
+#### Thread & Co. (filed)
 
-Save as `art/interiors/thread_co.png` · 1536×1024
+Save as `art/interiors/thread_co.png` · 1536×1024 · filed as `art/interiors/thread_co.webp`
 
 Facts from the data:
 
@@ -874,9 +874,9 @@ Low End Studios: the inside of a recording studio in the Riverside district. The
 Size 1536×1024, transparent background. Save as art/interiors/low_end_studios.png
 ```
 
-#### Riverside Clubhouse
+#### Riverside Clubhouse (filed)
 
-Save as `art/interiors/riverside_clubhouse.png` · 1536×1024
+Save as `art/interiors/riverside_clubhouse.png` · 1536×1024 · filed as `art/interiors/riverside_clubhouse.webp`
 
 Facts from the data:
 
@@ -898,9 +898,9 @@ Riverside Clubhouse: the inside of a clubhouse in the Riverside district. The ga
 Size 1536×1024, transparent background. Save as art/interiors/riverside_clubhouse.png
 ```
 
-#### ÉCLAT
+#### ÉCLAT (filed)
 
-Save as `art/interiors/eclat.png` · 1536×1024
+Save as `art/interiors/eclat.png` · 1536×1024 · filed as `art/interiors/eclat.webp`
 
 Facts from the data:
 
@@ -925,9 +925,9 @@ Size 1536×1024, transparent background. Save as art/interiors/eclat.png
 
 ### South Works
 
-#### Forge Builders Site Office
+#### Forge Builders Site Office (filed)
 
-Save as `art/interiors/forge_site_office.png` · 1536×1024
+Save as `art/interiors/forge_site_office.png` · 1536×1024 · filed as `art/interiors/forge_site_office.webp`
 
 Facts from the data:
 
@@ -954,9 +954,9 @@ Size 1536×1024, transparent background. Save as art/interiors/forge_site_office
 
 ### Downtown
 
-#### The Lexington apartments (Apt 0807, Apt 1502)
+#### The Lexington apartments (Apt 0807, Apt 1502) (filed)
 
-Save as `art/interiors/lexington_0807_1502.png` · 1536×1024
+Save as `art/interiors/lexington_0807_1502.png` · 1536×1024 · filed as `art/interiors/lexington_0807_1502.webp`
 
 Facts from the data:
 
@@ -977,9 +977,9 @@ The Lexington apartments (Apt 0807, Apt 1502): the inside of a modern apartment 
 Size 1536×1024, transparent background. Save as art/interiors/lexington_0807_1502.png
 ```
 
-#### The Lexington, Apt 0904
+#### The Lexington, Apt 0904 (filed)
 
-Save as `art/interiors/lexington_0904.png` · 1536×1024
+Save as `art/interiors/lexington_0904.png` · 1536×1024 · filed as `art/interiors/lexington_0904.webp`
 
 Facts from the data:
 
@@ -1001,9 +1001,9 @@ The Lexington, Apt 0904: the inside of a modern apartment in the Downtown distri
 Size 1536×1024, transparent background. Save as art/interiors/lexington_0904.png
 ```
 
-#### The Lexington, Apt 1204
+#### The Lexington, Apt 1204 (filed)
 
-Save as `art/interiors/lexington_1204.png` · 1536×1024
+Save as `art/interiors/lexington_1204.png` · 1536×1024 · filed as `art/interiors/lexington_1204.webp`
 
 Facts from the data:
 
@@ -1049,9 +1049,9 @@ The Lexington, Apt 1801: the inside of a modern apartment in the Downtown distri
 Size 1536×1024, transparent background. Save as art/interiors/lexington_1801.png
 ```
 
-#### The Lexington, Penthouse
+#### The Lexington, Penthouse (filed)
 
-Save as `art/interiors/lexington_ph1.png` · 1536×1024
+Save as `art/interiors/lexington_ph1.png` · 1536×1024 · filed as `art/interiors/lexington_ph1.webp`
 
 Facts from the data:
 

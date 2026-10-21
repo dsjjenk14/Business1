@@ -180,6 +180,12 @@ TEST_CASE("art: the manifest links to files that exist and to real ids") {
     CHECK(r.contains("sheet"));
     CHECK(r.contains("avatar"));
   }
+  // A sprite sheet is of a founder or of a created resident listed above.
+  for (const auto& [id, s] : m["sprite_sheets"].items()) {
+    if (!isEntry(id)) continue;
+    CHECK((content->character(id) != nullptr || m["residents"].contains(id)));
+    CHECK(s.contains("sheet"));
+  }
   for (const auto& [key, p] : m["pets"].items()) {
     if (!isEntry(key)) continue;
     const auto colon = key.find(':');
