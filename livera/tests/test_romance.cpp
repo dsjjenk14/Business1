@@ -316,7 +316,7 @@ TEST_CASE("romance: breaking up and divorcing") {
 
 TEST_CASE("fame: performing makes you known; celebrities turn heads") {
   auto db = romanceContent({}, [](Json& doc, const std::string& file) {
-    if (file == "fame.json") doc["fame"]["celebrity_at"] = 30;
+    if (file == "fame.json") doc["fame"]["celebrity_at"] = 29;  // Andre starts at 30; a little fades on the walk over
   });
   World w = World::createNew(db);
   for (const char* id : {"andre", "dominique"}) REQUIRE(w.connect(id));

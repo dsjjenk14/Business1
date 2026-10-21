@@ -31,8 +31,9 @@ struct Town {
     pilot.step(world, seconds);
     pilot.observe(world.drainEvents());
   }
-  // Ticks until `done` holds or `seconds` of real time have passed; true if it held.
-  bool runUntil(double seconds, const std::function<bool()>& done) {
+  // Ticks until `done` holds or `minutes` of game time have passed (the real time they stand for); true if it held.
+  bool runUntil(double minutes, const std::function<bool()>& done) {
+    const double seconds = minutes / world.content().sim().minutesPerRealSecond;
     for (double t = 0; t < seconds; t += 0.5) {
       if (done()) return true;
       tick();
@@ -248,11 +249,11 @@ std::shared_ptr<const ContentDatabase> cafeContent(double chat, const Json& asks
     if (file == "dax.json")
       doc["characters"][0]["profile"]["schedule"]["weekdays"] =
           Json::array({Json{{"time", "07:00"}, {"activity", "Heritage Coffee"}},
-                       Json{{"time", "10:00"}, {"activity", "Parallax Labs"}, {"work", true}}});
+                       Json{{"time", "13:00"}, {"activity", "Parallax Labs"}, {"work", true}}});
     if (file == "julian.json")
       doc["characters"][0]["profile"]["schedule"]["weekdays"] =
           Json::array({Json{{"time", "07:00"}, {"activity", "Heritage Coffee"}},
-                       Json{{"time", "10:00"}, {"activity", "Parallax Labs"}, {"work", true}}});
+                       Json{{"time", "13:00"}, {"activity", "Parallax Labs"}, {"work", true}}});
     if (file == "manners.json") {
       Json& c = doc["autopilot_manners"]["chat"];
       c["base"] = chat;
@@ -290,7 +291,8 @@ struct WatchedTown : Town {
     pilot.observe(batch);
     for (auto& e : batch) events.push_back(std::move(e));
   }
-  bool runUntil(double seconds, const std::function<bool()>& done) {
+  bool runUntil(double minutes, const std::function<bool()>& done) {  // as above: game minutes
+    const double seconds = minutes / world.content().sim().minutesPerRealSecond;
     for (double t = 0; t < seconds; t += 0.5) {
       if (done()) return true;
       tick();
@@ -313,20 +315,23 @@ TEST_CASE("autopilot manners: a founder greets a person once per game day, by na
   CHECK(hi[0]["text"].get<std::string>().find("Dominique") != std::string::npos);  // they know each other
   CHECK(t.logged("greet"));
   CHECK(t.stat("dax", "greetings") == 1);
-  // The rest of the morning together: no second greeting the same day.
-  t.runUntil(60, [] { return false; });
-  CHECK(heard(t.events, "dominique", "dax").size() == 1);
-  // A stranger is greeted without a name.
+  // A stranger is greeted without a name (while Dax is still at the café: the walk over takes game time).
   std::ifstream in(std::string(LIVERA_DATA_DIR) + "/../scripts/demo/sol_rivera.json");
   auto sol = t.world.createCharacter(Json::parse(in));
   REQUIRE(sol);
   REQUIRE(t.world.connect(sol.value()));
   walkInto(t.world, sol.value(), "heritage_coffee");
-  REQUIRE(t.runUntil(20, [&] { return !heard(t.events, sol.value(), "dax").empty(); }));
+  REQUIRE(t.runUntil(45, [&] { return !heard(t.events, sol.value(), "dax").empty(); }));  // his next turn: up to kIdleCapSeconds of real time
   for (const auto& line : heard(t.events, sol.value(), "dax"))
     CHECK(line["text"].get<std::string>().find("Sol") == std::string::npos);
-  // Another day, another greeting.
-  t.skipTo(6, 55);
+  // The rest of the morning together: no second greeting the same day (Dominique overheard the one to Sol).
+  t.runUntil(30, [] { return false; });
+  CHECK(t.stat("dax", "greetings") == 2);
+  // Another day, another greeting. The town lives through the night, as the server runs it, so the autopilot puts
+  // Dax to bed and feeds him; leaping the clock instead would wake him exhausted and starving, too late for coffee.
+  const GameMinutes morning = (t.world.now() / kMinutesPerDay + 1) * kMinutesPerDay + 6 * 60 + 55;
+  REQUIRE(t.runUntil(kMinutesPerDay, [&] { return t.world.now() >= morning; }));
+  walkInto(t.world, "dominique", "heritage_coffee");
   const std::size_t before = heard(t.events, "dominique", "dax").size();
   REQUIRE(t.runUntil(300, [&] { return heard(t.events, "dominique", "dax").size() > before; }));
 }

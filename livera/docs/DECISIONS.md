@@ -992,3 +992,19 @@ gets its own decision entry when it is built.
 they like about today's game (the open map, chores as part of a life).
 **Trade-off:** Keeping chores and the full day means a session is longer than either studio proposed; the faster clock
 and a speed control are how a phone session still fits.
+
+## D-075 — A faster clock: 2 game minutes per real second, walking at 10 m/s and the bus at 40 m/s
+**Decision:** `simulation.minutes_per_real_second` goes from 1 to 2 (a game day is 12 real minutes), with
+`walk_speed_mps` 6 → 10 and the bus line's `speed_mps` 24 → 40, all in data. Walking speed rises less than the clock,
+so a walk costs a little more game time than before (5 m a game minute instead of 6): crossing town is still part of the
+day, not instant. Code that mixed the two units now converts: the autopilot's wait at a closed door is the game minutes
+until it opens turned into real seconds (clamped to 1.5–15), and the tests run the town in game minutes at the data's
+rate instead of assuming one a second. The people stream's cut margin follows the faster bus (40 m, one capped server
+tick), and a cut is renewed 2 m before the viewer could see where it ends, since at 10 m/s a viewer covers the old
+margin's slack within a tick. Supersedes D-015's rate; the rate stays data-tunable.
+**Why:** The owner said yes to faster days (D-071): a 24-minute day doesn't fit a phone session or a few friends'
+evening. Doubling the rate halves the day; raising walk and bus speeds keeps the autopilot's visits and a player's
+errands inside the hours places are open.
+**Trade-off:** Needs decay per game hour, so they fall twice as fast in real time: a player looks after their character
+more often. 10 m/s is a sprint if you think in metres, but the town is drawn small; the walk cycle sells it. The speed
+control (1×, 2×, 3× for the single-player and Play together hosts) is a separate step.

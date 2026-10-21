@@ -8,7 +8,7 @@
         "id": "line_1",
         "name": "Line 1 · Riverside Loop",
         "fare_cents": 275,
-        "speed_mps": 24,
+        "speed_mps": 40,
         "hours": [5, 1],
         "inspection_chance": 0.15,
         "evasion_fine_cents": 10000,

@@ -1479,7 +1479,9 @@ struct Autopilot::Impl {
       if (wait > 0) {
         logOnce(w, b, "wait|" + target + "|" + std::to_string(plan.day), "wait",
                 nameOf(w, target) + " is closed; waits at the door (opens in about " + std::to_string(wait) + " min)");
-        pause(b, std::min(15, std::max(3, wait)));
+        // `wait` is game minutes; the pause is real seconds.
+        const double rate = std::max(w.content().sim().minutesPerRealSecond, 0.01);
+        pause(b, std::clamp(wait / rate, 1.5, 15.0));
         return;
       }
     }
