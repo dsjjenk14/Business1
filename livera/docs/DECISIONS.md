@@ -1008,3 +1008,18 @@ errands inside the hours places are open.
 **Trade-off:** Needs decay per game hour, so they fall twice as fast in real time: a player looks after their character
 more often. 10 m/s is a sprint if you think in metres, but the town is drawn small; the walk cycle sells it. The speed
 control (1×, 2×, 3× for the single-player and Play together hosts) is a separate step.
+
+## D-076 — Release 5 is Golden Hour, combined with the best of Talk of the Town
+**Decision:** The owner now prefers Studio Kinetic's Golden Hour and asked for the two pitches combined as well as
+possible. Release 5 follows `docs/proposals/golden_hour_build.md`: Golden Hour's frame ("days are yours, nights are
+ours": a live golden hour every evening, Beat Brawl, group moments secretly picked, the close room camera, Heart,
+Hustle and Heat, the crew and callouts, an optional day planner, the Golden Hour Pass and Town Pass), with Talk of the
+Town's social media as the morning, scenes and secrets, knowledge that sharpens fight tells, story threads, standing
+orders and the scene director. The owner's D-071 changes still win where Golden Hour differs: chores stay, the day is
+lived hour by hour on the open map (the planner is optional), and the town's story comes through social media, not a
+newspaper. Supersedes D-071's choice of studio, not its changes.
+**Why:** The owner's words. The showdown's panel had already scored Golden Hour higher (88.5 to 86.5, four votes of
+seven) and recommended its frame with six of Ember's ideas; this keeps those six and the owner's own changes.
+**Trade-off:** Beat Brawl replaces Square Up, so the fight becomes a timing game played beat by beat; the World judges
+each beat, which keeps it fair across phones but asks more of the Play together relay than a three-choice exchange.
+The work already in flight (figures, more people, the social app, the clock, rooms) serves both pitches and carries on.

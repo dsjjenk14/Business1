@@ -201,7 +201,7 @@ Server and core half (the client half is tracked in `web/README.md`):
 | Street life, the first GTA step: shoplifting only in shops the data names, read-only `crime_risk` (the odds from who could see you, and the consequence ladder), officers in uniform in `look` and the people stream, wanted and held in `look.you` and the Record app; in the client, Shoplift / Pick a pocket / the Underpass after dark with the odds first, the Wanted and Held chips, the cell's card (D-069) | ✅ (`tests/test_street.cpp`, `tests/test_server.cpp`, `web/tests/moments_e2e.js`) |
 | Fist fights: `fight` / `fight_respond` / `fight_prefs`, the person attacked chooses (fight back, run, take it) or always walks away, injuries as conditions the clinic treats, assault only when a blow lands, one fight a pair a day, protection afterwards (D-070) | ✅ (`tests/test_street.cpp`, `tests/test_server.cpp`, `web/tests/moments_e2e.js`) |
 
-## Release 5: Talk of the Town, the owner's way (D-071, `docs/proposals/talk_of_the_town_build.md`)
+## Release 5: Golden Hour, with the best of Talk of the Town (D-076, `docs/proposals/golden_hour_build.md`)
 
 | Item | Status |
 |---|---|

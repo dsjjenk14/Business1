@@ -1,5 +1,8 @@
 # Building Talk of the Town, the owner's way (Release 5)
 
+**Superseded by `golden_hour_build.md` (D-076):** the owner then chose Golden Hour as the frame, combined with the best
+of Talk of the Town. The owner's changes listed below still hold.
+
 After the redesign showdown (`docs/proposals/showdown/`), the owner chose Studio Ember's **Talk of the Town**
 (`showdown/talk_of_the_town.md`) with these changes, in their words:
 
