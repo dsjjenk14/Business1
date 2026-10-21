@@ -145,9 +145,9 @@ The Livéra Ledger: a newsroom in the Civic Row district. The game describes it:
 Size 1024×1024, transparent background. Save as art/places/livera_ledger.png
 ```
 
-#### Whitaker Capital
+#### Whitaker Capital (in the game)
 
-Save as `art/places/whitaker_capital.png` · 1024×1024 · sign: WHITAKER CAPITAL
+Save as `art/places/whitaker_capital.png` · 1024×1024 · sign: WHITAKER CAPITAL · filed as `art/places/whitaker_capital.webp`
 
 Facts from the data:
 
@@ -222,9 +222,9 @@ Ellis Atelier: a boutique in the Downtown district. The game describes it: "Naom
 Size 1024×1024, transparent background. Save as art/places/ellis_atelier.png
 ```
 
-#### Founders Park
+#### Founders Park (in the game)
 
-Save as `art/places/founders_park.png` · 1024×1024 · sign: FOUNDERS PARK
+Save as `art/places/founders_park.png` · 1024×1024 · sign: FOUNDERS PARK · filed as `art/places/founders_park.webp`
 
 Facts from the data:
 
@@ -447,9 +447,9 @@ Lustre Jewelers: a jeweler in the Downtown district. The game describes it: "Gla
 Size 1024×1024, transparent background. Save as art/places/lustre_jewelers.png
 ```
 
-#### Meridian Talent Partners
+#### Meridian Talent Partners (in the game)
 
-Save as `art/places/meridian_talent.png` · 1024×1024 · sign: MERIDIAN TALENT
+Save as `art/places/meridian_talent.png` · 1024×1024 · sign: MERIDIAN TALENT · filed as `art/places/meridian_talent.webp`
 
 Facts from the data:
 
@@ -626,9 +626,9 @@ Founders Animal Hospital: a veterinary clinic in the Founders Way district. The 
 Size 1024×1024, transparent background. Save as art/places/founders_animal_hospital.png
 ```
 
-#### Lumière Bistro
+#### Lumière Bistro (in the game)
 
-Save as `art/places/lumiere_bistro.png` · 1024×1024 · sign: LUMIÈRE BISTRO
+Save as `art/places/lumiere_bistro.png` · 1024×1024 · sign: LUMIÈRE BISTRO · filed as `art/places/lumiere_bistro.webp`
 
 Facts from the data:
 
@@ -776,9 +776,9 @@ The Copper Tap: a bar in the Founders Way district. The game describes it: "A lo
 Size 1024×1024, transparent background. Save as art/places/copper_tap.png
 ```
 
-#### Thread & Co.
+#### Thread & Co. (in the game)
 
-Save as `art/places/thread_co.png` · 1024×1024 · sign: THREAD & CO.
+Save as `art/places/thread_co.png` · 1024×1024 · sign: THREAD & CO. · filed as `art/places/thread_co.webp`
 
 Facts from the data:
 
@@ -1254,9 +1254,9 @@ LIVÉRA town sprite. Isometric 2:1 (30°) view from the south-west, warm golden-
 Size 1024×1024, transparent background. Save as art/places/willow_lane_4.png
 ```
 
-#### 6 Willow Lane
+#### 6 Willow Lane (in the game)
 
-Save as `art/places/willow_lane_6.png` · 1024×1024 · sign: 6
+Save as `art/places/willow_lane_6.png` · 1024×1024 · sign: 6 · filed as `art/places/willow_lane_6.webp`
 
 Facts from the data:
 
@@ -1659,9 +1659,9 @@ The Line 1 · Riverside Loop bus, the town's only vehicle: a modern low-floor ci
 Size 1024×1024, transparent background. Save as art/transit/bus_line_1_front.png
 ```
 
-#### Bus: Line 1 · Riverside Loop, rear view
+#### Bus: Line 1 · Riverside Loop, rear view (in the game)
 
-Save as `art/transit/bus_line_1_rear.png` · 1024×1024 · sign: LIVÉRA TRANSIT · 1
+Save as `art/transit/bus_line_1_rear.png` · 1024×1024 · sign: LIVÉRA TRANSIT · 1 · filed as `art/transit/bus_line_1_rear.webp`
 
 Facts from the data:
 
@@ -1799,9 +1799,9 @@ Bus shelter for the stop "Founders Way & Main", stop 2 of 7 on Line 1 · Riversi
 Size 1024×1024, transparent background. Save as art/transit/stops/stop_founders_main.png
 ```
 
-#### Stop: Lexington Ave & River Rd
+#### Stop: Lexington Ave & River Rd (in the game)
 
-Save as `art/transit/stops/stop_lexington_ave.png` · 1024×1024 · sign: 1 · LEXINGTON AVE
+Save as `art/transit/stops/stop_lexington_ave.png` · 1024×1024 · sign: 1 · LEXINGTON AVE · filed as `art/transit/stops/stop_lexington_ave.webp`
 
 Facts from the data:
 

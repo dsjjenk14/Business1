@@ -83,7 +83,7 @@ BRIDGE_LAMPS = [(360, 710), (612, 572), (873, 440), (1209, 285), (1454, 130),
                 (160, 590), (485, 400), (796, 275), (1066, 140), (1334, 55)]
 # Bus shelters with a full picture; "ground" is near the back corner of the shelter's paved slab, so
 # that standing at the stop the shelter is in front of it, clear of the road behind.
-STOPS = ["stop_founders_main", "stop_church_street", "stop_civic_row", "stop_maple_court"]
+STOPS = ["stop_founders_main", "stop_church_street", "stop_civic_row", "stop_maple_court", "stop_lexington_ave"]
 STOP_ANCHORS = {"ground": (850, 610)}
 STOP_WIDTH = 360
 

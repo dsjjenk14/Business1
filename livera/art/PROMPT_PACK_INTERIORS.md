@@ -43,9 +43,10 @@ Every prompt below repeats this in brief, so you can paste any single prompt on 
 
 ## What these prompts are not
 
-- **Walking around inside and sitting are not in the game yet.** Today a character who enters a
-  place is inside it, without a position in a room. These pictures are made first so the rooms can
-  be built from them (see "How a picture becomes a room you can walk in").
+- **Walking around inside and sitting work only in rooms whose data is traced** (`data/interiors/`,
+  D-066). Elsewhere a character who enters a place is inside it without a position in a room, and
+  the web client shows the scene card. A picture becomes a room as described in "How a picture
+  becomes a room you can walk in".
 - **Room sizes and furnishings beyond the description are art direction**, written in this
   script, not facts from the game. The facts under each prompt say which is which.
 - **Pictures show no people.** Who works or lives somewhere is listed as a fact, so the room suits
@@ -55,18 +56,21 @@ Every prompt below repeats this in brief, so you can paste any single prompt on 
 
 ## How a picture becomes a room you can walk in
 
-Each picture becomes one room in three steps. Only the first is in the game's art so far.
+Each picture becomes one room in three steps (D-066). The rules are built; a place gets its room
+once its picture has data in `data/interiors/`.
 
 1. **The picture** (this pack): one cutaway room at the town's camera angle, to scale, with a piece
    of furniture for every activity and clear floor between them.
-2. **The room's data** (planned: `data/interiors/<id>.json`, checked by `ContentDatabase` like the
-   rest of the content): the walkable floor traced from the picture, and its spots, each a seat,
-   bed, counter, stage or fixture with its position, the way a character faces there, and the
-   activity it serves (`nap` → the sofa, `shower` → the shower, a shop's offers → its counter).
-3. **The rules** (planned, in `World`, like every other change of state): moving to a point inside,
-   taking a spot and leaving it. The server decides who sits where, so two people can't take the
-   same chair, and an activity is done at its spot. Clients then draw the room from the picture
-   and each person at their place in it.
+2. **The room's data** (`data/interiors/<id>.json`, checked by `ContentDatabase` like the rest of
+   the content; the format is in `docs/DATA_MODEL.md`): the walkable floor traced from the picture,
+   the furniture standing on it, and its spots, each a seat, bed, counter, stage or fixture with
+   its position, the way a character faces there, and the activity it serves (`nap` → the sofa,
+   `shower` → the shower, a shop's offers → its counter). Then `scripts/client_rooms.py` makes the
+   web client's copy of the picture.
+3. **The rules** (in `World`, like every other change of state): moving to a point inside, taking
+   a spot and leaving it (`move_inside`, `sit`, `stand`). The server decides who sits where, so two
+   people can't take the same chair, and an activity is done at its spot. Clients draw the room
+   from the picture and each person at their place in it.
 
 ## Places
 
@@ -819,9 +823,9 @@ Livéra General Hospital: the inside of a hospital in the Riverside district. Th
 Size 1536×1024, transparent background. Save as art/interiors/livera_general.png
 ```
 
-#### Livéra University
+#### Livéra University (filed)
 
-Save as `art/interiors/livera_university.png` · 1536×1024
+Save as `art/interiors/livera_university.png` · 1536×1024 · filed as `art/interiors/livera_university.webp`
 
 Facts from the data:
 

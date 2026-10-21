@@ -397,6 +397,48 @@
         "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
         "The lecture hall with its colonnade, the glass library and the river quay match the data's 'new campus on the river'. The framed wing behind a fence is the picture's reading of the law clinic still being built; the game has no project for it, so it is scenery, not a construction site."
       ]
+    },
+    "thread_co": {
+      "sprite": "art/places/thread_co.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Racks of everyday clothes and folding tables through the windows match the data; the mirror wall and the sale bin are inside and not shown."
+      ]
+    },
+    "willow_lane_6": {
+      "sprite": "art/places/willow_lane_6.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The third Willow Lane house, carrying the number 6: porch, back yard with a table, a young tree. 8 Willow Lane has no picture yet."
+      ]
+    },
+    "founders_park": {
+      "sprite": "art/places/founders_park.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The fountain, benches, lamps, lawns and the FOUNDERS PARK sign are the picture's own (the data describes the park only by its activities). The client stands it on the park's square lot in place of the hand-drawn oval (PARK_ART in web/client/layout.js)."
+      ]
+    },
+    "meridian_talent": {
+      "sprite": "art/places/meridian_talent.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A glass-and-stone office with meeting rooms behind the windows, as the data's 'new office' suggests; the sign reads MERIDIAN TALENT, the prompt's short sign."
+      ]
+    },
+    "lumiere_bistro": {
+      "sprite": "art/places/lumiere_bistro.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Candlelit tables, the wine wall through the windows and a terrace, matching the data's date-night spot; the terrace seating is the picture's own."
+      ]
+    },
+    "whitaker_capital": {
+      "sprite": "art/places/whitaker_capital.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Glass, walnut and the model of the future city on the first floor, as the data says. The model's towers are that future city, not the founding town."
+      ]
     }
   },
   "unit_buildings": {
@@ -605,6 +647,13 @@
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "Reception, waiting chairs, the exam room with a steel table and the recovery kennels (empty) match the data."
       ]
+    },
+    "livera_university": {
+      "picture": "art/interiors/livera_university.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The lecture hall with rising seats and a lectern, the library's reading tables and shelves, and a coffee counter by the door (the picture's own) match the data's one finished lecture hall and library."
+      ]
     }
   },
   "transit": {
@@ -630,18 +679,23 @@
         "sprite": "art/transit/stops/stop_civic_row.webp",
         "crop": "art/transit/stops/stop_civic_row.jpg"
       },
-      "stop_lexington_ave": "art/transit/stops/stop_lexington_ave.jpg"
+      "stop_lexington_ave": {
+        "sprite": "art/transit/stops/stop_lexington_ave.webp",
+        "crop": "art/transit/stops/stop_lexington_ave.jpg"
+      }
     },
     "notes": [
-      "Four stops now have a full shelter sprite (stops/<stop_id>.webp, isometric, golden hour, transparent, from PROMPT_PACK_TOWN.md): Founders Way & Main, Maple Court, Church Street (two near-identical versions) and Civic Row; their `crop` is the earlier small panel from the bus collage. Riverside Lofts and Founders Park still have only the crop (the first and fifth panels of the collage's bottom row, about 300x190, unnamed); Lexington Ave & River Rd has its own full shelter picture whose route list names all seven real stops.",
+      "Five stops now have a full shelter sprite (stops/<stop_id>.webp, isometric, golden hour, transparent, from PROMPT_PACK_TOWN.md): Founders Way & Main, Maple Court, Church Street (two near-identical versions), Civic Row and Lexington Ave & River Rd (its tree and planters are the picture's own); their `crop` is the earlier small panel from the bus collage. Riverside Lofts and Founders Park still have only the crop (the first and fifth panels of the collage's bottom row, about 300x190, unnamed); Lexington Ave & River Rd has its own full shelter picture whose route list names all seven real stops.",
       "The route diagram names the seven real stops in order and the real $2.75 fare; its geography (the river, the loop's shape, a 'Rivéra River') is stylised and not the game's coordinates.",
       "The transit card is branding only: fares in the game are paid by card, cash or LivPay, and there is no transit-card item.",
       "The side view is a crop on a grey studio background, not a transparent sprite.",
-      "The Founders Way & Main totem reads FOUNDERS WAY, as its prompt asked: the stop's name in the data is longer than a totem holds. Every totem's gold 1 is the line number, not the stop's place in the route."
+      "The Founders Way & Main totem reads FOUNDERS WAY, as its prompt asked: the stop's name in the data is longer than a totem holds. Every totem's gold 1 is the line number, not the stop's place in the route.",
+      "bus_line_1_rear.webp is the rear three-quarter view (the rear and the left side): emerald livery, gold stripe, LIVÉRA TRANSIT and the 1 badge front and back, as asked. The client still draws its own shuttle on the map."
     ],
     "livera_transit_mark": "art/transit/livera_transit_mark.png",
     "transit_card": "art/transit/transit_card.png",
-    "route_line_1": "art/transit/route_line_1.jpg"
+    "route_line_1": "art/transit/route_line_1.jpg",
+    "bus_line_1_rear": "art/transit/bus_line_1_rear.webp"
   },
   "tiles": {
     "notes": [

@@ -156,7 +156,8 @@ export const SITE_ART_CRANES = new Set(["maple_court_ii_site", "eclat_site_frame
 // square lot it stands on. Willow Lane crosses the sketch's oval for Willow Lake Park, so the
 // picture takes the square between Lakeshore Drive and Willow Lane; the sketch's lake, boardwalk
 // and trees inside it give way to the picture's.
-export const PARK_ART = { willow_lake_park: { x0: 266, x1: 318, y0: 646, y1: 698 } };
+export const PARK_ART = { willow_lake_park: { x0: 266, x1: 318, y0: 646, y1: 698 },
+                          founders_park: { x0: 360, x1: 440, y0: 310, y1: 390 } };
 // Road works: while a road's project is active and SITE_FRAMED_PCT along, the picture of its works
 // (client/sprites/<site>_framed.webp, the site being the construction-site place whose door is on
 // the road) is laid along the road from x `from` to `to`, next to the site's door but clear of the
