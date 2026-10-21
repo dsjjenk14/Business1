@@ -344,7 +344,7 @@ export class TownHost {
         s.push({ k: "rep", id, ...fail("rate_limited", "slow down") });
         return;
       }
-      if ((item.op === "say" || item.op === "message") && !s.chat.allow()) { s.push({ k: "rep", id, ...fail("chat_rate_limited", "you're talking too fast") }); return; }
+      if (["say", "message", "post", "comment"].includes(item.op) && !s.chat.allow()) { s.push({ k: "rep", id, ...fail("chat_rate_limited", "you're talking too fast") }); return; }
       s.push({ k: "rep", id, ...this.answer(s, item.op, item.args) });
     } else if (item.k === "bye") this.endSession(s, "bye");
   }

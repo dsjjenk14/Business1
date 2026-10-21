@@ -81,6 +81,7 @@ add_library(livera_core
   src/core/Interiors.cpp
   src/core/LifeEvents.cpp
   src/core/Fights.cpp
+  src/core/Social.cpp
   src/core/WorkTasks.cpp
   src/core/Wallet.cpp
   src/core/Leisure.cpp

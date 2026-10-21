@@ -1003,8 +1003,14 @@ struct AutopilotAskRule {
   StatMap min;       // their own side of the relationship with the asker: dimension -> at least
 };
 
+struct AutopilotReplyRule {
+  StatMap min;                     // their own side of the relationship with the writer
+  bool known = false;              // only someone they've met
+  std::vector<std::string> lines;  // "{first}" is the writer's first name
+};
+
 struct AutopilotMannersConfig {
-  double greetRangeMeters = 20;              // outdoors (inside: anyone in the building); within say range
+  double greetRangeMeters = 20;             // outdoors (inside: anyone in the building); within say range
   std::vector<std::string> greetKnown;       // to someone they know; "{first}" is that person's first name
   std::vector<std::string> greetStranger;    // to someone they've never met
   std::string chatInteraction;               // the interaction a chat is (empty = they never start one)
@@ -1013,6 +1019,12 @@ struct AutopilotMannersConfig {
   double chatPerTrait = 0;
   double chatPerFriendship = 0;
   std::vector<AutopilotAskRule> asks;        // kinds not listed are declined
+  // Messages (D-074): someone it plays reads a message between read_after_minutes after it arrives (awake, in the
+  // world, not on shift) and answers with the first rule whose minimums its own side of the relationship meets.
+  int readMinMinutes = 2;
+  int readMaxMinutes = 20;
+  int repliesPerDay = 3;                     // per person writing to it, so a long thread doesn't get endless replies
+  std::vector<AutopilotReplyRule> replies;   // empty = it reads (seen) but never answers
 };
 
 // --- interiors: rooms you walk around in (Interiors.cpp, D-066) ---
@@ -1185,6 +1197,67 @@ struct FightsConfig {
   int witnessImpact = -15;
 };
 
+// --- Social media (Social.cpp, D-074): data/society/social.json ---
+// A voice is how someone writes, picked from their personality: the first voice whose minimums and maximums the
+// character's traits meet; lines for a voice a moment doesn't have fall back to its "default" lines.
+struct SocialVoiceDef {
+  std::string id;
+  StatMap min;
+  StatMap max;
+};
+
+// Something that really happened to someone that a character a script plays posts about: a memory of type `memory`
+// (or "checkin": walking into a place of one of auto.checkin_place_types).
+struct SocialMomentDef {
+  std::string memory;
+  std::string topic;
+  double chance = 1;
+  std::map<std::string, std::vector<std::string>> lines;  // voice -> lines; "default" always there
+};
+
+// What the gossip account posts about: a witnessed scene of a kind the World reports (fight, argument, arrest, kiss).
+struct SocialGossipKindDef {
+  std::string kind;
+  std::string topic;
+  double chance = 1;
+  std::vector<std::string> interactions;  // argument: the interactions that are one
+  std::vector<std::string> placeTypes;    // only in these kinds of place (empty = anywhere)
+  StatMap relationship;                   // how hearing about it changes the hearer's side toward whoever did it
+  std::vector<std::string> lines;         // what happened
+  std::vector<std::string> twisted;       // what didn't, quite
+};
+
+struct SocialConfig {
+  bool enabled = false;
+  int postMaxLength = 280, postMinGapMinutes = 10, postsPerDay = 12, maxTags = 4;
+  int commentMaxLength = 200, commentMinGapMinutes = 1, commentsPerDay = 40, commentsPerPost = 40;
+  int likesPerDay = 150;
+  int maxFollowing = 200;
+  int feedLimit = 40, keptPosts = 600, commentsShown = 3, activityKept = 60, mapPostHours = 6;
+  double famePerFollower = 0.4, famePerLike = 0.05, fameMaxPerDay = 2;
+  StatMap likeRelationship, commentRelationship, followRelationship;  // the author's side toward who did it
+  int notifyPerHour = 4;
+  StatMap seedFollowMin;  // at a world's founding, people follow whoever they already know this well
+  Cents statusMinPriceCents = 0;
+  std::vector<std::string> statusCategories, statusExcept;
+  std::map<std::string, std::string> topics;  // topic -> label
+  int autoPerDay = 3, autoMinGapMinutes = 90, autoDelayMin = 8, autoDelayMax = 75, autoKeepHours = 18;
+  std::string autoTrait;
+  double autoBase = 0.3, autoPerTrait = 0.6;
+  std::vector<std::string> checkinPlaceTypes;
+  double checkinTagMinFriendship = 30;
+  std::vector<SocialVoiceDef> voices;
+  std::vector<SocialMomentDef> moments;
+  // The anonymous gossip account.
+  std::string unfilteredHandle, unfilteredName, unfilteredBio, unfilteredSecret;
+  CharacterId unfilteredRunner;  // whoever's data holds the secret (resolved at load)
+  int unfilteredMinHeard = 1, unfilteredDelayMinutes = 30, unfilteredPerDay = 5;
+  double unfilteredTwistChance = 0.3;
+  std::vector<SocialGossipKindDef> gossipKinds;
+  const SocialMomentDef* moment(const std::string& memory) const;
+  const SocialGossipKindDef* gossipKind(const std::string& kind) const;
+};
+
 class ContentDatabase {
  public:
   // Loads every *.json under `dir` (recursively, sorted for determinism) and merges them.
@@ -1270,6 +1343,7 @@ class ContentDatabase {
   const std::map<std::string, LifeEventDef>& lifeEvents() const { return lifeEventDefs_; }
   const LifeEventDef* lifeEvent(const std::string& id) const;
   const FightsConfig& fights() const { return fights_; }
+  const SocialConfig& social() const { return social_; }  // social media (Social.cpp, D-074)
   const GoalsConfig& goals() const { return goals_; }
   const AspirationDef* aspiration(const std::string& id) const;
   const AspirationDef* aspirationForCreatorGoal(const std::string& creatorGoal) const;
@@ -1333,6 +1407,8 @@ class ContentDatabase {
   Status validateLifeEvents() const;
   Status ingestFights(const std::string& source, const std::string& section, const Json& body, bool& handled);
   Status validateFights() const;
+  Status ingestSocial(const std::string& source, const std::string& section, const Json& body, bool& handled);
+  Status validateSocial();  // resolves the gossip account's runner from the secret, so not const
   Status validateInteriors() const;
   Status validate() const;
 
@@ -1405,6 +1481,7 @@ class ContentDatabase {
   LifeEventsConfig lifeEvents_;
   std::map<std::string, LifeEventDef> lifeEventDefs_;
   FightsConfig fights_;                                      // fist fights (Fights.cpp)
+  SocialConfig social_;                                      // social media (Social.cpp)
 };
 
 }  // namespace livera

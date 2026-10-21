@@ -565,7 +565,7 @@ Result<Json> World::adoptPet(const CharacterId& actor, const std::string& petId,
   m.importance = kAdoptionImportance;
   m.emotionalImpact = kAdoptionImpact;
   m.info = "Adopted " + mine.name + ", " + withArticle(lower(species->label));
-  addMemory(std::move(m));
+  addMemory(std::move(m), Json{{"pet", mine.name}});
   const CharacterDef* me = definition(actor);
   for (const auto& other : householdOf(mine)) {
     if (other != actor)

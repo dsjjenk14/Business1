@@ -301,7 +301,9 @@ void Server::handleLine(Session& s, const std::string& line) {
     return;
   }
   const std::string opName = req["op"].get<std::string>();
-  if ((opName == "say" || opName == "message") && !s.chatLimiter.allow(monotonicSeconds())) {
+  // Anything others read (speech, messages, posts and comments: D-074) shares the chat limit.
+  if ((opName == "say" || opName == "message" || opName == "post" || opName == "comment") &&
+      !s.chatLimiter.allow(monotonicSeconds())) {
     send(s, Json{{"re", re},
                  {"ok", false},
                  {"error", {{"code", "chat_rate_limited"}, {"message", "you're talking too fast"}}}});

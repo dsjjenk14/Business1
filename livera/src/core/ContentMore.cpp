@@ -69,6 +69,7 @@ Status ContentDatabase::ingestMore(const std::string& source, const std::string&
   if (auto st = ingestInteriors(source, section, body, handled); !st || handled) return st;
   if (auto st = ingestLifeEvents(source, section, body, handled); !st || handled) return st;  // D-068
   if (auto st = ingestFights(source, section, body, handled); !st || handled) return st;      // D-070
+  if (auto st = ingestSocial(source, section, body, handled); !st || handled) return st;      // D-074
   handled = false;
   return okStatus();
 }

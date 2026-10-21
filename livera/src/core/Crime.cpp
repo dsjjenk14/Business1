@@ -76,6 +76,9 @@ Json World::arrestCharacter(CharacterState& c, const std::string& crime, const s
   const CrimeConfig& cfg = content_->crime();
   const CrimeDef* def = content_->crimeDef(crime);
   Json out{{"crime", def ? def->label : crime}, {"by", by}};
+  // Who saw the police take them, before they're taken (Social.cpp, D-074: a rumour, and maybe the gossip account).
+  const LocationId arrestedAt = c.inside;
+  const std::vector<CharacterId> onlookers = presentWith(c, content_->sim().hearingRangeMeters);
   if (c.career.shiftStartedAt) (void)endShift(c.id);
   if (c.education.sessionStartedAt) (void)endStudy(c.id);
   // Contraband goes, and carrying it is a second charge.
@@ -145,6 +148,8 @@ Json World::arrestCharacter(CharacterState& c, const std::string& crime, const s
   m.emotionalImpact = -50;
   m.info = "Arrested for " + (def ? def->label : crime);
   addMemory(std::move(m));
+  const LocationDef* at = content_->location(arrestedAt);
+  witnessed("arrest", c.id, "", arrestedAt, onlookers, "was arrested" + (at ? " at " + at->name : std::string()));
   return out;
 }
 

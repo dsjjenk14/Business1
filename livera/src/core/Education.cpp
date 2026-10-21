@@ -212,7 +212,7 @@ Result<Json> World::applyForJob(const CharacterId& actor, const std::string& car
   m.importance = 60;
   m.emotionalImpact = 40;
   m.info = "Hired as " + title;
-  addMemory(std::move(m));
+  addMemory(std::move(m), Json{{"title", title}});
   return Json{{"career", career->name}, {"title", title}, {"hourly_cents", career->levels.front().hourlyCents},
               {"workplace", at->name}};
 }

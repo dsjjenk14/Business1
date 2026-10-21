@@ -222,6 +222,13 @@ Result<Json> World::respond(const CharacterId& actor, const std::string& request
   } else if (q.kind == "kiss") {
     bothFeel({{"romantic_attraction", 6}, {"physical_attraction", 4}}, {{"happiness", 5}, {"excitement", 6}});
     remember("kiss", 35, 30, fromName + " and " + myName + " kissed", false);
+    // A kiss in public is seen: a rumour, and maybe the gossip account (Social.cpp, D-074).
+    std::vector<CharacterId> onlookers;
+    for (const auto& id : presentWith(me, content_->sim().hearingRangeMeters)) {
+      if (id != q.from) onlookers.push_back(id);
+    }
+    const LocationDef* at = content_->location(me.inside);
+    witnessed("kiss", q.from, actor, me.inside, onlookers, "kissed " + myName + (at ? " at " + at->name : ""));
   } else if (q.kind == "propose") {
     if (relationshipStatus(q.from, actor) != "dating") return fail("not_dating", "you're not dating anymore");
     if (!owns(q.from, "engagement_ring")) return fail("no_ring", "the ring is gone");

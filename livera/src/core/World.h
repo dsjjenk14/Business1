@@ -239,6 +239,12 @@ struct Rumor {
   GameMinutes until = 0;            // witnesses stop spreading it after this
   std::vector<CharacterId> tellers; // the witnesses
   std::vector<CharacterId> knows;   // everyone who knows: witnesses and those they told
+  // Social media (D-074). Saves from before it have none of these: such a rumour is never posted.
+  std::string id;                   // "rum-<n>"
+  std::string kind;                 // what was witnessed: fight, argument, arrest, kiss, accident
+  CharacterId with;                 // the other person in it, if any
+  LocationId place;                 // where ("" = out on the street)
+  std::string post;                 // the gossip account's post about it ("-" = it passed on it)
 };
 
 struct DetailsWorldState {
@@ -265,6 +271,79 @@ struct LifeEventsState {
   std::vector<LifeEventOffer> pending;
   std::map<std::string, std::int64_t> lastDay;   // event -> the game day it last came up (its cooldown)
   int answered = 0;                              // lifetime
+};
+
+// Social media (Social.cpp, D-074). Posts are public; what each person's feed shows is decided in Social.cpp.
+struct SocialComment {
+  std::string id;
+  CharacterId author;
+  GameMinutes at = 0;
+  std::string text;
+};
+
+struct SocialPost {
+  std::string id;                  // "post-<n>"
+  std::string author;              // a character id, or the gossip account's handle
+  GameMinutes at = 0;
+  std::string text;
+  LocationId place;                // "" = nowhere in particular
+  std::vector<CharacterId> tags;   // who's in it
+  std::string topic;               // what kind of moment ("promotion", "fight"...), "" for anything else
+  std::string about;               // the event: the author's memory, or the rumour, it's about ("" = none)
+  bool automatic = false;          // written by the game: for someone a script plays, or the gossip account
+  std::vector<CharacterId> likes;
+  int likesPeak = 0;               // the most it has had: only a new high counts toward the author's fame
+  std::vector<SocialComment> comments;
+  // Gossip: who knows (the rumour's count, kept after the town forgets it), who was there, and whether it's
+  // what happened. Never sent to anyone: a view shows the count, and the truth only to someone who was there.
+  std::vector<CharacterId> heardBy;
+  std::vector<CharacterId> there;
+  bool truthful = true;
+};
+
+// Something that happened to someone, waiting to be posted (by the game, for someone a script plays) or offered
+// to the person as something to share.
+struct SocialMoment {
+  std::string memory;   // the memory id ("" for a check-in)
+  std::string type;     // the memory type, or "checkin"
+  LocationId place;
+  std::vector<CharacterId> with;
+  Json facts = Json::object();  // {title, pet, item} where the moment has one
+  GameMinutes at = 0;
+  GameMinutes postAt = 0;
+  GameMinutes until = 0;
+};
+
+// Likes, comments, follows and posts about you: the app's activity list.
+struct SocialActivity {
+  std::string kind;     // like, comment, follow, tag, gossip
+  std::string from;     // who (a character, or the gossip account)
+  std::string post;     // the post it's about ("" for a follow)
+  GameMinutes at = 0;
+  bool seen = false;
+  int count = 1;        // likes on one post within the hour are one entry: "Dax and 2 others"
+};
+
+struct SocialAccountState {
+  std::vector<std::string> following;  // characters, and maybe the gossip account
+  int followersPeak = 0;               // only a new high counts toward fame
+  std::vector<SocialMoment> moments;
+  std::vector<SocialActivity> activity;  // newest last, at most feed.activity_kept
+  std::int64_t day = -1;               // the game day the counts below are for
+  int postsToday = 0, commentsToday = 0, likesToday = 0, autoToday = 0;
+  double fameToday = 0;
+  GameMinutes lastPostAt = -1, lastCommentAt = -1, lastAutoAt = -1;
+  std::string lastPostText;
+  std::int64_t notifyHour = -1;        // the game hour `notified` counts
+  int notified = 0;
+};
+
+struct SocialWorldState {
+  bool seeded = false;                  // the founding follows have been made
+  std::vector<SocialPost> posts;        // oldest first
+  std::map<CharacterId, SocialAccountState> accounts;
+  std::int64_t gossipDay = -1;          // the gossip account's day and its posts that day
+  int gossipToday = 0;
 };
 
 // Street life (Fights.cpp, D-070): your own rules for fights, and the limits that keep anyone from being harassed.
@@ -526,6 +605,7 @@ struct WorldState {
   // m08:details world { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
   DetailsWorldState details;
   // } m08:details
+  SocialWorldState social;  // social media (Social.cpp, D-074): the world part "social"
 };
 
 // Something a connected client should hear about. The server routes it; the world
@@ -679,6 +759,29 @@ class World {
   // choice: fight_back, run, take_it.
   Result<Json> respondToFight(const CharacterId& actor, const std::string& fight, const std::string& choice);
   Result<Json> setWalkAwayFromFights(const CharacterId& actor, bool walkAway);
+
+  // --- Social media (Social.cpp, D-074) -------------------------------------------------------
+  // Every write needs a working phone (no_phone, phone_dead) and refuses in a cell (in_jail). Posts: text 1..max
+  // (invalid_text, too_long), at most social.post.per_day a day (daily_limit) and min_gap apart (too_soon), not the
+  // same text twice running (duplicate); `place` must be where you are (not_there); each tag someone you know
+  // (unknown_person, not_known, too_many_tags); `about` one of your own memories (unknown_event). `as` set to the
+  // gossip account's handle posts as it: only whoever runs it (not_your_account).
+  Result<Json> post(const CharacterId& actor, const std::string& text, const LocationId& place,
+                    const std::vector<CharacterId>& tags, const std::string& about, const std::string& as = "");
+  // unknown_post, invalid_text, too_long, too_soon, daily_limit, post_full.
+  Result<Json> comment(const CharacterId& actor, const std::string& postId, const std::string& text);
+  // Like (on) or unlike: unknown_post, own_post, already_liked, not_liked, daily_limit.
+  Result<Json> like(const CharacterId& actor, const std::string& postId, bool on);
+  // Follow (on) or unfollow a character or the gossip account: unknown_account, invalid_target (yourself),
+  // already_following, not_following, too_many.
+  Result<Json> follow(const CharacterId& actor, const std::string& account, bool on);
+  // Read-only, a working phone needed: a feed (tab "following": the people you follow, you, posts you're in, and
+  // gossip you follow or that reached you; "town": every public post) and a profile.
+  Result<Json> socialFeed(const CharacterId& actor, const std::string& tab) const;
+  Result<Json> socialProfile(const CharacterId& actor, const std::string& account) const;
+  // A character id, or the gossip account's handle.
+  bool socialAccountExists(const std::string& account) const;
+  std::string socialHandleOf(const std::string& account) const;  // without the @
 
   // --- Romance and family (Romance.cpp) ---------------------------------------------------
   // kind: date, kiss, propose, marry, intimacy; buy_home, move_in, sell_home (Homes.cpp; `subject`
@@ -1090,6 +1193,35 @@ class World {
   LedgerAccountId lifeEventAccount(const CharacterState& c, const LifeEventOffer& o, const std::string& account) const;
   Json lifeEventView(const CharacterState& c, const LifeEventOffer& o) const;
   Json phoneStory(const CharacterState& c) const;
+  // Social media (Social.cpp, D-074).
+  void stepSocialMinute();  // moments posted for people a script plays, and the gossip account's posts
+  void stepSocialHourly();  // gossip posts' "heard by" follows the rumour as it spreads
+  void seedSocial();        // a new world (or a save from before social media): people follow who they know
+  // Hooks the rest of the world calls (one line where it happens).
+  void socialMemory(const Memory& m, const Json& facts);           // addMemory: a moment worth posting
+  void socialCheckin(const CharacterState& c, const LocationDef& place);  // enter: someone a script plays is out
+  void socialPurchase(const CharacterState& c, const Offer& offer, const LocationDef& where);  // buy: a status symbol
+  // Someone saw it happen: a rumour the witnesses spread (Details.cpp) and the gossip account may post. Fights,
+  // arrests, bathroom accidents and (by social.json) arguments and kisses in public.
+  void witnessed(const std::string& kind, const CharacterId& about, const CharacterId& with, const LocationId& place,
+                 const std::vector<CharacterId>& witnesses, const std::string& what);
+  // interact: an interaction social.json counts as a scene, seen by whoever is around.
+  void socialInteraction(const CharacterState& actor, const CharacterState& target, const std::string& interaction);
+  Result<std::string> publish(const std::string& author, const std::string& text, const LocationId& place,
+                              std::vector<CharacterId> tags, const std::string& topic, const std::string& about,
+                              bool automatic);
+  SocialAccountState& socialAccount(const CharacterId& id);  // with today's counts rolled over
+  const SocialPost* findPost(const std::string& id) const;
+  bool follows(const CharacterId& who, const std::string& account) const;
+  int followerCount(const std::string& account) const;
+  bool feedHas(const CharacterState& viewer, const SocialPost& p) const;  // the "following" tab's rule
+  Json postView(const SocialPost& p, const CharacterState& viewer) const;
+  Json accountView(const std::string& account, const CharacterState& viewer) const;
+  Json phoneSocial(const CharacterState& c);  // marks the activity seen
+  void socialNotify(const CharacterId& to, const std::string& kind, const std::string& from, const std::string& post);
+  void addSocialFame(const CharacterId& id, double amount);
+  std::string momentLine(const CharacterId& author, const SocialMoment& m, const SocialMomentDef& def) const;
+  Json phoneMapPeople(const CharacterState& c) const;  // the map app: your people, where you could know they are
   // Fights (Fights.cpp, D-070).
   void stepFightsMinute();  // fights nobody answered in time: they froze and took it
   Json resolveFight(const PendingFight& f, const std::string& choice);  // returns the defender's result
@@ -1122,7 +1254,8 @@ class World {
   RelationshipState& relationshipRef(const CharacterId& from, const CharacterId& to);
   double compatibility(const CharacterDef& a, const CharacterDef& b) const;
   bool holdsGrudge(const CharacterId& owner, const CharacterId& about) const;
-  void addMemory(Memory m);
+  // `facts` (title, pet, item) are what a post about it may say (Social.cpp, D-074).
+  void addMemory(Memory m, const Json& facts = Json::object());
   void notify(const CharacterId& recipient, const std::string& kind, const std::string& text);
   void notifyAll(const std::string& kind, const std::string& text);
   void emit(std::vector<CharacterId> recipients, std::string type, Json data);

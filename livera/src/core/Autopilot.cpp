@@ -18,6 +18,7 @@
 
 #include "core/Clock.h"
 #include "core/ContentParse.h"
+#include "core/DayHash.h"
 #include "core/Schedule.h"
 
 namespace livera {
@@ -43,6 +44,18 @@ Status ContentDatabase::ingestManners(const std::string& source, const std::stri
     M.chatPerFriendship = chat.value("per_friendship", 0.0);
     for (const auto& a : body.value("asks", Json::array()))
       M.asks.push_back(AutopilotAskRule{a.at("kind").get<std::string>(), content_parse::readStats(a, "min")});
+    const Json msg = body.value("messages", Json::object());
+    const std::vector<int> read = content_parse::readInts(msg, "read_after_minutes");
+    if (read.size() == 2) {
+      M.readMinMinutes = read[0];
+      M.readMaxMinutes = read[1];
+    } else if (!read.empty()) {
+      return fail("content_invalid", source + ": autopilot_manners.messages.read_after_minutes is [min, max]");
+    }
+    M.repliesPerDay = msg.value("replies_per_day", M.repliesPerDay);
+    for (const auto& r : msg.value("replies", Json::array()))
+      M.replies.push_back(AutopilotReplyRule{content_parse::readStats(r, "min"), r.value("known", false),
+                                             content_parse::readStrings(r, "lines")});
   } catch (const std::exception& e) {
     return fail("content_invalid", source + ": " + e.what());
   }
@@ -82,6 +95,20 @@ Status ContentDatabase::validateManners() const {
     for (const auto& [dim, v] : a.min) {
       if (!dims.count(dim))
         return fail("content_invalid", "autopilot_manners.asks." + a.kind + ": unknown dimension '" + dim + "'");
+    }
+  }
+  if (M.readMinMinutes < 0 || M.readMaxMinutes < M.readMinMinutes)
+    return fail("content_invalid", "autopilot_manners.messages.read_after_minutes: 0 <= min <= max");
+  if (M.repliesPerDay < 0) return fail("content_invalid", "autopilot_manners.messages.replies_per_day can't be negative");
+  for (const auto& r : M.replies) {
+    for (const auto& [dim, v] : r.min) {
+      if (!dims.count(dim)) return fail("content_invalid", "autopilot_manners.messages: unknown dimension '" + dim + "'");
+    }
+    if (r.lines.empty()) return fail("content_invalid", "autopilot_manners.messages: a reply rule has no lines");
+    for (const auto& l : r.lines) {
+      // Within the limit sendMessage holds a person to, with room for the longest first name.
+      if (l.empty() || static_cast<int>(l.size()) + 24 > sim_.maxMessageLength)
+        return fail("content_invalid", "autopilot_manners.messages: a reply is empty or too long to send");
     }
   }
   return okStatus();
@@ -474,6 +501,9 @@ struct Autopilot::Impl {
     std::int64_t committedSleepDay = -1;
     std::int64_t boughtOn = -1;  // the day of the one everyday purchase
     std::vector<Json> pendingAsks;
+    std::vector<std::pair<CharacterId, GameMinutes>> unread;  // messages to it: (from, when they arrived) (D-074)
+    std::vector<CharacterId> replyTo;                         // read, to be answered one a turn
+    std::map<CharacterId, std::pair<std::int64_t, int>> replied;  // person -> (game day, replies that day)
     std::map<CharacterId, std::int64_t> greeted;     // person -> the game day they were last greeted
     std::map<CharacterId, std::int64_t> chatRolled;  // person -> the game day a chat with them was last considered
     std::map<std::string, int> stats;
@@ -1585,8 +1615,87 @@ struct Autopilot::Impl {
         return;
       }
     }
+    if (b.playing && messages(w, b)) return;
     if (b.playing) play(w, b);
     else offstage(w, b);
+  }
+
+  // Messages (D-074, data/society/manners.json): a message is read some minutes after it arrives (a hash of who and
+  // when, not the world's dice), when the character is awake, in the world and off shift; opening Messages is what
+  // marks it read, so the writer sees it as seen. Then one reply a turn to each person who wrote, by the data's
+  // rules from its own side of the relationship, at most replies_per_day a day each. Never to another script.
+  bool messages(World& w, Bot& b) {
+    const AutopilotMannersConfig& M = w.content().autopilotManners();
+    const GameMinutes now = w.now();
+    const std::int64_t day = now / kMinutesPerDay;
+    while (!b.replyTo.empty()) {
+      const CharacterId to = b.replyTo.front();
+      b.replyTo.erase(b.replyTo.begin());
+      auto& count = b.replied[to];
+      if (count.first != day) count = {day, 0};
+      if (count.second >= M.repliesPerDay) continue;
+      const std::string line = replyLine(w, b, to);
+      if (line.empty()) continue;
+      count.second += 1;
+      ++b.stats["commands"];
+      auto r = w.sendMessage(b.id, to, line);
+      ++b.stats["replies"];
+      log(w, b, "reply", "answers " + to + "'s message: \"" + line + "\"" + (r ? "" : "; the world said " + r.error().code));
+      pause(b, jittered(w, 2.0));
+      return true;
+    }
+    if (b.unread.empty()) return false;
+    const int spread = std::max(1, M.readMaxMinutes - M.readMinMinutes + 1);
+    const bool due = std::any_of(b.unread.begin(), b.unread.end(), [&](const auto& m) {
+      const auto jitter = static_cast<GameMinutes>(
+          dayhash::mix64(dayhash::fnv1a(b.id + "|" + m.first + "|" + std::to_string(m.second))) %
+          static_cast<std::uint64_t>(spread));
+      return now >= m.second + M.readMinMinutes + jitter;
+    });
+    if (!due) return false;
+    auto lookR = w.look(b.id);
+    if (!lookR) return false;
+    const Json& you = lookR.value()["you"];
+    if (you.value("on_shift", false) || you.value("asleep", false)) return false;  // answers nothing at work (D-064)
+    ++b.stats["commands"];
+    auto app = w.openPhoneApp(b.id, "messages");  // reading them is what makes them "seen"
+    if (!app) {
+      log(w, b, "read", "can't read messages: " + app.error().code);
+      b.unread.clear();  // a dead phone: they'll be in the inbox, unread, for whoever plays next
+      pause(b, jittered(w, 2.0));
+      return true;
+    }
+    const Json people = app.value().value("people", Json::object());
+    for (const auto& [from, at] : b.unread) {
+      const bool script = people.contains(from) && people[from].value("scripted", false);
+      if (!script && from != b.id && std::find(b.replyTo.begin(), b.replyTo.end(), from) == b.replyTo.end() &&
+          !M.replies.empty())
+        b.replyTo.push_back(from);
+    }
+    ++b.stats["messages_read"];
+    log(w, b, "read", "reads " + std::to_string(b.unread.size()) + " message(s)");
+    b.unread.clear();
+    pause(b, jittered(w, 2.0));
+    return true;
+  }
+
+  // The first reply rule its own side of the relationship meets, with the writer's first name filled in.
+  std::string replyLine(World& w, const Bot& b, const CharacterId& to) const {
+    const AutopilotMannersConfig& M = w.content().autopilotManners();
+    const RelationshipState* rel = w.relationship(b.id, to);
+    const bool known = rel && rel->firstMetAt >= 0;
+    for (const auto& rule : M.replies) {
+      if (rule.known && !known) continue;
+      const bool meets = std::all_of(rule.min.begin(), rule.min.end(),
+                                     [&](const auto& kv) { return w.relationshipValue(b.id, to, kv.first) >= kv.second; });
+      if (!meets || rule.lines.empty()) continue;
+      std::string line = rule.lines[pick(w, rule.lines.size())];
+      const CharacterDef* them = w.definition(to);
+      const std::string first = them ? them->firstName : to;
+      for (auto at = line.find("{first}"); at != std::string::npos; at = line.find("{first}")) line.replace(at, 7, first);
+      return line;
+    }
+    return "";
   }
 };
 
@@ -1655,6 +1764,10 @@ void Autopilot::observe(const std::vector<WorldEvent>& events) {
         it->second.nextActAt = std::min(it->second.nextActAt, impl_->clock + kCommandIntervalSeconds);
       } else if (ev.type == "arrived") {
         it->second.riding = false;
+      } else if (ev.type == "message") {
+        // Read (and maybe answered) a few game minutes later, by data/society/manners.json (D-074).
+        const std::string from = ev.data.value("from", std::string());
+        if (!from.empty()) it->second.unread.emplace_back(from, ev.data.value("at", GameMinutes{0}));
       }
     }
   }
