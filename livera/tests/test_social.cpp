@@ -774,7 +774,8 @@ TEST_CASE("social: the map app shows your people where your character could know
   CHECK(!people.count("maya"));  // in the same café, but a stranger: not one of her people
   // A post from hours ago no longer says where someone is.
   w.advanceMinutes(7 * 60);
-  for (const auto& p : w.openPhoneApp("dominique", "map").value()["people"]) {
+  const Json later = w.openPhoneApp("dominique", "map").value();
+  for (const auto& p : later["people"]) {
     if (p["character"] == "aaliyah") CHECK(p["where"] != "posted");
   }
 }
