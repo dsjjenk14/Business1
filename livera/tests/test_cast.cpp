@@ -71,6 +71,12 @@ TEST_CASE("cast: every character is complete, and founders and residents link ar
     const std::string art = look.value("visual_reference", "");
     if (d->cast == "townsperson") {
       CHECK(art.empty());  // until their sheet is drawn (scripts/character_prompts.py asks for it)
+      // Meanwhile the client draws a stand-in in their colours (scripts/client_standins.py).
+      const Json standIn = look.value("stand_in", Json::object());
+      for (const char* key : {"skin", "hair", "top", "bottom", "shoes"}) {
+        const std::string c = standIn.value(key, "");
+        CHECK((c.size() == 7 && c[0] == '#'));
+      }
       continue;
     }
     if (!std::filesystem::exists(root / art)) std::fprintf(stderr, "    %s: art not found at %s\n", id.c_str(), art.c_str());

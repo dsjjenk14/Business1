@@ -92,7 +92,16 @@
           "style": "on duty: navy Livéra PD uniform shirt and trousers, black duty boots; off duty: a long olive coat over running gear",
           "jewelry": "a slim silver watch",
           "silhouette": "a slim officer in navy with a neat hijab",
-          "key_features": ["Neatly pinned hijab", "High cheekbones", "A rationed smile", "Uniform worn exactly right"]
+          "key_features": ["Neatly pinned hijab", "High cheekbones", "A rationed smile", "Uniform worn exactly right"],
+          "stand_in": {
+            "skin": "#7a4b33",
+            "hair": "#1f2d4a",
+            "hair_style": "hijab",
+            "top": "#1f2d4a",
+            "bottom": "#1a2540",
+            "shoes": "#121212",
+            "headwear": "#24345a"
+          }
         },
         "family_background": "Born in Mogadishu, raised in Minneapolis's Cedar-Riverside towers. Her mother runs a tailoring shop; her four brothers all think she should have been a pharmacist.",
         "education": "B.S. Criminology, University of Minnesota; Minneapolis police academy",

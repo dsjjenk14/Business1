@@ -113,7 +113,16 @@
             "Sergeant's stripes",
             "A nose broken once",
             "Very still"
-          ]
+          ],
+          "stand_in": {
+            "skin": "#4a2e22",
+            "hair": "#3d3833",
+            "hair_style": "buzz",
+            "top": "#1f2d4a",
+            "bottom": "#1a2540",
+            "shoes": "#121212",
+            "accent": "#c9a64b"
+          }
         },
         "family_background": "South Side Chicago, the son of a postal carrier and a nurse. His wife Denise and their twins stay in Chicago until the school year ends.",
         "education": "B.A. Criminal Justice, Chicago State University; Chicago Police Academy",

@@ -1,26 +1,25 @@
 #!/usr/bin/env python3
-"""Generates the character sprite prompt pack from the game's data, so it never drifts from the cast.
+"""Generates the character prompt pack from the game's data, so it never drifts from the cast.
 
 Writes art/PROMPT_PACK_CHARACTERS.md (to read) and art/prompts_characters.html (to copy prompts from on
-a phone): one image prompt per founder (data/characters) and per named resident (art/manifest.json
-`residents`), each asking for a sheet of isometric game sprites of that person at the town's camera
-angle and golden-hour light, built from their appearance and pointing at their model sheet as the
-reference, and ending with the file name to save the sheet as.
+a phone): for every character in data/characters (founders, the four residents, the townspeople) a
+prompt for a sheet of isometric game sprites of that person at the town's camera angle and golden-hour
+light, built from their appearance and pointing at their model sheet as the reference; and for each
+townsperson, who has no picture yet (D-073), a prompt for that model sheet first, in the layout of the
+cast's sheets. Every prompt ends with the file name to save the picture as.
 
 The map and the interiors draw people today with full-body cut-outs from the model sheets
 (scripts/client_figures.py, web/client/figures.js): photographs seen from eye level, one view per
 direction, no walk cycle and no seated pose. These sheets are what replaces them; see SPRITE_NOTES.
 
 Usage: scripts/character_prompts.py            regenerate both files
-       scripts/character_prompts.py --check    exit 1 if a founder or named resident has no prompt, or
-                                               if the generated files are stale
+       scripts/character_prompts.py --check    exit 1 if someone in data/characters has no prompt (a
+                                               townsperson also needs a model sheet prompt), or if the
+                                               generated files are stale
 
-A founder's look comes from data/characters/<id>.json (profile.appearance). The created residents live
-only in a save (D-044), so their look is read off their sheets' name cards and turnarounds and written
-here (RESIDENTS), marked "(from the sheet)" in the facts.
+Everyone's look comes from data/characters/<id>.json (profile.appearance, profile.card).
 """
 import argparse
-import json
 import pathlib
 import sys
 
@@ -32,7 +31,6 @@ ROOT = tp.ROOT
 DATA = tp.DATA
 MD_PATH = ROOT / "art" / "PROMPT_PACK_CHARACTERS.md"
 HTML_PATH = ROOT / "art" / "prompts_characters.html"
-MANIFEST = ROOT / "art" / "manifest.json"
 SELF = "scripts/character_prompts.py"
 SIZE = "1536×1024"
 CELL_PX, REF_CM, REF_PX = 341, 175, 300   # a 175 cm person stands 300 px tall in a 341 px cell
@@ -100,11 +98,15 @@ HONESTY_NOTES = """\
 - **The outfit is the data's.** Where a reference sheet shows another look (Dominique's turnaround
   is her weekend look, Dax's an all-black tee), the prompt asks for the outfit in the data; the
   sheet is for the face, hair, skin and build.
-- **The created residents' looks are read off their sheets**, because they live only in a save
-  (D-044) and have no data file; their facts say "(from the sheet)". A player who makes a character
-  with the same name gets the same art, as with the faces.
-- When a generated picture gets a fact wrong, say so in `art/manifest.json` under `notes`, as the
-  other art does. Nobody should mistake a picture for the game's state.
+- **Everyone's look comes from their data** (`data/characters/<id>.json`, `profile.appearance`). The
+  four residents (Kai Morgan, Rosa Delgado, Sol Rivera, Theo Grant) were made in the creator for the
+  town-preview recording and are data characters since D-073; their facts were read off their sheets.
+- **The townspeople have no picture yet.** Each has two prompts: a model sheet first (the same layout
+  as the cast's: portrait, name card, two looks, four expressions, a four-view turnaround), then the
+  sprite sheet, made with that model sheet attached. Until their art is filed the game draws them as a
+  labelled stand-in in their work colours (`web/client/figures.js`).
+- When a generated picture gets a fact wrong, say so (`art_notes` in their data, or `notes` in
+  `art/manifest.json`), as the other art does. Nobody should mistake a picture for the game's state.
 """
 
 SPRITE_NOTES = """\
@@ -123,55 +125,68 @@ Fighting (fists up) and flinching are not in these sheets: today `pose: "fight"`
 lean, crouch and bounce or shake the standing picture. A later sheet can ask for them.
 """
 
-# The created residents (art/manifest.json `residents`): their looks, read off their sheets' name
-# cards and turnarounds. Facts here are the sheets', not data.
-RESIDENTS = {
-    "kai-morgan": {"age": 22, "pronouns": "he/him", "height_cm": 183, "build": "lean", "skin": "deep brown, neutral",
-                   "eyes": "brown", "face": "round brown eyes, square face, wide nose, full lips, stubble",
-                   "hair": "black shoulder-length locs under a black baseball cap",
-                   "style": "red zip-up hoodie over a white tee, baggy black cargo jeans, red-and-white high-top sneakers drawn plain (no recognisable design)",
-                   "jewelry": "a silver chain necklace, pierced ears", "key_features": ["Black locs and stubble", "Forearm-script and hand tattoos", "Baseball cap and streetwear"]},
-    "rosa-delgado": {"age": 27, "pronouns": "she/her", "height_cm": 168, "build": "athletic", "skin": "olive, warm",
-                     "eyes": "almond, dark brown", "face": "oval face, full lips, natural makeup",
-                     "hair": "a sleek, long black high ponytail",
-                     "style": "olive-green zip track jacket over a white crop top, black leggings, white trainers",
-                     "jewelry": "a plain black smartwatch (no recognisable design), small studs", "key_features": ["Sleek black ponytail", "Wrist tattoo and pierced ears", "Athleisure and a watch"]},
-    "sol-rivera": {"age": 26, "pronouns": "they/them", "height_cm": 170, "build": "lean", "skin": "golden brown, warm",
-                   "eyes": "amber, almond-shaped, graphic liner", "face": "freckles, septum and helix piercings",
-                   "hair": "a copper curly afro under a deep teal corduroy bucket hat",
-                   "style": "cream shirt with a small red-and-teal print, sleeves rolled, a brown corduroy waistcoat, wide brown corduroy trousers, brown leather loafers",
-                   "jewelry": "silver rings, a small pendant", "key_features": ["Copper curly afro", "Fine-line floral and wrist tattoos", "Rings and a bucket hat"]},
-    "theo-grant": {"age": 24, "pronouns": "he/him", "height_cm": 170, "build": "lean", "skin": "golden brown, warm",
-                   "eyes": "almond, amber", "face": "heart-shaped face, full lips, stubble",
-                   "hair": "a black buzz cut",
-                   "style": "royal-blue fleece zip hoodie over a white tee, grey cargo joggers, white trainers",
-                   "jewelry": "a thin gold chain necklace, pierced ears", "key_features": ["Black buzz cut and stubble", "Forearm-script tattoo", "Streetwear"]},
-}
+# A townsperson's model sheet, in the layout of the cast's sheets (art/reference/characters, art/reference/residents).
+MODEL_DIR = "art/reference/townspeople"
+MODEL_SIZE = "1536×1024"
+MODEL_STYLE = (
+    "LIVÉRA character model sheet, one landscape image laid out exactly like the cast's other sheets. Photoreal, the "
+    "realism of a high-end editorial photo shoot; warm golden-hour light with soft bokeh in the scene panels; a deep "
+    "black card panel with champagne-gold serif type. No logos or recognisable brands anywhere, no text except the "
+    "card and the gold captions named below."
+)
+MODEL_LAYOUT = (
+    "Layout on a {size} canvas, thin gold rules between panels: "
+    "(1) top left, a large head-and-shoulders portrait in their everyday look, one hand near the face, the place they "
+    "work softly out of focus behind them; "
+    "(2) top centre, the name card: the first name in large spaced capitals, the last name below it, the title in small "
+    "gold capitals, a thin gold rule, then label and value rows in this order: Age, Pronouns, Height, Occupation, "
+    "Build, Skin Tone, Eye Color; then KEY FEATURES with small diamond bullets; then PERSONALITY with three diamond "
+    "bullets; "
+    "(3) top right, two scene panels side by side with gold captions underneath: WORK LOOK and {second}; "
+    "(4) bottom left, four head-and-shoulders close-ups in the everyday look captioned NEUTRAL, SMILE, SERIOUS, "
+    "THOUGHTFUL; "
+    "(5) bottom right, a four-view full-body turnaround on a plain mid-grey studio background with even light, "
+    "captioned FRONT, THREE-QUARTER, SIDE, BACK: the same outfit in all four views, the whole body from the top of "
+    "the head to the soles, feet on one floor line, nothing cropped."
+)
 
 
-def founders():
+def model_sheet_of(ch):
+    return f"{MODEL_DIR}/{ch['id']}.jpg"
+
+
+def model_filed(save_as):
+    stem = (ROOT / save_as).with_suffix("")
+    for ext in (".jpg", ".png", ".webp"):
+        if stem.with_suffix(ext).exists():
+            return str(stem.with_suffix(ext).relative_to(ROOT))
+    return None
+
+
+SECTION_OF_CAST = {"founder": "founders", "resident": "residents", "townsperson": "townspeople"}
+
+
+def cast():
+    """Every playable character in data, with what the prompts need. Townspeople's reference is the model sheet the
+    pack asks for first (art/reference/townspeople/<id>.jpg)."""
     out = []
     for f in sorted((DATA / "characters").glob("*.json")):
         for c in tp.load_json(f).get("characters", []):
             if not c.get("playable", False):
                 continue
-            a = c.get("profile", {}).get("appearance", {})
+            p = c.get("profile", {})
+            a = p.get("appearance", {})
             sheets = a.get("reference_sheets", {})
-            out.append({"id": c["id"], "name": f"{c['first_name']} {c['last_name']}", "age": c.get("age"), "pronouns": c.get("pronouns", ""),
-                        "title": c.get("profile", {}).get("archetype", ""), "look": a, "source": "data",
-                        "sheet": sheets.get("turnaround") or a.get("visual_reference", ""), "data_file": f.relative_to(ROOT).as_posix()})
-    return out
-
-
-def residents():
-    m = tp.load_json(MANIFEST).get("residents", {})
-    out = []
-    for rid, r in sorted(m.items()):
-        look = RESIDENTS.get(rid)
-        if look is None:
-            raise SystemExit(f"character_prompts: no look for resident {rid}; add it to RESIDENTS from their sheet")
-        out.append({"id": rid, "name": r["name"], "age": look["age"], "pronouns": look["pronouns"], "title": r.get("card_title", ""),
-                    "look": look, "source": "sheet", "sheet": r["sheet"], "notes": r.get("notes", [])})
+            kind = c.get("cast", "founder")
+            ch = {"id": c["id"], "name": f"{c['first_name']} {c['last_name']}", "first": c["first_name"],
+                  "last": c["last_name"], "age": c.get("age"), "pronouns": c.get("pronouns", ""),
+                  "title": p.get("archetype", ""), "look": a, "cast": kind, "section": SECTION_OF_CAST.get(kind, "founders"),
+                  "card": p.get("card", {}), "traits": c.get("traits", []), "schedule": p.get("schedule", {}),
+                  "notes": a.get("art_notes", []), "data_file": f.relative_to(ROOT).as_posix(),
+                  "sheet": sheets.get("turnaround") or a.get("visual_reference", "")}
+            if kind == "townsperson" and not ch["sheet"]:
+                ch["sheet"] = model_sheet_of(ch)
+            out.append(ch)
     return out
 
 
@@ -180,11 +195,23 @@ def px_for(cm):
 
 
 def signature(style):
-    """The outfit to draw: the whole style, or its work look when the data gives several ("work: …; evening: …")."""
-    if not style.lower().startswith("work:"):
+    """The outfit to draw: the whole style, or its work look when the data gives several ("work: …; evening: …",
+    "on duty: …; off duty: …")."""
+    low = style.lower()
+    if not (low.startswith("work:") or low.startswith("on duty:")):
         return style, None
     looks = [s.strip() for s in style.split(";")]
     return looks[0].split(":", 1)[1].strip(), "; ".join(looks[1:]) or None
+
+
+def off_duty(ch):
+    """Somewhere they go when they aren't working: their schedule's first line that isn't work or home."""
+    for day in ("weekdays", "saturday", "sunday", "weekends", "monday", "tuesday", "wednesday", "thursday", "friday"):
+        for e in ch["schedule"].get(day, []):
+            what = e.get("activity", "")
+            if not e.get("work") and "home" not in what.lower():
+                return what
+    return "a walk in Founders Park"
 
 
 def prompt_for(ch):
@@ -195,24 +222,21 @@ def prompt_for(ch):
     cm = a.get("height_cm")
     if not cm:
         raise SystemExit(f"character_prompts: {ch['id']} has no height_cm")
-    tag = " (from the sheet)" if ch["source"] == "sheet" else ""
     facts = [("Who", f"{ch['name']}, {ch['age']}, {ch['pronouns']}" + (f" · {ch['title']}" if ch["title"] else "")),
-             ("Height", f"{cm} cm{tag} → {px_for(cm)} px tall in a {CELL_PX} px cell (175 cm = {REF_PX} px)")]
+             ("Height", f"{cm} cm → {px_for(cm)} px tall in a {CELL_PX} px cell (175 cm = {REF_PX} px)")]
     for key, label in (("build", "Build"), ("skin", "Skin"), ("eyes", "Eyes"), ("face", "Face"), ("hair", "Hair"),
                        ("style", "Wearing"), ("jewelry", "Jewellery"), ("silhouette", "Silhouette")):
         if a.get(key):
-            facts.append((label, f"{a[key]}{tag}"))
+            facts.append((label, a[key]))
     if other:
         facts.append(("Other look (not drawn)", other))
     if a.get("key_features"):
-        facts.append(("Key features", "; ".join(a["key_features"]) + tag))
-    facts.append(("Reference sheet", sheet))
-    if ch["source"] == "data":
-        facts.append(("From", f"{ch['data_file']} (profile.appearance)"))
-    else:
-        facts.append(("From", "art/manifest.json residents (name, card title) and the sheet's name card and turnaround; no data file"))
+        facts.append(("Key features", "; ".join(a["key_features"])))
+    facts.append(("Reference sheet", sheet + ("" if ch["cast"] != "townsperson" or model_filed(sheet)
+                                             else " (not made yet: its prompt is in this pack)")))
+    facts.append(("From", f"{ch['data_file']} (profile.appearance)"))
     for n in ch.get("notes", []):
-        facts.append(("Manifest note", n))
+        facts.append(("Art note", n))
     facts.append(("Art direction", "the camera, the light, the 4 × 3 layout, the chair and the sofa"))
     parts = [f"The person: {ch['name']}, {ch['age']} ({ch['pronouns']}), {cm} cm tall, {a.get('build', '')} build. "
              f"Draw them {px_for(cm)} px tall from the top of the head to the soles in every standing and walking cell "
@@ -238,33 +262,93 @@ def prompt_for(ch):
     parts.append(LAYOUT.format(size=SIZE))
     save_as = f"art/sprites/characters/{ch['id']}/sheet.png"
     prompt = f"{STYLE_SHORT}\n\n{' '.join(parts)}\n\nSize {SIZE}, transparent background. Save as {save_as}"
-    return {"id": ch["id"], "title": ch["name"], "section": "founders" if ch["source"] == "data" else "residents",
-            "save_as": save_as, "facts": facts, "prompt": prompt}
+    return {"id": ch["id"], "title": ch["name"], "section": ch["section"], "save_as": save_as, "size": SIZE,
+            "facts": facts, "prompt": prompt, "filed": tp.filed_as(save_as)}
 
 
-SECTIONS = [("founders", "Founders"), ("residents", "Created residents")]
+def model_prompt_for(ch):
+    """A townsperson's model sheet, in the cast's layout, from their data (D-073)."""
+    a, card = dict(ch["look"]), ch["card"]
+    style, other = signature(a.get("style", ""))
+    if other and ":" in other.split(";")[0]:
+        other = other.split(":", 1)[1].strip()  # "off duty: a grey cardigan" -> the look itself
+    work = card.get("occupation", "")
+    workplace = work.split(", ", 1)[1] if ", " in work else work
+    second_place = off_duty(ch)
+    second = "OFF-DUTY LOOK"
+    rows = [("Age", str(ch["age"])), ("Pronouns", ch["pronouns"]), ("Height", f"{card.get('height_cm', a.get('height_cm'))} cm"),
+            ("Occupation", work), ("Build", card.get("build", a.get("build", ""))),
+            ("Skin Tone", card.get("skin_tone", a.get("skin", ""))), ("Eye Color", a.get("eyes", ""))]
+    personality = [t.replace("_", " ").capitalize() for t in ch["traits"][:3]]
+    facts = [("Who", f"{ch['name']}, {ch['age']}, {ch['pronouns']} · {ch['title']}"),
+             ("Card", "; ".join(f"{k}: {v}" for k, v in rows)),
+             ("Key features", "; ".join(a.get("key_features", []))),
+             ("Personality", ", ".join(personality)),
+             ("Everyday look (portrait, close-ups, turnaround)", style),
+             ("Work look", f"at {workplace}, doing the job" + (f"; {style}" if style else "")),
+             ("Off-duty look", f"{second_place}" + (f"; {other}" if other else ""))]
+    for key, label in (("face", "Face"), ("hair", "Hair"), ("jewelry", "Jewellery"), ("silhouette", "Silhouette")):
+        if a.get(key):
+            facts.append((label, a[key]))
+    facts.append(("From", f"{ch['data_file']} (profile.card, profile.appearance, traits, schedule)"))
+    card_text = (f"The card reads: '{ch['first'].upper()}' / '{ch['last'].upper()}' / '{ch['title'].upper()}'; "
+                 + "; ".join(f"{k} — {v}" for k, v in rows)
+                 + "; KEY FEATURES — " + "; ".join(a.get("key_features", []))
+                 + "; PERSONALITY — " + ", ".join(personality) + ".")
+    person = [f"The person: {ch['name']}, {ch['age']} ({ch['pronouns']}), {a.get('height_cm')} cm, "
+              f"{a.get('build', '')} build."]
+    for key, label in (("skin", "Skin"), ("eyes", "Eyes"), ("face", "Face"), ("hair", "Hair"), ("jewelry", "Jewellery")):
+        if a.get(key):
+            person.append(f"{label}: {a[key]}.")
+    if style:
+        person.append(f"Everyday look (portrait, close-ups and the turnaround): {style}.")
+    person.append(f"WORK LOOK panel: at {workplace} in Livéra, mid-task, in that same outfit.")
+    person.append(f"{second} panel: {second_place.rstrip('.')}" + (f", wearing {other}" if other else ", relaxed") + ".")
+    person.append("The same face, hair, skin tone and body in every panel.")
+    save_as = model_sheet_of(ch)
+    prompt = (f"{MODEL_STYLE}\n\n{' '.join(person)}\n\n{card_text}\n\n{MODEL_LAYOUT.format(size=MODEL_SIZE, second=second)}"
+              f"\n\nSize {MODEL_SIZE}. Save as {save_as}")
+    return {"id": f"{ch['id']}-model", "title": ch["name"], "section": "models", "save_as": save_as, "size": MODEL_SIZE,
+            "facts": facts, "prompt": prompt, "filed": model_filed(save_as)}
+
+
+def build_all():
+    people = cast()
+    prompts = [model_prompt_for(c) for c in people if c["cast"] == "townsperson"]
+    prompts += [prompt_for(c) for c in people]
+    return people, prompts
+
+
+SECTIONS = [("models", "Townspeople: model sheets (first)"), ("founders", "Founders"), ("residents", "Residents"),
+            ("townspeople", "Townspeople: sprite sheets")]
 
 
 def ordered(prompts, section):
     return sorted((p for p in prompts if p["section"] == section), key=lambda p: p["title"])
 
 
+def summary(prompts, counts):
+    return (f"{len(prompts)} prompts: a sprite sheet for each of {counts['founders']} founders, {counts['residents']} residents "
+            f"and {counts['townspeople']} townspeople, and a model sheet for each townsperson ({counts['models']}), "
+            f"to make first. {counts['filed']} of {len(prompts)} are filed.")
+
+
 def render_markdown(prompts, counts):
-    out = ["# LIVÉRA character sprite prompt pack", "",
-           f"Generated by `{SELF}` from `data/characters` and the residents in `art/manifest.json`. Do not edit by hand: "
-           f"rerun the script after changing the data, and `python3 {SELF} --check` fails when this file is stale or a founder "
-           "or named resident has no prompt.", "",
-           f"{len(prompts)} prompts: {counts['founders']} founders and {counts['residents']} created residents, one sprite sheet "
-           f"each. {counts['filed']} of {len(prompts)} are filed. The phone page `art/prompts_characters.html` has the same "
-           "prompts with a Copy button and a done checkbox.", "",
+    out = ["# LIVÉRA character prompt pack", "",
+           f"Generated by `{SELF}` from `data/characters`. Do not edit by hand: rerun the script after changing the data, "
+           f"and `python3 {SELF} --check` fails when this file is stale or someone in data has no prompt.", "",
+           summary(prompts, counts) + " The phone page `art/prompts_characters.html` has the same prompts with a Copy "
+           "button and a done checkbox.", "",
            "## How to use (on a phone)", "",
-           "1. Open `art/prompts_characters.html` and tap **Copy** on a card.",
-           "2. Paste into the image generator and attach the reference sheet named in the prompt. Each prompt already "
-           "carries the style sheet, the layout, the size and the transparent background.",
-           "3. Check that it is the same person in all twelve cells, seen from the town's angle, at the height the prompt "
-           "gives, with nothing cropped and no background.",
-           "4. Save the file under the name at the end of the prompt and add it to `art/manifest.json` (a `sprites` entry "
-           "for the character), with anything the picture gets wrong under `notes`.",
+           "1. Open `art/prompts_characters.html` and tap **Copy** on a card. A townsperson's model sheet comes first: their "
+           "sprite sheet is made with it attached.",
+           "2. Paste into the image generator and attach the reference sheet named in the prompt (none for a model sheet). "
+           "Each prompt already carries the style, the layout and the size.",
+           "3. Check a model sheet's card against the facts, and that a sprite sheet is the same person in all twelve cells, "
+           "seen from the town's angle, at the height the prompt gives, with nothing cropped and no background.",
+           "4. Save the file under the name at the end of the prompt; link a model sheet from the character's data "
+           "(`profile.appearance.visual_reference`) and a sprite sheet from `art/manifest.json` (`sprite_sheets`), with "
+           "anything the picture gets wrong as a note.",
            "5. Tick **done** on the card. The page remembers it on that phone.", "",
            "## Style sheet", "", STYLE_SHEET, "## What these prompts are not", "", HONESTY_NOTES,
            "## How a sheet replaces the cut-outs", "", SPRITE_NOTES]
@@ -272,7 +356,7 @@ def render_markdown(prompts, counts):
         out += [f"## {label}", ""]
         for p in ordered(prompts, key):
             out += [f"### {p['title']}" + (" (filed)" if p["filed"] else ""), "",
-                    f"Save as `{p['save_as']}` · {SIZE}" + (f" · filed as `{p['filed']}`" if p["filed"] else ""), "",
+                    f"Save as `{p['save_as']}` · {p['size']}" + (f" · filed as `{p['filed']}`" if p["filed"] else ""), "",
                     "Facts:", ""]
             out += [f"- **{k}:** {v}" for k, v in p["facts"]]
             out += ["", "```text", p["prompt"], "```", ""]
@@ -286,13 +370,13 @@ def render_html(prompts, counts):
            '<meta name="viewport" content="width=device-width, initial-scale=1">',
            "<title>LIVÉRA character prompts</title>", f"<style>{tp.CSS}</style>", "</head>", "<body>", '<div class="wrap">',
            "<h1>LIVÉRA character prompts</h1>",
-           f'<p class="lead">{len(prompts)} prompts generated by <code>{h(SELF)}</code> from the game\'s data: '
-           f"{counts['founders']} founders and {counts['residents']} created residents. Each asks for one sprite sheet: a walk "
-           "cycle each way, standing, and sitting on a chair and a sofa, at the town's camera angle and golden-hour light. "
-           "Tap Copy, paste into the image generator with the reference sheet attached, save under the name at the end, tick done. "
-           f"{counts['filed']} of {len(prompts)} are filed.</p>",
-           '<p class="lead"><strong>Not in the game yet:</strong> the map draws cut-outs from the model sheets today. '
-           "These sprites replace them once they're made (see the style sheet below).</p>",
+           f'<p class="lead">Generated by <code>{h(SELF)}</code> from the game\'s data. {h(summary(prompts, counts))} '
+           "A sprite sheet is a walk cycle each way, standing, and sitting on a chair and a sofa, at the town's camera angle "
+           "and golden-hour light. Tap Copy, paste into the image generator with the reference sheet attached, save under "
+           "the name at the end, tick done.</p>",
+           '<p class="lead"><strong>Not in the game yet:</strong> the map draws cut-outs from the model sheets today, and '
+           "the townspeople as a labelled stand-in. These pictures replace them once they're made (see the style sheet "
+           "below).</p>",
            '<div class="bar"><strong id="progress">0 done</strong><label><input type="checkbox" id="hide-done"> hide done</label></div>',
            "<nav>" + " ".join(f'<a href="#{h(key)}">{h(label)}</a>' for key, label in SECTIONS) + "</nav>",
            '<details class="style"><summary>Style sheet (already inside every prompt)</summary>',
@@ -306,7 +390,7 @@ def render_html(prompts, counts):
         for p in ordered(prompts, key):
             out.append(f'<article class="card" data-id="{h(p["id"])}"' + (' data-filed="1"' if p["filed"] else "") + ">")
             out.append(f"<h4>{h(p['title'])}" + (f' <span class="filed">Filed: {h(p["filed"])}</span>' if p["filed"] else "") + "</h4>")
-            out.append(f'<p class="meta">Save as <code>{h(p["save_as"])}</code> · {h(SIZE)}</p>')
+            out.append(f'<p class="meta">Save as <code>{h(p["save_as"])}</code> · {h(p["size"])}</p>')
             out.append(f'<pre class="prompt">{h(p["prompt"])}</pre>')
             out.append('<div class="row"><button type="button" class="copy">Copy</button>'
                        '<label><input type="checkbox" class="done-box"> done</label></div>')
@@ -314,7 +398,7 @@ def render_html(prompts, counts):
                        + "".join(f"<dt>{h(k)}</dt><dd>{h(v)}</dd>" for k, v in p["facts"]) + "</dl></details>")
             out.append("</article>")
     out += ["<footer>No external resources. The done ticks live in this browser's localStorage only. "
-            "When a picture gets a fact wrong, say so in art/manifest.json under notes.</footer>",
+            "When a picture gets a fact wrong, say so in a note beside its link.</footer>",
             "</div>", f"<script>{js}</script>", "</body>", "</html>", ""]
     return "\n".join(out)
 
@@ -339,17 +423,13 @@ def main(argv):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--check", action="store_true", help="verify coverage and that the generated files are current; write nothing")
     args = ap.parse_args(argv)
-    cast = founders() + residents()
-    prompts = [prompt_for(c) for c in cast]
-    for p in prompts:
-        p["filed"] = tp.filed_as(p["save_as"])
+    people, prompts = build_all()
     ids = [p["id"] for p in prompts]
     assert len(ids) == len(set(ids)), "duplicate prompt id"
-    want = {c["id"] for c in founders()} | set(json.loads(MANIFEST.read_text(encoding="utf-8")).get("residents", {}))
+    want = {c["id"] for c in people} | {f"{c['id']}-model" for c in people if c["cast"] == "townsperson"}
     missing = sorted(want - set(ids))
-    counts = {"founders": sum(1 for p in prompts if p["section"] == "founders"),
-              "residents": sum(1 for p in prompts if p["section"] == "residents"),
-              "filed": sum(1 for p in prompts if p["filed"])}
+    counts = {key: sum(1 for p in prompts if p["section"] == key) for key in ("founders", "residents", "townspeople", "models")}
+    counts["filed"] = sum(1 for p in prompts if p["filed"])
     md, page = render_markdown(prompts, counts), render_html(prompts, counts)
     if args.check:
         stale = [p for p, text in ((MD_PATH, md), (HTML_PATH, page)) if not p.exists() or p.read_text(encoding="utf-8") != text]
@@ -359,7 +439,7 @@ def main(argv):
             print("character_prompts: no prompt for " + ", ".join(missing), file=sys.stderr)
         if stale or missing:
             return 1
-        print(f"character_prompts: ok, {len(prompts)} prompts cover {counts['founders']} founders and {counts['residents']} residents")
+        print(f"character_prompts: ok, {len(prompts)} prompts cover everyone in data/characters")
         return 0
     if missing:
         print("character_prompts: no prompt for " + ", ".join(missing), file=sys.stderr)

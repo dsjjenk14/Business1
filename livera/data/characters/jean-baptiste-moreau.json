@@ -91,7 +91,16 @@
           "style": "a charcoal waistcoat over a white shirt, sleeves rolled once, a long black bistro apron, polished oxblood shoes",
           "jewelry": "a wine key on a chain, a slim steel watch",
           "silhouette": "a tall man in a waistcoat and a long black apron",
-          "key_features": ["Shaved head", "Thin moustache", "Charcoal waistcoat and long apron", "Wine key on a chain"]
+          "key_features": ["Shaved head", "Thin moustache", "Charcoal waistcoat and long apron", "Wine key on a chain"],
+          "stand_in": {
+            "skin": "#3d2419",
+            "hair": "#2a1a14",
+            "hair_style": "bald",
+            "top": "#3a3b3f",
+            "bottom": "#2a2a2c",
+            "shoes": "#5b1f1f",
+            "apron": "#141414"
+          }
         },
         "family_background": "Born in Dakar, raised in Lyon by an aunt who ran a bouchon. Sommelier in Paris at twenty-eight, unemployable in Paris at thirty-two.",
         "education": "Lycée hôtelier, Lyon; sommelier certification",

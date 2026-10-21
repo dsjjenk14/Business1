@@ -12,7 +12,7 @@
 import { Game } from "../main.js";
 import { LocalTransport } from "./transport_local.js";
 import { SaveSlot, makeRecord, exportRecord, readRecordFile } from "./save.js";
-import { el, avatar, lotus, wordmark } from "../dom.js";
+import { el, avatar, castGroups, lotus, wordmark } from "../dom.js";
 import { SKETCH_NOTICE } from "../layout.js";
 import { howItWorks } from "../onboarding.js";
 
@@ -173,7 +173,7 @@ class SoloGame extends Game {
     if (!r.ok) { await this.screenStart(r.error.message); return; }
     const err = el("p", { class: "err", role: "alert" }, message || "");
     const list = Array.isArray(r.data.characters) ? r.data.characters : [];
-    const cards = list.map(c => {
+    const cards = castGroups(list, c => {
       const taken = c.available === false;
       return el("button", { type: "button", class: "castcard", disabled: taken, dataset: { character: c.id }, onclick: async e => {
         e.currentTarget.disabled = true;
@@ -190,7 +190,7 @@ class SoloGame extends Game {
     });
     this.ui.showScreen(el("div", { class: "screen-inner wide" },
       wordmark(), el("h1", null, "Who are you?"),
-      el("p", { class: "hint" }, "Pick a founding resident or make your own. Everyone you don't pick lives their day on autopilot; you can change who you play from the menu."),
+      el("p", { class: "hint" }, "Pick someone from the town or make your own. Everyone you don't pick lives their day on autopilot; you can change who you play from the menu."),
       err, el("div", { class: "cast" }, cards),
       r.data.can_create ? el("button", { type: "button", class: "btn primary block", id: "create-btn", onclick: () => this.screenCreate() }, "Make your own character") : null,
       el("button", { type: "button", class: "btn ghost block", id: "solo-back", onclick: () => this.screenStart() }, "Back")));

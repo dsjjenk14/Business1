@@ -92,7 +92,15 @@
             "Oversized cream blazer",
             "Tape measure around her neck",
             "Arabic name necklace"
-          ]
+          ],
+          "stand_in": {
+            "skin": "#d9b08c",
+            "hair": "#1d1512",
+            "hair_style": "long",
+            "top": "#e9e1cf",
+            "bottom": "#161616",
+            "shoes": "#1c1c1c"
+          }
         },
         "family_background": "Dearborn, Michigan, youngest of five in a family bakery. Leila Rahal's parents' bakery is two doors down; the mothers are best friends and rivals.",
         "education": "High school diploma; night classes in pattern-making",

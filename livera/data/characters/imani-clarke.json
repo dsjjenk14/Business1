@@ -92,7 +92,17 @@
             "Gap-toothed grin",
             "Pens behind her ears",
             "Ink-stained apron"
-          ]
+          ],
+          "stand_in": {
+            "skin": "#7b4a30",
+            "hair": "#1b1411",
+            "hair_style": "bun",
+            "top": "#c9952f",
+            "bottom": "#4a5f86",
+            "shoes": "#e6b422",
+            "headwear": "#e6b422",
+            "apron": "#c8b89a"
+          }
         },
         "family_background": "Chapeltown, Leeds. Her mum is a bus driver, her dad a carpenter from Kingston. She moved to America for art school, ran out of money, and kept going west.",
         "education": "One year of illustration at Leeds Arts University",

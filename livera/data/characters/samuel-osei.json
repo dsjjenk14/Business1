@@ -105,7 +105,16 @@
             "Neat moustache",
             "Tweed jacket with elbow patches",
             "A mustard knit tie"
-          ]
+          ],
+          "stand_in": {
+            "skin": "#4b2d1f",
+            "hair": "#1b1512",
+            "hair_style": "short",
+            "top": "#7a5a3a",
+            "bottom": "#c2b28f",
+            "shoes": "#5a3a22",
+            "accent": "#d0a23a"
+          }
         },
         "family_background": "Peckham, London, son of a Ghanaian minister and a midwife. Met Tess in London when she was a travelling nurse; they followed a teaching post to Houston, then a job ad to Livéra.",
         "education": "B.A. History, King's College London; M.Ed., University of Houston",

@@ -98,7 +98,16 @@
             "Faded red cap",
             "Whistle and compression sleeves",
             "Very big, very gentle"
-          ]
+          ],
+          "stand_in": {
+            "skin": "#efc2a4",
+            "hair": "#b5562b",
+            "hair_style": "cap",
+            "top": "#3b3d40",
+            "bottom": "#1a1a1a",
+            "shoes": "#8a8d91",
+            "headwear": "#a3352b"
+          }
         },
         "family_background": "Ada, Oklahoma. A linebacker until his knee and a bottle took it away. His mother still prays for him by name at First Baptist.",
         "education": "High school diploma; two years at East Central University; personal trainer certification",

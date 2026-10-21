@@ -91,7 +91,16 @@
             "Reading glasses on a cord",
             "Pressed white shirt under a green apron",
             "Silver ring with a blue stone"
-          ]
+          ],
+          "stand_in": {
+            "skin": "#c9a07c",
+            "hair": "#6a655f",
+            "hair_style": "short",
+            "top": "#f2f2ee",
+            "bottom": "#5f6368",
+            "shoes": "#151515",
+            "apron": "#2f5d3a"
+          }
         },
         "family_background": "Born in Kabul, interpreter for US forces for eleven years, resettled in Sacramento on a special visa. His wife and two daughters stay in Sacramento while he finds them a home here.",
         "education": "B.A. English Literature, Kabul University",

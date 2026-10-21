@@ -97,7 +97,15 @@
             "Two days of stubble",
             "Scrubs under a hoodie",
             "Tired green-brown eyes"
-          ]
+          ],
+          "stand_in": {
+            "skin": "#c99a74",
+            "hair": "#3a2618",
+            "hair_style": "curls",
+            "top": "#7d8085",
+            "bottom": "#24324f",
+            "shoes": "#1a1a1a"
+          }
         },
         "family_background": "Ironbound, Newark, son of a Brazilian restaurant owner and a Portuguese-American schoolteacher. First doctor in the family; they mention it at every meal.",
         "education": "B.S. Biochemistry, Rutgers; M.D., Rutgers New Jersey Medical School",

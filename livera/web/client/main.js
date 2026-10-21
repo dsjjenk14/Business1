@@ -10,7 +10,7 @@ import { Renderer2D } from "./render2d.js";
 import { UI } from "./ui.js";
 import { Phone } from "./phone.js";
 import { buildCreator } from "./creator.js";
-import { el, avatar, loadFaceManifest, loadSpriteManifest, firstName, money, titleCase, withoutCliHint, wordmark } from "./dom.js";
+import { el, avatar, castGroups, loadFaceManifest, loadSpriteManifest, firstName, money, titleCase, withoutCliHint, wordmark } from "./dom.js";
 import { SKETCH_NOTICE } from "./layout.js";
 import { Agenda } from "./today.js";
 import { FirstMorning, howItWorks } from "./onboarding.js";
@@ -224,7 +224,7 @@ export class Game {
     if (!r.ok) { this.screenLogin(r.error.message); return; }
     const err = el("p", { class: "err", role: "alert" }, message || "");
     const list = Array.isArray(r.data.characters) ? r.data.characters : [];
-    const cards = list.map(c => {
+    const cards = castGroups(list, c => {
       const taken = c.available === false;
       return el("button", { type: "button", class: "castcard", disabled: taken, dataset: { character: c.id }, onclick: async e => {
         e.currentTarget.disabled = true;
@@ -242,7 +242,7 @@ export class Game {
     });
     this.ui.showScreen(el("div", { class: "screen-inner wide" },
       wordmark(), el("h1", null, "Who are you?"),
-      el("p", { class: "hint" }, "One account plays one character, for good. Pick a founding resident or make your own. If a script is playing someone right now, you take over: people always win."),
+      el("p", { class: "hint" }, "One account plays one character, for good. Pick someone from the town or make your own. If a script is playing someone right now, you take over: people always win."),
       err, el("div", { class: "cast" }, cards),
       r.data.can_create ? el("button", { type: "button", class: "btn primary block", id: "create-btn", onclick: () => this.screenCreate() }, "Make your own character") : null,
       el("button", { type: "button", class: "btn ghost block", onclick: () => this.logout() }, "Log out")));

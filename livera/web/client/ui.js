@@ -18,6 +18,7 @@ import { explain, openingText, sentence } from "./messages.js";
 import { sheetPlaces } from "./places.js";
 import { needFixText } from "./today.js";
 import { CoachMarks } from "./onboarding.js";
+import { artStatus } from "./figures.js";
 
 const ASKS = [
   { kind: "date", label: "Ask on a date" }, { kind: "kiss", label: "Ask for a kiss" }, { kind: "move_in", label: "Invite to move in" },
@@ -831,6 +832,10 @@ export class UI {
       p.scripted ? el("span", null, el("span", { class: "badge script" }, "played by a script")) : null,
       p.uniform === "police" ? el("span", null, el("span", { class: "badge police" }, "police officer on duty")) : null, metText, distText)));
     if (p.scripted) body.push(el("p", { class: "hint" }, "A script chooses where this character goes and what they do; the game's rules decide every outcome, as for everyone."));
+    // A figure that isn't their picture says so (D-067, D-073).
+    const art = artStatus(id);
+    if (art === "standin") body.push(el("p", { class: "hint", dataset: { art: "standin" } }, "No picture of them yet: they're drawn as a stand-in in their own colours until their art is made."));
+    else if (art === "plain") body.push(el("p", { class: "hint", dataset: { art: "plain" } }, "Drawn as a stand-in: the game doesn't show other players how a made character looks."));
     body.push(el("div", { class: "eyebrow" }, "Talk"));
     if (w.interactions && w.interactions.length) {
       const order = i => { const k = WARMTH.indexOf(i.id); return k < 0 ? (i.id === "argue" ? 99 : 50) : k; };

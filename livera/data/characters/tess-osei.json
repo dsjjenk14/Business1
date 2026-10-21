@@ -108,7 +108,16 @@
           "style": "ceil-blue scrubs, a navy fleece vest, white nursing clogs, a lanyard of badges",
           "jewelry": "a gold wedding band, small gold studs, a fob watch",
           "silhouette": "a small woman in blue scrubs moving fast",
-          "key_features": ["Dimples", "Low bun with a pencil", "Ceil-blue scrubs", "Fob watch", "Moves fast"]
+          "key_features": ["Dimples", "Low bun with a pencil", "Ceil-blue scrubs", "Fob watch", "Moves fast"],
+          "stand_in": {
+            "skin": "#d6a982",
+            "hair": "#151212",
+            "hair_style": "bun",
+            "top": "#9cc3d9",
+            "bottom": "#9cc3d9",
+            "shoes": "#ecebe6",
+            "accent": "#22304a"
+          }
         },
         "family_background": "Daly City, California, the fourth of five, in a house where every aunt was a nurse. Travelled nursing for six years before London, Samuel, and Houston.",
         "education": "B.S. Nursing, San Francisco State University",

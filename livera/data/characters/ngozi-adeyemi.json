@@ -97,7 +97,15 @@
             "White coat over ankara print",
             "Stethoscope",
             "Upright posture"
-          ]
+          ],
+          "stand_in": {
+            "skin": "#5a3626",
+            "hair": "#1a1412",
+            "hair_style": "short",
+            "top": "#f2efe8",
+            "bottom": "#1f6f73",
+            "shoes": "#6b4a2e"
+          }
         },
         "family_background": "Born in Ibadan, raised in Houston's Alief by a pharmacist father and a mother who ran a church choir. Divorced, no children, three godchildren she spoils.",
         "education": "B.S. Biology, Rice University; M.D., Baylor College of Medicine",

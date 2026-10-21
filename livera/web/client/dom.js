@@ -116,6 +116,21 @@ export async function loadTileManifest() {
 export const tileInfo = id => tiles.get(id) || null;
 export const tileUrl = id => (tiles.has(id) ? `tiles/${encodeURIComponent(id)}.webp` : null);
 
+// The pick list in groups (D-073), from each card's `cast` in the `characters` reply: the founders, the residents,
+// the townspeople, then characters made in this town. A cast the client doesn't know yet still shows, last.
+const CAST_GROUPS = [["founder", "The founders"], ["resident", "Residents"], ["townsperson", "Townspeople"], ["created", "Made in this town"]];
+export function castGroups(list, card) {
+  const kind = c => (c.created ? "created" : typeof c.cast === "string" && c.cast ? c.cast : "founder");
+  const known = new Set(CAST_GROUPS.map(([k]) => k)), out = [];
+  for (const [k, label] of [...CAST_GROUPS, ["", "Others"]]) {
+    const members = list.filter(c => (k ? kind(c) === k : !known.has(kind(c))));
+    if (!members.length) continue;
+    out.push(el("h2", { class: "cast-head eyebrow", dataset: { cast: k || "other" } }, `${label} · ${members.length}`));
+    for (const c of members) out.push(card(c));
+  }
+  return out;
+}
+
 export function avatar(id, name, size = "") {
   const url = faceUrl(id);
   if (url) return el("img", { class: `av ${size}`, src: url, alt: "", "aria-hidden": "true", draggable: "false" });

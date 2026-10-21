@@ -14,7 +14,7 @@ import { Game } from "../main.js";
 import { RoomTransport } from "./transport_room.js";
 import { TownHost, PATHS, MAX_PEOPLE } from "./host.js";
 import { Pacer, FriendEnd, newKeyPair, publicKeyText, randomId, LINK_TOTALS } from "./link.js";
-import { el, avatar, lotus, wordmark } from "../dom.js";
+import { el, avatar, castGroups, lotus, wordmark } from "../dom.js";
 import { SKETCH_NOTICE } from "../layout.js";
 
 export const TOGETHER_NOTICE = "Play together: the town runs in the host's browser. It pauses while the host's tab is hidden or closed, and the host's browser holds everyone's state.";
@@ -473,7 +473,7 @@ class TogetherGame extends Game {
     const list = Array.isArray(r.data.characters) ? r.data.characters : [];
     const yours = r.data.yours || null;
     const yoursName = (list.find(c => c.id === yours) || {}).name;
-    const cards = list.map(c => {
+    const cards = castGroups(list, c => {
       const other = yours && c.id !== yours;
       const taken = c.available === false || other;
       return el("button", { type: "button", class: "castcard", disabled: taken, dataset: { character: c.id }, onclick: async e => {
@@ -493,7 +493,7 @@ class TogetherGame extends Game {
     this.ui.showScreen(el("div", { class: "screen-inner wide" },
       wordmark(), el("h1", null, "Who are you?"),
       el("p", { class: "hint" }, yours ? `You play ${yoursName || "your character"} in this town. ${people}`
-        : `One person plays one character in this town, for good (the host can let you pick again). Founders nobody plays live their day on autopilot; pick one and you take over: people always win. ${people}`),
+        : `One person plays one character in this town, for good (the host can let you pick again). Everyone nobody plays lives their day on autopilot; pick one and you take over: people always win. ${people}`),
       err, el("div", { class: "cast" }, cards),
       r.data.can_create ? el("button", { type: "button", class: "btn primary block", id: "create-btn", onclick: () => this.screenCreate() }, "Make your own character") : null,
       el("button", { type: "button", class: "btn ghost block", id: "together-back", onclick: () => this.screenLobby() }, "Back")));

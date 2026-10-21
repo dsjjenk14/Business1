@@ -106,7 +106,16 @@
             "Rolled sleeves and a bar apron",
             "Claddagh ring",
             "Laugh lines"
-          ]
+          ],
+          "stand_in": {
+            "skin": "#e7b8a0",
+            "hair": "#cfc0a0",
+            "hair_style": "bun",
+            "top": "#1d1d20",
+            "bottom": "#2b3646",
+            "shoes": "#151515",
+            "apron": "#9a5b32"
+          }
         },
         "family_background": "Grew up over her father's bar in Dorchester. Widowed at forty. Her son Liam pours concrete for Forge Builders; she followed him here when the bar back home was sold.",
         "education": "High school diploma; twenty-two years behind a bar",

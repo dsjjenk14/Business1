@@ -7,8 +7,8 @@
       "place": "lumiere_bistro",
       "offer": "dinner",
       "days": ["friday"],
-      "from": "19:30",
-      "minutes": 120,
+      "from": "19:00",
+      "minutes": 150,
       "with": "partner",
       "chance": 0.85
     },
@@ -17,8 +17,8 @@
       "label": "Open mic night at the Copper Tap",
       "place": "copper_tap",
       "days": ["thursday"],
-      "from": "20:00",
-      "minutes": 150,
+      "from": "19:30",
+      "minutes": 180,
       "who": {"interests_any": ["music", "hip_hop", "rnb_music", "jazz", "gospel", "nightlife"]},
       "chance": 0.7
     },
@@ -49,21 +49,52 @@
       "place": "copper_tap",
       "activity": "darts",
       "days": ["tuesday"],
-      "from": "19:30",
+      "from": "19:00",
       "minutes": 150,
       "who": {"personality_min": {"competitiveness": 60}},
       "chance": 0.5
+    },
+    {
+      "id": "after_work_drink",
+      "label": "A drink after work at the Copper Tap",
+      "place": "copper_tap",
+      "days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
+      "from": "17:30",
+      "minutes": 180,
+      "who": {"personality_min": {"sociability": 65}},
+      "chance": 0.4
     },
     {
       "id": "friends_round",
       "label": "A round with a friend at the Copper Tap",
       "place": "copper_tap",
       "days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"],
-      "from": "19:45",
-      "minutes": 135,
+      "from": "19:00",
+      "minutes": 180,
       "with": "friend",
       "min_friendship": 45,
       "chance": 0.15
+    },
+    {
+      "id": "listening_session",
+      "label": "A listening session at Low End Studios",
+      "place": "low_end_studios",
+      "days": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday"],
+      "from": "20:00",
+      "minutes": 180,
+      "who": {"interests_any": ["music", "hip_hop", "rnb_music", "jazz"]},
+      "chance": 0.3
+    },
+    {
+      "id": "weeknight_dinner",
+      "label": "A weeknight dinner at Lumière",
+      "place": "lumiere_bistro",
+      "offer": "dinner",
+      "days": ["monday", "tuesday", "wednesday", "sunday"],
+      "from": "19:15",
+      "minutes": 165,
+      "who": {"interests_any": ["cooking", "brunch", "travel", "networking", "real_estate"]},
+      "chance": 0.25
     },
     {
       "id": "dinner_out",
@@ -71,8 +102,8 @@
       "place": "lumiere_bistro",
       "offer": "dinner",
       "days": ["thursday", "friday", "saturday"],
-      "from": "19:00",
-      "minutes": 120,
+      "from": "19:15",
+      "minutes": 165,
       "who": {"values_min": {"status": 55}},
       "chance": 0.35
     },
@@ -81,8 +112,8 @@
       "label": "Friday night at the Copper Tap",
       "place": "copper_tap",
       "days": ["friday", "saturday"],
-      "from": "20:30",
-      "minutes": 150,
+      "from": "20:00",
+      "minutes": 180,
       "who": {"interests_any": ["nightlife", "music", "hip_hop", "rnb_music"]},
       "chance": 0.5
     },
@@ -98,24 +129,14 @@
       "chance": 0.4
     },
     {
-      "id": "after_work_drink",
-      "label": "A drink after work at the Copper Tap",
-      "place": "copper_tap",
-      "days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
-      "from": "18:30",
-      "minutes": 120,
-      "who": {"personality_min": {"sociability": 65}},
-      "chance": 0.3
-    },
-    {
       "id": "cafe_evening",
-      "label": "A notebook and a coffee at Heritage Coffee",
+      "label": "A notebook and the last coffee at Heritage Coffee",
       "place": "heritage_coffee",
-      "days": ["monday", "tuesday", "wednesday", "thursday", "friday"],
-      "from": "17:15",
-      "minutes": 90,
+      "days": ["monday", "tuesday", "wednesday", "thursday", "friday", "sunday"],
+      "from": "18:00",
+      "minutes": 110,
       "who": {"interests_any": ["reading", "art", "photography"]},
-      "chance": 0.25
+      "chance": 0.35
     },
     {
       "id": "stargazing",
