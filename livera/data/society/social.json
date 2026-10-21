@@ -1,18 +1,19 @@
 {
-  "$comment": "Social media on the phone (D-074, core/Social.cpp). Posts are World state: an author (a character, or the anonymous gossip account), a time, text, maybe a place and tagged people, and what it's about (the memory or rumour it came from). Characters a script plays post from what really happened to them: a moment is one of their own memories of a type listed under auto.moments (or a check-in when they walk into a place of a listed type), posted after a delay with the chance base + per_trait x trait/100 times the moment's chance, at most per_day a day and min_gap_minutes apart, in their voice (the first voice whose minimums their personality meets; 'default' lines are the fallback). Lines may use {first} (the author), {place}, {with} (the other person), {title}, {pet}, {item}; a line whose placeholders can't be filled isn't used. People post with the post op. The gossip account posts what people witnessed, from the rumours the World keeps: once at least min_heard people know and delay_minutes have passed, with the kind's chance, at most per_day a day; twist_chance of its posts aren't what happened, and only the people who were there can tell. It is run by whoever holds the secret run_by_secret (Sienna, in her data). Likes and new followers add fame (at most fame.max_per_day a day per person) and move the author's side of the relationship by these small amounts. Notifications reach a person at most notify.per_hour an hour; the rest wait in the app's activity list.",
+  "$comment": "Social media on the phone (D-074, core/Social.cpp). Posts are World state: an author (a character, or the anonymous gossip account), a time, text, maybe a place and tagged people, and what it's about (the memory or rumour it came from). Characters a script plays post from what really happened to them: a moment is one of their own memories of a type listed under auto.moments (or a check-in when they walk into a place of a listed type), posted after a delay with the chance base + per_trait x trait/100 times the moment's chance, at most per_day a day and min_gap_minutes apart, in their voice (the first voice whose minimums their personality meets; 'default' lines are the fallback). Lines may use {first} (the author), {place}, {with} (the other person), {title}, {pet}, {item}; a line whose placeholders can't be filled isn't used. People post with the post op. The gossip account posts what people witnessed, from the rumours the World keeps: once at least min_heard people know and delay_minutes have passed, with the kind's chance, at most per_day a day; twist_chance of its posts aren't what happened, and only the people who were there can tell. It is run by whoever holds the secret run_by_secret (Sienna, in her data). Likes and new followers add fame (at most fame.max_per_day a day per person) and move the author's side of the relationship by these small amounts. Notifications reach a person at most notify.per_hour an hour, and at most notify.game_per_day a day of them come from the game (a post the game wrote that tags you, the gossip account); the rest wait in the app's activity list. In the morning (until last_night.shown_until_hour) the feed opens with Last night in Livéra: the most liked and commented public posts from from_hour last night to to_hour this morning, and the gossip account's.",
   "social": {
     "post": {"max_length": 280, "min_gap_minutes": 10, "per_day": 12, "max_tags": 4},
     "comment": {"max_length": 200, "min_gap_minutes": 1, "per_day": 40, "per_post": 40},
     "like": {"per_day": 150},
     "follow": {"max_following": 200},
     "feed": {"limit": 40, "kept_posts": 600, "comments_shown": 3, "activity_kept": 60, "map_post_hours": 6},
+    "last_night": {"from_hour": 18, "to_hour": 6, "shown_until_hour": 12, "top": 3},
     "fame": {"per_follower": 0.4, "per_like": 0.05, "max_per_day": 2},
     "relationship": {
       "like": {"familiarity": 0.5, "friendship": 0.3},
       "comment": {"familiarity": 1, "friendship": 0.6},
       "follow": {"familiarity": 1}
     },
-    "notify": {"per_hour": 4},
+    "notify": {"per_hour": 4, "game_per_day": 1},
     "seed_follows": {"min": {"familiarity": 30}},
     "status_purchase": {"min_price_cents": 40000, "categories": ["jewelry", "accessory", "clothing", "phone", "electronics"], "except": ["engagement_ring"]},
     "topics": {
@@ -43,7 +44,7 @@
       "trait": "sociability",
       "base": 0.3,
       "per_trait": 0.6,
-      "checkin_place_types": ["bar", "coffee_shop", "restaurant", "nightclub", "cinema", "gym", "salon", "boutique", "sports_court", "wellness_studio", "jeweler"],
+      "checkin_place_types": ["bar", "coffee_shop", "restaurant", "nightclub", "cinema", "gym", "salon", "boutique", "sports_court", "wellness_studio", "jeweler", "grocery"],
       "checkin_tag_min_friendship": 30,
       "voices": [
         {"id": "showy", "min": {"sociability": 80, "confidence": 80}},
@@ -198,7 +199,7 @@
         {
           "memory": "checkin",
           "topic": "out",
-          "chance": 0.25,
+          "chance": 0.6,
           "lines": {
             "default": ["At {place}.", "{place}, again. 📍", "{place} with {with}. 📍"],
             "showy": ["{place} tonight! Who's coming? ✨", "Me at {place}: thriving 💅", "{place} with {with} 🥂"],

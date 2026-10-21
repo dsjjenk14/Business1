@@ -375,6 +375,62 @@ TEST_CASE("social: likes, comments, follows and tags reach the author as a toast
   CHECK(eventsOf(w.drainEvents(), "dax", "social").empty());
 }
 
+TEST_CASE("social: the game nudges at most once a day; what people do is never held back by that") {
+  World w = socialWorld(socialContent(), {"dominique", "dax", "julian", "andre"});
+  for (const char* id : {"dominique", "dax", "julian", "andre"}) walkInto(w, id, "heritage_coffee");
+  (void)w.drainEvents();
+  REQUIRE(w.interact("dominique", "argue", "julian"));
+  REQUIRE(w.interact("dominique", "argue", "dax"));
+  w.advanceMinutes(40);  // two scenes, two posts about her by the gossip account
+  CHECK(postsBy(w, "livera.unfiltered").size() == 2);
+  auto toasts = eventsOf(w.drainEvents(), "dominique", "social");
+  REQUIRE(toasts.size() == 1);
+  CHECK(toasts[0]["kind"] == "gossip");
+  const Json app = w.openPhoneApp("dominique", "social").value();
+  int gossip = 0;
+  for (const auto& a : app["activity"]) gossip += a["kind"] == "gossip" ? 1 : 0;
+  CHECK(gossip == 2);  // both are in the app
+  // A person's like still reaches her the same day.
+  REQUIRE(w.post("dominique", "Long day.", "", {}, ""));
+  REQUIRE(w.like("andre", lastPostId(w), true));
+  toasts = eventsOf(w.drainEvents(), "dominique", "social");
+  REQUIRE(toasts.size() == 1);
+  CHECK(toasts[0]["kind"] == "like");
+}
+
+TEST_CASE("social: in the morning the feed opens with Last night in Livéra: the night's top posts and the gossip account's") {
+  World w = socialWorld(socialContent([](Json& s) { s["post"]["min_gap_minutes"] = 0; }), {"dominique", "dax", "julian", "aaliyah"});
+  REQUIRE(w.post("aaliyah", "Afternoon post", "", {}, ""));  // 10:00: not last night
+  w.advanceMinutes(10 * 60);  // 20:00
+  for (const char* id : {"dominique", "dax", "julian"}) walkInto(w, id, "copper_tap");
+  REQUIRE(w.post("aaliyah", "Quiet one", "", {}, ""));
+  const std::string quiet = lastPostId(w);
+  REQUIRE(w.post("dax", "Darts champion", "", {}, ""));
+  const std::string loud = lastPostId(w);
+  REQUIRE(w.like("dominique", loud, true));
+  REQUIRE(w.like("julian", loud, true));
+  REQUIRE(w.comment("aaliyah", loud, "Rematch"));
+  REQUIRE(w.interact("dax", "argue", "julian"));  // seen by Dominique
+  w.advanceMinutes(40);
+  REQUIRE(postsBy(w, "livera.unfiltered").size() == 1);
+  // Not in the evening: the section is the morning's.
+  CHECK(!w.openPhoneApp("dominique", "social").value().contains("last_night"));
+  const GameMinutes eight = (w.now() / kMinutesPerDay + 1) * kMinutesPerDay + 8 * 60;
+  w.advanceMinutes(eight - w.now());
+  const Json night = w.openPhoneApp("dominique", "social").value()["last_night"];
+  REQUIRE(night.is_object());
+  REQUIRE(night["top"].size() >= 2);
+  CHECK(night["top"][0]["post"] == loud);  // two likes and a comment come first
+  CHECK(night["top"][1]["post"] == quiet);
+  for (const auto& p : night["top"]) CHECK(p["text"] != "Afternoon post");
+  REQUIRE(night["gossip"].size() == 1);
+  CHECK(night["gossip"][0]["author"]["gossip"] == true);
+  CHECK(night["gossip"][0]["gossip"]["you_were_there"] == true);
+  // By the afternoon it's gone.
+  w.advanceMinutes(5 * 60);
+  CHECK(!w.openPhoneApp("dominique", "social").value().contains("last_night"));
+}
+
 // ---- The privacy rule -------------------------------------------------------------------------------
 TEST_CASE("social: the privacy rule: a feed holds only what that character could know") {
   World w = socialWorld(socialContent(), {"dominique", "dax", "julian", "leila", "sienna"});
@@ -525,6 +581,34 @@ TEST_CASE("social: a promotion is posted for someone a script plays, from the Wo
   CHECK(posts[0]->about == memoryOf(w, "dax", "promotion")->id);
 }
 
+TEST_CASE("social: a day of the town on the autopilot: founders post about where they really are, with the real data") {
+  World w = World::createNew(realContent());
+  Autopilot pilot;
+  std::vector<CharacterId> all;
+  for (const auto& [id, def] : w.content().characters()) {
+    if (def.playable) all.push_back(id);
+  }
+  if (std::getenv("LIVERA_SOCIAL_LOG")) pilot.setLog([](const std::string& line) { std::fprintf(stderr, "%s\n", line.c_str()); });
+  pilot.start(w, all);
+  const GameMinutes end = w.now() + 14 * 60;  // 07:00 to 21:00
+  while (w.now() < end) {
+    w.advanceRealTime(0.5);
+    pilot.step(w, 0.5);
+    pilot.observe(w.drainEvents());
+  }
+  int automatic = 0;
+  for (const auto& p : w.state().social.posts) {
+    if (!p.automatic || p.author == "livera.unfiltered") continue;
+    ++automatic;
+    if (std::getenv("LIVERA_SOCIAL_LOG")) std::fprintf(stderr, "    %s %s: %s\n", formatDateTime(p.at).c_str(), p.author.c_str(), p.text.c_str());
+    CHECK(!p.text.empty());
+    CHECK(!p.topic.empty());
+    if (p.topic == "out") CHECK(!p.place.empty());  // a check-in names where they were
+  }
+  std::fprintf(stderr, "    (%d posts written by the game in a day)\n", automatic);
+  CHECK(automatic >= 1);
+}
+
 // ---- The gossip account ----------------------------------------------------------------------------
 TEST_CASE("social: the gossip account posts only scenes people witnessed, with how many heard, and spreads") {
   World w = socialWorld(socialContent([](Json& s) { s["unfiltered"]["delay_minutes"] = 20; }), {"dominique", "dax", "julian", "andre"});
@@ -670,7 +754,11 @@ TEST_CASE("social: the map app shows your people where your character could know
   walkInto(w, "maya", "heritage_coffee");
   REQUIRE(w.post("aaliyah", "Shopping", "lustre_jewelers", {}, ""));
   const Json map = w.openPhoneApp("dominique", "map").value();
-  CHECK(map.contains("places"));
+  // The places anyone may walk into, open now (not homes, not staff-only offices); small: the town is the map op's.
+  CHECK(has(map["open_now"].get<std::vector<std::string>>(), "heritage_coffee"));
+  CHECK(!has(map["open_now"].get<std::vector<std::string>>(), "lexington_1204"));
+  CHECK(!has(map["open_now"].get<std::vector<std::string>>(), "parallax_labs"));
+  CHECK(map.dump().size() < 8000);
   std::map<std::string, Json> people;
   for (const auto& p : map["people"]) people[p["character"].get<std::string>()] = p;
   REQUIRE(people.count("dax"));

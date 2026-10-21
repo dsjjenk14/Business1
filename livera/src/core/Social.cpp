@@ -130,8 +130,8 @@ Status ContentDatabase::ingestSocial(const std::string& source, const std::strin
   handled = section == "social";
   if (!handled) return okStatus();
   if (social_.enabled) return fail("content_duplicate", source + ": 'social' defined twice");
-  static const std::set<std::string> kKeys{"post", "comment", "like", "follow", "feed", "fame", "relationship",
-                                           "notify", "seed_follows", "status_purchase", "topics", "auto", "unfiltered"};
+  static const std::set<std::string> kKeys{"post", "comment", "like", "follow", "feed", "fame", "relationship", "notify",
+                                           "seed_follows", "status_purchase", "topics", "auto", "unfiltered", "last_night"};
   try {
     for (const auto& [k, v] : body.items()) {
       if (!kKeys.count(k)) return fail("content_invalid", source + ": social: unknown key '" + k + "'");
@@ -165,6 +165,12 @@ Status ContentDatabase::ingestSocial(const std::string& source, const std::strin
     S.commentRelationship = readStats(rel, "comment");
     S.followRelationship = readStats(rel, "follow");
     S.notifyPerHour = body.value("notify", Json::object()).value("per_hour", S.notifyPerHour);
+    S.gameNotifyPerDay = body.value("notify", Json::object()).value("game_per_day", S.gameNotifyPerDay);
+    const Json night = body.value("last_night", Json::object());
+    S.lastNightFromHour = night.value("from_hour", S.lastNightFromHour);
+    S.lastNightToHour = night.value("to_hour", S.lastNightToHour);
+    S.lastNightShownUntil = night.value("shown_until_hour", S.lastNightShownUntil);
+    S.lastNightTop = night.value("top", S.lastNightTop);
     S.seedFollowMin = readStats(body.value("seed_follows", Json::object()), "min");
     const Json sp = body.value("status_purchase", Json::object());
     S.statusMinPriceCents = sp.value("min_price_cents", Cents{0});
@@ -242,6 +248,12 @@ Status ContentDatabase::validateSocial() {
     if (v < 1) return fail("content_invalid", w + ": limits must be at least 1");
   }
   if (S.autoDelayMax < S.autoDelayMin) return fail("content_invalid", w + ".auto.delay_minutes: min <= max");
+  if (S.gameNotifyPerDay < 0 || S.lastNightTop < 0) return fail("content_invalid", w + ": counts can't be negative");
+  for (int h : {S.lastNightFromHour, S.lastNightToHour, S.lastNightShownUntil}) {
+    if (h < 0 || h > 23) return fail("content_invalid", w + ".last_night: hours are 0-23");
+  }
+  if (S.lastNightToHour >= S.lastNightFromHour || S.lastNightShownUntil < S.lastNightToHour)
+    return fail("content_invalid", w + ".last_night: from an evening hour to a morning hour, shown after it");
   for (double v : {S.famePerFollower, S.famePerLike, S.fameMaxPerDay}) {
     if (v < 0 || v > 100) return fail("content_invalid", w + ".fame: 0-100");
   }
@@ -543,7 +555,7 @@ Result<std::string> World::publish(const std::string& author, const std::string&
   state_.social.posts.push_back(p);
   if (static_cast<int>(state_.social.posts.size()) > S.keptPosts) state_.social.posts.erase(state_.social.posts.begin());
   const bool gossip = author == S.unfilteredHandle;
-  for (const auto& t : p.tags) socialNotify(t, gossip ? "gossip" : "tag", author, p.id);
+  for (const auto& t : p.tags) socialNotify(t, gossip ? "gossip" : "tag", author, p.id, automatic);
   // Followers with the app open see it arrive; the post itself is what anyone can read.
   std::vector<CharacterId> told;
   for (const auto& [id, a] : state_.social.accounts) {
@@ -720,7 +732,8 @@ void World::addSocialFame(const CharacterId& id, double amount) {
   addFame(*c, add);
 }
 
-void World::socialNotify(const CharacterId& to, const std::string& kind, const std::string& from, const std::string& post) {
+void World::socialNotify(const CharacterId& to, const std::string& kind, const std::string& from, const std::string& post,
+                         bool fromGame) {
   const SocialConfig& S = content_->social();
   if (to == from || !character(to)) return;
   SocialAccountState& a = socialAccount(to);
@@ -745,6 +758,16 @@ void World::socialNotify(const CharacterId& to, const std::string& kind, const s
     a.notified = 0;
   }
   if (a.notified >= S.notifyPerHour) return;  // the rest wait in the app's activity list
+  // The game nudges at most once a day (D-076): what it wrote reaches you as a toast that rarely; people always do.
+  if (fromGame) {
+    const std::int64_t day = state_.now / kMinutesPerDay;
+    if (a.gameNotifyDay != day) {
+      a.gameNotifyDay = day;
+      a.gameNotified = 0;
+    }
+    if (a.gameNotified >= S.gameNotifyPerDay) return;
+    a.gameNotified += 1;
+  }
   a.notified += 1;
   const bool gossip = from == S.unfilteredHandle;
   const CharacterDef* d = definition(from);
@@ -1098,6 +1121,26 @@ Json World::phoneSocial(const CharacterState& c) {
            {"limits", Json{{"post_max_length", S.postMaxLength}, {"comment_max_length", S.commentMaxLength},
                            {"max_tags", S.maxTags}, {"posts_left_today", S.postsPerDay - a.postsToday}}}};
   if (!S.unfilteredHandle.empty()) out["gossip_account"] = accountView(S.unfilteredHandle, c);
+  // The morning (D-076): Last night in Livéra, the night's most liked and commented public posts and the gossip
+  // account's. Every one of them is in the town tab anyway; this only picks which to put first.
+  const GameMinutes dayStart = state_.now / kMinutesPerDay * kMinutesPerDay;
+  const int hour = static_cast<int>((state_.now - dayStart) / 60);
+  if (hour >= S.lastNightToHour && hour < S.lastNightShownUntil) {
+    const GameMinutes from = dayStart - (24 - S.lastNightFromHour) * 60, to = dayStart + S.lastNightToHour * 60;
+    std::vector<const SocialPost*> top, gossip;
+    for (const auto& p : state_.social.posts) {
+      if (p.at < from || p.at >= to) continue;
+      (p.author == S.unfilteredHandle ? gossip : top).push_back(&p);
+    }
+    std::stable_sort(top.begin(), top.end(), [](const SocialPost* x, const SocialPost* y) {
+      return x->likes.size() + x->comments.size() > y->likes.size() + y->comments.size();
+    });
+    if (static_cast<int>(top.size()) > S.lastNightTop) top.resize(static_cast<std::size_t>(S.lastNightTop));
+    Json night{{"from", from}, {"to", to}, {"top", Json::array()}, {"gossip", Json::array()}};
+    for (const SocialPost* p : top) night["top"].push_back(postView(*p, c));
+    for (auto it = gossip.rbegin(); it != gossip.rend(); ++it) night["gossip"].push_back(postView(**it, c));
+    if (!top.empty() || !gossip.empty()) out["last_night"] = night;
+  }
   return out;
 }
 
@@ -1162,7 +1205,7 @@ Json socialPartToJson(const WorldState& s) {
                         {"day", a.day}, {"posts_today", a.postsToday}, {"comments_today", a.commentsToday},
                         {"likes_today", a.likesToday}, {"auto_today", a.autoToday}, {"fame_today", a.fameToday},
                         {"last_post_at", a.lastPostAt}, {"last_comment_at", a.lastCommentAt}, {"last_auto_at", a.lastAutoAt},
-                        {"last_post_text", a.lastPostText}};
+                        {"last_post_text", a.lastPostText}, {"game_notify_day", a.gameNotifyDay}, {"game_notified", a.gameNotified}};
   }
   return Json{{"seeded", W.seeded}, {"posts", posts}, {"accounts", accounts}, {"gossip_day", W.gossipDay},
               {"gossip_today", W.gossipToday}};
@@ -1227,6 +1270,8 @@ void socialPartFromJson(WorldState& s, const Json& j) {
     x.lastCommentAt = a.value("last_comment_at", GameMinutes{-1});
     x.lastAutoAt = a.value("last_auto_at", GameMinutes{-1});
     x.lastPostText = a.value("last_post_text", "");
+    x.gameNotifyDay = a.value("game_notify_day", std::int64_t{-1});
+    x.gameNotified = a.value("game_notified", 0);
     W.accounts[id] = std::move(x);
   }
 }

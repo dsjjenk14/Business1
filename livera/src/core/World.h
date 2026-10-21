@@ -336,6 +336,8 @@ struct SocialAccountState {
   std::string lastPostText;
   std::int64_t notifyHour = -1;        // the game hour `notified` counts
   int notified = 0;
+  std::int64_t gameNotifyDay = -1;     // the game day `gameNotified` counts: toasts the game caused, not a person
+  int gameNotified = 0;
 };
 
 struct SocialWorldState {
@@ -1218,7 +1220,9 @@ class World {
   Json postView(const SocialPost& p, const CharacterState& viewer) const;
   Json accountView(const std::string& account, const CharacterState& viewer) const;
   Json phoneSocial(const CharacterState& c);  // marks the activity seen
-  void socialNotify(const CharacterId& to, const std::string& kind, const std::string& from, const std::string& post);
+  // `fromGame`: a post the game wrote (someone a script plays, the gossip account) rather than a person's act.
+  void socialNotify(const CharacterId& to, const std::string& kind, const std::string& from, const std::string& post,
+                    bool fromGame = false);
   void addSocialFame(const CharacterId& id, double amount);
   std::string momentLine(const CharacterId& author, const SocialMoment& m, const SocialMomentDef& def) const;
   Json phoneMapPeople(const CharacterState& c) const;  // the map app: your people, where you could know they are

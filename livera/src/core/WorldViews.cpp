@@ -441,7 +441,8 @@ Json World::phoneMessages(const CharacterState& c) {
   Json people = Json::object();
   for (const auto& [other, list] : threads.items()) {
     const CharacterDef* d = definition(other);
-    Json p{{"name", d ? d->fullName() : other}, {"scripted", isScripted(other)}};
+    const CharacterState* os = character(other);
+    Json p{{"name", d ? d->fullName() : other}, {"scripted", isScripted(other)}, {"online", os && os->online}};
     if (isScripted(other)) p["played_by"] = playedBy(other);
     people[other] = p;
   }

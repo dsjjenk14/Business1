@@ -1028,10 +1028,13 @@ Result<Json> World::openPhoneApp(const CharacterId& actor, const std::string& ap
   if (app == "contacts") return phoneContacts(c);
   if (app == "calendar") return phoneCalendar(c);
   if (app == "map") {
-    // The town, plus your people where you could know they are: in sight, or where they last posted from (D-074).
-    Json view = mapView();
-    view["people"] = phoneMapPeople(c);
-    return view;
+    // D-074: the places anyone may walk into that are open right now, and your people where you could know they are
+    // (in sight, or where they last posted from). The town itself is the `map` op's (clients have it already).
+    Json open = Json::array();
+    for (const auto& [id, loc] : content_->locations()) {
+      if (loc.access == AccessRule::Public && locationStatus(loc) == "open") open.push_back(id);
+    }
+    return Json{{"open_now", open}, {"people", phoneMapPeople(c)}};
   }
   if (app == "social") return phoneSocial(c);  // social media (Social.cpp, D-074)
   if (app == "career") return phoneCareer(c);

@@ -5,7 +5,8 @@
 # compiled to WebAssembly, web/client/solo/livera_solo.js (scripts/build_wasm.sh). The link's own unit tests
 # (web/tests/together_link.mjs) run first.
 #
-#   livera/web/tests/run_together_e2e.sh
+#   livera/web/tests/run_together_e2e.sh                    # together_e2e.js
+#   livera/web/tests/run_together_e2e.sh social_e2e.js      # only these test files (in web/tests), same static server
 #
 # Env:
 #   LIVERA_E2E_DIR          where logs go (default: a new mktemp -d)
@@ -55,7 +56,12 @@ grep -q "listening" "$E2E_DIR/static.log" || { echo "static server didn't start:
 
 status=0
 node "$HERE/together_link.mjs" || status=$?
-NODE_PATH="$(npm root -g)" LIVERA_TOGETHER_URL="http://127.0.0.1:$PORT/together/" LIVERA_SHOTS="$SHOTS" \
-  LIVERA_TOGETHER_DROP="${LIVERA_TOGETHER_DROP:-0.05}" node "$HERE/together_e2e.js" || status=$?
+TESTS=("$@")
+[ ${#TESTS[@]} -eq 0 ] && TESTS=(together_e2e.js)
+for t in "${TESTS[@]}"; do
+  [ -f "$HERE/$t" ] || { echo "no test file web/tests/$t" >&2; status=2; continue; }
+  NODE_PATH="$(npm root -g)" LIVERA_TOGETHER_URL="http://127.0.0.1:$PORT/together/" LIVERA_SHOTS="$SHOTS" \
+    LIVERA_TOGETHER_DROP="${LIVERA_TOGETHER_DROP:-0.05}" node "$HERE/$t" || status=$?
+done
 echo "logs: $E2E_DIR (static.log) · screenshots: $SHOTS"
 exit $status

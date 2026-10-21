@@ -1237,6 +1237,9 @@ struct SocialConfig {
   double famePerFollower = 0.4, famePerLike = 0.05, fameMaxPerDay = 2;
   StatMap likeRelationship, commentRelationship, followRelationship;  // the author's side toward who did it
   int notifyPerHour = 4;
+  int gameNotifyPerDay = 1;  // of those, the ones the game caused (a post it wrote tagging you, the gossip account)
+  // The morning's "Last night in Livéra": public posts from from_hour last night to to_hour, shown until shown_until.
+  int lastNightFromHour = 18, lastNightToHour = 6, lastNightShownUntil = 12, lastNightTop = 3;
   StatMap seedFollowMin;  // at a world's founding, people follow whoever they already know this well
   Cents statusMinPriceCents = 0;
   std::vector<std::string> statusCategories, statusExcept;

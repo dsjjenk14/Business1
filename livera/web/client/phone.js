@@ -1,9 +1,10 @@
-// The phone: every app the server has, on a home screen grouped under Everyday, Life, Ambition
-// and Town. Most apps have a screen of their own (Work, Calendar, Contacts, Jobs, Homes, Sports,
-// Items, Pets, Studio, Messages with a contact picker, Alerts…); the rest show the server's answer
-// through generic(), which stacks fields, hides ids and internal keys, and words times, stats and
-// yes/no for people. Every button is an op the server already has (verbs.js); its reply or its
-// refusal is shown where you pressed. Nothing here invents an option or an outcome.
+// The phone: the home screen leads with what you use every day (Social, Messages, Map, Bank, Work,
+// Calendar, People, D-074); every other app the server has is one tap deeper, under More apps, grouped
+// under Everyday, Life, Ambition and Town. Most apps have a screen of their own (Social in social.js,
+// Messages as a thread per person, the Map with your people, Work, Calendar, Jobs, Homes...); the rest
+// show the server's answer through generic(), which stacks fields, hides ids and internal keys, and
+// words times, stats and yes/no for people. Every button is an op the server already has (verbs.js);
+// its reply or its refusal is shown where you pressed. Nothing here invents an option or an outcome.
 
 import { el, replace, money, avatar, firstName, titleCase, withoutCliHint } from "./dom.js";
 import { typeName } from "./layout.js";
@@ -14,6 +15,7 @@ import {
   placeNamed, isAt, verbs, applyFor, joinAt, insideThen, atDoorThen, affordability, exposeForTests, showOutcome, getThere, setClock,
 } from "./verbs.js";
 import { storyScreen } from "./moments.js";  // the Story app (D-068)
+import { socialScreen } from "./social.js";  // the Social app (D-074)
 
 // The phone's own stylesheet, next to this module (so no page needs a <link> for it).
 (function addStylesheet() {
@@ -29,6 +31,7 @@ import { storyScreen } from "./moments.js";  // the Story app (D-068)
 // this is the one list the client keeps; an unknown app is refused with `unknown_app`.
 // [id, group, icon] — the label is APP_NAMES[id].
 export const APPS = [
+  ["social", "everyday", "social"],  // social media (social.js, D-074)
   ["bank", "everyday", "bank"], ["messages", "everyday", "messages"], ["calendar", "everyday", "calendar"], ["work", "everyday", "workdesk"],
   ["map", "everyday", "map"], ["transit", "everyday", "transit"],
   ["story", "life", "log"],  // your life story (moments.js, D-068)
@@ -39,6 +42,8 @@ export const APPS = [
   ["city", "town", "city"], ["weather", "town", "weather"], ["record", "town", "record"], ["notifications", "town", "notifications"],
 ];
 const GROUPS = [["everyday", "Everyday"], ["life", "Life"], ["ambition", "Ambition"], ["town", "Town"]];
+// The home screen: what you use every day, in this order. The rest are under More apps.
+export const DAILY = ["social", "messages", "map", "bank", "work", "calendar", "contacts"];
 // A browser town (single-player, Play together) has no store billing at all: no coin store there.
 const browserTown = () => ["solo", "together"].includes(document.body.dataset.boot);
 
@@ -92,6 +97,10 @@ export class Phone {
     this.root = document.getElementById("phone");
     this.app = null;
     this.unread = 0;
+    this.socialNew = 0;      // social toasts since the Social app was last opened (D-074)
+    this.thread = null;      // the conversation open in Messages (a character id), or the list
+    this.social = null;      // the Social app's tab, draft and the profile on screen (social.js)
+    this.more = false;       // on the More apps screen
     this.timer = null;
     this.people = [];        // who you can message: your contacts (the Contacts app), refreshed when Messages opens
     this.goals = null;       // does this server have the goals app? (asked once)
@@ -105,7 +114,7 @@ export class Phone {
 
   show(app, opts) {
     this.root.hidden = false;
-    if (app) this.openApp(app, opts); else this.home();
+    if (app) { this.more = false; this.openApp(app, opts); } else this.home();
   }
   close() { clearTimeout(this.timer); this.root.hidden = true; replace(this.root); this.app = null; }
 
@@ -119,35 +128,64 @@ export class Phone {
     if (!this.root.contains(document.activeElement) || document.activeElement === document.body) h2.focus({ preventScroll: true });
   }
 
-  home() {
-    this.app = null; clearTimeout(this.timer);
-    const battery = el("p", { class: "hint" }, "A flat battery opens nothing; your phone charges at home and at work.");
-    const tile = (id, name) => el("button", { type: "button", class: "app", dataset: { app: id }, onclick: () => this.openApp(id) },
-      el("span", { class: "tile", "aria-hidden": "true" }, appIcon(id, name),
-        id === "messages" && this.unread ? el("span", { class: "badge-count" }, String(this.unread)) : null),
+  tile(id, name, main = false) {
+    const n = id === "messages" ? this.unread : id === "social" ? this.socialNew : 0;
+    return el("button", { type: "button", class: `app${main ? " main" : ""}`, dataset: { app: id }, onclick: () => this.openApp(id) },
+      el("span", { class: "tile", "aria-hidden": "true" }, appIcon(id, name), n ? el("span", { class: "badge-count" }, String(n > 99 ? "99+" : n)) : null),
       APP_NAMES[id]);
+  }
+  home() {
+    this.app = null; this.more = false; clearTimeout(this.timer);
+    const battery = el("p", { class: "hint" }, "A flat battery opens nothing; your phone charges at home and at work.");
+    const icons = new Map(APPS.map(([id, , name]) => [id, name]));
+    this.frame("Phone", null,
+      el("section", { class: "app-group daily", "aria-label": "Every day" }, eyebrow("Every day"),
+        el("div", { class: "apps" }, DAILY.map(id => this.tile(id, icons.get(id), true)))),
+      el("button", { type: "button", class: "btn block more-apps", dataset: { more: "apps" }, onclick: () => this.moreApps() }, icon("more"), "More apps"),
+      battery);
+    this.homeExtras(battery);
+  }
+  // Everything else the server has, one tap deeper, in its groups.
+  moreApps() {
+    this.app = null; this.more = true; clearTimeout(this.timer);
     const hideStore = browserTown();
     const extra = this.goals ? [["goals", "ambition", "goals"]] : [];
-    this.frame("Phone", null,
+    this.frame("More apps", () => this.home(),
       GROUPS.map(([g, label]) => el("section", { class: "app-group", "aria-label": label }, eyebrow(label),
-        el("div", { class: "apps" }, [...APPS, ...extra].filter(([id, group]) => group === g && !(hideStore && id === "store")).map(([id, , name]) => tile(id, name))))),
-      hideStore ? hint("No coin store here: this town runs in your browser and nothing in it is sold for real money.") : null,
-      battery);
+        el("div", { class: "apps" }, [...APPS, ...extra].filter(([id, group]) => group === g && !DAILY.includes(id) && !(hideStore && id === "store")).map(([id, , name]) => this.tile(id, name))))),
+      hideStore ? hint("No coin store here: this town runs in your browser and nothing in it is sold for real money.") : null);
+    if (this.goals === null) this.homeExtras(null);
+  }
+  homeExtras(battery) {
     // The battery, from the Wallet app (it says how much charge is left).
-    this.game.phone("wallet").then(r => {
+    if (battery) this.game.phone("wallet").then(r => {
       const ph = r.ok && r.data.phone;
       if (ph && this.app === null && this.open) battery.textContent = `Battery ${Math.round(ph.battery)}%${ph.hours_left != null ? `, about ${Math.round(ph.hours_left)} h left` : ""}${ph.charging ? ` · charges ${ph.charging === "home" ? "at home" : `at ${ph.charging}`}` : ""}. A flat battery opens nothing.`;
     });
+    // Does this server have the Goals app? Asked once; More apps shows it when it does.
     if (this.goals === null) this.game.phone("goals").then(r => {
       this.goals = r.ok || (r.error && r.error.code !== "unknown_app" ? null : false);
-      if (this.goals && this.app === null && this.open) this.home();
+      if (this.goals && this.app === null && this.open && this.more) this.moreApps();
     });
   }
+  // A profile in the Social app (from a post, a person's card...).
+  socialProfile(account) {
+    if (this.app === "social" && this.open && this.social) { this.social.profile = account; this.reload(); } else this.show("social", { profile: account });
+  }
+  // Something new in the Social app while it's open (a post by someone you follow, a like): show it, keeping what you typed.
+  socialChanged() { if (this.open && this.app === "social" && !this.social?.profile) this.reload(); }
 
   async openApp(id, opts = {}) {
     this.app = id; this.opts = opts; clearTimeout(this.timer);
+    // Messages open on your conversations, or straight on one; Social on its tabs, or on someone's profile.
+    if (id === "messages") this.thread = opts.to || null;
+    if (id === "social") {
+      if (!this.social) this.social = { tab: "feed", draft: "", tags: new Set(), withPlace: true, about: null, asGossip: false, profile: null };
+      this.social.profile = opts.profile || null;
+      if (opts.tab) this.social.tab = opts.tab;
+    }
     const body = el("div", { class: "stack" }, el("p", { class: "hint" }, "Opening…"));
-    this.frame(APP_NAMES[id] || titleCase(id), () => this.home(), body);
+    this.frame(APP_NAMES[id] || titleCase(id), () => (this.more ? this.moreApps() : this.home()), body);
     await this.fill(id, body);
   }
   async fill(id, body, keepScroll = false) {
@@ -183,30 +221,19 @@ export class Phone {
   // Message someone from anywhere (Contacts, a person's card): Messages with them picked.
   compose(id) { this.show("messages", { to: id }); }
 
-  // New messages while Messages is open: update the threads in place instead of rebuilding the
-  // screen, so a half-typed message, the focused field and the phone's keyboard all stay.
+  // New messages (or a "seen") while Messages is open: update in place instead of rebuilding the screen, so a
+  // half-typed message, the focused field and the phone's keyboard all stay.
   async refreshMessages() {
     if (this.app !== "messages") return;
     const r = await this.game.phone("messages");
     const body = this.root.querySelector(".phone-inner > .stack");
     if (this.app !== "messages" || !r.ok || !body) return;
-    const fresh = this.messages(r.data);
-    const compose = body.querySelector("form.card:not([data-thread])");
-    if (!compose) { replace(body, fresh); return; }
-    const cards = fresh.filter(n => n.dataset && n.dataset.thread);
-    let prev = compose;
-    for (const c of cards) {
-      const mine = [...body.querySelectorAll("[data-thread]")].find(n => n.dataset.thread === c.dataset.thread);
-      if (mine) {
-        // Same thread: swap in the new bubbles; its reply field (and anything typed) is untouched.
-        replace(mine.querySelector(".thread"), [...c.querySelector(".thread").childNodes]);
-        prev = mine;
-      } else {
-        prev.after(c);   // a new sender: a new card, without moving the ones already there
-        prev = c;
-      }
+    const fresh = el("div", null, this.messages(r.data));
+    for (const sel of [".thread", ".convos", ".thread-note"]) {
+      const mine = body.querySelector(sel), theirs = fresh.querySelector(sel);
+      if (mine && theirs) mine.replaceWith(theirs);
+      else if (!mine && theirs && sel === ".convos") { const empty = body.querySelector(".no-convos"); if (empty) empty.replaceWith(theirs); }
     }
-    if (cards.length) for (const h of body.querySelectorAll(":scope > p.hint")) h.remove();
   }
 
   // ---------------------------------------------------------------- Bank
@@ -238,12 +265,15 @@ export class Phone {
     for (const p of w.people.values()) add(p.id, p.name, 2);
     return [...seen.values()];
   }
+  // Messages (D-074): your conversations, newest first, then a thread per person. Under your last message,
+  // whether they've seen it (the server's read flag). Someone a script plays says so; they read and answer by
+  // the game's rules (data/society/manners.json), never pretending to be a person.
   messages(d) {
-    const w = this.world, me = w.selfId, threads = d.threads && typeof d.threads === "object" ? d.threads : {};
-    const nameOf = id => (this.people.find(p => p.id === id) || {}).name || w.nameOf(id);
-    this.unread = 0; this.game.setPhoneBadge(0);
-    const ids = Object.keys(threads);
-    const out = [];
+    const w = this.world, threads = d.threads && typeof d.threads === "object" ? d.threads : {}, info = d.people && typeof d.people === "object" ? d.people : {};
+    this.unread = 0; this.game.setPhoneBadge();
+    const nameOf = id => (info[id] && info[id].name) || (this.people.find(p => p.id === id) || {}).name || w.nameOf(id);
+    if (this.thread) return this.threadView(this.thread, threads[this.thread] || [], info[this.thread] || {}, nameOf);
+    const ids = Object.keys(threads).sort((a, b) => ((threads[b].at(-1) || {}).at || 0) - ((threads[a].at(-1) || {}).at || 0));
     const people = this.recipients(ids);
     const to = el("input", { type: "text", class: "input", placeholder: "Search your contacts, or type a name", "aria-label": "To", autocapitalize: "none", autocomplete: "off", spellcheck: "false" });
     const text = el("input", { type: "text", class: "input", maxlength: "500", placeholder: "Message", "aria-label": "Message" });
@@ -268,53 +298,145 @@ export class Phone {
       const exact = people.find(p => p.id === q || p.name.toLowerCase() === q) || people.filter(p => firstName(p.name).toLowerCase() === q).length === 1 && people.find(p => firstName(p.name).toLowerCase() === q);
       return exact ? exact.id : q.replace(/\s+/g, "-");
     };
-    const send = async (toId, input, errNode, after) => {
-      const body = input.value.trim();
-      if (!toId) { errNode.textContent = "Pick who to send it to."; return; }
-      if (!body) { errNode.textContent = "Write something first."; return; }
+    const send = async e => {
+      e.preventDefault();
+      const toId = recipient(), body = text.value.trim();
+      if (!toId) { err.textContent = "Pick who to send it to."; return; }
+      if (!body) { err.textContent = "Write something first."; return; }
       const r = await this.game.message(toId, body);
-      if (!r.ok) { errNode.textContent = sentence(r.error.message); return; }
-      input.value = ""; errNode.textContent = ""; after();
+      if (!r.ok) { err.textContent = sentence(r.error.message); return; }
+      text.value = ""; this.openApp("messages", { to: toId });
     };
-    out.push(el("form", { class: "card", onsubmit: e => { e.preventDefault(); send(recipient(), text, err, () => this.refreshMessages()); } },
-      eyebrow("New message"), picker, to, text, err, el("button", { type: "submit", class: "btn primary" }, "Send")));
-    if (this.opts && this.opts.to && this.app === "messages") {
-      const p = people.find(x => x.id === this.opts.to) || { id: this.opts.to, name: w.nameOf(this.opts.to) };
-      picked = p.id; to.value = p.name; drawPicker();
-      this.opts = {};
-      setTimeout(() => text.focus(), 50);
+    const compose = el("form", { class: "card compose-new", onsubmit: send }, eyebrow("New message"), picker, to, text, err, el("button", { type: "submit", class: "btn primary" }, "Send"));
+    const convo = id => {
+      const msgs = threads[id] || [], last = msgs.at(-1) || {}, unread = msgs.some(m => m.unread), them = info[id] || {};
+      return el("li", null, el("button", { type: "button", class: `convo${unread ? " unread" : ""}`, dataset: { convo: id }, onclick: () => this.openApp("messages", { to: id }) },
+        avatar(id, nameOf(id), "mid"),
+        el("span", { class: "grow" }, el("strong", null, nameOf(id)),
+          el("span", { class: "preview" }, `${last.from === w.selfId ? "You: " : ""}${String(last.body ?? "")}`),
+          el("span", { class: "hint" }, [shortWhen(last.when || ""), them.scripted ? "played by a script" : ""].filter(Boolean).join(" · "))),
+        unread ? el("span", { class: "dot", "aria-label": "new" }) : null));
+    };
+    return [
+      ids.length ? el("ul", { class: "convos", "aria-label": "Conversations" }, ids.map(convo)) : el("p", { class: "hint no-convos" }, "No messages yet."),
+      compose,
+    ];
+  }
+  threadView(id, msgs, them, nameOf) {
+    const w = this.world, me = w.selfId;
+    const reply = el("input", { type: "text", class: "input", maxlength: "500", placeholder: `Message ${firstName(nameOf(id))}`, "aria-label": "Reply" });
+    const rerr = el("p", { class: "err", role: "alert" });
+    const shown = msgs.slice(-50), lastMine = [...shown].reverse().find(m => m.from === me);
+    const bubbles = [];
+    for (const m of shown) {
+      bubbles.push(el("div", { class: `msg${m.from === me ? " me" : ""}` }, m.body, el("span", { class: "when" }, shortWhen(m.when || ""))));
+      if (m === lastMine && shown.at(-1) === m) bubbles.push(el("span", { class: `seen${m.seen ? " yes" : ""}`, dataset: { seen: String(!!m.seen) } }, m.seen ? "Seen" : "Delivered"));
     }
-    if (!ids.length) out.push(hint("No messages yet."));
-    for (const other of ids) {
-      const msgs = threads[other] || [];
-      const reply = el("input", { type: "text", class: "input", maxlength: "500", placeholder: `Reply to ${firstName(nameOf(other))}`, "aria-label": "Reply" });
-      const rerr = el("p", { class: "err", role: "alert" });
-      out.push(el("div", { class: "card", dataset: { thread: other } },
-        el("div", { class: "row" }, avatar(other, nameOf(other)), el("h3", { class: "grow" }, nameOf(other))),
-        el("div", { class: "thread" }, msgs.slice(-30).map(m => el("div", { class: `msg${m.from === me ? " me" : ""}` }, m.body, el("span", { class: "when" }, shortWhen(m.when || ""))))),
-        el("form", { class: "row", onsubmit: e => { e.preventDefault(); send(other, reply, rerr, () => this.refreshMessages()); } },
-          el("div", { class: "grow" }, reply), el("button", { type: "submit", class: "btn" }, "Send")), rerr));
-    }
-    return out;
+    const send = async e => {
+      e.preventDefault();
+      const body = reply.value.trim();
+      if (!body) { rerr.textContent = "Write something first."; return; }
+      const r = await this.game.message(id, body);
+      if (!r.ok) { rerr.textContent = sentence(r.error.message); return; }
+      reply.value = ""; rerr.textContent = ""; this.refreshMessages();
+    };
+    const back = el("button", { type: "button", class: "btn small", onclick: () => { this.thread = null; this.reload(); } }, icon("back"), "All messages");
+    return [
+      back,
+      el("div", { class: "card", dataset: { thread: id } },
+        el("div", { class: "thread-head" }, avatar(id, nameOf(id), "mid"), el("h3", null, nameOf(id)),
+          them.scripted ? el("span", { class: "badge script" }, "Played by a script") : them.online === false ? el("span", { class: "badge closed" }, "Away") : null),
+        them.scripted ? el("p", { class: "hint thread-note" }, `${firstName(nameOf(id))} is played by a script: they read messages when they're free and answer by the game's rules, not as a person would.`)
+          : them.online === false ? el("p", { class: "hint thread-note" }, `${firstName(nameOf(id))} isn't in town right now: they'll see it when they're back.`) : null,
+        el("div", { class: "thread" }, bubbles.length ? bubbles : el("p", { class: "hint" }, "No messages yet. Say hello.")),
+        el("form", { class: "thread-form", onsubmit: send }, el("div", { class: "grow" }, reply), el("button", { type: "submit", class: "btn primary" }, "Send")),
+        rerr),
+    ];
   }
 
   // ---------------------------------------------------------------- Map and Transit
+  // The Map (D-074): a plan of the town with the places open now in gold, you, and your people where your
+  // character could know they are: in sight (the server's own rule), or where they last posted from (public). Then
+  // your people and the places open now as lists, each with a button to walk there; every place under All places.
   map(d) {
     const w = this.world, me = w.selfPos();
-    const groups = new Map();
-    for (const b of w.buildings) { const k = b.district || "Elsewhere"; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(b); }
-    for (const p of w.places.filter(p => p.type === "park")) { const k = p.district || "Elsewhere"; if (!groups.has(k)) groups.set(k, []); groups.get(k).push({ ...p, enterable: false }); }
-    const out = [hint(`${(d.places || []).length} places in town, from the server's map. Distances are from where you stand.`)];
-    for (const [district, list] of [...groups].sort((a, b) => a[0].localeCompare(b[0]))) {
-      list.sort((a, b) => dist(me, a.door) - dist(me, b.door));
-      out.push(el("div", { class: "card" }, eyebrow(district), el("ul", { class: "list" }, list.map(b => el("li", null,
-        el("div", { class: "offer-head" }, el("span", null, b.name), el("span", { class: "hint" }, me ? `${Math.round(dist(me, b.door))} m` : "")),
-        el("div", { class: "hint" }, `${typeName(b.shape || b.type)}${b.status && b.status !== "open" ? " · " + b.status.replace(/_/g, " ") : ""}`),
-        el("div", { class: "row" },
-          el("button", { type: "button", class: "btn small", onclick: () => { this.close(); this.game.showPlace(b.id); } }, "Show"),
-          el("button", { type: "button", class: "btn small", onclick: () => { this.close(); this.game.walkTo(b.door); } }, "Walk there")))))));
+    // The server says what's open to anyone right now; the places themselves are the map the client already has.
+    const openIds = new Set(Array.isArray(d.open_now) ? d.open_now : []);
+    const isOpen = pl => openIds.has(pl.id);
+    const people = Array.isArray(d.people) ? d.people : [];
+    const go = (placeId, door) => this.away(async () => {
+      const pl = w.placeById.get(placeId);
+      if (pl && pl.enterable !== false) return getThere(this.game, placeId, { enter: true });
+      const r = await this.game.walkTo(door || (pl && pl.door));
+      return r && r.ok ? { ok: true, summary: `Walking to ${pl ? pl.name : "them"}.` } : r || { ok: false, error: { message: "You can't walk there right now." } };
+    });
+    const where = p => p.where === "in_sight" ? (p.inside ? `Here with you at ${(w.placeById.get(p.inside) || {}).name || "this place"}` : `In sight, ${me && p.position ? `${Math.round(dist(me, p.position))} m away` : "nearby"}`)
+      : p.where === "posted" ? `Posted from ${p.place.name} ${shortWhen(p.when || "")}`.trim() : "Not where you can see them";
+    // The plan: places at their doors, scaled into the box the server's bounds give.
+    const b = w.bounds || { min: [0, 0], max: [1000, 1000] }, [x0, y0] = b.min, [x1, y1] = b.max;
+    const W = 340, k = W / Math.max(1, x1 - x0), H = Math.max(160, Math.round((y1 - y0) * k));
+    const P = pt => [Math.round((pt[0] - x0) * k * 10) / 10, Math.round((pt[1] - y0) * k * 10) / 10];
+    const NS = "http://www.w3.org/2000/svg", svgEl = (tag, attrs) => { const n = document.createElementNS(NS, tag); for (const [a, v] of Object.entries(attrs)) n.setAttribute(a, String(v)); return n; };
+    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, class: "minimap", role: "img", "aria-label": "Town plan: places open now in gold, you, and your people" });
+    const selected = el("div", { class: "card map-selected", hidden: true });
+    const pick = pl => {
+      const open = isOpen(pl);
+      replace(selected, el("h3", null, pl.name), hint(`${typeName(pl.shape || pl.type)} · ${open ? "open now" : "not open to you now"}${pl.hours ? ` · ${hoursText(pl.hours)}` : ""}${me ? ` · ${Math.round(dist(me, pl.door))} m` : ""}`),
+        el("div", { class: "row" }, button("Walk there", () => go(pl.id, pl.door), { primary: true }), button("Show on the map", () => { this.close(); this.game.showPlace(pl.id); })));
+      selected.hidden = false;
+    };
+    for (const pl of w.places) {
+      if (!pl.door || ["apartment", "condo", "house", "townhouse", "construction_site"].includes(pl.type)) continue;
+      const [cx, cy] = P(pl.door);
+      const dot = svgEl("circle", { cx, cy, r: 4, class: `pl${isOpen(pl) ? " open" : ""}` });
+      const t = svgEl("title", {}); t.textContent = pl.name; dot.appendChild(t);
+      dot.addEventListener("click", () => pick(pl));
+      svg.appendChild(dot);
     }
-    return out;
+    for (const p of people) {
+      const pos = p.where === "in_sight" && p.position && !p.inside ? p.position : p.where === "posted" ? (w.placeById.get(p.place.id) || {}).door
+        : p.where === "in_sight" && p.inside ? (w.placeById.get(p.inside) || {}).door : null;
+      if (!pos) continue;
+      const [cx, cy] = P(pos);
+      svg.appendChild(svgEl("circle", { cx, cy, r: 7, class: `pp${p.where === "posted" ? " posted" : ""}` }));
+      const label = svgEl("text", { x: cx + 9, y: cy + 4 }); label.textContent = firstName(p.name); svg.appendChild(label);
+    }
+    if (me) { const [cx, cy] = P(me); svg.appendChild(svgEl("circle", { cx, cy, r: 6, class: "me" })); }
+    const legend = el("div", { class: "map-legend" }, el("span", null, "Open now"), el("span", { class: "k-closed" }, "Closed"), el("span", { class: "k-you" }, "You"), el("span", { class: "k-people" }, "Your people"));
+
+    const known = people.slice().sort((a, b) => (a.where === "unknown") - (b.where === "unknown") || a.name.localeCompare(b.name));
+    const peopleCard = card(eyebrow("Your people"),
+      known.length ? el("ul", { class: "list people-list" }, known.map(p => el("li", { dataset: { person: p.character } },
+        el("div", { class: "row" }, avatar(p.character, p.name), el("strong", { class: "grow" }, p.name), p.scripted ? el("span", { class: "badge script" }, "Played by a script") : null),
+        el("span", { class: "hint" }, where(p)),
+        p.where === "unknown" ? null : el("div", { class: "row" },
+          p.where === "posted" ? button(`Walk to ${p.place.name}`, () => go(p.place.id), { data: { walk: p.character } })
+            : p.inside ? null : button("Walk over", () => this.away(async () => { const r = await this.game.walkTo(p.position); return r && r.ok ? { ok: true, summary: `Walking over to ${firstName(p.name)}.` } : r; }), { data: { walk: p.character } }),
+          button("Message", () => this.openApp("messages", { to: p.character })))))) : hint("Nobody yet: people you meet show up here."),
+      hint("Where you could know they are: in sight, or the last place they posted from (posts are public). Nothing else."));
+
+    const openNow = w.places.filter(p => isOpen(p) && p.door && p.type !== "construction_site")
+      .map(p => ({ ...p, d: me ? dist(me, p.door) : 0 })).sort((a, b) => a.d - b.d).slice(0, 10);
+    const openCard = card(eyebrow("Open now, nearest first"), el("ul", { class: "list open-list" }, openNow.map(p => el("li", { dataset: { open: p.id } },
+      el("div", { class: "offer-head" }, el("span", null, p.name), el("span", { class: "hint" }, me ? `${Math.round(p.d)} m` : "")),
+      el("span", { class: "hint" }, `${typeName(p.type)}${p.hours ? ` · ${hoursText(p.hours)}` : " · always open"}`),
+      el("div", { class: "row" }, button("Walk there", () => go(p.id, p.door), { primary: true, data: { go: p.id } }), button("Show", () => { this.close(); this.game.showPlace(p.id); }))))));
+
+    // Every place, by district (as before), one tap deeper.
+    const groups = new Map();
+    for (const bl of w.buildings) { const key = bl.district || "Elsewhere"; if (!groups.has(key)) groups.set(key, []); groups.get(key).push(bl); }
+    for (const p of w.places.filter(p => p.type === "park")) { const key = p.district || "Elsewhere"; if (!groups.has(key)) groups.set(key, []); groups.get(key).push({ ...p, enterable: false }); }
+    const all = el("details", { class: "card all-places" }, el("summary", { class: "eyebrow" }, `All places (${w.places.length})`));
+    for (const [district, list] of [...groups].sort((a, z) => a[0].localeCompare(z[0]))) {
+      list.sort((a, z) => dist(me, a.door) - dist(me, z.door));
+      all.append(eyebrow(district), el("ul", { class: "list" }, list.map(bl => el("li", null,
+        el("div", { class: "offer-head" }, el("span", null, bl.name), el("span", { class: "hint" }, me ? `${Math.round(dist(me, bl.door))} m` : "")),
+        el("div", { class: "hint" }, `${typeName(bl.shape || bl.type)}${bl.status && bl.status !== "open" ? " · " + bl.status.replace(/_/g, " ") : ""}`),
+        el("div", { class: "row" },
+          el("button", { type: "button", class: "btn small", onclick: () => { this.close(); this.game.showPlace(bl.id); } }, "Show"),
+          el("button", { type: "button", class: "btn small", onclick: () => { this.close(); this.game.walkTo(bl.door); } }, "Walk there"))))));
+    }
+    return [card(svg, legend, hint("Tap a dot for the place.")), selected, peopleCard, openCard, all];
   }
 
   // Each stop as a destination: ride there from the stop nearest you (that's where you board).
@@ -872,6 +994,7 @@ const SCREENS = {
   weather(d) { return this.weather(d); }, city(d) { return this.city(d); }, fame(d) { return this.fame(d); }, school(d) { return this.school(d); },
   goals(d) { return this.goalsApp(d); },
   story(d) { return storyScreen.call(this, d); },  // moments.js (D-068)
+  social(d) { return socialScreen.call(this, d); },  // social.js (D-074)
   record(d) {
     const list = Array.isArray(d.record) ? d.record : [];
     return [card(eyebrow("Criminal record"), el("h3", null, d.clean || !list.length ? "Clean" : `${list.length} on record`),
