@@ -206,6 +206,7 @@ Server and core half (the client half is tracked in `web/README.md`):
 | Item | Status |
 |---|---|
 | A faster clock: 2 game minutes per real second, walking 10 m/s, the bus 40 m/s, units converted where code mixed them (D-075) | ✅ (every suite at the new rate) |
+| More people in the town: the four residents with art become data characters, twelve townspeople keep the places open (café, bar, market, shop, bistro, clinic, hospital, police day and evening, school, the gym when it opens), homes in the buildings already on the map, a married couple and shared flats, evenings out from data (`data/society/town_life.json`), the police beat in uniform, energy care, `name_taken` in the creator, older saves loading with them moved in, `--max-scripted` 32, stand-ins in their own colours, the pick list by cast, model-sheet and sprite-sheet prompts for each townsperson (D-073) | ✅ (`tests/test_townspeople.cpp`, `tests/test_cast.cpp`, `web/tests/people_e2e.js`); their art is the owner's to make (`art/prompts_needed.html`) |
 
 ## M2 — Dominique, complete (spec Phase 2) ⬜
 
