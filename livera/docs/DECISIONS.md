@@ -980,3 +980,15 @@ nothing new had to be invented to make a fight matter.
 **Trade-off:** Walking away is a full opt-out from being hurt: an attacker can't force a fight on someone who chose
 not to fight, which is the point. A founder nobody plays can be beaten up and carries the injury into whoever plays it
 next. The scuffle on the map is an overlay and floating text until the figures have a fighting pose.
+
+## D-071 — Release 5 builds Talk of the Town the owner's way: open world, chores kept, social media, a faster clock
+**Decision:** After the redesign showdown (`docs/proposals/showdown/`), the owner chose Studio Ember's Talk of the Town,
+changed: chores stay on screen and playable; the day is not cut into skipped beats; the town map stays open to roam;
+the town's story comes back through a social media app, not a newspaper; days move faster than one game minute per
+real second; more people live in the town; the phone becomes useful; sitting is drawn from the owner's seated sprite
+frames; money follows Ember's cosmetic-only model. The plan is `docs/proposals/talk_of_the_town_build.md`; each piece
+gets its own decision entry when it is built.
+**Why:** The owner's words. The showdown's panel scored both pitches; the owner picked the deeper one and kept what
+they like about today's game (the open map, chores as part of a life).
+**Trade-off:** Keeping chores and the full day means a session is longer than either studio proposed; the faster clock
+and a speed control are how a phone session still fits.
