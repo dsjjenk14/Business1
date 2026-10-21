@@ -205,6 +205,7 @@ Server and core half (the client half is tracked in `web/README.md`):
 
 | Item | Status |
 |---|---|
+| The whole character, sitting and walking: the owner's ten sprite sheets cut into frames (`scripts/client_figures.py`, BiRefNet, the generator's chair and sofa taken out of the seated frames), drawn by `figures.js` as a walk cycle, standing frames and the real seated frame on the seat in the rooms (chair, stool and seat: `sit_chair`; sofa and bed: `sit_sofa`), seat tuning per kind in the manifest; people without a sheet as before (D-072) | ✅ (`client_figures.py --check`, `web/tests/interiors_e2e.js`); seats facing away still lower the standing back frame (no seated frame from behind yet) |
 | A faster clock: 2 game minutes per real second, walking 10 m/s, the bus 40 m/s, units converted where code mixed them (D-075) | ✅ (every suite at the new rate) |
 
 ## M2 — Dominique, complete (spec Phase 2) ⬜

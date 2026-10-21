@@ -993,6 +993,51 @@ they like about today's game (the open map, chores as part of a life).
 **Trade-off:** Keeping chores and the full day means a session is longer than either studio proposed; the faster clock
 and a speed control are how a phone session still fits.
 
+## D-072 — The whole character from the owner's sprite sheets: a walk cycle, standing, and really sitting on the seat
+**Decision:** A character with a sprite sheet (`art/sprites/characters/<id>/sheet.webp`: Aaliyah, Andre, Dax, Dominique,
+Graham, Harper, Julian, Leila, Sienna, Theo Grant) is drawn from its twelve frames instead of their model-sheet
+cut-outs (D-067). `scripts/client_figures.py` cuts the 4 × 3 grid into `web/client/figures/<id>/<frame>.webp`
+(`walk_front34_1..4`, `walk_back34_1..4`, `idle_front34`, `idle_back34`, `sit_chair`, `sit_sofa`): each cell with a
+margin of its neighbours is matted with the repository's BiRefNet, the figure whose middle lies in the cell is kept,
+cleaned and decontaminated like the cut-outs, and scaled to the same game height (360 px for 1.75 m, everyone at their
+own height): the standing frames to the character's height, each walk row so its tallest frame is 98.5% of it, the
+seated frames at the median of those scales, because the generator didn't keep one scale across a sheet. Standing and
+walking frames are anchored under the middle of the torso on the lowest sole (a walk cycle is drawn in place, so the
+body stays steady while the feet step); seated frames at their seat point, where the seat is under the hips. The
+generator drew a chair and a sofa in the seated cells and the room's own seat is under the person in the game, so the
+seated frames are the person alone: Segment Anything (rembg's ViT-B, prompted from rembg's person model, with that
+model's mask as its prior) gives the person; on the chair the cream back it holds on to, the oak legs and loose oak
+are taken out by colour where the same model without the prior lets go of them, and two leftover legs (Leila's,
+Sienna's) are erased by hand on the sheet (`ERASE`). Dax's and Harper's standing cell is drawn seated, so their walk's
+passing frame stands in (`STAND_INS`). The masters stay out of the repository; the masks are cached; `--check` needs
+no model and fails if a sheet or the script's settings for it changed since the frames were cut, a listed file is
+missing or the wrong size, or an unlisted one is there. `figures.js` keeps `drawFigure()`: walking steps through the
+four frames of a step (two steps a cycle), toward or away from the camera, mirrored for the other diagonals (a
+straight or sideways direction takes the nearer three-quarter one); standing uses the standing frames; `pose: "sit"`
+puts the real seated frame's seat point on the seat, facing the seat's way (`seatKind`: sofa and bed `sit_sofa`,
+every other kind `sit_chair`, so a new kind of spot sits on a chair); `fight` and `flinch` lean, crouch and bounce or
+shake the standing frame as before. The sheets have no seated frame from behind, so a seat facing away from the camera
+(a bar stool at the bar, a desk, the near side of a table) shows the standing back frame lowered onto it and clipped at
+the seat, as everyone was drawn before; from behind the back and the seat hide the legs anyway. Per kind of seat its
+height, a nudge of the seated frame and how far ahead of the seat its own furniture covers the legs are in the
+manifest's `"$seats"`, written by the script: nothing is tuned per room. In the rooms the furniture redrawn over
+people now also covers a seated frame's legs where they go: under a table in front of the knees, and under the far
+part of furniture whose footprint holds the seat (a booth and its table are one footprint), more than `reach` ahead of
+the seat at the seat's height. People without a sheet (Maya, Naomi, Kai Morgan, Rosa Delgado, Sol Rivera, characters
+made in the creator) are drawn exactly as before. The walk's cadence follows how fast someone moves on screen against
+how big they're drawn (a cycle per 0.86 of their drawn height covered, between 0.8 and 2.6 cycles a second), on the map
+and in the rooms, so a faster clock (D-075) or a close zoom keeps the feet with the ground.
+**Why:** The owner: "Sitting down needs to look better" and "see the entire character". A standing photograph lowered
+into a chair is a bust on a seat; the sheets are drawn at the town's camera, with a walk and seated poses.
+**Trade-off:** The generator's sheets aren't perfect: its walk frames differ little, so the walk is a gentle cycle,
+and two characters' standing frames are a walking frame. Taking the furniture out of a seated frame is a model's
+judgement plus colour rules and two hand-drawn erasures; a new sheet needs its preview looked at (`--preview`). The
+seat point is where the hips are on the generator's sofa, and on its chair a fixed share of the figure's height; the
+rooms' spot positions and facings, traced by hand, decide the rest, and a few seats in the traced rooms sit a little
+off their chair in the picture. Sitting with the back to the camera still lowers a standing frame until the owner adds
+seated frames seen from behind. The seated pass adds two models (the person model, 168 MB, and Segment Anything, 110 MB)
+to the script, downloaded once like BiRefNet; BiRefNet needs about 7 GB of memory while it runs.
+
 ## D-075 — A faster clock: 2 game minutes per real second, walking at 10 m/s and the bus at 40 m/s
 **Decision:** `simulation.minutes_per_real_second` goes from 1 to 2 (a game day is 12 real minutes), with
 `walk_speed_mps` 6 → 10 and the bus line's `speed_mps` 24 → 40, all in data. Walking speed rises less than the clock,

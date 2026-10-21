@@ -38,10 +38,10 @@ Every prompt below repeats this in brief, so you can paste any single prompt on 
 
 ## What these prompts are not
 
-- **The map draws cut-outs from the model sheets today** (`scripts/client_figures.py`,
-  `web/client/figures.js`): one photograph per direction, scaled, with a bob for walking and a
-  standing figure lowered into the seat for sitting. These sprites are what replaces them; nothing
-  in the game uses them yet.
+- **The game draws the filed sheets' frames** (D-072: `scripts/client_figures.py` cuts them,
+  `web/client/figures.js` draws them) on the map and in the rooms. People without a sheet are still
+  drawn from their model sheet's cut-outs: one photograph per direction, scaled, with a bob for
+  walking and a standing figure lowered into the seat for sitting.
 - **The outfit is the data's.** Where a reference sheet shows another look (Dominique's turnaround
   is her weekend look, Dax's an all-black tee), the prompt asks for the outfit in the data; the
   sheet is for the face, hair, skin and build.
@@ -53,19 +53,26 @@ Every prompt below repeats this in brief, so you can paste any single prompt on 
 
 ## How a sheet replaces the cut-outs
 
-A sheet replaces the cut-outs in three steps. None of them is built yet.
+A sheet replaces the cut-outs in three steps, all built (D-072):
 
-1. **The sheet** (this pack): `art/sprites/characters/<id>/sheet.png`, 4 × 3 cells as above.
-2. **The frames** (planned: `scripts/client_figures.py` cutting the cells): `walk_front34_1` to
-   `_4`, `walk_back34_1` to `_4`, `idle_front34`, `idle_back34`, `sit_chair`, `sit_sofa`, trimmed
-   and scaled like the cut-outs to 360 px for a 1.75 m person, with their feet (or, sitting, the
-   seat) as the anchor, into `web/client/figures/<id>/` and its manifest.
-3. **The client** (planned, `web/client/figures.js`, same `drawFigure()` API): the walk frames for
-   `pose: "walk"` by `phase`, the idle frames for standing, the seated frames for `pose: "sit"` in
-   place of the lowered standing figure; mirrored for the other two diagonals.
+1. **The sheet** (this pack): `art/sprites/characters/<id>/sheet.png`, 4 × 3 cells as above (filed
+   as `sheet.webp`).
+2. **The frames** (`scripts/client_figures.py` cuts the cells): `walk_front34_1` to `_4`,
+   `walk_back34_1` to `_4`, `idle_front34`, `idle_back34`, `sit_chair`, `sit_sofa`, each cut out
+   with the repository's BiRefNet matte, scaled like the cut-outs to 360 px for a 1.75 m person,
+   anchored at the feet (sitting: the seat point, where the seat is under the hips), into
+   `web/client/figures/<id>/` and its manifest. The chair and the sofa drawn in row 3 are taken out
+   of the seated frames (the room's own seat is under the person), so draw them as asked: a simple
+   cream chair on oak legs, a green velvet sofa.
+3. **The client** (`web/client/figures.js`, same `drawFigure()` API): the walk frames for
+   `pose: "walk"` by `phase`, the standing frames for standing, the seated frames for `pose: "sit"`
+   on the seat (chair, stool and seat: `sit_chair`; sofa and bed: `sit_sofa`); mirrored for the other
+   two diagonals. A seat that faces away from the camera still shows the standing back frame lowered
+   onto it: the sheet has no seated frame from behind.
 
 Fighting (fists up) and flinching are not in these sheets: today `pose: "fight"` and `"flinch"`
-lean, crouch and bounce or shake the standing picture. A later sheet can ask for them.
+lean, crouch and bounce or shake the standing picture. A later sheet can ask for them, and for
+sitting seen from behind.
 
 ## Founders
 
