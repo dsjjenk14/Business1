@@ -15,7 +15,11 @@
     },
     "notify": {"per_hour": 4, "game_per_day": 1},
     "seed_follows": {"min": {"familiarity": 30}},
-    "status_purchase": {"min_price_cents": 40000, "categories": ["jewelry", "accessory", "clothing", "phone", "electronics"], "except": ["engagement_ring"]},
+    "status_purchase": {
+      "min_price_cents": 40000,
+      "categories": ["jewelry", "accessory", "clothing", "phone", "electronics"],
+      "except": ["engagement_ring"]
+    },
     "topics": {
       "promotion": "Promotion",
       "new_job": "New job",
@@ -44,7 +48,20 @@
       "trait": "sociability",
       "base": 0.3,
       "per_trait": 0.6,
-      "checkin_place_types": ["bar", "coffee_shop", "restaurant", "nightclub", "cinema", "gym", "salon", "boutique", "sports_court", "wellness_studio", "jeweler", "grocery"],
+      "checkin_place_types": [
+        "bar",
+        "coffee_shop",
+        "restaurant",
+        "nightclub",
+        "cinema",
+        "gym",
+        "salon",
+        "boutique",
+        "sports_court",
+        "wellness_studio",
+        "jeweler",
+        "grocery"
+      ],
       "checkin_tag_min_friendship": 30,
       "voices": [
         {"id": "showy", "min": {"sociability": 80, "confidence": 80}},

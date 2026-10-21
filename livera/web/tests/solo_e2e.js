@@ -424,14 +424,24 @@ const scripted = p => W(p, () => [...window.__livera.world.people.values()].filt
     await ensurePlaying(A);
     await A.page.click("#phone-btn");
     await A.page.waitForSelector("#phone .app");
+    // The everyday seven on the home screen (D-074); the rest under More apps.
     const apps = await A.page.$$eval("#phone .app", x => x.length);
-    assert(apps >= 25, `expected the phone's apps (26, the coin store hidden in single-player), got ${apps}`);
+    assert(apps === 7, `expected the seven everyday apps on the home screen, got ${apps}`);
+    await A.page.click("#phone [data-more]");
+    await A.page.waitForSelector('#phone [data-app="story"]');
+    const more = await A.page.$$eval("#phone .app", x => x.length);
+    assert(more >= 20, `expected the other apps under More apps (20, the coin store hidden in single-player), got ${more}`);
+    await A.page.click('#phone [aria-label="Back to apps"]');
     await A.page.click('#phone [data-app="bank"]');
     await A.page.waitForSelector('#phone >> text="Balances"');
     await shot(A, "solo_09_bank.png");
     await A.page.click('#phone [aria-label="Back to apps"]');
     await A.page.click('#phone [data-app="map"]');
-    await A.page.click('#phone li:has-text("Heritage Coffee") >> text="Show"');
+    // Heritage Coffee: under Open now when it's open and near, else under All places (D-074's Map).
+    await A.page.waitForSelector("#phone svg.minimap");
+    const open = await A.page.$('#phone [data-open="heritage_coffee"]');
+    if (!open) await A.page.click("#phone .all-places > summary");
+    await A.page.click(open ? '#phone [data-open="heritage_coffee"] >> text="Show"' : '#phone .all-places li:has-text("Heritage Coffee") >> text="Show"');
     await A.page.waitForSelector('#sheet[data-kind="place"]');
     await closeSheet(A);
   });

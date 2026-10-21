@@ -206,6 +206,9 @@ Server and core half (the client half is tracked in `web/README.md`):
 | Item | Status |
 |---|---|
 | A faster clock: 2 game minutes per real second, walking 10 m/s, the bus 40 m/s, units converted where code mixed them (D-075) | ✅ (every suite at the new rate) |
+| Social media in the World: posts as World state (`post`, `comment`, `like`/`unlike`, `follow`/`unfollow`, `social_feed`, `social_profile`, the phone app `social`), posts the game writes for characters a script plays from their own memories and check-ins in their voice, @livera.unfiltered posting witnessed scenes from the rumours with "Heard by" and the truth only for those who were there, fame and relationships from followers and likes, toasts within limits (one a day from the game), Last night in Livéra in the morning (D-074, D-076) | ✅ (`tests/test_social.cpp`, `tests/test_server.cpp`, `web/tests/social_e2e.js`) |
+| The phone, useful: the everyday seven on the home screen (Social, Messages, Map, Bank, Work, Calendar, People), the rest under More apps; Messages as a thread per person with Seen, people a script plays reading and answering by the data; the Map with your people where you could know they are and the places open now, Walk there (D-074) | ✅ (`web/tests/phone_e2e.js`, `web/tests/social_e2e.js`, `tests/test_social.cpp`) |
+| Invitations ("Callouts" under D-076: friends asking, never the game) | ⬜ not in the phone workstream; the people workstream's evening plans |
 
 ## M2 — Dominique, complete (spec Phase 2) ⬜
 

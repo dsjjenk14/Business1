@@ -365,7 +365,7 @@ async function screenProblems(p) {
     await openPhone(D);
     await sleep(300);
     await shot(D, "desktop_phone_home_1440.png");
-    for (const app of ["work", "calendar", "contacts", "jobs", "homes", "sports", "items", "pets", "studio", "messages", "notifications", "wallet", "career", "transit"]) {
+    for (const app of ["social", "map", "work", "calendar", "contacts", "jobs", "homes", "sports", "items", "pets", "studio", "messages", "notifications", "wallet", "career", "transit"]) {
       await openPhone(D, app);
       await sleep(200);
       const bad = await screenProblems(D);

@@ -15,10 +15,30 @@
       "read_after_minutes": [2, 20],
       "replies_per_day": 3,
       "replies": [
-        {"min": {"conflict": 40}, "lines": ["I don't have anything to say to you right now.", "Not today, {first}."]},
-        {"min": {"friendship": 50}, "lines": ["Always good to hear from you, {first}.", "Ha, {first}! Yes. Talk soon.", "Was just thinking about you, {first}."]},
-        {"min": {"friendship": 15}, "lines": ["Hey {first}! Got your message.", "Thanks, {first}. Talk later?", "Good to hear from you, {first}."]},
-        {"known": true, "lines": ["Got it, thanks.", "Noted. Busy day, talk later.", "Thanks for the message."]},
+        {
+          "min": {"conflict": 40},
+          "lines": ["I don't have anything to say to you right now.", "Not today, {first}."]
+        },
+        {
+          "min": {"friendship": 50},
+          "lines": [
+            "Always good to hear from you, {first}.",
+            "Ha, {first}! Yes. Talk soon.",
+            "Was just thinking about you, {first}."
+          ]
+        },
+        {
+          "min": {"friendship": 15},
+          "lines": [
+            "Hey {first}! Got your message.",
+            "Thanks, {first}. Talk later?",
+            "Good to hear from you, {first}."
+          ]
+        },
+        {
+          "known": true,
+          "lines": ["Got it, thanks.", "Noted. Busy day, talk later.", "Thanks for the message."]
+        },
         {"lines": ["Sorry, who is this?", "I don't think we've met."]}
       ]
     }
