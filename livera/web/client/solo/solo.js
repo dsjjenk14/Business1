@@ -266,7 +266,7 @@ class SoloGame extends Game {
       el("div", { class: "eyebrow" }, "What this is"),
       el("p", { class: "hint" }, SOLO_NOTICE + " " + PAUSE_NOTICE),
       el("p", { class: "hint" }, SKETCH_NOTICE + ". Door positions, names, prices, opening status, bus stops and everyone's movements come from the game core running in this tab; it decides every outcome, exactly as the server does online."),
-      el("p", { class: "hint" }, "Characters marked “played by a script” are founders on autopilot: a routine inside the game core walks them through their day (home, work, errands, bed) and says no to every ask. They never talk, so “Nobody heard you” is the honest answer when you speak and nobody's near."),
+      el("p", { class: "hint" }, "Characters marked “played by a script” are the town's people on autopilot (founders, residents and townspeople nobody is playing): a routine inside the game core walks them through their day (home, work, errands, an evening out, bed) and says no to every ask. They never talk, so “Nobody heard you” is the honest answer when you speak and nobody's near."),
       el("p", { class: "hint" }, `Protocol ${this.protocol || "unknown"}, single-player build. Autopilot: ${this.local.autopilot.running ? "running" : this.local.autopilot.error || "off"}.`),
     ]);
   }

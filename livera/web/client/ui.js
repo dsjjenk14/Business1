@@ -1034,7 +1034,7 @@ export class UI {
       el("button", { type: "button", class: "btn danger block", onclick: () => g.logout() }, "Log out"),
       el("div", { class: "eyebrow" }, "What this is"),
       el("p", { class: "hint" }, SKETCH_NOTICE + ". Door positions, names, prices, opening status, bus stops and everyone's movements come from the game itself; its rules decide every outcome."),
-      el("p", { class: "hint" }, "Characters marked “played by a script” are founding residents a labelled script plays while no player has them. The bus is a single-rider shuttle until shared buses exist."),
+      el("p", { class: "hint" }, "Characters marked “played by a script” are the town's people (founders, residents, townspeople) a labelled script plays while no player has them. The bus is a single-rider shuttle until shared buses exist."),
       el("p", { class: "hint" }, `Server protocol: ${g.protocol || "unknown"}.`),
     ]);
   }

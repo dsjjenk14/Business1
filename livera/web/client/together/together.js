@@ -534,7 +534,7 @@ class TogetherGame extends Game {
       el("p", { class: "hint" }, TOGETHER_NOTICE),
       el("p", { class: "hint" }, PRIVACY_NOTICE),
       el("p", { class: "hint" }, SKETCH_NOTICE + ". Every outcome comes from the game core running in the host's tab, with the same rules and refusals as the multiplayer server."),
-      el("p", { class: "hint" }, "Characters marked “played by a script” are founders on autopilot: a routine inside the game core walks them through their day and says no to every ask."),
+      el("p", { class: "hint" }, "Characters marked “played by a script” are the town's people on autopilot (founders, residents and townspeople nobody is playing): a routine inside the game core walks them through their day and evening and says no to every ask."),
       el("p", { class: "hint" }, `Protocol ${this.protocol || "unknown"}, together build.`));
     ui.openSheet("menu", "menu", [el("div", { class: "sheet-mark" }, lotus()), ui.head("Livéra · together", "Menu")], body);
   }
