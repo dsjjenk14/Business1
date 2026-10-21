@@ -120,6 +120,7 @@ Json World::arrestCharacter(CharacterState& c, const std::string& crime, const s
       c.position = cell->door;
     }
     c.jailedUntil = state_.now + jail;
+    (void)takeRoomSpot(c, [](const InteriorSpotDef& s) { return s.kind == "cell"; });  // interiors: into a cell
   }
   c.wantedFor.clear();
   applyEmotions(c, {{"embarrassment", 30}, {"stress", 20}, {"sadness", 10}});

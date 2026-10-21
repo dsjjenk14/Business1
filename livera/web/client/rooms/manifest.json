@@ -29,6 +29,21 @@
    1024
   ]
  },
+ "circuit_electronics": {
+  "offset": [
+   16,
+   4
+  ],
+  "scale": 1.0,
+  "size": [
+   1511,
+   1006
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
  "common_ground": {
   "offset": [
    10,
@@ -59,6 +74,36 @@
    1024
   ]
  },
+ "eclat": {
+  "offset": [
+   0,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1274,
+   724
+  ],
+  "source": [
+   1282,
+   724
+  ]
+ },
+ "ellis_atelier": {
+  "offset": [
+   8,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   933,
+   576
+  ],
+  "source": [
+   948,
+   584
+  ]
+ },
  "fade_glow": {
   "offset": [
    11,
@@ -74,6 +119,21 @@
    1024
   ]
  },
+ "forge_site_office": {
+  "offset": [
+   8,
+   8
+  ],
+  "scale": 1.0,
+  "size": [
+   909,
+   693
+  ],
+  "source": [
+   917,
+   701
+  ]
+ },
  "founders_animal_hospital": {
   "offset": [
    34,
@@ -87,6 +147,21 @@
   "source": [
    1536,
    1024
+  ]
+ },
+ "founders_school": {
+  "offset": [
+   8,
+   8
+  ],
+  "scale": 1.0,
+  "size": [
+   1308,
+   722
+  ],
+  "source": [
+   1324,
+   734
   ]
  },
  "greater_hope": {
@@ -119,6 +194,21 @@
    1024
   ]
  },
+ "hale_partners": {
+  "offset": [
+   8,
+   3
+  ],
+  "scale": 1.0,
+  "size": [
+   1140,
+   606
+  ],
+  "source": [
+   1156,
+   617
+  ]
+ },
  "heritage_coffee": {
   "offset": [
    4,
@@ -132,6 +222,21 @@
   "source": [
    1536,
    1024
+  ]
+ },
+ "james_wellness": {
+  "offset": [
+   8,
+   8
+  ],
+  "scale": 1.0,
+  "size": [
+   710,
+   498
+  ],
+  "source": [
+   726,
+   514
   ]
  },
  "little_sprouts": {
@@ -284,6 +389,36 @@
    1024
   ]
  },
+ "paws_whiskers": {
+  "offset": [
+   8,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1523,
+   1022
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "police_station": {
+  "offset": [
+   12,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1517,
+   1015
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
  "riverdale_clinic": {
   "offset": [
    3,
@@ -314,6 +449,21 @@
    1024
   ]
  },
+ "riverside_clubhouse": {
+  "offset": [
+   8,
+   4
+  ],
+  "scale": 1.0,
+  "size": [
+   1063,
+   717
+  ],
+  "source": [
+   1079,
+   724
+  ]
+ },
  "starlight_cinema": {
   "offset": [
    6,
@@ -327,6 +477,36 @@
   "source": [
    1536,
    1024
+  ]
+ },
+ "suds_spin": {
+  "offset": [
+   15,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1519,
+   1017
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "thread_co": {
+  "offset": [
+   8,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1083,
+   724
+  ],
+  "source": [
+   1099,
+   724
   ]
  },
  "whitaker_capital": {

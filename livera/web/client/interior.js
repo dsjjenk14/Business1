@@ -12,8 +12,10 @@ import { LIGHT } from "./layout.js";
 import { drawFigure } from "./figures.js";
 
 const SEATS = new Set(["seat", "sofa", "bed", "stool"]);
+// Where you sit: a seat you chose, or the bench of the cell an arrest put you in (nobody takes a cell by choice).
+const SITS = new Set([...SEATS, "cell"]);
 // How high each kind of seat is, as a fraction of a standing person (figures.js lowers a sitter's hips onto it).
-const SEAT_HEIGHT = { seat: 0.26, sofa: 0.24, bed: 0.3, stool: 0.42 };
+const SEAT_HEIGHT = { seat: 0.26, sofa: 0.24, bed: 0.3, stool: 0.42, cell: 0.26 };
 const ISO = { n: [-1, -0.5], e: [1, -0.5], s: [1, 0.5], w: [-1, 0.5] };
 // How a facing in the picture is drawn (figures.js: mirror = facing screen-left): s and w face the viewer,
 // n and e face away; w and n look to the left of the screen.
@@ -349,7 +351,7 @@ export class RoomView {
     for (const [id, p] of this.people) {
       const at = this.drawnAt(p, now), walking = p.dur && now - p.t0 < p.dur;
       const s = p.spot && !walking ? this.spot(p.spot) : null;
-      const pose = walking ? "walk" : s && SEATS.has(s.kind) ? "sit" : "stand";
+      const pose = walking ? "walk" : s && SITS.has(s.kind) ? "sit" : "stand";
       const facing = s && !walking ? s.facing : p.facing;
       list.push({ id, at, pose, facing, kind: s ? s.kind : null, phase: walking ? (now - p.t0) / 1000 * 1.6 : 0 });
     }
@@ -496,7 +498,7 @@ export class RoomView {
         const inX = Math.abs(p[0] - at[0]) <= P * 0.4, inY = p[1] <= at[1] + P * 0.12 && p[1] >= at[1] - P * 1.35;
         d = inX && inY ? Math.abs(p[0] - at[0]) / P : Infinity;
       } else {
-        const lift = SEATS.has(s.kind) ? 0.3 : s.kind === "stage" ? 0.25 : 0.45, rad = SEATS.has(s.kind) ? 0.24 : s.kind === "stage" ? 0.5 : 0.38;
+        const lift = SITS.has(s.kind) ? 0.3 : s.kind === "stage" ? 0.25 : 0.45, rad = SITS.has(s.kind) ? 0.24 : s.kind === "stage" ? 0.5 : 0.38;
         const c = [at[0] + (s.kind === "counter" ? (ISO[s.facing] || [0, 0])[0] * P * 0.15 : 0), at[1] - P * lift];
         d = Math.hypot(p[0] - c[0], (p[1] - c[1]) * 1.2) / P;
         if (d > rad) d = Infinity;
@@ -554,7 +556,7 @@ export class RoomView {
     const s = h.spot, here = w.here;
     // Someone else's seat is them: their card (the server would refuse the chair anyway).
     const holder = [...this.people.entries()].find(([id, p]) => p.spot === s.id && id !== w.selfId);
-    if (holder && SEATS.has(s.kind)) { this.showLabel(`${firstName(w.nameOf(holder[0]))} is sitting here`, h.at); ui.sheetPerson(holder[0]); return; }
+    if (holder && SITS.has(s.kind)) { this.showLabel(`${firstName(w.nameOf(holder[0]))} is ${s.kind === "cell" ? "held" : "sitting"} here`, h.at); ui.sheetPerson(holder[0]); return; }
     this.showLabel(this.spotText(s), h.at);
     if (SEATS.has(s.kind)) { await this.sit(s); return; }
     const act = s.activity && here && (here.activities || []).find(a => a.id === s.activity);
@@ -604,7 +606,7 @@ export class RoomView {
   spotScreen(id) {
     const s = this.spot(id);
     if (!s || !this.view) return null;
-    const P = this.room.person_px || 120, lift = s.kind === "door" ? 0.5 : SEATS.has(s.kind) ? 0.3 : s.kind === "stage" ? 0.25 : 0.45;
+    const P = this.room.person_px || 120, lift = s.kind === "door" ? 0.5 : SITS.has(s.kind) ? 0.3 : s.kind === "stage" ? 0.25 : 0.45;
     const [x, y] = this.toScreen([s.at[0], s.at[1] - P * lift]), r = this.canvas.getBoundingClientRect();
     return [x + r.left, y + r.top];
   }

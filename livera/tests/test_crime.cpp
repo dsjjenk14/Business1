@@ -44,6 +44,32 @@ bool notified(const World& w, const CharacterId& id, const std::string& fragment
 
 }  // namespace
 
+TEST_CASE("crime: arrested, you're held on a cell's bench; nobody takes a cell by choice") {
+  World w = crimeWorld(crimeContent([](Json& c) { setCrime(c, "shoplifting", 1.0); }));
+  const InteriorDef* station = w.content().interiorFor("police_station");
+  REQUIRE(station);
+  walkInto(w, "andre", "thread_co");
+  REQUIRE(w.steal("andre", "streetwear_set").value().at("caught") == true);
+  const std::string first = w.roomPlaceOf("andre")->spot;
+  REQUIRE(station->spot(first));
+  CHECK(station->spot(first)->kind == "cell");
+  CHECK(w.stand("andre").error().code == "in_jail");  // held there until released
+  // The next person arrested gets a cell of their own.
+  walkInto(w, "aaliyah", "thread_co");
+  REQUIRE(w.steal("aaliyah", "streetwear_set").value().at("caught") == true);
+  const std::string second = w.roomPlaceOf("aaliyah")->spot;
+  REQUIRE(station->spot(second));
+  CHECK(station->spot(second)->kind == "cell");
+  CHECK(second != first);
+  // Released, nobody sits back down in a cell by choice (the station is staff only, so only the held are inside).
+  w.advanceMinutes(w.character("aaliyah")->jailedUntil - w.now() + 1);
+  REQUIRE(!w.inJail("andre"));
+  for (const auto& s : station->spots) {
+    if (s.kind == "cell") CHECK(w.sit("andre", s.id).error().code == "not_a_seat");
+  }
+  CHECK(w.stand("andre"));
+}
+
 TEST_CASE("crime: shoplifting you get away with costs nothing") {
   World w = crimeWorld(crimeContent([](Json& c) { setCrime(c, "shoplifting", 0.0); }));
   walkInto(w, "andre", "thread_co");

@@ -1,0 +1,67 @@
+{
+  "interior": {
+    "id": "forge_site_office",
+    "places": ["forge_site_office"],
+    "size": [917, 701],
+    "person_px": 110,
+    "floor": [
+      [[364, 592], [677, 452], [836, 514], [878, 517], [522, 664]],
+      [[262, 292], [555, 154], [830, 262], [868, 268], [418, 424], [258, 350]]
+    ],
+    "blocked": [
+      {"label": "plan table", "poly": [[484, 588], [642, 522], [717, 555], [557, 623]], "height": 58},
+      {"label": "supply shelf", "poly": [[384, 580], [452, 551], [466, 558], [398, 587]], "height": 120},
+      {"label": "plan bin", "poly": [[376, 583], [390, 577], [404, 583], [390, 589]], "height": 50},
+      {"label": "kettle shelf", "poly": [[612, 472], [672, 450], [686, 466], [622, 486]], "height": 110},
+      {"label": "plant", "poly": [[692, 475], [707, 469], [722, 475], [707, 481]], "height": 90},
+      {"label": "plant", "poly": [[799, 527], [815, 520], [831, 527], [815, 534]], "height": 85},
+      {"label": "desk", "poly": [[315, 298], [367, 274], [478, 318], [422, 345]], "height": 45},
+      {"label": "desk", "poly": [[442, 220], [485, 200], [580, 240], [538, 260]], "height": 45},
+      {
+        "label": "desk",
+        "poly": [[607, 276], [650, 228], [690, 212], [725, 226], [752, 292], [702, 316]],
+        "height": 42
+      },
+      {"label": "bookshelf", "poly": [[366, 240], [414, 218], [432, 228], [384, 250]], "height": 140},
+      {
+        "label": "copier and cabinets",
+        "poly": [[553, 192], [600, 168], [638, 186], [592, 208]],
+        "height": 100
+      },
+      {"label": "filing shelf", "poly": [[712, 240], [735, 228], [800, 258], [778, 270]], "height": 140},
+      {"label": "plant", "poly": [[265, 300], [280, 294], [295, 300], [280, 306]], "height": 75},
+      {"label": "plant", "poly": [[343, 240], [355, 235], [367, 240], [355, 245]], "height": 55},
+      {"label": "plant", "poly": [[525, 164], [543, 157], [561, 164], [543, 171]], "height": 100},
+      {"label": "plant", "poly": [[790, 252], [803, 247], [816, 252], [803, 257]], "height": 65}
+    ],
+    "entrance": {"at": [425, 608], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [378, 594], "facing": "w", "label": "Front door"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [765, 497],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "coffee",
+        "kind": "fixture",
+        "at": [655, 496],
+        "facing": "n",
+        "label": "Kettle shelf",
+        "activity": "break_coffee"
+      },
+      {"id": "stool_1", "kind": "stool", "at": [505, 600], "facing": "e", "label": "Plan table stool"},
+      {"id": "stool_2", "kind": "stool", "at": [592, 618], "facing": "n", "label": "Plan table stool"},
+      {"id": "stool_3", "kind": "stool", "at": [640, 598], "facing": "n", "label": "Plan table stool"},
+      {"id": "stool_4", "kind": "stool", "at": [686, 579], "facing": "n", "label": "Plan table stool"},
+      {"id": "desk_1", "kind": "seat", "at": [352, 320], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_2", "kind": "seat", "at": [455, 330], "facing": "n", "label": "Desk", "staff": true},
+      {"id": "desk_3", "kind": "seat", "at": [470, 242], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_4", "kind": "seat", "at": [640, 290], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_5", "kind": "seat", "at": [728, 296], "facing": "n", "label": "Desk", "staff": true}
+    ]
+  }
+}

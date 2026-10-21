@@ -17,8 +17,8 @@ using namespace content_parse;
 
 namespace {
 
-const std::set<std::string> kSpotKinds = {"seat",    "sofa",  "bed",     "stool", "counter",
-                                          "station", "stage", "fixture", "door"};
+const std::set<std::string> kSpotKinds = {"seat",  "sofa",    "bed",  "stool", "counter", "station",
+                                          "stage", "fixture", "door", "cell"};
 const std::set<std::string> kFacings = {"n", "e", "s", "w"};
 // Kinds you stand at on the open floor; the others are on furniture (a chair, the stage) or in a doorway, and only
 // have to be in the room.
@@ -239,6 +239,9 @@ Status ContentDatabase::validateInteriors() const {
       }
       if (loc->stage && !has([](const InteriorSpotDef& s) { return s.kind == "stage"; }))
         return bad(placeId + " is a stage but the room has none");
+      // Arrested, you're put in a cell (Crime.cpp): the jail's room must have one.
+      if (placeId == crime_.jail && !has([](const InteriorSpotDef& s) { return s.kind == "cell"; }))
+        return bad(placeId + " is the jail but the room has no cell");
       if (!has([](const InteriorSpotDef& s) { return s.kind == "door" && s.activity.empty(); }))
         return bad("no door out (a door spot with no activity)");
     }

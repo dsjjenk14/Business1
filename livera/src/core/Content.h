@@ -1022,7 +1022,8 @@ struct AutopilotMannersConfig {
 // toward the viewer) and w (down-left, toward the viewer).
 struct InteriorSpotDef {
   std::string id;
-  std::string kind;                 // seat, sofa, bed, stool (you sit there), counter, station, stage, fixture, door
+  std::string kind;                 // seat, sofa, bed, stool (you sit there), counter, station, stage, fixture, door,
+                                    // cell (where an arrest holds you; nobody takes it by choice)
   Vec2 at;                          // where a person's feet are when they stand or sit there
   std::string facing;
   std::string label;

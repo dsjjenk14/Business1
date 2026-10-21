@@ -58,7 +58,8 @@ Json lastChange(const std::vector<Json>& events, const CharacterId& about) {
 }
 
 // The real content with one interior document changed, loaded without throwing.
-Result<std::shared_ptr<const ContentDatabase>> withCafe(const std::function<void(Json& interior)>& patch) {
+Result<std::shared_ptr<const ContentDatabase>> withRoom(const std::string& file,
+                                                        const std::function<void(Json& interior)>& patch) {
   std::vector<std::pair<std::string, Json>> docs;
   std::vector<std::filesystem::path> files;
   for (const auto& e : std::filesystem::recursive_directory_iterator(LIVERA_DATA_DIR)) {
@@ -68,10 +69,14 @@ Result<std::shared_ptr<const ContentDatabase>> withCafe(const std::function<void
   for (const auto& f : files) {
     std::ifstream in(f);
     Json doc = Json::parse(in, nullptr, true, true);
-    if (f.filename() == "heritage_coffee.json") patch(doc["interior"]);
+    if (f.filename() == file) patch(doc["interior"]);
     docs.emplace_back(f.filename().string(), std::move(doc));
   }
   return ContentDatabase::loadFromDocuments(docs);
+}
+
+Result<std::shared_ptr<const ContentDatabase>> withCafe(const std::function<void(Json& interior)>& patch) {
+  return withRoom("heritage_coffee.json", patch);
 }
 
 }  // namespace
@@ -133,6 +138,13 @@ TEST_CASE("interiors: content that breaks a room's rules is refused at load") {
   CHECK(refused([](Json& r) { r["entrance"]["at"] = {1, 1}; }).find("entrance") != std::string::npos);
   CHECK(refused([](Json& r) { r["spots"][0]["facing"] = "up"; }).find("facing") != std::string::npos);
   CHECK(refused([](Json& r) { r["spots"][0]["kind"] = "throne"; }).find("unknown kind") != std::string::npos);
+  // Arrested, you're put in a cell: the jail's room must have one.
+  const auto noCells = withRoom("police_station.json", [](Json& r) {
+    for (auto& s : r["spots"])
+      if (s["kind"] == "cell") s["kind"] = "seat";
+  });
+  REQUIRE(!noCells);
+  CHECK(noCells.error().message.find("is the jail but the room has no cell") != std::string::npos);
 }
 
 // --- Moving around ----------------------------------------------------------------------
