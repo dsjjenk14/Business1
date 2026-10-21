@@ -19,7 +19,7 @@ song track saxophone A4:0:3 C5:4:2 E5:6:6 D5:16:4 B4:20:2 G4:22:6 F4:32:3 A4:36:
 song repeat 2
 song save
 perform last
-wait 8
+wait 12
 song release last
 song export last founders_groove.mid
 song list

@@ -10,7 +10,7 @@ enter lexington_1204
 walk heritage_coffee
 enter heritage_coffee
 look
-wait 12
+wait 16
 phone messages
 phone contacts
 logout

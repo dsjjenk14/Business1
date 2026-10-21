@@ -9,8 +9,9 @@ exit
 walk heritage_coffee
 enter heritage_coffee
 buy latte card
-# Dax and Sol are still walking over from Maple Court; Sol plays the open mic.
-wait 30
+# Dax and Sol are still walking over from Maple Court (about 20 real seconds at 10 m/s, D-075); Sol plays the
+# open mic soon after, and both stay a while.
+wait 20
 look
 say Welcome to Livéra, Sol! That was beautiful.
 tip sol-rivera 5
