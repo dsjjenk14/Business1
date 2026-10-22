@@ -791,6 +791,54 @@
         "The penthouse: an island kitchen, a dining table for eight, an L-sectional and armchairs with the TV, three bedrooms, two bathrooms, a walk-in closet and a terrace with an outdoor table. The data says 'very little furniture yet'; the picture is furnished. A home: the room lets its residents walk, sit, sleep and do their chores where they happen once it's traced.",
         "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
       ]
+    },
+    "founders_row_3": {
+      "picture": "art/interiors/founders_row_3.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The brick stoop, the plants, the books and the mismatched armchairs (a leather club chair and an emerald one) match the description. The bedroom sits up a half-flight of stairs over the kitchen, and the bath is a clawfoot tub.",
+        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+      ]
+    },
+    "lakeview_1a": {
+      "picture": "art/interiors/lakeview_1a_2b_3a_4c.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md; one picture for the four Lakeview condos (1A, 2B, 3A and 4C), which the data describes alike.",
+        "Two bedrooms, the balcony over Willow Lake with two lounge chairs, the laundry nook with a washer and dryer, the walk-in shower and the kitchen island match the prompt.",
+        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+      ]
+    },
+    "lakeview_2b": {
+      "picture": "art/interiors/lakeview_1a_2b_3a_4c.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md; one picture for the four Lakeview condos (1A, 2B, 3A and 4C), which the data describes alike.",
+        "Two bedrooms, the balcony over Willow Lake with two lounge chairs, the laundry nook with a washer and dryer, the walk-in shower and the kitchen island match the prompt.",
+        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+      ]
+    },
+    "lakeview_3a": {
+      "picture": "art/interiors/lakeview_1a_2b_3a_4c.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md; one picture for the four Lakeview condos (1A, 2B, 3A and 4C), which the data describes alike.",
+        "Two bedrooms, the balcony over Willow Lake with two lounge chairs, the laundry nook with a washer and dryer, the walk-in shower and the kitchen island match the prompt.",
+        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+      ]
+    },
+    "lakeview_4c": {
+      "picture": "art/interiors/lakeview_1a_2b_3a_4c.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md; one picture for the four Lakeview condos (1A, 2B, 3A and 4C), which the data describes alike.",
+        "Two bedrooms, the balcony over Willow Lake with two lounge chairs, the laundry nook with a washer and dryer, the walk-in shower and the kitchen island match the prompt.",
+        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+      ]
+    },
+    "lexington_0602": {
+      "picture": "art/interiors/lexington_0602.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The desk by the window and the view over a roof (Riverdale Clinic's, as the data says) match; the kitchen island is dark marble.",
+        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+      ]
     }
   },
   "transit": {
@@ -1008,6 +1056,92 @@
         "It came as one picture with Aaliyah's sheet and was cut in half.",
         "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
       ]
+    },
+    "sol-rivera": {
+      "sheet": "art/sprites/characters/sol-rivera/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md.",
+        "The deep teal corduroy bucket hat over a copper curly afro, the cream printed shirt with rolled sleeves, the brown corduroy waistcoat and wide trousers and the brown loafers match the data.",
+        "The background is a dark studio gradient, not transparent as asked: scripts/client_figures.py mattes the frames out."
+      ]
+    },
+    "kai-morgan": {
+      "sheet": "art/sprites/characters/kai-morgan/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md.",
+        "The red zip-up hoodie over a white tee, the baggy black cargo jeans, the red-and-white high-tops and the backwards black cap match the data (the data says a black baseball cap; the sheet wears it backwards).",
+        "The background is a dark studio gradient, not transparent as asked: scripts/client_figures.py mattes the frames out."
+      ]
+    },
+    "aisha-farah": {
+      "sheet": "art/sprites/characters/aisha-farah/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md.",
+        "Her navy uniform, duty belt, boots and navy hijab match the data: this is her work look (she is drawn in uniform on and off duty until her other looks are drawn).",
+        "The background is a dark studio gradient, not transparent as asked: scripts/client_figures.py mattes the frames out."
+      ]
+    }
+  },
+  "golden_hour": {
+    "$comment": "Golden Hour's pictures (D-076, docs/proposals/showdown/golden_hour_art.md): the fight sheets for Beat Brawl (D-077), the social sheet pilot and the title key art, and the outdoor rooms of its evenings (Riverside Court is a place you can't go into; the alley behind the Copper Tap isn't a place yet).",
+    "fight_sheets": {
+      "aaliyah": {
+        "sheet": "art/sprites/characters/aaliyah/fight.webp",
+        "notes": [
+          "Twelve fight poses in her emerald satin blouse, black wide-leg trousers and pointed heels. Painted backdrop, not transparent."
+        ]
+      },
+      "andre": {
+        "sheet": "art/sprites/characters/andre/fight.webp",
+        "notes": [
+          "Twelve fight poses in his olive bomber, black tank, cargo pants and olive-and-white sneakers. Of the two versions sent, the second is filed. Painted backdrop."
+        ]
+      },
+      "sienna": {
+        "sheet": "art/sprites/characters/sienna/fight.webp",
+        "notes": [
+          "Twelve fight poses in her burgundy moto jacket, black tank, charcoal trousers and ankle boots; the last cell is a selfie, not a fight pose. Painted backdrop."
+        ]
+      },
+      "dominique": {
+        "sheet": "art/sprites/characters/dominique/fight.webp",
+        "notes": [
+          "Her twelve fight poses (top three rows) with her eight social poses smaller below, on transparency. The fight cells are the ones to cut."
+        ]
+      }
+    },
+    "social_sheets": {
+      "dominique": {
+        "sheet": "art/sprites/characters/dominique/social.webp",
+        "notes": [
+          "The pilot social sheet: wave, laugh, toast, dance, clap, arms crossed, whisper, beckon, on transparency (1536 × 1024 rather than the 1536 × 768 asked for)."
+        ]
+      }
+    },
+    "not_used_yet": "Beat Brawl still draws the figures' fight and flinch poses: cutting these sheets into frames for brawl.js is the next step (D-077's trade-off). Dax's fight sheet is still to come.",
+    "key_art": {
+      "picture": "art/key/golden_hour_title.webp",
+      "notes": [
+        "The crew at the Copper Tap: Dominique at the bar, Dax leaning on it, Sienna taking a selfie, Aaliyah with champagne, Andre on the stage. 941 × 1672 rather than 1080 × 1920."
+      ]
+    },
+    "outdoor_rooms": {
+      "riverside_court": {
+        "picture": "art/interiors/riverside_court.webp",
+        "notes": [
+          "Outdoor room for Golden Hour (docs/proposals/showdown/golden_hour_art.md: Riverside Court on league night).",
+          "The emerald court, the floodlights, the bleachers and the scorer's table match the prompt; it is lit for dusk.",
+          "Filed, not traced yet, and not a walkable room until the outdoor rooms of Golden Hour's evenings are built (D-076)."
+        ]
+      },
+      "copper_tap_alley": {
+        "picture": "art/interiors/copper_tap_alley.webp",
+        "notes": [
+          "Outdoor room for Golden Hour (docs/proposals/showdown/golden_hour_art.md: the alley behind the Copper Tap).",
+          "The brick walls, the green back door up three steps, the crates, the bench, the string lights and the street lamp match the prompt.",
+          "Filed, not traced yet, and not a walkable room until the outdoor rooms of Golden Hour's evenings are built (D-076)."
+        ]
+      }
     }
   }
 }
