@@ -29,7 +29,7 @@
       {
         "need": "health",
         "rule": "hospital",
-        "hours": 16,
+        "hours": 4,
         "bill_cents": 90000,
         "after": {"health": 45, "energy": 50, "hunger": 50, "bladder": 90, "hygiene": 50},
         "summary": "You collapse and an ambulance takes you to {hospital}: kept {hours} hours, billed {bill}.",

@@ -175,6 +175,7 @@ TEST_CASE("needs at zero: health gives out, you collapse in front of people and 
   const CharacterState& c = *w.character("dominique");
   CHECK(c.inside == "livera_general");
   CHECK(c.admittedFor == "health");
+  CHECK(c.admittedUntil - w.state().now <= 4 * 60);  // the owner: a short stay, 4 hours
   CHECK(c.needs.at("health") >= db->needsAtZero().rule("health")->after.at("health"));
   CHECK(notified(w, "dominique", "Your body gave out and you collapsed."));
   CHECK(notified(w, "dax", "Dominique collapsed at Heritage Coffee Co.. An ambulance took them to Livéra General Hospital.") ||

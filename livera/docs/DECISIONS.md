@@ -1284,7 +1284,7 @@ in public too. The autopilot never changes clothes, so the town's people stay in
 stand for 3 game hours (needs on hold, no command, no speech, not even the phone), come to with energy 35, and out in
 the street someone may go through your pockets (a 30% chance of losing up to $60 of cash to the outside world, through
 the ledger). Hunger: you pass out and an ambulance takes you to Livéra General, which keeps you 8 hours and bills $380
-(as much as is in the bank). Health: you collapse and are kept 16 hours, billed $900. Kept in, you're stabilised on
+(as much as is in the bank). Health: you collapse and are kept 4 hours, billed $900. Kept in, you're stabilised on
 arrival (the stay's `after` needs) and your needs wait; the phone works, nothing else does (`in_hospital`). Bladder
 keeps its rule: you wet yourself (D-022). The rest are told once and, while they stay at 0, wear on you every hour:
 hygiene (embarrassment; people warm to you at 0.6 times), social (loneliness, sadness), recreation (stress, less
