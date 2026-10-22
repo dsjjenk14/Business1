@@ -1,5 +1,5 @@
 {
-  "$comment": "Careers that open with the university, the hospital, the law firm, the police and the new shops.",
+  "$comment": "Careers that open with the university, the hospital, the law firm, the police, the court and the new shops.",
   "careers": [
     {
       "id": "medicine",
@@ -52,6 +52,21 @@
         {"title": "Chief of Police", "hourly_cents": 7000}
       ],
       "works_outdoors": true
+    },
+    {
+      "id": "judiciary",
+      "name": "Judiciary",
+      "workplaces": ["courthouse"],
+      "employer_account": "org:town_of_livera",
+      "requires_degree": "jd",
+      "requires_clean_record": true,
+      "need_cost_per_hour": {"energy": -3, "social": 1},
+      "max_shift_hours": 10,
+      "levels": [
+        {"title": "Magistrate", "hourly_cents": 6000, "hours_to_promote": 400, "min_performance": 65},
+        {"title": "Municipal Judge", "hourly_cents": 8500, "hours_to_promote": 900, "min_performance": 72},
+        {"title": "Presiding Judge", "hourly_cents": 11000}
+      ]
     },
     {
       "id": "teaching",

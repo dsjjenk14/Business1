@@ -87,6 +87,7 @@ const std::vector<Shift> kWeekdayShifts = {
     {"rafael-mendes", "livera_general", 15 * 60 + 30, 21 * 60 + 45},
     {"samuel-osei", "founders_school", 7 * 60 + 30, 15 * 60 + 30},
     {"kai-morgan", "low_end_studios", 14 * 60, 22 * 60},
+    {"evelyn-park", "courthouse", 8 * 60 + 30, 17 * 60 + 30},  // the bench (D-083)
 };
 const std::vector<std::string> kPolice = {"aisha-farah", "marcus-bell"};
 
@@ -440,5 +441,5 @@ TEST_CASE("saves: a new town with the whole cast round-trips, and the pick list 
   for (const auto& c : list) ++casts[c["cast"].get<std::string>()];
   CHECK(casts["founder"] == 11);
   CHECK(casts["resident"] == 4);
-  CHECK(casts["townsperson"] == 12);
+  CHECK(casts["townsperson"] == 13);  // the twelve of D-073 and the judge (D-083)
 }

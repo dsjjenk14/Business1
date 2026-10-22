@@ -57,6 +57,10 @@ void readStreetCharacter(CharacterState& c, const Json& j);
 Json socialPartToJson(const WorldState& s);
 void socialPartFromJson(WorldState& s, const Json& j);
 
+// Court.cpp (D-083): the world part "court" (the cases); no character key (convictions go on the record).
+Json courtPartToJson(const WorldState& s);
+void courtPartFromJson(WorldState& s, const Json& j);
+
 // All parts by key, for the store.
 std::map<std::string, Json> worldPartsToJson(const WorldState& s);
 void worldPartsFromJson(WorldState& s, const std::map<std::string, Json>& parts);

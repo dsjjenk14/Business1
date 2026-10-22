@@ -40,8 +40,12 @@ Json toJson(const CharacterState& c) {
   j["outfit"] = c.outfit;
   j["accessory"] = c.accessory;
   Json record = Json::array();
-  for (const auto& e : c.record)
-    record.push_back(Json{{"crime", e.crime}, {"at", e.at}, {"fine_cents", e.fineCents}, {"jail_minutes", e.jailMinutes}});
+  for (const auto& e : c.record) {
+    Json entry{{"crime", e.crime}, {"at", e.at}, {"fine_cents", e.fineCents}, {"jail_minutes", e.jailMinutes}};
+    if (!e.caseId.empty()) entry["case"] = e.caseId;  // a conviction by the court (D-083)
+    if (!e.sentence.empty()) entry["sentence"] = e.sentence;
+    record.push_back(entry);
+  }
   j["record"] = record;
   j["dependency"] = c.dependency;
   j["high_on"] = c.highOn;
@@ -125,7 +129,8 @@ CharacterState characterStateFromJson(const Json& j) {
   c.accessory = j.value("accessory", "");
   for (const auto& e : j.value("record", Json::array()))
     c.record.push_back(CrimeRecordEntry{e.at("crime").get<std::string>(), e.at("at").get<GameMinutes>(),
-                                        e.value("fine_cents", Cents{0}), e.value("jail_minutes", GameMinutes{0})});
+                                        e.value("fine_cents", Cents{0}), e.value("jail_minutes", GameMinutes{0}),
+                                        e.value("case", ""), e.value("sentence", "")});
   c.dependency = j.value("dependency", StatMap{});
   c.highOn = j.value("high_on", "");
   c.highUntil = j.value("high_until", GameMinutes{-1});

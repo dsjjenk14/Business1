@@ -1413,6 +1413,17 @@
       "outdoor_radius_m": 15
     },
     {
+      "id": "courthouse",
+      "name": "Livéra Municipal Court",
+      "type": "courthouse",
+      "district": "Civic Row",
+      "description": "The town's court, up the row from the police station: one courtroom with the judge's bench, a witness box, a dock and three rows of public benches. It sits Monday to Saturday, nine to five, and anyone may come in and watch a hearing.",
+      "door": [755, 300],
+      "hours": [8, 18],
+      "open_days": [0, 1, 2, 3, 4, 5],
+      "activities": [{"id": "restroom", "label": "Use the restroom", "cooldown_minutes": 15, "needs": {"bladder": 100}}]
+    },
+    {
       "id": "founders_way_site",
       "name": "Founders Way (unpaved)",
       "type": "construction_site",

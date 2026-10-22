@@ -69,7 +69,7 @@ Result<Json> World::enroll(const CharacterId& actor, const std::string& programI
   if (hasDegree(actor, p->degree)) return fail("already_graduated", "you already have that degree");
   if (!p->requiresDegree.empty() && !hasDegree(actor, p->requiresDegree))
     return fail("missing_degree", "you need a " + content_->degree(p->requiresDegree)->name + " first");
-  if (p->requiresCleanRecord && !c.record.empty())
+  if (p->requiresCleanRecord && employersSeeRecord(c))  // what isn't spent yet (D-083)
     return fail("criminal_record", p->name + " doesn't accept applicants with a criminal record");
   e.program = programId;
   e.hours = e.gradeSum = 0;
@@ -193,7 +193,7 @@ Result<Json> World::applyForJob(const CharacterId& actor, const std::string& car
     if (c.inside == w || (c.inside.empty() && distance(c.position, loc->door) <= content_->sim().entryRadiusMeters)) at = loc;
   }
   if (!at) return fail("wrong_place", "apply in person at " + content_->location(career->workplaces.front())->name);
-  if (Status st = meetsEntryRequirements(*career, c.education.degrees, !c.record.empty()); !st) return st.error();
+  if (Status st = meetsEntryRequirements(*career, c.education.degrees, employersSeeRecord(c)); !st) return st.error();
   c.career.careerId = careerId;
   c.career.level = 0;
   c.career.hoursAtLevel = 0;
@@ -260,7 +260,7 @@ Json World::phoneSchool(const CharacterState& c) const {
     Json campuses = Json::array();
     for (const auto& l : p.campuses) campuses.push_back(content_->location(l)->name);
     const bool eligible = !hasDegree(c.id, p.degree) && (p.requiresDegree.empty() || hasDegree(c.id, p.requiresDegree)) &&
-                          (!p.requiresCleanRecord || c.record.empty());
+                          (!p.requiresCleanRecord || !employersSeeRecord(c));
     programs.push_back(Json{{"id", id}, {"name", p.name}, {"hours_required", p.hoursRequired},
                             {"tuition_per_hour_cents", p.tuitionPerHourCents}, {"campuses", campuses}, {"online", p.online},
                             {"requires", p.requiresDegree}, {"eligible", eligible}});
@@ -276,7 +276,7 @@ Json World::phoneJobs(const CharacterState& c) const {
     Json places = Json::array();
     for (const auto& w : career.workplaces) places.push_back(content_->location(w)->name);
     const bool eligible = id != c.career.careerId && (career.requiresDegree.empty() || hasDegree(c.id, career.requiresDegree)) &&
-                          (!career.requiresCleanRecord || c.record.empty());
+                          (!career.requiresCleanRecord || !employersSeeRecord(c));
     Json j{{"id", id}, {"career", career.name}, {"starting_title", career.levels.front().title},
            {"starting_hourly_cents", career.levels.front().hourlyCents}, {"workplaces", places}, {"eligible", eligible}};
     if (!career.requiresDegree.empty()) j["requires_degree"] = content_->degree(career.requiresDegree)->name;

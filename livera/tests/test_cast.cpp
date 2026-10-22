@@ -19,10 +19,12 @@ const std::vector<std::string> kFounders = {"dominique", "dax",    "harper", "an
                                             "maya",      "julian", "leila",  "aaliyah", "sienna"};
 // The four made in the creator for the town-preview recording, whose sheets are art/reference/residents (D-073).
 const std::vector<std::string> kResidents = {"kai-morgan", "rosa-delgado", "sol-rivera", "theo-grant"};
-// The people who keep the town's places open (D-073). No art yet: the client draws them as a labelled stand-in.
+// The people who keep the town's places open (D-073), and the judge at the courthouse (D-083). No art yet: the client
+// draws them as a labelled stand-in.
 const std::vector<std::string> kTownspeople = {"bernie-walsh",  "marcus-bell", "aisha-farah",   "samuel-osei",
                                                "tess-osei",     "ngozi-adeyemi", "rafael-mendes", "imani-clarke",
-                                               "hamid-sultani", "noor-haddad", "jean-baptiste-moreau", "bo-thornton"};
+                                               "hamid-sultani", "noor-haddad", "jean-baptiste-moreau", "bo-thornton",
+                                               "evelyn-park"};
 
 std::vector<std::string> everyone() {
   std::vector<std::string> all = kFounders;

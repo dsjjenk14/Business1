@@ -354,6 +354,7 @@ void World::advanceMinutes(GameMinutes minutes) {
     stepLifeEventsMinute();  // life events come up and lapse (LifeEvents.cpp, D-068)
     stepFightsMinute();      // fights nobody answered in time (Fights.cpp, D-070)
     stepSocialMinute();      // posts for people a script plays, and the gossip account's (Social.cpp, D-074)
+    stepCourtMinute();       // hearings open, pleas lapse, warrants, community service (Court.cpp, D-083)
   }
 }
 
@@ -1097,6 +1098,7 @@ Result<Json> World::openPhoneApp(const CharacterId& actor, const std::string& ap
   if (app == "school") return phoneSchool(c);
   if (app == "jobs") return phoneJobs(c);
   if (app == "record") return phoneRecord(c);
+  if (app == "court") return phoneCourt(c);  // your cases, as the court shows them to you (Court.cpp, D-083)
   if (app == "romance") return phoneRomance(c);
   if (app == "fame") return phoneFame(c);
   if (app == "family") return phoneFamily(c);

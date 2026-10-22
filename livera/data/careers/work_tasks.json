@@ -4991,6 +4991,135 @@
           ]
         }
       ]
+    },
+    {
+      "career": "judiciary",
+      "tasks": [
+        {
+          "id": "judiciary_unrepresented",
+          "prompt": "A man before you has no lawyer and plainly doesn't understand what he's charged with. What do you do?",
+          "options": [
+            {
+              "label": "Explain the charge and his choices in plain words",
+              "detail": "And tell him he can have time to find a lawyer",
+              "score": 1.0,
+              "why": "A plea he doesn't understand isn't a fair plea."
+            },
+            {
+              "label": "Carry on: not knowing the law is no excuse",
+              "score": 0.0,
+              "why": "That's true of the crime, not of his own hearing."
+            },
+            {
+              "label": "Ask the officer who arrested him to explain it",
+              "score": 0.4,
+              "why": "Better than nothing, but the other side isn't a neutral guide."
+            },
+            {
+              "label": "Put the case off without saying why",
+              "score": 0.2,
+              "why": "He leaves as lost as he came, and has to come back."
+            }
+          ]
+        },
+        {
+          "id": "judiciary_friend_on_docket",
+          "prompt": "Tomorrow's docket has a case against someone you had dinner with last week. What do you do?",
+          "options": [
+            {
+              "label": "Hear it: you'll be fair",
+              "score": 0.0,
+              "why": "Even if you are, nobody watching can know it."
+            },
+            {
+              "label": "Say so in open court and offer to step aside",
+              "detail": "Let both sides object before anything is heard",
+              "score": 1.0,
+              "why": "Justice has to be seen to be done."
+            },
+            {
+              "label": "Postpone it until you've thought about it",
+              "score": 0.2,
+              "why": "Delay is unfair to everyone waiting on the case."
+            },
+            {
+              "label": "Hear it, and lean a little harder to prove you're not biased",
+              "score": 0.4,
+              "why": "Bias the other way is still bias."
+            }
+          ]
+        },
+        {
+          "id": "judiciary_reporter",
+          "prompt": "A reporter catches you outside and asks, off the record, what you make of a case still before you.",
+          "options": [
+            {
+              "label": "Decline: a judge speaks through rulings",
+              "detail": "Point them to the hearing: it's public",
+              "score": 1.0,
+              "why": "Open court is where the case is decided, not the steps outside it."
+            },
+            {
+              "label": "Give a careful hint, off the record",
+              "score": 0.0,
+              "why": "There is no off the record for a judge with an open case."
+            },
+            {
+              "label": "Say only that you haven't decided",
+              "score": 0.4,
+              "why": "Harmless, but it invites the next question."
+            }
+          ]
+        },
+        {
+          "id": "judiciary_late_defendant",
+          "prompt": "A defendant runs in twenty minutes late, out of breath: the bus broke down. What do you do?",
+          "options": [
+            {
+              "label": "Hear the case: late isn't absent",
+              "score": 1.0,
+              "why": "The court allows for a late arrival for exactly this."
+            },
+            {
+              "label": "Issue a warrant: rules are rules",
+              "score": 0.0,
+              "why": "A warrant is for someone who didn't come, not someone who did."
+            },
+            {
+              "label": "Hear it, but tell the clerk to note it against him",
+              "score": 0.4,
+              "why": "Punishing a broken bus isn't justice."
+            }
+          ]
+        },
+        {
+          "id": "judiciary_first_offender",
+          "prompt": "A first offender pleads guilty to shoplifting groceries for her children. Where do you start?",
+          "options": [
+            {
+              "label": "The lightest sentence the law allows, and help",
+              "detail": "A referral to Common Ground's dinners and food bank",
+              "score": 1.0,
+              "why": "A guilty plea is honoured, and the reason it happened is dealt with."
+            },
+            {
+              "label": "The heaviest, to send a message",
+              "score": 0.0,
+              "why": "The message lands on her children."
+            },
+            {
+              "label": "Throw the case out because you feel for her",
+              "score": 0.2,
+              "why": "She pleaded guilty: sympathy belongs in the sentence, not in pretending."
+            },
+            {
+              "label": "A fine she can't pay",
+              "score": 0.4,
+              "why": "It's within the law, and it will bring her straight back here."
+            }
+          ]
+        }
+      ]
     }
   ]
 }

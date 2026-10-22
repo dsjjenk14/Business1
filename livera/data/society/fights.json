@@ -6,7 +6,7 @@
     "window_minutes": 15,
     "attacker_cooldown_minutes": 120,
     "protected_minutes": 480,
-    "no_fight_place_types": ["hospital", "clinic", "school", "daycare", "civic", "church"],
+    "no_fight_place_types": ["hospital", "clinic", "school", "daycare", "civic", "church", "courthouse"],
     "autopilot": {"at_work": false, "fight_back_trait": "competitiveness", "fight_back_at": 70},
     "score": {
       "base": 40,

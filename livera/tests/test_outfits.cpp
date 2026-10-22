@@ -118,7 +118,7 @@ TEST_CASE("outfits: everyone in town owns their three looks without buying them"
   }
   CHECK(db.personalItem("work")->id == "outfit_work");
   CHECK(db.personalItem("party") == nullptr);
-  REQUIRE(db.characters().size() == 27);
+  REQUIRE(db.characters().size() == 28);
   for (const auto& [id, def] : db.characters()) {
     for (const auto& look : kOutfitLooks) CHECK(w.owns(id, db.personalItem(look)->id));
     CHECK(w.character(id)->inventory.count("outfit_work") == 0);  // owned without being carried around

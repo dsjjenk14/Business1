@@ -45,12 +45,15 @@ struct ConditionState {
   double recovery = 0;     // 0..100 toward recovery, for conditions cured by care over time
 };
 
-// A conviction: what the police caught you doing (data/society/crimes.json).
+// On your record (data/society/crimes.json): a fixed penalty (a fare dodged), or a conviction, which a crime the court
+// tries only becomes by a verdict (Court.cpp, D-083).
 struct CrimeRecordEntry {
   std::string crime;
   GameMinutes at = 0;
   Cents fineCents = 0;
   GameMinutes jailMinutes = 0;
+  std::string caseId = {};    // the court case it came from, if any
+  std::string sentence = {};  // the sentence in words, for the Record app
 };
 
 struct EducationState {
@@ -590,6 +593,47 @@ struct Brawl {
   std::map<CharacterId, double> dealt;  // what each has landed
 };
 
+// The court (Court.cpp, D-083): a case against someone, from the charge to the sentence served. Saved (world part
+// "court"); the people in it see it as the court's rules say (courtCaseView).
+struct CourtCase {
+  std::string id;
+  CharacterId accused;
+  CharacterId victim;                // the person wronged, if any (a shop isn't one)
+  std::vector<std::string> charges;  // crime ids
+  std::string how;                   // caught (arrested in the act) or reported
+  LocationId place;                  // where it happened ("" = in the street)
+  GameMinutes at = 0;                // when
+  std::vector<CharacterId> witnesses, staff, police;  // who saw it: the World knows
+  std::string status;                // summoned, warrant, hearing, decided
+  GameMinutes hearingAt = -1;        // the court date; -1 while it waits for the accused to be back in town
+  int adjournments = 0;              // put off because nobody was playing the accused
+  std::string lawyer;                // "", "firm" or the id of a person whose career is the law
+  bool lawyerAgreed = false;         // the firm (paid when hired), or the person said yes
+  // The hearing.
+  GameMinutes openedAt = -1, pleaBy = -1;
+  bool lawyerPresent = false;        // in the courtroom (and paid) when it opened
+  int witnessesInCourt = 0;          // of those who saw it, in the courtroom when it opened
+  bool victimInCourt = false;
+  CharacterId judge;                 // the judge on the bench, if one was on shift
+  // The verdict and the sentence.
+  std::string plea;                  // guilty, not_guilty, or entered (not guilty, entered by the court)
+  std::string verdict;               // convicted or dismissed
+  double chance = 0;                 // the chance of a conviction it was ruled on
+  GameMinutes decidedAt = -1;
+  Cents fineCents = 0;
+  bool fineUnpaid = false;
+  double serviceHours = 0, serviceDone = 0;
+  GameMinutes serviceDue = -1;
+  GameMinutes probationUntil = -1;
+  GameMinutes jailMinutes = 0;
+  bool breached = false;             // community service left undone by its date: a warrant
+};
+
+struct CourtWorldState {
+  std::vector<CourtCase> cases;                // open ones and the latest decided ones, oldest first
+  std::map<CharacterId, GameMinutes> serving;  // session state: doing community service since
+};
+
 struct WorldState {
   GameMinutes now = 0;
   double clockCarry = 0;  // fractional game minutes not yet applied
@@ -637,6 +681,7 @@ struct WorldState {
   DetailsWorldState details;
   // } m08:details
   SocialWorldState social;  // social media (Social.cpp, D-074): the world part "social"
+  CourtWorldState court;    // the court (Court.cpp, D-083): the world part "court"
 };
 
 // Something a connected client should hear about. The server routes it; the world
@@ -781,6 +826,24 @@ class World {
   Result<Json> crimeRisk(const CharacterId& actor, const std::string& crime, const CharacterId& target = "") const;
   // A police officer on shift, whom anyone can see in uniform.
   bool onDutyPolice(const CharacterState& c) const;
+
+  // --- The court (Court.cpp, D-083) -------------------------------------------------------
+  // Your plea at your own hearing, in the courtroom while it's open: guilty or not_guilty. The World rules at once (the
+  // judge is the World). Refusals: unknown_case, not_open (it hasn't begun), already_decided, bad_plea, not_here.
+  Result<Json> courtPlea(const CharacterId& actor, const std::string& caseId, const std::string& plea);
+  // Who defends you: "firm" (paid now), a person whose career is the law (they answer with courtRepresent; paid when
+  // the hearing opens with them in the courtroom) or "" (nobody). Refusals: unknown_case, already_decided,
+  // already_represented, invalid_target, unknown_person, not_a_lawyer, conflict_of_interest, not_available (nobody is
+  // playing them), not_here (the hearing is open and they aren't in the courtroom), insufficient_funds.
+  Result<Json> courtLawyer(const CharacterId& actor, const std::string& caseId, const std::string& lawyer);
+  // A lawyer asked to defend someone says yes or no: unknown_case, already_decided, not_here, insufficient_funds.
+  Result<Json> courtRepresent(const CharacterId& actor, const std::string& caseId, bool accept);
+  // Community service you were sentenced to: start serving hours at the service place while it's open, or stop.
+  // Refusals: nothing_owed, already_serving, not_serving, wrong_place, closed, on_shift, studying, and freeToAct's.
+  Result<Json> communityService(const CharacterId& actor, bool start);
+  const CourtCase* courtCase(const std::string& id) const;
+  // Whether an employer that needs a clean record would see anything on it now: an entry not yet spent (D-083).
+  bool employersSeeRecord(const CharacterState& c) const;
 
   // --- Life events (LifeEvents.cpp, D-068) ------------------------------------------------
   // Answer an event that came up (`life_event`): the choice's outcome is applied through the World's own rules
@@ -1085,8 +1148,48 @@ class World {
   CrimeWitnesses crimeWitnesses(const CharacterState& c, const CharacterId& besides = "") const;
   double detectionChance(const CharacterState& c, const CrimeDef& crime) const;
   int policeNearby(const CharacterState& c) const;
-  // Caught: fine, jail, record, contraband confiscated, the police told. Returns what happened.
-  Json arrestCharacter(CharacterState& c, const std::string& crime, const std::string& by);
+  // Caught: contraband confiscated, the police told; a crime the court tries is charged (booked, held, a court date,
+  // D-083), any other is fined and held at once as before. `victim`: the person it was done to, if any.
+  Json arrestCharacter(CharacterState& c, const std::string& crime, const std::string& by, const CharacterId& victim = "");
+  // Into a cell at the jail for `minutes` (an arrest, a sentence).
+  void holdInCell(CharacterState& c, GameMinutes minutes);
+  // Reported, not caught: a summons to court for a crime the court tries (D-083), else wanted as before. Returns
+  // {summoned, case, hearing_at} or {wanted: true}.
+  Json reportCrime(CharacterState& c, const std::string& crime, const CharacterId& victim);
+  // Court.cpp (D-083).
+  CourtCase* openCaseOf(const CharacterId& accused);  // a case not yet decided, if any
+  // `fresh`: a new case (it needs a court date), not a charge joining one already open.
+  CourtCase& chargeCase(CharacterState& c, const std::string& crime, const CharacterId& victim, const std::string& how,
+                        bool& fresh);
+  GameMinutes nextSitting(GameMinutes from, const std::string& besides = "") const;  // the first free slot from then
+  void summon(CourtCase& k, const std::string& why);  // tells the accused (and the victim) when and where
+  bool playedByPerson(const CharacterState& c) const;
+  std::vector<CharacterId> inCourtroom() const;
+  void stepCourtMinute();
+  void openHearing(CourtCase& k, CharacterState& c);
+  Json ruleOnCase(CourtCase& k, const std::string& plea);
+  void issueWarrant(CourtCase& k, CharacterState& c, const std::string& why);
+  void adjourn(CourtCase& k, CharacterState& c, bool counts, const std::string& why);
+  void stepServiceMinute();
+  double evidenceOf(const CourtCase& k, bool inCourt) const;  // the chance before a lawyer, unclamped
+  double lawyerEdge(const CourtCase& k, const std::string& lawyer) const;
+  double clampChance(double p) const;
+  int convictionsOf(const CharacterState& c) const;
+  bool onProbation(const CharacterState& c) const;
+  CourtSentenceDef sentenceFor(const CourtCase& k, const CharacterState& c, bool guiltyPlea) const;
+  Json sentenceJson(const CourtSentenceDef& s) const;
+  std::string sentenceText(const CourtSentenceDef& s) const;
+  Json courtCaseView(const CourtCase& k, const CharacterState& viewer) const;
+  void courtPublic(const CourtCase& k, const std::string& stage, Json extra);
+  Json phoneCourt(const CharacterState& c) const;
+  Json courtYou(const CharacterState& c) const;                   // look.you.court
+  void courtCalendar(const CharacterState& c, Json& upcoming) const;  // phone calendar
+  Json courtRules() const;                                        // publicRules.court
+  // crime_risk's court part: the sentence for you now, and (`here`: where it would happen) the court's odds.
+  Json courtRisk(const CharacterState& c, const CrimeDef& crime, const CharacterId& victim, bool here) const;
+  CourtCase* serviceOwed(const CharacterId& id);  // the oldest sentence with community service left to do
+  void recordEntryCourt(const CrimeRecordEntry& e, Json& out) const;  // phone record: kind, spent
+  void addCourtToRecord(const CharacterState& c, Json& out) const;   // phone record: cases, service, probation
   void dispatchPolice(const std::string& text);
   void stepCrimeHourly();
   Json takeSubstance(CharacterState& c, const std::string& substance);
