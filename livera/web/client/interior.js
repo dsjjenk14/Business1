@@ -406,7 +406,7 @@ export class RoomView {
       const [sx, sy] = this.toScreen(it.at), self = it.id === w.selfId;
       const f = FACING[it.facing] || FACING.s;
       const got = drawFigure(ctx, person, sx, sy, { height: P, facing: f.facing, mirror: f.mirror, pose: it.pose, phase: it.phase,
-        night, selected: self, scripted: !!person.scripted, tint: L.gold > 0.05 ? ["#ffc070", 0.14 * L.gold] : null,
+        night, tint: L.gold > 0.05 ? ["#ffc070", 0.14 * L.gold] : null,
         // How high the seat is for its kind (figures/manifest.json "$seats"): a seated frame sits on it.
         seat: it.pose === "sit" ? P * seatHeight(it.kind) : null, seatKind: it.pose === "sit" ? it.kind : null });
       const box = [got.x0, got.y0, got.x1 - got.x0, got.y1 - got.y0], top = got.y0;

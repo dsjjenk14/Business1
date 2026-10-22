@@ -1548,7 +1548,6 @@ export class Renderer2D {
     const ctx = this.ctx, sx = c.sx0 + c.dx, sy = c.sy0 + c.dy, ph = this.personHeight(), L = this.light;
     c.box = null;
     if (sx < -ph - 40 || sx > this.cw + ph + 40 || sy < -40 || sy > this.ch + ph * 1.4 + 40) return;   // off screen
-    const sel = this.selected && this.selected.kind === "person" && this.selected.id === c.id;
     const tint = night < 0.5 && L.amt > 0.02 ? [quantize(L.amb), Math.min(0.25, L.amt * 0.6)] : null;
     let box;
     if (c.bus) box = this.drawShuttle(c, sx, sy, ph, night, tint);
@@ -1556,7 +1555,7 @@ export class Renderer2D {
       if (c.inside) ctx.globalAlpha = 0.78;
       const g = c.gait, walk = c.walking && !this.reduce;
       const r = drawFigure(ctx, c.person, sx, sy, { height: ph, facing: g.facing, mirror: g.mirror, pose: walk ? "walk" : "stand", phase: g.phase,
-        night, selected: sel, scripted: c.scripted, tint });
+        night, tint });
       ctx.globalAlpha = 1;
       box = [r.x0, r.y0, r.x1, r.y1];
     }

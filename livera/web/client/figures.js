@@ -12,7 +12,7 @@
 // person's id, only so two of them can be told apart: the protocol doesn't tell other players what anyone
 // chose in the creator.
 //
-//   drawFigure(ctx, person, x, y, {height, facing, mirror, pose, phase, night, selected, scripted, seat, seatKind})
+//   drawFigure(ctx, person, x, y, {height, facing, mirror, pose, phase, night, seat, seatKind})
 //
 // person: the client's person object ({id, name, …}). (x, y): where the feet stand, in the
 // context's current units. height: how tall a 1.75 m person stands there, in the same units;
@@ -22,8 +22,8 @@
 // view); each picture is flipped as its own art needs. pose: stand | walk | sit | fight | flinch.
 // phase: the walk cycle (one cycle = two steps; only its fraction is used), the fight's bounce, or
 // how far through a flinch (0 → 1: the shake dies away). night: 0..1, how far the light has
-// gone to the map's night. selected: a gold ring on the ground. scripted: the dashed ring that says
-// a script plays them. Extra, optional: tint ([hex, 0..1], the hour's warm light at golden hour),
+// gone to the map's night. No ring is drawn on the ground under anyone, only a soft contact shadow (the owner
+// didn't like rings following people around; who a script plays is said on their face and card). Extra, optional: tint ([hex, 0..1], the hour's warm light at golden hour),
 // seat (sit: how far above the feet the seat is, default 0.26 of the height), seatKind (sit: the kind
 // of seat, as the rooms name them: seat, stool, sofa, bed).
 //
@@ -418,20 +418,6 @@ function bakeBody(person, view, cm, hd, nightStep, tint, frame, arms = "") {
   return remember(key, c, near);
 }
 
-function groundRings(ctx, x, y, h, selected, scripted) {
-  const rx = Math.max(12, h * 0.27), ry = Math.max(5, rx * 0.4);
-  if (selected) {
-    ctx.lineWidth = 4; ctx.strokeStyle = "rgba(11,43,35,.55)"; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); ctx.stroke();
-    ctx.lineWidth = 2.2; ctx.strokeStyle = "#e8cf9c"; ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); ctx.stroke();
-  }
-  if (scripted) {
-    const k = selected ? 1.3 : 1;
-    ctx.lineWidth = 1.5; ctx.strokeStyle = "rgba(247,236,214,.9)"; ctx.setLineDash([3, 2.5]);
-    ctx.beginPath(); ctx.ellipse(x, y, rx * k, ry * k, 0, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
-    ctx.lineWidth = 0.8; ctx.strokeStyle = "rgba(11,43,35,.45)"; ctx.beginPath(); ctx.ellipse(x, y, rx * k + 1.5, ry * k + 1.5, 0, 0, Math.PI * 2); ctx.stroke();
-  }
-}
-
 // Which of a sprite sheet's frames shows a pose, and how it is anchored: "foot" (the point between the
 // feet on the ground), "seat" (a seated frame's seat point on the seat), or "lowered" (the standing frame
 // lowered onto the seat and clipped there: sitting with the back to the camera, which no frame shows).
@@ -455,7 +441,7 @@ function sheetFrame(frames, pose, want, cyc, seatKind) {
 // box, for tap targets), `head` (the top of the head), in the context's units, and for a sprite sheet the
 // frame drawn (`frame`) and how it was anchored (`mode`: foot, seat or lowered).
 export function drawFigure(ctx, person, x, y, { height, facing = "front", mirror = false, pose = "stand", phase = 0, night = 0,
-  selected = false, scripted = false, tint = null, seat = null, seatKind = null } = {}) {
+  tint = null, seat = null, seatKind = null } = {}) {
   if (!manifest) loadFigureManifest();
   const ref = Math.max(1, num(height, 60)), dev = deviceScale(ctx);
   const id = person && person.id, e = isId(id) ? entry(id) : null;
@@ -498,7 +484,6 @@ export function drawFigure(ctx, person, x, y, { height, facing = "front", mirror
     ctx.fillStyle = `rgba(40,28,14,${(0.3 - 0.12 * nightStep).toFixed(3)})`;
     ctx.beginPath(); ctx.ellipse(x, y, sw, sh, 0, 0, Math.PI * 2); ctx.fill();
   }
-  if (selected || scripted) groundRings(ctx, x, y, h, selected, scripted);
   // Art that is still on its way (or the manifest saying who has art): just the shadow for a moment,
   // rather than a stand-in body that then turns into the person. Art that failed to load: the stand-in.
   const loadingArt = e && [...Object.keys(e.views), ...Object.keys(e.frames || {})].some(v => !pictures.get(`${id}/${v}`)?.failed);
