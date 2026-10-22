@@ -15,6 +15,7 @@ import {
   placeNamed, isAt, verbs, applyFor, joinAt, insideThen, atDoorThen, affordability, exposeForTests, showOutcome, getThere, setClock,
 } from "./verbs.js";
 import { storyScreen } from "./moments.js";  // the Story app (D-068)
+import { LOOK_NAMES } from "./wardrobe.js";      // your three looks (D-079)
 import { socialScreen } from "./social.js";  // the Social app (D-074)
 
 // The phone's own stylesheet, next to this module (so no page needs a <link> for it).
@@ -783,17 +784,31 @@ export class Phone {
     const inside = w.self ? w.self.inside : "", herePlace = w.placeById.get(inside);
     const laundromat = w.places.find(p => p.type === "laundromat");
     const atLaundry = homes.has(inside) || (herePlace && herePlace.type === "laundromat");
-    const dirty = list.filter(i => i.slot === "outfit" && i.condition && i.condition !== "clean");
+    // Your own three looks (D-079): always yours, worn and washed like anything you bought.
+    const looks = (Array.isArray(d.looks) ? d.looks : []).filter(l => l && l.item && LOOK_NAMES[l.look]);
+    const seen = looks.find(l => l.wearing);
+    const dirty = [...list.filter(i => i.slot === "outfit" && i.condition && i.condition !== "clean"),
+      ...looks.filter(l => l.condition && l.condition !== "clean").map(l => ({ label: `${LOOK_NAMES[l.look]} clothes`, condition: l.condition }))];
     const out = [];
-    out.push(card(eyebrow("What you're wearing"), pairs([["Outfit", (list.find(i => i.id === d.outfit) || {}).label || "nothing chosen"], ["Accessory", (list.find(i => i.id === d.accessory) || {}).label || "none"]]),
+    const outfit = (list.find(i => i.id === d.outfit) || {}).label || (seen ? `${LOOK_NAMES[seen.look]} look${seen.chosen ? "" : " (the one you're drawn in)"}` : "nothing chosen");
+    out.push(card(eyebrow("What you're wearing"), pairs([["Outfit", outfit], ["Accessory", (list.find(i => i.id === d.accessory) || {}).label || "none"]]),
       meter("Style", d.style || 0)));
+    if (looks.length) {
+      const lres = resultLine();
+      out.push(el("div", { class: "card looks" }, eyebrow("Your looks"),
+        el("ul", { class: "list" }, looks.map(l => el("li", { dataset: { look: l.look } },
+          el("div", { class: "offer-head" }, el("strong", null, LOOK_NAMES[l.look]), l.wearing ? el("span", { class: "badge open" }, "wearing") : null),
+          hint(`${sentence(l.garments)} ${titleCase(l.condition || "")}.`),
+          l.wearing && l.chosen ? null : button(`Wear ${LOOK_NAMES[l.look].toLowerCase()}`, async () => { const r = await verbs.wear(this.game, l.item, `your ${LOOK_NAMES[l.look].toLowerCase()} clothes`); lres.show(r); if (r.ok) setTimeout(() => this.reload(), 900); }, { data: { wearLook: l.look } })))),
+        this.game.openWardrobe ? button("Open the wardrobe", () => { this.close(); this.game.openWardrobe(); }, { data: { wardrobe: "1" } }) : null, lres));
+    }
     const lres = resultLine();
     out.push(card(eyebrow("Laundry"), hint(dirty.length ? `${dirty.length} outfit${dirty.length === 1 ? " needs" : "s need"} a wash: ${dirty.map(i => `${i.label} (${i.condition})`).join(", ")}.` : "Your clothes look clean."),
       atLaundry ? button("Do laundry", async () => { const r = await verbs.laundry(this.game); lres.show(r); if (r.ok) setTimeout(() => this.reload(), 1200); }, { primary: dirty.length > 0, data: { laundry: "1" } })
         : el("div", { class: "row" }, hint(`Do laundry inside your home${laundromat ? ` or at ${laundromat.name}` : ""}.`),
           laundromat ? button(`Go to ${laundromat.name}`, () => this.away(() => insideThen(this.game, laundromat, () => verbs.laundry(this.game)))) : null),
       lres));
-    if (!list.length) { out.push(hint("You don't own anything yet. Shops sell clothes, electronics and more.")); return out; }
+    if (!list.length) { out.push(hint(looks.length ? "Nothing bought yet. Shops sell more clothes, electronics and more." : "You don't own anything yet. Shops sell clothes, electronics and more.")); return out; }
     out.push(eyebrow(`Your things · ${list.length}`));
     for (const it of list) {
       const res = resultLine(), acts = [];

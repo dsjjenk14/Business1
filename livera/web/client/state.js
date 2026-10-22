@@ -16,6 +16,13 @@ export const DEFAULT_RULES = {
 const BUBBLE_MS = 6000;
 
 const num = (v, d) => (typeof v === "number" && isFinite(v) ? v : d);
+// Which clothes someone is seen in (D-079): a look of their own (everyday, work, evening), or "other" (a bought outfit,
+// named by look_label). Public, like where they stand; servers before D-079 don't say (null: drawn as before).
+const LOOKS = new Set(["everyday", "work", "evening", "other"]);
+function setLook(e, m) {
+  e.look = typeof m.look === "string" && LOOKS.has(m.look) ? m.look : null;
+  e.lookLabel = e.look === "other" && typeof m.look_label === "string" ? m.look_label : null;
+}
 const vec = v => (Array.isArray(v) && v.length >= 2 && isFinite(v[0]) && isFinite(v[1]) ? [Number(v[0]), Number(v[1])] : null);
 export const dist = (a, b) => (a && b ? Math.hypot(a[0] - b[0], a[1] - b[1]) : Infinity);
 
@@ -124,6 +131,7 @@ export class World {
       s.needs = you.needs || s.needs || {};
       s.emotions = you.emotions || s.emotions || {};
       s.onShift = !!you.on_shift;
+      setLook(s, you);
       s.inside = typeof you.inside === "string" ? you.inside : "";
       const pos = vec(you.position);
       if ("target" in you || "speed_mps" in you) {
@@ -144,6 +152,7 @@ export class World {
         const e = this.people.get(p.id) || { id: p.id, kind: "person" };
         e.name = String(p.name ?? p.id); e.known = !!p.known; e.distance = num(p.distance_m, null);
         if ("scripted" in p) e.scripted = !!p.scripted;
+        setLook(e, p);
         this.names.set(p.id, e.name);
         if (vec(p.position)) {
           this.positionsInLook = true;
@@ -182,6 +191,7 @@ export class World {
         if (!this.self) continue;
         if (c.state === "gone") continue;  // never sent for yourself; ignore if it were
         if (typeof c.inside === "string") this.self.inside = c.inside;
+        setLook(this.self, c);
         this.setMotion(this.self, c, now);
         continue;
       }
@@ -191,6 +201,7 @@ export class World {
       if (!e.name) e.name = this.names.get(c.character) || c.character;
       if ("known" in c) e.known = !!c.known;
       if ("scripted" in c) e.scripted = !!c.scripted;
+      setLook(e, c);   // each entry is whole: a missing look means the server doesn't say
       e.inside = typeof c.inside === "string" ? c.inside : "";
       this.setMotion(e, c, now);
       this.people.set(c.character, e);

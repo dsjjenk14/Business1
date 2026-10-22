@@ -69,6 +69,8 @@ export function explain(r, ctx = {}) {
     case "not_at_stop": return { text: "Walk to the stop first.", action: act("Walk there", ctx.walk) };
     case "busy": return { text: "You're already on your way somewhere.", action: act("Stop", ctx.stop) };
     case "riding": return { text: "You're on the bus: you get off at your stop." };
+    case "walking": return { text: "Stop walking first: you can't change clothes on the move.", action: act("Stop", ctx.stop) };   // D-079
+    case "personal_item": return { text: "Those are your own clothes: everyone has theirs, and yours stay yours." };
     case "inside_building": return { text: `You're inside${ctx.here ? ` ${ctx.here}` : ""}. Exit first.`, action: act("Exit", ctx.exit) };
     case "not_inside": return { text: "You're already outside." };
     case "insufficient_funds": case "cant_afford":

@@ -10,10 +10,17 @@ A character is cut from one of two sources, whichever they have:
 - Otherwise **their model sheet** (art/reference/characters/<id>.jpg, art/reference/residents/<id>.jpg, D-067): every
   full-body view on it becomes web/client/figures/<id>/<view>.webp (front, front34, side, back34, back).
 
+- **Their other looks** (D-079): a sprite sheet for a look their art doesn't show yet,
+  art/sprites/characters/<id>/<look>/sheet.webp (look: everyday, work or evening, never their drawn one, which is
+  profile.appearance.outfits.drawn in data), cut exactly like a sprite sheet into web/client/figures/<id>/<look>/<frame>.webp
+  and listed under the character's manifest entry as looks.<look>. The client draws a look's frames while they wear it
+  and their own art otherwise (figures.js). STAND_INS, ERASE and EXTRA_CM take "<id>/<look>" keys for a look's sheet.
+
 Both write web/client/figures/manifest.json. Run it again whenever a sheet changes:
 
     scripts/client_figures.py                  rebuild web/client/figures/
     scripts/client_figures.py --only dax,rosa-delgado
+    scripts/client_figures.py --only dax:evening   only that look's sheet (the rest of the manifest is kept)
     scripts/client_figures.py --check          exit 1 if web/client/figures/ is out of date or inconsistent (nothing
                                                written; no models needed)
     scripts/client_figures.py --preview DIR    also write, per character, every picture composited on the town's
@@ -81,7 +88,8 @@ the client reads it (figures.js, interior.js), so seats are tuned here, never pe
 
 `--check` reads only the files: every sprite sheet has its frames, every listed picture exists at its listed size,
 nothing unlisted is left in web/client/figures/, each sheet's bytes and its cutting recipe hash to what the manifest
-recorded (a sheet changed, or this script's settings for it, means a rebuild), and "$seats" matches SEATS.
+recorded (a sheet changed, or this script's settings for it, means a rebuild), and "$seats" matches SEATS; a look's
+sheet is one of the three looks and not their drawn one, belongs to someone with art, and has its frames listed.
 
 The output is deterministic for the same input, models and Pillow version (the masks are cached).
 """
@@ -91,6 +99,7 @@ import hashlib
 import json
 import os
 import pathlib
+import shutil
 import sys
 import tempfile
 
@@ -109,6 +118,7 @@ REF_CM, REF_PX = 175, 360            # a 1.75 m person is 360 px tall in the pic
 QUALITY = 88
 SAND, NIGHT = (235, 215, 184), (6, 26, 34)   # art/STYLE.md sand stone; layout.js LIGHT's night ambient
 VIEWS = ("front", "front34", "side", "back34", "back")
+LOOKS = ("everyday", "work", "evening")   # D-079: a person's own looks
 
 CHAR = ROOT / "art" / "reference" / "characters"
 RES = ROOT / "art" / "reference" / "residents"   # the four residents' sheets (data characters since D-073)
@@ -126,7 +136,7 @@ SHEETS = {
     "dominique": (CHAR / "dominique.jpg", [
         ("front", (14, 0, 348, 708), None, "t"), ("front34", (334, 0, 664, 708), "left", "t"),
         ("side", (672, 0, 884, 708), "right", "t"), ("back34", (916, 0, 1200, 708), "left", "t"),
-        ("back", (1222, 0, 1534, 708), None, "t")], ["Her weekend look (camel coat over the shoulders); her work look has no turnaround yet."]),
+        ("back", (1222, 0, 1534, 708), None, "t")], ["Her everyday look (camel coat over the shoulders); her work look has no turnaround yet."]),
     "dax": (CHAR / "dax.jpg", [
         ("front", (858, 626, 1018, 979), None, "t"), ("front34", (1026, 626, 1200, 979), "right", "t"),
         ("side", (1210, 626, 1356, 979), "left", "t"), ("back", (1358, 626, 1524, 979), None, "t")],
@@ -357,6 +367,23 @@ def feet(a):
     cols = band.sum(axis=0)
     xs = np.arange(a.shape[1])
     return float((cols * xs).sum() / max(cols.sum(), 1e-6)), float(bottom), float(top)
+
+
+def drawn_look(cid):
+    """The look a character's art shows (profile.appearance.outfits.drawn, D-079), or None."""
+    path = ROOT / "data" / "characters" / f"{cid}.json"
+    if not path.exists():
+        return None
+    for c in json.loads(path.read_text())["characters"]:
+        if c["id"] == cid:
+            return c["profile"]["appearance"].get("outfits", {}).get("drawn")
+    return None
+
+
+def look_sheets(cid):
+    """A character's sheets for their other looks (D-079): {look: art/sprites/characters/<id>/<look>/sheet.webp}."""
+    d = SPRITES / cid
+    return {q.parent.name: q for q in sorted(d.glob("*/sheet.webp"))} if d.is_dir() else {}
 
 
 def height_cm(cid):
@@ -649,14 +676,16 @@ def stand_point(a):
     return float(np.median(xs)), float(bottom), float(top)
 
 
-def cut_sprites(cid, sheet, cache, models, masters):
-    """Every frame of a character's sprite sheet: {frame: {im, foot | seat, faces}}, and notes."""
+def cut_sprites(cid, sheet, cache, models, masters, look=None):
+    """Every frame of a character's sprite sheet (or of one of their looks' sheets): {frame: {im, foot | seat, faces}},
+    and notes."""
     from scipy import ndimage as ndi
     img = Image.open(sheet).convert("RGB")
     W, H = img.size
+    key = f"{cid}/{look}" if look else cid
     cm = height_cm(cid)
-    target = (cm + EXTRA_CM.get(cid, 0)) * REF_PX / REF_CM
-    stand_ins = STAND_INS.get(cid, {})
+    target = (cm + EXTRA_CM.get(key, EXTRA_CM.get(cid, 0))) * REF_PX / REF_CM
+    stand_ins = STAND_INS.get(key, {})
     cuts, notes = {}, []
     for name, r, c, faces in CELLS:
         if name in stand_ins:
@@ -670,7 +699,7 @@ def cut_sprites(cid, sheet, cache, models, masters):
             hs = segment(img, box, cache, models, PERSON_MODEL)
             prior, free = sam_person(img, box, rgb, hs, main, cache, models)
             erase = np.zeros(main.shape, bool)
-            for poly in ERASE.get((cid, name), []):
+            for poly in ERASE.get((key, name), []):
                 m = Image.new("L", (main.shape[1], main.shape[0]), 0)
                 ImageDraw.Draw(m).polygon([(x - box[0], y - box[1]) for x, y in poly], fill=1)
                 erase |= np.asarray(m).astype(bool)
@@ -688,7 +717,8 @@ def cut_sprites(cid, sheet, cache, models, masters):
             cut["seat"] = seat_point(a, sofa)
         cuts[name] = cut
         if masters:
-            Image.fromarray(np.dstack([f, a * 255]).astype(np.uint8)[y0:y1, x0:x1], "RGBA").save(masters / f"{cid}_{name}.png")
+            stem = f"{cid}_{look}_{name}" if look else f"{cid}_{name}"
+            Image.fromarray(np.dstack([f, a * 255]).astype(np.uint8)[y0:y1, x0:x1], "RGBA").save(masters / f"{stem}.png")
     for name, src in stand_ins.items():
         cuts[name] = dict(cuts[src])
         notes.append(f"The sheet's {name} cell is drawn wrong; {src} stands in for it.")
@@ -714,10 +744,12 @@ def cut_sprites(cid, sheet, cache, models, masters):
     return cm, frames, notes
 
 
-def recipe(cid):
+def recipe(cid, look=None):
     """Everything this script does to a sprite sheet beyond its bytes, hashed: a change means a rebuild (--check)."""
-    spec = (REF_CM, REF_PX, QUALITY, MODEL, PERSON_MODEL, SAM_MODEL, CELLS, CELL_PAD, WALK_TALL, height_cm(cid), EXTRA_CM.get(cid, 0),
-            sorted(STAND_INS.get(cid, {}).items()), sorted((k[1], v) for k, v in ERASE.items() if k[0] == cid))
+    key = f"{cid}/{look}" if look else cid
+    spec = (REF_CM, REF_PX, QUALITY, MODEL, PERSON_MODEL, SAM_MODEL, CELLS, CELL_PAD, WALK_TALL, height_cm(cid),
+            EXTRA_CM.get(key, EXTRA_CM.get(cid, 0)),
+            sorted(STAND_INS.get(key, {}).items()), sorted((k[1], v) for k, v in ERASE.items() if k[0] == key))
     return hashlib.sha1(repr(spec).encode()).hexdigest()[:12]
 
 
@@ -726,6 +758,29 @@ def file_sha1(path):
 
 
 # ------------------------------------------------------------------------------- checking
+def everyone_with_art():
+    """Everyone with a model sheet, a sprite sheet or a sheet for one of their looks."""
+    return sorted(set(SHEETS) | {q.parent.name for q in SPRITES.glob("*/sheet.webp")}
+                  | {q.parent.parent.name for q in SPRITES.glob("*/*/sheet.webp")})
+
+
+def files_problems(label, d, listed):
+    """Every listed picture in folder d exists at its listed size, with its anchor inside it."""
+    problems = []
+    for name, v in listed.items():
+        f = d / f"{name}.webp"
+        if not f.exists():
+            problems.append(f"{label}/{name}.webp is missing")
+            continue
+        with Image.open(f) as im:
+            if list(im.size) != v.get("size") or im.mode != "RGBA":
+                problems.append(f"{label}/{name}.webp is {im.size} {im.mode}, the manifest says {v.get('size')} RGBA")
+        anchor = v.get("seat") or v.get("foot")
+        if not anchor or not (0 <= anchor[0] <= v["size"][0] and 0 <= anchor[1] <= v["size"][1] + 4):
+            problems.append(f"{label}/{name}: its anchor {anchor} is outside the picture")
+    return problems
+
+
 def check():
     """Problems with web/client/figures/ as it stands (empty: up to date)."""
     problems = []
@@ -736,7 +791,7 @@ def check():
     if m.get("$seats") != SEATS:
         problems.append('manifest "$seats" differs from SEATS in the script')
     ids = {k for k in m if not k.startswith("$")}
-    for cid in sorted(set(SHEETS) | {p.parent.name for p in SPRITES.glob("*/sheet.webp")}):
+    for cid in sorted(set(SHEETS) | {q.parent.name for q in SPRITES.glob("*/sheet.webp")}):
         sheet = sprite_sheet(cid)
         e = m.get(cid)
         if e is None:
@@ -752,32 +807,73 @@ def check():
                 problems.append(f"{cid}: the manifest doesn't list exactly the sheet's frames")
         elif e.get("from") != str(SHEETS[cid][0].relative_to(ROOT)):
             problems.append(f"{cid}: cut from {e.get('from')}, expected {SHEETS[cid][0].relative_to(ROOT)}")
+    # The sheets for their other looks (D-079).
+    for cid in sorted({q.parent.parent.name for q in SPRITES.glob("*/*/sheet.webp")}):
+        e, drawn = m.get(cid), drawn_look(cid)
+        for look, sheet in look_sheets(cid).items():
+            label = f"{cid}/{look}"
+            if look not in LOOKS:
+                problems.append(f"{label}: {look} isn't a look (everyday, work or evening)")
+                continue
+            if look == drawn:
+                problems.append(f"{label}: their art already shows their {look} look (drawn): that sheet is {cid}/sheet.webp")
+                continue
+            if e is None:
+                problems.append(f"{label}: a sheet for a look, but no sprite sheet or model sheet of {cid} yet")
+                continue
+            le = (e.get("looks") or {}).get(look)
+            if le is None:
+                problems.append(f"{label}: not in the manifest")
+                continue
+            if le.get("from") != str(sheet.relative_to(ROOT)):
+                problems.append(f"{label}: cut from {le.get('from')}, expected {sheet.relative_to(ROOT)}")
+            if le.get("sha1") != file_sha1(sheet) or le.get("recipe") != recipe(cid, look):
+                problems.append(f"{label}: its sprite sheet or this script's settings for it changed since it was cut")
+            if set(le.get("frames", {})) != set(FRAMES):
+                problems.append(f"{label}: the manifest doesn't list exactly the sheet's frames")
     for cid in sorted(ids):
         e, d = m[cid], OUT / cid
         listed = {**e.get("views", {}), **e.get("frames", {})}
-        for name, v in listed.items():
-            p = d / f"{name}.webp"
-            if not p.exists():
-                problems.append(f"{cid}/{name}.webp is missing")
-                continue
-            with Image.open(p) as im:
-                if list(im.size) != v.get("size") or im.mode != "RGBA":
-                    problems.append(f"{cid}/{name}.webp is {im.size} {im.mode}, the manifest says {v.get('size')} RGBA")
-            anchor = v.get("seat") or v.get("foot")
-            if not anchor or not (0 <= anchor[0] <= v["size"][0] and 0 <= anchor[1] <= v["size"][1] + 4):
-                problems.append(f"{cid}/{name}: its anchor {anchor} is outside the picture")
-        extra = sorted(p.name for p in d.glob("*") if p.stem not in listed) if d.exists() else []
+        looks = e.get("looks") or {}
+        problems += files_problems(cid, d, listed)
+        for look, le in looks.items():
+            if look not in look_sheets(cid):
+                problems.append(f"{cid}/{look}: in the manifest, but art/sprites/characters/{cid}/{look}/sheet.webp is gone")
+            problems += files_problems(f"{cid}/{look}", d / look, le.get("frames", {}))
+            ld = d / look
+            extra = sorted(q.name for q in ld.glob("*") if q.stem not in le.get("frames", {})) if ld.exists() else []
+            if extra:
+                problems.append(f"{cid}/{look}: files the manifest doesn't list: {', '.join(extra)}")
+        extra = sorted(q.name for q in d.glob("*") if (q.is_dir() and q.name not in looks) or (q.is_file() and q.stem not in listed)) if d.exists() else []
         if extra:
             problems.append(f"{cid}: files the manifest doesn't list: {', '.join(extra)}")
-    stray = sorted(p.name for p in OUT.iterdir() if p.is_dir() and p.name not in ids)
+    stray = sorted(q.name for q in OUT.iterdir() if q.is_dir() and q.name not in ids)
     if stray:
         problems.append(f"folders with no manifest entry: {', '.join(stray)}")
     return problems
 
 
+def write_pictures(d, pics, order):
+    """Saves the pictures into folder d (dropping files it no longer has) and returns their manifest entries."""
+    d.mkdir(parents=True, exist_ok=True)
+    for old in d.glob("*"):
+        if old.is_file() and old.stem not in pics:
+            old.unlink()
+    out = {}
+    for v in order:
+        if v not in pics:
+            continue
+        x = pics[v]
+        x["im"].save(d / f"{v}.webp", "WEBP", quality=QUALITY, method=6, exact=False)
+        pt = x.get("foot") or x["seat"]
+        out[v] = {"size": [x["im"].width, x["im"].height], ("seat" if "seat" in x else "foot"): [round(pt[0], 1), round(pt[1], 1)],
+                  "faces": x["faces"]}
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--only", help="comma-separated character ids (the manifest keeps the others)")
+    ap.add_argument("--only", help="comma-separated character ids, or <id>:<look> for one look's sheet (the manifest keeps the others)")
     ap.add_argument("--check", action="store_true", help="exit 1 if web/client/figures is out of date (nothing written)")
     ap.add_argument("--cache", type=pathlib.Path, default=pathlib.Path(tempfile.gettempdir()) / "livera-figure-masks")
     ap.add_argument("--preview", type=pathlib.Path, help="write <id>.png previews here")
@@ -793,10 +889,19 @@ def main():
     for d in (args.preview, args.masters):
         if d:
             d.mkdir(parents=True, exist_ok=True)
-    everyone = sorted(set(SHEETS) | {p.parent.name for p in SPRITES.glob("*/sheet.webp")})
-    only = set(args.only.split(",")) if args.only else None
-    if only and only - set(everyone):
-        raise SystemExit(f"unknown ids: {sorted(only - set(everyone))}")
+    everyone = everyone_with_art()
+    # --only: id -> None (everything of theirs) or the set of looks to cut.
+    only = None
+    if args.only:
+        only = {}
+        for part in args.only.split(","):
+            cid, _, look = part.partition(":")
+            if not look:
+                only[cid] = None
+            elif only.get(cid, set()) is not None:
+                only.setdefault(cid, set()).add(look)
+        if set(only) - set(everyone):
+            raise SystemExit(f"unknown ids: {sorted(set(only) - set(everyone))}")
     OUT.mkdir(parents=True, exist_ok=True)
     mpath = OUT / "manifest.json"
     manifest = json.loads(mpath.read_text()) if mpath.exists() and only else {}
@@ -820,37 +925,59 @@ def main():
     for cid in everyone:
         if only and cid not in only:
             continue
-        sheet = sprite_sheet(cid)
         d = OUT / cid
-        if sheet:
-            cm, pics, notes = cut_sprites(cid, sheet, args.cache, models, args.masters)
-            entry = {"height_cm": cm, "px_per_cm": round(REF_PX / REF_CM, 4), "from": str(sheet.relative_to(ROOT)),
-                     "sha1": file_sha1(sheet), "recipe": recipe(cid), "frames": {}}
-            order, key = FRAMES, "frames"
-        else:
-            spec = SHEETS[cid]
-            cm, pics, notes = cut(cid, spec, args.cache, models, args.masters)
-            entry = {"height_cm": cm, "px_per_cm": round(REF_PX / REF_CM, 4), "from": str(spec[0].relative_to(ROOT)), "views": {}}
-            order, key = VIEWS, "views"
-        d.mkdir(exist_ok=True)
-        for old in d.glob("*"):
-            if old.stem not in pics:
-                old.unlink()
-        for v in order:
-            if v not in pics:
+        base = only is None or only[cid] is None
+        if base and (sprite_sheet(cid) or cid in SHEETS):
+            sheet = sprite_sheet(cid)
+            if sheet:
+                cm, pics, notes = cut_sprites(cid, sheet, args.cache, models, args.masters)
+                entry = {"height_cm": cm, "px_per_cm": round(REF_PX / REF_CM, 4), "from": str(sheet.relative_to(ROOT)),
+                         "sha1": file_sha1(sheet), "recipe": recipe(cid)}
+                order, key = FRAMES, "frames"
+            else:
+                spec = SHEETS[cid]
+                cm, pics, notes = cut(cid, spec, args.cache, models, args.masters)
+                entry = {"height_cm": cm, "px_per_cm": round(REF_PX / REF_CM, 4), "from": str(spec[0].relative_to(ROOT))}
+                order, key = VIEWS, "views"
+            entry[key] = write_pictures(d, pics, order)
+            if notes:
+                entry["notes"] = notes
+            manifest[cid] = entry
+            print(f"{cid:13s} {cm} cm  " + "  ".join(f"{v} {pics[v]['im'].width}x{pics[v]['im'].height}" for v in order if v in pics))
+            if args.preview:
+                preview(cid, pics, args.preview / f"{cid}.png", order)
+        entry = manifest.get(cid)
+        sheets = look_sheets(cid)
+        if entry is None:
+            if sheets:
+                print(f"{cid}: sheets for their looks, but no sprite sheet or model sheet of them yet; nothing cut", file=sys.stderr)
+            continue
+        # Their other looks (D-079): all of them with the base, else the ones --only names; the rest are kept.
+        looks = {} if base else dict(entry.get("looks") or {})
+        drawn = drawn_look(cid)
+        for look, sheet in sheets.items():
+            if not base and look not in only[cid]:
                 continue
-            x = pics[v]
-            x["im"].save(d / f"{v}.webp", "WEBP", quality=QUALITY, method=6, exact=False)
-            pt = x.get("foot") or x["seat"]
-            entry[key][v] = {"size": [x["im"].width, x["im"].height], ("seat" if "seat" in x else "foot"): [round(pt[0], 1), round(pt[1], 1)],
-                             "faces": x["faces"]}
-        if notes:
-            entry["notes"] = notes
-        manifest[cid] = entry
-        print(f"{cid:13s} {cm} cm  " + "  ".join(f"{v} {pics[v]['im'].width}x{pics[v]['im'].height}" for v in order if v in pics))
+            if look not in LOOKS or look == drawn:
+                print(f"{cid}/{look}: not cut (a look is everyday, work or evening, and not the one their art shows: {drawn})", file=sys.stderr)
+                continue
+            cm, pics, notes = cut_sprites(cid, sheet, args.cache, models, args.masters, look)
+            le = {"from": str(sheet.relative_to(ROOT)), "sha1": file_sha1(sheet), "recipe": recipe(cid, look),
+                  "frames": write_pictures(d / look, pics, FRAMES)}
+            if notes:
+                le["notes"] = notes
+            looks[look] = le
+            print(f"{cid + '/' + look:13s} {cm} cm  " + "  ".join(f"{v} {pics[v]['im'].width}x{pics[v]['im'].height}" for v in FRAMES if v in pics))
+            if args.preview:
+                preview(cid, pics, args.preview / f"{cid}_{look}.png", FRAMES)
+        for gone in [q for q in d.glob("*") if q.is_dir() and q.name not in sheets]:
+            shutil.rmtree(gone)   # a look whose sheet is gone
+        looks = {k: looks[k] for k in LOOKS if k in looks and k in sheets}
+        if looks:
+            entry["looks"] = looks
+        else:
+            entry.pop("looks", None)
         write_manifest()   # after each character: a long run that stops early keeps what it made
-        if args.preview:
-            preview(cid, pics, args.preview / f"{cid}.png", order)
     write_manifest()
 
 

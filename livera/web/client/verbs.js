@@ -370,7 +370,8 @@ export async function placeActions(game, place) {
 
   // Laundry: inside your home, or inside the laundromat.
   if ((inside && homeIds.has(p.id)) || (p.type === "laundromat")) {
-    const worn = ((items && items.items) || []).filter(i => i.slot === "outfit" && i.condition && i.condition !== "clean").length;
+    const worn = ((items && items.items) || []).filter(i => i.slot === "outfit" && i.condition && i.condition !== "clean").length +
+      ((items && items.looks) || []).filter(l => l && l.condition && l.condition !== "clean").length;   // your own looks too (D-079)
     out.push({ key: "laundry", kind: "laundry", label: "Do laundry",
       detail: [worn ? `${plural(worn, "outfit")} to wash` : "nothing looks dirty yet", p.type === "laundromat" ? "the laundromat charges per load" : "at home",
         inside ? "" : "you'll walk in first"].filter(Boolean).join(" · "),

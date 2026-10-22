@@ -141,7 +141,7 @@ export class RoomView {
       spotPoint: id => this.spotScreen(id), floorPoint: (x, y) => this.toScreen([x, y]), personPoint: id => this.personScreen(id),
       people: () => [...this.people.entries()].map(([id, p]) => ({ id, at: p.at.slice(), spot: p.spot })),
       // How each person was drawn last frame: the pose, and for a sprite sheet the frame and its anchor (D-072).
-      drawn: id => { const d = this.drawn.get(id); return d ? { ...d, box: d.box.slice() } : null; },
+      drawn: id => { const d = this.drawn.get(id); return d ? { ...d, box: d.box.slice(), colors: d.colors ? { ...d.colors } : null } : null; },
       label: () => (this.label ? this.label.text : null),
       view: () => (this.view ? { s: this.view.s, ox: this.view.ox, oy: this.view.oy } : null),
       hitAt: (x, y) => { const h = this.hitAt(x, y); return h ? { kind: h.kind, id: h.id || (h.spot && h.spot.id) || null } : null; },
@@ -431,7 +431,8 @@ export class RoomView {
       }
       if (!self && P > 26) names.push({ x: sx, y: top - 4, text: firstName(person.name || it.id), near: sy });
       this.hits.push({ kind: "person", id: it.id, box });
-      this.drawn.set(it.id, { pose: it.pose, frame: got.frame || null, mode: got.mode || null, box: box.map(v => Math.round(v)) });
+      this.drawn.set(it.id, { pose: it.pose, frame: got.frame || null, mode: got.mode || null, box: box.map(v => Math.round(v)),
+        look: got.look || null, colors: got.colors || null });   // D-079: the look drawn, and a stand-in's garments
     }
     this.drawNames(ctx, names, P);
     this.drawBubbles(ctx, now);

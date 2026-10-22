@@ -12,6 +12,13 @@
 // person's id, only so two of them can be told apart: the protocol doesn't tell other players what anyone
 // chose in the creator.
 //
+// What someone wears (D-079): `person.look` is the look the server says they're in (everyday, work, evening, or "other"
+// for a bought outfit). A sprite sheet or a model sheet shows one look, their drawn one; a look with its own sheet
+// (art/sprites/characters/<id>/<look>/sheet.webp, cut into client/figures/<id>/<look>/) is drawn from its frames, and any
+// other look is drawn as their art shows them until its sheet is made (the wardrobe says so; nothing pretends). A
+// townsperson's stand-in wears the colours of the look they're in (standins.json "looks"); a character made in the
+// creator gets three outfit colours from their id, only so their looks can be told apart.
+//
 //   drawFigure(ctx, person, x, y, {height, facing, mirror, pose, phase, night, seat, seatKind})
 //
 // person: the client's person object ({id, name, …}). (x, y): where the feet stand, in the
@@ -89,6 +96,7 @@ const num = (v, d) => (typeof v === "number" && isFinite(v) ? v : d);
 // views listed here are ever requested. Called lazily by drawFigure(); call it yourself to start early.
 const HEX = /^#[0-9a-f]{6}$/i;
 const HAIR_STYLES = new Set(["short", "buzz", "curls", "long", "bun", "bald", "cap", "hijab"]);
+const LOOK_KEYS = new Set(["everyday", "work", "evening"]);   // D-079: a person's own looks
 // The stand-in colours of the town characters with no art yet (scripts/client_standins.py). Anything malformed is
 // left out: that person gets the neutral stand-in.
 function readStandins(s) {
@@ -96,10 +104,18 @@ function readStandins(s) {
   for (const [id, e] of Object.entries(s && typeof s === "object" ? s : {})) {
     if (!isId(id) || !e || typeof e !== "object") continue;
     if (!["skin", "hair", "top", "bottom", "shoes"].every(k => HEX.test(e[k] || ""))) continue;
-    const opt = k => (HEX.test(e[k] || "") ? e[k].toLowerCase() : null);
+    const opt = (o, k) => (HEX.test(o[k] || "") ? o[k].toLowerCase() : null);
+    // The other looks' garments (D-079): a whole set each; skin, hair and its style stay theirs.
+    const looks = {};
+    for (const [k, l] of Object.entries(e.looks && typeof e.looks === "object" ? e.looks : {})) {
+      if (!LOOK_KEYS.has(k) || !l || typeof l !== "object" || !["top", "bottom", "shoes"].every(c => HEX.test(l[c] || ""))) continue;
+      looks[k] = { top: l.top.toLowerCase(), bottom: l.bottom.toLowerCase(), shoes: l.shoes.toLowerCase(),
+        apron: opt(l, "apron"), headwear: opt(l, "headwear"), accent: opt(l, "accent") };
+    }
     out.set(id, { key: `s:${id}`, cm: num(e.height_cm, DEFAULT_CM), skin: e.skin.toLowerCase(), hair: e.hair.toLowerCase(),
       top: e.top.toLowerCase(), bottom: e.bottom.toLowerCase(), shoes: e.shoes.toLowerCase(),
-      style: HAIR_STYLES.has(e.hair_style) ? e.hair_style : "short", apron: opt("apron"), headwear: opt("headwear"), accent: opt("accent") });
+      style: HAIR_STYLES.has(e.hair_style) ? e.hair_style : "short", apron: opt(e, "apron"), headwear: opt(e, "headwear"), accent: opt(e, "accent"),
+      drawn: LOOK_KEYS.has(e.drawn) ? e.drawn : null, looks });
   }
   return out;
 }
@@ -120,14 +136,25 @@ export function loadFigureManifest() {
           const [fx, fy] = seat || foot;
           return { w, h, fx, fy, seat: !!seat, faces: d.faces === "left" || d.faces === "right" ? d.faces : null };
         };
+        // A sprite sheet's frames, or null when it has no standing frame to fall back on.
+        const framesOf = list => {
+          const frames = {};
+          for (const f of FRAMES) { const p = list && typeof list === "object" ? pictureOf(list[f]) : null; if (p && p.seat === f.startsWith("sit_")) frames[f] = p; }
+          return frames.idle_front34 || frames.idle_back34 ? frames : null;
+        };
         for (const [id, e] of Object.entries(m && typeof m === "object" ? m : {})) {
           if (!isId(id) || !e || typeof e !== "object") continue;
-          const views = {}, frames = {};
+          const views = {};
           for (const v of VIEWS) { const p = e.views && typeof e.views === "object" ? pictureOf(e.views[v]) : null; if (p && !p.seat) views[v] = p; }
-          for (const f of FRAMES) { const p = e.frames && typeof e.frames === "object" ? pictureOf(e.frames[f]) : null; if (p && p.seat === f.startsWith("sit_")) frames[f] = p; }
-          const sheet = !!(frames.idle_front34 || frames.idle_back34);
-          if (Object.keys(views).length || sheet) {
-            out.set(id, { cm: num(e.height_cm, DEFAULT_CM), pxPerCm: num(e.px_per_cm, 360 / REFERENCE_CM), views, frames: sheet ? frames : null });
+          const frames = framesOf(e.frames);
+          // Looks with their own sheet (D-079): client/figures/<id>/<look>/<frame>.webp.
+          const looks = {};
+          for (const [k, l] of Object.entries(e.looks && typeof e.looks === "object" ? e.looks : {})) {
+            const f = LOOK_KEYS.has(k) && l && typeof l === "object" ? framesOf(l.frames) : null;
+            if (f) looks[k] = f;
+          }
+          if (Object.keys(views).length || frames) {
+            out.set(id, { cm: num(e.height_cm, DEFAULT_CM), pxPerCm: num(e.px_per_cm, 360 / REFERENCE_CM), views, frames, looks });
           }
         }
         const sm = m && m.$seats;
@@ -154,25 +181,28 @@ export const seatTune = kind => seats[kind] || seats.seat || SEAT_DEFAULTS.seat;
 
 function entry(id) { return manifest && manifest.get(id) || null; }
 
-function picture(id, view) {
-  const key = `${id}/${view}`;
+// `dir` is the character's folder, or for a look with its own sheet "<id>/<look>" (D-079).
+function picture(dir, view) {
+  const key = `${dir}/${view}`;
   let p = pictures.get(key);
   if (!p) {
     p = { img: new Image(), ok: false, failed: false };
     p.img.decoding = "async";
     p.img.onload = () => { p.ok = true; };
     p.img.onerror = () => { p.failed = true; };
-    p.img.src = `figures/${encodeURIComponent(id)}/${view}.webp`;
+    p.img.src = `figures/${dir.split("/").map(encodeURIComponent).join("/")}/${view}.webp`;
     pictures.set(key, p);
   }
   return p.ok ? p.img : null;
 }
 
-// Starts loading every view of a character at once, so turning around never shows a gap.
+// Starts loading every view of a character at once, so turning around never shows a gap (a look's frames once worn).
 const fetched = new Set();
-function prefetch(id, e) {
-  if (fetched.has(id)) return;
-  fetched.add(id);
+function prefetch(id, e, look = null) {
+  const dir = look ? `${id}/${look}` : id;
+  if (fetched.has(dir)) return;
+  fetched.add(dir);
+  if (look) { for (const f of Object.keys(e.looks[look])) picture(dir, f); return; }
   for (const v of Object.keys(e.views)) picture(id, v);
   for (const f of Object.keys(e.frames || {})) picture(id, f);
 }
@@ -190,6 +220,8 @@ export const hasFigure = id => !!entry(id);
 // How a character is drawn: "art" (their cut-outs), "standin" (the stand-in body in their own colours, until their
 // art is made), "plain" (the neutral stand-in), or "unknown" before the manifest has loaded.
 export const artStatus = id => (!manifest ? "unknown" : entry(id) ? "art" : standins.has(id) ? "standin" : "plain");
+// D-079: whether a look of a character with art has its own sprite sheet (else they're drawn in their drawn look).
+export const hasLookArt = (id, look) => !!(entry(id) && entry(id).looks[look]);
 // How tall a character is drawn, in cm (their sheet's height, or their stand-in's; created characters a neutral 172).
 export const figureHeightCm = person => (person && entry(person.id) ? entry(person.id).cm
   : person && standins.has(person.id) ? standins.get(person.id).cm : num(person && person.height_cm, DEFAULT_CM));
@@ -236,7 +268,7 @@ function light(g, w, h, nightStep, tint) {
 }
 // The cut-out at `hd` device pixels for a 1.75 m person, scaled down in halves (no shimmer, no
 // aliasing at the small sizes the map draws people at) and lit.
-function bakeArt(id, view, info, img, hd, nightStep, tint) {
+function bakeArt(id, view, info, img, hd, nightStep, tint) {   // id: the picture's folder (a look's: "<id>/<look>")
   const near = `a|${id}|${view}`, key = `${near}|${nightStep}|${tint ? tint.join() : ""}|${hd}`;
   let c = baked.get(key);
   if (c) { baked.delete(key); baked.set(key, c); return c; }
@@ -269,11 +301,18 @@ function bakeArt(id, view, info, img, hd, nightStep, tint) {
 const OUTFITS = [["#2e4636", "#3b3a36"], ["#884f2d", "#2f2a26"], ["#0b2b23", "#c9b48f"], ["#b48a4c", "#2b2f2d"], ["#5e4a66", "#3a3631"], ["#ad734e", "#26302c"], ["#e8dcc4", "#4a4038"]];
 const SKIN = "#b48e72", HAIR = "#3a2f29", SHOE = "#2a2420";
 function seededIndex(id, n) { let h = 0; for (const ch of String(id || "")) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h % n; }
+// Someone made in the creator: their everyday colours as before, and two more from their id for work and going out,
+// only so their looks can be told apart (D-079). A bought outfit ("other") has no colours: they're drawn in everyday.
+const CREATED_LOOKS = { everyday: 0, work: 2, evening: 4 };
 function lookOf(person) {
-  const id = person && person.id;
-  if (isId(id) && standins.has(id)) return standins.get(id);
-  const [top, bottom] = OUTFITS[seededIndex(id, OUTFITS.length)];
-  return { key: `${top}${bottom}`, top, bottom, skin: SKIN, hair: HAIR, shoes: SHOE, style: "short", apron: null, headwear: null, accent: null };
+  const id = person && person.id, worn = person && typeof person.look === "string" ? person.look : null;
+  if (isId(id) && standins.has(id)) {
+    const s = standins.get(id), l = worn && s.looks[worn];
+    return l ? { ...s, ...l, key: `s:${id}:${worn}`, look: worn } : { ...s, look: s.drawn };
+  }
+  const look = worn in CREATED_LOOKS ? worn : "everyday";
+  const [top, bottom] = OUTFITS[(seededIndex(id, OUTFITS.length) + CREATED_LOOKS[look]) % OUTFITS.length];
+  return { key: `${top}${bottom}`, top, bottom, skin: SKIN, hair: HAIR, shoes: SHOE, style: "short", apron: null, headwear: null, accent: null, look };
 }
 function bodyShape(g, H, W, view, look, frame, arms = "") {
   const outfit = [look.top, look.bottom];
@@ -458,21 +497,25 @@ export function drawFigure(ctx, person, x, y, { height, facing = "front", mirror
   const hop = fighting ? -Math.abs(Math.sin(cyc * Math.PI * 4)) * h * 0.015 : 0;
   const shake = flinching ? Math.sin(cyc * Math.PI * 6) * h * 0.015 * (1 - cyc) : 0;
   let img = null, view = want, info = null, mode = sitting ? "lowered" : "foot";
+  // A worn look with its own sheet is drawn from its frames (D-079); every other look, as their art shows them.
+  const worn = e && person && typeof person.look === "string" && e.looks[person.look] ? person.look : null;
+  const frames = worn ? e.looks[worn] : e && e.frames, dir = worn ? `${id}/${worn}` : id;
   if (e) {
     prefetch(id, e);
-    if (e.frames) {
+    if (worn) prefetch(id, e, worn);
+    if (frames) {
       // The frame the pose wants; while it loads, the standing frame that side (or any loaded one) rather than a gap.
-      const f = sheetFrame(e.frames, pose, want, cyc, seatKind), still = sheetFrame(e.frames, "stand", want, 0);
+      const f = sheetFrame(frames, pose, want, cyc, seatKind), still = sheetFrame(frames, "stand", want, 0);
       const tries = [f, { name: still.name, mode: sitting ? "lowered" : "foot" },
-        ...Object.keys(e.frames).filter(n => !n.startsWith("sit_")).map(n => ({ name: n, mode: sitting ? "lowered" : "foot" }))];
-      for (const c of tries) { const im = picture(id, c.name); if (im) { img = im; view = c.name; mode = c.mode; break; } }
-      if (img) info = { v: e.frames[view], pxPerCm: e.pxPerCm };
+        ...Object.keys(frames).filter(n => !n.startsWith("sit_")).map(n => ({ name: n, mode: sitting ? "lowered" : "foot" }))];
+      for (const c of tries) { const im = picture(dir, c.name); if (im) { img = im; view = c.name; mode = c.mode; break; } }
+      if (img) info = { v: frames[view], pxPerCm: e.pxPerCm };
     } else {
       for (const v of FALLBACK[want]) if (e.views[v]) { const im = picture(id, v); if (im) { img = im; view = v; break; } }
       if (img) info = { v: e.views[view], pxPerCm: e.pxPerCm };
     }
   }
-  const sheet = !!(e && e.frames && img);
+  const sheet = !!(frames && img);
   // The cut-outs and the stand-in walk with a step's bob and a slight sway about the feet; a sheet's frames walk.
   const bob = walking && !sheet ? -Math.abs(Math.sin(cyc * Math.PI * 2)) * h * 0.014 : 0;
   const sway = walking && !sheet ? Math.sin(cyc * Math.PI * 2) * 0.018 : 0;
@@ -486,18 +529,19 @@ export function drawFigure(ctx, person, x, y, { height, facing = "front", mirror
   }
   // Art that is still on its way (or the manifest saying who has art): just the shadow for a moment,
   // rather than a stand-in body that then turns into the person. Art that failed to load: the stand-in.
-  const loadingArt = e && [...Object.keys(e.views), ...Object.keys(e.frames || {})].some(v => !pictures.get(`${id}/${v}`)?.failed);
+  const loadingArt = e && [...Object.keys(worn ? {} : e.views), ...Object.keys(frames || {})].some(v => !pictures.get(`${dir}/${v}`)?.failed);
   if (!img && (!manifest || loadingArt)) {
     return { x0: x - h * 0.15, y0: y - h, x1: x + h * 0.15, y1: y, head: [x, y - h], height: h, view: want, art: false, pending: true };
   }
-  let c, fx, fy, k;
+  let c, fx, fy, k, body = null;
   if (img) {
-    c = bakeArt(id, view, info, img, hd, nightStep, t);
+    c = bakeArt(dir, view, info, img, hd, nightStep, t);
     k = ref / c.hd;                                 // baked device px -> context units
     const s = c.k;                                  // picture px -> baked px
     fx = info.v.fx * s; fy = info.v.fy * s;
   } else {
     const frame = walking ? Math.floor(cyc * 8) : -1;
+    body = lookOf(person);
     c = bakeBody(person, want, cm, hd, nightStep, t, frame, fighting ? "guard" : flinching ? "cover" : "");
     k = ref / c.hd; fx = c.fx; fy = c.fy;
     view = want;
@@ -522,6 +566,9 @@ export function drawFigure(ctx, person, x, y, { height, facing = "front", mirror
   ctx.drawImage(c, -fx * k, -fy * k, w, hh);
   ctx.restore();
   const x0 = ax - (flip ? w - fx * k : fx * k), y0 = ay - fy * k * squash;
+  // look: the look drawn (a worn look with its own sheet, or a stand-in's or a created character's colours; null: the
+  // look their art shows); colors: the stand-in body's garments (D-079).
   return { x0, y0, x1: x0 + w, y1: mode === "lowered" ? y - seatH : y0 + hh * squash, head: [x, y0], height: h, view,
-    art: !!img, frame: sheet ? view : null, mode: sheet ? mode : null };
+    art: !!img, frame: sheet ? view : null, mode: sheet ? mode : null, look: img ? worn : body ? body.look : null,
+    colors: body ? { top: body.top, bottom: body.bottom, shoes: body.shoes, apron: body.apron, headwear: body.headwear, accent: body.accent } : null };
 }
