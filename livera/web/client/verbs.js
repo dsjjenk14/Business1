@@ -500,6 +500,7 @@ async function pickpocket(game, target) {
   if (!r.ok) return r;
   const d = r.data || {};
   game.refreshBank(); game.lastLook = 0;
+  if (d.caught) await game.refreshLook();  // into the cell before the word that you were caught
   r.summary = d.caught ? arrestText(d, `picking ${who}'s pocket`) : d.stolen_cents > 0 ? `You lifted ${money(d.stolen_cents)} from ${who}'s pocket.` : sentence(d.note || `${who}'s pockets are empty.`);
   return r;
 }
@@ -531,6 +532,7 @@ async function shoplift(game, place) {
   if (!r.ok) return r;
   const d = r.data || {}, label = (offers.find(o => o.id === c.choice) || {}).label || "it";
   game.lastLook = 0; game.refreshBank();
+  if (d.caught) await game.refreshLook();  // into the cell before the word that you were caught
   r.summary = d.caught ? arrestText(d, `shoplifting at ${place.name}`) : `You walked out with ${d.stolen || label}. Nobody stopped you.`;
   return r;
 }
@@ -543,6 +545,7 @@ async function buyIllegal(game, place, offer) {
   if (!r.ok) return r;
   const d = r.data || {};
   game.lastLook = 0; game.refreshBank();
+  if (d.caught) await game.refreshLook();  // into the cell before the word that you were caught
   r.summary = d.caught ? arrestText(d, `buying ${offer.label}`) : `Bought ${offer.label} for ${money(d.price_cents || offer.price_cents)} cash. It's in your Items; carrying it is a charge if you're ever arrested.`;
   return r;
 }
