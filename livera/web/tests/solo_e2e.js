@@ -67,16 +67,20 @@ async function feedMatches(p, re, timeout = 8000) {
   await waitFor(p, src => [...document.querySelectorAll("#feed .line")].some(n => new RegExp(src).test(n.textContent)), re.source, timeout);
 }
 async function tap(p, cx, cy) { if (p.touch) await p.page.touchscreen.tap(cx, cy); else await p.page.mouse.click(cx, cy); }
-async function findPoint(p, candidates, want) {
+// The first candidate point that's on screen, not under the page's own UI, and hits `want`; else null, with why
+// each point was passed over in `misses` (when given).
+async function findPoint(p, candidates, want, misses) {
   for (const [x, y, z] of candidates) {
     const r = await W(p, ([x, y, z]) => {
       const [cx, cy] = window.__livera.project(x, y, z);
-      if (cx < 4 || cy < 4 || cx > innerWidth - 4 || cy > innerHeight - 4) return null;
-      if (document.elementFromPoint(cx, cy) !== document.getElementById("town")) return null;
+      if (cx < 4 || cy < 4 || cx > innerWidth - 4 || cy > innerHeight - 4) return { why: "off screen" };
+      const over = document.elementFromPoint(cx, cy);
+      if (over !== document.getElementById("town")) return { why: `under ${over ? over.id || String(over.className) || over.tagName : "nothing"}` };
       return { cx, cy, hit: window.__livera.hitAt(cx, cy) };
     }, [x, y, z || 0]);
-    if (!r) continue;
+    if (r.why) { if (misses) misses.push(r.why); continue; }
     if (want === null ? !r.hit : r.hit && r.hit.kind === want.kind && r.hit.id === want.id) return r;
+    if (misses) misses.push(r.hit ? `hits ${r.hit.kind} ${r.hit.id}` : "hits nothing");
   }
   return null;
 }
@@ -88,11 +92,18 @@ async function settle(p) {
     last = now; await sleep(120);
   }
 }
+// A founder walking past, or the camera still easing, can cover every candidate for a moment: look again for a few
+// seconds before giving up.
 async function tapWorld(p, candidates, want, what) {
-  await settle(p);
-  const pt = await findPoint(p, candidates, want);
-  assert(pt, `no visible point to tap for ${what}`);
-  await tap(p, pt.cx, pt.cy);
+  let misses = [];
+  for (let i = 0; i < 6; i++) {
+    await settle(p);
+    misses = [];
+    const pt = await findPoint(p, candidates, want, misses);
+    if (pt) { await tap(p, pt.cx, pt.cy); return; }
+    await sleep(1500);
+  }
+  assert(false, `no visible point to tap for ${what} (${misses.join("; ")})`);
 }
 async function groundAround(p, center, ...radii) {
   const c = [];
