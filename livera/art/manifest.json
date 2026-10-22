@@ -661,7 +661,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "The bar along the left, the lit dance floor, the DJ booth and a raised stage under lights, booths, high tables, velvet ropes and a terrace of sofas over the river match the data's nightclub with a stage. It came in one picture with the Forge site office and was cut out.",
-        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+        "Traced into data/interiors/eclat.json (D-066): going inside walks the room."
       ]
     },
     "forge_site_office": {
@@ -669,7 +669,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "Two storeys in one cutaway: desks, filing cabinets and a copier on the upper deck, an outside stair, and a plan table with stools and a whiteboard below, as the data's site office. It came in one picture with ÉCLAT and was cut out.",
-        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+        "Traced into data/interiors/forge_site_office.json (D-066): going inside walks the room."
       ]
     },
     "thread_co": {
@@ -677,7 +677,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "Racks of everyday clothes, folding tables, fitting rooms with green curtains, the mirror wall and the checkout match the data. It came in one picture with the Riverside Clubhouse and was cut out.",
-        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+        "Traced into data/interiors/thread_co.json (D-066): going inside walks the room."
       ]
     },
     "riverside_clubhouse": {
@@ -685,7 +685,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "The locker room: rows of green lockers with benches, shower stalls, towel cubbies, a drinks fridge and the trophy shelf, matching the data's locker shower and sports drinks. It came in one picture with Thread & Co. and was cut out.",
-        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+        "Traced into data/interiors/riverside_clubhouse.json (D-066): going inside walks the room."
       ]
     },
     "circuit_electronics": {
@@ -693,7 +693,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "Display tables of laptops and phones, a watch table, headphones on the wall and the long counter match what the data sells. The wooden door at the back is a staff door: the store has no restroom in the data.",
-        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+        "Traced into data/interiors/circuit_electronics.json (D-066): going inside walks the room."
       ]
     },
     "paws_whiskers": {
@@ -701,7 +701,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "Reception, shelves of pet food, kennels, a fenced indoor play yard with benches, cat trees and a small-animal pen match the data's shelter (visiting the animals, pet food).",
-        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+        "Traced into data/interiors/paws_whiskers.json (D-066): going inside walks the room."
       ]
     },
     "suds_spin": {
@@ -709,7 +709,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "Rows of washers and stacked dryers, a folding table, a long bench, a payment kiosk and a sink match the data's laundromat.",
-        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+        "Traced into data/interiors/suds_spin.json (D-066): going inside walks the room."
       ]
     },
     "police_station": {
@@ -717,7 +717,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "The front desk, a waiting row, an office of desks, three holding cells with bars and the academy classroom in the back match the data.",
-        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+        "Traced into data/interiors/police_station.json (D-066): going inside walks the room."
       ]
     },
     "hale_partners": {
@@ -725,7 +725,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "Partners' desks, the glass conference room with a black marble table, the statute library with armchairs and a marble reception match the data. Cut out of one picture of three offices (with James Wellness and a second Meridian Talent).",
-        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+        "Traced into data/interiors/hale_partners.json (D-066): going inside walks the room."
       ]
     },
     "james_wellness": {
@@ -733,7 +733,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "Two leather chairs in the therapy corner, a waiting sofa and armchairs, a tea counter and stairs up to the yoga room match the data. Cut out of one picture of three offices.",
-        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+        "Traced into data/interiors/james_wellness.json (D-066): going inside walks the room."
       ]
     },
     "ellis_atelier": {
@@ -741,7 +741,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "The sofa and armchair for clients, the design desk under the mood board, the cutting table, dress forms and the rail of finished pieces match the data. It came in one picture with Founders School and was cut out.",
-        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+        "Traced into data/interiors/ellis_atelier.json (D-066): going inside walks the room."
       ]
     },
     "founders_school": {
@@ -749,7 +749,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "A classroom of small desks facing the teacher's desk and board, beside the gym that doubles as the auditorium (a court, rows of folding chairs, a curtained stage), as the data says. The stage is scenery: the school isn't a stage in the game. It came in one picture with Ellis Atelier and was cut out.",
-        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+        "Traced into data/interiors/founders_school.json (D-066): going inside walks the room."
       ]
     },
     "lexington_1204": {
@@ -757,7 +757,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "Dominique's apartment: an L-sofa facing the TV, an island kitchen with three stools, a bedroom with a double bed, a bathroom with a glass shower, and steps up to the front door. A home: the room lets its residents walk, sit, sleep and do their chores where they happen once it's traced.",
-        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+        "Traced into data/interiors/lexington_1204.json (D-066): going inside walks the room."
       ]
     },
     "lexington_0904": {
@@ -765,7 +765,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "A curved sofa, white stools at the island, flowers, a walk-in closet sorted by colour, a vanity and a double bed, matching the data's fresh flowers and sorted closet. It came in one picture with the shared Lexington one-bedroom and was cut out. A home: the room lets its residents walk, sit, sleep and do their chores where they happen once it's traced.",
-        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+        "Traced into data/interiors/lexington_0904.json (D-066): going inside walks the room."
       ]
     },
     "lexington_0807": {
@@ -773,7 +773,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "The shared one-bedroom (Apt 0807 and Apt 1502, which the data describes alike, so nothing personal): an island kitchen, a sofa and the TV, a walk-in closet, a vanity, a double bed and a bathroom. It came in one picture with Apt 0904 and was cut out. A home: the room lets its residents walk, sit, sleep and do their chores where they happen once it's traced.",
-        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+        "Traced into data/interiors/lexington_0807_1502.json (D-066): going inside walks the room."
       ]
     },
     "lexington_1502": {
@@ -781,7 +781,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "The shared one-bedroom (Apt 0807 and Apt 1502, which the data describes alike, so nothing personal): an island kitchen, a sofa and the TV, a walk-in closet, a vanity, a double bed and a bathroom. It came in one picture with Apt 0904 and was cut out. A home: the room lets its residents walk, sit, sleep and do their chores where they happen once it's traced.",
-        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+        "Traced into data/interiors/lexington_0807_1502.json (D-066): going inside walks the room."
       ]
     },
     "lexington_ph1": {
@@ -789,7 +789,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "The penthouse: an island kitchen, a dining table for eight, an L-sectional and armchairs with the TV, three bedrooms, two bathrooms, a walk-in closet and a terrace with an outdoor table. The data says 'very little furniture yet'; the picture is furnished. A home: the room lets its residents walk, sit, sleep and do their chores where they happen once it's traced.",
-        "Its room isn't traced yet (data/interiors/), so going inside still shows the place's card."
+        "Traced into data/interiors/lexington_ph1.json (D-066): going inside walks the room."
       ]
     },
     "founders_row_3": {
