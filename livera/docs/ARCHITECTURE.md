@@ -43,7 +43,8 @@ Every player-caused change goes through a `World` command method:
 ```
 moveTo · enter · exitBuilding · interact · buy · useActivity · startShift · endShift ·
 sendMessage · say · tip · createCharacter · saveSong · releaseSong · openSong · perform ·
-openPhoneApp · sleep · moveInside · sit · stand · post · comment · like · follow · connect · disconnect
+openPhoneApp · sleep · moveInside · sit · stand · post · comment · like · follow · courtPlea · courtLawyer ·
+courtRepresent · communityService · connect · disconnect
 ```
 
 Each validates against current state (is the character in the world? at the door? allowed
@@ -141,6 +142,7 @@ The target today is one world shard with up to 16 people plus up to 32 scripted 
 | `src/core/LifeEvents.cpp` | Life events: scenario cards from `data/events/`, drawn at sensible moments, answered through the World's rules; the Story app (D-068). |
 | `src/core/Social.cpp` | Social media (D-074): posts, follows, likes and comments as World state; posts the game writes for characters a script plays from their memories (the `addMemory` hook) and check-ins; the gossip account's posts from witnessed rumours (`World::witnessed`); what each person's feed may hold; the Map app's people; the world part `social`. |
 | `src/core/Fights.cpp` | Fist fights: the person attacked chooses, the World scores it, injuries, assault, walking away (D-070). |
+| `src/core/Court.cpp` | The court (D-083): charges and court dates from an arrest or a report, the sittings, the hearing, pleas, lawyers, the odds the World shows and rolls, verdicts and sentences (a fine to the town, community service, probation, a cell), warrants and put-off hearings, who sees a case, and the record employers see; `data/society/court.json`; the world part `court`. |
 | `src/core/Interiors.cpp` | Rooms you walk around in: the `interior` content and its checks, `moveInside` / `sit` / `stand`, spots taken by activities, purchases, performances and shifts, `look.here.room` and the `room` event (D-066). |
 | `src/core/Outfits.cpp` | Everyone's three looks (D-079): the personal items' and characters' outfits content checks, which look someone is seen in (`look` in `look` and the people stream), when changing is allowed, and the Items app's looks. |
 | `src/core/TownLife.cpp` | The town's people (D-073): evening plans and patrols from `data/society/town_life.json` and their checks, the cast checks (casts, shared starting homes, starting partners). The autopilot uses them. |

@@ -14,7 +14,7 @@ import {
   APP_NAMES, readable, sentence, shortWhen, isLongWhen, minuteWhen, clockText, dateOf, duration, hoursText,
   placeNamed, isAt, verbs, applyFor, joinAt, insideThen, atDoorThen, affordability, exposeForTests, showOutcome, getThere, setClock,
 } from "./verbs.js";
-import { storyScreen } from "./moments.js";  // the Story app (D-068)
+import { storyScreen, courtScreen } from "./moments.js";  // the Story app (D-068), the Court app (D-083)
 import { LOOK_NAMES } from "./wardrobe.js";      // your three looks (D-079)
 import { socialScreen } from "./social.js";  // the Social app (D-074)
 
@@ -40,7 +40,8 @@ export const APPS = [
   ["homes", "life", "homes"], ["property", "life", "property"], ["items", "life", "items"], ["wallet", "life", "wallet"], ["store", "life", "store"],
   ["career", "ambition", "career"], ["jobs", "ambition", "jobs"], ["school", "ambition", "school"], ["studio", "ambition", "studio"],
   ["fame", "ambition", "fame"], ["sports", "ambition", "sports"],
-  ["city", "town", "city"], ["weather", "town", "weather"], ["record", "town", "record"], ["notifications", "town", "notifications"],
+  ["city", "town", "city"], ["weather", "town", "weather"], ["record", "town", "record"], ["court", "town", "court"],  // D-083
+  ["notifications", "town", "notifications"],
 ];
 const GROUPS = [["everyday", "Everyday"], ["life", "Life"], ["ambition", "Ambition"], ["town", "Town"]];
 // The home screen: what you use every day, in this order. The rest are under More apps.
@@ -593,7 +594,12 @@ export class Phone {
     const today = dateOf(now), dayStart = today.dayIndex * 1440;
     const sports = await this.game.phone("sports");
     const events = [];
-    for (const u of d.upcoming || []) if (typeof u.at === "number") events.push({ at: u.at, title: readable(u.title), source: "From your lease" });
+    for (const u of d.upcoming || []) {
+      if (typeof u.at !== "number") continue;
+      // Court dates and community service come from the court (D-083); rent from your lease.
+      const source = u.kind === "court" ? "From the court" : u.kind === "service" ? "From your sentence" : "From your lease";
+      events.push({ at: u.at, title: readable(u.title), source, place: u.place ? (w.placeById.get(u.place) || {}).name || null : null });
+    }
     if (sports.ok) for (const t of sports.data.your_teams || []) {
       if (typeof t.next_kickoff === "number") events.push({ at: t.next_kickoff, title: `${t.sport}: ${t.name}${t.opponent ? ` v ${t.opponent}` : ""}`, place: t.venue, source: "From the league" });
     }
@@ -1013,13 +1019,24 @@ const SCREENS = {
   weather(d) { return this.weather(d); }, city(d) { return this.city(d); }, fame(d) { return this.fame(d); }, school(d) { return this.school(d); },
   goals(d) { return this.goalsApp(d); },
   story(d) { return storyScreen.call(this, d); },  // moments.js (D-068)
+  court(d) { return courtScreen.call(this, d); },  // moments.js (D-083)
   social(d) { return socialScreen.call(this, d); },  // social.js (D-074)
   record(d) {
-    const list = Array.isArray(d.record) ? d.record : [];
+    // A conviction (by the court) or a fixed penalty, and whether employers that need a clean record still see it (D-083).
+    const list = (Array.isArray(d.record) ? d.record : []).map(e => {
+      const row = { crime: e.crime, when: e.when };
+      if (e.kind) row.kind = e.kind === "conviction" ? "Conviction" : "Fixed penalty";
+      if (e.sentence) row.sentence = e.sentence; else Object.assign(row, { fine_cents: e.fine_cents, jail_minutes: e.jail_minutes });
+      if (typeof e.employers_see === "boolean") row.employers = e.employers_see ? `see it until ${e.employers_see_until}` : "no longer see it";
+      return row;
+    });
+    const court = d.court || null;
     return [card(eyebrow("Criminal record"), el("h3", null, d.clean || !list.length ? "Clean" : `${list.length} on record`),
       d.wanted ? el("p", { class: "notice" }, "The police are looking for you.") : null,
       d.jailed_until ? el("p", { class: "notice" }, `In a cell until ${shortWhen(d.jailed_until)}.`) : null,
-      list.length ? generic(list, 1) : hint("Nothing on your record. What you're caught for ends up here, with the fine or the time served."))];
+      court && court.status === "summoned" && typeof court.hearing_at === "number" ? el("p", { class: "notice" }, `Charged: your hearing is ${minuteWhen(court.hearing_at)}. Charges aren't on your record; only a conviction is.`) : null,
+      typeof d.employers_see === "boolean" && list.length ? hint(d.employers_see ? "Employers that need a clean record (the police, teaching, childcare) can see it." : "Nothing on it is still seen by employers.") : null,
+      list.length ? generic(list, 1) : hint("Nothing on your record. A conviction in court, or a fixed penalty like a fare-dodging fine, ends up here."))];
   },
 };
 

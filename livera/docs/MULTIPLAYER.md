@@ -85,6 +85,10 @@ Event (server push): `{"event": "message", "data": {"from": "dax", "body": "..."
 | `fight_respond` | playing, attacked | `fight` (id), `choice` (`fight_back`, `run`, `take_it`) |
 | `fight_beat` | playing, in a brawl | `fight` (id), `answer` (`duck`, `block`, `jab`, or `walk_away` at any beat) (D-077) |
 | `fight_prefs` | playing | `walk_away` (true / false) |
+| `court_plea` | playing, at your hearing | `case`, `plea` (`guilty`, `not_guilty`) (D-083) |
+| `court_lawyer` | playing, accused | `case`, `lawyer` (`firm`, a lawyer's character id, or `""` for nobody) |
+| `court_represent` | playing, a lawyer asked | `case`, `accept` (true / false) |
+| `community_service` | playing, sentenced to it | `action` (`start` at the service place, `stop`) |
 | `event_answer` | playing | `event`, `option` (the choice's number in `life_event`) (D-068) |
 | `request` | playing | `kind` (date, kiss, propose, marry, intimacy), `target`, `protection` |
 | `respond` | playing | `request` (id), `accept` |
@@ -240,6 +244,40 @@ after the last round, when one walks away (`fight_beat walk_away` replies with t
 leaves; both get `fight_result` with `outcome` `knockout`, `on_points`, `walked_off`, `broke_off` (or `walked_away` /
 `no_contact` when nothing landed) and `brawl {composure, their_composure, landed, took}`. While it lasts, anything else
 a fighter tries is refused `in_fight`.
+
+**The court (D-083).** A crime the court tries (data/society/court.json) caught in the act is booked: the arrest's reply
+(`steal`, `pickpocket`, `buy`, `use`, `fight_result.crime`, `arrest`) has `fine_cents` 0 and `court {case, charges,
+hearing_at, courthouse, remanded, held_until}`; reported, the reply has `reported {summoned, case, hearing_at,
+hearing_text, courthouse}` (`fight_result.crime` `{summoned, crime, case, hearing_at, hearing_text, courthouse}` for the
+attacker). The accused gets `court_summons` (a case view, `summons: true`). A **case view** is `{case, status (summoned,
+warrant, hearing, decided), role (accused, lawyer, victim), accused, accused_name, charges: [{crime, label}], how, at,
+place, victim_name?, courthouse, courthouse_id, hearing_at (null: set when you're back), hearing_text, late_until, judge?,
+warrant?}`, and for the defence (the accused and their lawyer) `odds {convicted_if_not_guilty, without_lawyer,
+with_firm, final}`, `evidence {how, witnesses, staff, police, victim, in_court | each_in_court_adds,
+victim_in_court(_adds)}`, `if_convicted` and `if_guilty_plea` `{fine_cents, service_hours, probation_days, jail_minutes,
+text}`, `priors`, `on_probation`, `lawyer {kind (none, firm, person), id?, name, agreed, edge, fee_cents, paid,
+present?}`, `lawyers {firm, person}`, `pleas` (at the hearing) and `guilty_plea_discount`; decided, `verdict
+(convicted, dismissed), plea, chance, decided_at, sentence {… , fine_unpaid, service_done, service_due, breached,
+probation_until}`. The hearing opening sends the accused (and a lawyer who came) `court_hearing` (a case view);
+`court_plea` refuses `unknown_case`, `already_decided`, `not_open`, `bad_plea`, `not_here` and `freeToAct`'s codes and
+replies with the decided view; the accused, the victim and the lawyer get `court_verdict` (a view with `text`). Everyone
+in the courthouse gets `court {case, stage (opened, verdict, adjourned, warrant), accused, accused_name, charges[],
+judge?, verdict?, plea?, text?, sentence?}`. `court_lawyer` refuses `unknown_case`, `already_decided`,
+`already_represented`, `not_represented`, `invalid_target`, `unknown_person`, `conflict_of_interest`, `not_a_lawyer`,
+`not_available`, `not_here`, `insufficient_funds`, and replies with your view; the lawyer asked gets `court_brief` (their
+view, `asked_by`, `fee_cents`); `court_represent` refuses `unknown_case`, `already_decided`, `not_here`,
+`insufficient_funds` and the accused gets `court_lawyer`. `community_service` refuses `bad_request`, `nothing_owed`,
+`already_serving`, `not_serving`, `wrong_place`, `closed`, `on_shift`, `studying` and `freeToAct`'s codes, and replies
+`{serving, place?, hours_done, hours_left, due}`; finishing sends `court_service {case, done, hours}`. `look.you.court`
+is `{case, status, hearing_at, late_until, plea_by?, defending?, service? {case, hours_left, due, serving},
+probation_until?}`; the phone app `court` is `{cases[], as_victim[], defending[], docket[]? (the bench), you?, rules}`;
+the Calendar's `upcoming` adds entries with `kind` (`rent`, `court`, `service`), `place` and `case`; the Record app's
+entries add `kind` (conviction, penalty), `employers_see`, `employers_see_until`, `case`, `sentence`, and the app adds
+`employers_see` and `court`; `crime_risk` for a tried crime replaces `if_caught`'s fine and time with `arrested,
+booking_minutes, held_at` and `court {courthouse, booking_minutes, notice_minutes, if_convicted, if_guilty_plea, priors,
+on_probation, firm, odds_if_caught?, odds_if_reported?}` (the odds only where it would happen). `map.rules.court` is the
+court's public rules. Who sees a case, both sides being players, the accused being offline, two cases at once and Play
+together: D-083's "Multiplayer".
 
 Any later engine client maps its calls to the same `World` commands (ARCHITECTURE.md), so
 this table stays the list of what a client can ask for.

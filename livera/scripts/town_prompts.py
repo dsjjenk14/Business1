@@ -106,7 +106,7 @@ TYPE_NAMES = {
     "wellness_studio": "therapy and wellness studio", "office": "office", "tech_office": "tech startup office",
     "newsroom": "newsroom", "event_agency": "event agency", "creative_agency": "creative agency",
     "construction_office": "construction site office", "clinic": "walk-in clinic", "church": "church",
-    "civic": "civic building", "community_center": "community center", "park": "park",
+    "civic": "civic building", "courthouse": "courthouse", "community_center": "community center", "park": "park",
     "clothing_store": "clothing store", "electronics_store": "electronics store", "pharmacy": "pharmacy",
     "jeweler": "jeweler", "salon": "salon", "bar": "bar", "university": "university", "hospital": "hospital",
     "law_firm": "law firm", "street_corner": "street corner", "restaurant": "restaurant", "cinema": "cinema",
@@ -134,6 +134,7 @@ DIRECTION = {
     "livera_general": "a new hospital block with a lit EMERGENCY entrance and an empty gravel lot beside it",
     "greater_hope": "a modest brick church with a white steeple and open double doors",
     "police_station": "a civic brick building with flagpoles and an invented crest; no real department marks",
+    "courthouse": "a white limestone courthouse with a shallow columned portico, wide steps up to tall emerald doors, tall windows and an invented lotus-and-scales crest in the pediment; no flags and no real government seals",
     "fire_station": "a closed engine-bay door, no trucks and no crew: the data marks it as a placeholder landmark, so never present it as a working fire station",
     "thread_co": "a friendly shopfront with clothing racks and a sale bin at the entrance",
     "circuit_electronics": "a bright white interior visible through glass, unbranded devices on white tables",
@@ -184,9 +185,10 @@ UNIT_TYPES = {"apartment", "condo"}
 # Signs that the two-word rule gets wrong on its own. None means no sign at all.
 SIGN_OVERRIDES = {
     "livera_general": "GENERAL HOSPITAL", "founders_animal_hospital": "ANIMAL HOSPITAL", "the_underpass": None,
-    "fire_station": "STATION 1",
+    "fire_station": "STATION 1", "courthouse": "MUNICIPAL COURT",
 }
-LONG_TYPES = {"apartment_building", "hospital", "university", "school", "sports_field", "cinema", "grocery", "community_center"}
+LONG_TYPES = {"apartment_building", "hospital", "university", "school", "sports_field", "cinema", "grocery", "community_center",
+              "courthouse"}
 LONG_IDS = {"founders_way_site", "maple_court", "riverside_lofts", "lakeview", "riverside_field"}
 TALL_IDS = {"lexington"}
 SIZE_SQUARE, SIZE_LONG, SIZE_TALL = "1024×1024", "1536×1024", "1024×1536"

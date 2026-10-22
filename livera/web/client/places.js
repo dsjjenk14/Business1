@@ -18,7 +18,7 @@ export const CATEGORIES = [
   ["health", "Health", ["clinic", "hospital", "pharmacy", "wellness_studio", "gym", "vet"]],
   ["homes", "Homes", ["apartment", "apartments", "apartment_building", "condo", "house", "townhouse", "lofts", "tower"]],
   ["fun", "Fun", ["nightclub", "cinema", "bar", "recording_studio", "sports_field", "sports_court", "clubhouse", "park", "gym", "restaurant"]],
-  ["civic", "Civic", ["church", "civic", "community_center", "university", "school", "daycare", "animal_shelter", "street_corner"]],
+  ["civic", "Civic", ["church", "civic", "courthouse", "community_center", "university", "school", "daycare", "animal_shelter", "street_corner"]],
   ["stops", "Bus stops"],
 ];
 const EVERYDAY = new Set(["coffee_shop", "grocery", "pharmacy", "clinic", "restaurant"]);

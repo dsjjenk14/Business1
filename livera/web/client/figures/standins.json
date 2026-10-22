@@ -48,6 +48,31 @@
    }
   }
  },
+ "evelyn-park": {
+  "height_cm": 163,
+  "skin": "#e3bf9c",
+  "hair": "#c9c6c2",
+  "top": "#16161a",
+  "bottom": "#3a3a40",
+  "shoes": "#121212",
+  "accent": "#f2f0ea",
+  "hair_style": "short",
+  "drawn": "work",
+  "looks": {
+   "everyday": {
+    "top": "#b8875a",
+    "bottom": "#2d3a55",
+    "shoes": "#efeae0",
+    "accent": "#5f9e7d"
+   },
+   "evening": {
+    "top": "#1f2b4d",
+    "bottom": "#1f2b4d",
+    "shoes": "#121212",
+    "accent": "#e8e2d4"
+   }
+  }
+ },
  "hamid-sultani": {
   "height_cm": 176,
   "skin": "#c9a07c",

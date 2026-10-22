@@ -143,7 +143,7 @@ Schema version is `PRAGMA user_version`; migrations are an append-only list in
 | `songs` | id, owner, body JSON — v2 |
 | `properties.upkeep` | cleanliness and trash JSON — v3 |
 | `meta.rng` | the random stream's state — v3 (meta is key/value, no migration needed) |
-| `world_parts` | key, body JSON: one row per feature's world state (`homes`, `work`, `wallet`, `leisure`, `pets`, `details`; `src/core/WorldParts.cpp`) — v4 |
+| `world_parts` | key, body JSON: one row per feature's world state (`homes`, `work`, `wallet`, `leisure`, `pets`, `details`, `social`, `court`; `src/core/WorldParts.cpp`) — v4 |
 | `characters.state` additions | `body.calendar` (true once ages follow the calendar), `childhood{childcare, school_grade_sum, school_days, school_bonus_today, unsupervised_hours_today, childcare_payer, childcare_paid_day}`, `nanny_for` — M0.8, JSON fields only, no migration needed |
 
 Session state is not saved: who is online, move targets, activity cooldowns. Open shifts
@@ -451,3 +451,22 @@ Save data: each character gains `passed_out_until`, `admitted_until` (game minut
 need), `at_zero` (needs at 0 until they're back above `rearm_above`) and `zero_times` (need → when it hit 0). Older
 saves load with none. No SQL migration: they ride in the character JSON.
 
+
+### The court (D-083)
+
+| Section | Fields | Notes |
+|---|---|---|
+| `court` | `courthouse`, `fines_account`, `booking_minutes`, `sitting {hours, slot_minutes, notice_minutes, grace_minutes, plea_minutes, max_adjournments}`, `evidence {caught, reported, per_witness, per_staff, per_officer, victim, in_court, victim_in_court, min, max}`, `lawyers {lawyer_careers[], firm {name, place, account, fee_cents, edge}, fee_cents, edge_base, edge_per_level}`, `guilty_plea_discount`, `unpaid_fine_jail_minutes`, `community_service {place, due_days, needs_per_hour, breach_jail_minutes_per_hour}`, `probation {breach_jail_minutes}`, `record {penalty_days, conviction_days, jail_days}`, `sentences {crime: [{fine_cents, service_hours, probation_days, jail_minutes}]}` | data/society/court.json. At most one. The courthouse must be an enterable public place with hours, and the court sits only while it's open; accounts are org accounts; lawyer careers, the firm's place and the service place exist; chances 0–1, min ≤ max; every crime under `sentences` exists and each ladder (by convictions already on the record, the last for that many or more) has at least one sentence, each something. A crime with sentences is tried in court; any other is a fixed penalty. Optional: without it, arrests fine and hold you on the spot (D-069). |
+
+New content for the court: the place `courthouse` (type `courthouse`, data/world/founding_town.json), the career
+`judiciary` (data/careers/more_careers.json, workplace `courthouse`, employer `org:town_of_livera`), the org account
+`org:town_of_livera` (data/economy/founding_economy.json), the judge `evelyn-park` (data/characters) and her home
+`lexington_1406` (data/world/town_homes.json), the bench's work decisions (data/careers/work_tasks.json).
+
+World part `court` (a row of `world_parts`, no SQL change; an older save has none): `{cases: [{id, accused, victim,
+charges[], how, place, at, witnesses[], staff[], police[], status (summoned, warrant, hearing, decided), hearing_at (-1:
+waiting for the accused to be played again), adjournments, lawyer ("", "firm" or a character), lawyer_agreed, opened_at,
+plea_by, lawyer_present, witnesses_in_court, victim_in_court, judge, plea (guilty, not_guilty, entered), verdict
+(convicted, dismissed), chance, decided_at, fine_cents, fine_unpaid, service_hours, service_done, service_due,
+probation_until, jail_minutes, breached}]}`. Who is doing community service right now is session state (not saved).
+Record entries (character key `record`) gain `case` and `sentence` (the sentence in words) when a court convicted them.

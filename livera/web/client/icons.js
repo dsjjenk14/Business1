@@ -70,6 +70,7 @@ export const ICONS = {
   weather: ["M8 6V4M3.5 10.5h-1.5M4.7 6.2 3.6 5.1M12.3 6.2l1.1-1.1", "M5.6 12.5a3.5 3.5 0 1 1 6-3.4", "M8 19.5h9a3.5 3.5 0 0 0 0-7h-.3A5 5 0 0 0 7 14a2.8 2.8 0 0 0 1 5.5Z"],
   city: ["M6 21V5", "M3.5 5H20", "M6 5l4 4", "M16 5v5", "M14.5 10h3v3h-3z", "M3 21h7"],
   goals: ["M5 21V4", "M5 4h11l-2 3.5L16 11H5"],
+  court: ["M12 4v15.5", "M7.5 19.5h9", "M4.5 7h15", "M6.5 7 3.5 13a3 2.2 0 0 0 6 0L6.5 7Z", "M17.5 7l-3 6a3 2.2 0 0 0 6 0l-3-6Z"],  // the scales (D-083)
   coins: ["M12 9.5c4.1 0 7.5-1.2 7.5-2.75S16.1 4 12 4 4.5 5.2 4.5 6.75 7.9 9.5 12 9.5Z", "M4.5 6.75v5c0 1.5 3.4 2.75 7.5 2.75s7.5-1.25 7.5-2.75v-5", "M4.5 11.75v5C4.5 18.3 7.9 19.5 12 19.5s7.5-1.25 7.5-2.75v-5"],
   // social media (social.js, D-074)
   social: ["M4.5 5h15A1.5 1.5 0 0 1 21 6.5v9a1.5 1.5 0 0 1-1.5 1.5H10l-4.5 3.5V17h-1A1.5 1.5 0 0 1 3 15.5v-9A1.5 1.5 0 0 1 4.5 5Z",
@@ -131,7 +132,7 @@ const KIND = {
   apartment: "home", apartments: "home", apartment_building: "home", condo: "home", house: "home", townhouse: "home", lofts: "home", tower: "home",
   office: "work", tech_office: "work", law_firm: "work", newsroom: "work", event_agency: "work", creative_agency: "work", construction_office: "work",
   recording_studio: "fun", cinema: "fun", sports_field: "sports", sports_court: "sports", clubhouse: "sports",
-  church: "civic", civic: "civic", community_center: "civic", university: "school", school: "school", daycare: "school", animal_shelter: "pets",
+  church: "civic", civic: "civic", courthouse: "court", community_center: "civic", university: "school", school: "school", daycare: "school", animal_shelter: "pets",
   park: "park", street_corner: "civic", construction_site: "city",
 };
 export const kindIcon = type => KIND[type] || "places";

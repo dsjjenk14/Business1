@@ -1313,3 +1313,88 @@ tapping your bed does the same; `publicRules.sleep` says when.
 **Why:** The owner: "You need to be able to get energy by sleeping for a little longer." The web client never sent
 `sleep` at all, so the only rest was a +25 nap activity, and a night only settled energy toward 70.
 **Trade-off:** A nap is all or nothing: it ends rested or when you act, there is no alarm to set.
+
+## D-083 — Courts: an arrest or a report is a charge and a court date; the World is the judge, and shows its odds first
+**Decision:** The owner: "add a judge and court cases." **The place and the judge:** Livéra Municipal Court
+(`courthouse`, type `courthouse`) stands on Civic Row at (755, 300), up the row from the police station, public, open
+08:00-18:00 Monday to Saturday; the court sits 09:00-17:00 on those days in 30-minute slots, one case a slot. Judge
+Evelyn Park (`data/characters/evelyn-park.json`) is the thirteenth townsperson: a full character like the others, career
+`judiciary` (Magistrate, Municipal Judge, Presiding Judge; needs a JD and a clean record; paid by the new
+`org:town_of_livera`, which also takes the court's fines), home a new Lexington unit (1406), a weekday and Saturday
+line at the courthouse, five bench decisions in the work bank, a stand-in and a model-sheet prompt. Whoever is on
+shift at the courthouse in a career whose work is there sits on the bench and is named on the cards; **the ruling is the
+World's**, so a person playing the judge can't change it and a hearing goes ahead with nobody on the bench.
+**Charges** (`core/Court.cpp`, `data/society/court.json`): the court tries the crimes it has sentences for
+(shoplifting, pickpocketing, buying drugs, possession, assault); any other (fare dodging, child neglect) stays a fixed
+penalty as before. Caught in the act, you're arrested as before (contraband seized, the police told, a memory, the
+rumour) but not fined: you're **booked**, held `booking_minutes` (120) in a cell, and charged. A report (a pickpocket's
+victim noticing, an assault reported) **summons** you instead of making you wanted. Either way the case is the World's:
+the charges, how it came (`caught` or `reported`), where and when, the victim if a person was wronged, and who saw it
+by name (witnesses, staff on shift, officers on duty: `crimeWitnesses`' own count). One open case a person: a new
+charge before the hearing joins it (a possession charge found on arrest is heard with the theft). The court date is
+the first free slot at least `notice_minutes` (240) away. You're told (`court_summons`, a notification), and the date is
+in look (`you.court`), the Calendar (`upcoming`, kind `court`), the Court app and the client's Today and Next.
+**The hearing:** be in the courthouse at the time; up to `grace_minutes` (40) late is still heard. It opens
+(`court_hearing` to you, `court` to everyone in the courtroom: a hearing is public, and a rumour among those who saw
+it). Who came is counted then, once. You plead (`court_plea {case, plea}`): **guilty** is a conviction at once with
+`guilty_plea_discount` (a third) off the sentence; **not guilty** is a conviction with the chance the court showed you,
+otherwise the case is **dismissed** and nothing goes on your record. No plea by `plea_minutes` (120) and the court
+enters not guilty. **The odds** are computed, shown and rolled the same way, to the hundredth: `caught` 0.55 or
+`reported` 0.30, plus 0.06 a witness, 0.10 a member of staff, 0.15 an officer, 0.10 for the victim's word; once the
+hearing opens, each of them in the courtroom adds 0.06 again and the victim there 0.05; less your lawyer's edge; within
+0.05 and 0.95. Before the hearing the cards say "as things stand" and what coming to court adds; at the hearing the
+number is final (D-069's rule: never a made-up number). **Lawyers** (`court_lawyer {case, lawyer}`): Hale & Partners
+(`firm`: $1,200 to `org:hale_law`, paid when hired, takes 0.15 off, can be hired in the courtroom), or a person whose
+career is `law` (`court_represent {case, accept}` to say yes; 0.12 plus 0.04 a level; $1,200 paid to them through the
+ledger when the hearing opens with them in the courtroom: not there, not paid, not counted). Refused: yourself, the
+victim (`conflict_of_interest`), someone not a lawyer, a lawyer nobody is playing (`not_available`: the firm can), once
+the hearing is open someone not in the courtroom (`not_here`), a fee you can't pay. **The sentence** is data per crime,
+by how many convictions you already have (first, second, third or more), summed over the charges: a **fine** to the
+town (can't pay: held `unpaid_fine_jail_minutes` instead, as an unpaid fine always was), **community service** at
+Common Ground within 7 days (`community_service {action: start|stop}` there while it's open: it counts minute by minute
+while you stay; undone by the date, a warrant, and picked up you serve 120 minutes in a cell for each hour left),
+**probation** (convicted again while on it adds 720 minutes in a cell) and **jail time** (straight to a cell from the
+courtroom). `court_verdict` tells you, the victim and your lawyer; the courtroom sees it. **The record:** each charge
+convicted goes on your record with the case and the sentence in words; charges and dismissed cases never do.
+**Who sees the record:** you, in full (the Record app says which entries employers still see); other players never (they
+saw the hearing, or heard the rumour); employers only where the data says a job or a programme needs a clean record
+(police, teaching, childcare, the academy), and only entries not yet spent: a fixed penalty for 14 game days, a
+conviction for 56, one with time in a cell for 112. An employer you already work for doesn't re-check. **Warrants:**
+miss a hearing while you're playing and there's a warrant (`wanted_for`, the Wanted chip, the police dispatched);
+picked up by a patrol or an officer, you're held until a new hearing and brought to it from the cell. **Nobody is tried
+without a person to answer:** at the time of a hearing, someone nobody is playing (offline, or played by the autopilot
+or a script) has it put off (`adjournments`) until a person plays them again (then a new date); out cold or in the
+hospital (D-080) puts it off without counting; after `max_adjournments` (2) put-offs a missed hearing is a warrant even
+for someone away. **Saved:** the world part `court` (the cases, open and the latest decided ones); record entries gain
+`case` and `sentence`; JSON fields only, no SQL change; an older save has no cases. Content without `court.json` keeps
+D-069's on-the-spot fines.
+**Multiplayer.** *Who sees a case:* the accused and their lawyer see everything the defence needs (the charges, who saw
+it as counts, the odds, the sentences); the victim sees the charges, the date and the outcome; the bench sees the docket
+(the Court app); everyone in the courthouse sees the hearing open and the verdict (`court` events), and nobody else
+does except by rumour. *Victim and accused both players:* the victim is told the date and may come: being there counts
+(0.05), and witnesses who come count again; nobody can fake it, because the World counted who saw it when it happened.
+A victim can't be the accused's lawyer. *The accused offline:* the case waits for them (put off, not tried), with a
+cap so logging out before every hearing ends in a warrant. *Two cases at once:* two people never share a slot; a late
+arrival can overlap the next slot's case, and each accused sees only their own courtroom card. *Play together:* the
+host's tab runs the court like the server (the same World); a friend whose tab closes is offline, so their hearing is
+put off; the town (and the court's clock) pauses while the host's tab is hidden. *A player who is a lawyer* can defend
+anyone who asks and is paid by the ledger only if they come.
+**The client:** the risk card shows the court's numbers (booked, the sentence, the court's odds where you stand, "you're
+summoned" for a report); the summons card (charges, date, the honest odds, the sentences, the firm, Go to court); the
+cell's card says charged and when; a Court chip with the date (In court · plead during the hearing; Service while you
+owe hours); the courtroom card (the charge, the odds as `data-odds`, Guilty / Not guilty, Hire Hale & Partners); the
+verdict card; a lawyer's brief card (Defend them / Decline); the court date in the Calendar ("From the court"), the
+Today sheet and the Next card; the Court app; Plead and community service in the tray; the courtroom's public lines.
+**Why:** A court turns a crime from a dice roll with an instant price into something you live through: a date to keep,
+a choice to make with the real odds in front of you, a record that matters for the jobs that care. Making a report a
+summons rather than a manhunt fits a town where people can't be chased offline; holding the arrest's punishment for
+the verdict avoids punishing twice. The judge being the World, not a player, follows rule 1. Showing the exact number
+the court will roll follows D-069. Spending convictions for employers keeps one shoplifting from ending a career in a
+town where a month is a few hours of play.
+**Trade-off:** Arrests no longer fine on the spot: a caught shoplifter's fine (and record) waits for the court, so
+someone who never answers keeps a clean record until a warrant catches up. The odds are a simple sum, not a trial;
+evidence isn't contested, and witnesses can't lie or be called. The autopilot never takes anyone to court: a founder a
+person stopped playing keeps their case open until a person plays them. Community service is standing at Common Ground
+for the hours (no tasks). Small claims (suing over money owed or assault damages) is not built. The courthouse has no
+interior traced yet (D-066): inside it's the scene card; its building and interior prompts and the judge's model sheet
+are on the art page. The judge is drawn as a labelled stand-in until her sheet exists.

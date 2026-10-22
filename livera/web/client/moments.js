@@ -76,15 +76,24 @@ export function riskLines(r) {
     ? `${pct(r.chance)} chance of being caught right now${r.crime === "fare_evasion" ? `: inspectors check ${pct(r.chance)} of rides${r.line ? ` on ${r.line}` : ""}` : who.length ? ` (${who.join(", ")})` : targeted ? " (nobody else around)" : " (nobody's watching)"}.`
     : `Risky. ${r.note ? sentence(r.note) : "The odds show once you're there."}`;
   const c = r.if_caught || {};
-  if (c.jail_minutes) lines.push(`Held ${span(c.jail_minutes)} at ${c.held_at || "the police station"}`);
-  if (c.fine_cents) lines.push(`A ${money(c.fine_cents)} fine${c.jail_if_unpaid_minutes ? `; if you can't pay it, held ${span(c.jail_if_unpaid_minutes)} instead` : ""}`);
-  if (c.record) lines.push(`${r.label || "It"} on your record`);
+  const court = c.court && typeof c.court === "object" ? c.court : null;  // a crime the court tries (D-083)
+  if (court) {
+    lines.push(`Held ${span(c.booking_minutes)} at ${c.held_at || "the police station"}, then charged, with a hearing at ${court.courthouse || "the courthouse"}`);
+    if (typeof court.odds_if_caught === "number") lines.push(`In court, ${pct(court.odds_if_caught)} you're convicted if you plead not guilty, with who's here now`);
+    if (court.if_convicted) lines.push(`Convicted: ${court.if_convicted.text}${court.if_guilty_plea ? `; plead guilty and it's ${court.if_guilty_plea.text}` : ""}`);
+    if (c.record) lines.push(`${r.label || "It"} on your record if you're convicted`);
+  } else {
+    if (c.jail_minutes) lines.push(`Held ${span(c.jail_minutes)} at ${c.held_at || "the police station"}`);
+    if (c.fine_cents) lines.push(`A ${money(c.fine_cents)} fine${c.jail_if_unpaid_minutes ? `; if you can't pay it, held ${span(c.jail_if_unpaid_minutes)} instead` : ""}`);
+    if (c.record) lines.push(`${r.label || "It"} on your record`);
+  }
   if (c.notoriety) lines.push("People hear about it");
   if (r.crime !== "fare_evasion" && c.seized) { const t = sentence(c.seized).replace(/\.$/, ""); lines.push(t[0].toUpperCase() + t.slice(1)); }
-  // What can follow even when nobody stops you.
+  // What can follow even when nobody stops you: reported, you're summoned to court (or, with no court, wanted).
   const after = [];
-  if (typeof r.notice_chance === "number") after.push(`${pct(r.notice_chance)} chance they notice, report you, and you're wanted`);
-  if (typeof r.report_chance === "number") after.push(`${pct(r.report_chance)} chance they report you, and you're wanted${typeof r.witness_report_chance === "number" ? ` (more with anyone else watching)` : ""}`);
+  const reported = court ? `you're summoned to court${typeof court.odds_if_reported === "number" ? ` (${pct(court.odds_if_reported)} you're convicted on a not-guilty plea)` : ""}` : "you're wanted";
+  if (typeof r.notice_chance === "number") after.push(`${pct(r.notice_chance)} chance they notice, report you, and ${reported}`);
+  if (typeof r.report_chance === "number") after.push(`${pct(r.report_chance)} chance they report you, and ${reported}${typeof r.witness_report_chance === "number" ? ` (more likely with anyone else watching)` : ""}`);
   for (const p of r.possession || []) after.push(`Carrying ${p.item}: ${p.crime}, ${money(p.fine_cents)}${p.jail_minutes ? ` and ${span(p.jail_minutes)}` : ""} if you're ever arrested with it`);
   if (Array.isArray(r.injuries) && r.injuries.length) after.push(`Either of you can come away with ${r.injuries.join(", ").toLowerCase()}`);
   return { odds, ladder: lines, after, extra: r.self_defence || null };
@@ -148,6 +157,8 @@ class Moments {
     this.out = null;          // {until} while out cold (D-080)
     this.ward = null;         // {until, need} while kept in the hospital (D-080)
     this.wanted = null;
+    this.court = null;        // look.you.court: your case, its date, a hearing open, service owed (D-083)
+    this.courtCase = null;    // the case as the court app last showed it (the courtroom card's numbers)
     this.walkAway = null;
     this.lastStory = 0; this.lastRecord = 0; this.shownAt = 0;
     this.decorate();
@@ -158,7 +169,8 @@ class Moments {
       window.__liveraMoments = Object.freeze({
         offer: () => (this.offer ? { event: this.offer.event, title: this.offer.title } : null),
         card: () => [...this.cards.keys()],
-        wanted: () => this.wanted, jail: () => this.jail, out: () => this.out, ward: () => this.ward,
+        wanted: () => this.wanted, jail: () => this.jail, out: () => this.out, ward: () => this.ward, court: () => this.court,
+        courtApp: () => this.game.req("phone", { app: "court" }), record: () => this.game.req("phone", { app: "record" }),
         // Read-only phone apps, for the tests' arithmetic (the same op the money chip and the Story app use).
         bank: () => this.game.req("phone", { app: "bank" }), story: () => this.game.req("phone", { app: "story" }),
       });
@@ -198,6 +210,14 @@ class Moments {
     const ward = Number.isFinite(you.admitted_until) ? you.admitted_until : null;
     if (ward && (!this.ward || this.ward.until !== ward)) { this.ward = { until: ward, need: you.admitted_for || "" }; this.renderChips(); this.showWard(); this.game.refreshBank(); }
     if (!ward && this.ward) { this.ward = null; this.renderChips(); this.showDischarged(); }
+    // Your case (D-083): its date, the hearing open, community service owed. The Today card reads it from the world.
+    const court = you.court && typeof you.court === "object" ? you.court : null;
+    const was2 = this.court;
+    if (JSON.stringify(court) !== JSON.stringify(was2)) {
+      this.court = court; this.world.court = court; this.renderChips();
+      // The hearing opened while the card wasn't up (a reload, a missed event): bring the courtroom up.
+      if (court && court.status === "hearing" && (!was2 || was2.status !== "hearing") && !this.cards.has("courtroom")) this.openCourtroom(court.case);
+    }
   }
 
   // ------------------------------------------------------------ layers (one card per kind; the newest on top)
@@ -229,6 +249,14 @@ class Moments {
       case "brawl": this.brawlStart(d); return true;
       case "brawl_beat": if (this.brawl) this.brawl.beat(d); return true;
       case "brawl_hit": if (this.brawl) this.brawl.hit(d); return true;
+      // The court (D-083): your summons, your hearing, the verdict; a lawyer's brief; what the courtroom sees.
+      case "court_summons": this.showSummons(d); this.lookSoon(); if (this.game.agenda) this.game.agenda.refresh("calendar"); return true;
+      case "court_hearing": this.showCourtroom(d); this.lookSoon(); return true;
+      case "court_verdict": this.showVerdict(d); this.lookSoon(); this.game.refreshBank(); return true;
+      case "court_brief": this.showBrief(d); return true;
+      case "court_lawyer": this.lawyerAnswered(d); return true;
+      case "court_service": this.game.ui.toast("Community service done.", false, { ms: 3500 }); this.lookSoon(); return true;
+      case "court": this.courtroomLine(d); return true;
       case "incident":
         if (d.character === this.world.selfId && d.kind === "arrest") { this.game.lastLook = 0; this.game.refreshLook(); }
         return false;   // the feed still says it
@@ -247,8 +275,10 @@ class Moments {
   reset() {
     for (const k of [...this.cards.keys()]) this.closeLayer(k);
     if (this.brawl) { this.brawl.close(); this.brawl = null; }
-    this.offer = null; this.queue = []; this.pill.hidden = true; this.fight = null; this.jail = null; this.out = null; this.ward = null; this.wanted = null; this.renderChips();
+    this.offer = null; this.queue = []; this.pill.hidden = true; this.fight = null; this.jail = null; this.out = null; this.ward = null; this.wanted = null;
+    this.court = null; this.courtCase = null; this.world.court = null; this.renderChips();
   }
+  lookSoon() { this.game.lastLook = 0; setTimeout(() => this.game.refreshLook(), 50); }
 
   async refreshStory(quiet) {
     this.lastStory = performance.now();
@@ -279,6 +309,7 @@ class Moments {
     if (this.jail && this.cards.has("jail")) this.jailCountdown();
     if (this.jail && m !== null && m > this.jail.until + 2 && now - (this.jailPoll || 0) > 3000) { this.jailPoll = now; g.lastLook = 0; g.refreshLook(); }
     if (this.out || this.ward) this.outCountdown();
+    if (this.cards.has("courtroom")) this.courtCountdown();
     const over = (this.out && m !== null && m > this.out.until + 1) || (this.ward && m !== null && m > this.ward.until + 1);
     if (over && now - (this.outPoll || 0) > 3000) { this.outPoll = now; g.lastLook = 0; g.refreshLook(); }
   }
@@ -289,7 +320,7 @@ class Moments {
     if (this.offer && !this.offer.result) { if (this.offer.event !== d.event) this.queue.push(d); return; }
     this.offer = d;
     // Not over a fight or a cell: it waits in the pill.
-    if (this.cards.has("fight") || this.cards.has("jail") || this.cards.has("confirm") || this.cards.has("out") || this.cards.has("ward")) this.minimize(); else this.showOffer();
+    if (["fight", "jail", "confirm", "out", "ward", "courtroom", "summons", "verdict"].some(k => this.cards.has(k))) this.minimize(); else this.showOffer();
   }
   lapsed(event) {
     if (this.offer && this.offer.event === event && !this.offer.result) {
@@ -437,25 +468,27 @@ class Moments {
     const who = firstName(d.name || this.world.nameOf(d.with));
     const won = d.won === true ? "You won" : d.won === false ? (d.role === "attacker" ? "You lost" : "You lost") : null;
     const crime = d.crime || {};
-    const crimeLine = crime.arrested ? (d.role === "attacker" ? `Arrested for ${crime.crime || "assault"}${crime.fine_cents ? `: fined ${money(crime.fine_cents)}` : ""}${crime.jail_minutes ? `, held ${span(crime.jail_minutes)}` : ""}.` : crime.text)
+    const hearing = c => (c && c.hearing_text ? ` Your hearing: ${c.hearing_text}${c.courthouse ? ` at ${c.courthouse}` : ""}.` : "");
+    const crimeLine = crime.arrested ? (d.role === "attacker" ? `Arrested for ${crime.crime || "assault"}${crime.fine_cents ? `: fined ${money(crime.fine_cents)}` : ""}${crime.jail_minutes ? `, held ${span(crime.jail_minutes)}` : ""}.${crime.court ? " Charged: the court decides the rest." : ""}` : crime.text)
+      : crime.summoned ? `It was reported. You're charged with ${crime.crime || "assault"}.${hearing(crime)}`
       : crime.wanted ? `It was reported. You're wanted for ${crime.crime || "assault"}.`
       : crime.reported ? crime.text
       : crime.self_defence ? "Nothing landed. Nobody committed a crime." : crime.wanted === false ? "Nobody reported it. This time." : null;
     const selfDefence = d.role === "defender" && ["attacker_won", "defender_won", "knockout", "on_points", "broke_off", "walked_off"].includes(d.outcome);
     const fx = changesText(d.changes);
-    const card = el("section", { class: `mo-card mo-fight mo-done${crime.arrested || crime.wanted ? " mo-danger" : ""}`, role: "dialog", "aria-modal": "false", "aria-label": "How the fight went", dataset: { moment: "fight-result", outcome: d.outcome || "" } },
+    const card = el("section", { class: `mo-card mo-fight mo-done${crime.arrested || crime.wanted || crime.summoned ? " mo-danger" : ""}`, role: "dialog", "aria-modal": "false", "aria-label": "How the fight went", dataset: { moment: "fight-result", outcome: d.outcome || "" } },
       el("div", { class: "mo-eyebrow" }, d.role === "attacker" ? `You started it · ${who}` : `${who} started it`),
       el("h2", { class: "mo-title" }, won || titleCase(String(d.outcome || "over").replace(/_/g, " "))),
       el("p", { class: "mo-outcome" }, d.text),
       fx ? el("p", { class: "mo-fx" }, fx) : null,
       selfDefence ? el("p", { class: "mo-crime" }, "You defended yourself: self-defence is never a crime.") : null,
-      crimeLine ? el("p", { class: `mo-crime${crime.arrested || crime.wanted ? " bad" : ""}` }, crimeLine) : null,
+      crimeLine ? el("p", { class: `mo-crime${crime.arrested || crime.wanted || crime.summoned ? " bad" : ""}` }, crimeLine) : null,
       (d.changes && d.changes.injuries && d.changes.injuries.length) ? el("p", { class: "mo-sub" }, "Injuries heal on their own, or faster with treatment at Riverdale Clinic or the hospital.") : null,
       el("div", { class: "mo-actions" }, el("button", { type: "button", class: "btn primary mo-big", onclick: () => this.closeLayer("fight-result") }, "OK")));
     this.showLayer("fight-result", card);
     this.game.ui.history.push({ who: "", text: `Fight with ${who}: ${d.text}${fx ? ` (${fx})` : ""}${crimeLine ? ` ${crimeLine}` : ""}`, kind: "result", cat: "activity", at: Date.now() });
     this.game.lastLook = 0; this.game.refreshBank();
-    if (crime.wanted || crime.arrested) setTimeout(() => this.refreshRecord(), 200);
+    if (crime.wanted || crime.arrested || crime.summoned) setTimeout(() => this.refreshRecord(), 200);
   }
   // The fight on the map: a scuffle over both of them for a moment.
   scuffle(d) {
@@ -476,6 +509,11 @@ class Moments {
     if (this.ward) parts.push(el("button", { type: "button", class: "mo-chip held", dataset: { street: "ward" }, onclick: () => this.showWard() }, icon("health"), el("span", null, "Hospital"), el("span", { class: "num", id: "mo-ward-left" }, this.leftText(this.ward))));
     if (this.jail) parts.push(el("button", { type: "button", class: "mo-chip held", dataset: { street: "held" }, onclick: () => this.showJail() }, icon("alert"), el("span", null, "Held"), el("span", { class: "num", id: "mo-held-left" }, this.jailLeftText())));
     else if (this.wanted) parts.push(el("button", { type: "button", class: "mo-chip wanted", dataset: { street: "wanted" }, "aria-label": `Wanted for ${this.wanted}: what it means`, onclick: () => this.showWanted() }, icon("alert"), el("span", null, `Wanted · ${this.wanted.toLowerCase()}`)));
+    // The court (D-083): your date, your hearing under way, community service owed. The same chip styles as the street's.
+    const ct = this.court;
+    if (ct && ct.status === "hearing") parts.push(el("button", { type: "button", class: "mo-chip wanted", dataset: { street: "court" }, "aria-label": "Your hearing has begun: plead", onclick: () => this.openCourtroom(ct.case) }, icon("alert"), el("span", null, "In court · plead")));
+    else if (ct && ct.status === "summoned" && typeof ct.hearing_at === "number" && !this.jail) parts.push(el("button", { type: "button", class: "mo-chip wanted", dataset: { street: "court" }, "aria-label": `Your court date: ${hhmm(ct.hearing_at)}`, onclick: () => this.openSummons(ct.case) }, icon("calendar"), el("span", null, "Court"), el("span", { class: "num" }, this.dayTime(ct.hearing_at))));
+    if (ct && ct.service && !this.jail) parts.push(el("button", { type: "button", class: "mo-chip held", dataset: { street: "service" }, "aria-label": `Community service: ${ct.service.hours_left} hours left`, onclick: () => this.showService() }, icon("check"), el("span", null, ct.service.serving ? "Serving" : "Service"), el("span", { class: "num" }, `${ct.service.hours_left} h`)));
     replace(this.chips, parts);
     this.chips.hidden = !parts.length;
     if (this.game.ui && this.game.ui.measure) this.game.ui.measure();
@@ -545,7 +583,9 @@ class Moments {
       el("h2", { class: "mo-title" }, `The police want you for ${this.wanted ? this.wanted.toLowerCase() : "a crime"}.`),
       el("ul", { class: "mo-list" },
         el("li", null, "Out in the open, a patrol can pick you up at any time, and an officer on duty who reaches you can arrest you."),
-        el("li", null, "Arrested, you're fined and held, it goes on your record, and anything illegal on you is seized."),
+        el("li", null, this.world.rules && this.world.rules.court
+          ? "Picked up, you're held in a cell until a new hearing and brought to court from it; anything illegal on you is seized."
+          : "Arrested, you're fined and held, it goes on your record, and anything illegal on you is seized."),
         el("li", null, "Indoors, patrols don't come in. Nothing else about your day changes.")),
       el("div", { class: "mo-actions" },
         el("button", { type: "button", class: "btn mo-big", onclick: () => { this.closeLayer("wanted"); this.game.openPhone("record"); } }, "Your record"),
@@ -562,7 +602,10 @@ class Moments {
       el("div", { class: "mo-eyebrow" }, "Arrested"),
       el("h2", { class: "mo-title" }, `Held at ${rec.held_at || "the police station"}`),
       el("p", { class: "mo-prompt" }, `Until ${hhmm(this.jail.until)}.`), left,
-      last ? el("p", { class: "mo-fx" }, [last.crime, last.fine_cents ? `fined ${money(last.fine_cents)}` : "couldn't pay the fine", last.jail_minutes ? `${span(last.jail_minutes)} held` : ""].filter(Boolean).join(" · ")) : null,
+      // Booked and charged (D-083): the court decides the rest; otherwise what the record says you're held for.
+      rec.court && rec.court.status === "summoned" && typeof rec.court.hearing_at === "number"
+        ? el("p", { class: "mo-fx", dataset: { court: "booked" } }, `Charged · your hearing is ${this.dayTime(rec.court.hearing_at)}${this.jail.until > rec.court.hearing_at ? ": you'll be brought to it from the cell" : ""}`)
+        : last ? el("p", { class: "mo-fx" }, [last.crime, last.fine_cents ? `fined ${money(last.fine_cents)}` : "couldn't pay the fine", last.jail_minutes ? `${span(last.jail_minutes)} held` : ""].filter(Boolean).join(" · ")) : null,
       el("div", { class: "mo-label" }, "What you can do"),
       el("ul", { class: "mo-list" },
         el("li", null, `Wait it out: a game hour is ${realHour(this.world.rules)}. You'll be told when you're free.`),
@@ -583,11 +626,211 @@ class Moments {
     this.closeLayer("jail");
     const card = el("section", { class: "mo-card", role: "dialog", "aria-modal": "false", "aria-label": "Free to go", dataset: { moment: "free" } },
       el("div", { class: "mo-eyebrow" }, "Released"),
-      el("h2", { class: "mo-title" }, "You've served your time. You're free to go."),
+      el("h2", { class: "mo-title" }, this.courtDate() ? "You're free to go until your hearing." : "You've served your time. You're free to go."),
+      this.courtDate() ? el("p", { class: "mo-prompt" }, `Your hearing: ${this.dayTime(this.courtDate())} at ${this.courthouseName()}. Be there.`) : null,
       el("div", { class: "mo-actions" },
         el("button", { type: "button", class: "btn primary mo-big", onclick: () => { this.closeLayer("free"); if (this.world.self && this.world.self.inside) this.game.exit(); } }, icon("exit"), "Step outside"),
         el("button", { type: "button", class: "btn mo-big", onclick: () => this.closeLayer("free") }, "OK")));
     this.showLayer("free", card);
+  }
+
+  // ------------------------------------------------------------ the court (D-083)
+  // Every number on these cards is the server's: the odds it will roll, the sentence it will give.
+  courtDate() { const c = this.court; return c && c.status === "summoned" && typeof c.hearing_at === "number" ? c.hearing_at : null; }
+  courthouseName() { const r = this.world.rules && this.world.rules.court; return (r && r.courthouse_name) || "the courthouse"; }
+  courthouseId() { const r = this.world.rules && this.world.rules.court; return (r && r.courthouse) || "courthouse"; }
+  // "Tuesday 14:30", or "today 14:30" / "tomorrow 09:00".
+  dayTime(minute) {
+    const now = this.world.minute(), day = Math.floor(minute / 1440), today = now === null ? null : Math.floor(now / 1440);
+    const name = today === day ? "today" : today !== null && day === today + 1 ? "tomorrow" : ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"][day % 7];
+    return `${name} ${hhmm(minute)}`;
+  }
+  async caseView(id) {
+    const r = await this.game.req("phone", { app: "court" });
+    if (!r.ok) return null;
+    const all = [...(r.data.cases || []), ...(r.data.defending || []), ...(r.data.as_victim || [])];
+    return all.find(k => k.case === id) || all.find(k => k.role === "accused" && k.status !== "decided") || null;
+  }
+  async openSummons(id) { const v = await this.caseView(id); if (v) this.showSummons(v); }
+  async openCourtroom(id) { const v = await this.caseView(id); if (v && v.status === "hearing") this.showCourtroom(v); }
+  charges(v) { const list = (v.charges || []).map(c => c.label || c); return list.length > 1 ? `${list.slice(0, -1).join(", ")} and ${list[list.length - 1]}` : list[0] || "a crime"; }
+  // What the evidence is, in words: what the court counted.
+  evidenceText(e) {
+    if (!e) return "";
+    const parts = [e.how === "caught" ? "caught in the act" : "reported"];
+    if (e.witnesses) parts.push(plural(e.witnesses, "witness", "witnesses"));
+    if (e.staff) parts.push(plural(e.staff, "member") + " of staff");
+    if (e.police) parts.push(plural(e.police, "officer"));
+    if (e.victim) parts.push("the victim's word");
+    if (typeof e.in_court === "number" && e.in_court) parts.push(`${e.in_court} of them here`);
+    if (e.victim_in_court) parts.push("the victim here");
+    return parts.join(", ");
+  }
+  lawyerText(v) {
+    const l = v.lawyer || {};
+    if (l.kind === "firm") return `${l.name} defends you (paid).`;
+    if (l.kind === "person") return `${l.name} ${l.agreed ? `defends you: ${money(l.fee_cents)}, paid when they stand up for you in court` : "hasn't answered yet"}${l.present === false ? ", and isn't here" : ""}.`;
+    return "Nobody defends you.";
+  }
+  showSummons(v) {
+    if (!v || !v.case) return;
+    const odds = v.odds || {}, firm = (v.lawyers && v.lawyers.firm) || {};
+    const when = typeof v.hearing_at === "number" ? `${this.dayTime(v.hearing_at)} at ${v.courthouse}` : "set when you're back in town";
+    const card = el("section", { class: "mo-card mo-danger", role: "dialog", "aria-modal": "false", "aria-label": "Summons", dataset: { moment: "summons", case: v.case } },
+      el("div", { class: "mo-eyebrow" }, icon("alert"), v.warrant ? "Warrant" : "Summons"),
+      el("h2", { class: "mo-title" }, `You're charged with ${this.charges(v)}.`),
+      el("p", { class: "mo-prompt" }, `Your hearing: ${when}.`),
+      typeof odds.convicted_if_not_guilty === "number" ? el("p", { class: "mo-odds" }, `Plead not guilty and it's ${pct(odds.convicted_if_not_guilty)} you're convicted, as things stand (${this.evidenceText(v.evidence)}).`) : null,
+      el("div", { class: "mo-ladder" }, el("div", { class: "mo-label" }, "In court"), el("ul", null,
+        v.if_guilty_plea ? el("li", null, `Plead guilty: ${v.if_guilty_plea.text}.`) : null,
+        v.if_convicted ? el("li", null, `Convicted on a not-guilty plea: ${v.if_convicted.text}. Otherwise it's dismissed and nothing goes on your record.`) : null,
+        v.evidence && v.evidence.each_in_court_adds ? el("li", null, `Each witness who comes to the hearing adds ${Math.round(v.evidence.each_in_court_adds * 100)} points.`) : null,
+        firm.name ? el("li", null, `A lawyer: ${firm.name}, ${money(firm.fee_cents)}, takes ${Math.round(firm.edge * 100)} points off (${pct(odds.with_firm)}). ${this.lawyerText(v)}`) : null,
+        el("li", null, `Be in the courthouse at the time (up to ${(this.world.rules && this.world.rules.court && this.world.rules.court.grace_minutes) || 40} minutes late is still heard). Miss it and a warrant goes out for your arrest.`))),
+      el("div", { class: "mo-actions" },
+        el("button", { type: "button", class: "btn primary mo-big", dataset: { court: "go" }, onclick: () => {
+          if (this.jail) { this.game.ui.toast(`You're held until ${hhmm(this.jail.until)}: go when you're let out.`, false, { ms: 3500 }); return; }
+          this.closeLayer("summons"); this.game.goTo(v.courthouse_id || this.courthouseId());
+        } }, icon("go"), "Go to court"),
+        firm.name && (!v.lawyer || v.lawyer.kind === "none") ? el("button", { type: "button", class: "btn mo-big", dataset: { court: "firm" }, onclick: e => this.hireFirm(v, e.currentTarget) }, `Hire ${firm.name}`) : null,
+        el("button", { type: "button", class: "btn mo-big", onclick: () => { this.closeLayer("summons"); this.game.openPhone("calendar"); } }, "Calendar"),
+        el("button", { type: "button", class: "btn link", onclick: () => this.closeLayer("summons") }, "OK")));
+    this.closeLayer("life"); if (this.offer && !this.offer.result) this.minimize();
+    this.showLayer("summons", card);
+    this.game.ui.announce(`Summons: charged with ${this.charges(v)}. Hearing ${when}.`);
+  }
+  async hireFirm(v, btn) {
+    if (btn) btn.disabled = true;
+    const r = await this.game.req("court_lawyer", { case: v.case, lawyer: "firm" });
+    if (btn) btn.disabled = false;
+    if (!r.ok) { this.game.ui.refusal(r, "Hire a lawyer"); return; }
+    this.game.refreshBank();
+    this.game.ui.toast(`${r.data.lawyer.name} will defend you: ${pct(r.data.odds.convicted_if_not_guilty)} on a not-guilty plea now.`, false, { ms: 4000 });
+    if (this.cards.has("courtroom")) this.showCourtroom(r.data); else if (this.cards.has("summons")) this.showSummons(r.data);
+  }
+  showCourtroom(v) {
+    if (!v || !v.case || v.status !== "hearing") return;
+    this.courtCase = v;
+    const odds = v.odds || {}, firm = (v.lawyers && v.lawyers.firm) || {}, l = v.lawyer || {};
+    const plea = (which, label, detail) => el("button", { type: "button", class: "btn mo-choice", dataset: { plea: which }, onclick: e => this.plead(v, which, e.currentTarget) },
+      el("span", { class: "grow" }, label), el("span", { class: "mo-sub" }, detail));
+    const card = el("section", { class: "mo-card mo-danger", role: "dialog", "aria-modal": "false", "aria-label": "Your hearing", dataset: { moment: "courtroom", case: v.case } },
+      el("div", { class: "mo-eyebrow" }, `In court · ${v.courthouse}${v.judge ? ` · Judge ${v.judge}` : ""}`),
+      el("h2", { class: "mo-title" }, `The charge: ${this.charges(v)}`),
+      el("p", { class: "mo-odds", dataset: { odds: String(odds.convicted_if_not_guilty) } }, `Plead not guilty: ${pct(odds.convicted_if_not_guilty)} you're convicted. That's the court's own number: ${this.evidenceText(v.evidence)}.`),
+      el("p", { class: "mo-sub" }, this.lawyerText(v)),
+      el("div", { class: "mo-choices" },
+        plea("guilty", "Guilty", v.if_guilty_plea ? v.if_guilty_plea.text : ""),
+        plea("not_guilty", "Not guilty", v.if_convicted ? `${pct(odds.convicted_if_not_guilty)}: ${v.if_convicted.text}; otherwise dismissed` : "")),
+      el("p", { class: "mo-countdown", id: "mo-plea-left" }, this.pleaLeftText(v)),
+      el("p", { class: "mo-sub" }, "No plea in time and the court enters not guilty for you. The hearing is public: everyone here sees it."),
+      el("div", { class: "mo-actions" },
+        firm.name && l.kind === "none" ? el("button", { type: "button", class: "btn mo-big", dataset: { court: "firm" }, onclick: e => this.hireFirm(v, e.currentTarget) }, `Hire ${firm.name} · ${money(firm.fee_cents)} → ${pct(odds.with_firm)}`) : null,
+        el("button", { type: "button", class: "btn link", onclick: () => this.closeLayer("courtroom") }, "Hide")));
+    this.closeLayer("summons"); this.closeLayer("life"); if (this.offer && !this.offer.result) this.minimize();
+    this.showLayer("courtroom", card);
+    this.game.ui.announce(`Your hearing has begun: ${this.charges(v)}. Plead guilty or not guilty.`);
+  }
+  pleaLeftText(v) { const m = this.world.minute(); return v && typeof v.plea_by === "number" && m !== null ? `Plead by ${hhmm(v.plea_by)} (${span(Math.max(0, v.plea_by - m))} left)` : ""; }
+  courtCountdown() { const n = document.getElementById("mo-plea-left"), t = this.pleaLeftText(this.courtCase); if (n && n.textContent !== t) n.textContent = t; }
+  async plead(v, which, btn) {
+    for (const b of btn.parentNode.querySelectorAll("button")) b.disabled = true;
+    const r = await this.game.req("court_plea", { case: v.case, plea: which });
+    if (!r.ok) { for (const b of btn.parentNode.querySelectorAll("button")) b.disabled = false; this.game.ui.refusal(r, "Plead"); if (r.error.code === "already_decided") this.closeLayer("courtroom"); return; }
+    this.showVerdict(r.data);
+    this.lookSoon(); this.game.refreshBank();
+  }
+  showVerdict(v) {
+    if (!v || !v.case || !v.verdict) return;
+    if (this.verdictShown === v.case) return;  // the reply and the event both carry it
+    this.verdictShown = v.case;
+    this.closeLayer("courtroom");
+    const mine = v.role === "accused", convicted = v.verdict === "convicted", s = v.sentence || {};
+    const title = mine ? (convicted ? (v.plea === "guilty" ? "Convicted on your plea" : "Convicted") : "Not guilty: case dismissed") : (convicted ? `${v.accused_name}: convicted` : `${v.accused_name}: case dismissed`);
+    const lines = [];
+    if (convicted && s.text) lines.push(`Sentence: ${s.text}${s.fine_unpaid ? " (the fine couldn't be paid, so the time is longer)" : ""}.`);
+    if (mine && v.plea !== "guilty" && typeof v.chance === "number") lines.push(`The court rolled the ${pct(v.chance)} it showed you.`);
+    if (mine && v.plea === "entered") lines.push("You didn't plead in time: the court entered not guilty for you.");
+    if (mine && convicted) lines.push("It's on your record. Employers that need a clean record see it until it's spent.");
+    if (mine && s.service_hours) lines.push(`Do your community service at ${(this.world.rules && this.world.rules.court && this.world.rules.court.community_service.place_name) || "the community center"}.`);
+    const card = el("section", { class: `mo-card mo-done${convicted && mine ? " mo-danger" : ""}`, role: "dialog", "aria-modal": "false", "aria-label": "The verdict", dataset: { moment: "verdict", verdict: v.verdict, case: v.case } },
+      el("div", { class: "mo-eyebrow" }, `Verdict · ${v.courthouse}${v.judge ? ` · Judge ${v.judge}` : ""}`),
+      el("h2", { class: "mo-title" }, title),
+      v.text ? el("p", { class: "mo-outcome" }, v.text) : null,
+      lines.length ? el("ul", { class: "mo-list" }, lines.map(t => el("li", null, t))) : null,
+      el("div", { class: "mo-actions" },
+        mine && s.service_hours ? el("button", { type: "button", class: "btn mo-big", onclick: () => { this.closeLayer("verdict"); this.game.goTo((this.world.rules.court.community_service || {}).place); } }, icon("go"), "Go to do it") : null,
+        mine && convicted ? el("button", { type: "button", class: "btn mo-big", onclick: () => { this.closeLayer("verdict"); this.game.openPhone("record"); } }, "Record") : null,
+        el("button", { type: "button", class: "btn primary mo-big", onclick: () => this.closeLayer("verdict") }, "OK")));
+    this.showLayer("verdict", card);
+    this.game.ui.history.push({ who: "", text: `${title}. ${v.text || ""}`, kind: "result", cat: "activity", at: Date.now() });
+    this.game.ui.announce(title);
+  }
+  // A lawyer asked to defend someone (multiplayer: a person whose career is the law).
+  showBrief(v) {
+    if (!v || !v.case) return;
+    const card = el("section", { class: "mo-card", role: "dialog", "aria-modal": "false", "aria-label": "Asked to defend someone", dataset: { moment: "brief", case: v.case } },
+      el("div", { class: "mo-eyebrow" }, "A client"),
+      el("h2", { class: "mo-title" }, `${v.asked_by || v.accused_name} asks you to defend them.`),
+      el("p", { class: "mo-prompt" }, `Charged with ${this.charges(v)}. Hearing: ${typeof v.hearing_at === "number" ? `${this.dayTime(v.hearing_at)} at ${v.courthouse}` : "not set yet"}.`),
+      el("ul", { class: "mo-list" },
+        el("li", null, `Your fee: ${money(v.fee_cents)}, paid when the hearing opens with you in the courtroom. Not there, not paid, and you don't count.`),
+        v.odds ? el("li", null, `As it stands, ${pct(v.odds.convicted_if_not_guilty)} on a not-guilty plea (${this.evidenceText(v.evidence)}); with you there, ${Math.round(((v.lawyer && v.lawyer.edge) || 0) * 100)} points less.`) : null),
+      el("div", { class: "mo-actions" },
+        el("button", { type: "button", class: "btn primary mo-big", dataset: { brief: "yes" }, onclick: e => this.represent(v, true, e.currentTarget) }, "Defend them"),
+        el("button", { type: "button", class: "btn mo-big", dataset: { brief: "no" }, onclick: e => this.represent(v, false, e.currentTarget) }, "Decline")));
+    this.showLayer("brief", card);
+  }
+  async represent(v, accept, btn) {
+    btn.disabled = true;
+    const r = await this.game.req("court_represent", { case: v.case, accept });
+    this.closeLayer("brief");
+    if (!r.ok) { this.game.ui.refusal(r, "Answer"); return; }
+    this.game.ui.toast(accept ? `You'll defend ${v.accused_name}. Be in the courtroom at the hearing.` : "You said no.", false, { ms: 3500 });
+  }
+  lawyerAnswered(v) {
+    const l = (v && v.lawyer) || {};
+    this.game.ui.toast(l.agreed ? `${l.name} will defend you.` : "Your lawyer said no.", false, { ms: 3500 });
+    if (this.cards.has("summons")) this.showSummons(v);
+  }
+  // Community service you owe: where, how much, start or stop it there.
+  showService() {
+    const sv = this.court && this.court.service;
+    if (!sv) return;
+    const rules = (this.world.rules && this.world.rules.court && this.world.rules.court.community_service) || {};
+    const here = this.world.self && this.world.self.inside === rules.place;
+    const card = el("section", { class: "mo-card", role: "dialog", "aria-modal": "false", "aria-label": "Community service", dataset: { moment: "service" } },
+      el("div", { class: "mo-eyebrow" }, "Community service"),
+      el("h2", { class: "mo-title" }, `${sv.hours_left} h left at ${rules.place_name || "the community center"}`),
+      el("p", { class: "mo-prompt" }, `Due ${typeof sv.due === "number" ? this.dayTime(sv.due) : "soon"}. Undone by then, a warrant goes out, and picked up you serve the hours left in a cell.`),
+      el("p", { class: "mo-sub" }, "It counts while you stay there, an hour at a time; walking out stops it."),
+      el("div", { class: "mo-actions" },
+        sv.serving ? el("button", { type: "button", class: "btn mo-big", dataset: { service: "stop" }, onclick: () => this.serve("stop") }, "Stop")
+          : here ? el("button", { type: "button", class: "btn primary mo-big", dataset: { service: "start" }, onclick: () => this.serve("start") }, "Start")
+          : el("button", { type: "button", class: "btn primary mo-big", onclick: () => { this.closeLayer("service"); this.game.goTo(rules.place); } }, icon("go"), "Go there"),
+        el("button", { type: "button", class: "btn link", onclick: () => this.closeLayer("service") }, "Hide")));
+    this.showLayer("service", card);
+  }
+  async serve(action) {
+    const r = await this.game.req("community_service", { action });
+    this.closeLayer("service");
+    if (!r.ok) { this.game.ui.refusal(r, "Community service"); return; }
+    this.game.ui.toast(action === "start" ? `Serving: ${r.data.hours_left} h left. Stay here.` : `Stopped: ${r.data.hours_left} h left.`, false, { ms: 3500 });
+    this.lookSoon();
+  }
+  // What everyone in the courtroom sees: a hearing is public.
+  courtroomLine(d) {
+    if (!d || !d.stage) return;
+    const mine = d.accused === this.world.selfId;
+    const charges = Array.isArray(d.charges) ? d.charges.join(", ").toLowerCase() : "a crime";
+    const text = d.stage === "opened" ? `In court: ${d.accused_name}, charged with ${charges}.${d.judge ? ` Judge ${d.judge} is on the bench.` : ""}`
+      : d.stage === "verdict" ? `In court: ${d.text || `${d.accused_name}: ${d.verdict}.`}`
+      : d.stage === "adjourned" ? `In court: ${d.accused_name}'s hearing was put off.`
+      : d.stage === "warrant" ? `In court: ${d.accused_name} didn't come. A warrant goes out.` : "";
+    if (!text || (mine && d.stage !== "opened")) return;
+    this.game.ui.line("", text, "note");
+    const r = this.game.renderer;
+    if (r && typeof r.addFloater === "function" && d.stage === "verdict") r.addFloater({ who: d.accused, text: d.verdict === "convicted" ? "convicted" : "cleared", self: mine });
   }
 
   // The You card's street lines (ui.js asks game.youExtras()).
@@ -596,6 +839,13 @@ class Moments {
     if (this.jail) out.push(el("p", { class: "mo-you bad" }, `Held at the police station until ${hhmm(this.jail.until)}.`));
     else if (this.wanted) out.push(el("p", { class: "mo-you bad" }, `Wanted for ${this.wanted.toLowerCase()}. Patrols pick up wanted people out in the open.`));
     else out.push(el("p", { class: "hint" }, "Not wanted by the police."));
+    // Your case (D-083).
+    const ct = this.court;
+    if (ct && ct.status === "hearing") out.push(el("p", { class: "mo-you bad" }, "Your hearing is under way: plead guilty or not guilty."));
+    else if (this.courtDate()) out.push(el("p", { class: "mo-you bad", dataset: { court: "date" } }, `Your hearing: ${this.dayTime(this.courtDate())} at ${this.courthouseName()}.`));
+    if (ct && ct.service) out.push(el("p", { class: "mo-you" }, `Community service: ${ct.service.hours_left} h left, due ${this.dayTime(ct.service.due)}.`));
+    if (ct && typeof ct.probation_until === "number") out.push(el("p", { class: "mo-you" }, `On probation until ${this.dayTime(ct.probation_until)}: convicted again, it's time in a cell.`));
+    if (ct && ct.defending) out.push(el("p", { class: "mo-you" }, `You're defending ${ct.defending.client}${typeof ct.defending.hearing_at === "number" ? `, ${this.dayTime(ct.defending.hearing_at)}` : ""}.`));
     const box = el("input", { type: "checkbox", checked: this.walkAway === true, onchange: async () => {
       box.disabled = true;
       const r = await this.game.req("fight_prefs", { walk_away: box.checked });
@@ -652,6 +902,46 @@ class Moments {
     const s = r.project(p[0], p[1], 0);
     return [s[0], s[1] - 20, 16];
   }
+}
+
+// ------------------------------------------------------------------ the Court app (phone.js, D-083)
+// Your cases as the court shows them to you: the charges, the date, the honest odds and the sentence; the cases you're
+// the victim in; the ones you defend; the bench's docket if you sit on it.
+export function courtScreen(d) {
+  const phone = this, game = phone.game, m = game.moments;
+  const card = (...c) => el("div", { class: "card" }, c);
+  const when = t => (typeof t === "number" && m ? m.dayTime(t) : "not set yet");
+  const charges = v => (m ? m.charges(v) : (v.charges || []).map(c => c.label).join(", "));
+  const out = [];
+  const rules = d.rules || {};
+  const mine = Array.isArray(d.cases) ? d.cases : [];
+  if (!mine.length) out.push(card(el("div", { class: "eyebrow" }, "Your cases"), el("p", { class: "hint" }, "No cases. Charged with a crime the court tries, your case and its date show here.")));
+  for (const v of mine) {
+    const decided = v.status === "decided";
+    const rows = [el("div", { class: "eyebrow" }, decided ? `Decided · ${v.verdict === "convicted" ? "convicted" : "dismissed"}` : v.status === "warrant" ? "Warrant: you missed your hearing" : v.status === "hearing" ? "Hearing under way" : "Summoned"),
+      el("h3", null, charges(v)),
+      el("p", { class: "hint" }, decided ? (v.sentence ? `Sentence: ${v.sentence.text}.` : "Nothing on your record.") : `Hearing: ${when(v.hearing_at)} at ${v.courthouse}.`)];
+    if (!decided && v.odds) rows.push(el("p", null, `Plead not guilty: ${pct(v.odds.convicted_if_not_guilty)} you're convicted${v.odds.final ? "" : ", as things stand"}. Guilty: ${v.if_guilty_plea ? v.if_guilty_plea.text : "?"}.`),
+      el("p", { class: "hint" }, m ? `${m.evidenceText(v.evidence)}. ${m.lawyerText(v)}` : ""));
+    if (decided && v.sentence && v.sentence.service_hours) rows.push(el("p", { class: "hint" }, `Community service: ${v.sentence.service_done || 0} of ${v.sentence.service_hours} h done${v.sentence.breached ? " (a warrant: it wasn't done in time)" : ""}.`));
+    const actions = [];
+    if (v.status === "hearing" && m) actions.push(el("button", { type: "button", class: "btn small", onclick: () => { phone.close(); m.showCourtroom(v); } }, "Plead"));
+    if (v.status === "summoned") actions.push(el("button", { type: "button", class: "btn small", onclick: () => { phone.close(); game.goTo(v.courthouse_id); } }, icon("go"), "Go to court"));
+    if (!decided && v.lawyer && v.lawyer.kind === "none" && v.lawyers && m) actions.push(el("button", { type: "button", class: "btn small", onclick: e => m.hireFirm(v, e.currentTarget).then(() => phone.reload()) }, `Hire ${v.lawyers.firm.name} · ${money(v.lawyers.firm.fee_cents)}`));
+    if (actions.length) rows.push(el("div", { class: "row" }, actions));
+    out.push(el("div", { class: "card", dataset: { case: v.case } }, rows));
+  }
+  for (const v of d.defending || []) out.push(card(el("div", { class: "eyebrow" }, v.lawyer && v.lawyer.agreed ? "You defend" : "Asked to defend"), el("h3", null, `${v.accused_name}: ${charges(v)}`),
+    el("p", { class: "hint" }, `Hearing: ${when(v.hearing_at)} at ${v.courthouse}. Be in the courtroom: that's when you're paid and count.`),
+    !(v.lawyer && v.lawyer.agreed) && m ? el("div", { class: "row" }, el("button", { type: "button", class: "btn small", onclick: () => { phone.close(); m.showBrief(v); } }, "Answer")) : null));
+  for (const v of d.as_victim || []) out.push(card(el("div", { class: "eyebrow" }, "Your case against someone"), el("h3", null, `${v.accused_name}: ${charges(v)}`),
+    el("p", { class: "hint" }, v.status === "decided" ? (v.verdict === "convicted" ? `Convicted: ${v.sentence ? v.sentence.text : ""}.` : "Dismissed.") : `Hearing: ${when(v.hearing_at)} at ${v.courthouse}. It's public: come, and your word counts for more.`)));
+  if (Array.isArray(d.docket)) out.push(card(el("div", { class: "eyebrow" }, "The docket"), d.docket.length
+    ? el("ul", { class: "list" }, d.docket.map(k => el("li", null, el("span", null, `${k.hearing_text}: ${k.accused_name}`), el("span", { class: "hint" }, ` · ${(k.charges || []).join(", ")}${k.status === "hearing" ? " · under way" : ""}`))))
+    : el("p", { class: "hint" }, "No hearings set.")));
+  if (rules.courthouse_name) out.push(card(el("div", { class: "eyebrow" }, "How the court works"),
+    el("p", { class: "hint" }, `${rules.courthouse_name} sits ${(rules.sitting_days || []).join(", ")}, ${String(rules.sitting_hours[0]).padStart(2, "0")}:00 to ${String(rules.sitting_hours[1]).padStart(2, "0")}:00. Pleading guilty takes ${Math.round(rules.guilty_plea_discount * 100)}% off the sentence. ${rules.firm ? `${rules.firm.name} defends anyone for ${money(rules.firm.fee_cents)}.` : ""} Only employers that need a clean record see a conviction, and only until it's spent (${rules.record_days ? rules.record_days.conviction : "?"} days).`)));
+  return out;
 }
 
 // ------------------------------------------------------------------ the Story app (phone.js)

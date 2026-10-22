@@ -30,7 +30,7 @@ export const APP_NAMES = {
   social: "Social", bank: "Bank", messages: "Messages", map: "Map", transit: "Transit", career: "Career", contacts: "People", calendar: "Calendar",
   notifications: "Alerts", wallet: "Wallet", work: "Work", jobs: "Jobs", homes: "Homes", property: "Property", health: "Health",
   items: "Items", store: "Store", school: "School", studio: "Studio", record: "Record", romance: "Romance", family: "Family",
-  fame: "Fame", sports: "Sports", pets: "Pets", weather: "Weather", city: "City", goals: "Goals", story: "Story",
+  fame: "Fame", sports: "Sports", pets: "Pets", weather: "Weather", city: "City", goals: "Goals", story: "Story", court: "Court",
 };
 const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const pad = n => String(n).padStart(2, "0");
@@ -403,6 +403,27 @@ export async function placeActions(game, place) {
       out.push({ key: `perform:${s.id}`, kind: "perform", label: `Perform “${s.title}”`, detail: `${s.by}${s.released ? "" : " · not released yet"}`,
         run: () => atDoorThen(game, p, () => verbs.perform(game, s.id)) });
     }
+  }
+  // The court (D-083): your hearing at the courthouse, community service where it's done.
+  const court = w.court, rules = (w.rules && w.rules.court) || null;
+  if (rules && court && p.id === rules.courthouse && game.moments) {
+    if (court.status === "hearing")
+      out.push({ key: "court:plead", kind: "court", primary: true, label: "Your hearing: plead", detail: "guilty or not guilty, with the odds",
+        run: async () => { await game.moments.openCourtroom(court.case); return { ok: true, announced: true }; } });
+    else if (court.status === "summoned" && typeof court.hearing_at === "number")
+      out.push({ key: "court:date", kind: "court", label: "Your hearing", detail: `${game.moments.dayTime(court.hearing_at)}: be here then`,
+        run: async () => { await game.moments.openSummons(court.case); return { ok: true, announced: true }; } });
+  }
+  const service = court && court.service;
+  if (rules && service && p.id === rules.community_service.place) {
+    const action = service.serving ? "stop" : "start";
+    out.push({ key: `service:${action}`, kind: "service", primary: !service.serving, label: service.serving ? "Stop community service" : "Do community service",
+      detail: `${service.hours_left} h left${typeof service.due === "number" && game.moments ? `, due ${game.moments.dayTime(service.due)}` : ""}${inside ? "" : " · you'll walk in first"}`,
+      run: () => insideThen(game, p, async () => {
+        const r = await game.req("community_service", { action });
+        if (r.ok) { r.summary = action === "start" ? `Community service: ${r.data.hours_left} h left. It counts while you stay.` : `Stopped: ${r.data.hours_left} h left.`; if (game.moments) game.moments.lookSoon(); }
+        return r;
+      }) });
   }
   out.push(...await streetActionsAt(game, p, inside));
   return out;
