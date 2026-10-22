@@ -239,16 +239,17 @@ button.chip { cursor: pointer; text-align: left; }
 #dock { position: absolute; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; flex-direction: column; pointer-events: none; }
 #dock > * { pointer-events: auto; }
 #next { margin: 0 var(--gut-r) 6px var(--gut-l); background: linear-gradient(180deg, rgba(15, 50, 41, .97), rgba(11, 43, 35, .97)); border: 1px solid var(--line-strong);
-  border-radius: 16px; padding: 10px 10px 10px 14px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 10px 30px rgba(3, 17, 14, .42); }
+  border-radius: 14px; padding: 7px 8px 7px 12px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 10px 30px rgba(3, 17, 14, .42); }
 .next-main { display: flex; align-items: center; gap: 10px; }
-.next-title { font: 600 1.375rem/1.15 var(--display); color: var(--ivory); display: flex; align-items: center; gap: 8px; margin-top: 1px; }
+.next-title { font: 600 1.125rem/1.15 var(--display); color: var(--ivory); display: flex; align-items: center; gap: 8px; margin-top: 1px; }
 .next-title .icon { width: 20px; height: 20px; color: var(--gold); }
 .next-title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
-.next-detail { font-size: var(--fs-sm); color: #e2d6bd; margin-top: 1px; }
+.next-detail { font-size: var(--fs-xs); color: #e2d6bd; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.next-text { min-width: 0; flex: 1 1 auto; }
 .next-text .source { margin-top: 2px; }
-.next-go { flex: none; min-width: 72px; min-height: 52px; border-radius: 14px; font-size: var(--fs-lg); }
+.next-go { flex: none; min-width: 64px; min-height: 44px; border-radius: 12px; font-size: var(--fs-md); }
 #next.need-urgent { border-color: var(--alarm-line); background: linear-gradient(180deg, rgba(107, 38, 34, .97), rgba(80, 28, 25, .97)); }
-.morning { display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--line); padding-top: 8px; }
+.morning { display: flex; align-items: center; gap: 8px; border-top: 1px solid var(--line); padding-top: 6px; }
 .morning-open { flex: 1 1 auto; min-width: 0; min-height: 44px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 1px;
   background: none; border: 0; padding: 0; text-align: left; cursor: pointer; color: var(--fg); }
 .morning-next { font-size: var(--fs-md); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
@@ -309,21 +310,34 @@ button.chip { cursor: pointer; text-align: left; }
 
 /* ---------------------------------------------------------------- the card (sheet), three heights */
 #sheet { position: absolute; left: 0; right: 0; bottom: var(--base-h); z-index: 15; background: linear-gradient(180deg, #0f3229, var(--panel) 120px);
-  border: 1px solid var(--line-strong); border-bottom: 0; border-radius: 18px 18px 0 0; max-height: min(54vh, calc(100% - var(--base-h) - var(--top-h, 60px)));
-  overflow-y: auto; overscroll-behavior: contain; padding: 0 var(--gut-r) 14px var(--gut-l); box-shadow: 0 -10px 34px rgba(3, 17, 14, .5); }
+  border: 1px solid var(--line-strong); border-bottom: 0; border-radius: 16px 16px 0 0; max-height: min(44vh, calc(100% - var(--base-h) - var(--top-h, 60px)));
+  overflow-y: auto; overscroll-behavior: contain; padding: 0 var(--gut-r) 10px var(--gut-l); box-shadow: 0 -10px 34px rgba(3, 17, 14, .5); }
 #sheet[data-height="peek"] { max-height: 172px; }
 #sheet[data-height="full"] { max-height: calc(100% - var(--base-h) - var(--top-h, 60px)); height: calc(100% - var(--base-h) - var(--top-h, 60px)); }
 #sheet.dragging { transition: none; }
 #sheet.mini { max-height: none; height: auto; overflow: visible; background: var(--panel); padding-top: 8px; padding-bottom: 8px; }
 .sheet-grip { position: sticky; top: 0; z-index: 2; display: flex; justify-content: center; align-items: center; width: calc(100% + var(--gut-l) + var(--gut-r)); margin: 0 calc(-1 * var(--gut-r)) 0 calc(-1 * var(--gut-l));
-  height: 22px; min-height: 22px; background: #0f3229; border: 0; padding: 0; cursor: ns-resize; touch-action: none; border-radius: 18px 18px 0 0; }
-.sheet-grip::before { content: ""; width: 40px; height: 4px; border-radius: 2px; background: var(--line-strong); }
+  height: 14px; min-height: 14px; background: #0f3229; border: 0; padding: 0; cursor: ns-resize; touch-action: none; border-radius: 16px 16px 0 0; }
+.sheet-grip::before { content: ""; width: 36px; height: 4px; border-radius: 2px; background: var(--line-strong); }
 .sheet-grip:hover::before { background: var(--gold); }
-.sheet-head { position: sticky; top: 22px; background: #0f3229; display: flex; align-items: flex-start; gap: 10px; padding: 2px 0 8px; z-index: 1;
-  border-bottom: 1px solid var(--line); margin-bottom: 4px; }
-.sheet-head .grow h2 { font-size: var(--fs-xl); overflow-wrap: anywhere; color: var(--ivory); outline: none; }
-.sheet-head .grow .sub { margin-top: 2px; }
-.sheet-body { display: flex; flex-direction: column; gap: 12px; padding-top: 4px; }
+/* Compact cards (D-085): one slim title row, small chips for actions, two needs to a row; the map stays in view. */
+.sheet-head { position: sticky; top: 14px; background: #0f3229; display: flex; align-items: center; gap: 8px; padding: 0 0 6px; z-index: 1;
+  border-bottom: 1px solid var(--line); margin-bottom: 2px; }
+.sheet-head .grow { min-width: 0; }
+.sheet-head .grow h2 { font-size: 1.1875rem; line-height: 1.2; overflow-wrap: anywhere; color: var(--ivory); outline: none; }
+.sheet-head .eyebrow { font-size: 0.6875rem; }
+.sheet-head .grow .sub { margin-top: 1px; }
+.sheet-head .av { width: 40px; height: 40px; flex: none; }
+.sheet-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: var(--fs-xs); color: var(--muted); margin-top: 2px; }
+.sheet-meta .badge { padding: 3px 6px 2px; font-size: 0.625rem; }
+.sheet-body { display: flex; flex-direction: column; gap: 8px; padding-top: 4px; }
+#sheet .btn { padding: 6px 12px; font-size: 0.875rem; border-radius: 10px; }
+#sheet .btn.small { padding: 4px 14px; font-size: 0.8125rem; border-radius: 999px; }
+#sheet .btn.link { padding: 4px 6px; }
+#sheet .hint { font-size: var(--fs-xs); line-height: 1.35; }
+#sheet .eyebrow { font-size: 0.6875rem; }
+#sheet .grid2 { display: flex; flex-wrap: wrap; gap: 6px; }
+#sheet .grid2 > .btn { flex: 0 0 auto; }
 .desc { font-family: var(--display); font-style: italic; font-weight: 500; font-size: 1.125rem; line-height: 1.3; color: #e2d6bd; }
 details.more { border-top: 1px solid var(--line); padding-top: 4px; }
 details.more > summary { list-style: none; cursor: pointer; min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -344,7 +358,7 @@ details.more > .more-body { display: flex; flex-direction: column; gap: 10px; pa
 .paywith { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .paywith .hint { color: var(--fg); }
 .acts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.act-btn { flex-direction: column; align-items: flex-start; text-align: left; gap: 2px; padding: 8px 12px; min-height: 52px; }
+.act-btn { flex-direction: column; align-items: flex-start; text-align: left; gap: 1px; padding: 6px 10px; min-height: 44px; }
 .act-btn .fx { font-size: var(--fs-xs); font-weight: 600; color: var(--emerald); }
 .act-btn.cooling { opacity: .62; border-style: dashed; }
 .act-btn.cooling .fx { color: var(--muted); }
@@ -365,6 +379,10 @@ details.more > .more-body { display: flex; flex-direction: column; gap: 10px; pa
 .bars .bar.good span { background: linear-gradient(90deg, #6f9f7d, var(--pos)); }
 .bars .bar.bad span { background: linear-gradient(90deg, #a2564f, var(--neg)); }
 .bars .lowtag { color: var(--neg); font-weight: 700; }
+#sheet .bars { grid-template-columns: 70px minmax(0, 1fr) 22px 70px minmax(0, 1fr) 22px; gap: 4px 8px; font-size: var(--fs-xs); }
+#sheet .bars > span:not(.money) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#sheet .bars .bar { height: 6px; }
+#sheet .bars .money { text-align: right; }
 .kv { display: grid; grid-template-columns: minmax(90px, auto) minmax(0, 1fr); gap: 4px 12px; font-size: 0.875rem; margin: 0; }
 .kv dt { color: var(--muted); font-size: var(--fs-sm); }
 .kv dd { margin: 0; overflow-wrap: anywhere; }

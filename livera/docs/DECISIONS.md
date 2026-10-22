@@ -1313,3 +1313,16 @@ tapping your bed does the same; `publicRules.sleep` says when.
 **Why:** The owner: "You need to be able to get energy by sleeping for a little longer." The web client never sent
 `sleep` at all, so the only rest was a +25 nap activity, and a night only settled energy toward 70.
 **Trade-off:** A nap is all or nothing: it ends rested or when you act, there is no alarm to set.
+
+## D-085 — Cards are compact: a slim title row, chips for actions, two needs to a row
+**Decision:** The owner: "I don't like the way the card looks where you click everything, it's too bulky." Every card
+(the sheet that opens when you tap a person, a place, yourself, a stop) keeps its content and loses its bulk. It opens
+at 44% of the screen instead of 54%, so the map stays in view. The title row is one slim line (a 19 px name), and on a
+person's card it carries their face and one line of badges, whether you've met and how far they are, instead of a row of
+its own. Actions are pill chips that wrap instead of a two-column grid of big buttons; whisper, their posts and a
+message share one row. Needs and feelings show two to a row with thin bars. The Next card is a slimmer row. Hints are a
+size smaller, and the person card's two explanations are shorter (the full "played by a script" sentence is the badge's
+tooltip).
+**Trade-off:** Every button keeps the client's 44 px touch height (`solo_e2e.js` checks it), so the saving comes from
+width, type and spacing, not from smaller targets: a card is still taller than a desktop menu would be. The
+drag-to-resize heights (peek, half, full) are unchanged.

@@ -1015,14 +1015,14 @@ export class UI {
     const distText = el("span", { class: "hint" }), metText = el("span", { class: "hint" });
     const solo = document.body.dataset.boot === "solo";
     const body = [];
-    body.push(el("div", { class: "row" }, avatar(id, p.name, "big"), el("div", { class: "stack grow", style: { gap: "4px" } },
-      p.scripted ? el("span", null, el("span", { class: "badge script" }, "played by a script")) : null,
-      p.uniform === "police" ? el("span", null, el("span", { class: "badge police" }, "police officer on duty")) : null,
-      p.passedOut ? el("span", null, el("span", { class: "badge closed" }, "passed out")) : null, metText, distText)));
-    if (p.scripted) body.push(el("p", { class: "hint" }, "A script chooses where this character goes and what they do; the game's rules decide every outcome, as for everyone."));
+    // Who they are fits in the card's title row (D-085): face, name, and one line of badges, met and distance.
+    const meta = el("div", { class: "sheet-meta" },
+      p.scripted ? el("span", { class: "badge script", title: "A script chooses where they go and what they do; the game's rules decide every outcome, as for everyone." }, "played by a script") : null,
+      p.uniform === "police" ? el("span", { class: "badge police" }, "police officer on duty") : null,
+      p.passedOut ? el("span", { class: "badge closed" }, "passed out") : null, metText, distText);
     // A figure that isn't their picture says so (D-067, D-073).
     const art = artStatus(id);
-    if (art === "standin") body.push(el("p", { class: "hint", dataset: { art: "standin" } }, "No picture of them yet: they're drawn as a stand-in in their own colours until their art is made."));
+    if (art === "standin") body.push(el("p", { class: "hint", dataset: { art: "standin" } }, "No picture of them yet: drawn as a stand-in in their own colours."));
     else if (art === "plain") body.push(el("p", { class: "hint", dataset: { art: "plain" } }, "Drawn as a stand-in: the game doesn't show other players how a made character looks."));
     body.push(el("div", { class: "eyebrow" }, "Talk"));
     if (w.interactions && w.interactions.length) {
@@ -1033,11 +1033,11 @@ export class UI {
       }, i.label))));
       body.push(el("p", { class: "hint" }, "Too far? You'll walk over first."));
     } else body.push(el("p", { class: "notice" }, "This server doesn't publish its list of interactions yet (it arrives with the newer protocol)."));
-    body.push(el("button", { type: "button", class: "btn block", onclick: () => { this.closeSheet(); this.whisperToPerson(id); } }, `Whisper to ${firstName(p.name)}`));
-    // Their posts, and a message (D-074): what anyone could read about them, and a private thread.
-    body.push(el("div", { class: "row" },
-      el("button", { type: "button", class: "btn grow", dataset: { profile: id }, onclick: () => g.openPhone("social", { profile: id }) }, `${firstName(p.name)}'s posts`),
-      el("button", { type: "button", class: "btn grow", onclick: () => g.openPhone("messages", { to: id }) }, "Message")));
+    // Whisper, their posts and a message (D-074: what anyone could read about them, and a private thread), as one row of chips.
+    body.push(el("div", { class: "grid2" },
+      el("button", { type: "button", class: "btn small", onclick: () => { this.closeSheet(); this.whisperToPerson(id); } }, `Whisper to ${firstName(p.name)}`),
+      el("button", { type: "button", class: "btn small", dataset: { profile: id }, onclick: () => g.openPhone("social", { profile: id }) }, `${firstName(p.name)}'s posts`),
+      el("button", { type: "button", class: "btn small", onclick: () => g.openPhone("messages", { to: id }) }, "Message")));
 
     // Give or pay: a tip from your bank, LivPay from your phone, or something you own.
     const amount = el("input", { type: "number", inputmode: "decimal", min: "1", step: "1", class: "input", value: "5", "aria-label": "Dollars" });
@@ -1081,12 +1081,12 @@ export class UI {
     const streetBox = el("div", { class: "stack", hidden: true });  // street verbs (verbs.js personActions, D-069/D-070)
     body.push(streetBox);
 
-    this.openSheet("person", id, this.head(p.known ? "Someone you know" : "Someone nearby", p.name), body, now => {
+    this.openSheet("person", id, [avatar(id, p.name, "mid"), this.head(p.known ? "Someone you know" : "Someone nearby", p.name, meta)], body, now => {
       const pp = w.people.get(id);
-      metText.textContent = pp && pp.known ? "You've met." : "You haven't met yet.";
-      if (!pp) { distText.textContent = "Out of sight now."; return; }
+      metText.textContent = pp && pp.known ? "You've met" : "You haven't met";
+      if (!pp) { distText.textContent = "out of sight now"; return; }
       const d = w.distanceTo(id, now);
-      distText.textContent = d === 0 ? "Here with you." : isFinite(d) ? `${Math.round(d)} m away` : "";
+      distText.textContent = d === 0 ? "here with you" : isFinite(d) ? `${Math.round(d)} m away` : "";
     });
     this.personSection(streetBox, p);
   }
