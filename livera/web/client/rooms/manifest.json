@@ -149,6 +149,21 @@
    1024
   ]
  },
+ "founders_row_3": {
+  "offset": [
+   0,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1529,
+   976
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
  "founders_school": {
   "offset": [
    8,
@@ -237,6 +252,36 @@
   "source": [
    726,
    514
+  ]
+ },
+ "lakeview_1a_2b_3a_4c": {
+  "offset": [
+   4,
+   7
+  ],
+  "scale": 1.0,
+  "size": [
+   1524,
+   1017
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "lexington_0602": {
+  "offset": [
+   16,
+   6
+  ],
+  "scale": 1.0,
+  "size": [
+   1516,
+   1012
+  ],
+  "source": [
+   1536,
+   1024
   ]
  },
  "lexington_0807_1502": {

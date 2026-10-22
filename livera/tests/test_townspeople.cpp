@@ -312,11 +312,22 @@ TEST_CASE("creator: a name someone in the town already has is refused (name_take
 
 namespace {
 
-// The content as it was before D-073: no residents or townspeople in data, none of their homes, no town life.
+// The content as it was before D-073: no residents or townspeople in data, none of their homes (nor those homes'
+// rooms), no town life.
 std::shared_ptr<const ContentDatabase> beforeTheTownspeople() {
-  return patchedContent([](Json& doc, const std::string& file) {
+  std::set<std::string> theirHomes;
+  std::ifstream in(std::filesystem::path(LIVERA_DATA_DIR) / "world" / "town_homes.json");
+  const Json townHomes = Json::parse(in, nullptr, true, true);
+  for (const auto& loc : townHomes.at("locations")) theirHomes.insert(loc.at("id").get<std::string>());
+  return patchedContent([&](Json& doc, const std::string& file) {
     if (file == "town_homes.json" || file == "town_life.json") {
       doc = Json::object();
+      return;
+    }
+    if (doc.contains("interior")) {
+      const Json& places = doc["interior"]["places"];
+      const auto theirs = [&](const Json& p) { return theirHomes.count(p.get<std::string>()) > 0; };
+      if (std::any_of(places.begin(), places.end(), theirs)) doc = Json::object();
       return;
     }
     if (!doc.contains("characters")) return;
