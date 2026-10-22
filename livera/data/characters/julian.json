@@ -94,6 +94,12 @@
           "face": "strong, clean jawline, quick crooked smile",
           "hair": "textured black hair, tousled",
           "style": "black leather jacket, charcoal crewneck sweater, black slim trousers, white sneakers, matte black watch, laptop in hand",
+          "outfits": {
+            "everyday": "heather-grey hoodie, black slim joggers, white sneakers, matte black watch, canvas backpack",
+            "work": "black leather jacket, charcoal crewneck sweater, black slim trousers, white sneakers, matte black watch, laptop in hand",
+            "evening": "charcoal unstructured blazer over a black tee, black slim jeans, black leather Chelsea boots, matte black watch",
+            "drawn": "work"
+          },
           "silhouette": "leather jacket, always moving",
           "key_features": [
             "Dark, expressive eyes",

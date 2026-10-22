@@ -151,8 +151,10 @@
           "silhouette": "sharp-shouldered blazer over a defined waist; wide-leg trousers to the floor",
           "palette": ["black", "blush pink", "burgundy", "gold"],
           "outfits": {
+            "everyday": "camel coat over the shoulders, cream ribbed knit, taupe wide-leg trousers, nude pointed heels, cognac top-handle bag",
             "work": "black double-breasted blazer, blush-pink wrap blouse, black wide-leg trousers, black patent pumps, burgundy top-handle bag",
-            "weekend": "camel coat over the shoulders, cream ribbed knit, taupe wide-leg trousers, nude pointed heels, cognac top-handle bag"
+            "evening": "burgundy satin one-shoulder midi dress, black blazer over the shoulders, black strappy heels, gold cuff, black satin clutch",
+            "drawn": "work"
           },
           "key_features": [
             "Long jet-black hair: straight at 19, a messy bun at 24, full body waves now",

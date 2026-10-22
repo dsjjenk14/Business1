@@ -105,6 +105,12 @@
           "face": "a grey-flecked short beard, a nose broken once",
           "hair": "close-cropped, greying at the temples",
           "style": "on duty: navy Livéra PD uniform shirt with sergeant's stripes, navy trousers, black duty boots; off duty: a grey cardigan over a polo",
+          "outfits": {
+            "everyday": "a grey cardigan over a navy polo, khaki chinos, brown leather loafers, the steel wedding band",
+            "work": "navy Livéra PD uniform shirt with sergeant's stripes, navy trousers, black duty belt, black duty boots",
+            "evening": "a charcoal sport coat over a light-blue shirt, dark grey trousers, polished black shoes, the steel wedding band",
+            "drawn": "work"
+          },
           "jewelry": "a steel wedding band, a plain watch",
           "silhouette": "a broad man in navy who stands very still",
           "key_features": [
@@ -121,7 +127,11 @@
             "top": "#1f2d4a",
             "bottom": "#1a2540",
             "shoes": "#121212",
-            "accent": "#c9a64b"
+            "accent": "#c9a64b",
+            "outfits": {
+              "everyday": {"top": "#7d7f84", "bottom": "#b5a27e", "shoes": "#5a3a22"},
+              "evening": {"top": "#3a3c41", "bottom": "#2c2e33", "shoes": "#121212", "accent": "#a9c4e0"}
+            }
           }
         },
         "family_background": "South Side Chicago, the son of a postal carrier and a nurse. His wife Denise and their twins stay in Chicago until the school year ends.",

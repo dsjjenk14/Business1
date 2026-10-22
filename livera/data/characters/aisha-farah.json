@@ -90,6 +90,12 @@
           "face": "high cheekbones, a quick smile she rations",
           "hair": "a navy hijab pinned neatly under her cap on duty, a sand-coloured one off duty",
           "style": "on duty: navy Livéra PD uniform shirt and trousers, black duty boots; off duty: a long olive coat over running gear",
+          "outfits": {
+            "everyday": "a sand-coloured hijab, a long olive coat over a black running top, black running leggings, grey running shoes, the slim silver watch",
+            "work": "navy Livéra PD uniform shirt and trousers, a navy hijab pinned neatly under her cap, black duty belt, black duty boots",
+            "evening": "a blush-pink hijab, a long-sleeved emerald satin maxi dress, nude block heels, a small gold clutch, the slim silver watch",
+            "drawn": "work"
+          },
           "jewelry": "a slim silver watch",
           "silhouette": "a slim officer in navy with a neat hijab",
           "key_features": ["Neatly pinned hijab", "High cheekbones", "A rationed smile", "Uniform worn exactly right"],
@@ -100,7 +106,11 @@
             "top": "#1f2d4a",
             "bottom": "#1a2540",
             "shoes": "#121212",
-            "headwear": "#24345a"
+            "headwear": "#24345a",
+            "outfits": {
+              "everyday": {"top": "#5d6436", "bottom": "#1c1c1e", "shoes": "#8d9096", "headwear": "#d8c3a0"},
+              "evening": {"top": "#1e6a50", "bottom": "#1e6a50", "shoes": "#c9a589", "headwear": "#e3b4b0"}
+            }
           }
         },
         "family_background": "Born in Mogadishu, raised in Minneapolis's Cedar-Riverside towers. Her mother runs a tailoring shop; her four brothers all think she should have been a pharmacist.",

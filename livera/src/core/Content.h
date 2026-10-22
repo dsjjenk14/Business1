@@ -133,6 +133,21 @@ struct ItemDef {
   bool illegal = false;      // carrying it is possession
   std::string test;          // a home test: "pregnancy"
   bool contraception = false;  // used up during intimacy when protection is chosen
+  // D-079: one of everyone's own three looks (everyday, work, evening). Everyone always owns it; it is never in an
+  // inventory, sold or given. What it looks like on someone is their profile.appearance.outfits[look].
+  bool personal = false;
+  std::string look;
+  std::string description;   // a personal look's line for someone whose data describes none (made in the creator)
+};
+
+// D-079: the three personal looks, in the order they're shown.
+inline const std::vector<std::string> kOutfitLooks = {"everyday", "work", "evening"};
+
+// Which clothes someone is seen in (D-079, Outfits.cpp): one of their personal looks, their drawn look when they haven't
+// chosen (the clothes their art shows), or "other" for a bought outfit, named by label.
+struct WornLook {
+  std::string look;
+  std::string label;  // only for "other"
 };
 
 // Dating, marriage, intimacy and having children (data/society/romance.json).
@@ -1366,6 +1381,7 @@ class ContentDatabase {
   const LifeConfig& life() const { return life_; }
   const std::map<std::string, ItemDef>& items() const { return items_; }
   const ItemDef* item(const std::string& id) const;
+  const ItemDef* personalItem(const std::string& look) const;  // D-079: the personal item for a look, or null
   const TransitConfig& transit() const { return transit_; }
   const EducationConfig& education() const { return education_; }
   const CrimeConfig& crime() const { return crime_; }
@@ -1481,6 +1497,7 @@ class ContentDatabase {
   Status validateGoals() const;
   Status ingestManners(const std::string& source, const std::string& section, const Json& body, bool& handled);
   Status validateManners() const;
+  Status validateOutfits() const;  // personal looks and everyone's outfits (Outfits.cpp, D-079)
   Status ingestTownLife(const std::string& source, const std::string& section, const Json& body, bool& handled);
   Status validateTownLife() const;
   Status validateCast() const;  // casts, shared homes and starting partners (D-073)

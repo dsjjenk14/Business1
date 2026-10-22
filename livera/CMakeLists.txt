@@ -92,6 +92,7 @@ add_library(livera_core
   src/core/Away.cpp
   src/core/WorldParts.cpp
   src/core/Items.cpp
+  src/core/Outfits.cpp
   src/core/Ledger.cpp
   src/core/Life.cpp
   src/core/Music.cpp
@@ -179,6 +180,7 @@ add_executable(livera_tests
   tests/test_cast.cpp
   tests/test_life.cpp
   tests/test_items.cpp
+  tests/test_outfits.cpp
   tests/test_school.cpp
   tests/test_crime.cpp
   tests/test_romance.cpp

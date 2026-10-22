@@ -98,6 +98,12 @@
           "face": "oval face, full lips, natural makeup",
           "hair": "a sleek, long black high ponytail",
           "style": "olive-green zip track jacket over a white crop top, black leggings, white trainers",
+          "outfits": {
+            "everyday": "olive-green zip track jacket over a white crop top, black leggings, white trainers, plain black watch",
+            "work": "fitted black tee, black slim trousers, black trainers, a Thread & Co. name badge on a black lanyard, plain black watch",
+            "evening": "fitted black one-shoulder midi dress, black strappy heels, gold hoops, small red clutch",
+            "drawn": "everyday"
+          },
           "jewelry": "a plain black smartwatch, small studs",
           "silhouette": "a high ponytail and a fitted track jacket",
           "key_features": [

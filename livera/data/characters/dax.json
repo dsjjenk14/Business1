@@ -103,6 +103,12 @@
           "face": "close-trimmed full beard, full lips, a small scar through the left eyebrow, confident warm expression",
           "hair": "short waves with a crisp lineup",
           "style": "work: black fitted polo, black trousers, silver watch, laptop under his arm; evening: white tee, gold chain, gold watch, black jeans",
+          "outfits": {
+            "everyday": "heather-grey crewneck sweatshirt with the sleeves pushed up, black tapered joggers, black-and-white running shoes, silver watch, diamond studs",
+            "work": "black fitted polo, black trousers, black leather shoes, silver watch, laptop under his arm",
+            "evening": "white tee, gold chain, gold watch, black jeans, black suede Chelsea boots, diamond studs",
+            "drawn": "work"
+          },
           "silhouette": "broad shoulders, tattooed forearms, all-black work uniform",
           "key_features": [
             "Close-trimmed full beard",

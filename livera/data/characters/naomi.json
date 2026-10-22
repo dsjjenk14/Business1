@@ -88,6 +88,12 @@
           "face": "almond-shaped eyes with winged liner, defined jawline, glossy nude lip",
           "hair": "sleek chin-length bob, side part",
           "style": "oversized black blazer, white tank, high-waisted black wide-leg trousers, black pointed heels, black structured top-handle bag, silver hoops and ear cuffs",
+          "outfits": {
+            "everyday": "oversized white poplin shirt, black straight-leg jeans, black leather loafers, black leather tote, silver ear cuffs",
+            "work": "oversized black blazer, white tank, high-waisted black wide-leg trousers, black pointed heels, black structured top-handle bag",
+            "evening": "black asymmetric one-shoulder column gown, silver cuff, black pointed heels, small silver box clutch, silver ear cuffs",
+            "drawn": "work"
+          },
           "silhouette": "architectural black tailoring, all straight lines",
           "key_features": [
             "Almond-shaped eyes",

@@ -188,6 +188,7 @@ Result<Json> World::look(const CharacterId& actor) const {
     }
   }
 
+  addLook(*c, you);  // the clothes people see you in (Outfits.cpp, D-079)
   return Json{{"time", timeJson(state_.now)}, {"you", you}, {"here", here}, {"people", people}, {"nearby", nearby}};
 }
 
@@ -257,6 +258,7 @@ bool World::inSight(const CharacterState& viewer, const CharacterState& other) c
 SeenPerson World::seenNow(const CharacterState& c) const {
   SeenPerson m;
   m.inside = c.inside;
+  m.outfit = c.outfit;  // D-079
   m.position = c.position;
   // Only outdoors does a move target move anyone (advanceRealTime), so only then is it motion.
   if (c.moveTarget && c.inside.empty()) {
@@ -288,6 +290,7 @@ Json World::personJson(const CharacterState& viewer, const CharacterState& other
          {"name", od ? od->fullName() : other.id},
          {"known", self || (rel && rel->firstMetAt >= 0)},
          {"scripted", isScripted(other.id)}};
+  addLook(other, p);  // what they're wearing is public (D-079): a look, or "other" and its label
   if (isScripted(other.id)) p["played_by"] = playedBy(other.id);  // "script" (a bot_ account) or "autopilot"
   // A police officer on duty is in uniform: anyone who can see them can tell (D-069). Off duty (no key) they look
   // like anyone; each `people` entry is whole, so a client clears it when the key is missing.
@@ -327,6 +330,7 @@ void World::emitPeopleChanges() {
                   (!now.target && distance(now.position, was.position) > kStillMoveThreshold) ||
                   cutTargetStale(was, now.position, viewer.position, sight);
       }
+      if (!changed && it->second.outfit != now.outfit) changed = true;  // they changed clothes (D-079)
       if (!changed) continue;
       Json entry = personJson(viewer, *o);
       entry["self"] = o == &viewer;

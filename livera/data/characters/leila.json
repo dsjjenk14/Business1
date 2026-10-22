@@ -99,6 +99,12 @@
           "face": "prominent brows, defined cheekbones, a skeptical half-smile",
           "hair": "shoulder-length espresso waves",
           "style": "camel trench coat, black square-neck midi dress with a slit, black belt, black pointed ankle boots, oxblood top-handle bag, gold signet ring, gold hoops",
+          "outfits": {
+            "everyday": "oversized grey cashmere jumper, straight-leg dark jeans, black leather loafers, black canvas tote full of notebooks",
+            "work": "camel trench coat, black square-neck midi dress with a slit, black belt, black pointed ankle boots, oxblood top-handle bag",
+            "evening": "oxblood satin slip dress, black tailored blazer over the shoulders, black strappy sandals, gold hoops, gold signet ring",
+            "drawn": "work"
+          },
           "silhouette": "long trench coat over black, collar up",
           "key_features": [
             "Prominent brows",

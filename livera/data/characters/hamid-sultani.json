@@ -84,6 +84,12 @@
           "face": "a trimmed salt-and-pepper beard, a careful smile",
           "hair": "short, grey at the sides",
           "style": "Greenleaf's green apron over a pressed white shirt, grey slacks, polished black shoes",
+          "outfits": {
+            "everyday": "a charcoal wool overshirt over a pale blue shirt, grey slacks, brown leather shoes, reading glasses on a cord",
+            "work": "Greenleaf's green apron over a pressed white shirt, grey slacks, polished black shoes, reading glasses on a cord",
+            "evening": "a dark navy suit jacket over a crisp white shirt buttoned to the top, charcoal trousers, polished black shoes, the silver ring with the blue stone",
+            "drawn": "work"
+          },
           "jewelry": "a silver ring with a blue stone, reading glasses on a cord",
           "silhouette": "a lean man in a green apron standing very straight",
           "key_features": [
@@ -99,7 +105,11 @@
             "top": "#f2f2ee",
             "bottom": "#5f6368",
             "shoes": "#151515",
-            "apron": "#2f5d3a"
+            "apron": "#2f5d3a",
+            "outfits": {
+              "everyday": {"top": "#3e4044", "bottom": "#5f6368", "shoes": "#5a3a22"},
+              "evening": {"top": "#1f2a44", "bottom": "#33363b", "shoes": "#151515"}
+            }
           }
         },
         "family_background": "Born in Kabul, interpreter for US forces for eleven years, resettled in Sacramento on a special visa. His wife and two daughters stay in Sacramento while he finds them a home here.",

@@ -98,6 +98,12 @@
           "face": "large, expressive eyes, full lips, soft angular features",
           "hair": "long, voluminous defined curls",
           "style": "rust satin button-down, cream high-waisted wide-leg trousers, gold bangles, gold coin pendant, gold hoops, cognac structured bag, tan pumps",
+          "outfits": {
+            "everyday": "olive utility jacket over a white tee, light-wash straight jeans, tan leather sandals, gold bangles, canvas tote",
+            "work": "rust satin button-down, cream high-waisted wide-leg trousers, gold bangles, cognac structured bag, tan pumps",
+            "evening": "marigold silk wrap dress, gold strappy heels, gold bangles, gold hoops, small cognac clutch",
+            "drawn": "work"
+          },
           "silhouette": "flowing curls over a tailored, warm-toned outfit",
           "key_features": [
             "Large, expressive eyes",

@@ -89,6 +89,12 @@
           "face": "a long elegant face, a thin moustache, a gap-toothed smile",
           "hair": "shaved head",
           "style": "a charcoal waistcoat over a white shirt, sleeves rolled once, a long black bistro apron, polished oxblood shoes",
+          "outfits": {
+            "everyday": "a camel overcoat over a navy-and-cream Breton top, dark grey trousers, brown suede desert boots, the slim steel watch",
+            "work": "a charcoal waistcoat over a white shirt with the sleeves rolled once, a long black bistro apron, charcoal trousers, polished oxblood shoes, the wine key on its chain",
+            "evening": "a midnight-blue velvet dinner jacket over a black roll-neck, black tailored trousers, polished oxblood shoes, the slim steel watch",
+            "drawn": "work"
+          },
           "jewelry": "a wine key on a chain, a slim steel watch",
           "silhouette": "a tall man in a waistcoat and a long black apron",
           "key_features": ["Shaved head", "Thin moustache", "Charcoal waistcoat and long apron", "Wine key on a chain"],
@@ -99,7 +105,11 @@
             "top": "#3a3b3f",
             "bottom": "#2a2a2c",
             "shoes": "#5b1f1f",
-            "apron": "#141414"
+            "apron": "#141414",
+            "outfits": {
+              "everyday": {"top": "#b08a5a", "bottom": "#3c3f44", "shoes": "#7a5a3c"},
+              "evening": {"top": "#1d2440", "bottom": "#151517", "shoes": "#5b1f1f"}
+            }
           }
         },
         "family_background": "Born in Dakar, raised in Lyon by an aunt who ran a bouchon. Sommelier in Paris at twenty-eight, unemployable in Paris at thirty-two.",

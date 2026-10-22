@@ -106,6 +106,12 @@
           "face": "round face, dimples",
           "hair": "long black hair in a low bun, a pencil through it",
           "style": "ceil-blue scrubs, a navy fleece vest, white nursing clogs, a lanyard of badges",
+          "outfits": {
+            "everyday": "an oatmeal cardigan over a white tee, dark leggings, white trainers, small gold studs",
+            "work": "ceil-blue scrubs, a navy fleece vest, white nursing clogs, a lanyard of badges, the fob watch",
+            "evening": "a red floral wrap dress, nude block heels, small gold studs, the gold wedding band",
+            "drawn": "work"
+          },
           "jewelry": "a gold wedding band, small gold studs, a fob watch",
           "silhouette": "a small woman in blue scrubs moving fast",
           "key_features": ["Dimples", "Low bun with a pencil", "Ceil-blue scrubs", "Fob watch", "Moves fast"],
@@ -116,7 +122,11 @@
             "top": "#9cc3d9",
             "bottom": "#9cc3d9",
             "shoes": "#ecebe6",
-            "accent": "#22304a"
+            "accent": "#22304a",
+            "outfits": {
+              "everyday": {"top": "#d8c8ad", "bottom": "#2a2d36", "shoes": "#f0efea"},
+              "evening": {"top": "#b0303a", "bottom": "#b0303a", "shoes": "#c9a589"}
+            }
           }
         },
         "family_background": "Daly City, California, the fourth of five, in a house where every aunt was a nurse. Travelled nursing for six years before London, Samuel, and Houston.",

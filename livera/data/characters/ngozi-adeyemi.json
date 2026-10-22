@@ -89,6 +89,12 @@
           "face": "high forehead, small gold-rimmed glasses",
           "hair": "short natural hair, tapered, with a silver streak at the front",
           "style": "a long white coat over a teal ankara-print dress, flat brown loafers, a stethoscope",
+          "outfits": {
+            "everyday": "a navy trench coat over an indigo adire-print midi dress, flat tan sandals, small gold hoops",
+            "work": "a long white coat over a teal ankara-print dress, flat brown loafers, a stethoscope around her neck",
+            "evening": "an emerald-and-gold ankara wrap gown, gold block heels, a small gold clutch, the gold cross",
+            "drawn": "work"
+          },
           "jewelry": "small gold hoops, a gold cross",
           "silhouette": "a tall woman in a white coat with a flash of teal print",
           "key_features": [
@@ -104,7 +110,11 @@
             "hair_style": "short",
             "top": "#f2efe8",
             "bottom": "#1f6f73",
-            "shoes": "#6b4a2e"
+            "shoes": "#6b4a2e",
+            "outfits": {
+              "everyday": {"top": "#2b3a5c", "bottom": "#3e4f8f", "shoes": "#b08a5c"},
+              "evening": {"top": "#1d6b4c", "bottom": "#1d6b4c", "shoes": "#c9a64b"}
+            }
           }
         },
         "family_background": "Born in Ibadan, raised in Houston's Alief by a pharmacist father and a mother who ran a church choir. Divorced, no children, three godchildren she spoils.",
