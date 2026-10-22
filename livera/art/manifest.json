@@ -797,7 +797,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "The brick stoop, the plants, the books and the mismatched armchairs (a leather club chair and an emerald one) match the description. The bedroom sits up a half-flight of stairs over the kitchen, and the bath is a clawfoot tub.",
-        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+        "Traced (data/interiors/founders_row_3.json): you walk the ground floor from the hall inside the front door past the dining table, the island and the living room; the study, the bedroom up the half-flight and the bath are floors of their own (the stairs aren't floor, so going up is the room's usual straight walk). Seats: four dining chairs, three island stools, the sofa, the leather club chair, the emerald chair by the floor lamp (Nap in the reading chair), the desk chair, the bench at the foot of the bed, the armchair by the bedroom window (Read by the window), the vanity stool (shave, skincare and hair) and the bed for two. The clawfoot tub is Take a bath; the stove, the bin by the island, the bathroom sink and the toilet are where they're drawn. The TV on the stair wall is scenery: the data has no Watch TV here."
       ]
     },
     "lakeview_1a": {
@@ -805,7 +805,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md; one picture for the four Lakeview condos (1A, 2B, 3A and 4C), which the data describes alike.",
         "Two bedrooms, the balcony over Willow Lake with two lounge chairs, the laundry nook with a washer and dryer, the walk-in shower and the kitchen island match the prompt.",
-        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+        "Traced (data/interiors/lakeview_1a_2b_3a_4c.json, one room for all four condos): the living room with the balcony deck and its two lounge chairs (the prompt asked for the balcony only at the edge; the picture shows it whole, so it's walkable floor), the kitchen and dining table, the entry, both bedrooms, and the laundry nook with the bathroom. Seats: the L-sofa (Nap on its long side), the armchair, the lounge chairs, four dining chairs, three island stools, the bench and the vanity stool in the main bedroom, and a bed for two in each bedroom. The shower, the stove, the bin, the bathroom sink and the toilet are where they're drawn; the washer and dryer are furniture (laundry at home is a verb, not a spot). The TV is scenery: the data has no Watch TV here. The front door is drawn much taller than the second bedroom's door; the room's scale follows the furniture."
       ]
     },
     "lakeview_2b": {
@@ -813,7 +813,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md; one picture for the four Lakeview condos (1A, 2B, 3A and 4C), which the data describes alike.",
         "Two bedrooms, the balcony over Willow Lake with two lounge chairs, the laundry nook with a washer and dryer, the walk-in shower and the kitchen island match the prompt.",
-        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+        "Traced (data/interiors/lakeview_1a_2b_3a_4c.json, one room for all four condos): the living room with the balcony deck and its two lounge chairs (the prompt asked for the balcony only at the edge; the picture shows it whole, so it's walkable floor), the kitchen and dining table, the entry, both bedrooms, and the laundry nook with the bathroom. Seats: the L-sofa (Nap on its long side), the armchair, the lounge chairs, four dining chairs, three island stools, the bench and the vanity stool in the main bedroom, and a bed for two in each bedroom. The shower, the stove, the bin, the bathroom sink and the toilet are where they're drawn; the washer and dryer are furniture (laundry at home is a verb, not a spot). The TV is scenery: the data has no Watch TV here. The front door is drawn much taller than the second bedroom's door; the room's scale follows the furniture."
       ]
     },
     "lakeview_3a": {
@@ -821,7 +821,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md; one picture for the four Lakeview condos (1A, 2B, 3A and 4C), which the data describes alike.",
         "Two bedrooms, the balcony over Willow Lake with two lounge chairs, the laundry nook with a washer and dryer, the walk-in shower and the kitchen island match the prompt.",
-        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+        "Traced (data/interiors/lakeview_1a_2b_3a_4c.json, one room for all four condos): the living room with the balcony deck and its two lounge chairs (the prompt asked for the balcony only at the edge; the picture shows it whole, so it's walkable floor), the kitchen and dining table, the entry, both bedrooms, and the laundry nook with the bathroom. Seats: the L-sofa (Nap on its long side), the armchair, the lounge chairs, four dining chairs, three island stools, the bench and the vanity stool in the main bedroom, and a bed for two in each bedroom. The shower, the stove, the bin, the bathroom sink and the toilet are where they're drawn; the washer and dryer are furniture (laundry at home is a verb, not a spot). The TV is scenery: the data has no Watch TV here. The front door is drawn much taller than the second bedroom's door; the room's scale follows the furniture."
       ]
     },
     "lakeview_4c": {
@@ -829,7 +829,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md; one picture for the four Lakeview condos (1A, 2B, 3A and 4C), which the data describes alike.",
         "Two bedrooms, the balcony over Willow Lake with two lounge chairs, the laundry nook with a washer and dryer, the walk-in shower and the kitchen island match the prompt.",
-        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+        "Traced (data/interiors/lakeview_1a_2b_3a_4c.json, one room for all four condos): the living room with the balcony deck and its two lounge chairs (the prompt asked for the balcony only at the edge; the picture shows it whole, so it's walkable floor), the kitchen and dining table, the entry, both bedrooms, and the laundry nook with the bathroom. Seats: the L-sofa (Nap on its long side), the armchair, the lounge chairs, four dining chairs, three island stools, the bench and the vanity stool in the main bedroom, and a bed for two in each bedroom. The shower, the stove, the bin, the bathroom sink and the toilet are where they're drawn; the washer and dryer are furniture (laundry at home is a verb, not a spot). The TV is scenery: the data has no Watch TV here. The front door is drawn much taller than the second bedroom's door; the room's scale follows the furniture."
       ]
     },
     "lexington_0602": {
@@ -837,7 +837,7 @@
       "notes": [
         "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
         "The desk by the window and the view over a roof (Riverdale Clinic's, as the data says) match; the kitchen island is dark marble.",
-        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+        "Traced (data/interiors/lexington_0602.json): the living room and the kitchen as one floor, the bedroom, the bathroom, and the vestibule inside the front door. Seats: the L-sofa (Nap on the chaise, Watch TV from the side facing the TV), the armchair, the desk chair by the window, three island stools, the vanity stool (shave, skincare and hair) and the bed for two. The shower, the stove, the bin, the bathroom sink and the toilet are where they're drawn; the stacked washer and dryer behind the low walls aren't reached."
       ]
     }
   },
