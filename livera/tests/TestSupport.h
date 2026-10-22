@@ -13,9 +13,8 @@
 
 namespace livera::test {
 
-// The real game content in data/. Tests run against it so content changes that break
-// a rule are caught here, not in play.
-inline std::shared_ptr<const ContentDatabase> realContent() {
+// All of the game content in data/, as a server loads it.
+inline std::shared_ptr<const ContentDatabase> fullContent() {
   static std::shared_ptr<const ContentDatabase> db = [] {
     auto r = ContentDatabase::loadFromDirectory(LIVERA_DATA_DIR);
     if (!r) throw std::runtime_error("content failed to load: " + r.error().message);
@@ -24,13 +23,37 @@ inline std::shared_ptr<const ContentDatabase> realContent() {
   return db;
 }
 
+// The real game content in data/. Tests run against it so content changes that break a rule are caught here, not in
+// play. It leaves out what happens when a need runs out (D-080, health/needs_at_zero.json): most tests let the clock
+// run for days while nobody eats or sleeps, and would end in the hospital. The tests of D-080 use fullContent().
+inline std::shared_ptr<const ContentDatabase> realContent() {
+  static std::shared_ptr<const ContentDatabase> db = [] {
+    std::vector<std::filesystem::path> files;
+    for (const auto& e : std::filesystem::recursive_directory_iterator(LIVERA_DATA_DIR)) {
+      if (e.path().extension() == ".json" && e.path().filename() != "needs_at_zero.json") files.push_back(e.path());
+    }
+    std::sort(files.begin(), files.end());
+    std::vector<std::pair<std::string, Json>> docs;
+    for (const auto& f : files) {
+      std::ifstream in(f);
+      docs.emplace_back(f.filename().string(), Json::parse(in, nullptr, true, true));
+    }
+    auto r = ContentDatabase::loadFromDocuments(docs);
+    if (!r) throw std::runtime_error("content failed to load: " + r.error().message);
+    return r.value();
+  }();
+  return db;
+}
+
 // The real content with an in-memory patch applied, for tests that need different
-// tuning (e.g. a short promotion track) without touching data/.
-inline std::shared_ptr<const ContentDatabase> patchedContent(const std::function<void(Json& doc, const std::string& file)>& patch) {
+// tuning (e.g. a short promotion track) without touching data/. Like realContent(), without needs_at_zero.json
+// unless `zero` says to keep it.
+inline std::shared_ptr<const ContentDatabase> patchedContent(const std::function<void(Json& doc, const std::string& file)>& patch,
+                                                             bool zero = false) {
   std::vector<std::pair<std::string, Json>> docs;
   std::vector<std::filesystem::path> files;
   for (const auto& e : std::filesystem::recursive_directory_iterator(LIVERA_DATA_DIR)) {
-    if (e.path().extension() == ".json") files.push_back(e.path());
+    if (e.path().extension() == ".json" && (zero || e.path().filename() != "needs_at_zero.json")) files.push_back(e.path());
   }
   std::sort(files.begin(), files.end());
   for (const auto& f : files) {

@@ -54,19 +54,31 @@ Result<Json> World::sleep(const CharacterId& actor) {
   const PropertyState* home = homeOf(actor);
   const PropertyDef* def = home ? content_->property(home->id) : nullptr;
   if (!def || c.inside != def->location) return fail("not_home", "you can only go to bed in your own home");
-  const OpeningHours& bed = content_->life().bedHours;
-  if (!bed.isOpenAt(toDateTime(state_.now).hour))
-    return fail("not_bedtime", "it's too early for bed: you can go to bed from " +
-                                   hhmm(bed.openHour * kMinutesPerHour) + " until " +
-                                   hhmm(bed.closeHour * kMinutesPerHour));
+  const LifeConfig& L = content_->life();
+  const OpeningHours& bed = L.bedHours;
+  const double energy = c.needs.count("energy") ? c.needs.at("energy") : 0;
+  // At night you sleep until the wake hour; by day, tired enough, you nap until you're rested.
+  const bool night = bed.isOpenAt(toDateTime(state_.now).hour);
+  if (!night && energy >= L.napBelowEnergy)
+    return fail("not_bedtime", "it's too early for bed: you can go to bed from " + hhmm(bed.openHour * kMinutesPerHour) +
+                                   " until " + hhmm(bed.closeHour * kMinutesPerHour) + ", or nap any time your energy is below " +
+                                   std::to_string(static_cast<int>(L.napBelowEnergy)));
   c.asleepSince = state_.now;
+  c.energyAtBed = energy;
+  c.napUntil = -1;
+  if (!night) {
+    const double hours = std::clamp((100 - energy) / L.sleepEnergyPerHour, 0.5, L.napMaxHours);
+    c.napUntil = state_.now + static_cast<GameMinutes>(std::lround(hours * 60));
+  }
   (void)takeRoomSpot(c, [](const InteriorSpotDef& s) { return s.kind == "bed"; });  // interiors: into a free bed
-  const GameMinutes wake = nextWakeAt();
+  const GameMinutes wake = night ? nextWakeAt() : c.napUntil;
   return Json{{"asleep", true},
+              {"nap", !night},
               {"since", state_.now},
               {"wake_at", wake},
               {"wake_time", hhmm(wake)},
-              {"note", "You're in bed. Your routine looks after you until " + hhmm(wake) +
+              {"note", (night ? "You're in bed. Your routine looks after you until " + hhmm(wake)
+                              : "A nap: you'll wake up rested around " + hhmm(wake)) +
                            "; doing anything gets you up (looking around and your phone don't)."}};
 }
 
@@ -74,7 +86,13 @@ void World::wakeUp(CharacterState& c, bool morning) {
   if (c.asleepSince < 0) return;
   const GameMinutes since = c.asleepSince;
   catchUpDormant(c, state_.now - c.lastSimulatedAt);  // the routine's night: needs settle as an away character's
+  // Sleep brings your energy back from where it was when you lay down: a full night fills it.
+  if (c.needs.count("energy")) {
+    const double slept = static_cast<double>(state_.now - since) / 60.0;
+    c.needs["energy"] = std::max(c.needs["energy"], std::min(100.0, c.energyAtBed + slept * content_->life().sleepEnergyPerHour));
+  }
   c.asleepSince = -1;
+  c.napUntil = -1;
   if (!morning) return;
   // What happened while they slept, from their own records only.
   Json notes = Json::array();
@@ -104,6 +122,13 @@ void World::wakeUp(CharacterState& c, bool morning) {
   emit({c.id}, "good_morning", std::move(data));
 }
 
+// A nap ends when you're rested (World::sleep set when).
+void World::stepNapMinute(CharacterState& c) {
+  if (!c.online || c.asleepSince < 0 || c.napUntil < 0 || c.napUntil > state_.now) return;
+  wakeUp(c, false);
+  notify(c.id, "sleep", "You woke up from your nap, rested.");
+}
+
 void World::stepSleepHourly() {
   if (toDateTime(state_.now).hour != content_->life().wakeHour) return;
   for (auto& [id, c] : state_.characters) {
@@ -115,7 +140,12 @@ Result<Json> World::skipNight(const std::function<void(double realSeconds)>& bef
   const std::vector<CharacterId> asleep = sleepers();
   if (asleep.empty()) return fail("nobody_asleep", "nobody is asleep");
   const GameMinutes from = state_.now;
-  const GameMinutes to = nextWakeAt();
+  // To the wake hour, or sooner when someone napping wakes before it.
+  GameMinutes to = nextWakeAt();
+  for (const auto& id : asleep) {
+    const CharacterState* c = character(id);
+    if (c && c->napUntil >= 0 && c->napUntil > state_.now) to = std::min(to, c->napUntil);
+  }
   const double secondsPerMinute = 1.0 / content_->sim().minutesPerRealSecond;
   skipping_ = true;
   // One game minute at a time, as real time would pass it: the hook (the autopilot) acts, people walk, the minute

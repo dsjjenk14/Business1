@@ -34,6 +34,8 @@ const SPEECH = new Set(["say", "shout", "whisper", "whispering"]);
 // Where Places opens when a need runs low and no place you've been is known to help.
 export const NEED_PLACES = { hunger: "food", social: "fun", recreation: "fun", health: "health", dental: "health", grooming: "shops" };
 const HEIGHTS = ["peek", "half", "full"];
+// The needs meter's order: the body first, then the rest (D-080).
+const NEED_ORDER = ["hunger", "energy", "bladder", "hygiene", "health", "social", "recreation", "comfort", "dental", "grooming"];
 const DEFAULT_HEIGHT = { places: "full", scene: "half", buy: "half" };
 const fmtMin = m => (m < 60 ? `${Math.max(1, Math.round(m))} min` : `${Math.floor(m / 60)} h${m % 60 >= 1 ? ` ${Math.round(m % 60)} min` : ""}`);
 const etaText = s => (s < 1 ? "" : s < 60 ? `${Math.ceil(s)} s` : `${Math.round(s / 60)} min`);
@@ -113,6 +115,7 @@ export class UI {
     $("ctx-btn").onclick = () => this.runContext();
     $("phone-btn").onclick = () => this.game.openPhone();
     $("you-btn").onclick = () => (this.sheet && this.sheet.kind === "needs" ? this.closeSheet() : this.sheetYou());
+    if ($("needs-meter")) $("needs-meter").onclick = () => (this.sheet && this.sheet.kind === "needs" ? this.closeSheet() : this.sheetYou());
     $("attrib-btn").onclick = () => this.toggleAttrib();
     for (const b of document.querySelectorAll("#chatbar [data-volume]")) b.onclick = () => this.setVolume(b.dataset.volume);
     const input = $("chat-input");
@@ -254,6 +257,7 @@ export class UI {
   renderNeeds() {
     const s = this.world.self;
     if (!s || !s.needs) return;
+    this.renderMeter(s.needs);
     const low = Object.entries(s.needs).filter(([, v]) => typeof v === "number" && v < 35).sort((a, b) => a[1] - b[1]).slice(0, 3);
     const key = low.map(([k, v]) => `${k}${Math.round(v)}`).join();
     if (key === this.needsKey) return;
@@ -264,6 +268,22 @@ export class UI {
         el("span", { class: "pill" }, v < 20 ? icon("alert") : null, titleCase(k), el("span", { class: "num" }, String(n))));
     }));
     this.measure();
+  }
+  // The needs meter in the top bar (D-080): every need as a small bar, always there, one tap from the full list.
+  renderMeter(needs) {
+    const order = NEED_ORDER.filter(k => typeof needs[k] === "number").concat(Object.keys(needs).filter(k => !NEED_ORDER.includes(k) && typeof needs[k] === "number"));
+    const key = order.map(k => Math.round(needs[k])).join();
+    if (key === this.meterKey) return;
+    this.meterKey = key;
+    const lowest = order.reduce((a, k) => (a === null || needs[k] < needs[a] ? k : a), null);
+    const b = this.$("needs-meter");
+    if (!b) return;
+    replace(b, el("span", { class: "meter-bars", "aria-hidden": "true" }, order.map(k => {
+      const v = Math.max(0, Math.min(100, needs[k]));
+      return el("span", { class: `meter-bar${v < 20 ? " low" : v < 50 ? " mid" : ""}`, dataset: { need: k } }, el("span", { style: { height: `${Math.max(8, v)}%` } }));
+    })));
+    b.setAttribute("aria-label", `Your needs${lowest ? `: lowest is ${titleCase(lowest)} at ${Math.round(needs[lowest])}` : ""}. Open them`);
+    b.title = lowest ? `Needs · lowest: ${titleCase(lowest)} ${Math.round(needs[lowest])}` : "Needs";
   }
   // A warning with the nearest fix before an accident: once below 20, again below 10.
   needWarnings() {
@@ -278,7 +298,9 @@ export class UI {
       this.needAlert.set(k, level);
       const fix = this.game.agenda.fixFor(k), n = Math.round(v);
       const action = fix && fix.here ? { label: fix.label.length > 22 ? "Do it" : fix.label, run: fix.run } : fix && fix.place ? { label: `Go to ${fix.place.name.length > 18 ? "it" : fix.place.name}`, run: () => this.game.goTo(fix.place.id) } : { label: "Places", run: () => this.sheetPlaces({ category: NEED_PLACES[k] }) };
-      const text = level === 10 ? `${titleCase(k)} ${n}: you need to ${needFixText(k)} now.` : `${titleCase(k)} ${n}: ${needFixText(k)} soon.`;
+      // Below 10, what 0 brings too (D-080, the server's rules).
+      const zero = level === 10 && this.world.rules && this.world.rules.needs_at_zero && this.world.rules.needs_at_zero[k];
+      const text = level === 10 ? `${titleCase(k)} ${n}: you need to ${needFixText(k)} now.${zero ? ` At 0: ${zero.summary}` : ""}` : `${titleCase(k)} ${n}: ${needFixText(k)} soon.`;
       this.toast(text, level === 10 ? "alarm" : false, { action, ms: level === 10 ? 12000 : 8000 });
     }
   }
@@ -882,11 +904,12 @@ export class UI {
         return a.ready_in_minutes > 0 ? a.ready_in_minutes : local && m !== null && local > m ? local - m : 0;
       });
       const place = w.placeById.get(here.id), hours = place ? openingText(place, m) : null;
+      const home = g.agenda.homeId() === here.id, bedNow = home ? this.sleepOption() : null;
       // Verbs (verbs.js), at most two of a kind here: the rest are on the full card.
       const allVerbs = this.trayVerbs && this.trayVerbs.id === here.id ? this.trayVerbs.actions : [], perKind = new Map();
       const verbs = allVerbs.filter(a => { const n = (perKind.get(a.kind) || 0) + 1; perKind.set(a.kind, n); return n <= 2; });
       const key = [offers.length, acts.map((a, i) => a.id + (waits[i] ? Math.ceil(waits[i]) : "")).join(), works, w.self.onShift, decisions, inside.map(p => p.id).join(),
-        studyHere, enrolled && enrolled.studying, taught.length, hours && hours.text, here.status, allVerbs.map(a => `${a.key}:${a.label}:${a.detail}`).join()].join("|");
+        studyHere, enrolled && enrolled.studying, taught.length, bedNow && `${bedNow.label}${bedNow.sub}`, hours && hours.text, here.status, allVerbs.map(a => `${a.key}:${a.label}:${a.detail}`).join()].join("|");
       if (chips.dataset.key === key) return;
       chips.dataset.key = key;
       headText.textContent = [here.status && here.status !== "open" ? String(here.status).replace(/_/g, " ") : "", hours ? hours.text : ""].filter(Boolean).join(" · ");
@@ -915,6 +938,10 @@ export class UI {
       if (inside.length) list.push({ k: "people", data: { tray: "people" }, icon: "people", label: inside.length === 1 ? firstName(inside[0].name) : `${inside.length} here`,
         sub: inside.length === 1 ? "here with you" : "with you", aria: `${inside.length} here with you`,
         run: () => (inside.length === 1 ? this.sheetPerson(inside[0].id) : this.sheetScene({ card: true, height: "full" })) });
+      // Bed, at home: at night, or a nap when you're tired; asleep, Get up (Sleep.cpp).
+      const bed = home ? this.sleepOption() : null;
+      if (bed) list.push({ k: "sleep", data: { tray: "sleep" }, icon: "bed", cls: bed.asleep ? "on" : "", label: bed.label, sub: bed.sub,
+        run: () => (bed.asleep ? g.getUp() : g.sleep()) });
       const hidden = allVerbs.length - verbs.length;
       list.push({ k: "more", data: { tray: "more" }, icon: "more", label: "More", sub: hidden ? `${hidden} more inside` : "the full card",
         aria: `More at ${here.name}: the full card`, run: () => this.sheetScene({ card: true }) });
@@ -935,6 +962,20 @@ export class UI {
     this.loadTrayVerbs(here, chips);
     this.nextKey = ""; this.renderNext();
     this.measure();
+  }
+  // Whether you could go to bed now, by the server's sleep rules (publicRules.sleep): at night until the wake hour, by
+  // day a nap when energy is low; asleep, getting up. null when bed isn't on offer.
+  sleepOption() {
+    const w = this.world, s = w.self, rules = w.rules && w.rules.sleep, m = w.minute();
+    if (!s || !rules || m === null) return null;
+    if (s.asleep) return { asleep: true, label: "Get up", sub: "you're asleep" };
+    const hour = Math.floor((m % 1440) / 60), [from, to] = rules.bed_hours || [21, 3];
+    const night = from > to ? hour >= from || hour < to : hour >= from && hour < to;
+    const wake = `${String(rules.wake_hour).padStart(2, "0")}:00`;
+    if (night) return { label: "Go to bed", sub: `until ${wake}` };
+    const energy = s.needs && typeof s.needs.energy === "number" ? s.needs.energy : 100;
+    if (energy < (rules.nap_below_energy ?? 40)) return { label: "Nap", sub: "until you're rested" };
+    return null;
   }
   // The place's verbs (laundry, pet care, a team, a song on the stage, the risky ones) arrive a moment after the tray.
   async loadTrayVerbs(place, chips) {
@@ -975,7 +1016,8 @@ export class UI {
     const body = [];
     body.push(el("div", { class: "row" }, avatar(id, p.name, "big"), el("div", { class: "stack grow", style: { gap: "4px" } },
       p.scripted ? el("span", null, el("span", { class: "badge script" }, "played by a script")) : null,
-      p.uniform === "police" ? el("span", null, el("span", { class: "badge police" }, "police officer on duty")) : null, metText, distText)));
+      p.uniform === "police" ? el("span", null, el("span", { class: "badge police" }, "police officer on duty")) : null,
+      p.passedOut ? el("span", null, el("span", { class: "badge closed" }, "passed out")) : null, metText, distText)));
     if (p.scripted) body.push(el("p", { class: "hint" }, "A script chooses where this character goes and what they do; the game's rules decide every outcome, as for everyone."));
     // A figure that isn't their picture says so (D-067, D-073).
     const art = artStatus(id);
@@ -1134,10 +1176,19 @@ export class UI {
           el("span", { style: { width: `${Math.max(0, Math.min(100, v))}%` } })), el("span", { class: `money${low ? " lowtag" : ""}` }, String(Math.round(v)))];
       }));
     const next = this.nextItem;
+    // What each need does at 0 (D-080), from the server's rules: said under any need running low, and all of them below.
+    const atZero = (this.world.rules && this.world.rules.needs_at_zero) || {};
+    const lowNow = Object.entries(s.needs || {}).filter(([k, v]) => typeof v === "number" && v < 20 && atZero[k]).sort((a, b) => a[1] - b[1]);
     this.openSheet("needs", "needs", [el("span", { class: "you-big" }, avatar(this.world.selfId, this.world.selfName, "mid")), this.head("You", this.world.selfName)], [
       next ? el("button", { type: "button", class: "btn block", onclick: () => this.sheetToday() }, icon("today"), `Today · Next: ${next.title}`) : el("button", { type: "button", class: "btn block", onclick: () => this.sheetToday() }, icon("today"), "Today"),
       el("div", { class: "eyebrow" }, "Needs, lowest first"), bars(s.needs, false),
+      lowNow.length ? el("ul", { class: "zero-warn" }, lowNow.map(([k, v]) => el("li", { dataset: { need: k } },
+        el("strong", null, `${titleCase(k)} ${Math.round(v)}: ${needFixText(k)} soon.`), ` At 0: ${atZero[k].summary}`))) : null,
       el("p", { class: "hint" }, "Only you see these. Eat, sleep, wash and see people to keep them up; anything below 20 needs you soon."),
+      Object.keys(atZero).length ? el("details", { class: "more", id: "needs-at-zero" }, el("summary", null, "What happens at 0"), el("div", { class: "more-body" },
+        el("ul", { class: "zero-list" }, NEED_ORDER.filter(k => atZero[k]).map(k => el("li", { dataset: { need: k } },
+          el("strong", null, titleCase(k)), ` ${atZero[k].summary}`))),
+        el("p", { class: "hint" }, "Each time a need hits 0 counts: let the same one run out again and again and you catch an illness for it, until the clinic or a therapist treats it."))) : null,
       el("div", { class: "eyebrow" }, "Feelings"), bars(s.emotions, true),
       el("p", { class: "hint" }, "Green is good for you, red is not: high stress or embarrassment hurts, high happiness helps."),
       ...(this.game.youExtras ? this.game.youExtras() : []),  // the street: wanted, held, walking away from fights (moments.js)

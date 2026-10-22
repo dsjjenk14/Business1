@@ -1230,3 +1230,38 @@ game inside (D-066): the chores belong in the room and one tap from it, and the 
 card). A place with many verbs of one kind (six songs) shows two and says how many more are on the card. On a phone
 the Next card still sits between the tray and the bar.
 
+## D-080 — When a need runs out, something happens; the needs are always on screen
+**Decision:** Each need has one rule at 0, in `data/health/needs_at_zero.json`. Energy: you pass out where you
+stand for 3 game hours (needs on hold, no command, no speech, not even the phone), come to with energy 35, and out in
+the street someone may go through your pockets (a 30% chance of losing up to $60 of cash to the outside world, through
+the ledger). Hunger: you pass out and an ambulance takes you to Livéra General, which keeps you 8 hours and bills $380
+(as much as is in the bank). Health: you collapse and are kept 16 hours, billed $900. Kept in, you're stabilised on
+arrival (the stay's `after` needs) and your needs wait; the phone works, nothing else does (`in_hospital`). Bladder
+keeps its rule: you wet yourself (D-022). The rest are told once and, while they stay at 0, wear on you every hour:
+hygiene (embarrassment; people warm to you at 0.6 times), social (loneliness, sadness), recreation (stress, less
+happiness), comfort (stress, tiring faster), grooming (confidence; first impressions at 0.85), dental (a toothache).
+A need counts as hitting 0 again only after it has been back above 10. Every time counts: run the same need down again
+and again and a made-up illness comes on (`data/health/zero_conditions.json`, `from_zero`): Lantern Fatigue (energy, 3
+times in 7 days), Hollow Gut (hunger, twice in 7), Greyheart (health, twice in 14, until a doctor treats it),
+Tidewater Bladder (2 accidents in 7), Mire Rash (hygiene, 3 in 7), Echo Sickness (social, 3 in 14, therapy), the Grey
+Spell (recreation, 3 in 14, therapy) and Knotback (comfort, 3 in 14); the count starts again once one comes on.
+Anyone there sees you pass out or collapse (told, and `passed_out: true` on the people stream). In the client the top
+bar always shows a needs meter, every need as a small bar, and a tap opens the list with what each need does at 0 (from
+`publicRules.needs_at_zero`); the warning below 10 says it too; out cold and kept in have their own cards and chips.
+**Why:** The owner asked what happens at 0 and wanted real consequences: passing out from hunger means the hospital,
+and running out again and again brings made-up diseases. Nothing at 0 (but bladder) made the needs decoration.
+**Trade-off:** At D-075's clock a full stomach lasts about six real minutes of play, so an idle tab ends in the
+hospital; the warnings at 20 and 10 come first. Nobody dies. Most unit tests run days with nobody eating, so their
+content leaves `needs_at_zero.json` out (`realContent()`); the D-080 tests, the server tests and every browser suite
+use all of it. Someone out cold is still drawn standing (there is no lying-down frame yet); their name says so.
+
+## D-081 — Sleep gives your energy back, and you can nap when you're tired
+**Decision:** Asleep, energy comes back at `life.sleep.energy_per_hour` (12.5) from where it was when you lay down, so
+a full night fills it; the other needs settle as before. Outside bed hours, at home, you can nap whenever energy is below
+`nap_below_energy` (40): you sleep until you'd be rested (at most 4 hours) or until you do something. A night skip stops
+at the first nap's end. The client finally offers bed: a Go to bed / Nap / Get up chip in the tray at home (D-078), and
+tapping your bed does the same; `publicRules.sleep` says when.
+**Why:** The owner: "You need to be able to get energy by sleeping for a little longer." The web client never sent
+`sleep` at all, so the only rest was a +25 nap activity, and a night only settled energy toward 70.
+**Trade-off:** A nap is all or nothing: it ends rested or when you act, there is no alarm to set.
+

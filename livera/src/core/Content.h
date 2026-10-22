@@ -279,6 +279,9 @@ struct LifeConfig {
   // Sleep (Sleep.cpp): when you can go to bed at home, and the hour everyone asleep wakes.
   OpeningHours bedHours{21, 3, {}};
   int wakeHour = 7;
+  double sleepEnergyPerHour = 12.5;  // asleep, energy comes back this fast: a full night fills it
+  double napBelowEnergy = 40;        // outside bed hours you can nap at home when this tired, until rested
+  double napMaxHours = 4;
 };
 
 // A condition a character can have: an illness, an infection, depression, an addiction.
@@ -303,6 +306,10 @@ struct ConditionDef {
   double contagionPerHour = 0;  // per infected person sharing a space
   double sexualTransmission = 0;
   std::vector<std::string> treatedBy;  // care services (or items) that cure or manage it
+  // Or from running a need down to 0 again and again (D-080, data/health/zero_conditions.json).
+  std::string fromZeroNeed;
+  int fromZeroTimes = 0;
+  double fromZeroWithinDays = 7;
 };
 
 enum class AccessRule { Public, Residents, Staff };
@@ -952,6 +959,38 @@ struct DetailsConfig {
 };
 // } m08:details
 
+// What happens when a need runs out (data/health/needs_at_zero.json, D-080; NeedsAtZero.cpp).
+struct ZeroRuleDef {
+  std::string need;
+  std::string rule;          // "pass_out", "hospital", "accident" (bladder) or "notice"
+  double hours = 0;          // hospital: how long you're kept
+  Cents billCents = 0;       // hospital: what it bills (from your bank, as much as is there)
+  StatMap after;             // hospital: these needs when you leave
+  StatMap emotionsPerHour;   // notice: while the need stays at 0
+  StatMap needsPerHour;
+  double receptivity = 1;    // notice: how well social moves land while it's at 0
+  std::string condition;     // notice: comes on when it hits 0
+  std::string summary;       // what the needs card says ({hospital}, {hours}, {bill})
+  std::string text;          // what you're told ({where} as well)
+};
+
+struct NeedsAtZeroConfig {
+  LocationId hospital;
+  double rearmAbove = 10;    // back above this, hitting 0 counts again
+  double passOutHours = 3;
+  double energyAfterPassOut = 35;
+  StatMap passOutEmotions;
+  double robberyChanceOutdoors = 0;
+  Cents robberyMaxCashCents = 0;
+  std::vector<ZeroRuleDef> rules;
+  const ZeroRuleDef* rule(const std::string& need) const {
+    for (const auto& r : rules) {
+      if (r.need == need) return &r;
+    }
+    return nullptr;
+  }
+};
+
 // ---- Redesign content (docs/proposals/redesign.md, Release 2) ----
 // Goals (data/goals/goals.json, Goals.cpp). Which goals exist, their labels and numbers are data; how each kind
 // of check is computed (from records the World already keeps) is code, so a check names one of those kinds.
@@ -1411,6 +1450,7 @@ class ContentDatabase {
 
   // m08:details accessors { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
   const DetailsConfig& details() const { return details_; }
+  const NeedsAtZeroConfig& needsAtZero() const { return needsAtZero_; }  // D-080 (NeedsAtZero.cpp)
   const WeatherKindDef* weatherKind(const std::string& id) const;
   // } m08:details
   // Redesign: goals (Goals.cpp) and the autopilot's manners (Autopilot.cpp).
@@ -1552,6 +1592,8 @@ class ContentDatabase {
   // m08:details members { Accidents as a big deal, laundry, weather, birthdays, hangovers (Details.cpp)
   bool haveDetails_ = false;
   DetailsConfig details_;
+  bool haveNeedsAtZero_ = false;
+  NeedsAtZeroConfig needsAtZero_;
   // } m08:details
   bool haveGoals_ = false;
   GoalsConfig goals_;

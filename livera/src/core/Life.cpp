@@ -120,6 +120,13 @@ void World::addCondition(CharacterState& c, const std::string& condition, bool d
   if (def->symptomatic) notify(c.id, "health", def->onset.empty() ? "You have " + def->name + "." : def->onset);
 }
 
+Status World::devCare(const CharacterId& id, double level) {
+  CharacterState* c = mutableCharacter(id);
+  if (!c) return fail("unknown_character", "no such character");
+  for (auto& [n, v] : c->needs) v = std::max(v, level);
+  return okStatus();
+}
+
 Status World::devAddCondition(const CharacterId& id, const std::string& condition) {
   CharacterState* c = mutableCharacter(id);
   if (!c) return fail("unknown_character", "no such character");
@@ -238,6 +245,7 @@ void World::stepBodyMinute(CharacterState& c) {
   if (c.needs.count("bladder") && c.needs["bladder"] <= 0) {
     c.needs["bladder"] = kStatMax;
     wetYourself(c);
+    countZero(c, "bladder");  // toward Tidewater Bladder (NeedsAtZero.cpp, D-080)
   }
 }
 

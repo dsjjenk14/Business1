@@ -304,7 +304,7 @@ No save-format change: everything below is content, or computed from state that 
 
 | Section | Fields | Notes |
 |---|---|---|
-| `life.sleep` | `bed_hours [from, to)`, `wake_hour` | data/config/life.json; defaults [21, 3] and 7. The wake hour must fall outside the bed hours. Being asleep is session state (never saved). |
+| `life.sleep` | `bed_hours [from, to)`, `wake_hour`, `energy_per_hour`, `nap_below_energy`, `nap_max_hours` | data/config/life.json; defaults [21, 3], 7, 12.5, 40 and 4 (D-081). The wake hour must fall outside the bed hours. Being asleep (and a nap's end) is session state (never saved). |
 
 ### Away pay (D-063)
 
@@ -425,3 +425,15 @@ No save format change. On load, content characters missing from the state move i
 relationships from data seeded both ways where the world has no record yet (a status included) and their memories;
 a made character (`created_characters`) whose id is now a content character's is dropped from `created_characters`
 and keeps its state under the data's definition (D-073). The autopilot's plans, evenings and beats are memory only.
+
+### Needs at zero (D-080)
+
+| Section | Fields | Notes |
+|---|---|---|
+| `needs_at_zero` | `hospital`, `rearm_above`, `pass_out {hours, energy_after, emotions, robbery_chance_outdoors, robbery_max_cash_cents}`, `needs[] {need, rule, hours, bill_cents, after, emotions_per_hour, needs_per_hour, receptivity, condition, summary, text}` | data/health/needs_at_zero.json. One rule per need: `pass_out`, `hospital`, `accident` (bladder, and only bladder) or `notice`. `summary` is the needs card's line and `text` what you're told; `{hospital}`, `{hours}`, `{bill}` and `{where}` are filled in. Optional: a world without it has no rules at 0 (the unit tests' `realContent()`). |
+| `conditions[].from_zero` | `need`, `times`, `within_days` | data/health/zero_conditions.json: the made-up illnesses of running a need down to 0 again and again. |
+
+Save data: each character gains `passed_out_until`, `admitted_until` (game minutes, -1 when not), `admitted_for` (the
+need), `at_zero` (needs at 0 until they're back above `rearm_above`) and `zero_times` (need → when it hit 0). Older
+saves load with none. No SQL migration: they ride in the character JSON.
+

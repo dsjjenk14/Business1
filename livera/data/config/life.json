@@ -63,9 +63,12 @@
     },
     "grooming": {"attraction_min": 0.6, "attraction_max": 1.4},
     "sleep": {
-      "$comment": "Going to bed (the sleep op): at home, from bed_hours[0] until bed_hours[1] (past midnight). Everyone asleep wakes at wake_hour; asleep, your routine looks after you. Where the night is skipped, it is skipped to wake_hour.",
+      "$comment": "Going to bed (the sleep op): at home, from bed_hours[0] until bed_hours[1] (past midnight), or any time as a nap when energy is below nap_below_energy. Everyone asleep for the night wakes at wake_hour; a nap ends when energy would be full (at most nap_max_hours). Asleep, your routine looks after you, and energy comes back at energy_per_hour from where it was when you lay down. Where the night is skipped, it is skipped to wake_hour, or to the first nap's end.",
       "bed_hours": [21, 3],
-      "wake_hour": 7
+      "wake_hour": 7,
+      "energy_per_hour": 12.5,
+      "nap_below_energy": 40,
+      "nap_max_hours": 4
     }
   }
 }

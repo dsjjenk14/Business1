@@ -351,13 +351,14 @@ export class RoomView {
     const works = w.self && (w.self.onShift || (c && Array.isArray(c.workplaces) && c.workplaces.includes(here.name)));
     const taken = new Set([...this.people.values()].map(p => p.spot).filter(Boolean));
     const me = this.people.get(w.selfId), at = me ? me.to : null, near = new Map();
+    const bed = this.game.agenda.homeId() === here.id && this.game.ui.sleepOption() && !(w.self && w.self.asleep);  // your bed, when you could sleep
     const out = [];
     for (const s of this.room.spots || []) {
       if (taken.has(s.id)) continue;
       if (s.activity && acts.has(s.activity)) {
         const d = at ? Math.hypot(s.at[0] - at[0], s.at[1] - at[1]) : 0, best = near.get(s.activity);
         if (!best || d < best.d) near.set(s.activity, { s, d });
-      } else if ((s.kind === "counter" && s.offers && (here.offers || []).length) || s.kind === "stage" || (s.staff && works)) out.push(s);
+      } else if ((s.kind === "counter" && s.offers && (here.offers || []).length) || s.kind === "stage" || (s.staff && works) || (s.kind === "bed" && bed)) out.push(s);
     }
     return out.concat([...near.values()].map(x => x.s));
   }
@@ -429,7 +430,7 @@ export class RoomView {
         ctx.drawImage(baked, v.ox + e.offset[0] * v.s, v.oy + e.offset[1] * v.s, baked.width / e.scale * v.s, baked.height / e.scale * v.s);
         ctx.restore();
       }
-      if (!self && P > 26) names.push({ x: sx, y: top - 4, text: firstName(person.name || it.id), near: sy });
+      if (!self && P > 26) names.push({ x: sx, y: top - 4, text: `${firstName(person.name || it.id)}${person.passedOut ? " · out cold" : ""}`, near: sy });
       this.hits.push({ kind: "person", id: it.id, box });
       this.drawn.set(it.id, { pose: it.pose, frame: got.frame || null, mode: got.mode || null, box: box.map(v => Math.round(v)) });
     }
@@ -592,6 +593,8 @@ export class RoomView {
     if (s.kind === "counter" && s.offers) return `${s.label} · tap to buy`;
     if (s.offers) return `${s.label} · sit to order`;
     if (s.kind === "stage") return `${s.label} · tap to perform`;
+    const bed = s.kind === "bed" && here && this.game.agenda.homeId() === here.id ? this.game.ui.sleepOption() : null;
+    if (bed) return `${s.label} · ${bed.label.toLowerCase()}`;
     return s.label;
   }
   walkable(p) {
@@ -629,6 +632,11 @@ export class RoomView {
     const holder = [...this.people.entries()].find(([id, p]) => p.spot === s.id && id !== w.selfId);
     if (holder && SITS.has(s.kind)) { this.showLabel(`${firstName(w.nameOf(holder[0]))} is ${s.kind === "cell" ? "held" : "sitting"} here`, h.at); ui.sheetPerson(holder[0]); return; }
     this.showLabel(this.spotText(s), h.at);
+    // Your bed at home: to bed (or up again) when the sleep rules allow, else it's a seat like any other.
+    if (s.kind === "bed" && g.agenda.homeId() === (here && here.id)) {
+      const bed = ui.sleepOption();
+      if (bed) { await (bed.asleep ? g.getUp() : g.sleep()); return; }
+    }
     if (SEATS.has(s.kind)) { await this.sit(s); return; }
     const act = s.activity && here && (here.activities || []).find(a => a.id === s.activity);
     if (s.kind === "door" && !s.activity) { await g.exit(); return; }

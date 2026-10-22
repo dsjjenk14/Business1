@@ -55,6 +55,7 @@ class SoloGame extends Game {
       save: how => this.save(how || "debug"), lastSave: () => this.lastSave, lastSaveError: () => this.lastSaveError,
       backend: () => this.slot.backend, record: () => (this.record ? { saved_at: this.record.saved_at, character: this.record.character } : null),
       advance: s => this.local.advance(s), ticks: () => this.local.ticks, gameSeconds: () => this.local.gameSeconds,
+      care: () => this.local.care(),  // a fast-forward about something else needn't end in the hospital (D-080)
       playing: () => this.local.playing, autopilot: () => ({ ...this.local.autopilot }), autopilotStatus: () => this.local.autopilotStatus(), status: () => this.local.status,
     });
   }

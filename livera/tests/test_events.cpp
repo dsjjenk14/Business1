@@ -15,12 +15,13 @@ namespace {
 
 bool contains(const std::string& s, const std::string& part) { return s.find(part) != std::string::npos; }
 
-// The real content with data/events/ patched: `patch` gets the life_events config and the list of events.
+// The real content with data/events/ patched: `patch` gets the life_events config and the list of events. Like
+// realContent(), without needs_at_zero.json (D-080): these towns run for hours with nobody eating.
 Result<std::shared_ptr<const ContentDatabase>> loadEvents(const std::function<void(Json& config, Json& events)>& patch) {
   std::vector<std::pair<std::string, Json>> docs;
   std::vector<std::filesystem::path> files;
   for (const auto& e : std::filesystem::recursive_directory_iterator(LIVERA_DATA_DIR)) {
-    if (e.path().extension() == ".json") files.push_back(e.path());
+    if (e.path().extension() == ".json" && e.path().filename() != "needs_at_zero.json") files.push_back(e.path());
   }
   std::sort(files.begin(), files.end());
   Json all = Json::array();

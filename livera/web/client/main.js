@@ -561,6 +561,25 @@ export class Game {
     this.ui.announce(`Inside ${this.world.here ? this.world.here.name : "the building"}`);
     return r;
   }
+  // Bed at home (Sleep.cpp): at night until the wake hour; tired by day, a nap until you're rested. In a town where
+  // you're the only one playing, the night (or the nap) passes at once.
+  async sleep() {
+    const r = await this.req("sleep");
+    if (!this.ui.refusal(r, "Couldn't go to bed")) return r;
+    if (this.world.self) this.world.self.asleep = true;
+    this.ui.toast(r.data && r.data.note ? r.data.note : "You're in bed.");
+    this.lastLook = 0;
+    await this.refreshLook();
+    return r;
+  }
+  // Doing anything gets you up; getting up off the bed is the plainest thing to do.
+  async getUp() {
+    const r = await this.req("stand");
+    if (!r.ok && r.error.code !== "no_room") { this.ui.refusal(r); return r; }
+    this.lastLook = 0;
+    await this.refreshLook();
+    return r;
+  }
   async exit() {
     const where = this.world.here && this.world.here.name;
     const r = await this.req("exit");

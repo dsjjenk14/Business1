@@ -29,6 +29,11 @@ Status World::freeToAct(const CharacterState& c) const {
   if (c.jailedUntil > state_.now)
     return fail("in_jail", "you're in a cell until " + formatDateTime(c.jailedUntil));
   if (inBrawl(c.id)) return fail("in_fight", "you're in a fight: duck, block, jab or walk away");  // Fights.cpp, D-077
+  // A need run down to 0 (NeedsAtZero.cpp, D-080).
+  if (c.passedOutUntil > state_.now)
+    return fail("passed_out", "you've passed out: you'll come to at " + formatDateTime(c.passedOutUntil));
+  if (c.admittedUntil > state_.now)
+    return fail("in_hospital", "you're being kept in the hospital until " + formatDateTime(c.admittedUntil));
   return okStatus();
 }
 

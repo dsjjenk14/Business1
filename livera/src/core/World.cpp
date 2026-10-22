@@ -344,6 +344,10 @@ void World::advanceMinutes(GameMinutes minutes) {
   for (GameMinutes i = 0; i < minutes; ++i) {
     stepMinute();
     ++state_.now;
+    for (auto& [id, c] : state_.characters) {
+      stepNapMinute(c);      // a nap ends when the clock reaches it (Sleep.cpp)
+      stepOutColdMinute(c);  // coming to, being discharged (NeedsAtZero.cpp, D-080)
+    }
     if (state_.now % 60 == 0) stepHourly();
     if (state_.now % kMinutesPerMonth == 0) chargeRent();
     stepWorkMinute();  // after the hourly step, which rolls the work day over at midnight (WorkTasks.cpp)
@@ -356,6 +360,11 @@ void World::advanceMinutes(GameMinutes minutes) {
 void World::stepMinute() {
   stepConstruction();
   for (auto& [id, c] : state_.characters) {
+    // Out cold or kept in the hospital, needs are on hold (NeedsAtZero.cpp, D-080).
+    if (outCold(c)) {
+      if (c.online) c.lastSimulatedAt = state_.now + 1;
+      continue;
+    }
     // Asleep, your routine looks after you: you catch up when you wake (Sleep.cpp).
     if (c.online && c.asleepSince < 0) simulateCharacterMinute(c);
   }
@@ -396,6 +405,7 @@ void World::simulateCharacterMinute(CharacterState& c) {
     c.emotions["stress"] = clampd(c.emotions["stress"] + (40 - avg) / 40 * 6 / 60.0, kStatMin, kStatMax);
   }
   stepBodyMinute(c);
+  stepNeedsAtZero(c);  // a need that hit 0, and staying at 0 (NeedsAtZero.cpp, D-080)
   c.lastSimulatedAt = state_.now + 1;
 }
 
@@ -981,6 +991,7 @@ Result<Json> World::say(const CharacterId& actor, const std::string& text, const
   auto r = activeCharacter(actor);
   if (!r) return r.error();
   CharacterState& c = *r.value();
+  if (c.passedOutUntil > state_.now) return fail("passed_out", "you've passed out: you can't say anything until you come to");
   const SimulationConfig& sim = content_->sim();
   // Control characters could forge lines in a client's chat log; flatten them to spaces.
   std::string clean = text;
@@ -1118,6 +1129,9 @@ Result<CharacterState*> World::activeCharacter(const CharacterId& id, bool wakes
   CharacterState* c = mutableCharacter(id);
   if (!c) return fail("unknown_character", "no such character");
   if (!c->online) return fail("not_in_world", "character is not in the world");
+  // Out cold, you can do nothing at all, not even your phone (NeedsAtZero.cpp, D-080); looking around is World::look.
+  if (c->passedOutUntil > state_.now)
+    return fail("passed_out", "you've passed out: you'll come to at " + formatDateTime(c->passedOutUntil));
   if (wakes && c->asleepSince >= 0) wakeUp(*c, false);  // doing anything gets you out of bed (Sleep.cpp)
   return c;
 }

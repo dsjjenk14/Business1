@@ -116,6 +116,12 @@ Result<Json> World::look(const CharacterId& actor) const {
     you["wanted_for"] = crime ? crime->label : c->wantedFor;
   }
   if (c->jailedUntil > state_.now) you["jailed_until"] = c->jailedUntil;
+  // A need run down to 0 (D-080): out cold until, or kept in the hospital until (game minutes).
+  if (c->passedOutUntil > state_.now) you["passed_out_until"] = c->passedOutUntil;
+  if (c->admittedUntil > state_.now) {
+    you["admitted_until"] = c->admittedUntil;
+    you["admitted_for"] = c->admittedFor;
+  }
 
   Json people = Json::array();
   for (const auto& [id, o] : state_.characters) {
@@ -240,7 +246,25 @@ Json World::publicRules() const {
               {"walk_speed_mps", sim.walkSpeedMetersPerSecond},
               {"minutes_per_real_second", sim.minutesPerRealSecond},
               {"entry_radius_m", sim.entryRadiusMeters},
-              {"boarding_radius_m", content_->transit().boardingRadiusMeters}};
+              {"boarding_radius_m", content_->transit().boardingRadiusMeters},
+              {"needs_at_zero", needsAtZeroRules()},
+              {"sleep", sleepRules()}};
+}
+
+// When you can go to bed and nap, and when everyone asleep wakes (Sleep.cpp): the same for everyone.
+Json World::sleepRules() const {
+  const LifeConfig& L = content_->life();
+  return Json{{"bed_hours", {L.bedHours.openHour, L.bedHours.closeHour}},
+              {"wake_hour", L.wakeHour},
+              {"nap_below_energy", L.napBelowEnergy},
+              {"energy_per_hour", L.sleepEnergyPerHour}};
+}
+
+// What each need does at 0 (D-080), in the words of the needs card: the same for everyone, so a public rule.
+Json World::needsAtZeroRules() const {
+  Json out = Json::object();
+  for (const auto& r : content_->needsAtZero().rules) out[r.need] = Json{{"rule", r.rule}, {"summary", zeroText(r.summary, &r)}};
+  return out;
 }
 
 // ---------------------------------------------------------------------------------
@@ -266,6 +290,7 @@ SeenPerson World::seenNow(const CharacterState& c) const {
   m.bus = c.moveSpeedMps > 0;
   m.scripted = isScripted(c.id);
   if (onDutyPolice(c)) m.uniform = "police";
+  m.passedOut = c.passedOutUntil > state_.now;
   return m;
 }
 
@@ -292,6 +317,7 @@ Json World::personJson(const CharacterState& viewer, const CharacterState& other
   // A police officer on duty is in uniform: anyone who can see them can tell (D-069). Off duty (no key) they look
   // like anyone; each `people` entry is whole, so a client clears it when the key is missing.
   if (onDutyPolice(other)) p["uniform"] = "police";
+  if (other.passedOutUntil > state_.now) p["passed_out"] = true;  // out cold where they fell (D-080)
   p.update(motionJson(seenBy(viewer, other)));
   return p;
 }
@@ -324,6 +350,7 @@ void World::emitPeopleChanges() {
         const SeenPerson& was = it->second;
         changed = now.inside != was.inside || !sameTarget(now.trueTarget, was.trueTarget) ||
                   now.speedMps != was.speedMps || now.bus != was.bus || now.scripted != was.scripted || now.uniform != was.uniform ||
+                  now.passedOut != was.passedOut ||
                   (!now.target && distance(now.position, was.position) > kStillMoveThreshold) ||
                   cutTargetStale(was, now.position, viewer.position, sight);
       }

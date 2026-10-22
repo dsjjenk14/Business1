@@ -202,6 +202,16 @@ and `people`; a change is news, and an entry without the key has none). `look.yo
 and `jailed_until` (a game minute) when they apply; the Record app adds `wanted_for`, `jailed_until_minute`, `held_at`
 and `walk_away_from_fights`. `look.here.offers[]` marks contraband `illegal: true`.
 
+Needs at zero (D-080) and sleep (D-081). `look.you` adds `passed_out_until` (a game minute) while you're out cold and
+`admitted_until` with `admitted_for` (the need) while you're kept in the hospital. Out cold, every command (the phone
+too) refuses `passed_out`, `say` included; `look` still answers. Kept in, the commands that need you free refuse
+`in_hospital`; the phone works. People in sight carry `passed_out: true` while out cold (`look.people` and `people`; a
+change is news). The welcome's and the map's `rules` add `needs_at_zero` (need → `{rule, summary}`) and `sleep`
+(`{bed_hours, wake_hour, nap_below_energy, energy_per_hour}`). `sleep` replies `nap: true` for a nap (its `wake_at` is
+when you'll be rested) and refuses `not_bedtime` by day unless your energy is below `nap_below_energy`. Your own
+`incident` events add the kinds `passed_out`, `hospital`, `came_to` and `discharged`; onlookers get `passed_out` and
+`collapsed`.
+
 Fist fights (D-070). `fight` refuses `invalid_target`, `target_unavailable`, `too_far`, `minor`, `asleep`,
 `target_in_jail`, `in_jail`, `no_fighting_here`, `not_now` (a founder a script plays, at work), `busy`, `cooling_down`,
 `protected`, `too_soon` (that pair, today) and `unavailable` (no fights in this world), and replies `{fight, with, name,

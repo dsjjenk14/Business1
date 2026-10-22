@@ -278,7 +278,7 @@ double World::detailsReceptivity(const CharacterState& actor) const {
   if (!D.humiliatedCondition.empty() && hasCondition(actor.id, D.humiliatedCondition)) r *= D.humiliatedReceptivity;
   if (soiledOutfit(actor)) r *= D.soiledReceptivity;
   else if (dirtyOutfit(actor)) r *= D.dirtyReceptivity;
-  return r;
+  return r * zeroReceptivity(actor);  // hygiene or grooming at 0 (D-080)
 }
 
 // ---- Clothes and laundry -------------------------------------------------------------------

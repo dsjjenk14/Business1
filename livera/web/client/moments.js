@@ -145,6 +145,8 @@ class Moments {
     this.fight = null;        // {fight, from, name, until}
     this.brawl = null;        // the Beat Brawl screen while a fight is fought (brawl.js)
     this.jail = null;         // {until, at} while held
+    this.out = null;          // {until} while out cold (D-080)
+    this.ward = null;         // {until, need} while kept in the hospital (D-080)
     this.wanted = null;
     this.walkAway = null;
     this.lastStory = 0; this.lastRecord = 0; this.shownAt = 0;
@@ -156,7 +158,7 @@ class Moments {
       window.__liveraMoments = Object.freeze({
         offer: () => (this.offer ? { event: this.offer.event, title: this.offer.title } : null),
         card: () => [...this.cards.keys()],
-        wanted: () => this.wanted, jail: () => this.jail,
+        wanted: () => this.wanted, jail: () => this.jail, out: () => this.out, ward: () => this.ward,
         // Read-only phone apps, for the tests' arithmetic (the same op the money chip and the Story app use).
         bank: () => this.game.req("phone", { app: "bank" }), story: () => this.game.req("phone", { app: "story" }),
       });
@@ -170,12 +172,15 @@ class Moments {
     const applyLook = w.applyLook.bind(w), applyPeople = w.applyPeople.bind(w);
     w.applyLook = (look, now) => {
       applyLook(look, now);
-      if (look && Array.isArray(look.people)) for (const p of look.people) { const e = w.people.get(p.id); if (e) e.uniform = p.uniform || null; }
+      if (look && Array.isArray(look.people)) for (const p of look.people) { const e = w.people.get(p.id); if (e) { e.uniform = p.uniform || null; e.passedOut = !!p.passed_out; } }
       if (look && look.you && typeof look.you === "object") self.standing(look.you);
     };
     w.applyPeople = (changes, now) => {
       applyPeople(changes, now);
-      for (const c of Array.isArray(changes) ? changes : []) { const e = c && w.people.get(c.character); if (e && c.state !== "gone") e.uniform = c.uniform || null; }
+      for (const c of Array.isArray(changes) ? changes : []) {
+        const e = c && w.people.get(c.character);
+        if (e && c.state !== "gone") { e.uniform = c.uniform || null; e.passedOut = !!c.passed_out; }
+      }
     };
   }
 
@@ -186,6 +191,13 @@ class Moments {
     const was = this.jail;
     if (until && (!was || was.until !== until)) { this.jail = { until }; this.renderChips(); this.showJail(); }
     if (!until && was) { this.jail = null; this.renderChips(); this.showFree(); }
+    // A need run down to 0 (D-080): out cold where you fell, or kept in the hospital.
+    const out = Number.isFinite(you.passed_out_until) ? you.passed_out_until : null;
+    if (out && (!this.out || this.out.until !== out)) { this.out = { until: out }; this.renderChips(); this.showOut(); this.game.refreshBank(); }
+    if (!out && this.out) { this.out = null; this.renderChips(); this.closeLayer("out"); }
+    const ward = Number.isFinite(you.admitted_until) ? you.admitted_until : null;
+    if (ward && (!this.ward || this.ward.until !== ward)) { this.ward = { until: ward, need: you.admitted_for || "" }; this.renderChips(); this.showWard(); this.game.refreshBank(); }
+    if (!ward && this.ward) { this.ward = null; this.renderChips(); this.showDischarged(); }
   }
 
   // ------------------------------------------------------------ layers (one card per kind; the newest on top)
@@ -235,7 +247,7 @@ class Moments {
   reset() {
     for (const k of [...this.cards.keys()]) this.closeLayer(k);
     if (this.brawl) { this.brawl.close(); this.brawl = null; }
-    this.offer = null; this.queue = []; this.pill.hidden = true; this.fight = null; this.jail = null; this.wanted = null; this.renderChips();
+    this.offer = null; this.queue = []; this.pill.hidden = true; this.fight = null; this.jail = null; this.out = null; this.ward = null; this.wanted = null; this.renderChips();
   }
 
   async refreshStory(quiet) {
@@ -266,6 +278,9 @@ class Moments {
     if (this.fight && this.cards.has("fight")) this.fightCountdown(now);
     if (this.jail && this.cards.has("jail")) this.jailCountdown();
     if (this.jail && m !== null && m > this.jail.until + 2 && now - (this.jailPoll || 0) > 3000) { this.jailPoll = now; g.lastLook = 0; g.refreshLook(); }
+    if (this.out || this.ward) this.outCountdown();
+    const over = (this.out && m !== null && m > this.out.until + 1) || (this.ward && m !== null && m > this.ward.until + 1);
+    if (over && now - (this.outPoll || 0) > 3000) { this.outPoll = now; g.lastLook = 0; g.refreshLook(); }
   }
 
   // ------------------------------------------------------------ life events
@@ -274,7 +289,7 @@ class Moments {
     if (this.offer && !this.offer.result) { if (this.offer.event !== d.event) this.queue.push(d); return; }
     this.offer = d;
     // Not over a fight or a cell: it waits in the pill.
-    if (this.cards.has("fight") || this.cards.has("jail") || this.cards.has("confirm")) this.minimize(); else this.showOffer();
+    if (this.cards.has("fight") || this.cards.has("jail") || this.cards.has("confirm") || this.cards.has("out") || this.cards.has("ward")) this.minimize(); else this.showOffer();
   }
   lapsed(event) {
     if (this.offer && this.offer.event === event && !this.offer.result) {
@@ -457,6 +472,8 @@ class Moments {
   // ------------------------------------------------------------ wanted, the arrest and the cell
   renderChips() {
     const parts = [];
+    if (this.out) parts.push(el("button", { type: "button", class: "mo-chip held", dataset: { street: "out" }, onclick: () => this.showOut() }, icon("alert"), el("span", null, "Out cold"), el("span", { class: "num", id: "mo-out-left" }, this.leftText(this.out))));
+    if (this.ward) parts.push(el("button", { type: "button", class: "mo-chip held", dataset: { street: "ward" }, onclick: () => this.showWard() }, icon("health"), el("span", null, "Hospital"), el("span", { class: "num", id: "mo-ward-left" }, this.leftText(this.ward))));
     if (this.jail) parts.push(el("button", { type: "button", class: "mo-chip held", dataset: { street: "held" }, onclick: () => this.showJail() }, icon("alert"), el("span", null, "Held"), el("span", { class: "num", id: "mo-held-left" }, this.jailLeftText())));
     else if (this.wanted) parts.push(el("button", { type: "button", class: "mo-chip wanted", dataset: { street: "wanted" }, "aria-label": `Wanted for ${this.wanted}: what it means`, onclick: () => this.showWanted() }, icon("alert"), el("span", null, `Wanted · ${this.wanted.toLowerCase()}`)));
     replace(this.chips, parts);
@@ -466,6 +483,61 @@ class Moments {
   jailLeftText() {
     const m = this.world.minute();
     return this.jail && m !== null ? span(Math.max(0, this.jail.until - m)) : "";
+  }
+  leftText(state) {
+    const m = this.world.minute();
+    return state && m !== null ? span(Math.max(0, state.until - m)) : "";
+  }
+  outCountdown() {
+    for (const [id, state] of [["mo-out-left", this.out], ["mo-outcard-left", this.out], ["mo-ward-left", this.ward], ["mo-wardcard-left", this.ward]]) {
+      const n = document.getElementById(id), t = this.leftText(state);
+      if (n && n.textContent !== t) n.textContent = t;
+    }
+  }
+  // ------------------------------------------------------------ a need run down to 0 (D-080)
+  showOut() {
+    if (!this.out) return;
+    const card = el("section", { class: "mo-card mo-jail", role: "dialog", "aria-modal": "false", "aria-label": "Out cold", dataset: { moment: "out" } },
+      el("div", { class: "mo-eyebrow" }, "Passed out"),
+      el("h2", { class: "mo-title" }, "You're out cold"),
+      el("p", { class: "mo-prompt" }, `You'll come to around ${hhmm(this.out.until)}.`),
+      el("p", { class: "mo-countdown", id: "mo-outcard-left" }, this.leftText(this.out)),
+      el("ul", { class: "mo-list" },
+        el("li", null, `Time passes without you: a game hour is ${realHour(this.world.rules)}, and your needs wait until you come to.`),
+        el("li", null, "You can't move, talk or use your phone until then."),
+        el("li", null, "When you come to, eat and rest: run out of energy again and again and you'll catch Lantern Fatigue.")),
+      el("div", { class: "mo-actions" }, el("button", { type: "button", class: "btn link", onclick: () => this.closeLayer("out") }, "Hide")));
+    this.closeLayer("life"); if (this.offer && !this.offer.result) this.minimize();
+    this.showLayer("out", card);
+  }
+  showWard() {
+    if (!this.ward) return;
+    const here = this.world.here, why = this.ward.need === "hunger" ? "You passed out from hunger." : this.ward.need === "health" ? "You collapsed: your health gave out." : "";
+    const card = el("section", { class: "mo-card mo-jail", role: "dialog", "aria-modal": "false", "aria-label": "In the hospital", dataset: { moment: "ward" } },
+      el("div", { class: "mo-eyebrow" }, "Hospital"),
+      el("h2", { class: "mo-title" }, `Kept at ${here && here.name ? here.name : "the hospital"}`),
+      el("p", { class: "mo-prompt" }, `${why ? `${why} ` : ""}Until ${hhmm(this.ward.until)}.`),
+      el("p", { class: "mo-countdown", id: "mo-wardcard-left" }, this.leftText(this.ward)),
+      el("div", { class: "mo-label" }, "What you can do"),
+      el("ul", { class: "mo-list" },
+        el("li", null, "Rest: they've stabilised you, and your needs wait until you leave."),
+        el("li", null, "Use your phone: message people, check your money."),
+        el("li", null, "You can't leave until they discharge you.")),
+      el("div", { class: "mo-actions" },
+        el("button", { type: "button", class: "btn mo-big", onclick: () => this.game.openPhone() }, icon("phone"), "Phone"),
+        el("button", { type: "button", class: "btn link", onclick: () => this.closeLayer("ward") }, "Hide")));
+    this.closeLayer("life"); if (this.offer && !this.offer.result) this.minimize();
+    this.showLayer("ward", card);
+  }
+  showDischarged() {
+    this.closeLayer("ward");
+    const card = el("section", { class: "mo-card", role: "dialog", "aria-modal": "false", "aria-label": "Discharged", dataset: { moment: "discharged" } },
+      el("div", { class: "mo-eyebrow" }, "Discharged"),
+      el("h2", { class: "mo-title" }, "You've been discharged. Take it easy."),
+      el("div", { class: "mo-actions" },
+        el("button", { type: "button", class: "btn primary mo-big", onclick: () => { this.closeLayer("discharged"); if (this.world.self && this.world.self.inside) this.game.exit(); } }, icon("exit"), "Step outside"),
+        el("button", { type: "button", class: "btn mo-big", onclick: () => this.closeLayer("discharged") }, "OK")));
+    this.showLayer("discharged", card);
   }
   showWanted() {
     const card = el("section", { class: "mo-card mo-danger", role: "dialog", "aria-modal": "false", "aria-label": "Wanted", dataset: { moment: "wanted" } },

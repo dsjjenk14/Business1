@@ -85,6 +85,7 @@ class TogetherGame extends Game {
       host: Object.freeze({
         running: () => !!(this.host && this.host.running), humans: () => (this.host && this.host.M ? JSON.parse(this.host.M.town_humans()).data : []),
         advance: s => (this.host && this.host.running ? (this.host.advance(s), true) : false),
+        care: () => (this.host && this.host.running && this.host.M.town_care ? JSON.parse(this.host.M.town_care()).ok : false),  // tests (D-080)
         save: how => (this.host ? this.host.save(how || "debug") : Promise.resolve(false)),
         lastSave: () => (this.host ? clone(this.host.lastSave) : null), lastSaveError: () => (this.host ? this.host.lastSaveError : null),
         ticks: () => (this.host ? this.host.ticks : 0), from: () => (this.host ? this.host.from : null),

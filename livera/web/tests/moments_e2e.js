@@ -70,7 +70,7 @@ async function later(p) { const b = await p.page.$(".mo-card.mo-life:not(.mo-don
     await waitFor(A, () => window.__livera && window.__livera.phase() === "playing" && window.__livera.world.buildings.length > 0);
     // Fast-forward the town until something comes up (the day's first slot opens after 08:00).
     for (let i = 0; i < 40 && !(await A.page.$(".mo-card.mo-life, #moment-pill:not([hidden])")); i++) {
-      await W(A, () => window.__liveraSolo.advance(15));
+      await W(A, () => { window.__liveraSolo.advance(15); window.__liveraSolo.care(); });  // care: no hospital trip (D-080)
       await sleep(150);
     }
     if (await A.page.$("#moment-pill:not([hidden]) .mo-pill")) await A.page.click("#moment-pill .mo-pill");
@@ -121,7 +121,7 @@ async function later(p) { const b = await p.page.$(".mo-card.mo-life:not(.mo-don
   await test("phone: shoplifting shows the odds and the ladder first; caught means a cell, the Held chip, then freedom", async () => {
     // Thread & Co. opens at 09:00.
     const t = await W(A, async () => (await window.__livera.look()).data.time.minute % 1440);
-    if (t < 9 * 60 + 15) await W(A, s => window.__liveraSolo.advance(s), 9 * 60 + 20 - t);
+    if (t < 9 * 60 + 15) await W(A, s => { window.__liveraSolo.advance(s); window.__liveraSolo.care(); }, 9 * 60 + 20 - t);
     await later(A);
     await closeSheet(A);
     if (await W(A, () => window.__livera.world.self.inside)) {
@@ -158,7 +158,7 @@ async function later(p) { const b = await p.page.$(".mo-card.mo-life:not(.mo-don
     // Serve the time (fast-forward), and be told you're free.
     const until = await W(A, () => window.__liveraMoments.jail().until);
     const now = await W(A, () => window.__livera.world.minute());
-    await W(A, s => window.__liveraSolo.advance(s), Math.ceil(until - now) + 65);
+    await W(A, s => { window.__liveraSolo.advance(s); window.__liveraSolo.care(); }, Math.ceil(until - now) + 65);
     await A.page.waitForSelector('.mo-card[data-moment="free"]', { timeout: 20000 });
     await shot(A, "street_04_free_phone.png");
     await A.page.click('.mo-card[data-moment="free"] .btn.primary');
@@ -176,7 +176,7 @@ async function later(p) { const b = await p.page.$(".mo-card.mo-life:not(.mo-don
     await D.page.click('.castcard[data-character="dominique"]');
     await waitFor(D, () => window.__livera && window.__livera.phase() === "playing" && window.__livera.world.buildings.length > 0);
     for (let i = 0; i < 60 && !(await D.page.$(".mo-card.mo-life, #moment-pill:not([hidden])")); i++) {
-      await W(D, () => window.__liveraSolo.advance(15));
+      await W(D, () => { window.__liveraSolo.advance(15); window.__liveraSolo.care(); });
       await sleep(150);
     }
     if (await D.page.$("#moment-pill:not([hidden]) .mo-pill")) { await shot(D, "life_05_pill_desktop.png"); await D.page.click("#moment-pill .mo-pill"); }
@@ -252,7 +252,7 @@ async function later(p) { const b = await p.page.$(".mo-card.mo-life:not(.mo-don
     let state = { wanted: null, jail: null };
     for (let day = 0; day < 4 && !state.wanted && !state.jail; day++) {
       // The next day (the host fast-forwards at most 600 s a call): once a pair a day.
-      if (day) { for (let k = 0; k < 3; k++) { await W(H, () => window.__liveraTogether.host.advance(600)); await sleep(300); } await sleep(2500); }
+      if (day) { for (let k = 0; k < 3; k++) { await W(H, () => { window.__liveraTogether.host.advance(600); window.__liveraTogether.host.care(); }); await sleep(300); } await sleep(2500); }
       await later(F); await later(H);
       if (!(await F.page.$('#sheet [data-verb="fight:dominique"]'))) {
         await closeSheet(F);

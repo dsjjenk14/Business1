@@ -53,6 +53,7 @@ async function advanceTo(p, hh, mm) {
     const m = await minuteOfDay(p);
     if (m >= hh * 60 + mm) return;
     await W(p, s => window.__liveraSolo.advance(s), Math.max(0.5, Math.min(20, (hh * 60 + mm - m) / rate)));
+    await W(p, () => window.__liveraSolo.care());  // hours skipped without eating would end in the hospital (D-080)
     if (g % 5 === 0) await dismiss(p);
   }
 }

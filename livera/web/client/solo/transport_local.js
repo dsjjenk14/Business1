@@ -22,6 +22,7 @@ const API = {
   solo_tick: ["number"], solo_autopilot_start: ["string"], solo_autopilot_stop: [],
   solo_creator_options: [],   // optional: used only if `creator_options` isn't routed by solo_request
   solo_autopilot_status: [],  // optional: what each autopilot character is up to (the debug hook)
+  solo_care: [],              // optional, tests only: the person's needs topped up (D-080)
 };
 
 export class LocalTransport {
@@ -125,6 +126,7 @@ export class LocalTransport {
     this.autopilot = r.ok ? { running: true, error: null } : { running: false, error: r.error.message };
     return this.autopilot;
   }
+  care() { return this.api.solo_care ? this.reply("solo_care") : fail("unavailable", "this build has no solo_care"); }
   autopilotStatus() { return this.api.solo_autopilot_status ? this.reply("solo_autopilot_status") : fail("unavailable", "this build has no solo_autopilot_status"); }
   stopAutopilot() {
     if (this.api.solo_autopilot_stop) this.reply("solo_autopilot_stop");

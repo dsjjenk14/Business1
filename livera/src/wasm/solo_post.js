@@ -42,4 +42,6 @@
   Module["town_create_character"] = sheetJson => withText(_town_create_character, sheetJson);
   Module["town_creator_options"] = () => UTF8ToString(_town_creator_options());
   Module["town_humans"] = () => UTF8ToString(_town_humans());
+  Module["solo_care"] = () => UTF8ToString(_solo_care());  // tests only (D-080)
+  Module["town_care"] = () => UTF8ToString(_town_care());
 })();

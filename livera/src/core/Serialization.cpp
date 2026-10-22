@@ -48,6 +48,11 @@ Json toJson(const CharacterState& c) {
   j["high_until"] = c.highUntil;
   j["wanted_for"] = c.wantedFor;
   j["jailed_until"] = c.jailedUntil;
+  j["passed_out_until"] = c.passedOutUntil;
+  j["admitted_until"] = c.admittedUntil;
+  j["admitted_for"] = c.admittedFor;
+  j["at_zero"] = c.atZero;
+  j["zero_times"] = c.zeroTimes;
   j["fame"] = c.fame;
   j["parents"] = c.parents;
   j["childhood"] = Json{{"childcare", c.childcare},
@@ -126,6 +131,11 @@ CharacterState characterStateFromJson(const Json& j) {
   c.highUntil = j.value("high_until", GameMinutes{-1});
   c.wantedFor = j.value("wanted_for", "");
   c.jailedUntil = j.value("jailed_until", GameMinutes{-1});
+  c.passedOutUntil = j.value("passed_out_until", GameMinutes{-1});
+  c.admittedUntil = j.value("admitted_until", GameMinutes{-1});
+  c.admittedFor = j.value("admitted_for", "");
+  c.atZero = j.value("at_zero", std::set<std::string>{});
+  c.zeroTimes = j.value("zero_times", std::map<std::string, std::vector<GameMinutes>>{});
   c.fame = j.value("fame", -1.0);  // -1: a save from before fame; World starts it from the definition
   c.parents = j.value("parents", std::vector<std::string>{});
   if (j.contains("childhood")) {

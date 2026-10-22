@@ -54,6 +54,35 @@ Status ContentDatabase::ingestMore(const std::string& source, const std::string&
       }
       return okStatus();
     }
+    if (section == "needs_at_zero") {  // D-080
+      if (haveNeedsAtZero_) return fail("content_duplicate", source + ": 'needs_at_zero' defined twice");
+      haveNeedsAtZero_ = true;
+      NeedsAtZeroConfig& Z = needsAtZero_;
+      Z.hospital = body.at("hospital").get<std::string>();
+      Z.rearmAbove = body.value("rearm_above", Z.rearmAbove);
+      const Json& p = body.at("pass_out");
+      Z.passOutHours = p.value("hours", Z.passOutHours);
+      Z.energyAfterPassOut = p.value("energy_after", Z.energyAfterPassOut);
+      Z.passOutEmotions = readStats(p, "emotions");
+      Z.robberyChanceOutdoors = p.value("robbery_chance_outdoors", 0.0);
+      Z.robberyMaxCashCents = p.value("robbery_max_cash_cents", Cents{0});
+      for (const auto& j : body.at("needs")) {
+        ZeroRuleDef r;
+        r.need = j.at("need").get<std::string>();
+        r.rule = j.at("rule").get<std::string>();
+        r.hours = j.value("hours", 0.0);
+        r.billCents = j.value("bill_cents", Cents{0});
+        r.after = readStats(j, "after");
+        r.emotionsPerHour = readStats(j, "emotions_per_hour");
+        r.needsPerHour = readStats(j, "needs_per_hour");
+        r.receptivity = j.value("receptivity", 1.0);
+        r.condition = j.value("condition", "");
+        r.summary = j.at("summary").get<std::string>();
+        r.text = j.value("text", "");
+        Z.rules.push_back(std::move(r));
+      }
+      return okStatus();
+    }
   } catch (const std::exception& e) {
     return fail("content_invalid", source + ": " + e.what());
   }
@@ -107,6 +136,45 @@ Status ContentDatabase::validateMore() const {
   for (const auto& [id, c] : careers_) {
     if (c.atEmployersHome && !c.employerAccount.empty())
       return fail("content_invalid", "career " + id + ": a job at the employer's home is paid by the family, not an account");
+  }
+  // What happens when a need runs out (D-080): a rule for every need, and the illnesses running it down brings.
+  if (haveNeedsAtZero_) {
+    const NeedsAtZeroConfig& Z = needsAtZero_;
+    const LocationDef* er = location(Z.hospital);
+    if (!er || !er->enterable || er->revenueAccount.empty())
+      return fail("content_invalid", "needs_at_zero.hospital must be an enterable place that bills: " + Z.hospital);
+    if (Z.passOutHours <= 0 || Z.rearmAbove <= 0 || Z.robberyChanceOutdoors < 0 || Z.robberyChanceOutdoors > 1 ||
+        Z.robberyMaxCashCents < 0)
+      return fail("content_invalid", "needs_at_zero: pass_out hours, rearm_above and the robbery numbers must make sense");
+    if (auto s = checkKeys(Z.passOutEmotions, emotions, "needs_at_zero.pass_out.emotions"); !s) return s;
+    static const std::set<std::string> kRules{"pass_out", "hospital", "accident", "notice"};
+    std::set<std::string> ruled;
+    for (const auto& r : Z.rules) {
+      const std::string where = "needs_at_zero " + r.need;
+      if (!needs.count(r.need)) return fail("content_invalid", where + ": unknown need");
+      if (!ruled.insert(r.need).second) return fail("content_duplicate", where + " is given twice");
+      if (!kRules.count(r.rule)) return fail("content_invalid", where + ": rule is pass_out, hospital, accident or notice");
+      if ((r.rule == "accident") != (r.need == "bladder"))
+        return fail("content_invalid", where + ": bladder's rule is accident (wetting yourself), and only bladder's");
+      if (r.rule == "hospital" && (r.hours <= 0 || r.billCents < 0))
+        return fail("content_invalid", where + ": a hospital stay needs hours and a bill of 0 or more");
+      if (auto s = checkKeys(r.after, needs, where + " after"); !s) return s;
+      if (auto s = checkKeys(r.needsPerHour, needs, where + " needs_per_hour"); !s) return s;
+      if (auto s = checkKeys(r.emotionsPerHour, emotions, where + " emotions_per_hour"); !s) return s;
+      if (r.receptivity <= 0 || r.receptivity > 1) return fail("content_invalid", where + ": receptivity is in (0, 1]");
+      if (!r.condition.empty() && !condition(r.condition)) return fail("content_invalid", where + ": unknown condition " + r.condition);
+      if (r.summary.empty() || (r.rule != "accident" && r.text.empty()))
+        return fail("content_invalid", where + ": summary (the needs card) and text (what you're told) are required");
+    }
+    for (const auto& n : sim_.needs) {
+      if (!ruled.count(n.id)) return fail("content_invalid", "needs_at_zero: no rule for the need " + n.id);
+    }
+  }
+  for (const auto& [id, d] : conditions_) {
+    if (d.fromZeroNeed.empty()) continue;
+    if (!needs.count(d.fromZeroNeed)) return fail("content_invalid", "condition " + id + ": from_zero names an unknown need");
+    if (d.fromZeroTimes < 1 || d.fromZeroWithinDays <= 0)
+      return fail("content_invalid", "condition " + id + ": from_zero needs times >= 1 and within_days > 0");
   }
   if (auto st = validateHomes(); !st) return st;
   if (auto st = validateWork(); !st) return st;

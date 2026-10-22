@@ -1,0 +1,99 @@
+{
+  "$comment": "Made-up illnesses you get from running a need down to 0 again and again (D-080): from_zero names the need and how many times it must hit 0 (needs_at_zero.json counts each time) within within_days game days. The count starts again once the illness comes on. They behave like any condition in conditions.json: they wear on you every hour, last hours (0 = until treated) and are cured by the care named in treated_by.",
+  "conditions": [
+    {
+      "id": "lantern_fatigue",
+      "name": "Lantern Fatigue",
+      "kind": "illness",
+      "hours": [72, 120],
+      "needs_per_hour": {"energy": -1.5},
+      "emotions_per_hour": {"stress": 0.5},
+      "performance_penalty": 0.2,
+      "onset": "You've run yourself empty one time too many: you have Lantern Fatigue. Your energy drains faster for days, or until a clinic treats it.",
+      "from_zero": {"need": "energy", "times": 3, "within_days": 7},
+      "treated_by": ["treatment"]
+    },
+    {
+      "id": "hollow_gut",
+      "name": "Hollow Gut",
+      "kind": "illness",
+      "hours": [96, 144],
+      "needs_per_hour": {"hunger": -2, "health": -0.3, "comfort": -1},
+      "performance_penalty": 0.15,
+      "onset": "Starving yourself has caught up with you: you have Hollow Gut. You get hungry faster and it wears on your health until a clinic treats it.",
+      "from_zero": {"need": "hunger", "times": 2, "within_days": 7},
+      "treated_by": ["treatment"]
+    },
+    {
+      "id": "greyheart",
+      "name": "Greyheart",
+      "kind": "illness",
+      "hours": [0, 0],
+      "needs_per_hour": {"health": -0.5, "energy": -1},
+      "emotions_per_hour": {"sadness": 1},
+      "performance_penalty": 0.3,
+      "onset": "Collapsing again has left its mark: you have Greyheart. Your health and energy keep slipping until a doctor treats it.",
+      "from_zero": {"need": "health", "times": 2, "within_days": 14},
+      "treated_by": ["treatment"]
+    },
+    {
+      "id": "tidewater_bladder",
+      "name": "Tidewater Bladder",
+      "kind": "illness",
+      "hours": [96, 144],
+      "needs_per_hour": {"bladder": -3},
+      "emotions_per_hour": {"stress": 0.5},
+      "onset": "Too many accidents: you have Tidewater Bladder. You need the bathroom far more often until a clinic treats it.",
+      "from_zero": {"need": "bladder", "times": 2, "within_days": 7},
+      "treated_by": ["treatment"]
+    },
+    {
+      "id": "mire_rash",
+      "name": "Mire Rash",
+      "kind": "illness",
+      "hours": [72, 120],
+      "needs_per_hour": {"comfort": -2, "grooming": -1},
+      "emotions_per_hour": {"embarrassment": 1},
+      "performance_penalty": 0.1,
+      "onset": "Going unwashed has given you Mire Rash: it itches, it shows, and it lasts days unless a clinic treats it.",
+      "from_zero": {"need": "hygiene", "times": 3, "within_days": 7},
+      "treated_by": ["treatment"]
+    },
+    {
+      "id": "echo_sickness",
+      "name": "Echo Sickness",
+      "kind": "mental",
+      "hours": [0, 0],
+      "needs_per_hour": {"social": -1},
+      "emotions_per_hour": {"loneliness": 2, "sadness": 1},
+      "performance_penalty": 0.15,
+      "onset": "Being alone this long has given you Echo Sickness: the quiet follows you around. Therapy treats it.",
+      "from_zero": {"need": "social", "times": 3, "within_days": 14},
+      "treated_by": ["therapy_session"]
+    },
+    {
+      "id": "grey_spell",
+      "name": "the Grey Spell",
+      "kind": "mental",
+      "hours": [72, 144],
+      "needs_per_hour": {"recreation": -1},
+      "emotions_per_hour": {"happiness": -2, "stress": 1},
+      "performance_penalty": 0.15,
+      "onset": "All work and no play: the Grey Spell has settled on you. Nothing feels fun for days, unless therapy lifts it.",
+      "from_zero": {"need": "recreation", "times": 3, "within_days": 14},
+      "treated_by": ["therapy_session"]
+    },
+    {
+      "id": "knotback",
+      "name": "Knotback",
+      "kind": "illness",
+      "hours": [72, 120],
+      "needs_per_hour": {"comfort": -2, "energy": -0.5},
+      "emotions_per_hour": {"stress": 1},
+      "performance_penalty": 0.15,
+      "onset": "Your body has knotted up from too long without comfort: you have Knotback. It aches for days unless a clinic treats it.",
+      "from_zero": {"need": "comfort", "times": 3, "within_days": 14},
+      "treated_by": ["treatment"]
+    }
+  ]
+}

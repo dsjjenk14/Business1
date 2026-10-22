@@ -89,6 +89,7 @@ add_library(livera_core
   src/core/Details.cpp
   src/core/Goals.cpp
   src/core/Sleep.cpp
+  src/core/NeedsAtZero.cpp
   src/core/Away.cpp
   src/core/WorldParts.cpp
   src/core/Items.cpp
@@ -124,7 +125,7 @@ if(LIVERA_WASM)
   target_link_options(livera_solo PRIVATE
     -sSINGLE_FILE=1 -sSINGLE_FILE_BINARY_ENCODE=0 -sMODULARIZE=1 -sEXPORT_ES6=1 -sEXPORT_NAME=createLivera -sALLOW_MEMORY_GROWTH=1
     "-sENVIRONMENT=${LIVERA_WASM_ENVIRONMENT}"
-    "-sEXPORTED_FUNCTIONS=_solo_new,_solo_load,_solo_save,_solo_rules,_solo_characters,_solo_create_character,_solo_play,_solo_leave,_solo_request,_solo_tick,_solo_autopilot_start,_solo_autopilot_stop,_solo_autopilot_status,_town_join,_town_leave,_town_request,_town_tick,_town_characters,_town_create_character,_town_creator_options,_town_humans,_malloc,_free"
+    "-sEXPORTED_FUNCTIONS=_solo_new,_solo_load,_solo_save,_solo_rules,_solo_characters,_solo_create_character,_solo_play,_solo_leave,_solo_request,_solo_tick,_solo_autopilot_start,_solo_autopilot_stop,_solo_autopilot_status,_town_join,_town_leave,_town_request,_town_tick,_town_characters,_town_create_character,_town_creator_options,_town_humans,_solo_care,_town_care,_malloc,_free"
     "-sEXPORTED_RUNTIME_METHODS=ccall,cwrap,UTF8ToString,stringToUTF8,lengthBytesUTF8"
     # ccall puts string arguments on the wasm stack; the wrappers in solo_post.js use the heap instead,
     # and the stack is still larger than the default 64 KB for the core's own deep calls.
@@ -189,6 +190,7 @@ add_executable(livera_tests
   tests/test_leisure.cpp
   tests/test_pets.cpp
   tests/test_details.cpp
+  tests/test_zero.cpp
   tests/test_autopilot.cpp
   tests/test_protocol.cpp
   tests/test_localtown.cpp

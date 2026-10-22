@@ -378,6 +378,28 @@ EMSCRIPTEN_KEEPALIVE const char* town_creator_options() {
   });
 }
 
+// Tests only: the person's needs topped up (World::devCare), for fast-forwards that are about something else.
+EMSCRIPTEN_KEEPALIVE const char* solo_care() {
+  return guarded([] {
+    auto t = liveTown();
+    if (!t) return answer(failReply(t.error()));
+    const Harness& h = harness();
+    if (h.human.empty()) return answer(failReply(fail("not_playing", "nobody is playing")));
+    Status st = t.value()->world().devCare(h.human);
+    return answer(st ? Json{{"ok", true}} : failReply(st.error()));
+  });
+}
+
+// Tests only: everyone playing has their needs topped up (World::devCare).
+EMSCRIPTEN_KEEPALIVE const char* town_care() {
+  return guarded([] {
+    auto t = liveTown();
+    if (!t) return answer(failReply(t.error()));
+    for (const auto& id : t.value()->humans()) (void)t.value()->world().devCare(id);
+    return answer(Json{{"ok", true}});
+  });
+}
+
 // Who is playing right now -> {"ok", "data": [ids]}.
 EMSCRIPTEN_KEEPALIVE const char* town_humans() {
   return guarded([] {

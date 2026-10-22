@@ -649,6 +649,13 @@ TEST_CASE("tunings: the redesign's numbers, and what each one does") {
 
 namespace {
 
+bool notified(const World& w, const CharacterId& id, const std::string& fragment) {
+  for (const auto& n : w.state().notifications) {
+    if (n.recipient == id && n.text.find(fragment) != std::string::npos) return true;
+  }
+  return false;
+}
+
 // To `hour`:00 today, or tomorrow if that's past.
 void atHour(World& w, int hour) {
   const GameMinutes target = (w.now() / kMinutesPerDay) * kMinutesPerDay + hour * kMinutesPerHour;
@@ -697,13 +704,53 @@ TEST_CASE("sleep: only at home, in the evening, and not at work; each refusal ha
   CHECK(w.isAsleep("dominique"));
   CHECK(w.sleepers() == std::vector<CharacterId>{"dominique"});
   CHECK(w.look("dominique").value()["you"]["asleep"] == true);
-  // Past 03:00 it's too late to start a night.
+  // By day, still rested, it's not bedtime (tired, it would be a nap: the next test).
   World late = World::createNew(realContent());
   REQUIRE(late.connect("dominique"));
-  atHour(late, 4);
+  atHour(late, 10);
+  REQUIRE(late.character("dominique")->needs.at("energy") >= late.content().life().napBelowEnergy);
   CHECK(late.sleep("dominique").error().code == "not_bedtime");
   atHour(late, 2);
   CHECK(late.sleep("dominique"));
+}
+
+TEST_CASE("sleep: tired by day, a nap until you're rested; asleep, energy comes back, and a full night fills it") {
+  const LifeConfig& L = realContent()->life();
+  World w = World::createNew(realContent());
+  REQUIRE(w.connect("dominique"));
+  // Up all night (needs_at_zero.json isn't in these tests' content: nothing happens at 0), home by 15:00, worn out.
+  atHour(w, 15);
+  atHour(w, 14);
+  const double tired = w.character("dominique")->needs.at("energy");
+  REQUIRE(tired < L.napBelowEnergy);
+  auto r = w.sleep("dominique");
+  REQUIRE(r);
+  CHECK(r.value()["nap"] == true);
+  const GameMinutes wake = r.value()["wake_at"].get<GameMinutes>();
+  const double hours = std::clamp((100 - tired) / L.sleepEnergyPerHour, 0.5, L.napMaxHours);
+  CHECK(wake == w.now() + static_cast<GameMinutes>(std::lround(hours * 60)));
+  CHECK(w.isAsleep("dominique"));
+  w.advanceMinutes(wake - w.now());
+  CHECK(!w.isAsleep("dominique"));  // up when rested, not at the morning's wake hour
+  CHECK(notified(w, "dominique", "You woke up from your nap, rested."));
+  CHECK_NEAR(w.character("dominique")->needs.at("energy"), std::min(100.0, tired + hours * L.sleepEnergyPerHour), 1e-6);
+  // A night from 22:00 to the wake hour fills energy from nothing.
+  atHour(w, 22);
+  REQUIRE(w.sleep("dominique"));
+  atHour(w, L.wakeHour);
+  CHECK(!w.isAsleep("dominique"));
+  CHECK(w.character("dominique")->needs.at("energy") == 100);
+  // Night skips stop when the first nap ends.
+  World s = World::createNew(realContent());
+  REQUIRE(s.connect("dominique"));
+  atHour(s, 15);
+  atHour(s, 14);
+  REQUIRE(s.sleep("dominique"));
+  const GameMinutes napEnd = s.character("dominique")->napUntil;
+  auto skipped = s.skipNight();
+  REQUIRE(skipped);
+  CHECK(s.now() == napEnd);
+  CHECK(!s.isAsleep("dominique"));
 }
 
 TEST_CASE("sleep: your routine looks after you in bed; any command but look and the phone gets you up") {
@@ -1463,7 +1510,10 @@ TEST_CASE("map: the public rules, transit lines and interactions come from data"
   CHECK(rules["minutes_per_real_second"] == db.sim().minutesPerRealSecond);
   CHECK(rules["entry_radius_m"] == db.sim().entryRadiusMeters);
   CHECK(rules["boarding_radius_m"] == db.transit().boardingRadiusMeters);
-  CHECK(rules.size() == 8);
+  CHECK(rules["needs_at_zero"].is_object());  // what each need does at 0 (D-080): none without needs_at_zero.json
+  CHECK(rules["sleep"]["wake_hour"] == db.life().wakeHour);  // and when you can go to bed or nap
+  CHECK(rules["sleep"]["nap_below_energy"] == db.life().napBelowEnergy);
+  CHECK(rules.size() == 10);
   REQUIRE(m["transit"]["lines"].size() == db.transit().lines.size());
   const Json& line = m["transit"]["lines"][0];
   CHECK(line["id"] == "line_1");

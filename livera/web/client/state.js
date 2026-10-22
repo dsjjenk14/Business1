@@ -61,6 +61,8 @@ export class World {
   setRules(r) {
     if (!r || typeof r !== "object") return;
     for (const k of Object.keys(DEFAULT_RULES)) if (typeof r[k] === "number" && isFinite(r[k])) this.rules[k] = r[k];
+    // What each need does at 0, and when you can go to bed or nap (D-080): read as the server says them.
+    for (const k of ["needs_at_zero", "sleep"]) if (r[k] && typeof r[k] === "object") this.rules[k] = r[k];
     this.rulesFromServer = true;
     this.changed("rules");
   }
@@ -124,6 +126,7 @@ export class World {
       s.needs = you.needs || s.needs || {};
       s.emotions = you.emotions || s.emotions || {};
       s.onShift = !!you.on_shift;
+      s.asleep = !!you.asleep;
       s.inside = typeof you.inside === "string" ? you.inside : "";
       const pos = vec(you.position);
       if ("target" in you || "speed_mps" in you) {

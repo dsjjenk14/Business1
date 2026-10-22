@@ -399,6 +399,9 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
         if (sleep.contains("bed_hours"))
           L.bedHours = OpeningHours{sleep.at("bed_hours").at(0).get<int>(), sleep.at("bed_hours").at(1).get<int>(), {}};
         L.wakeHour = sleep.value("wake_hour", L.wakeHour);
+        L.sleepEnergyPerHour = sleep.value("energy_per_hour", L.sleepEnergyPerHour);
+        L.napBelowEnergy = sleep.value("nap_below_energy", L.napBelowEnergy);
+        L.napMaxHours = sleep.value("nap_max_hours", L.napMaxHours);
       } else if (section == "conditions") {
         for (const auto& j : body) {
           ConditionDef d;
@@ -424,6 +427,12 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
             d.sexualTransmission = c.value("sexual_transmission", 0.0);
           }
           d.treatedBy = readStrings(j, "treated_by");
+          if (j.contains("from_zero")) {
+            const Json& z = j.at("from_zero");
+            d.fromZeroNeed = z.at("need").get<std::string>();
+            d.fromZeroTimes = z.at("times").get<int>();
+            d.fromZeroWithinDays = z.value("within_days", d.fromZeroWithinDays);
+          }
           if (auto st = insertUnique(conditions_, "condition", d.id, d); !st) return st;
         }
       } else if (section == "items") {

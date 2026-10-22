@@ -387,6 +387,12 @@ struct CharacterState {
   GameMinutes highUntil = -1;
   std::string wantedFor;     // a reported crime the police haven't arrested you for yet
   GameMinutes jailedUntil = -1;
+  // A need run down to 0 (D-080, NeedsAtZero.cpp): out cold where you fell, or kept in the hospital.
+  GameMinutes passedOutUntil = -1;
+  GameMinutes admittedUntil = -1;
+  std::string admittedFor;   // the need that put you there: its "after" needs when you leave
+  std::set<std::string> atZero;  // needs at 0 now, until they're back above rearm_above
+  std::map<std::string, std::vector<GameMinutes>> zeroTimes;  // when each need hit 0, toward from_zero illnesses
   double fame = 0;           // 0..100
   std::optional<PregnancyState> pregnancy;
   std::vector<CharacterId> parents;  // family: who you were born to (in the world)
@@ -437,6 +443,8 @@ struct CharacterState {
   std::map<std::string, std::vector<GameMinutes>> recentUses;  // substance -> when, for overdoses
   std::map<CharacterId, GameMinutes> pickpocketedAt;           // victim -> when
   GameMinutes asleepSince = -1;  // in bed (World::sleep) since then; -1 = awake (Sleep.cpp)
+  GameMinutes napUntil = -1;     // a nap ends then; -1 = asleep for the night, until the wake hour
+  double energyAtBed = 0;        // energy when you lay down: sleep brings it back from there
 
   SimTier tier() const { return online ? SimTier::Active : SimTier::Dormant; }
 };
@@ -651,6 +659,7 @@ struct SeenPerson {
   bool bus = false;            // riding (moveSpeedMps > 0)
   bool scripted = false;
   std::string uniform;  // a police officer on duty (D-069): anyone can see the uniform
+  bool passedOut = false;  // out cold where they fell (D-080): anyone can see that too
 };
 
 // interiors: where someone is in the room of the place they're inside (Interiors.cpp, D-066). Session state, never
@@ -961,6 +970,9 @@ class World {
 
   // Dev servers only (the server gates it behind --dev): give a character a condition, for testing care and contagion.
   Status devAddCondition(const CharacterId& id, const std::string& condition);
+  // Tests and dev only: every need topped up to at least `level`, for a fast-forward that is about something else and
+  // shouldn't end in the hospital (D-080). The single-player and Play together harnesses expose it as care().
+  Status devCare(const CharacterId& id, double level = 80);
 
   // --- Queries (WorldViews.cpp) ---------------------------------------------------
   Result<Json> look(const CharacterId& actor) const;
@@ -1003,6 +1015,7 @@ class World {
   // Sleep.cpp: wake one sleeper (their routine's catch-up for the time asleep); at the wake hour, with good_morning.
   void wakeUp(CharacterState& c, bool morning);
   void stepSleepHourly();  // called once a game hour from stepHourly (Life.cpp): the wake hour wakes everyone
+  void stepNapMinute(CharacterState& c);  // called as the clock moves (advanceMinutes): a nap ends when you're rested
   // Away.cpp: a character's scheduled work block on a weekday (minutes of the day; start < 0 = none), and the
   // routine paying blocks that ended in the last hour for characters who spent them offline.
   struct WorkBlock {
@@ -1284,6 +1297,17 @@ class World {
   // Hooks the rest of the world calls (each is one line where it happens).
   void wetYourself(CharacterState& c);                          // Life.cpp: bladder hit 0
   double detailsReceptivity(const CharacterState& actor) const; // World::interact
+  // D-080: what happens when a need runs out (NeedsAtZero.cpp).
+  void stepNeedsAtZero(CharacterState& c);       // each simulated minute: needs that hit 0, and staying at 0
+  void stepOutColdMinute(CharacterState& c);     // as the clock moves: coming to, being discharged
+  void countZero(CharacterState& c, const std::string& need);  // toward the illnesses of running it down
+  void passOut(CharacterState& c);
+  void admitToHospital(CharacterState& c, const ZeroRuleDef& rule);
+  bool outCold(const CharacterState& c) const;   // passed out or kept in the hospital: needs are on hold
+  double zeroReceptivity(const CharacterState& c) const;
+  std::string zeroText(const std::string& text, const ZeroRuleDef* rule, const std::string& where = "") const;
+  Json needsAtZeroRules() const;                 // publicRules: what each need does at 0
+  Json sleepRules() const;                       // publicRules: bed hours, the wake hour, naps
   void onDrink(CharacterState& c, const std::string& substance); // Substances.cpp
   void onBirthday(CharacterState& c, int age);                   // Life.cpp checkBirthday
   void onGift(CharacterState& giver, CharacterState& receiver, const std::string& item, Json& out);  // Items.cpp giveItem
