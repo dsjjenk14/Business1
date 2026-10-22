@@ -292,7 +292,8 @@ TEST_CASE("outfits: a personal look gets dirty and ruined, and laundry washes it
     (void)w.useActivity("dominique", "toilet");
     w.advanceMinutes(60);
   }
-  for (const auto& l : looks(w, "dominique")["looks"]) CHECK(l["condition"] == "clean");
+  const Json unworn = looks(w, "dominique");  // kept alive while it's iterated
+  for (const auto& l : unworn["looks"]) CHECK(l["condition"] == "clean");
   CHECK(code(w.doLaundry("dominique")) == "nothing_to_wash");
   REQUIRE(w.character("dominique")->inside == "lexington_1204");
   REQUIRE(w.wear("dominique", "outfit_work"));
