@@ -908,7 +908,8 @@ export class UI {
       // Verbs (verbs.js), at most two of a kind here: the rest are on the full card.
       const allVerbs = this.trayVerbs && this.trayVerbs.id === here.id ? this.trayVerbs.actions : [], perKind = new Map();
       const verbs = allVerbs.filter(a => { const n = (perKind.get(a.kind) || 0) + 1; perKind.set(a.kind, n); return n <= 2; });
-      const key = [offers.length, acts.map((a, i) => a.id + (waits[i] ? Math.ceil(waits[i]) : "")).join(), works, w.self.onShift, decisions, inside.map(p => p.id).join(),
+      const wardrobe = g.wardrobeChip ? g.wardrobeChip(here) : null;   // D-079: "Change clothes" inside your own home
+      const key = [!!wardrobe, offers.length, acts.map((a, i) => a.id + (waits[i] ? Math.ceil(waits[i]) : "")).join(), works, w.self.onShift, decisions, inside.map(p => p.id).join(),
         studyHere, enrolled && enrolled.studying, taught.length, bedNow && `${bedNow.label}${bedNow.sub}`, hours && hours.text, here.status, allVerbs.map(a => `${a.key}:${a.label}:${a.detail}`).join()].join("|");
       if (chips.dataset.key === key) return;
       chips.dataset.key = key;
@@ -927,6 +928,7 @@ export class UI {
         list.push({ k: `verb:${a.key || a.label}`, data: { verb: a.key || a.label }, icon: VERB_ICONS[a.kind] || "check", label: a.label, sub: String(a.detail || "").split(/ · |(?<=\.) /)[0],
           cls: a.danger ? "danger" : "", aria: a.detail ? `${a.label}: ${a.detail}` : a.label, run: e => this.runTrayVerb(a, e.currentTarget, here) });
       }
+      if (wardrobe) list.push(wardrobe);
       if (works) list.push(w.self.onShift
         ? { k: "shift", data: { tray: "shift" }, icon: "workdesk", cls: "on", label: decisions ? `${decisions} decision${decisions > 1 ? "s" : ""}` : "End shift", sub: decisions ? "on shift" : "get paid",
           aria: decisions ? `On shift, ${decisions} decisions waiting: open work` : "End shift", run: () => (decisions ? g.openPhone("work") : g.work("end")) }
@@ -939,9 +941,8 @@ export class UI {
         sub: inside.length === 1 ? "here with you" : "with you", aria: `${inside.length} here with you`,
         run: () => (inside.length === 1 ? this.sheetPerson(inside[0].id) : this.sheetScene({ card: true, height: "full" })) });
       // Bed, at home: at night, or a nap when you're tired; asleep, Get up (Sleep.cpp).
-      const bed = home ? this.sleepOption() : null;
-      if (bed) list.push({ k: "sleep", data: { tray: "sleep" }, icon: "bed", cls: bed.asleep ? "on" : "", label: bed.label, sub: bed.sub,
-        run: () => (bed.asleep ? g.getUp() : g.sleep()) });
+      if (bedNow) list.push({ k: "sleep", data: { tray: "sleep" }, icon: "bed", cls: bedNow.asleep ? "on" : "", label: bedNow.label, sub: bedNow.sub,
+        run: () => (bedNow.asleep ? g.getUp() : g.sleep()) });
       const hidden = allVerbs.length - verbs.length;
       list.push({ k: "more", data: { tray: "more" }, icon: "more", label: "More", sub: hidden ? `${hidden} more inside` : "the full card",
         aria: `More at ${here.name}: the full card`, run: () => this.sheetScene({ card: true }) });
@@ -1192,6 +1193,7 @@ export class UI {
       el("div", { class: "eyebrow" }, "Feelings"), bars(s.emotions, true),
       el("p", { class: "hint" }, "Green is good for you, red is not: high stress or embarrassment hurts, high happiness helps."),
       ...(this.game.youExtras ? this.game.youExtras() : []),  // the street: wanted, held, walking away from fights (moments.js)
+      this.game.openWardrobe ? el("button", { type: "button", class: "btn block", id: "you-wardrobe", onclick: () => this.game.openWardrobe() }, icon("items"), "Wardrobe") : null,  // D-079
       el("div", { class: "eyebrow" }, "Game"),
       el("button", { type: "button", class: "btn block", id: "you-menu", onclick: () => this.sheetMenu() }, lotus(), "Game menu"),
       el("div", { class: "row" },

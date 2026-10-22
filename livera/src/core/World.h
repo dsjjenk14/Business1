@@ -651,6 +651,7 @@ struct WorldEvent {
 // Session state: never saved, rebuilt from nothing when a viewer connects.
 struct SeenPerson {
   LocationId inside;
+  std::string outfit;  // the outfit they have on (D-079): what someone wears is public, so a change is news
   Vec2 position;
   std::optional<Vec2> target;  // only while actually travelling (outdoors with a move target); for someone
                                // else, cut short where they would leave the viewer's sight (World::seenBy)
@@ -752,6 +753,9 @@ class World {
   // Board at the stop you're standing at and ride to another stop. pay = false is fare evasion.
   Result<Json> ride(const CharacterId& actor, const std::string& toStop, bool pay);
   bool owns(const CharacterId& id, const std::string& item) const;
+  // --- Personal looks (Outfits.cpp, D-079) ---------------------------------------------------
+  WornLook wornLook(const CharacterState& c) const;
+  std::string drawnLook(const CharacterId& id) const;  // the look their art shows (made in the creator: everyday)
 
   // --- School and work (Education.cpp) ---------------------------------------------------
   Result<Json> enroll(const CharacterId& actor, const std::string& program);
@@ -1063,6 +1067,10 @@ class World {
   void applyConditionRecovery(CharacterState& c, const StatMap& progress);
   Json phoneHealth(const CharacterState& c) const;
   Json phoneItems(const CharacterState& c) const;
+  // D-079 (Outfits.cpp): `look` (and `look_label` for a bought outfit) on a person's entry; your three looks.
+  void addLook(const CharacterState& c, Json& out) const;
+  Json phoneLooks(const CharacterState& c) const;
+  Status changingAllowed(const CharacterState& c, const std::string& slot) const;
   Json phoneSchool(const CharacterState& c) const;
   Json phoneJobs(const CharacterState& c) const;
   void payCliniciansOnDuty(const CharacterId& patient, const LocationDef& where, Cents price, Json& out);

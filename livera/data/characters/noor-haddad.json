@@ -84,6 +84,12 @@
           "face": "a sharp chin, thick brows, a beauty mark",
           "hair": "long dark waves with a centre part",
           "style": "an oversized cream blazer over a black bodysuit, wide black trousers, chunky loafers, a tape measure around her neck",
+          "outfits": {
+            "everyday": "a baby-blue cropped cardigan over a white tee, baggy light-wash jeans, chunky white trainers, the Arabic name necklace",
+            "work": "an oversized cream blazer over a black bodysuit, wide black trousers, chunky black loafers, a tape measure around her neck",
+            "evening": "a red satin cowl-neck top, black satin wide-leg trousers, black strappy heels, stacked gold rings, gold hoops",
+            "drawn": "work"
+          },
           "jewelry": "stacked gold rings, a name necklace in Arabic",
           "silhouette": "a big blazer, long waves and a tape measure",
           "key_features": [
@@ -99,7 +105,11 @@
             "hair_style": "long",
             "top": "#e9e1cf",
             "bottom": "#161616",
-            "shoes": "#1c1c1c"
+            "shoes": "#1c1c1c",
+            "outfits": {
+              "everyday": {"top": "#a9c7e3", "bottom": "#9bb3cf", "shoes": "#f0efea"},
+              "evening": {"top": "#a3202a", "bottom": "#141414", "shoes": "#141414"}
+            }
           }
         },
         "family_background": "Dearborn, Michigan, youngest of five in a family bakery. Leila Rahal's parents' bakery is two doors down; the mothers are best friends and rivals.",

@@ -17,6 +17,7 @@ constexpr double kGiveRangeMeters = 3;
 bool World::owns(const CharacterId& id, const std::string& item) const {
   const CharacterState* c = character(id);
   if (!c) return false;
+  if (const ItemDef* def = content_->item(item); def && def->personal) return true;  // everyone's own clothes (D-079)
   auto it = c->inventory.find(item);
   return it != c->inventory.end() && it->second > 0;
 }
@@ -100,19 +101,24 @@ Result<Json> World::wear(const CharacterId& actor, const std::string& item) {
   if (!def) return fail("unknown_item", "no such item");
   if (!owns(actor, item)) return fail("not_owned", "you don't have " + def->label);
   if (def->slot.empty()) return fail("not_wearable", "you can't wear that");
+  if (Status st = changingAllowed(c, def->slot); !st) return st.error();  // Outfits.cpp (D-079)
   (def->slot == "outfit" ? c.outfit : c.accessory) = item;
   applyEmotions(c, def->emotionEffects);
-  return Json{{"outfit", c.outfit}, {"accessory", c.accessory}, {"style", std::round(styleOf(c))}};
+  Json out{{"outfit", c.outfit}, {"accessory", c.accessory}, {"style", std::round(styleOf(c))}};
+  addLook(c, out);  // what people see you in now; they're told by the people stream
+  return out;
 }
 
 Result<Json> World::takeOff(const CharacterId& actor, const std::string& slot) {
   auto r = activeCharacter(actor);
   if (!r) return r.error();
   CharacterState& c = *r.value();
-  if (slot == "outfit") c.outfit.clear();
-  else if (slot == "accessory") c.accessory.clear();
-  else return fail("bad_request", "slot must be outfit or accessory");
-  return Json{{"outfit", c.outfit}, {"accessory", c.accessory}};
+  if (slot != "outfit" && slot != "accessory") return fail("bad_request", "slot must be outfit or accessory");
+  if (Status st = changingAllowed(c, slot); !st) return st.error();
+  (slot == "outfit" ? c.outfit : c.accessory).clear();  // with no outfit chosen you're seen in your drawn look (D-079)
+  Json out{{"outfit", c.outfit}, {"accessory", c.accessory}};
+  addLook(c, out);
+  return out;
 }
 
 Result<Json> World::giveItem(const CharacterId& actor, const CharacterId& target, const std::string& item) {
@@ -121,6 +127,7 @@ Result<Json> World::giveItem(const CharacterId& actor, const CharacterId& target
   CharacterState& c = *r.value();
   const ItemDef* def = content_->item(item);
   if (!def) return fail("unknown_item", "no such item");
+  if (def->personal) return fail("personal_item", "those are your own clothes: everyone has theirs, and yours stay yours");
   if (!owns(actor, item)) return fail("not_owned", "you don't have " + def->label);
   if (target == actor) return fail("invalid_target", "you already have it");
   CharacterState* t = mutableCharacter(target);
@@ -210,7 +217,10 @@ Json World::phoneItems(const CharacterState& c) const {
                          {"worn", c.outfit == id || c.accessory == id}, {"usable", def->usable}, {"slot", def->slot}});
     if (def->slot == "outfit") items.back()["condition"] = clothesCondition(c, id);
   }
-  return Json{{"items", items}, {"outfit", c.outfit}, {"accessory", c.accessory}, {"style", std::round(styleOf(c))}};
+  Json out{{"items", items}, {"outfit", c.outfit}, {"accessory", c.accessory}, {"style", std::round(styleOf(c))},
+           {"looks", phoneLooks(c)}, {"drawn", drawnLook(c.id)}};  // your own three looks (Outfits.cpp, D-079)
+  addLook(c, out);
+  return out;
 }
 
 Json World::phoneTransit() const {

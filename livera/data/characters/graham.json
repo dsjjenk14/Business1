@@ -103,6 +103,12 @@
           "face": "strong, defined features, light stubble, a level, appraising look",
           "hair": "dark blond, swept back with loose waves",
           "style": "navy merino V-neck over a light-blue collar, charcoal trousers, brown leather belt, brown oxfords, leather-strap watch, sleeves pushed up",
+          "outfits": {
+            "everyday": "stone quarter-zip pullover over a white tee, dark indigo jeans, white leather sneakers, leather-strap watch",
+            "work": "navy merino V-neck over a light-blue collar, charcoal trousers, brown leather belt, brown oxfords, leather-strap watch, sleeves pushed up",
+            "evening": "navy tailored suit, crisp white shirt open at the collar, no tie, brown suede loafers, leather-strap watch",
+            "drawn": "work"
+          },
           "silhouette": "tall and squared-off; classic tailoring, never a tie",
           "key_features": [
             "Blue-gray eyes",

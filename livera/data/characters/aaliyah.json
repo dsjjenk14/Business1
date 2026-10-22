@@ -99,6 +99,12 @@
           "face": "soft oval face, full lips, glowing makeup",
           "hair": "long, voluminous defined curls",
           "style": "emerald satin blouse, black high-waisted wide-leg trousers, black belt, gold cuffs, gold hoops, black top-handle bag, black pointed heels",
+          "outfits": {
+            "everyday": "camel ribbed knit top and matching wide-leg knit trousers, white leather trainers, gold hoops, gold cuffs, black leather tote",
+            "work": "emerald satin blouse, black high-waisted wide-leg trousers, black belt, gold cuffs, gold hoops, black top-handle bag, black pointed heels",
+            "evening": "gold sequinned slip dress, black satin blazer over the shoulders, black strappy heels, gold cuffs, statement gold earrings, black satin clutch",
+            "drawn": "work"
+          },
           "silhouette": "satin and gold; always holding a glass at someone else's party",
           "key_features": [
             "Soft oval face",

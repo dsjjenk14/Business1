@@ -98,6 +98,12 @@
           "face": "square jaw, laugh lines, reading glasses pushed up into her hair",
           "hair": "silver-blonde hair in a messy clip",
           "style": "black button-down with the sleeves rolled, a copper-brown bar apron, dark jeans, black work boots",
+          "outfits": {
+            "everyday": "a green waxed jacket over a cream cable-knit jumper, dark jeans, brown walking boots, the claddagh ring",
+            "work": "black button-down with the sleeves rolled, a copper-brown bar apron, dark jeans, black work boots",
+            "evening": "a navy wrap dress with small white polka dots, a black leather jacket, black low-heeled ankle boots, the claddagh ring",
+            "drawn": "work"
+          },
           "jewelry": "a claddagh ring, a plain watch",
           "silhouette": "a short, solid woman behind a long apron, sleeves rolled to the elbow",
           "key_features": [
@@ -114,7 +120,11 @@
             "top": "#1d1d20",
             "bottom": "#2b3646",
             "shoes": "#151515",
-            "apron": "#9a5b32"
+            "apron": "#9a5b32",
+            "outfits": {
+              "everyday": {"top": "#3f4a2f", "bottom": "#2b3646", "shoes": "#5a3d26"},
+              "evening": {"top": "#232326", "bottom": "#283358", "shoes": "#161616"}
+            }
           }
         },
         "family_background": "Grew up over her father's bar in Dorchester. Widowed at forty. Her son Liam pours concrete for Forge Builders; she followed him here when the bar back home was sold.",

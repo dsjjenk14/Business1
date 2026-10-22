@@ -1230,6 +1230,55 @@ game inside (D-066): the chores belong in the room and one tap from it, and the 
 card). A place with many verbs of one kind (six songs) shows two and says how many more are on the card. On a phone
 the Next card still sits between the tray and the bar.
 
+## D-079 — Three outfits each: everyone's own everyday, work and going-out looks, worn like any outfit and seen by everyone
+**Decision:** The owner: "I want characters to be able to change into 3 different outfits." Every character owns three
+looks, everyday, work and going out (`evening`), shown as Everyday, Work and Going out. They are three items in
+`data/items/items.json` (`outfit_everyday` "Everyday clothes", `outfit_work` "Work clothes", `outfit_evening` "Going-out
+clothes": slot `outfit`, `personal: true`, a `look`, style 6, 12 and 18, a point or two of confidence, and a
+`description`, the line for someone whose data has none). Content checks (`core/Outfits.cpp`): personal items are
+outfits with a look, exactly one per look, nothing to use or use up; `look` only on personal items; no location offer,
+coin-shop entry or pet action names one; every data character has `profile.appearance.outfits` `{everyday, work,
+evening, drawn}`, the garments of each look in their own words and `drawn`, the look their art shows. **Rules:**
+`owns` is true for everyone without an inventory entry, so nothing is seeded or migrated; `give` refuses them
+(`personal_item`), and every other way an item moves (buying, stealing, the coin shop, pet care) can't name one because
+the content can't; `wear` and `take_off` work for them as for any outfit (style, dirt after `dirty_after_hours`,
+soiling, laundry, by item id per character), and changing is refused in a cell (`in_jail`) or a fight (`in_fight`,
+both `freeToAct`), and for an outfit while walking (`walking`) or on the bus (`riding`): changing takes a moment where
+you stand; accessories can go on anywhere. An empty `outfit` still means the clothes they're drawn in (their `drawn`
+look; someone made in the creator: everyday), so the town's style and dirt are unchanged until someone changes clothes,
+and the autopilot never does. **What people see:** what someone wears is public, like where they stand: each person
+in `look.people`, `look.you` and the `people` stream carries `look` (a personal look, the drawn look when nothing is
+chosen, or `other` with `look_label` for a bought outfit), and a change of clothes is a `people` change at the end of
+the tick for everyone who can see them. Your own Items app lists your three looks: label, your garments, whether
+you're seen in it (`wearing`) and chose it (`chosen`), which one your art shows, and its condition. **Data:** all 27
+characters' looks were written from their palette, build, age, culture and job (the barista's apron, the nurse's
+scrubs, the officers' uniforms, a hijab in every look of Aisha's), and `drawn` is what their art shows: the work look
+for Aaliyah, Dax, Dominique (whose `weekend` became `everyday`), Graham, Harper, Julian, Leila, Maya, Naomi and Sienna
+and for all twelve townspeople (their stand-in colours are their work clothes), the everyday look for Andre, Kai
+Morgan, Rosa Delgado, Sol Rivera and Theo Grant. Townspeople's `stand_in.outfits` give the other two looks' colours (a
+whole garment set; skin, hair and its style stay). **The client:** the Wardrobe card (`web/client/wardrobe.js`) shows
+the three looks as big buttons and bought outfits under them, sends `wear`, and shows the server's answer or its
+refusal in plain words; it opens from the You card, from "Change clothes" in the tray inside your own home and from
+the Items app, which lists the looks too. Stand-ins are drawn in the colours of the look they're in
+(`scripts/client_standins.py` writes `drawn` and `looks`), characters made in the creator in one of three colours from
+their id per look. A sprite sheet or a model sheet shows one look: a look's own sheet,
+`art/sprites/characters/<id>/<look>/sheet.webp`, is cut by `scripts/client_figures.py` into `web/client/figures/<id>/<look>/`
+(manifest `looks.<look>`, checked by `--check`) and drawn by `figures.js` while that look is worn; until it exists the
+person is drawn in their drawn look, and the Wardrobe says so for your own character ("Your going-out look isn't drawn
+yet: you're drawn in your work look until its sprite sheet is made"). The art page asks for those sheets: 30 prompts,
+the two other looks of each of the 15 people with art, each made with their existing sheet attached.
+**Why:** Personal items reuse everything outfits already have (wearing, style, dirt, laundry, the Items app, the save)
+instead of a second clothing system, and owning them by rule rather than by inventory means no migration and nothing
+for a save to get wrong. Refusing changes on the move, in a cell and in a fight keeps changing clothes a thing you do
+somewhere, like the laundry. Public looks follow D-069's uniform: you can see what someone wears, and the people stream
+already tells viewers what changed in what they'd draw. Keeping the empty outfit as the drawn look keeps the town
+simulation and old saves exactly as they were. Saying when a look isn't drawn, instead of tinting a picture, is rule 6.
+**Trade-off:** Fifteen characters are drawn in one look until the owner makes 30 more sheets; the townspeople and
+created characters change colours only, on a canvas stand-in. Bought outfits ("other") have no art of their own and are
+drawn as the drawn look. A character's looks are text in data, not parts the player picks; the creator doesn't ask
+for them (made characters get the generic lines). Changing is instant (no time cost) and allowed anywhere you stand,
+in public too. The autopilot never changes clothes, so the town's people stay in their drawn look.
+
 ## D-080 — When a need runs out, something happens; the needs are always on screen
 **Decision:** Each need has one rule at 0, in `data/health/needs_at_zero.json`. Energy: you pass out where you
 stand for 3 game hours (needs on hold, no command, no speech, not even the phone), come to with energy 35, and out in
@@ -1264,4 +1313,3 @@ tapping your bed does the same; `publicRules.sleep` says when.
 **Why:** The owner: "You need to be able to get energy by sleeping for a little longer." The web client never sent
 `sleep` at all, so the only rest was a +25 nap activity, and a night only settled energy toward 70.
 **Trade-off:** A nap is all or nothing: it ends rested or when you act, there is no alarm to set.
-

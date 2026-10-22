@@ -98,6 +98,12 @@
           "face": "defined cheekbones, delicate nose, glossy lips",
           "hair": "long, glossy dark hair with curtain bangs",
           "style": "burgundy leather moto jacket, black tank, charcoal high-waisted trousers, black belt, black ankle boots, black quilted bag, stacked ear piercings",
+          "outfits": {
+            "everyday": "cropped white tee under an oversized black denim jacket, baggy charcoal cargo trousers, black platform trainers, black quilted bag",
+            "work": "burgundy leather moto jacket, black tank, charcoal high-waisted trousers, black belt, black ankle boots, black quilted bag",
+            "evening": "black satin slip dress, the burgundy leather moto jacket, sheer black tights, black heeled ankle boots, stacked silver earrings",
+            "drawn": "work"
+          },
           "silhouette": "cropped leather jacket, long straight hair",
           "key_features": [
             "Almond-shaped dark eyes",

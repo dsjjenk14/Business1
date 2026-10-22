@@ -85,6 +85,12 @@
           "face": "round face, a gap in her front teeth, a tiny nose stud",
           "hair": "box braids in a high bun with a yellow scarf",
           "style": "a mustard cardigan over a striped tee, a canvas barista apron covered in pen marks, wide-leg jeans, yellow trainers",
+          "outfits": {
+            "everyday": "an oversized lilac hoodie, baggy light-wash jeans, yellow trainers, the yellow scarf in her braids, mismatched earrings",
+            "work": "a mustard cardigan over a striped tee, a canvas barista apron covered in pen marks, wide-leg jeans, yellow trainers, the yellow scarf in her braids",
+            "evening": "a cobalt-blue satin slip dress over a white baby tee, chunky white platform trainers, a cobalt scarf in her braids, mismatched gold earrings",
+            "drawn": "work"
+          },
           "jewelry": "mismatched earrings, a nose stud, pens behind both ears",
           "silhouette": "a high bun of braids with a yellow scarf, an apron covered in ink",
           "key_features": [
@@ -101,7 +107,11 @@
             "bottom": "#4a5f86",
             "shoes": "#e6b422",
             "headwear": "#e6b422",
-            "apron": "#c8b89a"
+            "apron": "#c8b89a",
+            "outfits": {
+              "everyday": {"top": "#a593c9", "bottom": "#8aa1c4", "shoes": "#e6b422", "headwear": "#e6b422"},
+              "evening": {"top": "#2346a8", "bottom": "#2346a8", "shoes": "#f0eee8", "headwear": "#2f56c4"}
+            }
           }
         },
         "family_background": "Chapeltown, Leeds. Her mum is a bus driver, her dad a carpenter from Kingston. She moved to America for art school, ran out of money, and kept going west.",

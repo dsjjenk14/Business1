@@ -99,6 +99,12 @@
           "face": "defined jawline, thin mustache and chin beard, playful smile, small gold hoop earrings",
           "hair": "short locs with a taper fade",
           "style": "olive suede bomber jacket, black tank, black cargo pants, olive-and-white sneakers, gold Cuban chain, gold watch and bracelet",
+          "outfits": {
+            "everyday": "olive suede bomber jacket, black tank, black cargo pants, olive-and-white sneakers, gold Cuban chain, gold watch and bracelet",
+            "work": "oversized charcoal hoodie, black joggers, black slides over white socks, studio headphones around his neck, gold Cuban chain, gold watch",
+            "evening": "black silk camp-collar shirt open at the neck, tailored black trousers, black leather Chelsea boots, gold Cuban chain, gold watch and bracelet",
+            "drawn": "everyday"
+          },
           "silhouette": "relaxed bomber over a long, lean frame",
           "key_features": [
             "Expressive brown eyes",

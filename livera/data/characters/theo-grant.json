@@ -91,6 +91,12 @@
           "face": "heart-shaped face, full lips, stubble",
           "hair": "a black buzz cut",
           "style": "royal-blue fleece zip hoodie over a white tee, grey cargo joggers, white trainers",
+          "outfits": {
+            "everyday": "royal-blue fleece zip hoodie over a white tee, grey cargo joggers, white trainers, thin gold chain",
+            "work": "Greenleaf's dark green apron with his name badge over a white tee, black work trousers, black trainers, thin gold chain",
+            "evening": "cream knit polo shirt, black tailored trousers, white leather sneakers, thin gold chain",
+            "drawn": "everyday"
+          },
           "jewelry": "a thin gold chain necklace, pierced ears",
           "silhouette": "a royal-blue hoodie, joggers and clean trainers",
           "key_features": [

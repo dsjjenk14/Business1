@@ -34,7 +34,7 @@ unknown stat names and dangling references fail the load with the file and id na
 | `life` | `offline{self_care_real_days, depressed_need_targets, depressed_emotion_targets, depression_condition, recovery_per_good_hour}, bathroom{}, home{}, weight{}, aging{game_days_per_year, adult_age, life_stages[]}, grooming{}` | data/config/life.json. Exactly one. |
 | `conditions` | `id, name, kind (illness, dental, mental, addiction, sti), hours [min,max] (0 = until treated), needs_per_hour{}, emotions_per_hour{}, performance_penalty, symptomatic, onset (what you are told when it starts; default "You have <name>."), curable, catch{hourly_chance, risk_need, risk_below, dirty_home, risk_multiplier, contagion_per_hour, sexual_transmission}, treated_by[]` | data/health/conditions.json. Chances are per game hour. |
 | `substances` | `id, name, legal, needs{}, emotions{}, effect_minutes, crash_needs{}, crash_emotions{}, dependency_per_use, dependency_decay_per_day, addiction, overdose_uses, overdose_window_minutes, possession_crime` | data/health/substances.json; illegal ones are fictional. |
-| `items` | `id, label, category, slot (outfit/accessory), usable, consumable, cooldown_minutes, needs{}, emotions{}, shortens{condition: hours}, condition_recovery{}, unlocks[], style, substance, illegal, test, contraception` | data/items/items.json. |
+| `items` | `id, label, category, slot (outfit/accessory), usable, consumable, cooldown_minutes, needs{}, emotions{}, shortens{condition: hours}, condition_recovery{}, unlocks[], style, substance, illegal, test, contraception, personal, look, description` | data/items/items.json. `personal` items are everyone's own looks (D-079, below). |
 | `transit` | `operator_account, boarding_radius_m, lines[] {id, name, fare_cents, speed_mps, hours, inspection_chance, evasion_fine_cents, stops[] {id, name, at}}` | data/transit/transit.json. |
 | `education` | `degrees[] {id, name}, programs[] {id, name, degree, requires_degree, requires_clean_record, hours_required, tuition_per_hour_cents, min_grade, campuses[], online, need_cost_per_hour, tuition_account}, creator_education{answer: [degrees]}` | data/education/education.json. |
 | `crime` | `jail, hospital, fines_account, patrol_arrest_per_hour, police_nearby_m, pickpocket_*, addiction_threshold, overdose_bill_cents, crimes[] {id, label, fine_cents, jail_minutes, detection, per_witness, per_staff, per_police, notoriety}` | data/society/crimes.json. |
@@ -79,7 +79,8 @@ A complete example: `scripts/demo/nico_vale.json`.
 
 `profile` is free-form narrative, but these keys have meaning:
 - `appearance`: `visual_reference` (main art sheet, checked by tests), `reference_sheets`
-  {kind: path}, `key_features[]`, `outfits` {occasion: description}, plus hair, face, build...
+  {kind: path}, `key_features[]`, `outfits` {everyday, work, evening: garments; drawn: the look their art shows}
+  (required, D-079), plus hair, face, build...
 - `life_stages[]`: `{age, stage, chapter, look{hair, outfit, carrying, jewelry}}`, oldest
   first. The last stage is the character's current age (tested for Dominique).
 - `secrets[]`: `{id, truth, known_by[]}`, ready to become Facts in the information system. The id is made from the name
@@ -410,6 +411,19 @@ without it loads with no posts and `seeded` false, and the World's constructor m
 the `details` part gain `{id, kind, with, place, post}` (defaults empty: an older rumour is never posted). Memories
 gain the type `status_purchase`. Messages are unchanged in the save; the Messages app adds `seen` to your own messages
 and `people: {id: {name, scripted, played_by?, online}}`.
+
+### Everyone's three looks (D-079)
+
+| Section | Fields | Notes |
+|---|---|---|
+| `items` | `personal: true`, `look` (everyday, work, evening), `description` | Exactly one personal item per look (`outfit_everyday`, `outfit_work`, `outfit_evening`), slot `outfit`, nothing usable, consumable, illegal or unlocking, a `description` (the line for someone whose data has no outfits: made in the creator); `look` only on personal items. No location offer, coin-shop entry or pet action may name one. A world with no personal items skips these checks. |
+| `characters` `profile.appearance.outfits` | `{everyday, work, evening, drawn}` | Required for every data character once personal items exist: the three looks' garments as text, and `drawn`, the look their art shows (sprite sheet, model sheet, or a stand-in's colours). No other keys. |
+| `characters` `profile.appearance.stand_in.outfits` | `{<look>: {top, bottom, shoes, apron?, headwear?, accent?}}` | Townspeople: the colours of the two looks that aren't `drawn` (the `stand_in` colours are the drawn look); a whole set each, an absent optional one means none; skin, hair and `hair_style` don't change, and a hijab wearer's looks each name `headwear`. Checked by `scripts/client_standins.py --check`, written to `web/client/figures/standins.json` as `drawn` and `looks`. |
+| `art/sprites/characters/<id>/<look>/sheet.webp` | a sprite sheet of another look | Cut by `scripts/client_figures.py` into `web/client/figures/<id>/<look>/` and the manifest entry's `looks.<look>` `{from, sha1, recipe, frames}`; never the drawn look, only for someone with art. |
+
+No save format change: `CharacterState::outfit` holds the worn item id as before (a personal item's id included);
+empty still means the clothes they're drawn in. Personal items are never in `inventory` (`owns` is true for everyone).
+Dirt and soiling are `details.worn_hours` and `details.soiled` by item id, per character, as for bought outfits.
 
 ### The town's people and town life (D-073)
 

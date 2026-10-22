@@ -32,6 +32,7 @@ GROUPS = [
     ("rooms-homes", "Rooms: homes", "art/PROMPT_PACK_INTERIORS.md"),
     ("people-models", "People: model sheets for the townspeople", "art/PROMPT_PACK_CHARACTERS.md"),
     ("people", "People: walking and sitting sprites", "art/PROMPT_PACK_CHARACTERS.md"),
+    ("people-outfits", "Outfit sprite sheets", "art/PROMPT_PACK_CHARACTERS.md"),
     ("town", "Town: outsides, stops, the bus and tiles", "art/PROMPT_PACK_TOWN.md"),
 ]
 
@@ -66,9 +67,9 @@ def needed():
     for p in cp.build_all()[1]:
         if not p["filed"]:
             p["sign"] = None
-            p["group_label"] = dict(cp.SECTIONS)[p["section"]]
+            p["group_label"] = p.get("person") or dict(cp.SECTIONS)[p["section"]]   # outfit sheets: under each person
             p["district"] = ""
-            out["people-models" if p["section"] == "models" else "people"].append(p)
+            out["people-models" if p["section"] == "models" else "people-outfits" if p["section"] == "outfits" else "people"].append(p)
     town_sections = dict(tp.SECTIONS)
     for p in tp.build_prompts(locations, properties, transit, city, sim):
         if not tp.filed_as(p["save_as"]):
@@ -94,7 +95,9 @@ def render(groups):
            "Golden Hour's pictures come first: the fight sheets make Beat Brawl look like a fight, then the alley, the court and the "
            "Underpass for nights out. Then the rooms, so characters can walk around and sit down, a model sheet for each "
            "townsperson, who has none yet, and each person's walking and sitting sprite sheet: attach their model sheet when you "
-           "paste the prompt. Tap Copy, paste into the image generator, save under the name at the end, "
+           "paste the prompt. Then the outfit sprite sheets: everyone has three looks (everyday, work, going out) and their art "
+           "shows one; each prompt is the same sheet in another look, made with their sheet attached so only the clothes "
+           "change. Tap Copy, paste into the image generator, save under the name at the end, "
            "send it over, tick done.</p>",
            '<div class="bar"><strong id="progress">0 done</strong><label><input type="checkbox" id="hide-done"> hide done</label></div>',
            "<nav>" + " ".join(f'<a href="#{h(k)}">{h(label)} ({len(groups[k])})</a>' for k, label, _ in GROUPS) + "</nav>"]

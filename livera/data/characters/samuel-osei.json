@@ -98,6 +98,12 @@
           "face": "a neat moustache, an easy grin",
           "hair": "short and neat, a sharp part",
           "style": "a mustard knit tie on a pale blue shirt, a brown tweed jacket with elbow patches, chinos, brown brogues",
+          "outfits": {
+            "everyday": "a navy crewneck jumper over a gingham shirt collar, stone chinos, white canvas trainers, the vintage watch",
+            "work": "a mustard knit tie on a pale blue shirt, a brown tweed jacket with elbow patches, stone chinos, brown brogues, a satchel on one shoulder",
+            "evening": "a gold, green and red kente-print shirt under a black blazer, black trousers, polished brown brogues, the gold wedding band",
+            "drawn": "work"
+          },
           "jewelry": "a gold wedding band, a vintage watch",
           "silhouette": "tweed and round glasses, a satchel on one shoulder",
           "key_features": [
@@ -113,7 +119,11 @@
             "top": "#7a5a3a",
             "bottom": "#c2b28f",
             "shoes": "#5a3a22",
-            "accent": "#d0a23a"
+            "accent": "#d0a23a",
+            "outfits": {
+              "everyday": {"top": "#26344f", "bottom": "#c2b28f", "shoes": "#ecebe6"},
+              "evening": {"top": "#1c1c1e", "bottom": "#1c1c1e", "shoes": "#5a3a22", "accent": "#d4a52c"}
+            }
           }
         },
         "family_background": "Peckham, London, son of a Ghanaian minister and a midwife. Met Tess in London when she was a travelling nurse; they followed a teaching post to Houston, then a job ad to Livéra.",

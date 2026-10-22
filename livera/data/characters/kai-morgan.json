@@ -101,6 +101,12 @@
           "face": "square face, wide nose, full lips, stubble",
           "hair": "black shoulder-length locs under a black baseball cap",
           "style": "red zip-up hoodie over a white tee, baggy black cargo jeans, plain red-and-white high-top sneakers",
+          "outfits": {
+            "everyday": "red zip-up hoodie over a white tee, baggy black cargo jeans, plain red-and-white high-top sneakers, black baseball cap, silver chain",
+            "work": "black oversized tee with a red graphic print, baggy black cargo jeans, plain black high-top sneakers, black baseball cap, studio headphones around his neck, silver chain",
+            "evening": "black satin bomber jacket over a white tee, black wide-leg trousers, clean white high-top sneakers, black baseball cap, layered silver chains",
+            "drawn": "everyday"
+          },
           "jewelry": "a silver chain necklace, pierced ears",
           "silhouette": "an oversized red hoodie over a long, lean frame",
           "key_features": [

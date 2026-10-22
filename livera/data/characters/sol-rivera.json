@@ -91,6 +91,12 @@
           "face": "freckles, septum and helix piercings",
           "hair": "a copper curly afro under a deep teal corduroy bucket hat",
           "style": "cream shirt with a small red-and-teal print, sleeves rolled, brown corduroy waistcoat, wide brown corduroy trousers, brown leather loafers",
+          "outfits": {
+            "everyday": "cream shirt with a small red-and-teal print, sleeves rolled, brown corduroy waistcoat, wide brown corduroy trousers, brown leather loafers, deep teal corduroy bucket hat",
+            "work": "cream printed shirt with the sleeves rolled, a charcoal canvas barista apron, wide brown corduroy trousers, brown leather loafers",
+            "evening": "deep teal velvet blazer over a white ribbed tank, wide brown corduroy trousers, brown leather loafers, the teal bucket hat, silver rings",
+            "drawn": "everyday"
+          },
           "jewelry": "silver rings, a small pendant",
           "silhouette": "a bucket hat over a halo of copper curls, wide cords",
           "key_features": [

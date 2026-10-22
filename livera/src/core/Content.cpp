@@ -100,6 +100,7 @@ Result<std::shared_ptr<const ContentDatabase>> ContentDatabase::loadFromDocument
   Status v = db->validate();
   if (!v) return v.error();
   if (Status s = db->validateSocial(); !s) return s.error();  // D-074 (it also finds who runs the gossip account)
+  if (Status s = db->validateOutfits(); !s) return s.error();  // D-079 (Outfits.cpp): everyone's own three looks
   return std::shared_ptr<const ContentDatabase>(std::move(db));
 }
 
@@ -455,6 +456,9 @@ Status ContentDatabase::ingest(const std::string& source, const Json& doc) {
           i.illegal = j.value("illegal", false);
           i.test = j.value("test", "");
           i.contraception = j.value("contraception", false);
+          i.personal = j.value("personal", false);  // D-079
+          i.look = j.value("look", "");
+          i.description = j.value("description", "");
           if (auto st = insertUnique(items_, "item", i.id, i); !st) return st;
         }
       } else if (section == "education") {

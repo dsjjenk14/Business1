@@ -99,6 +99,12 @@
           "face": "freckles across the nose and cheeks, expressive eyes, a warm closed-mouth smile",
           "hair": "shoulder-length auburn curls",
           "style": "mustard cardigan, burgundy-and-cream floral blouse, dark straight-leg jeans, cognac ankle boots, brown leather tote, gold coin pendant, gold hoops",
+          "outfits": {
+            "everyday": "long oatmeal cardigan over a sage-green ribbed top, cream wide-leg linen trousers, white canvas trainers, canvas tote",
+            "work": "mustard cardigan, burgundy-and-cream floral blouse, dark straight-leg jeans, cognac ankle boots, brown leather tote",
+            "evening": "burgundy velvet wrap midi dress, black tights, cognac heeled ankle boots, small brown leather crossbody bag",
+            "drawn": "work"
+          },
           "silhouette": "soft cardigan layers, oversized red glasses",
           "key_features": [
             "Freckles",

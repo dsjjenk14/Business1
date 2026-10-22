@@ -90,6 +90,12 @@
           "face": "a broad face, a ginger beard, a scar through one eyebrow",
           "hair": "short ginger hair under a faded red cap",
           "style": "a charcoal Body & Balance tee, black training shorts, grey compression sleeves, worn trainers, a whistle",
+          "outfits": {
+            "everyday": "the faded red cap, a grey marl hoodie, olive cargo shorts, worn grey trainers, the sobriety coin on its cord",
+            "work": "the faded red cap, a charcoal Body & Balance tee, black training shorts, grey compression sleeves, worn grey trainers, a whistle on a lanyard",
+            "evening": "a clean navy cap, a navy short-sleeved button-up shirt, tan chinos, white leather trainers, the sobriety coin under his shirt",
+            "drawn": "work"
+          },
           "jewelry": "a four-year sobriety coin on a cord",
           "silhouette": "a very big man in a faded cap with a whistle",
           "key_features": [
@@ -106,7 +112,11 @@
             "top": "#3b3d40",
             "bottom": "#1a1a1a",
             "shoes": "#8a8d91",
-            "headwear": "#a3352b"
+            "headwear": "#a3352b",
+            "outfits": {
+              "everyday": {"top": "#8c8f94", "bottom": "#5b5f3c", "shoes": "#8a8d91", "headwear": "#a3352b"},
+              "evening": {"top": "#26344f", "bottom": "#b49a72", "shoes": "#ecebe6", "headwear": "#1f2a40"}
+            }
           }
         },
         "family_background": "Ada, Oklahoma. A linebacker until his knee and a bottle took it away. His mother still prays for him by name at First Baptist.",

@@ -1284,6 +1284,55 @@ TEST_CASE("server: street life: crime_risk, the wanted line in look, a fight ask
   CHECK(dom.refusal({{"op", "fight"}, {"target", "dax"}}) != "(accepted)");  // once a pair a day
 }
 
+TEST_CASE("server: three looks over the wire: wear, what look and the people stream say, the Items app, give refused") {
+  RunningServer server(tempPath("outfits_net.db").string());
+  TestClient dom(server.port()), dax(server.port());
+  dom.login("domfit", "dom-pass-123");
+  dax.login("daxfit", "dax-pass-123");
+  dom.ok({{"op", "play"}, {"character", "dominique"}});
+  dax.ok({{"op", "play"}, {"character", "dax"}});
+  dom.ok({{"op", "dev_advance"}, {"minutes", 3 * 60}});  // 10:00
+  dom.ok({{"op", "exit"}});
+  dax.ok({{"op", "exit"}});
+  dom.walkTo("heritage_coffee");
+  dom.ok({{"op", "enter"}, {"location", "heritage_coffee"}});
+  dax.walkTo("heritage_coffee");
+  dax.ok({{"op", "enter"}, {"location", "heritage_coffee"}});
+  // Nothing chosen: each is seen in the look their art shows (D-079).
+  const Json look = dom.ok({{"op", "look"}});
+  CHECK(look["you"]["look"] == "work");
+  Json seen;
+  for (const auto& p : look["people"]) {
+    if (p["id"] == "dax") seen = p;
+  }
+  REQUIRE(seen.is_object());
+  CHECK(seen["look"] == "work");
+  CHECK(!seen.contains("look_label"));
+  // Your own three looks, only in your own Items app.
+  const Json items = dax.ok({{"op", "phone"}, {"app", "items"}});
+  REQUIRE(items["looks"].size() == 3);
+  CHECK(items["drawn"] == "work");
+  CHECK(items["look"] == "work");
+  for (const auto& l : items["looks"]) {
+    CHECK(l["garments"].is_string());
+    CHECK(l["condition"] == "clean");
+    CHECK(l["item"].is_string());
+  }
+  // He changes; she's told by the people stream.
+  const Json worn = dax.ok({{"op", "wear"}, {"item", "outfit_evening"}});
+  CHECK(worn["look"] == "evening");
+  CHECK(worn["outfit"] == "outfit_evening");
+  dom.pump(0.3);
+  CHECK(dom.lastSeen("dax")["look"] == "evening");
+  CHECK(dax.ok({{"op", "look"}})["you"]["look"] == "evening");
+  // His own clothes stay his.
+  CHECK(dax.refusal({{"op", "give"}, {"to", "dominique"}, {"item", "outfit_work"}}) == "personal_item");
+  const Json off = dax.ok({{"op", "take_off"}, {"slot", "outfit"}});
+  CHECK(off["look"] == "work");
+  dom.pump(0.3);
+  CHECK(dom.lastSeen("dax")["look"] == "work");
+}
+
 TEST_CASE("server: the default script cap has room for every playable character in data (D-073)") {
   // The town director plays every character nobody has claimed, one bot_ session each; with the residents and the
   // townspeople that's more than the old cap of 16.

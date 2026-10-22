@@ -896,6 +896,13 @@ export class Game {
   interiors = new RoomView(this);
 }
 
+// --- wardrobe (D-079)
+// Your three looks (wardrobe.js): the You card's Wardrobe button, the tray's "Change clothes" inside your own home and
+// the Items app open it. It sends only `wear`; the server's answer is what the card shows.
+import { Wardrobe } from "./wardrobe.js";
+Game.prototype.openWardrobe = function (opts) { if (!this.wardrobe) this.wardrobe = new Wardrobe(this); return this.wardrobe.open(opts); };
+Game.prototype.wardrobeChip = function (here) { if (!this.wardrobe) this.wardrobe = new Wardrobe(this); return this.wardrobe.trayChip(here); };
+
 // --- moments
 // Life events, the street and fights (moments.js; D-068, D-069, D-070): their events are taken there first, the
 // module comes in with the world (it reads the same look and people messages), and the You card gets its street

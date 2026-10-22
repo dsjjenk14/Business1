@@ -1,6 +1,39 @@
 {
-  "$comment": "Everything a character can own. Shops sell these through offers with an \"item\" field. style counts toward how put-together you look (first impressions).",
+  "$comment": "Everything a character can own. Shops sell these through offers with an \"item\" field. style counts toward how put-together you look (first impressions). The three personal items (personal: true, one per look) are everyone's own clothes (D-079): always theirs, never sold or given; what each looks like on a person is their profile.appearance.outfits, and description is the line for someone with none (made in the creator).",
   "items": [
+    {
+      "id": "outfit_everyday",
+      "label": "Everyday clothes",
+      "category": "clothing",
+      "slot": "outfit",
+      "personal": true,
+      "look": "everyday",
+      "description": "Your own everyday clothes: what you put on for a normal day.",
+      "style": 6,
+      "emotions": {"confidence": 1}
+    },
+    {
+      "id": "outfit_work",
+      "label": "Work clothes",
+      "category": "clothing",
+      "slot": "outfit",
+      "personal": true,
+      "look": "work",
+      "description": "What you wear to work: put together for the job you do.",
+      "style": 12,
+      "emotions": {"confidence": 2}
+    },
+    {
+      "id": "outfit_evening",
+      "label": "Going-out clothes",
+      "category": "clothing",
+      "slot": "outfit",
+      "personal": true,
+      "look": "evening",
+      "description": "Your going-out clothes: the outfit you keep for a night out.",
+      "style": 18,
+      "emotions": {"confidence": 2, "excitement": 2}
+    },
     {
       "id": "everyday_outfit",
       "label": "Everyday outfit",

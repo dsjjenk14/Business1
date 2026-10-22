@@ -142,6 +142,7 @@ The target today is one world shard with up to 16 people plus up to 32 scripted 
 | `src/core/Social.cpp` | Social media (D-074): posts, follows, likes and comments as World state; posts the game writes for characters a script plays from their memories (the `addMemory` hook) and check-ins; the gossip account's posts from witnessed rumours (`World::witnessed`); what each person's feed may hold; the Map app's people; the world part `social`. |
 | `src/core/Fights.cpp` | Fist fights: the person attacked chooses, the World scores it, injuries, assault, walking away (D-070). |
 | `src/core/Interiors.cpp` | Rooms you walk around in: the `interior` content and its checks, `moveInside` / `sit` / `stand`, spots taken by activities, purchases, performances and shifts, `look.here.room` and the `room` event (D-066). |
+| `src/core/Outfits.cpp` | Everyone's three looks (D-079): the personal items' and characters' outfits content checks, which look someone is seen in (`look` in `look` and the people stream), when changing is allowed, and the Items app's looks. |
 | `src/core/TownLife.cpp` | The town's people (D-073): evening plans and patrols from `data/society/town_life.json` and their checks, the cast checks (casts, shared starting homes, starting partners). The autopilot uses them. |
 | `src/core/Away.cpp` | The away routine's work: scheduled blocks spent offline paid at a share (D-063). |
 | `src/core/Serialization.*` | JSON encoding of state records for the save format, and the whole world as one JSON document (the single-player save). |
