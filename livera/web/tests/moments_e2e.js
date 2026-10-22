@@ -231,6 +231,9 @@ async function later(p) { const b = await p.page.$(".mo-card.mo-life:not(.mo-don
     }
     await waitFor(F, () => window.__livera.world.self.inside === "greenleaf_market" && window.__livera.world.people.has("dominique"), null, 20000);
     await later(F);
+    // Who's here is on the full card (the tray's More), D-078.
+    await F.page.waitForSelector('#sheet [data-tray="more"], #sheet .person[data-person="dominique"]', { timeout: 20000 });
+    if (!(await F.page.$('#sheet .person[data-person="dominique"]'))) await F.page.click('#sheet [data-tray="more"]');
     await F.page.waitForSelector('#sheet .person[data-person="dominique"]', { timeout: 20000 });
     await F.page.click('#sheet .person[data-person="dominique"]');
     await F.page.waitForSelector('#sheet [data-verb="pickpocket:dominique"]', { timeout: 15000 });
@@ -253,7 +256,7 @@ async function later(p) { const b = await p.page.$(".mo-card.mo-life:not(.mo-don
       await later(F); await later(H);
       if (!(await F.page.$('#sheet [data-verb="fight:dominique"]'))) {
         await closeSheet(F);
-        if (!(await F.page.$('#sheet .person[data-person="dominique"]'))) await F.page.click("#sheet .mini-pill .btn.grow").catch(() => {});
+        if (!(await F.page.$('#sheet .person[data-person="dominique"]'))) await F.page.click('#sheet [data-tray="more"]').catch(() => {});
         await F.page.waitForSelector('#sheet .person[data-person="dominique"]', { timeout: 15000 });
         await F.page.click('#sheet .person[data-person="dominique"]');
         await F.page.waitForSelector('#sheet [data-verb="fight:dominique"]', { timeout: 15000 });

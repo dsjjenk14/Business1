@@ -6,7 +6,7 @@
 // Phone (390x844, touch) then desktop (1440x900): New town → Dominique → Heritage Coffee from Places → the room
 // covers the town, lit by the clock → tap a chair (the server seats her: look.here.room; it faces away from the
 // camera, so she's her standing back frame lowered onto it) → tap the Chesterfield (her seated sofa frame from her
-// sprite sheet, anchored on the seat, legs and all: D-072) → tap the counter (the scene card's Buy) → buy (served at
+// sprite sheet, anchored on the seat, legs and all: D-072) → tap the counter (just the Buy card) → buy (served at
 // the counter) → tap the floor (move_inside) → Stand up → the map button shows the town and back → the stage asks for
 // a song → Exit by tapping the door → the town again. Then two people in one room through Play together's stand-in
 // platform: one sits (the other sees her seated chair frame), the other sees it and is refused that chair until she
@@ -63,7 +63,7 @@ async function start(p) {
 // Places → Heritage Coffee → Go: she walks there (the clock fast-forwarded) and goes in.
 async function goInside(p, place) {
   if (await W(p, () => !!window.__livera.world.self.inside)) {
-    if (await p.page.$("#exit-btn")) await p.page.click("#exit-btn"); else await p.page.click("#sheet .mini-pill .btn:last-child");
+    if (await p.page.$("#exit-btn")) await p.page.click("#exit-btn"); else await p.page.click("#ctx-btn");
     await waitFor(p, () => window.__livera.world.self.inside === "");
   }
   if (!(await p.page.$("#places-search"))) await p.page.click("#places-btn");
@@ -169,13 +169,13 @@ async function flow(p, tag) {
     const r = await W(p, () => { const id = window.__livera.world.selfId, d = window.__liveraRoom.drawn(id), s = window.__livera.world.here.room.interior.spots.find(x => x.id === "sofa_right"), q = window.__liveraRoom.floorPoint(s.at[0], s.at[1]), c = document.getElementById("room").getBoundingClientRect(); return { box: d.box, floorY: q[1] - c.top }; });
     assert(r.box[1] + r.box[3] > r.floorY - 4, "the seated frame stops at the seat: " + JSON.stringify(r));
     await p.page.screenshot({ path: path.join(SHOTS, `room_${tag}_02b_on_the_sofa.png`) });
-    // The scene card back to its pill, so the next tap lands on the room.
-    await p.page.click('#sheet:not([hidden]) .sheet-head [aria-label="Shrink to a pill"]', { timeout: 3000 }).catch(() => {});
+    // Any card back down to the tray, so the next tap lands on the room.
+    await p.page.click('#sheet:not([hidden]) .sheet-head :is([aria-label="Back to the room"], [aria-label="Close"])', { timeout: 3000 }).catch(() => {});
   });
 
-  await test(`${tag}: tap the counter → the card's Buy; buying serves you at the counter`, async () => {
+  await test(`${tag}: tap the counter → the Buy card (just what's for sale); buying serves you at the counter`, async () => {
     await tapSpot(p, "counter");
-    await p.page.waitForSelector('#sheet[data-kind="scene"] [data-buy]');
+    await p.page.waitForSelector('#sheet[data-kind="buy"] [data-buy]');
     const before = (await W(p, () => window.__livera.world.money)) || {};
     for (let i = 0; ; i++) {
       await later(p);
@@ -188,7 +188,7 @@ async function flow(p, tag) {
   });
 
   await test(`${tag}: tap the open floor → move_inside walks you there; the map button shows the town and back`, async () => {
-    await p.page.click('#sheet:not([hidden]) .sheet-head [aria-label="Shrink to a pill"]', { timeout: 3000 }).catch(() => {});
+    await p.page.click('#sheet:not([hidden]) .sheet-head :is([aria-label="Back to the room"], [aria-label="Close"])', { timeout: 3000 }).catch(() => {});
     const [fx, fy] = await floorTap(p, [[700, 770], [820, 700], [600, 640], [1000, 660], [520, 700], [900, 620], [760, 680]]);
     await waitFor(p, ([fx, fy]) => { const me = window.__liveraRoom.people().find(x => x.id === window.__livera.world.selfId); return me && !me.spot && Math.hypot(me.at[0] - fx, me.at[1] - fy) < 40; }, [fx, fy]);
     const me = await meInRoom(p);
@@ -203,7 +203,7 @@ async function flow(p, tag) {
   await test(`${tag}: tap the stage → it asks for a song (none yet); tap the door → you're outside and the town is back`, async () => {
     await tapSpot(p, "stage");
     await waitFor(p, () => [...document.querySelectorAll("#feed .line, .toast")].some(n => /need a song/.test(n.textContent)) || document.querySelector('#sheet [data-verb^="perform:"]'), null, 8000);
-    await p.page.click('#sheet:not([hidden]) .sheet-head [aria-label="Shrink to a pill"]', { timeout: 3000 }).catch(() => {});
+    await p.page.click('#sheet:not([hidden]) .sheet-head :is([aria-label="Back to the room"], [aria-label="Close"])', { timeout: 3000 }).catch(() => {});
     await tapSpot(p, "door");
     await waitFor(p, () => window.__livera.world.self.inside === "" && !window.__liveraRoom.active() && document.getElementById("room").hidden);
   });
@@ -269,7 +269,7 @@ async function twoPeople(browser) {
     assert(me && me.spot !== "table_far_2" && her.spot === "table_far_2", "the seat isn't hers alone: " + JSON.stringify(l.data.here.room.people));
   });
   await test("two people: she leaves by the door; the friend sees her go, and the chair is free", async () => {
-    await H.page.click('#sheet:not([hidden]) .sheet-head [aria-label="Shrink to a pill"]', { timeout: 3000 }).catch(() => {});
+    await H.page.click('#sheet:not([hidden]) .sheet-head :is([aria-label="Back to the room"], [aria-label="Close"])', { timeout: 3000 }).catch(() => {});
     await F.page.click('#sheet:not([hidden]) .sheet-head [aria-label="Close"]', { timeout: 3000 }).catch(() => {});
     await tapSpot(H, "door");
     await waitFor(H, () => window.__livera.world.self.inside === "" && !window.__liveraRoom.active());

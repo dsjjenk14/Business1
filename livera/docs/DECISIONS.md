@@ -1209,3 +1209,24 @@ and keeps every outcome on the server.
 person answers every other beat; a later step can let the thrower pick. The game clock keeps running during a brawl
 (about 25 real seconds is 50 game minutes at D-075's rate). Fight sprite sheets (Golden Hour's art prompts) aren't
 drawn yet: the screen uses the figures' fight and flinch poses.
+
+## D-078 — Inside a place, the room is the screen: a tray of things to do instead of a card over the room
+**Decision:** Entering a place no longer slides the scene card up over the room. On a phone one tray sits above the
+bar (on a desktop, in the left column): the place's name and hours, then a row of chips that scrolls sideways (a
+two-column grid on a desktop). Buy (how many things are for sale; it opens a half-height card with only the counter:
+pay with, then the offers); one chip for each thing to do here, with its icon, its name and its biggest effect, or
+"again in …" while it cools down (a tap walks you to the spot and does it, as before); the place's verbs from
+`verbs.js` (laundry, pet care, adopting, a team, a song on the stage, the risky ones in the danger style), at most two
+of a kind; the shift (Start, End, or the decisions waiting); studying, or Study here where a program you could join is
+taught; who's here; and More, the full card as it was (now opened only on request, with "Back to the room" instead of
+"Shrink to a pill"). Exit is the bar's context button, which already said Exit inside. In the room, soft gold rings on
+the floor mark what you can tap: the counter, the stage, your work station and, for each thing to do, the free spot
+nearest you (the one the World walks you to); a spot in use has none, and a chip's spot rings out while you walk over.
+Tapping the counter opens the Buy card; your work station starts a shift (on one, it opens the work app). The tray is
+still the card slot's `scene-mini` kind, so the layout (`--dock-h`, the Next card, the camera's insets) is unchanged.
+**Why:** The owner didn't like the card that slid up and blocked the whole screen to show the chores. The room is the
+game inside (D-066): the chores belong in the room and one tap from it, and the full card is still one tap away.
+**Trade-off:** Long names are cut short on a chip (the full name is its label for screen readers and on the More
+card). A place with many verbs of one kind (six songs) shows two and says how many more are on the card. On a phone
+the Next card still sits between the tray and the bar.
+

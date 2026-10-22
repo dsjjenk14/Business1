@@ -274,7 +274,8 @@ const seesAll = (p, ids) => W(p, ids => ids.every(id => { const x = window.__liv
     assert(there, "Naomi didn't reach Heritage Coffee");
     const inside = await req(nao, "enter", { location: "heritage_coffee" });
     assert(inside.ok, "Naomi going in: " + JSON.stringify(inside.error));
-    await nao.page.waitForSelector('#sheet[data-kind="scene"] [data-buy]', { timeout: 15000 });
+    await nao.page.click('#sheet [data-tray="buy"]', { timeout: 15000 });
+    await nao.page.waitForSelector('#sheet[data-kind="buy"] [data-buy]', { timeout: 15000 });
     const offer = await W(nao, () => window.__livera.world.here.offers[0]);
     price = offer.price_cents;
     await nao.page.click(`#sheet [data-buy="${offer.id}"][data-method="card"]`);

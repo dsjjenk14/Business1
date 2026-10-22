@@ -107,7 +107,7 @@ export class RoomView {
     this.hover = null;
     this.hits = [];
     this.drawn = new Map();    // id -> how drawFigure drew them last frame ({pose, frame, mode}), for the tests
-    this.shownFor = null;      // the place the room was last shown for (compacts the card once per visit)
+    this.pulse = null;         // {id, until}: the spot a tray chip was just tapped for
     // Attach once the game has built its transport, renderer and UI (the constructor that holds this hasn't yet).
     const tryAttach = () => { if (game.transport && game.renderer && game.ui && game.world) this.attach(); else setTimeout(tryAttach, 30); };
     queueMicrotask(tryAttach);
@@ -181,7 +181,7 @@ export class RoomView {
   setRoom(interior, placeId) {
     const fresh = this.placeId !== placeId;
     this.room = interior; this.placeId = placeId; this.people.clear();
-    if (fresh) { this.mapMode = false; this.userView = false; this.view = null; this.shownFor = null; }
+    if (fresh) { this.mapMode = false; this.userView = false; this.view = null; this.pulse = null; }
     this.loadPicture(interior.id);
   }
   clear() {
@@ -292,13 +292,6 @@ export class RoomView {
     }
     const me = this.people.get(this.game.world.selfId);
     this.standBtn.hidden = !on || !me || !me.spot || !SEATS.has((this.spot(me.spot) || {}).kind);
-    // On a phone the scene card starts small over the room, once per visit: the room is the scene. (Its pill and its
-    // full height are a tap away, as anywhere.)
-    if (on && this.shownFor !== this.placeId) {
-      this.shownFor = this.placeId;
-      const ui = this.game.ui;
-      if (ui.narrow() && ui.sheet && ui.sheet.kind === "scene") ui.setHeight("peek");
-    }
   }
 
   fit(W, H) {
@@ -344,10 +337,52 @@ export class RoomView {
     const dx = v.ox + (e.offset[0]) * v.s, dy = v.oy + (e.offset[1]) * v.s, dw = baked.width / e.scale * v.s, dh = baked.height / e.scale * v.s;
     ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
     ctx.drawImage(baked, dx, dy, dw, dh);
+    this.drawHotspots(ctx, now);
     this.drawPeople(ctx, baked, now, night, m);
     this.drawLabels(ctx, now);
   }
 
+  // What you can tap in the room, as soft gold rings on the floor (D-078): the counter, the stage, your work station
+  // and, for each thing to do, the free spot nearest you (where the server walks you for it). Not a spot in use.
+  hotspots() {
+    const w = this.game.world, here = w.here;
+    if (!here || !this.room) return [];
+    const acts = new Set((here.activities || []).map(a => a.id)), c = w.career;
+    const works = w.self && (w.self.onShift || (c && Array.isArray(c.workplaces) && c.workplaces.includes(here.name)));
+    const taken = new Set([...this.people.values()].map(p => p.spot).filter(Boolean));
+    const me = this.people.get(w.selfId), at = me ? me.to : null, near = new Map();
+    const out = [];
+    for (const s of this.room.spots || []) {
+      if (taken.has(s.id)) continue;
+      if (s.activity && acts.has(s.activity)) {
+        const d = at ? Math.hypot(s.at[0] - at[0], s.at[1] - at[1]) : 0, best = near.get(s.activity);
+        if (!best || d < best.d) near.set(s.activity, { s, d });
+      } else if ((s.kind === "counter" && s.offers && (here.offers || []).length) || s.kind === "stage" || (s.staff && works)) out.push(s);
+    }
+    return out.concat([...near.values()].map(x => x.s));
+  }
+  drawHotspots(ctx, now) {
+    const v = this.view, P = (this.room.person_px || 120) * v.s, still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const rx = Math.max(9, Math.min(26, P * 0.2));
+    ctx.save();
+    this.hotspots().forEach((s, i) => {
+      const [x, y] = this.toScreen(s.at), hot = this.pulse && this.pulse.id === s.id && this.pulse.until > now;
+      const breathe = still ? 0.6 : 0.45 + 0.25 * Math.sin(now / 700 + i * 1.7);
+      ctx.fillStyle = `rgba(218, 187, 133, ${breathe * 0.35})`; ctx.strokeStyle = `rgba(232, 207, 156, ${breathe + 0.2})`; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(x, y, rx, rx * 0.45, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      if (hot && !still) {
+        const k = ((this.pulse.until - now) % 600) / 600, r = rx * (1 + (1 - k) * 1.4);
+        ctx.strokeStyle = `rgba(255, 243, 223, ${k})`; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.ellipse(x, y, r, r * 0.45, 0, 0, Math.PI * 2); ctx.stroke();
+      }
+    });
+    ctx.restore();
+  }
+  // A tray chip was tapped: its spot rings out while you walk over.
+  pulseActivity(activityId) {
+    const s = this.hotspots().find(x => x.activity === activityId);
+    if (s) this.pulse = { id: s.id, until: performance.now() + 1800 };
+  }
   // Everyone, back to front; furniture standing between a person and the viewer is drawn again over them.
   drawPeople(ctx, baked, now, night, m) {
     const w = this.game.world, v = this.view, P = (this.room.person_px || 120) * v.s, e = this.pic.entry, L = lightAt(m);
@@ -598,18 +633,22 @@ export class RoomView {
     const act = s.activity && here && (here.activities || []).find(a => a.id === s.activity);
     if (s.kind === "door" && !s.activity) { await g.exit(); return; }
     if (act) { await g.activity(act); return; }
-    if (s.kind === "counter" && s.offers) { this.openCard("[data-buy]"); return; }
+    if (s.kind === "counter" && s.offers) { ui.sheetBuy(); return; }
     if (s.kind === "stage") {
       // The card's Do section lists a Perform for each song you can play (verbs.js); with none, say what's missing.
       const found = await this.openCard('[data-verb^="perform:"]', true);
       if (!found) ui.toast("To perform here you need a song: write one or release one in the Studio app.", false, { action: { label: "Studio", run: () => g.openPhone("studio") } });
       return;
     }
-    if (s.staff) { this.openCard("#shift-btn"); return; }
+    // Your work station: start a shift, or on one, the decisions waiting in the work app.
+    if (s.staff) {
+      const c = w.career, works = w.self.onShift || (c && Array.isArray(c.workplaces) && c.workplaces.includes(here.name));
+      if (w.self.onShift) g.openPhone("work"); else if (works) await g.work("start");
+    }
   }
   // The scene card, opened at the part this spot is for. The Do section's verbs arrive a moment after the card.
   async openCard(selector, waitForVerbs = false) {
-    this.game.ui.sheetScene({ height: "half" });
+    this.game.ui.sheetScene({ card: true, height: "half" });
     const find = () => document.querySelector(`#sheet ${selector}`);
     let n = find();
     for (let i = 0; waitForVerbs && !n && i < 12; i++) { await new Promise(r => setTimeout(r, 100)); n = find(); }

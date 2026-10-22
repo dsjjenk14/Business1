@@ -102,7 +102,8 @@ async function groundAround(p, center, ...radii) {
 async function exitBuilding(p) {
   const inside = await W(p, () => window.__livera.world.self.inside);
   if (!inside) return;
-  if (!(await p.page.$("#exit-btn"))) await p.page.click("#sheet .mini-pill .btn:last-child");
+  // Inside, Exit is the bar's context button (the tray, D-078); the full card has its own.
+  if (!(await p.page.$("#exit-btn"))) await p.page.click("#ctx-btn");
   else await p.page.click("#exit-btn");
   await waitFor(p, () => window.__livera.world.self.inside === "");
 }
@@ -148,7 +149,10 @@ const scripted = p => W(p, () => [...window.__livera.world.people.values()].filt
     assert(me.id === "dominique", "playing the wrong character: " + me.id);
     assert(me.inside, "a founding character starts at home");
     assert(me.auto.running, "the autopilot isn't running: " + JSON.stringify(me.auto));
-    await A.page.waitForSelector('#sheet[data-kind="scene"]');
+    // Inside, the room is the screen: the tray of things to do above the bar, not a card over the room (D-078).
+    await A.page.waitForSelector('#sheet[data-kind="scene-mini"] .tray-chips [data-activity="shower"]');
+    const tray = await W(A, () => { const r = document.getElementById("sheet").getBoundingClientRect(); return { h: r.height, H: window.innerHeight }; });
+    assert(tray.h < tray.H * 0.2, "the tray covers too much of the room: " + JSON.stringify(tray));
     const notes = await W(A, () => [document.getElementById("sketch-note").textContent, document.getElementById("solo-note").textContent]);
     assert(/sketches/.test(notes[0]), "the sketch note is missing");
     assert(/Nobody else can join this save/.test(notes[1]), "the single-player note is missing from the HUD");
@@ -165,8 +169,9 @@ const scripted = p => W(p, () => [...window.__livera.world.people.values()].filt
     assert(n.work.length, "the career app didn't arrive: " + JSON.stringify(n));
     assert(n.work.includes(n.next.title) || n.next.target === "meridian_talent", `the Next card points at ${JSON.stringify(n.next)}, not the workplace ${n.work}`);
     assert(/From your (Calendar|Career)/.test(n.next.source), "the Next card doesn't say where it comes from: " + n.next.source);
-    // A phone with the scene card open keeps the card out of the way; outside it's on screen.
-    await A.page.click("#exit-btn");
+    // Exit is the bar's context button inside; outside, the Next card is on screen.
+    assert((await A.page.textContent("#ctx-btn .tab-label")) === "Exit", "inside, the context button should say Exit");
+    await A.page.click("#ctx-btn");
     await waitFor(A, () => window.__livera.world.self.inside === "" && !document.getElementById("next").hidden);
     const card = await A.page.textContent("#next");
     assert(/Meridian Talent Partners/.test(card) && /Go/.test(card), "the Next card on the map doesn't offer the workplace: " + card);
@@ -182,7 +187,7 @@ const scripted = p => W(p, () => [...window.__livera.world.people.values()].filt
   });
 
   await test("an activity shows its need change (Take a shower · Hygiene 85 → 100)", async () => {
-    await A.page.waitForSelector('#sheet[data-kind="scene"] [data-activity="shower"]');
+    await A.page.waitForSelector('#sheet[data-kind="scene-mini"] [data-activity="shower"]');
     const before = await W(A, () => window.__livera.world.self.needs.hygiene);
     await A.page.click('#sheet [data-activity="shower"]');
     await feedMatches(A, /Take a shower · .*Hygiene \d+ → \d+/);
@@ -269,7 +274,9 @@ const scripted = p => W(p, () => [...window.__livera.world.people.values()].filt
     }
     await A.page.click('#sheet >> text="Go inside"');
     await waitFor(A, () => window.__livera.world.self.inside === "heritage_coffee", null, 40000);
-    await A.page.waitForSelector('#sheet[data-kind="scene"] [data-buy]');
+    // The counter is the tray's Buy chip: just what's for sale, in a card of its own.
+    await A.page.click('#sheet [data-tray="buy"]', { timeout: 15000 });
+    await A.page.waitForSelector('#sheet[data-kind="buy"] [data-buy]');
     await waitFor(A, () => !!window.__livera.world.money);
     const offer = await W(A, () => window.__livera.world.here.offers[0]);
     price = offer.price_cents;

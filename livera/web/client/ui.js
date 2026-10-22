@@ -3,7 +3,8 @@
 // (Places, Talk, a context button, Phone, You) with the Next card, the docked composer and the
 // attribution line above it; a "doing now" pill with Stop; the feed of what you heard and what
 // happened; and one card (sheet) at a time, with three heights on phones: a place, a person, a bus
-// stop, the scene inside a building, an ask to answer, Places, Today, You, the log.
+// stop, the scene inside a building, the counter's Buy, an ask to answer, Places, Today, You, the log.
+// Inside a building the card slot holds the tray instead (D-078): the things to do as one row of chips.
 //
 // Every button is an intent sent to the server through `game`; the server decides and the card
 // shows its answer or its refusal, in plain words (messages.js). Server text only reaches the page
@@ -33,12 +34,45 @@ const SPEECH = new Set(["say", "shout", "whisper", "whispering"]);
 // Where Places opens when a need runs low and no place you've been is known to help.
 export const NEED_PLACES = { hunger: "food", social: "fun", recreation: "fun", health: "health", dental: "health", grooming: "shops" };
 const HEIGHTS = ["peek", "half", "full"];
-const DEFAULT_HEIGHT = { places: "full", scene: "half" };
+const DEFAULT_HEIGHT = { places: "full", scene: "half", buy: "half" };
 const fmtMin = m => (m < 60 ? `${Math.max(1, Math.round(m))} min` : `${Math.floor(m / 60)} h${m % 60 >= 1 ? ` ${Math.round(m % 60)} min` : ""}`);
 const etaText = s => (s < 1 ? "" : s < 60 ? `${Math.ceil(s)} s` : `${Math.round(s / 60)} min`);
 // "+45 Hygiene · −5 Energy" from a reply's or the content's effects.
 export const effectsText = (fx, max = 3) => Object.entries(fx || {}).filter(([, v]) => typeof v === "number" && Math.round(v) !== 0)
   .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1])).slice(0, max).map(([k, v]) => `${v > 0 ? "+" : "−"}${Math.abs(Math.round(v))} ${titleCase(k)}`).join(" · ");
+
+// The tray's icon for a thing to do, from its id and label ("Take a shower" → shower).
+const ACT_ICONS = [[/shower|bath/, "shower"], [/nap|sleep|bed\b|rest\b/, "bed"], [/toilet|restroom|bathroom/, "toilet"],
+  [/cook|meal|kitchen|stove|breakfast|dinner/, "cook"], [/\btv\b|watch|movie|film/, "tv"], [/teeth|brush|floss/, "teeth"],
+  [/groom|shave|skin|hair|makeup|mirror/, "mirror"], [/tidy|clean|dust|vacuum/, "broom"], [/trash|rubbish|\bbin\b/, "trash"],
+  [/chat|regulars|talk|mingle/, "talk"], [/yoga|gym|workout|jog|run\b|train|practice|lift/, "sports"],
+  [/therapy|massage|treatment/, "health"], [/tea\b|coffee|drink/, "cup"], [/music|perform|sing|dance|open mic/, "fun"],
+  [/read|study|book|class/, "school"], [/pet\b|dog|cat\b|walk the/, "pets"]];
+const actIcon = a => (ACT_ICONS.find(([re]) => re.test(`${a.id} ${a.label}`.toLowerCase().replace(/_/g, " "))) || [null, "check"])[1];
+// The tray's chips from their specs, kept by key: a refresh (a cooldown ticking down) updates a chip in place, so a
+// tap in progress lands on the same button and a busy chip stays disabled.
+function syncChips(box, specs) {
+  const old = new Map([...box.children].map(n => [n.dataset.k, n]));
+  specs.forEach((sp, i) => {
+    let n = old.get(sp.k);
+    old.delete(sp.k);
+    if (!n) n = el("button", { type: "button", dataset: { k: sp.k } }, el("span", { class: "tray-ic", "aria-hidden": "true" }),
+      el("span", { class: "tray-text" }, el("span", { class: "tray-label" }), el("span", { class: "tray-sub" })));
+    n.className = `tray-chip${sp.cls ? ` ${sp.cls}` : ""}`;
+    Object.assign(n.dataset, sp.data || {});
+    if (sp.aria) n.setAttribute("aria-label", sp.aria); else n.removeAttribute("aria-label");
+    n.onclick = sp.run;
+    const ic = n.firstChild, [label, sub] = n.lastChild.children;
+    if (ic.dataset.icon !== sp.icon) { ic.dataset.icon = sp.icon; replace(ic, icon(sp.icon)); }
+    if (label.textContent !== sp.label) label.textContent = sp.label;
+    if (sub.textContent !== (sp.sub || "")) sub.textContent = sp.sub || "";
+    if (box.children[i] !== n) box.insertBefore(n, box.children[i] || null);
+  });
+  for (const n of old.values()) n.remove();
+}
+// The tray's icon for a place verb from verbs.js, by its kind.
+const VERB_ICONS = { laundry: "items", pet: "pets", adopt: "pets", vet: "health", perform: "fun", join_team: "sports", leave_team: "sports",
+  apply: "jobs", buy_home: "homes", steal: "mask", buy_illegal: "mask" };
 
 export class UI {
   constructor({ world, game, renderer }) {
@@ -704,6 +738,8 @@ export class UI {
     const w = this.world, here = w.here, g = this.game;
     if (!here) return;
     g.agenda.learnHere(here);
+    // Inside, the room is the screen: the tray, unless the card is asked for (More, a spot that needs it) or open.
+    if (!opts.card && !(this.sheet && this.sheet.kind === "scene")) { this.miniScene(); return; }
     const m = w.minute();
     const peopleBox = el("div", { class: "people" });
     const updatePeople = () => {
@@ -718,24 +754,7 @@ export class UI {
     const place = w.placeById.get(here.id), hours = place ? openingText(place, m) : null;
     body.push(el("div", { class: "row" }, el("span", { class: `badge ${here.status === "open" ? "open" : "closed"}` }, String(here.status || "open").replace(/_/g, " ")),
       hours ? el("span", { class: "hint" }, hours.text) : null, w.self.onShift ? el("span", { class: "badge open" }, "on shift") : null));
-    // Buy: the way to pay chosen once (remembered on this device), one button per offer.
-    if (Array.isArray(here.offers) && here.offers.length) {
-      const offerBtns = [];
-      const seg = el("div", { class: "seg", role: "group", "aria-label": "Pay with" }, [["card", "Card"], ["cash", "Cash"], ["phone", "LivPay"]].map(([k, label]) =>
-        el("button", { type: "button", "aria-pressed": String(k === this.payMethod), dataset: { pay: k }, onclick: () => {
-          this.payMethod = k; store.set("livera.payWith", k);
-          for (const b of seg.children) b.setAttribute("aria-pressed", String(b.dataset.pay === k));
-          for (const b of offerBtns) b.dataset.method = k;
-        } }, label)));
-      body.push(el("div", { class: "eyebrow" }, "Buy"), el("div", { class: "paywith" }, el("span", { class: "hint" }, "Pay with"), seg));
-      body.push(el("ul", { class: "list" }, here.offers.map(o => {
-        const fx = effectsText(o.needs);
-        const btn = el("button", { type: "button", class: "btn", dataset: { buy: o.id, method: this.payMethod }, "aria-label": `Buy ${o.label} for ${money(o.price_cents)}`,
-          onclick: () => g.buy(o, btn.dataset.method) }, `Buy · ${money(o.price_cents)}`);
-        offerBtns.push(btn);
-        return el("li", { class: "offer" }, el("div", { class: "grow" }, el("div", null, o.label), fx ? el("div", { class: "fx" }, fx) : null), btn);
-      })));
-    }
+    if (Array.isArray(here.offers) && here.offers.length) body.push(el("div", { class: "eyebrow" }, "Buy"), ...this.buySection(here));
     if (Array.isArray(here.activities) && here.activities.length) {
       body.push(el("div", { class: "eyebrow" }, "Things to do"));
       body.push(el("div", { class: "acts" }, here.activities.map(a => {
@@ -771,7 +790,7 @@ export class UI {
         : el("button", { type: "button", class: "btn primary block", onclick: () => g.study("start") }, "Start studying"));
     } else if (!enrolled && programs.some(taughtHere)) {
       const open = programs.filter(p => taughtHere(p) && p.eligible && p.id);
-      body.push(el("div", { class: "eyebrow" }, "Study here"));
+      body.push(el("div", { class: "eyebrow study-here" }, "Study here"));
       if (open.length) {
         body.push(el("ul", { class: "list" }, open.map(p => el("li", null,
           el("div", { class: "offer-head" }, el("span", null, p.name), el("span", { class: "price" }, `${money(p.tuition_per_hour_cents)}/hr`)),
@@ -793,27 +812,153 @@ export class UI {
       }
     };
     this.openSheet("scene", here.id, head, body, update, { focus: opts.focus, height: opts.height });
-    // The scene card can shrink to a pill so the map shows.
+    // The card goes back down to the tray, so the room shows.
     const headNode = this.$("sheet").querySelector(".sheet-head");
-    headNode.insertBefore(el("button", { type: "button", class: "iconbtn", "aria-label": "Shrink to a pill", onclick: () => this.miniScene() }, icon("down")), headNode.lastChild);
+    headNode.insertBefore(el("button", { type: "button", class: "iconbtn", "aria-label": "Back to the room", onclick: () => this.miniScene() }, icon("down")), headNode.lastChild);
     const size = headNode.querySelector(".sheet-size");
     if (size) size.remove();
     this.doSection(doBox, here);
   }
+  // The full card, scrolled to the part a chip or a spot in the room is for.
+  sceneCardAt(selector) {
+    this.sheetScene({ card: true, height: "half" });
+    const n = this.$("sheet").querySelector(selector);
+    if (n) { n.scrollIntoView({ block: "center" }); if (n.tabIndex >= 0 || n.matches("button")) n.focus({ preventScroll: true }); }
+    return !!n;
+  }
+  // Buy: the way to pay chosen once (remembered on this device), one button per offer.
+  buySection(here) {
+    const offerBtns = [];
+    const seg = el("div", { class: "seg", role: "group", "aria-label": "Pay with" }, [["card", "Card"], ["cash", "Cash"], ["phone", "LivPay"]].map(([k, label]) =>
+      el("button", { type: "button", "aria-pressed": String(k === this.payMethod), dataset: { pay: k }, onclick: () => {
+        this.payMethod = k; store.set("livera.payWith", k);
+        for (const b of seg.children) b.setAttribute("aria-pressed", String(b.dataset.pay === k));
+        for (const b of offerBtns) b.dataset.method = k;
+      } }, label)));
+    return [el("div", { class: "paywith" }, el("span", { class: "hint" }, "Pay with"), seg),
+      el("ul", { class: "list" }, here.offers.map(o => {
+        const fx = effectsText(o.needs);
+        const btn = el("button", { type: "button", class: "btn", dataset: { buy: o.id, method: this.payMethod }, "aria-label": `Buy ${o.label} for ${money(o.price_cents)}`,
+          onclick: () => this.game.buy(o, btn.dataset.method) }, `Buy · ${money(o.price_cents)}`);
+        offerBtns.push(btn);
+        return el("li", { class: "offer" }, el("div", { class: "grow" }, el("div", null, o.label), fx ? el("div", { class: "fx" }, fx) : null), btn);
+      }))];
+  }
+  // The counter: just what's for sale, half height, back down to the tray when closed.
+  sheetBuy() {
+    const here = this.world.here;
+    if (!here || !Array.isArray(here.offers) || !here.offers.length) { this.miniScene(); return; }
+    this.openSheet("buy", here.id, this.head(`Buy · ${here.name}`, "At the counter"), this.buySection(here));
+  }
+
+  // Inside a place: the room fills the screen and one strip of chips sits above the bar (D-078):
+  // Buy, each thing to do (tap: you walk to the spot and do it), the shift, studying, who's here and
+  // More (the full card). Exit is the bar's context button. It stays sheet kind "scene-mini".
   miniScene() {
-    const w = this.world, sheet = this.$("sheet");
-    if (!w.here) return;
-    replace(sheet, el("div", { class: "mini-pill" },
-      el("button", { type: "button", class: "btn grow", "aria-label": `Inside ${w.here.name}: open the card`, onclick: () => this.sheetScene() }, `Inside: ${w.here.name}`, icon("up")),
-      el("button", { type: "button", class: "btn", onclick: () => this.game.exit() }, "Exit")));
-    sheet.hidden = false; sheet.dataset.kind = "scene-mini"; sheet.dataset.height = "peek"; sheet.style.height = ""; sheet.style.maxHeight = "";
-    sheet.removeAttribute("aria-labelledby"); sheet.setAttribute("aria-label", `Inside ${w.here.name}`);
-    this.renderer.select(null);
-    sheet.classList.add("mini");
-    document.getElementById("app").classList.remove("sheet-open");
-    this.sheet = { kind: "scene-mini", id: w.here.id };
+    const w = this.world, sheet = this.$("sheet"), here = w.here, g = this.game;
+    if (!here) return;
+    const wasTray = this.sheet && this.sheet.kind === "scene-mini" && this.sheet.id === here.id;
+    // Refreshing the tray keeps its nodes, so the row keeps its scroll and the focused chip.
+    const chips = (wasTray && sheet.querySelector(".tray-chips")) || el("div", { class: "tray-chips", role: "group", "aria-label": `Things to do at ${here.name}` });
+    const headText = (wasTray && sheet.querySelector(".tray-head .tray-sub")) || el("span", { class: "tray-sub" });
+    delete chips.dataset.key;
+    let last = -1e9;
+    const render = now => {
+      if (now - last < 250) return;
+      last = now;
+      // A new look (after a chore, a shift, a purchase) replaces w.here: read it fresh each time.
+      const here = w.here;
+      if (!here || !this.sheet || this.sheet.kind !== "scene-mini" || here.id !== this.sheet.id) return;
+      const m = w.minute(now), offers = Array.isArray(here.offers) ? here.offers : [], acts = Array.isArray(here.activities) ? here.activities : [];
+      const career = w.career, works = w.self.onShift || (career && Array.isArray(career.workplaces) && career.workplaces.includes(here.name));
+      const decisions = g.agenda.work && Number(g.agenda.work.open) > 0 ? Number(g.agenda.work.open) : 0;
+      const inside = [...w.people.values()].filter(p => p.inside === w.self.inside || (!p.pos && w.self.inside));
+      const school = w.school, enrolled = school && school.enrolled, programs = school && Array.isArray(school.programs) ? school.programs : [];
+      const mine = enrolled && programs.find(p => p.name === enrolled.program);
+      const studyHere = enrolled && ((mine && Array.isArray(mine.campuses) && mine.campuses.includes(here.name)) || enrolled.studying);
+      const taught = !enrolled ? programs.filter(p => Array.isArray(p.campuses) && p.campuses.includes(here.name)) : [];
+      const waits = acts.map(a => {
+        const local = this.cooling.get(`${here.id}/${a.id}`);
+        return a.ready_in_minutes > 0 ? a.ready_in_minutes : local && m !== null && local > m ? local - m : 0;
+      });
+      const place = w.placeById.get(here.id), hours = place ? openingText(place, m) : null;
+      // Verbs (verbs.js), at most two of a kind here: the rest are on the full card.
+      const allVerbs = this.trayVerbs && this.trayVerbs.id === here.id ? this.trayVerbs.actions : [], perKind = new Map();
+      const verbs = allVerbs.filter(a => { const n = (perKind.get(a.kind) || 0) + 1; perKind.set(a.kind, n); return n <= 2; });
+      const key = [offers.length, acts.map((a, i) => a.id + (waits[i] ? Math.ceil(waits[i]) : "")).join(), works, w.self.onShift, decisions, inside.map(p => p.id).join(),
+        studyHere, enrolled && enrolled.studying, taught.length, hours && hours.text, here.status, allVerbs.map(a => `${a.key}:${a.label}:${a.detail}`).join()].join("|");
+      if (chips.dataset.key === key) return;
+      chips.dataset.key = key;
+      headText.textContent = [here.status && here.status !== "open" ? String(here.status).replace(/_/g, " ") : "", hours ? hours.text : ""].filter(Boolean).join(" · ");
+      // One spec per chip: k (stable), data, icon, label, sub, aria, cls, run.
+      const list = [];
+      if (offers.length) list.push({ k: "buy", data: { tray: "buy" }, icon: "bag", label: "Buy", sub: `${offers.length} item${offers.length > 1 ? "s" : ""}`,
+        aria: `Buy: ${offers.length} thing${offers.length > 1 ? "s" : ""} for sale`, run: () => this.sheetBuy() });
+      acts.forEach((a, i) => {
+        const wait = waits[i], fx = effectsText(a.needs, 1);
+        list.push({ k: `act:${a.id}`, data: { activity: a.id }, icon: actIcon(a), label: a.label, sub: wait ? `again in ${fmtMin(wait)}` : fx, cls: wait ? "cooling" : "",
+          aria: `${a.label}${fx ? `: ${fx}` : ""}${wait ? `, again in about ${fmtMin(wait)}` : ""}`,
+          run: () => { if (g.interiors) g.interiors.pulseActivity(a.id); g.activity(a); } });
+      });
+      for (const a of verbs) {
+        list.push({ k: `verb:${a.key || a.label}`, data: { verb: a.key || a.label }, icon: VERB_ICONS[a.kind] || "check", label: a.label, sub: String(a.detail || "").split(/ · |(?<=\.) /)[0],
+          cls: a.danger ? "danger" : "", aria: a.detail ? `${a.label}: ${a.detail}` : a.label, run: e => this.runTrayVerb(a, e.currentTarget, here) });
+      }
+      if (works) list.push(w.self.onShift
+        ? { k: "shift", data: { tray: "shift" }, icon: "workdesk", cls: "on", label: decisions ? `${decisions} decision${decisions > 1 ? "s" : ""}` : "End shift", sub: decisions ? "on shift" : "get paid",
+          aria: decisions ? `On shift, ${decisions} decisions waiting: open work` : "End shift", run: () => (decisions ? g.openPhone("work") : g.work("end")) }
+        : { k: "shift", data: { tray: "shift" }, icon: "workdesk", label: "Start shift", sub: career && career.hourly_cents ? `${money(career.hourly_cents)}/hr` : "", run: () => g.work("start") });
+      if (studyHere) list.push({ k: "study", data: { tray: "study" }, icon: "school", cls: enrolled.studying ? "on" : "", label: enrolled.studying ? "End studying" : "Study",
+        sub: `${enrolled.hours ?? 0}/${enrolled.hours_required ?? "?"} h`, run: () => g.study(enrolled.studying ? "end" : "start") });
+      if (taught.length) list.push({ k: "study", data: { tray: "study" }, icon: "school", label: "Study here", sub: `${taught.length} program${taught.length > 1 ? "s" : ""}`,
+        run: () => this.sceneCardAt("[data-enroll], .study-here") });
+      if (inside.length) list.push({ k: "people", data: { tray: "people" }, icon: "people", label: inside.length === 1 ? firstName(inside[0].name) : `${inside.length} here`,
+        sub: inside.length === 1 ? "here with you" : "with you", aria: `${inside.length} here with you`,
+        run: () => (inside.length === 1 ? this.sheetPerson(inside[0].id) : this.sheetScene({ card: true, height: "full" })) });
+      const hidden = allVerbs.length - verbs.length;
+      list.push({ k: "more", data: { tray: "more" }, icon: "more", label: "More", sub: hidden ? `${hidden} more inside` : "the full card",
+        aria: `More at ${here.name}: the full card`, run: () => this.sheetScene({ card: true }) });
+      syncChips(chips, list);
+    };
+    if (!wasTray || !chips.isConnected) {
+      replace(sheet, el("div", { class: "tray" },
+        el("div", { class: "tray-head" }, el("span", { class: "tray-name" }, here.name), headText),
+        chips));
+      sheet.hidden = false; sheet.dataset.kind = "scene-mini"; sheet.dataset.height = "peek"; sheet.style.height = ""; sheet.style.maxHeight = "";
+      sheet.removeAttribute("aria-labelledby"); sheet.setAttribute("aria-label", `Inside ${here.name}`);
+      this.renderer.select(null);
+      sheet.classList.add("mini");
+      document.getElementById("app").classList.remove("sheet-open");
+      this.sheet = { kind: "scene-mini", id: here.id, update: render };
+    } else this.sheet.update = render;
+    render(performance.now());
+    this.loadTrayVerbs(here, chips);
     this.nextKey = ""; this.renderNext();
     this.measure();
+  }
+  // The place's verbs (laundry, pet care, a team, a song on the stage, the risky ones) arrive a moment after the tray.
+  async loadTrayVerbs(place, chips) {
+    let mod = null;
+    try { mod = await import("./verbs.js"); } catch { mod = null; }
+    if (!mod || typeof mod.placeActions !== "function") return;
+    if (typeof mod.exposeForTests === "function") mod.exposeForTests(this.game);
+    let actions = [];
+    try { actions = await mod.placeActions(this.game, place); } catch { actions = []; }
+    if (!chips.isConnected || !this.sheet || this.sheet.kind !== "scene-mini" || this.sheet.id !== place.id) return;
+    this.trayVerbs = { id: place.id, mod, actions: Array.isArray(actions) ? actions : [] };
+    delete chips.dataset.key;
+  }
+  async runTrayVerb(a, btn, place) {
+    const v = this.trayVerbs;
+    if (!v || !v.mod) return;
+    btn.disabled = true;
+    try {
+      const r = typeof v.mod.runAction === "function" ? await v.mod.runAction(this.game, a) : await a.run();
+      if (r && r.ok && this.sheet && this.sheet.kind === "scene-mini") {
+        const chips = this.$("sheet").querySelector(".tray-chips");
+        if (chips) this.loadTrayVerbs(this.world.here || place, chips);
+      }
+    } finally { if (btn.isConnected) btn.disabled = false; }
   }
 
   personChip(p) {

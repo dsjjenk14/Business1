@@ -95,7 +95,7 @@ async function until(p, cond, arg, { step = 3, max = 240, what = "the condition"
 async function exitBuilding(p) {
   if (!(await W(p, () => window.__livera.world.self.inside))) return;
   await closePhone(p);
-  const btn = (await p.page.$("#exit-btn")) || (await p.page.$('#sheet button:text-is("Exit")')) || (await p.page.$('button:text-is("Exit")'));
+  const btn = (await p.page.$("#exit-btn")) || (await p.page.$("#ctx-btn"));
   assert(btn, "no Exit button on screen");
   await btn.click();
   await waitFor(p, () => window.__livera.world.self.inside === "");

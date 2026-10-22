@@ -624,7 +624,8 @@ export class Game {
     if (after) this.floatGains(before, after);
     if (here && a.cooldown_minutes > 0 && w.minute() !== null) this.ui.cooling.set(`${here.id}/${a.id}`, w.minute() + a.cooldown_minutes);
     this.lastLook = 0;
-    if (this.ui.sheet && this.ui.sheet.kind === "scene") { await this.refreshLook(); if (this.ui.sheet && this.ui.sheet.kind === "scene") this.ui.sheetScene({ focus: false }); }
+    // The tray reads the new look by itself; an open card is drawn again.
+    if (w.self && w.self.inside) { await this.refreshLook(); if (this.ui.sheet && this.ui.sheet.kind === "scene") this.ui.sheetScene({ focus: false }); }
     return r;
   }
   async work(action) {

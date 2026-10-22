@@ -60,7 +60,7 @@ async function goInto(p, search, place) {
   await dismiss(p);
   if (await W(p, () => !!window.__livera.world.self.inside)) {
     // As solo_e2e.js: the Exit button, or the scene pill's exit when the card is open.
-    const b = (await p.page.$("#exit-btn:visible")) || (await p.page.$("#sheet .mini-pill .btn:last-child"));
+    const b = (await p.page.$("#exit-btn:visible")) || (await p.page.$("#ctx-btn"));
     assert(b, "no way out of the building on screen");
     await b.click();
     await p.page.waitForFunction(() => window.__livera.world.self.inside === "", null, { timeout: 10000 });
@@ -94,8 +94,8 @@ async function goInto(p, search, place) {
     await advanceTo(A, 12, 30);
     await dismiss(A);
     await A.page.screenshot({ path: path.join(SHOTS, "people_02_hospital.png") });
-    // The scene card lists who's here (on a phone it's folded into the "Inside: …" pill).
-    if (!(await A.page.$('#sheet:not([hidden]) .person[data-person="tess-osei"]'))) await A.page.click('button[aria-label^="Inside "]');
+    // The full card lists who's here (the tray's More, D-078).
+    if (!(await A.page.$('#sheet:not([hidden]) .person[data-person="tess-osei"]'))) await A.page.click('#sheet [data-tray="more"]');
     await A.page.waitForSelector('#sheet .person[data-person="tess-osei"]', { timeout: 15000 });
     await A.page.click('#sheet .person[data-person="tess-osei"]');
     await A.page.waitForSelector('#sheet[data-kind="person"] [data-art="standin"]', { timeout: 5000 });

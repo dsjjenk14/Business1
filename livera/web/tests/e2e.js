@@ -162,7 +162,8 @@ async function rejoin(p, other) {
 async function exitBuilding(p) {
   const inside = await W(p, () => window.__livera.world.self.inside);
   if (!inside) return;
-  if (!(await p.page.$("#exit-btn"))) await p.page.click("#sheet .mini-pill .btn:last-child");
+  // Inside, Exit is the bar's context button (the tray, D-078); the full card has its own.
+  if (!(await p.page.$("#exit-btn"))) await p.page.click("#ctx-btn");
   else await p.page.click("#exit-btn");
   await waitFor(p, () => window.__livera.world.self.inside === "");
 }
@@ -217,7 +218,7 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     const me = await W(A, () => ({ id: window.__livera.world.selfId, inside: window.__livera.world.self.inside }));
     assert(me.id === "aaliyah", "playing the wrong character: " + me.id);
     assert(me.inside, "a founding character starts at home");
-    await A.page.waitForSelector('#sheet[data-kind="scene"]');
+    await A.page.waitForSelector('#sheet[data-kind="scene-mini"] .tray-chips');
     await sleep(600);
     await shot(A, "phone_03_home_scene.png");
   });
@@ -270,7 +271,8 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     await shot(A, "phone_05_place_sheet.png");
     await A.page.click('#sheet >> text="Go inside"');
     await waitFor(A, () => window.__livera.world.self.inside === "heritage_coffee", null, 40000);
-    await A.page.waitForSelector('#sheet[data-kind="scene"] [data-buy]');
+    await A.page.click('#sheet [data-tray="buy"]', { timeout: 15000 });
+    await A.page.waitForSelector('#sheet[data-kind="buy"] [data-buy]');
     await waitFor(A, () => !!window.__livera.world.money);
     const offer = await W(A, () => window.__livera.world.here.offers[0]);
     price = offer.price_cents;
@@ -287,18 +289,19 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
       await A.page.click('#chatbar [data-volume="say"]');
       assert(!/everyone/.test(note), `with Whisper picked indoors the chat bar says "${note}"`);
       assert((await A.page.textContent("#range-note")) === "everyone inside hears", "Say indoors should reach everyone inside");
-      // Closing the scene card inside leaves the pill with Exit (never a building you can't leave).
+      // Closing a card inside leaves the tray, with Exit on the bar (never a building you can't leave).
       await closeSheet(A);
-      await A.page.waitForSelector('#sheet:not([hidden]) .mini-pill >> text="Exit"', { timeout: 3000 });
+      await A.page.waitForSelector('#sheet:not([hidden]) .tray', { timeout: 3000 });
+      assert((await A.page.textContent("#ctx-btn .tab-label")) === "Exit", "inside, the bar's context button should say Exit");
     } finally {
       // Leave either way, so a failure above doesn't strand A inside for the tests after this one.
       // With no Exit on screen, the way back is the place card's "Go inside" (it reopens the scene).
-      if (!(await A.page.$("#exit-btn, #sheet:not([hidden]) .mini-pill"))) {
+      if (!(await A.page.$("#exit-btn, #sheet:not([hidden]) .tray"))) {
         await A.page.click("#phone-btn");
         await phoneApp(A, "map");
         await showOnMap(A, "Heritage Coffee");
         await A.page.click('#sheet >> text="Go inside"');
-        await A.page.waitForSelector("#exit-btn");
+        await A.page.waitForSelector("#sheet .tray");
       }
       await exitBuilding(A);
     }
@@ -751,16 +754,17 @@ async function newer(p) { return W(p, () => window.__livera.streaming() || windo
     await register(S, `e2e_s_${RUN}`);
     await pick(S, "leila");
     await waitFor(S, () => !!window.__livera.world.school);
-    await S.page.waitForSelector("#exit-btn");
+    await S.page.waitForSelector("#sheet .tray");
     const atHome = await W(S, () => !!document.querySelector("#sheet [data-enroll]") || [...document.querySelectorAll("#sheet button")].some(b => /studying/.test(b.textContent)));
-    assert(!atHome, "study is offered at home");
-    await S.page.click("#exit-btn");
+    assert(!atHome && !(await S.page.$('#sheet [data-tray="study"]')), "study is offered at home");
+    await S.page.click("#ctx-btn");
     await waitFor(S, () => window.__livera.world.self.inside === "");
     await S.page.click("#phone-btn");
     await phoneApp(S, "map");
     await showOnMap(S, "Livéra University");
     await S.page.click('#sheet >> text="Go inside"');
     await waitFor(S, () => window.__livera.world.self.inside === "livera_university", null, 150000);
+    await S.page.click('#sheet [data-tray="study"]', { timeout: 15000 });
     await S.page.waitForSelector('#sheet[data-kind="scene"] [data-enroll="law_school"]');
     await S.page.click('#sheet [data-enroll="law_school"]');
     await S.page.click('#sheet >> text="Start studying"', { timeout: 8000 });

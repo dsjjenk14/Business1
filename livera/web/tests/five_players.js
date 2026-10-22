@@ -82,7 +82,8 @@ async function serverLook(p) { const r = await W(p, () => window.__livera.look()
 async function exitBuilding(p) {
   const inside = await W(p, () => window.__livera.world.self.inside);
   if (!inside) return;
-  if (!(await p.page.$("#exit-btn"))) await p.page.click("#sheet .mini-pill .btn:last-child");
+  // Inside, Exit is the bar's context button (the tray, D-078); the full card has its own.
+  if (!(await p.page.$("#exit-btn"))) await p.page.click("#ctx-btn");
   else await p.page.click("#exit-btn");
   await waitFor(p, () => window.__livera.world.self.inside === "");
 }
@@ -183,7 +184,8 @@ const shot = (p, name) => p.page.screenshot({ path: path.join(SHOTS, name) });
     await nao.page.waitForSelector('#sheet[data-kind="place"]');
     await nao.page.click('#sheet >> text="Go inside"');
     await waitFor(nao, () => window.__livera.world.self.inside === "heritage_coffee", null, 40000);
-    await nao.page.waitForSelector('#sheet[data-kind="scene"] [data-buy]');
+    await nao.page.click('#sheet [data-tray="buy"]', { timeout: 15000 });
+    await nao.page.waitForSelector('#sheet[data-kind="buy"] [data-buy]');
     const offer = await W(nao, () => window.__livera.world.here.offers[0]);
     await nao.page.click(`#sheet [data-buy="${offer.id}"][data-method="card"]`);
     await feedHas(nao, "Bought");
