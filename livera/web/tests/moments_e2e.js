@@ -300,6 +300,9 @@ async function later(p) { const b = await p.page.$(".mo-card.mo-life:not(.mo-don
     if (state.jail) {
       await F.page.waitForSelector('#street-chips [data-street="held"]', { timeout: 10000 });
       await shot(F, "street_02_held_phone.png");
+      // The cell's card sits over the sheet: hide it to get at the rest of the screen.
+      const hide = await F.page.$('.mo-card[data-moment="jail"] .btn.link');
+      if (hide) await hide.click();
     } else {
       await F.page.waitForSelector('#street-chips [data-street="wanted"]', { timeout: 10000 });
       const chip = await F.page.textContent('#street-chips [data-street="wanted"]');

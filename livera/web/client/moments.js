@@ -31,6 +31,11 @@ const hhmm = minute => { const m = Math.max(0, Math.floor(Number(minute) || 0)) 
 const span = minutes => { const n = Math.max(0, Math.round(Number(minutes) || 0)), h = Math.floor(n / 60), m = n % 60; return h && m ? `${h} h ${m} min` : h ? `${h} h` : `${m} min`; };
 const sentence = t => { const s = String(t ?? "").trim(); return s && !/[.!?…"”]$/.test(s) ? s + "." : s; };
 const signed = n => `${n > 0 ? "+" : "−"}${Math.abs(Math.round(n))}`;
+// How long a game hour takes in real time at the world's rate ("half a real minute" at 2 game minutes a second).
+const realHour = rules => {
+  const s = 60 / ((rules && rules.minutes_per_real_second) || 1);
+  return s === 60 ? "a real minute" : s === 30 ? "half a real minute" : s < 60 ? `${Math.round(s)} real seconds` : `${Math.round(s / 60)} real minutes`;
+};
 const CATEGORY = { work: "At work", money: "Money", love: "Love", friends: "Friends", family: "Family", health: "Health", town: "The town", temptation: "Temptation", street: "The street" };
 const pct = p => (p >= 0.995 ? "almost certain" : `${Math.max(1, Math.round(p * 100))}%`);
 const plural = (n, one, many = one + "s") => `${n} ${n === 1 ? one : many}`;
@@ -488,7 +493,7 @@ class Moments {
       last ? el("p", { class: "mo-fx" }, [last.crime, last.fine_cents ? `fined ${money(last.fine_cents)}` : "couldn't pay the fine", last.jail_minutes ? `${span(last.jail_minutes)} held` : ""].filter(Boolean).join(" · ")) : null,
       el("div", { class: "mo-label" }, "What you can do"),
       el("ul", { class: "mo-list" },
-        el("li", null, "Wait it out: a game hour is a real minute. You'll be told when you're free."),
+        el("li", null, `Wait it out: a game hour is ${realHour(this.world.rules)}. You'll be told when you're free.`),
         el("li", null, "Use your phone: message people, check your money and your record."),
         el("li", null, "You can't leave, work, buy or start anything until your time is served.")),
       el("div", { class: "mo-actions" },
