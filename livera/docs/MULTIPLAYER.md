@@ -70,9 +70,9 @@ Event (server push): `{"event": "message", "data": {"from": "dax", "body": "..."
 | `song_save` | playing | `song` {title, bpm, tracks}, `song_id` (to update a draft) |
 | `song_release` / `song` | playing | `song` (id) |
 | `perform` | playing, on a stage | `song` (id) |
-| `use` / `wear` | playing | `item` |
-| `take_off` | playing | `slot` (`outfit`/`accessory`) |
-| `give` | playing | `to`, `item` |
+| `use` / `wear` | playing | `item` (`wear` → `{outfit, accessory, style, look, look_label?}`; your own looks are `outfit_everyday`, `outfit_work`, `outfit_evening`; refused `walking` / `riding` for an outfit on the move, `in_jail`, `in_fight`: D-079) |
+| `take_off` | playing | `slot` (`outfit`/`accessory`) (→ `{outfit, accessory, look}`: with no outfit you're seen in your drawn look; the same refusals) |
+| `give` | playing | `to`, `item` (your own looks: `personal_item`) |
 | `ride` | playing, at a stop | `to` (stop id), `pay` (default true) |
 | `enroll` | playing, at a campus | `program` (empty = drop out) |
 | `study` | playing | `action` (`start`/`end`) |
@@ -98,7 +98,9 @@ Event (server push): `{"event": "message", "data": {"from": "dax", "body": "..."
 | `dev_condition` | logged in + `--dev` | `character`, `condition` |
 
 Phone apps: bank, messages, contacts, calendar, map, career, property, notifications,
-city, studio, health, items, transit, school, jobs, record, romance, fame, family.
+city, studio, health, items, transit, school, jobs, record, romance, fame, family. `items` (D-079) adds your own three
+looks, `looks: [{look, item, label, garments, wearing, chosen, drawn, condition}]` (garments from your data, `wearing`
+what people see you in, `chosen` whether you put it on, `condition` clean / dirty / ruined), `drawn` and your `look`.
 
 Players acting on other players: interactions, tips, gifts and pickpocketing need you to be
 with them; pickpocketing has a per-victim cooldown and a cash cap; arrests need an officer
@@ -243,8 +245,10 @@ you can hear.
 `look.people` lists everyone in sight: `id`, `name`, `known`, `distance_m` (outdoors only),
 `position` [x, y] (0.1 m), `inside` (location id or ""), `moving`, `target` [x, y] or null,
 `speed_mps` (0 when still), `mode` (`walk`, or `bus` while riding), `scripted` (and, when true,
-`played_by`: `"script"` for a `bot_` account's session, `"autopilot"` for the core's Autopilot). `look.you`
-carries the same motion fields for yourself.
+`played_by`: `"script"` for a `bot_` account's session, `"autopilot"` for the core's Autopilot), and `look`: which
+clothes they're in, public like where they stand (D-079): `everyday`, `work` or `evening` (one of their own looks; with
+nothing chosen, the look their art shows, `everyday` for someone made in the creator), or `other` for a bought outfit,
+with `look_label` naming it. `look.you` carries the same motion fields and `look` for yourself.
 
 For someone else, `target` is where they stop when you can see that spot; otherwise it is a
 point just past where their path leaves your sight (`sight_range_m` + 25 m from you), and the
@@ -316,7 +320,7 @@ person who arrived, moved, sat or stood (`here`, with `at` and `spot`) or left (
 ### The `people` stream
 
 Clients predict straight-line motion, so the server only speaks when a prediction would go
-wrong. At the end of every tick (`World::advanceRealTime`), for each online character, World
+wrong (or when what they'd draw changed: a uniform, and since D-079 a change of clothes, `look`). At the end of every tick (`World::advanceRealTime`), for each online character, World
 compares who is in sight now with what it last told that viewer (an in-memory snapshot per
 viewer, never saved, dropped when they leave) and sends at most one event, only if something
 changed:
