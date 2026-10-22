@@ -8,6 +8,11 @@ light, built from their appearance and pointing at their model sheet as the refe
 townsperson, who has no picture yet (D-073), a prompt for that model sheet first, in the layout of the
 cast's sheets. Every prompt ends with the file name to save the picture as.
 
+Everyone has three looks (D-079: everyday, work, going out; profile.appearance.outfits). A person's art shows one of
+them (`drawn`); for each person with art, the pack also asks for a sprite sheet of each of their other two looks, made
+with their existing sheet attached so the face, the body, the hair and the twelve poses match and only the clothes
+change (art/sprites/characters/<id>/<look>/sheet.png; scripts/client_figures.py cuts it, figures.js draws it).
+
 The map and the interiors draw people today with full-body cut-outs from the model sheets
 (scripts/client_figures.py, web/client/figures.js): photographs seen from eye level, one view per
 direction, no walk cycle and no seated pose. These sheets are what replaces them; see SPRITE_NOTES.
@@ -20,6 +25,7 @@ Usage: scripts/character_prompts.py            regenerate both files
 Everyone's look comes from data/characters/<id>.json (profile.appearance, profile.card).
 """
 import argparse
+import json
 import pathlib
 import sys
 
@@ -96,8 +102,11 @@ HONESTY_NOTES = """\
   drawn from their model sheet's cut-outs: one photograph per direction, scaled, with a bob for
   walking and a standing figure lowered into the seat for sitting.
 - **The outfit is the data's.** Where a reference sheet shows another look (Dominique's turnaround
-  is her weekend look, Dax's an all-black tee), the prompt asks for the outfit in the data; the
+  is her everyday look, Dax's an all-black tee), the prompt asks for the outfit in the data; the
   sheet is for the face, hair, skin and build.
+- **Three looks each** (D-079). Everyone has an everyday, a work and a going-out look in their data
+  (`profile.appearance.outfits`), and their art shows one of them (`drawn`). Until a look's own sheet is
+  made, someone wearing it is drawn in their drawn look, and their wardrobe says so.
 - **Everyone's look comes from their data** (`data/characters/<id>.json`, `profile.appearance`). The
   four residents (Kai Morgan, Rosa Delgado, Sol Rivera, Theo Grant) were made in the creator for the
   town-preview recording and are data characters since D-073; their facts were read off their sheets.
@@ -126,6 +135,10 @@ A sheet replaces the cut-outs in three steps, all built (D-072):
    on the seat (chair, stool and seat: `sit_chair`; sofa and bed: `sit_sofa`); mirrored for the other
    two diagonals. A seat that faces away from the camera still shows the standing back frame lowered
    onto it: the sheet has no seated frame from behind.
+
+**Outfit sheets** (D-079) are the same sheet in another of the person's looks, saved as
+`art/sprites/characters/<id>/<look>/sheet.png` (look: everyday, work or evening) and cut the same way
+into `web/client/figures/<id>/<look>/`; the game draws them while the person wears that look.
 
 Fighting (fists up) and flinching are not in these sheets: today `pose: "fight"` and `"flinch"`
 lean, crouch and bounce or shake the standing picture. A later sheet can ask for them, and for
@@ -319,15 +332,78 @@ def model_prompt_for(ch):
             "facts": facts, "prompt": prompt, "filed": model_filed(save_as)}
 
 
+# D-079: how a look is named in a prompt, and the people with art the game draws today (scripts/client_figures.py).
+LOOK_WORDS = {"everyday": "everyday", "work": "work", "evening": "going-out"}
+LOOK_TITLES = {"everyday": "Everyday", "work": "Work", "evening": "Going out"}
+FIGURES = ROOT / "web" / "client" / "figures" / "manifest.json"
+
+
+def with_art():
+    """The ids the client draws from art (a sprite sheet or a model sheet's cut-outs)."""
+    m = json.loads(FIGURES.read_text(encoding="utf-8")) if FIGURES.exists() else {}
+    return {k for k in m if not k.startswith("$")}
+
+
+def outfit_prompt_for(ch, look):
+    """A sprite sheet of a person with art in one of their other looks (D-079): the same person, poses, scale and camera
+    as their sheet, only the clothes change."""
+    a, outfits = ch["look"], ch["look"].get("outfits", {})
+    drawn, garments = outfits.get("drawn"), outfits[look]
+    cm = a.get("height_cm")
+    sprite = f"art/sprites/characters/{ch['id']}/sheet.webp"
+    has_sheet = (ROOT / sprite).exists()
+    name, words = ch["name"], LOOK_WORDS[look]
+    facts = [("Who", f"{name}, {ch['age']}, {ch['pronouns']}"),
+             ("Height", f"{cm} cm → {px_for(cm)} px tall in a {CELL_PX} px cell (175 cm = {REF_PX} px)"),
+             ("This look", f"{LOOK_TITLES[look]}: {garments}"),
+             ("Their art shows", f"their {LOOK_WORDS.get(drawn, drawn)} look: {outfits.get(drawn, '')}"),
+             ("Reference", sprite if has_sheet else f"{ch['sheet']} (their sprite sheet isn't made yet; attach it too once it is)"),
+             ("From", f"{ch['data_file']} (profile.appearance.outfits)"),
+             ("Where it goes", f"scripts/client_figures.py cuts it into web/client/figures/{ch['id']}/{look}/; the game draws it "
+                               f"while {ch['first']} wears their {words} look (D-079)")]
+    parts = [f"The person: {name}, {ch['age']} ({ch['pronouns']}), {cm} cm tall, {a.get('build', '')} build. "
+             f"Draw them {px_for(cm)} px tall from the top of the head to the soles in every standing and walking cell "
+             f"(a 175 cm person is {REF_PX} px), seated proportionally."]
+    for key, label in (("skin", "Skin"), ("eyes", "Eyes"), ("face", "Face"), ("hair", "Hair")):
+        if a.get(key):
+            parts.append(f"{label}: {a[key]}.")
+    parts.append(f"This sheet is their {words} look. Wearing, in every cell: {garments}.")
+    if has_sheet:
+        parts.append(f"Reference: attach {sprite}, their sprite sheet in their {LOOK_WORDS.get(drawn, drawn)} look, and match it "
+                     "exactly: the same face, hair, skin tone and body, the same twelve poses in the same cells, the same scale "
+                     "and the same camera and light. Only the clothes change, to the ones written here.")
+    else:
+        parts.append(f"Reference: attach {ch['sheet']} and match the person in it (face, hair, skin tone, body); if their "
+                     f"sprite sheet (art/sprites/characters/{ch['id']}/sheet.png) is made, attach it too and keep its poses, "
+                     "scale and camera. Only the clothes differ: the ones written here.")
+    parts.append(LAYOUT.format(size=SIZE))
+    save_as = f"art/sprites/characters/{ch['id']}/{look}/sheet.png"
+    prompt = f"{STYLE_SHORT}\n\n{' '.join(parts)}\n\nSize {SIZE}, transparent background. Save as {save_as}"
+    return {"id": f"{ch['id']}-{look}", "title": f"{name}: {LOOK_TITLES[look]}", "person": name, "section": "outfits",
+            "save_as": save_as, "size": SIZE, "facts": facts, "prompt": prompt, "filed": tp.filed_as(save_as)}
+
+
+def outfit_prompts(people):
+    """For everyone with art, a sheet of each look their art doesn't show (D-079)."""
+    art = with_art()
+    out = []
+    for c in people:
+        drawn = c["look"].get("outfits", {}).get("drawn")
+        if c["id"] in art:
+            out += [outfit_prompt_for(c, look) for look in LOOK_WORDS if look != drawn]
+    return out
+
+
 def build_all():
     people = cast()
     prompts = [model_prompt_for(c) for c in people if c["cast"] == "townsperson"]
     prompts += [prompt_for(c) for c in people]
+    prompts += outfit_prompts(people)
     return people, prompts
 
 
 SECTIONS = [("models", "Townspeople: model sheets (first)"), ("founders", "Founders"), ("residents", "Residents"),
-            ("townspeople", "Townspeople: sprite sheets")]
+            ("townspeople", "Townspeople: sprite sheets"), ("outfits", "Outfit sprite sheets")]
 
 
 def ordered(prompts, section):
@@ -336,8 +412,9 @@ def ordered(prompts, section):
 
 def summary(prompts, counts):
     return (f"{len(prompts)} prompts: a sprite sheet for each of {counts['founders']} founders, {counts['residents']} residents "
-            f"and {counts['townspeople']} townspeople, and a model sheet for each townsperson ({counts['models']}), "
-            f"to make first. {counts['filed']} of {len(prompts)} are filed.")
+            f"and {counts['townspeople']} townspeople, a model sheet for each townsperson ({counts['models']}), "
+            f"to make first, and {counts['outfits']} outfit sprite sheets: each person with art in the looks it doesn't show "
+            f"yet. {counts['filed']} of {len(prompts)} are filed.")
 
 
 def render_markdown(prompts, counts):
@@ -435,7 +512,7 @@ def main(argv):
     assert len(ids) == len(set(ids)), "duplicate prompt id"
     want = {c["id"] for c in people} | {f"{c['id']}-model" for c in people if c["cast"] == "townsperson"}
     missing = sorted(want - set(ids))
-    counts = {key: sum(1 for p in prompts if p["section"] == key) for key in ("founders", "residents", "townspeople", "models")}
+    counts = {key: sum(1 for p in prompts if p["section"] == key) for key in ("founders", "residents", "townspeople", "models", "outfits")}
     counts["filed"] = sum(1 for p in prompts if p["filed"])
     md, page = render_markdown(prompts, counts), render_html(prompts, counts)
     if args.check:
