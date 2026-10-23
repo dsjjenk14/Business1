@@ -385,6 +385,68 @@ TEST_CASE("court: a lawyer who doesn't come isn't paid or counted; the victim ca
   CHECK(code(w.courtLawyer("andre", id, "aaliyah")) == "not_here");
 }
 
+TEST_CASE("court: a lawyer declines, steps in only from the courtroom, and nothing changes a decided case") {
+  World w = courtWorld(courtContent({}, [](Json& doc, const std::string& file) {
+    if (file == "aaliyah.json") {
+      doc["characters"][0]["career"] = Json{{"id", "law"}, {"level", 0}};
+      doc["characters"][0]["degrees"].push_back("jd");
+    }
+  }));
+  const std::string id = caughtShoplifting(w, "andre", "dominique");
+  REQUIRE(w.courtLawyer("andre", id, "aaliyah"));
+  auto no = w.courtRepresent("aaliyah", id, false);
+  REQUIRE(no);
+  CHECK(no.value()["accepted"] == false);
+  CHECK(w.courtCase(id)->lawyer.empty());
+  CHECK(notified(w, "andre", "won't defend you"));
+  // The hearing is open: asked in the courtroom, she walks out, and can't say yes from the street.
+  toHearing(w, id);
+  REQUIRE(w.courtCase(id)->status == "hearing");
+  walkInto(w, "aaliyah", "courthouse");
+  REQUIRE(w.courtLawyer("andre", id, "aaliyah"));
+  REQUIRE(w.exitBuilding("aaliyah"));
+  CHECK(code(w.courtRepresent("aaliyah", id, true)) == "not_here");
+  REQUIRE(w.enter("aaliyah", "courthouse"));
+  const Cents hers = bank(w, "aaliyah");
+  REQUIRE(w.courtRepresent("aaliyah", id, true));  // stepping in at an open hearing: paid on the spot
+  CHECK(bank(w, "aaliyah") == hers + 120000);
+  CHECK(w.courtCase(id)->lawyerPresent);
+  REQUIRE(w.courtPlea("andre", id, "guilty"));
+  CHECK(code(w.courtLawyer("andre", id, "firm")) == "already_decided");
+  CHECK(code(w.courtRepresent("aaliyah", id, true)) == "unknown_case");
+  CHECK(w.state().ledger.sumOfBalances() == 0);
+}
+
+TEST_CASE("court: community service is refused at work, while studying, after closing, and in a world with no court") {
+  auto db = courtContent([](Json& c) {
+    c["guilty_plea_discount"] = 0.0;
+    c["sentences"]["shoplifting"] = Json::array({{{"service_hours", 2}}});
+  });
+  World w = courtWorld(db);
+  const std::string id = caughtShoplifting(w);
+  toHearing(w, id);
+  REQUIRE(w.courtPlea("andre", id, "guilty"));
+  walkInto(w, "andre", "low_end_studios");  // his own studio: staff get in any time
+  REQUIRE(w.startShift("andre"));
+  CHECK(code(w.communityService("andre", true)) == "on_shift");
+  REQUIRE(w.endShift("andre"));
+  walkTo(w, "andre", "livera_university");
+  REQUIRE(w.enroll("andre", "bachelors"));
+  walkInto(w, "andre", "livera_university");
+  REQUIRE(w.startStudy("andre"));
+  CHECK(code(w.communityService("andre", true)) == "studying");
+  REQUIRE(w.endStudy("andre"));
+  walkInto(w, "andre", "common_ground");
+  const GameMinutes day = w.now() / kMinutesPerDay * kMinutesPerDay;
+  advanceTo(w, day + 21 * 60 + 5);  // Common Ground closes at 21:00
+  REQUIRE(w.character("andre")->inside == "common_ground");
+  CHECK(code(w.communityService("andre", true)) == "closed");
+  World none = courtWorld(courtContent({}, [](Json& doc, const std::string& file) {
+    if (file == "court.json") doc = Json::object();
+  }));
+  CHECK(code(none.communityService("andre", true)) == "unavailable");
+}
+
 TEST_CASE("court: pleas are refused before the hearing, outside the courtroom and for nonsense") {
   World w = courtWorld(courtContent());
   const std::string id = caughtShoplifting(w);
