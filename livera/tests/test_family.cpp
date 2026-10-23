@@ -183,10 +183,15 @@ TEST_CASE("family: a small child needs an adult around, or child services get in
   walkInto(w, "dominique", "heritage_coffee");
   walkInto(w, "dax", "heritage_coffee");
   CHECK(!w.supervised(*w.character(kChild)));
+  const Cents bankBefore = w.state().ledger.balance(bankAccountOf("dominique"));
   w.advanceMinutes(5 * 60);
   CHECK(notified(w, "dominique", "was left alone for hours"));
   CHECK(w.character("dominique")->record.size() == 1);
   CHECK(w.character("dominique")->record.front().crime == "child_neglect");
+  // The fine the notice names really leaves the bank, through the Ledger.
+  const Cents fine = w.content().crimeDef("child_neglect")->fineCents;
+  CHECK(w.character("dominique")->record.front().fineCents == fine);
+  CHECK(bankBefore - w.state().ledger.balance(bankAccountOf("dominique")) >= fine);
   CHECK(w.character("dax")->record.size() == 1);
   CHECK(w.character(kChild)->needs.at("hunger") < 70);
 
@@ -198,6 +203,8 @@ TEST_CASE("family: a small child needs an adult around, or child services get in
   CHECK(enrolled.value().at("place") == "Little Sprouts Daycare");
   CHECK(w.enrollChild("dominique", kChild, "daycare").error().code == "already_enrolled");
   CHECK(w.enrollChild("dax", kChild, "school").error().code == "wrong_age");
+  // Home for the night, so the only money moving is the daycare's (another night alone is another fine).
+  walkInto(w, "dominique", "lexington_1204");
   const Cents before = bank(w, "dominique");
   const Cents daycareBefore = w.state().ledger.balance("org:little_sprouts");
   // The next weekday morning at 09:00: paid, there, and looked after.

@@ -136,9 +136,14 @@ void World::stepChildHourly(CharacterState& c) {
       for (const auto& p : c.parents) {
         CharacterState* parent = mutableCharacter(p);
         if (!parent) continue;
-        recordCrime(*parent, F.neglectCrime, crime ? crime->fineCents : 0, 0);
+        // The fine is taken from the bank like any other; one that can't be paid stays on file unpaid.
+        const Cents owed = crime ? crime->fineCents : 0;
+        const bool paid = owed > 0 && state_.ledger.transfer(bankAccountOf(p), content_->crime().finesAccount, owed, "fine",
+                                                             crime->label + " fine", state_.now);
+        recordCrime(*parent, F.neglectCrime, paid ? owed : 0, 0);
         notify(p, "family", (def ? def->firstName : c.id) + " was left alone for hours. Child services have opened a file on you" +
-                                (crime && crime->fineCents > 0 ? " and fined you " + formatMoney(crime->fineCents) + "." : "."));
+                                (paid ? " and fined you " + formatMoney(owed) + "."
+                                      : owed > 0 ? " and fined you " + formatMoney(owed) + ", which your bank couldn't cover." : "."));
       }
       applyEmotions(c, {{"sadness", 20}, {"loneliness", 20}});
     }
