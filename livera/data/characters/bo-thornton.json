@@ -1,0 +1,161 @@
+{
+  "characters": [
+    {
+      "id": "bo-thornton",
+      "cast": "townsperson",
+      "first_name": "Bo",
+      "last_name": "Thornton",
+      "pronouns": "he/him",
+      "gender": "man",
+      "age": 35,
+      "playable": true,
+      "personality": {
+        "ambition": 60,
+        "sociability": 64,
+        "empathy": 78,
+        "patience": 76,
+        "confidence": 58,
+        "risk_tolerance": 40,
+        "competitiveness": 72,
+        "impulsiveness": 30
+      },
+      "values": {
+        "family": 76,
+        "career": 62,
+        "wealth": 40,
+        "loyalty": 80,
+        "freedom": 60,
+        "status": 30,
+        "community": 78,
+        "romance": 50,
+        "creativity": 30
+      },
+      "traits": ["gentle", "disciplined", "sober"],
+      "interests": ["fitness", "basketball", "fishing", "cooking", "faith"],
+      "skills": {"athletics": 74},
+      "career": {"id": "fitness", "level": 1},
+      "degrees": ["high_school"],
+      "fame": 6,
+      "finances": {"cash_cents": 5000, "bank_cents": 280000},
+      "home": {"property": "riverside_lofts_6", "tenure": "rent"},
+      "spawn_location": "riverside_lofts_6",
+      "relationships": [
+        {
+          "to": "theo-grant",
+          "history": "A kid with a real jump shot who flinches when his phone rings. Bo writes him programs.",
+          "dimensions": {"familiarity": 30, "friendship": 40, "respect": 48, "trust": 36}
+        },
+        {
+          "to": "bernie-walsh",
+          "history": "He plays darts at the Copper Tap on Mondays with a soda. She keeps his tab at zero and his secret.",
+          "dimensions": {"familiarity": 40, "friendship": 52, "trust": 64}
+        },
+        {
+          "to": "rafael-mendes",
+          "history": "His roommate. A doctor who doesn't sleep, eat or stretch. Bo is working on all three.",
+          "dimensions": {"familiarity": 50, "friendship": 46, "trust": 40}
+        },
+        {
+          "to": "julian",
+          "history": "Julian wants to put Bo's programs in an app. Bo wants Julian to do a squat properly.",
+          "dimensions": {"familiarity": 24, "respect": 30, "friendship": 20}
+        }
+      ],
+      "memories": [
+        {
+          "type": "health",
+          "participants": ["bo-thornton"],
+          "importance": 90,
+          "emotional_impact": 60,
+          "days_ago": 1460,
+          "info": "Four years sober, to the day, at a Riverside Court free throw line."
+        }
+      ],
+      "aspirations": ["start_a_business", "give_back"],
+      "profile": {
+        "tagline": "Body & Balance's first trainer, waiting for its walls. Meanwhile, Riverside Court.",
+        "why_livera": "new_job",
+        "ethnicity": "White American",
+        "card": {
+          "occupation": "Personal Trainer, Body & Balance",
+          "height_cm": 193,
+          "build": "Big, powerful",
+          "skin_tone": "Fair, sunburnt"
+        },
+        "appearance": {
+          "height_cm": 193,
+          "build": "big, powerful",
+          "skin": "fair, sunburnt neck and forearms",
+          "eyes": "pale blue, kind",
+          "face": "a broad face, a ginger beard, a scar through one eyebrow",
+          "hair": "short ginger hair under a faded red cap",
+          "style": "a charcoal Body & Balance tee, black training shorts, grey compression sleeves, worn trainers, a whistle",
+          "outfits": {
+            "everyday": "the faded red cap, a grey marl hoodie, olive cargo shorts, worn grey trainers, the sobriety coin on its cord",
+            "work": "the faded red cap, a charcoal Body & Balance tee, black training shorts, grey compression sleeves, worn grey trainers, a whistle on a lanyard",
+            "evening": "a clean navy cap, a navy short-sleeved button-up shirt, tan chinos, white leather trainers, the sobriety coin under his shirt",
+            "drawn": "work"
+          },
+          "jewelry": "a four-year sobriety coin on a cord",
+          "silhouette": "a very big man in a faded cap with a whistle",
+          "key_features": [
+            "Ginger beard",
+            "Scar through one eyebrow",
+            "Faded red cap",
+            "Whistle and compression sleeves",
+            "Very big, very gentle"
+          ],
+          "stand_in": {
+            "skin": "#efc2a4",
+            "hair": "#b5562b",
+            "hair_style": "cap",
+            "top": "#3b3d40",
+            "bottom": "#1a1a1a",
+            "shoes": "#8a8d91",
+            "headwear": "#a3352b",
+            "outfits": {
+              "everyday": {"top": "#8c8f94", "bottom": "#5b5f3c", "shoes": "#8a8d91", "headwear": "#a3352b"},
+              "evening": {"top": "#26344f", "bottom": "#b49a72", "shoes": "#ecebe6", "headwear": "#1f2a40"}
+            }
+          }
+        },
+        "family_background": "Ada, Oklahoma. A linebacker until his knee and a bottle took it away. His mother still prays for him by name at First Baptist.",
+        "education": "High school diploma; two years at East Central University; personal trainer certification",
+        "goals": ["Open Body & Balance's doors", "A free Saturday boot camp in Founders Park", "Five years sober"],
+        "ambitions": ["His own gym, for people who hate gyms"],
+        "social_preferences": "Early starts, outdoor workouts, nowhere with a happy hour.",
+        "secrets": [
+          {
+            "id": "bo_relapse",
+            "truth": "He nearly drank the night Body & Balance's opening was pushed back. He called Bernie, of all people, and she talked him home.",
+            "known_by": ["bernie-walsh"]
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "06:00", "activity": "Body & Balance", "work": true},
+            {"time": "14:00", "activity": "Riverside Court"},
+            {"time": "15:30", "activity": "Home"}
+          ],
+          "monday": [{"time": "18:45", "activity": "Darts at The Copper Tap"}],
+          "wednesday": [{"time": "17:40", "activity": "League night at Riverside Court"}],
+          "saturday": [{"time": "08:00", "activity": "Founders Park"}, {"time": "10:00", "activity": "Home"}]
+        },
+        "starting_inventory": ["phone", "whistle", "stopwatch", "sobriety coin", "resistance bands"],
+        "social_media": {
+          "handle": "@bo.trains.livera",
+          "followers": 2100,
+          "bio": "Trainer. Body & Balance (opening soon). Sober."
+        },
+        "reputation": {"professional": 66, "social": 58, "public": 22},
+        "life_history": [
+          "All-district linebacker at Ada High.",
+          "Lost a scholarship and four years.",
+          "Hired as Body & Balance's first trainer before it had walls."
+        ],
+        "archetype": "The Comeback"
+      },
+      "sex": "male"
+    }
+  ]
+}

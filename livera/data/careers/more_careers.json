@@ -1,0 +1,210 @@
+{
+  "$comment": "Careers that open with the university, the hospital, the law firm, the police, the court and the new shops.",
+  "careers": [
+    {
+      "id": "medicine",
+      "name": "Medicine",
+      "workplaces": ["livera_general", "riverdale_clinic"],
+      "employer_account": "org:livera_general",
+      "requires_degree": "md",
+      "care_fee_share": 0.15,
+      "need_cost_per_hour": {"energy": -5, "hygiene": -1},
+      "max_shift_hours": 12,
+      "levels": [
+        {"title": "Medical Resident", "hourly_cents": 3800, "hours_to_promote": 300, "min_performance": 60},
+        {
+          "title": "Attending Physician",
+          "hourly_cents": 11000,
+          "hours_to_promote": 800,
+          "min_performance": 70
+        },
+        {"title": "Chief of Medicine", "hourly_cents": 16000}
+      ]
+    },
+    {
+      "id": "nursing",
+      "name": "Nursing",
+      "workplaces": ["livera_general", "riverdale_clinic"],
+      "employer_account": "org:livera_general",
+      "requires_degree": "bsn",
+      "care_fee_share": 0.08,
+      "need_cost_per_hour": {"energy": -5, "social": 1},
+      "max_shift_hours": 12,
+      "levels": [
+        {"title": "Registered Nurse", "hourly_cents": 4200, "hours_to_promote": 300, "min_performance": 60},
+        {"title": "Charge Nurse", "hourly_cents": 5200, "hours_to_promote": 600, "min_performance": 65},
+        {"title": "Nurse Manager", "hourly_cents": 6400}
+      ]
+    },
+    {
+      "id": "police",
+      "name": "Police",
+      "workplaces": ["police_station"],
+      "employer_account": "org:livera_pd",
+      "requires_degree": "police_academy",
+      "requires_clean_record": true,
+      "need_cost_per_hour": {"energy": -4, "comfort": -1},
+      "max_shift_hours": 12,
+      "levels": [
+        {"title": "Police Officer", "hourly_cents": 3200, "hours_to_promote": 200, "min_performance": 60},
+        {"title": "Detective", "hourly_cents": 4200, "hours_to_promote": 400, "min_performance": 65},
+        {"title": "Sergeant", "hourly_cents": 5000, "hours_to_promote": 600, "min_performance": 70},
+        {"title": "Chief of Police", "hourly_cents": 7000}
+      ],
+      "works_outdoors": true
+    },
+    {
+      "id": "judiciary",
+      "name": "Judiciary",
+      "workplaces": ["courthouse"],
+      "employer_account": "org:town_of_livera",
+      "requires_degree": "jd",
+      "requires_clean_record": true,
+      "need_cost_per_hour": {"energy": -3, "social": 1},
+      "max_shift_hours": 10,
+      "levels": [
+        {"title": "Magistrate", "hourly_cents": 6000, "hours_to_promote": 400, "min_performance": 65},
+        {"title": "Municipal Judge", "hourly_cents": 8500, "hours_to_promote": 900, "min_performance": 72},
+        {"title": "Presiding Judge", "hourly_cents": 11000}
+      ]
+    },
+    {
+      "id": "teaching",
+      "name": "Teaching",
+      "workplaces": ["livera_university"],
+      "employer_account": "org:livera_university",
+      "requires_degree": "bachelors",
+      "need_cost_per_hour": {"energy": -3, "social": 1},
+      "levels": [
+        {"title": "Teaching Assistant", "hourly_cents": 2200, "hours_to_promote": 120, "min_performance": 55},
+        {"title": "Lecturer", "hourly_cents": 3800, "hours_to_promote": 300, "min_performance": 62},
+        {"title": "Professor", "hourly_cents": 5500, "hours_to_promote": 600, "min_performance": 68},
+        {"title": "Dean", "hourly_cents": 8000}
+      ],
+      "requires_clean_record": true
+    },
+    {
+      "id": "retail",
+      "name": "Retail",
+      "workplaces": ["thread_co"],
+      "employer_account": "org:thread_co",
+      "entry_level": true,
+      "need_cost_per_hour": {"energy": -3, "social": 1},
+      "levels": [
+        {"title": "Sales Associate", "hourly_cents": 1700, "hours_to_promote": 60, "min_performance": 50},
+        {"title": "Assistant Manager", "hourly_cents": 2400, "hours_to_promote": 200, "min_performance": 58},
+        {"title": "Store Manager", "hourly_cents": 3300}
+      ]
+    },
+    {
+      "id": "grocery",
+      "name": "Grocery",
+      "workplaces": ["greenleaf_market"],
+      "employer_account": "org:greenleaf_market",
+      "entry_level": true,
+      "need_cost_per_hour": {"energy": -3},
+      "levels": [
+        {"title": "Cashier", "hourly_cents": 1600, "hours_to_promote": 60, "min_performance": 50},
+        {"title": "Shift Supervisor", "hourly_cents": 2200, "hours_to_promote": 200, "min_performance": 58},
+        {"title": "Store Manager", "hourly_cents": 3200}
+      ]
+    },
+    {
+      "id": "beauty",
+      "name": "Beauty",
+      "workplaces": ["fade_glow"],
+      "employer_account": "org:fade_glow",
+      "entry_level": true,
+      "need_cost_per_hour": {"energy": -3, "social": 1},
+      "levels": [
+        {"title": "Junior Stylist", "hourly_cents": 1800, "hours_to_promote": 100, "min_performance": 52},
+        {"title": "Stylist", "hourly_cents": 2800, "hours_to_promote": 300, "min_performance": 60},
+        {"title": "Salon Manager", "hourly_cents": 4000}
+      ]
+    },
+    {
+      "id": "fitness",
+      "name": "Fitness",
+      "workplaces": ["body_balance"],
+      "employer_account": "org:body_balance",
+      "entry_level": true,
+      "need_cost_per_hour": {"energy": -5, "hygiene": -3},
+      "levels": [
+        {"title": "Front Desk", "hourly_cents": 1600, "hours_to_promote": 60, "min_performance": 50},
+        {"title": "Personal Trainer", "hourly_cents": 3000, "hours_to_promote": 300, "min_performance": 60},
+        {"title": "Gym Manager", "hourly_cents": 4200}
+      ]
+    },
+    {
+      "id": "pharmacy",
+      "name": "Pharmacy",
+      "workplaces": ["riverdale_pharmacy"],
+      "employer_account": "org:riverdale_pharmacy",
+      "entry_level": true,
+      "need_cost_per_hour": {"energy": -3},
+      "levels": [
+        {"title": "Pharmacy Clerk", "hourly_cents": 1700, "hours_to_promote": 80, "min_performance": 52},
+        {"title": "Pharmacy Technician", "hourly_cents": 2400, "hours_to_promote": 300, "min_performance": 60},
+        {"title": "Pharmacy Manager", "hourly_cents": 3600}
+      ]
+    },
+    {
+      "id": "bartending",
+      "name": "Bartending",
+      "workplaces": ["copper_tap"],
+      "employer_account": "org:copper_tap",
+      "entry_level": true,
+      "need_cost_per_hour": {"energy": -4, "social": 2},
+      "levels": [
+        {"title": "Barback", "hourly_cents": 1500, "hours_to_promote": 60, "min_performance": 50},
+        {"title": "Bartender", "hourly_cents": 2400, "hours_to_promote": 300, "min_performance": 58},
+        {"title": "Bar Manager", "hourly_cents": 3600}
+      ]
+    },
+    {
+      "id": "nanny",
+      "name": "Nanny",
+      "workplaces": ["little_sprouts"],
+      "at_employers_home": true,
+      "entry_level": true,
+      "requires_clean_record": true,
+      "need_cost_per_hour": {"energy": -4, "social": 2},
+      "max_shift_hours": 10,
+      "levels": [
+        {"title": "Nanny", "hourly_cents": 1800, "hours_to_promote": 120, "min_performance": 60},
+        {"title": "Senior Nanny", "hourly_cents": 2400, "hours_to_promote": 300, "min_performance": 65},
+        {"title": "Household Manager", "hourly_cents": 3200}
+      ]
+    },
+    {
+      "id": "daycare",
+      "name": "Daycare",
+      "workplaces": ["little_sprouts"],
+      "employer_account": "org:little_sprouts",
+      "entry_level": true,
+      "requires_clean_record": true,
+      "need_cost_per_hour": {"energy": -4, "hygiene": -2, "social": 2},
+      "max_shift_hours": 10,
+      "levels": [
+        {"title": "Daycare Assistant", "hourly_cents": 1700, "hours_to_promote": 150, "min_performance": 60},
+        {"title": "Daycare Teacher", "hourly_cents": 2300, "hours_to_promote": 400, "min_performance": 65},
+        {"title": "Daycare Director", "hourly_cents": 3400}
+      ]
+    },
+    {
+      "id": "school_teaching",
+      "name": "School Teaching",
+      "workplaces": ["founders_school"],
+      "employer_account": "org:founders_school",
+      "requires_degree": "bachelors",
+      "requires_clean_record": true,
+      "need_cost_per_hour": {"energy": -4, "social": 1},
+      "max_shift_hours": 9,
+      "levels": [
+        {"title": "Teacher", "hourly_cents": 3000, "hours_to_promote": 400, "min_performance": 65},
+        {"title": "Senior Teacher", "hourly_cents": 3800, "hours_to_promote": 800, "min_performance": 70},
+        {"title": "Principal", "hourly_cents": 5200}
+      ]
+    }
+  ]
+}

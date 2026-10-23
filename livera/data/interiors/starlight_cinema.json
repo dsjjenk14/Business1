@@ -1,0 +1,164 @@
+{
+  "interior": {
+    "id": "starlight_cinema",
+    "places": ["starlight_cinema"],
+    "size": [1536, 1024],
+    "person_px": 125,
+    "floor": [
+      [
+        [95, 585],
+        [480, 385],
+        [490, 440],
+        [900, 668],
+        [1040, 600],
+        [1150, 560],
+        [1200, 600],
+        [1340, 520],
+        [1300, 470],
+        [1350, 445],
+        [1500, 500],
+        [1500, 530],
+        [1280, 690],
+        [960, 860],
+        [900, 850],
+        [650, 880],
+        [600, 860],
+        [455, 775],
+        [400, 800],
+        [270, 740],
+        [245, 640]
+      ],
+      [
+        [780, 290],
+        [850, 245],
+        [960, 230],
+        [1100, 275],
+        [1260, 325],
+        [1262, 520],
+        [1200, 560],
+        [1180, 560],
+        [870, 395],
+        [860, 375]
+      ],
+      [[700, 400], [740, 385], [960, 490], [930, 510]]
+    ],
+    "blocked": [
+      {"label": "sofa", "poly": [[150, 580], [230, 535], [300, 570], [220, 615]], "height": 60},
+      {"label": "armchair", "poly": [[310, 575], [340, 560], [375, 578], [345, 594]], "height": 60},
+      {"label": "armchair", "poly": [[400, 470], [425, 457], [455, 472], [428, 486]], "height": 60},
+      {"label": "side table", "poly": [[250, 585], [275, 572], [300, 585], [275, 598]], "height": 50},
+      {"label": "side table", "poly": [[360, 490], [385, 477], [410, 490], [385, 503]], "height": 50},
+      {"label": "sofa", "poly": [[920, 720], [990, 680], [1060, 715], [990, 755]], "height": 60},
+      {"label": "armchair", "poly": [[840, 785], [870, 770], [905, 788], [875, 803]], "height": 60},
+      {"label": "coffee table", "poly": [[925, 770], [965, 750], [1010, 772], [968, 792]], "height": 45},
+      {"label": "plant", "poly": [[1050, 750], [1075, 738], [1100, 750], [1075, 762]], "height": 120},
+      {"label": "cabinet", "poly": [[1225, 620], [1260, 602], [1300, 622], [1265, 640]], "height": 80},
+      {"label": "seat row", "poly": [[850, 358], [1180, 527], [1186, 519], [856, 350]], "height": 34},
+      {"label": "seat row", "poly": [[850, 322], [1180, 490], [1186, 482], [856, 314]], "height": 34},
+      {"label": "seat row", "poly": [[850, 286], [1180, 454], [1186, 446], [856, 278]], "height": 34}
+    ],
+    "entrance": {"at": [480, 700], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [330, 765], "facing": "w", "label": "Front doors"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1420, 480],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "concessions",
+        "kind": "counter",
+        "at": [650, 552],
+        "facing": "e",
+        "label": "Concessions",
+        "offers": ["popcorn"]
+      },
+      {
+        "id": "behind_counter",
+        "kind": "station",
+        "at": [820, 448],
+        "facing": "w",
+        "label": "Behind the counter",
+        "staff": true
+      },
+      {"id": "sofa_left", "kind": "sofa", "at": [205, 575], "facing": "s", "label": "Sofa"},
+      {"id": "sofa_right", "kind": "sofa", "at": [975, 715], "facing": "w", "label": "Sofa"},
+      {"id": "armchair", "kind": "seat", "at": [870, 795], "facing": "e", "label": "Armchair"},
+      {
+        "id": "seat_a1",
+        "kind": "seat",
+        "at": [939, 385],
+        "facing": "e",
+        "label": "Cinema seat",
+        "offers": ["movie_ticket"]
+      },
+      {
+        "id": "seat_a2",
+        "kind": "seat",
+        "at": [1009, 421],
+        "facing": "e",
+        "label": "Cinema seat",
+        "offers": ["movie_ticket"]
+      },
+      {
+        "id": "seat_a3",
+        "kind": "seat",
+        "at": [1079, 457],
+        "facing": "e",
+        "label": "Cinema seat",
+        "offers": ["movie_ticket"]
+      },
+      {
+        "id": "seat_b4",
+        "kind": "seat",
+        "at": [959, 358],
+        "facing": "e",
+        "label": "Cinema seat",
+        "offers": ["movie_ticket"]
+      },
+      {
+        "id": "seat_b5",
+        "kind": "seat",
+        "at": [1029, 394],
+        "facing": "e",
+        "label": "Cinema seat",
+        "offers": ["movie_ticket"]
+      },
+      {
+        "id": "seat_b6",
+        "kind": "seat",
+        "at": [1099, 430],
+        "facing": "e",
+        "label": "Cinema seat",
+        "offers": ["movie_ticket"]
+      },
+      {
+        "id": "seat_c7",
+        "kind": "seat",
+        "at": [979, 333],
+        "facing": "e",
+        "label": "Cinema seat",
+        "offers": ["movie_ticket"]
+      },
+      {
+        "id": "seat_c8",
+        "kind": "seat",
+        "at": [1049, 368],
+        "facing": "e",
+        "label": "Cinema seat",
+        "offers": ["movie_ticket"]
+      },
+      {
+        "id": "seat_c9",
+        "kind": "seat",
+        "at": [1119, 404],
+        "facing": "e",
+        "label": "Cinema seat",
+        "offers": ["movie_ticket"]
+      }
+    ]
+  }
+}

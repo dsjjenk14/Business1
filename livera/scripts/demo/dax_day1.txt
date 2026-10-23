@@ -1,0 +1,18 @@
+# Dax's morning. Starts a few seconds after Dominique.
+register jax livera-demo-2
+login jax livera-demo-2
+#!expect-refusal
+play dominique
+play dax
+exit
+#!expect-refusal
+enter lexington_1204
+walk heritage_coffee
+enter heritage_coffee
+look
+# Long enough for Dominique to finish her latte and come over to talk (about 10 s after he arrives).
+wait 20
+phone messages
+phone contacts
+logout
+quit

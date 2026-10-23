@@ -1,0 +1,159 @@
+{
+  "characters": [
+    {
+      "id": "jean-baptiste-moreau",
+      "cast": "townsperson",
+      "first_name": "Jean-Baptiste",
+      "last_name": "Moreau",
+      "pronouns": "he/him",
+      "gender": "man",
+      "age": 44,
+      "playable": true,
+      "personality": {
+        "ambition": 72,
+        "sociability": 74,
+        "empathy": 58,
+        "patience": 60,
+        "confidence": 80,
+        "risk_tolerance": 50,
+        "competitiveness": 62,
+        "impulsiveness": 36
+      },
+      "values": {
+        "family": 55,
+        "career": 80,
+        "wealth": 66,
+        "loyalty": 60,
+        "freedom": 66,
+        "status": 70,
+        "community": 50,
+        "romance": 74,
+        "creativity": 80
+      },
+      "traits": ["charming", "proud", "meticulous"],
+      "interests": ["cooking", "travel", "music", "jazz", "reading"],
+      "career": {"id": "restaurant", "level": 2},
+      "degrees": ["high_school"],
+      "fame": 14,
+      "finances": {"cash_cents": 16000, "bank_cents": 640000},
+      "home": {"property": "lexington_1103", "tenure": "rent"},
+      "spawn_location": "lexington_1103",
+      "relationships": [
+        {
+          "to": "graham",
+          "history": "Table six, Thursdays, the Bordeaux. Graham tips well and talks business like the waiter is a wall.",
+          "dimensions": {"familiarity": 40, "respect": 40, "trust": 20}
+        },
+        {
+          "to": "aaliyah",
+          "history": "She books his back room for every tasting she produces and argues about the wine. He enjoys it.",
+          "dimensions": {"familiarity": 46, "friendship": 44, "respect": 58}
+        },
+        {
+          "to": "harper",
+          "history": "She eats alone at the bar on Sundays with a book. He brings her dessert she didn't order.",
+          "dimensions": {"familiarity": 30, "friendship": 34, "romantic_attraction": 22, "respect": 50}
+        },
+        {
+          "to": "bernie-walsh",
+          "history": "The only other person in town who knows what a Friday night costs your knees.",
+          "dimensions": {"familiarity": 36, "friendship": 40, "respect": 60}
+        }
+      ],
+      "memories": [
+        {
+          "type": "career",
+          "participants": ["jean-baptiste-moreau"],
+          "importance": 80,
+          "emotional_impact": -50,
+          "days_ago": 2000,
+          "info": "Walked out of a Paris dining room with his apron folded on the bar and his reputation in a bin."
+        }
+      ],
+      "aspirations": ["start_a_business", "find_love"],
+      "profile": {
+        "tagline": "Runs the town's date-night room. Hasn't had a date in years.",
+        "why_livera": "business_opportunity",
+        "ethnicity": "French Senegalese",
+        "card": {
+          "occupation": "Restaurant Manager, Lumière Bistro",
+          "height_cm": 186,
+          "build": "Tall, lean",
+          "skin_tone": "Deep brown, cool"
+        },
+        "appearance": {
+          "height_cm": 186,
+          "build": "tall, lean",
+          "skin": "deep brown, cool undertone",
+          "eyes": "dark, amused",
+          "face": "a long elegant face, a thin moustache, a gap-toothed smile",
+          "hair": "shaved head",
+          "style": "a charcoal waistcoat over a white shirt, sleeves rolled once, a long black bistro apron, polished oxblood shoes",
+          "outfits": {
+            "everyday": "a camel overcoat over a navy-and-cream Breton top, dark grey trousers, brown suede desert boots, the slim steel watch",
+            "work": "a charcoal waistcoat over a white shirt with the sleeves rolled once, a long black bistro apron, charcoal trousers, polished oxblood shoes, the wine key on its chain",
+            "evening": "a midnight-blue velvet dinner jacket over a black roll-neck, black tailored trousers, polished oxblood shoes, the slim steel watch",
+            "drawn": "work"
+          },
+          "jewelry": "a wine key on a chain, a slim steel watch",
+          "silhouette": "a tall man in a waistcoat and a long black apron",
+          "key_features": ["Shaved head", "Thin moustache", "Charcoal waistcoat and long apron", "Wine key on a chain"],
+          "stand_in": {
+            "skin": "#3d2419",
+            "hair": "#2a1a14",
+            "hair_style": "bald",
+            "top": "#3a3b3f",
+            "bottom": "#2a2a2c",
+            "shoes": "#5b1f1f",
+            "apron": "#141414",
+            "outfits": {
+              "everyday": {"top": "#b08a5a", "bottom": "#3c3f44", "shoes": "#7a5a3c"},
+              "evening": {"top": "#1d2440", "bottom": "#151517", "shoes": "#5b1f1f"}
+            }
+          }
+        },
+        "family_background": "Born in Dakar, raised in Lyon by an aunt who ran a bouchon. Sommelier in Paris at twenty-eight, unemployable in Paris at thirty-two.",
+        "education": "Lycée hôtelier, Lyon; sommelier certification",
+        "goals": [
+          "Buy Lumière from its owners",
+          "A wine list nobody in Livéra can pronounce",
+          "Sunday dinner with Harper"
+        ],
+        "ambitions": ["A Michelin star, here, of all places"],
+        "social_preferences": "The room full, his eyes on all of it.",
+        "secrets": [
+          {
+            "id": "jb_paris",
+            "truth": "He was fired in Paris for refilling bottles of a famous vintage with a cheaper one. He has never done it since, and nobody here knows.",
+            "known_by": []
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "16:30", "activity": "Lumière Bistro", "work": true},
+            {"time": "23:15", "activity": "Home"}
+          ],
+          "saturday": [
+            {"time": "16:30", "activity": "Lumière Bistro", "work": true},
+            {"time": "23:15", "activity": "Home"}
+          ],
+          "sunday": [{"time": "11:00", "activity": "Greenleaf Market"}, {"time": "13:00", "activity": "Home"}]
+        },
+        "starting_inventory": ["phone", "wine key", "tasting notebook", "reservation book", "pocket square"],
+        "social_media": {
+          "handle": "@lumiere.livera",
+          "followers": 5600,
+          "bio": "Lumière Bistro. Founders Way. Book the window."
+        },
+        "reputation": {"professional": 76, "social": 68, "public": 36},
+        "life_history": [
+          "Washed dishes in his aunt's bouchon at twelve.",
+          "Head sommelier of a Paris dining room at twenty-eight.",
+          "Opened Lumière's dining room for its owners in Livéra's first year."
+        ],
+        "archetype": "The Maître d'"
+      },
+      "sex": "male"
+    }
+  ]
+}

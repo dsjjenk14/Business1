@@ -1,0 +1,80 @@
+{
+  "interior": {
+    "id": "riverdale_pharmacy",
+    "places": ["riverdale_pharmacy"],
+    "size": [1536, 1024],
+    "person_px": 125,
+    "floor": [
+      [
+        [95, 585],
+        [560, 345],
+        [650, 350],
+        [740, 320],
+        [1090, 520],
+        [1180, 470],
+        [1230, 470],
+        [1300, 440],
+        [1380, 425],
+        [1500, 480],
+        [1500, 500],
+        [1460, 560],
+        [1400, 600],
+        [1420, 640],
+        [1000, 860],
+        [960, 850],
+        [650, 880],
+        [590, 850],
+        [460, 770],
+        [400, 800],
+        [260, 740],
+        [230, 640]
+      ],
+      [[790, 285], [830, 262], [1110, 370], [1090, 392]]
+    ],
+    "blocked": [
+      {"label": "wall shelves", "poly": [[130, 580], [370, 450], [380, 475], [140, 600]], "height": 120},
+      {"label": "wall shelves", "poly": [[400, 455], [560, 370], [570, 390], [410, 475]], "height": 150},
+      {"label": "shelves", "poly": [[290, 675], [370, 630], [455, 675], [375, 725]], "height": 100},
+      {"label": "shelves", "poly": [[405, 580], [450, 555], [590, 640], [545, 665]], "height": 120},
+      {"label": "shelves", "poly": [[515, 505], [560, 480], [730, 575], [685, 600]], "height": 120},
+      {"label": "shelves", "poly": [[650, 445], [700, 420], [815, 480], [765, 505]], "height": 120},
+      {"label": "shelves", "poly": [[530, 800], [575, 777], [640, 810], [595, 835]], "height": 90},
+      {"label": "shelves", "poly": [[660, 735], [700, 713], [830, 780], [790, 805]], "height": 110},
+      {"label": "shelves", "poly": [[785, 675], [830, 650], [965, 725], [920, 750]], "height": 110},
+      {"label": "shelves", "poly": [[895, 600], [940, 575], [1075, 645], [1030, 670]], "height": 110},
+      {"label": "wall shelves", "poly": [[1210, 560], [1230, 550], [1410, 640], [1390, 655]], "height": 110},
+      {"label": "bench", "poly": [[1200, 610], [1250, 585], [1310, 615], [1260, 640]], "height": 55},
+      {"label": "cabinet", "poly": [[1105, 440], [1170, 410], [1240, 445], [1175, 475]], "height": 90}
+    ],
+    "entrance": {"at": [470, 720], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [330, 770], "facing": "w", "label": "Front doors"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1420, 470],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "counter",
+        "kind": "counter",
+        "at": [845, 448],
+        "facing": "e",
+        "label": "Pharmacy counter",
+        "offers": true
+      },
+      {
+        "id": "pharmacist",
+        "kind": "station",
+        "at": [935, 330],
+        "facing": "w",
+        "label": "Behind the counter",
+        "staff": true
+      },
+      {"id": "bench_1", "kind": "sofa", "at": [1235, 628], "facing": "w", "label": "Bench"},
+      {"id": "bench_2", "kind": "sofa", "at": [1275, 648], "facing": "w", "label": "Bench"}
+    ]
+  }
+}

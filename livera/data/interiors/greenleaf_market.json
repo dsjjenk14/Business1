@@ -1,0 +1,81 @@
+{
+  "interior": {
+    "id": "greenleaf_market",
+    "places": ["greenleaf_market"],
+    "size": [1536, 1024],
+    "person_px": 130,
+    "floor": [
+      [
+        [70, 545],
+        [725, 150],
+        [1210, 395],
+        [1230, 370],
+        [1400, 385],
+        [1500, 430],
+        [1500, 470],
+        [1460, 500],
+        [1450, 600],
+        [1000, 880],
+        [910, 945],
+        [700, 960],
+        [690, 880],
+        [445, 758],
+        [400, 822],
+        [280, 748],
+        [240, 640]
+      ]
+    ],
+    "blocked": [
+      {"label": "deli counter", "poly": [[280, 440], [520, 330], [545, 370], [305, 482]], "height": 90},
+      {"label": "flowers", "poly": [[65, 545], [200, 475], [300, 540], [170, 605]], "height": 70},
+      {"label": "flower table", "poly": [[300, 555], [350, 530], [400, 555], [350, 580]], "height": 60},
+      {"label": "produce stand", "poly": [[462, 555], [555, 505], [740, 585], [650, 630]], "height": 70},
+      {"label": "shelves", "poly": [[580, 420], [760, 320], [790, 350], [615, 440]], "height": 150},
+      {"label": "shelves", "poly": [[720, 480], [900, 380], [930, 410], [750, 500]], "height": 150},
+      {"label": "wall shelves", "poly": [[690, 200], [760, 165], [930, 255], [860, 290]], "height": 200},
+      {"label": "side table", "poly": [[545, 270], [600, 245], [650, 270], [600, 295]], "height": 60},
+      {"label": "fridges", "poly": [[920, 250], [1205, 388], [1205, 410], [920, 302]], "height": 0},
+      {"label": "shelves", "poly": [[850, 590], [1050, 470], [1080, 500], [880, 610]], "height": 160},
+      {"label": "shelves", "poly": [[985, 680], [1180, 570], [1210, 600], [1015, 700]], "height": 160},
+      {"label": "bakery shelves", "poly": [[760, 690], [860, 630], [905, 660], [805, 720]], "height": 130},
+      {"label": "shelves", "poly": [[935, 800], [1060, 730], [1100, 760], [975, 830]], "height": 120},
+      {"label": "pastry case", "poly": [[1110, 740], [1200, 690], [1260, 720], [1170, 770]], "height": 100},
+      {"label": "cabinet", "poly": [[1250, 690], [1300, 665], [1345, 690], [1295, 715]], "height": 90},
+      {"label": "bread crates", "poly": [[1335, 610], [1400, 575], [1445, 600], [1380, 635]], "height": 80},
+      {"label": "fridges", "poly": [[1225, 440], [1440, 520], [1440, 545], [1225, 472]], "height": 0},
+      {"label": "checkout", "poly": [[414, 661], [452, 640], [590, 712], [552, 736]], "height": 75},
+      {"label": "checkout", "poly": [[586, 760], [631, 735], [764, 808], [720, 833]], "height": 75},
+      {"label": "baskets", "poly": [[695, 870], [760, 835], [830, 870], [765, 905]], "height": 60}
+    ],
+    "entrance": {"at": [385, 672], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [342, 762], "facing": "w", "label": "Front door"},
+      {
+        "id": "checkout_1",
+        "kind": "counter",
+        "at": [462, 727],
+        "facing": "e",
+        "label": "Checkout",
+        "offers": true
+      },
+      {
+        "id": "checkout_2",
+        "kind": "counter",
+        "at": [585, 795],
+        "facing": "e",
+        "label": "Checkout",
+        "offers": true
+      },
+      {"id": "cashier_1", "kind": "station", "at": [500, 598], "facing": "w", "label": "Till", "staff": true},
+      {"id": "cashier_2", "kind": "station", "at": [705, 690], "facing": "w", "label": "Till", "staff": true},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1440, 412],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      }
+    ]
+  }
+}

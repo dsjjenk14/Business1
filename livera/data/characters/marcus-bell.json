@@ -1,0 +1,177 @@
+{
+  "characters": [
+    {
+      "id": "marcus-bell",
+      "cast": "townsperson",
+      "first_name": "Marcus",
+      "last_name": "Bell",
+      "pronouns": "he/him",
+      "gender": "man",
+      "age": 47,
+      "playable": true,
+      "personality": {
+        "ambition": 62,
+        "sociability": 60,
+        "empathy": 72,
+        "patience": 80,
+        "confidence": 70,
+        "risk_tolerance": 30,
+        "competitiveness": 50,
+        "impulsiveness": 18
+      },
+      "values": {
+        "family": 88,
+        "career": 70,
+        "wealth": 30,
+        "loyalty": 90,
+        "freedom": 40,
+        "status": 35,
+        "community": 92,
+        "romance": 40,
+        "creativity": 25
+      },
+      "traits": ["principled", "patient", "watchful"],
+      "interests": ["basketball", "jazz", "reading", "faith", "fishing"],
+      "skills": {"athletics": 38},
+      "career": {"id": "police", "level": 2},
+      "degrees": ["high_school", "bachelors", "police_academy"],
+      "fame": 12,
+      "finances": {"cash_cents": 15000, "bank_cents": 980000},
+      "home": {"property": "maple_court_3a", "tenure": "rent"},
+      "spawn_location": "maple_court_3a",
+      "relationships": [
+        {
+          "to": "rosa-delgado",
+          "history": "The best recruit in the academy's first class, and the only one who asks why a rule exists.",
+          "dimensions": {"familiarity": 36, "respect": 74, "trust": 56, "friendship": 30}
+        },
+        {
+          "to": "aisha-farah",
+          "history": "His day shift. He trusts her with the town and with his paperwork, in that order.",
+          "dimensions": {"familiarity": 58, "respect": 70, "trust": 72, "friendship": 44}
+        },
+        {
+          "to": "leila",
+          "history": "She's requested his department's records twice. He gave her everything both times, and she noticed.",
+          "dimensions": {"familiarity": 30, "respect": 58, "trust": 30}
+        },
+        {
+          "to": "graham",
+          "history": "Whitaker Capital paid for the station's cameras. Marcus would rather it hadn't.",
+          "dimensions": {"familiarity": 26, "respect": 34, "trust": 14}
+        },
+        {
+          "to": "bernie-walsh",
+          "history": "Club soda with lime at the end of every evening shift, and whatever she's heard.",
+          "dimensions": {"familiarity": 44, "friendship": 48, "trust": 58}
+        }
+      ],
+      "memories": [
+        {
+          "type": "career",
+          "participants": ["marcus-bell"],
+          "importance": 85,
+          "emotional_impact": -45,
+          "days_ago": 900,
+          "info": "Testified against his own partner in a Cook County courtroom.",
+          "public": true
+        },
+        {
+          "type": "career",
+          "participants": ["marcus-bell", "rosa-delgado"],
+          "importance": 55,
+          "emotional_impact": 35,
+          "days_ago": 40,
+          "info": "Swore in the Livéra Police Academy's first class of six.",
+          "about": "rosa-delgado"
+        }
+      ],
+      "aspirations": ["build_something_that_lasts", "give_back"],
+      "profile": {
+        "tagline": "Twenty-two years in Chicago taught him what not to do.",
+        "why_livera": "career_advancement",
+        "ethnicity": "Black American",
+        "card": {
+          "occupation": "Sergeant, Livéra Police Department",
+          "height_cm": 185,
+          "build": "Broad",
+          "skin_tone": "Deep brown, cool"
+        },
+        "appearance": {
+          "height_cm": 185,
+          "build": "broad, a little heavier than he'd like",
+          "skin": "deep brown, cool undertone",
+          "eyes": "dark brown, heavy-lidded, missing nothing",
+          "face": "a grey-flecked short beard, a nose broken once",
+          "hair": "close-cropped, greying at the temples",
+          "style": "on duty: navy Livéra PD uniform shirt with sergeant's stripes, navy trousers, black duty boots; off duty: a grey cardigan over a polo",
+          "outfits": {
+            "everyday": "a grey cardigan over a navy polo, khaki chinos, brown leather loafers, the steel wedding band",
+            "work": "navy Livéra PD uniform shirt with sergeant's stripes, navy trousers, black duty belt, black duty boots",
+            "evening": "a charcoal sport coat over a light-blue shirt, dark grey trousers, polished black shoes, the steel wedding band",
+            "drawn": "work"
+          },
+          "jewelry": "a steel wedding band, a plain watch",
+          "silhouette": "a broad man in navy who stands very still",
+          "key_features": [
+            "Grey-flecked short beard",
+            "Close-cropped greying hair",
+            "Sergeant's stripes",
+            "A nose broken once",
+            "Very still"
+          ],
+          "stand_in": {
+            "skin": "#4a2e22",
+            "hair": "#3d3833",
+            "hair_style": "buzz",
+            "top": "#1f2d4a",
+            "bottom": "#1a2540",
+            "shoes": "#121212",
+            "accent": "#c9a64b",
+            "outfits": {
+              "everyday": {"top": "#7d7f84", "bottom": "#b5a27e", "shoes": "#5a3a22"},
+              "evening": {"top": "#3a3c41", "bottom": "#2c2e33", "shoes": "#121212", "accent": "#a9c4e0"}
+            }
+          }
+        },
+        "family_background": "South Side Chicago, the son of a postal carrier and a nurse. His wife Denise and their twins stay in Chicago until the school year ends.",
+        "education": "B.A. Criminal Justice, Chicago State University; Chicago Police Academy",
+        "goals": [
+          "Graduate the academy's first class",
+          "Keep Livéra's cells empty",
+          "Get Denise and the twins here by summer"
+        ],
+        "ambitions": ["Chief of a department that never needs a consent decree"],
+        "social_preferences": "One table, one friend, his back to the wall.",
+        "secrets": [
+          {
+            "id": "marcus_partner",
+            "truth": "The partner he testified against is out, and called the station last month asking for him by name.",
+            "known_by": ["aisha-farah"]
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "14:30", "activity": "Livéra Police Station", "work": true},
+            {"time": "23:00", "activity": "Home"}
+          ],
+          "saturday": [
+            {"time": "14:30", "activity": "Livéra Police Station", "work": true},
+            {"time": "23:00", "activity": "Home"}
+          ],
+          "sunday": [{"time": "10:00", "activity": "Greater Hope service"}]
+        },
+        "starting_inventory": ["phone", "badge", "radio", "notebook", "reading glasses"],
+        "social_media": {"handle": "@livera.pd", "followers": 3400, "bio": "Livéra Police Department. Emergencies: call."},
+        "reputation": {"professional": 80, "social": 50, "public": 48},
+        "life_history": [
+          "Walked a beat in Englewood for nine years.",
+          "Made sergeant, then made enemies.",
+          "Came to Livéra to build a department from the first hire."
+        ],
+        "archetype": "The Steady Hand"
+      },
+      "sex": "male"
+    }
+  ]
+}

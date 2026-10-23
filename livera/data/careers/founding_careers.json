@@ -1,0 +1,284 @@
+{
+  "$comment": "Career tracks. Promotion needs hours at the current level AND performance at or above min_performance. Performance follows how well-kept the character was during shifts. A career with no workplaces cannot be worked yet (Law: no firm in town until the city grows).",
+  "careers": [
+    {
+      "id": "cafe",
+      "name": "Café",
+      "workplaces": ["heritage_coffee"],
+      "employer_account": "org:heritage_coffee",
+      "entry_level": true,
+      "need_cost_per_hour": {"energy": -3, "social": 2, "hygiene": -1},
+      "max_shift_hours": 9,
+      "min_paid_minutes": 30,
+      "levels": [
+        {"title": "Barista", "hourly_cents": 2100, "hours_to_promote": 40, "min_performance": 55},
+        {"title": "Shift Lead", "hourly_cents": 2600, "hours_to_promote": 120, "min_performance": 60},
+        {"title": "Café Manager", "hourly_cents": 3400}
+      ]
+    },
+    {
+      "id": "recruiting",
+      "name": "Recruiting",
+      "workplaces": ["meridian_talent"],
+      "employer_account": "org:meridian_talent",
+      "need_cost_per_hour": {"energy": -3, "social": 1, "recreation": -2},
+      "max_shift_hours": 10,
+      "min_paid_minutes": 30,
+      "levels": [
+        {"title": "Recruiter", "hourly_cents": 3400, "hours_to_promote": 40, "min_performance": 55},
+        {"title": "Senior Recruiter", "hourly_cents": 4600, "hours_to_promote": 120, "min_performance": 60},
+        {"title": "Recruiting Manager", "hourly_cents": 6000, "hours_to_promote": 250, "min_performance": 65},
+        {"title": "Director of Talent", "hourly_cents": 8200, "hours_to_promote": 400, "min_performance": 70},
+        {"title": "VP of People", "hourly_cents": 11000, "hours_to_promote": 600, "min_performance": 75},
+        {"title": "Chief People Officer", "hourly_cents": 15500}
+      ],
+      "entry_level": true
+    },
+    {
+      "id": "construction_management",
+      "name": "Construction Management",
+      "workplaces": ["forge_site_office"],
+      "employer_account": "org:forge_builders",
+      "need_cost_per_hour": {"energy": -4, "hygiene": -2},
+      "max_shift_hours": 12,
+      "min_paid_minutes": 30,
+      "levels": [
+        {"title": "Site Coordinator", "hourly_cents": 2900, "hours_to_promote": 60, "min_performance": 55},
+        {
+          "title": "Assistant Project Manager",
+          "hourly_cents": 4100,
+          "hours_to_promote": 160,
+          "min_performance": 60
+        },
+        {"title": "Project Manager", "hourly_cents": 5600, "hours_to_promote": 220, "min_performance": 65},
+        {
+          "title": "Senior Project Manager",
+          "hourly_cents": 7400,
+          "hours_to_promote": 300,
+          "min_performance": 70
+        },
+        {"title": "Director of Construction", "hourly_cents": 10500}
+      ],
+      "entry_level": true
+    },
+    {
+      "id": "law",
+      "name": "Law",
+      "workplaces": ["hale_partners"],
+      "employer_account": "org:hale_law",
+      "need_cost_per_hour": {"energy": -5, "comfort": -2},
+      "levels": [
+        {"title": "Associate", "hourly_cents": 6500, "hours_to_promote": 300, "min_performance": 65},
+        {"title": "Senior Associate", "hourly_cents": 8800, "hours_to_promote": 500, "min_performance": 70},
+        {"title": "Counsel", "hourly_cents": 11500, "hours_to_promote": 700, "min_performance": 75},
+        {"title": "Partner", "hourly_cents": 19000}
+      ],
+      "requires_degree": "jd",
+      "max_shift_hours": 12,
+      "min_paid_minutes": 30
+    },
+    {
+      "id": "ai_engineering",
+      "name": "AI Engineering",
+      "workplaces": ["parallax_labs"],
+      "employer_account": "org:parallax_labs",
+      "entry_level": true,
+      "requires_degree": "bachelors",
+      "need_cost_per_hour": {"energy": -4, "recreation": -2},
+      "max_shift_hours": 10,
+      "min_paid_minutes": 30,
+      "levels": [
+        {
+          "title": "Machine Learning Engineer",
+          "hourly_cents": 5000,
+          "hours_to_promote": 60,
+          "min_performance": 55
+        },
+        {"title": "Senior AI Engineer", "hourly_cents": 6800, "hours_to_promote": 160, "min_performance": 60},
+        {"title": "Staff AI Engineer", "hourly_cents": 8600, "hours_to_promote": 220, "min_performance": 65},
+        {
+          "title": "Principal AI Engineer",
+          "hourly_cents": 11000,
+          "hours_to_promote": 300,
+          "min_performance": 70
+        },
+        {"title": "Head of AI", "hourly_cents": 14000}
+      ]
+    },
+    {
+      "id": "startup",
+      "name": "Startup Founder",
+      "workplaces": ["parallax_labs"],
+      "employer_account": "org:parallax_labs",
+      "need_cost_per_hour": {"energy": -5, "comfort": -2},
+      "max_shift_hours": 10,
+      "min_paid_minutes": 30,
+      "levels": [
+        {"title": "Founder (pre-seed)", "hourly_cents": 2500, "hours_to_promote": 60, "min_performance": 55},
+        {
+          "title": "Founder & CEO (seed)",
+          "hourly_cents": 4000,
+          "hours_to_promote": 160,
+          "min_performance": 60
+        },
+        {"title": "CEO (Series A)", "hourly_cents": 7000, "hours_to_promote": 220, "min_performance": 65},
+        {"title": "CEO (scale-up)", "hourly_cents": 11000, "hours_to_promote": 300, "min_performance": 70},
+        {"title": "Founder & Chair", "hourly_cents": 16000}
+      ]
+    },
+    {
+      "id": "therapy",
+      "name": "Therapy & Wellness",
+      "workplaces": ["james_wellness"],
+      "employer_account": "org:james_wellness",
+      "need_cost_per_hour": {"energy": -3, "social": 2},
+      "max_shift_hours": 10,
+      "min_paid_minutes": 30,
+      "levels": [
+        {"title": "Associate Therapist", "hourly_cents": 3200, "hours_to_promote": 60, "min_performance": 55},
+        {"title": "Licensed Therapist", "hourly_cents": 4500, "hours_to_promote": 160, "min_performance": 60},
+        {"title": "Clinical Lead", "hourly_cents": 5800, "hours_to_promote": 220, "min_performance": 65},
+        {"title": "Practice Owner", "hourly_cents": 7000, "hours_to_promote": 300, "min_performance": 70},
+        {"title": "Wellness Group Founder", "hourly_cents": 9500}
+      ]
+    },
+    {
+      "id": "music_production",
+      "name": "Music Production",
+      "workplaces": ["low_end_studios"],
+      "employer_account": "org:low_end_studios",
+      "entry_level": true,
+      "need_cost_per_hour": {"energy": -3, "recreation": 2},
+      "max_shift_hours": 10,
+      "min_paid_minutes": 30,
+      "levels": [
+        {"title": "Beatmaker", "hourly_cents": 1800, "hours_to_promote": 60, "min_performance": 55},
+        {
+          "title": "Independent Producer",
+          "hourly_cents": 3000,
+          "hours_to_promote": 160,
+          "min_performance": 60
+        },
+        {"title": "Studio Producer", "hourly_cents": 4500, "hours_to_promote": 220, "min_performance": 65},
+        {"title": "Hit Producer", "hourly_cents": 7500, "hours_to_promote": 300, "min_performance": 70},
+        {"title": "Label Founder", "hourly_cents": 12000}
+      ]
+    },
+    {
+      "id": "fashion_design",
+      "name": "Fashion Design",
+      "workplaces": ["ellis_atelier"],
+      "employer_account": "org:ellis_atelier",
+      "entry_level": true,
+      "need_cost_per_hour": {"energy": -3, "comfort": -1},
+      "max_shift_hours": 10,
+      "min_paid_minutes": 30,
+      "levels": [
+        {"title": "Design Assistant", "hourly_cents": 2400, "hours_to_promote": 60, "min_performance": 55},
+        {"title": "Designer", "hourly_cents": 3800, "hours_to_promote": 160, "min_performance": 60},
+        {"title": "Senior Designer", "hourly_cents": 5200, "hours_to_promote": 220, "min_performance": 65},
+        {"title": "Label Owner", "hourly_cents": 6800, "hours_to_promote": 300, "min_performance": 70},
+        {"title": "Fashion House Founder", "hourly_cents": 9000}
+      ]
+    },
+    {
+      "id": "private_equity",
+      "name": "Private Equity",
+      "workplaces": ["whitaker_capital"],
+      "employer_account": "org:whitaker_capital",
+      "need_cost_per_hour": {"energy": -5, "social": -1, "recreation": -2},
+      "max_shift_hours": 10,
+      "min_paid_minutes": 30,
+      "levels": [
+        {"title": "Associate", "hourly_cents": 6500, "hours_to_promote": 60, "min_performance": 55},
+        {"title": "Vice President", "hourly_cents": 9500, "hours_to_promote": 160, "min_performance": 60},
+        {"title": "Principal", "hourly_cents": 13000, "hours_to_promote": 220, "min_performance": 65},
+        {"title": "Partner", "hourly_cents": 18000, "hours_to_promote": 300, "min_performance": 70},
+        {"title": "Managing Partner", "hourly_cents": 26000}
+      ]
+    },
+    {
+      "id": "nonprofit",
+      "name": "Nonprofit Leadership",
+      "workplaces": ["common_ground"],
+      "employer_account": "org:common_ground",
+      "entry_level": true,
+      "need_cost_per_hour": {"energy": -4, "social": 2},
+      "max_shift_hours": 10,
+      "min_paid_minutes": 30,
+      "levels": [
+        {"title": "Program Coordinator", "hourly_cents": 2300, "hours_to_promote": 60, "min_performance": 55},
+        {"title": "Program Director", "hourly_cents": 3200, "hours_to_promote": 160, "min_performance": 60},
+        {"title": "Executive Director", "hourly_cents": 4200, "hours_to_promote": 220, "min_performance": 65},
+        {"title": "Founder & CEO", "hourly_cents": 5000, "hours_to_promote": 300, "min_performance": 70},
+        {"title": "Foundation President", "hourly_cents": 7000}
+      ]
+    },
+    {
+      "id": "journalism",
+      "name": "Journalism",
+      "workplaces": ["livera_ledger"],
+      "employer_account": "org:livera_ledger",
+      "entry_level": true,
+      "need_cost_per_hour": {"energy": -4, "comfort": -1},
+      "max_shift_hours": 10,
+      "min_paid_minutes": 30,
+      "levels": [
+        {"title": "Staff Reporter", "hourly_cents": 2600, "hours_to_promote": 60, "min_performance": 55},
+        {
+          "title": "Investigative Reporter",
+          "hourly_cents": 3400,
+          "hours_to_promote": 160,
+          "min_performance": 60
+        },
+        {
+          "title": "Senior Investigative Reporter",
+          "hourly_cents": 4300,
+          "hours_to_promote": 220,
+          "min_performance": 65
+        },
+        {"title": "Editor", "hourly_cents": 5200, "hours_to_promote": 300, "min_performance": 70},
+        {"title": "Editor-in-Chief", "hourly_cents": 7000}
+      ]
+    },
+    {
+      "id": "event_production",
+      "name": "Event Production",
+      "workplaces": ["baptiste_events"],
+      "employer_account": "org:baptiste_events",
+      "entry_level": true,
+      "need_cost_per_hour": {"energy": -4, "social": 2},
+      "max_shift_hours": 10,
+      "min_paid_minutes": 30,
+      "levels": [
+        {"title": "Event Coordinator", "hourly_cents": 2400, "hours_to_promote": 60, "min_performance": 55},
+        {"title": "Event Producer", "hourly_cents": 3600, "hours_to_promote": 160, "min_performance": 60},
+        {"title": "Senior Producer", "hourly_cents": 5000, "hours_to_promote": 220, "min_performance": 65},
+        {"title": "Creative Producer", "hourly_cents": 6500, "hours_to_promote": 300, "min_performance": 70},
+        {"title": "Agency Founder", "hourly_cents": 8500}
+      ]
+    },
+    {
+      "id": "creative_direction",
+      "name": "Creative Direction",
+      "workplaces": ["lumen_creative"],
+      "employer_account": "org:lumen_creative",
+      "entry_level": true,
+      "need_cost_per_hour": {"energy": -3, "recreation": -1},
+      "max_shift_hours": 10,
+      "min_paid_minutes": 30,
+      "levels": [
+        {"title": "Junior Designer", "hourly_cents": 2500, "hours_to_promote": 60, "min_performance": 55},
+        {"title": "Art Director", "hourly_cents": 4000, "hours_to_promote": 160, "min_performance": 60},
+        {"title": "Creative Director", "hourly_cents": 5800, "hours_to_promote": 220, "min_performance": 65},
+        {
+          "title": "Executive Creative Director",
+          "hourly_cents": 7800,
+          "hours_to_promote": 300,
+          "min_performance": 70
+        },
+        {"title": "Agency Founder", "hourly_cents": 10000}
+      ]
+    }
+  ]
+}

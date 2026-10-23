@@ -1,0 +1,219 @@
+{
+  "$comment": "Life events about love (D-068): single, partnered, an ex in sight ({name} is them).",
+  "events": [
+    {
+      "id": "eye_contact",
+      "category": "love",
+      "title": "Across the room",
+      "prompt": "{name} has caught your eye three times now. The fourth time, they smile and don't look away.",
+      "when": {
+        "relationship": "single",
+        "with": "stranger",
+        "place_types": ["bar", "coffee_shop", "nightclub", "restaurant"],
+        "age": [18, 80]
+      },
+      "weight": 3,
+      "cooldown_days": 7,
+      "choices": [
+        {
+          "label": "Go and say hi",
+          "outcomes": [
+            {
+              "chance": 0.65,
+              "text": "You walk over. \"I'm terrible at this,\" you say. \"Me too,\" says {name}. It's a good start.",
+              "emotions": {"confidence": 10, "excitement": 10, "loneliness": -8},
+              "needs": {"social": 8},
+              "relationship": {
+                "you": {"familiarity": 10, "romantic_attraction": 6},
+                "them": {"familiarity": 10, "romantic_attraction": 6},
+                "reaction": "charmed"
+              },
+              "memory": {"text": "Walked over and said hi to {name}.", "impact": 15}
+            },
+            {
+              "chance": 0.35,
+              "text": "You get halfway across the room before {name}'s friend arrives and they hug. You pretend you were going to the bathroom.",
+              "emotions": {"embarrassment": 12},
+              "memory": {"text": "Tried to say hi to {name}. Bad timing.", "impact": -5}
+            }
+          ]
+        },
+        {
+          "label": "Send over a drink",
+          "outcomes": [
+            {
+              "text": "The drink arrives. {name} raises it to you across the room. Classic. Effective. Slightly expensive.",
+              "money": {"cents": -1200, "account": "here", "via": "bank"},
+              "relationship": {
+                "them": {"romantic_attraction": 8, "familiarity": 5},
+                "you": {"romantic_attraction": 4},
+                "reaction": "flattered"
+              },
+              "emotions": {"excitement": 8, "confidence": 6},
+              "memory": {"text": "Sent {name} a drink across the room.", "impact": 12}
+            }
+          ]
+        },
+        {
+          "label": "Look away",
+          "outcomes": [
+            {
+              "text": "You look at your phone very hard until the moment passes. It does. They all do.",
+              "emotions": {"loneliness": 6, "sadness": 3}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rain_dance",
+      "category": "love",
+      "title": "Caught in it",
+      "prompt": "The sky opens. {name} grabs your hand, soaked and laughing. \"Run for it, or…?\"",
+      "when": {"with": "partner", "outside": true, "weather": ["rain", "storm"]},
+      "weight": 4,
+      "cooldown_days": 10,
+      "choices": [
+        {
+          "label": "Dance in it",
+          "outcomes": [
+            {
+              "text": "You dance in the rain like an idiot, like a film, like nobody's watching. Three people are watching. Who cares.",
+              "needs": {"hygiene": -10, "comfort": -8},
+              "emotions": {"happiness": 15, "excitement": 10},
+              "relationship": {
+                "you": {"romantic_attraction": 8},
+                "them": {"romantic_attraction": 10, "friendship": 4},
+                "reaction": "delighted"
+              },
+              "memory": {"text": "Danced in the rain with {name}.", "impact": 35, "importance": 50}
+            }
+          ]
+        },
+        {
+          "label": "Run for cover",
+          "outcomes": [
+            {
+              "text": "You sprint for an awning and stand there dripping, laughing too hard to talk.",
+              "needs": {"hygiene": -5},
+              "emotions": {"happiness": 8},
+              "relationship": {"them": {"friendship": 4}, "reaction": "laughing"}
+            }
+          ]
+        },
+        {
+          "label": "Complain about your shoes",
+          "outcomes": [
+            {
+              "text": "\"These are suede,\" you say. {name} lets go of your hand to wring out their sleeve.",
+              "relationship": {"them": {"romantic_attraction": -4}, "reaction": "deflated"},
+              "emotions": {"stress": 4}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "what_day_is_it",
+      "category": "love",
+      "title": "\"Do you know what today is?\"",
+      "prompt": "{name} is humming. Smiling. Then: \"Do you know what today is?\" Your mind is a white, empty room.",
+      "when": {"with": "partner"},
+      "weight": 2,
+      "cooldown_days": 30,
+      "choices": [
+        {
+          "label": "Bluff confidently",
+          "outcomes": [
+            {
+              "chance": 0.5,
+              "text": "\"Of course I do.\" {name} narrows their eyes, then laughs. \"It's Tuesday. I just wanted to see your face.\"",
+              "emotions": {"stress": 4, "happiness": 6},
+              "relationship": {"them": {"friendship": 4}, "reaction": "amused"}
+            },
+            {
+              "chance": 0.5,
+              "text": "\"Of course I do.\" \"Then say it.\" You can't. The rest of the walk is very quiet.",
+              "emotions": {"embarrassment": 10, "stress": 8},
+              "relationship": {"them": {"trust": -6, "romantic_attraction": -4}, "reaction": "hurt"},
+              "memory": {"text": "Forgot something important to {name}.", "impact": -15}
+            }
+          ]
+        },
+        {
+          "label": "Admit you've no idea",
+          "outcomes": [
+            {
+              "text": "\"I have no idea, and I'm sorry.\" {name} sighs, then tells you: the day you met. You make it up to them.",
+              "relationship": {"them": {"trust": 3}, "you": {"romantic_attraction": 4}, "reaction": "fond"},
+              "emotions": {"embarrassment": 4, "happiness": 4}
+            }
+          ]
+        },
+        {
+          "label": "Kiss them instead",
+          "outcomes": [
+            {
+              "text": "You kiss them. It doesn't answer the question, but it's a strong reply.",
+              "relationship": {"them": {"romantic_attraction": 5}, "reaction": "smiling"},
+              "emotions": {"happiness": 6}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ex_sighting",
+      "category": "love",
+      "title": "Of all the places in Livéra",
+      "prompt": "{name}. Your ex. Ten feet away, and they've definitely seen you.",
+      "when": {"with": "ex"},
+      "weight": 4,
+      "cooldown_days": 14,
+      "choices": [
+        {
+          "label": "Wave like an adult",
+          "outcomes": [
+            {
+              "text": "You wave. They wave. Nobody combusts. Growth.",
+              "relationship": {"you": {"resentment": -5}, "them": {"resentment": -5}, "reaction": "polite"},
+              "emotions": {"confidence": 6}
+            }
+          ]
+        },
+        {
+          "label": "Go over and talk",
+          "outcomes": [
+            {
+              "chance": 0.5,
+              "text": "You talk for twenty minutes. It's easy, which is somehow worse. You walk away thinking about it.",
+              "relationship": {
+                "you": {"friendship": 6, "romantic_attraction": 4},
+                "them": {"friendship": 6},
+                "reaction": "warm"
+              },
+              "emotions": {"sadness": 6, "loneliness": -4},
+              "memory": {"text": "Ran into {name} and actually talked.", "impact": 5}
+            },
+            {
+              "chance": 0.5,
+              "text": "Within two minutes you're having the same argument you had a year ago, word for word.",
+              "relationship": {"you": {"conflict": 8}, "them": {"conflict": 8, "resentment": 5}, "reaction": "tense"},
+              "emotions": {"anger": 10, "stress": 10},
+              "memory": {"text": "Ran into {name}. Same old fight.", "impact": -15}
+            }
+          ]
+        },
+        {
+          "label": "Hide behind a pillar",
+          "outcomes": [
+            {
+              "text": "You hide behind a pillar. The pillar is not wide enough.",
+              "emotions": {"embarrassment": 10}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

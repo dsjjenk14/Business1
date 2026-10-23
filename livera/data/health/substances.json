@@ -1,0 +1,62 @@
+{
+  "$comment": "Alcohol and drugs. The illegal ones are fictional. Effects apply when taken; the crash when the high wears off. Dependency builds with use and fades without it.",
+  "substances": [
+    {
+      "id": "alcohol",
+      "name": "alcohol",
+      "legal": true,
+      "needs": {"recreation": 10, "social": 5, "bladder": -15},
+      "emotions": {"happiness": 6, "confidence": 5, "stress": -5},
+      "effect_minutes": 90,
+      "crash_needs": {"energy": -10},
+      "crash_emotions": {"happiness": -2},
+      "dependency_per_use": 2,
+      "dependency_decay_per_day": 3,
+      "addiction": "alcohol_dependence",
+      "overdose_uses": 7,
+      "overdose_window_minutes": 180
+    },
+    {
+      "id": "glint",
+      "name": "Glint",
+      "needs": {"energy": 40, "hunger": -15},
+      "emotions": {"excitement": 25, "confidence": 15, "happiness": 10},
+      "effect_minutes": 180,
+      "crash_needs": {"energy": -35, "comfort": -10},
+      "crash_emotions": {"sadness": 10, "stress": 10},
+      "dependency_per_use": 12,
+      "dependency_decay_per_day": 2,
+      "addiction": "glint_addiction",
+      "overdose_uses": 3,
+      "overdose_window_minutes": 240,
+      "possession_crime": "drug_possession"
+    },
+    {
+      "id": "haze",
+      "name": "Haze",
+      "needs": {"recreation": 25, "comfort": 10, "hunger": -20},
+      "emotions": {"stress": -20, "happiness": 8},
+      "effect_minutes": 180,
+      "crash_needs": {"energy": -10},
+      "dependency_per_use": 4,
+      "dependency_decay_per_day": 3,
+      "addiction": "haze_dependence",
+      "possession_crime": "drug_possession"
+    },
+    {
+      "id": "velvet",
+      "name": "Velvet",
+      "needs": {"comfort": 30, "energy": -15},
+      "emotions": {"happiness": 30, "stress": -30, "sadness": -20},
+      "effect_minutes": 240,
+      "crash_needs": {"comfort": -20, "energy": -20},
+      "crash_emotions": {"sadness": 20, "stress": 15},
+      "dependency_per_use": 20,
+      "dependency_decay_per_day": 1.5,
+      "addiction": "velvet_addiction",
+      "overdose_uses": 2,
+      "overdose_window_minutes": 360,
+      "possession_crime": "drug_possession"
+    }
+  ]
+}

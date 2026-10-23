@@ -1,0 +1,144 @@
+{
+  "$comment": "M0.8 medicine (docs/m08/pets.md): over-the-counter and prescription medicine, what it treats, and how much is safe. Items use the usual item fields; the 'medicine' section adds daily dose limits, prescriptions and dangerous mixes. painkillers, cold_medicine and antidepressants are in items.json.",
+  "items": [
+    {
+      "id": "allergy_relief",
+      "label": "Allergy relief",
+      "category": "medicine",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 480,
+      "needs": {"comfort": 5},
+      "shortens": {"seasonal_allergies": 48}
+    },
+    {
+      "id": "antacid",
+      "label": "Antacid tablets",
+      "category": "medicine",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 60,
+      "needs": {"comfort": 10},
+      "shortens": {"heartburn": 6}
+    },
+    {
+      "id": "sleep_aid",
+      "label": "Sleep aid",
+      "category": "medicine",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 360,
+      "needs": {"comfort": 5},
+      "emotions": {"stress": -5},
+      "shortens": {"insomnia": 24}
+    },
+    {
+      "id": "vitamins",
+      "label": "Daily vitamins",
+      "category": "medicine",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 1440,
+      "needs": {"health": 2}
+    },
+    {
+      "id": "antibiotics",
+      "label": "Antibiotics",
+      "category": "medicine",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 480,
+      "condition_recovery": {"strep_throat": 34}
+    },
+    {
+      "id": "antivirals",
+      "label": "Antivirals",
+      "category": "medicine",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 720,
+      "shortens": {"flu": 36}
+    }
+  ],
+  "conditions": [
+    {
+      "id": "seasonal_allergies",
+      "name": "seasonal allergies",
+      "kind": "illness",
+      "hours": [48, 168],
+      "needs_per_hour": {"comfort": -1, "energy": -0.5},
+      "performance_penalty": 0.05,
+      "catch": {"hourly_chance": 0.0003},
+      "treated_by": ["allergy_relief"]
+    },
+    {
+      "id": "heartburn",
+      "name": "heartburn",
+      "kind": "illness",
+      "hours": [3, 10],
+      "needs_per_hour": {"comfort": -3},
+      "performance_penalty": 0.05,
+      "catch": {"hourly_chance": 0.0003},
+      "treated_by": ["antacid"]
+    },
+    {
+      "id": "insomnia",
+      "name": "insomnia",
+      "kind": "mental",
+      "hours": [48, 120],
+      "needs_per_hour": {"energy": -1.5},
+      "emotions_per_hour": {"stress": 0.5},
+      "performance_penalty": 0.1,
+      "catch": {"hourly_chance": 0.0002, "risk_need": "comfort", "risk_below": 30, "risk_multiplier": 4},
+      "treated_by": ["sleep_aid"]
+    },
+    {
+      "id": "strep_throat",
+      "name": "strep throat",
+      "kind": "illness",
+      "hours": [120, 240],
+      "needs_per_hour": {"comfort": -2, "energy": -1.5, "health": -0.3, "hunger": -0.5},
+      "performance_penalty": 0.3,
+      "catch": {"hourly_chance": 0.0001, "contagion_per_hour": 0.02},
+      "treated_by": ["antibiotics"]
+    }
+  ],
+  "medicine": {
+    "dose_window_hours": 24,
+    "overdose_health_loss": 25,
+    "emergency_after_extra_doses": 2,
+    "emergency_below_health": 15,
+    "hospital": "livera_general",
+    "emergency_bill_cents": 45000,
+    "stabilised_health": 30,
+    "medicines": [
+      {"item": "painkillers", "daily_limit": 4, "overdose_health_loss": 30},
+      {"item": "cold_medicine", "daily_limit": 4},
+      {"item": "allergy_relief", "daily_limit": 2},
+      {"item": "antacid", "daily_limit": 6, "overdose_health_loss": 10},
+      {
+        "item": "sleep_aid",
+        "daily_limit": 1,
+        "dangerous_with": {
+          "substance": "alcohol",
+          "within_minutes": 240,
+          "needs": {"health": -40, "energy": -60},
+          "emotions": {"stress": 20},
+          "emergency": true
+        }
+      },
+      {"item": "vitamins", "daily_limit": 1, "overdose_health_loss": 5},
+      {
+        "item": "antibiotics",
+        "daily_limit": 3,
+        "prescription": {"for": ["strep_throat"], "fills": 2, "valid_days": 28}
+      },
+      {"item": "antivirals", "daily_limit": 2, "prescription": {"for": ["flu"], "fills": 1, "valid_days": 14}},
+      {
+        "item": "antidepressants",
+        "daily_limit": 1,
+        "prescription": {"for": ["depression"], "fills": 3, "valid_days": 84}
+      }
+    ]
+  }
+}

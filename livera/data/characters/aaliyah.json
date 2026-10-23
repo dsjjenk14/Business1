@@ -1,0 +1,158 @@
+{
+  "characters": [
+    {
+      "id": "aaliyah",
+      "cast": "founder",
+      "first_name": "Aaliyah",
+      "last_name": "Baptiste",
+      "pronouns": "she/her",
+      "gender": "woman",
+      "age": 28,
+      "playable": true,
+      "personality": {
+        "ambition": 80,
+        "sociability": 95,
+        "empathy": 78,
+        "patience": 60,
+        "confidence": 85,
+        "risk_tolerance": 60,
+        "competitiveness": 65,
+        "impulsiveness": 45
+      },
+      "values": {
+        "family": 85,
+        "career": 80,
+        "wealth": 70,
+        "loyalty": 75,
+        "freedom": 60,
+        "status": 72,
+        "community": 70,
+        "romance": 65,
+        "creativity": 75
+      },
+      "traits": ["charismatic", "empathetic", "socially_intelligent"],
+      "interests": ["networking", "fashion", "nightlife", "dance", "travel", "music"],
+      "career": {"id": "event_production", "level": 3},
+      "degrees": ["high_school", "bachelors"],
+      "fame": 15,
+      "finances": {"cash_cents": 25000, "bank_cents": 3100000},
+      "home": {"property": "lexington_0904", "tenure": "rent"},
+      "spawn_location": "lexington_0904",
+      "relationships": [
+        {
+          "to": "dominique",
+          "history": "Her best friend since an Atlanta gala six years ago. She talked Dominique into Livéra.",
+          "dimensions": {"familiarity": 78, "friendship": 74, "trust": 62, "loyalty": 68, "respect": 58}
+        },
+        {
+          "to": "andre",
+          "history": "Two years together in Miami. She still knows his number by heart and pretends she doesn't.",
+          "dimensions": {"familiarity": 72, "romantic_attraction": 26, "resentment": 34, "trust": 12, "conflict": 24}
+        },
+        {
+          "to": "sienna",
+          "history": "Sienna styles every event Aaliyah throws. They make each other look good, on purpose.",
+          "dimensions": {"familiarity": 46, "friendship": 42, "respect": 52, "trust": 38}
+        },
+        {
+          "to": "jean-baptiste-moreau",
+          "history": "She books his back room for every tasting and fights him on the wine list. He's usually right, which she hates.",
+          "dimensions": {"familiarity": 46, "friendship": 42, "respect": 58}
+        }
+      ],
+      "memories": [
+        {
+          "type": "romance",
+          "participants": ["aaliyah", "andre"],
+          "importance": 70,
+          "emotional_impact": -30,
+          "days_ago": 900,
+          "info": "Threw Andre's things off a Miami Beach balcony.",
+          "about": "andre"
+        },
+        {
+          "type": "friendship",
+          "participants": ["aaliyah", "dominique"],
+          "importance": 55,
+          "emotional_impact": 40,
+          "days_ago": 47,
+          "info": "Helped Dominique pack up her Atlanta apartment in a weekend.",
+          "about": "dominique"
+        }
+      ],
+      "aspirations": ["get_famous", "get_promoted"],
+      "profile": {
+        "tagline": "Knows everyone. Throws the party everyone talks about.",
+        "why_livera": "business_opportunity",
+        "ethnicity": "Black Caribbean",
+        "card": {
+          "occupation": "Luxury Event Producer",
+          "height_cm": 168,
+          "build": "Curvy hourglass",
+          "skin_tone": "Deep golden-brown"
+        },
+        "appearance": {
+          "height_cm": 168,
+          "build": "curvy hourglass",
+          "skin": "deep golden-brown, warm radiant complexion",
+          "eyes": "bright, expressive, dark",
+          "face": "soft oval face, full lips, glowing makeup",
+          "hair": "long, voluminous defined curls",
+          "style": "emerald satin blouse, black high-waisted wide-leg trousers, black belt, gold cuffs, gold hoops, black top-handle bag, black pointed heels",
+          "outfits": {
+            "everyday": "camel ribbed knit top and matching wide-leg knit trousers, white leather trainers, gold hoops, gold cuffs, black leather tote",
+            "work": "emerald satin blouse, black high-waisted wide-leg trousers, black belt, gold cuffs, gold hoops, black top-handle bag, black pointed heels",
+            "evening": "gold sequinned slip dress, black satin blazer over the shoulders, black strappy heels, gold cuffs, statement gold earrings, black satin clutch",
+            "drawn": "work"
+          },
+          "silhouette": "satin and gold; always holding a glass at someone else's party",
+          "key_features": [
+            "Soft oval face",
+            "Bright, expressive dark eyes",
+            "Full lips",
+            "Long, defined curls",
+            "Warm, radiant complexion"
+          ],
+          "visual_reference": "art/reference/characters/aaliyah.jpg"
+        },
+        "family_background": "Born in Port-au-Prince, raised in Miami by her grandmother, who catered every wedding in Little Haiti.",
+        "education": "B.S. Hospitality Management, Florida International University",
+        "goals": [
+          "Produce ÉCLAT's grand opening",
+          "Be the first call for every opening in Livéra",
+          "Keep Andre at a professional distance"
+        ],
+        "ambitions": ["Baptiste & Co. in five cities"],
+        "social_preferences": "Loves a full room; recharges with one friend and room service.",
+        "secrets": [
+          {
+            "id": "aaliyah_andre",
+            "truth": "She and Andre were together for two years in Miami. Nobody in Livéra knows, not even Dominique.",
+            "known_by": ["andre"]
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "10:00", "activity": "Baptiste & Co. Events", "work": true},
+            {"time": "19:00", "activity": "Site visits and tastings"}
+          ],
+          "friday": [{"time": "21:00", "activity": "Whatever party she's producing"}]
+        },
+        "starting_inventory": ["phone", "two phones, actually", "guest lists", "gold cuffs", "black top-handle bag"],
+        "social_media": {
+          "handle": "@aaliyahbaptiste.events",
+          "followers": 64300,
+          "bio": "Baptiste & Co. If it's worth celebrating, call me."
+        },
+        "reputation": {"professional": 74, "social": 82, "public": 52},
+        "life_history": [
+          "Started planning her grandmother's catering jobs at fifteen.",
+          "Produced galas in Miami and Atlanta.",
+          "Opened Baptiste & Co. in Livéra the week the charter was signed."
+        ],
+        "archetype": "The Connector"
+      },
+      "sex": "female"
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "interior": {
+    "id": "parallax_labs",
+    "places": ["parallax_labs"],
+    "size": [1536, 1024],
+    "person_px": 130,
+    "floor": [
+      [
+        [75, 560],
+        [520, 330],
+        [570, 312],
+        [700, 372],
+        [880, 292],
+        [1250, 450],
+        [1260, 385],
+        [1400, 395],
+        [1500, 430],
+        [1490, 470],
+        [1455, 640],
+        [1200, 790],
+        [1110, 815],
+        [1000, 830],
+        [930, 880],
+        [640, 895],
+        [600, 880],
+        [570, 855],
+        [420, 732],
+        [372, 778],
+        [250, 702],
+        [210, 640]
+      ]
+    ],
+    "blocked": [
+      {"label": "sofa", "poly": [[135, 545], [270, 470], [325, 500], [190, 575]], "height": 60},
+      {"label": "armchair", "poly": [[395, 485], [432, 466], [470, 486], [433, 505]], "height": 60},
+      {"label": "bean bag", "poly": [[220, 580], [250, 565], [282, 580], [250, 595]], "height": 35},
+      {"label": "bean bag", "poly": [[400, 580], [435, 563], [470, 580], [435, 597]], "height": 40},
+      {"label": "coffee table", "poly": [[275, 555], [325, 530], [380, 555], [330, 580]], "height": 40},
+      {"label": "desks", "poly": [[525, 510], [590, 470], [890, 620], [825, 660]], "height": 110},
+      {"label": "desks", "poly": [[745, 415], [810, 380], [1100, 520], [1035, 560]], "height": 110},
+      {"label": "kitchen island", "poly": [[1145, 580], [1185, 555], [1385, 650], [1345, 690]], "height": 85},
+      {"label": "shelves", "poly": [[930, 700], [990, 670], [1105, 730], [1045, 760]], "height": 120},
+      {"label": "sofa", "poly": [[745, 840], [840, 790], [930, 835], [835, 885]], "height": 55},
+      {"label": "armchair", "poly": [[585, 770], [625, 750], [670, 772], [630, 792]], "height": 60},
+      {"label": "armchair", "poly": [[655, 725], [700, 702], [745, 725], [700, 748]], "height": 60},
+      {"label": "coffee table", "poly": [[715, 790], [765, 765], [820, 790], [770, 815]], "height": 40},
+      {"label": "plant", "poly": [[515, 760], [542, 746], [570, 760], [542, 774]], "height": 170},
+      {"label": "plant", "poly": [[1050, 600], [1072, 588], [1094, 600], [1072, 612]], "height": 120},
+      {"label": "plant", "poly": [[1183, 435], [1205, 423], [1227, 435], [1205, 447]], "height": 120},
+      {"label": "plant", "poly": [[928, 840], [950, 828], [972, 840], [950, 852]], "height": 110}
+    ],
+    "entrance": {"at": [410, 650], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [310, 728], "facing": "w", "label": "Front door"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1420, 425],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "stool_1",
+        "kind": "stool",
+        "at": [1135, 625],
+        "facing": "e",
+        "label": "Cold brew bar",
+        "activity": "break_coffee"
+      },
+      {
+        "id": "stool_2",
+        "kind": "stool",
+        "at": [1185, 655],
+        "facing": "e",
+        "label": "Cold brew bar",
+        "activity": "break_coffee"
+      },
+      {
+        "id": "stool_3",
+        "kind": "stool",
+        "at": [1235, 685],
+        "facing": "e",
+        "label": "Cold brew bar",
+        "activity": "break_coffee"
+      },
+      {
+        "id": "stool_4",
+        "kind": "stool",
+        "at": [1282, 712],
+        "facing": "e",
+        "label": "Cold brew bar",
+        "activity": "break_coffee"
+      },
+      {"id": "desk_1", "kind": "seat", "at": [582, 535], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_2", "kind": "seat", "at": [683, 600], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_3", "kind": "seat", "at": [812, 465], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_4", "kind": "seat", "at": [912, 515], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "sofa_1", "kind": "sofa", "at": [215, 528], "facing": "s", "label": "Sofa"},
+      {"id": "sofa_2", "kind": "sofa", "at": [268, 502], "facing": "s", "label": "Sofa"},
+      {"id": "armchair", "kind": "seat", "at": [432, 488], "facing": "w", "label": "Armchair"},
+      {"id": "armchair_front_1", "kind": "seat", "at": [625, 773], "facing": "s", "label": "Armchair"},
+      {"id": "armchair_front_2", "kind": "seat", "at": [700, 727], "facing": "s", "label": "Armchair"},
+      {"id": "sofa_front", "kind": "sofa", "at": [835, 838], "facing": "n", "label": "Sofa"}
+    ]
+  }
+}

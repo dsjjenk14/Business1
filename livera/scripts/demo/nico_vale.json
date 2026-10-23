@@ -1,0 +1,79 @@
+{
+  "first_name": "Nico",
+  "last_name": "Vale",
+  "age_group": "twenties",
+  "age": 26,
+  "pronouns": "they/them",
+  "gender": "non-binary",
+  "sex": "female",
+  "appearance": {
+    "skin_tone": "golden brown",
+    "undertone": "warm",
+    "face_shape": "heart",
+    "eyes": "almond",
+    "eye_color": "amber",
+    "nose": "straight",
+    "lips": "full",
+    "body_type": "lean",
+    "hair_style": "curly afro",
+    "hair_color": "copper",
+    "facial_hair": "none",
+    "makeup": "graphic liner",
+    "outfit": "vintage",
+    "tattoos": [
+      "fine-line florals",
+      "wrist"
+    ],
+    "piercings": [
+      "septum",
+      "helix"
+    ],
+    "accessories": [
+      "rings",
+      "bucket hat"
+    ],
+    "height_cm": 170
+  },
+  "personality": {
+    "ambition": 60,
+    "sociability": 70,
+    "empathy": 65,
+    "patience": 40,
+    "confidence": 55,
+    "risk_tolerance": 50,
+    "competitiveness": 25,
+    "impulsiveness": 35
+  },
+  "values": {
+    "family": 45,
+    "career": 40,
+    "wealth": 30,
+    "loyalty": 60,
+    "freedom": 75,
+    "status": 20,
+    "community": 70,
+    "romance": 40,
+    "creativity": 70
+  },
+  "traits": [
+    "creative",
+    "outgoing",
+    "witty"
+  ],
+  "interests": [
+    "music",
+    "jazz",
+    "rnb_music",
+    "nightlife",
+    "photography"
+  ],
+  "education": "some college",
+  "relationship_status": "single",
+  "goals": [
+    "release an album",
+    "make friends"
+  ],
+  "origin": "new_job",
+  "career": "cafe",
+  "background": "Played keys in church growing up, then in every bar band that would have them. Took the barista job for the rent and the open mic."
+}

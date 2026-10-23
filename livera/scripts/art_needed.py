@@ -1,0 +1,152 @@
+#!/usr/bin/env python3
+"""Writes art/prompts_needed.html: only the pictures the game still needs, from every prompt pack.
+
+The town pack (scripts/town_prompts.py) and the interior pack (scripts/interior_prompts.py) each list
+every picture, filed or not. This page keeps the ones with no file yet, so the owner can work down one
+list on a phone: the same cards, Copy buttons and done ticks as the packs' own pages.
+
+Usage: scripts/art_needed.py            regenerate the page
+       scripts/art_needed.py --check    exit 1 if the page is stale (run after filing a picture)
+"""
+import argparse
+import pathlib
+import re
+import sys
+
+sys.dont_write_bytecode = True  # importing the packs must not leave a __pycache__ in scripts/
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import character_prompts as cp  # noqa: E402
+import interior_prompts as ip  # noqa: E402
+import town_prompts as tp  # noqa: E402
+
+ROOT = tp.ROOT
+HTML_PATH = ROOT / "art" / "prompts_needed.html"
+SELF = "scripts/art_needed.py"
+
+# Golden Hour's pictures first (D-076, D-077: Beat Brawl looks stiff without the fight sheets); then inside: the rooms
+# the game draws next (D-066); then the town's missing outsides.
+GOLDEN_HOUR_ART = ROOT / "docs" / "proposals" / "showdown" / "golden_hour_art.md"
+GROUPS = [
+    ("golden-hour", "Golden Hour: fights and nights out", "docs/proposals/showdown/golden_hour_art.md"),
+    ("rooms-places", "Rooms: places", "art/PROMPT_PACK_INTERIORS.md"),
+    ("rooms-homes", "Rooms: homes", "art/PROMPT_PACK_INTERIORS.md"),
+    ("people-models", "People: model sheets for the townspeople", "art/PROMPT_PACK_CHARACTERS.md"),
+    ("people", "People: walking and sitting sprites", "art/PROMPT_PACK_CHARACTERS.md"),
+    ("people-outfits", "Outfit sprite sheets", "art/PROMPT_PACK_CHARACTERS.md"),
+    ("town", "Town: outsides, stops, the bus and tiles", "art/PROMPT_PACK_TOWN.md"),
+]
+
+
+def golden_hour_prompts():
+    """Studio Kinetic's ten prompts (showdown/golden_hour_art.md), in its order of importance: fight sheets first."""
+    text = GOLDEN_HOUR_ART.read_text(encoding="utf-8")
+    found = re.findall(r"^## (\d+)\. (.+?)\n\nSave as `([^`]+)` · (.+?)\n\n```text\n(.*?)\n```", text, re.S | re.M)
+    out = []
+    for number, title, save_as, meta, prompt in found:
+        size, _, note = meta.partition(" · ")
+        kind = "Fight sheets" if "fight sheet" in title else "Places for the night" if "room" in title else "More"
+        out.append({"title": title, "save_as": save_as, "size": size.strip(), "sign": None, "prompt": prompt.strip(),
+                    "district": "", "group_label": kind, "order": int(number),
+                    "facts": [("Asked for by", "Golden Hour (D-076); the fight sheets are for Beat Brawl (D-077)")]
+                    + ([("Note", note.replace("`", ""))] if note else [])})
+    return out
+
+
+def needed():
+    locations, properties, transit, city, sim = tp.load_data()
+    out = {key: [] for key, _, _ in GROUPS}
+    for p in golden_hour_prompts():
+        if not tp.filed_as(p["save_as"]):
+            out["golden-hour"].append(p)
+    for p in ip.build_prompts(locations, properties):
+        if not tp.filed_as(p["save_as"]):
+            p["size"] = ip.SIZE
+            p["sign"] = None
+            out["rooms-places" if p["section"] == "places" else "rooms-homes"].append(p)
+    # A townsperson's model sheet comes before their sprite sheet, which is made with it attached (D-073).
+    for p in cp.build_all()[1]:
+        if not p["filed"]:
+            p["sign"] = None
+            p["group_label"] = p.get("person") or dict(cp.SECTIONS)[p["section"]]   # outfit sheets: under each person
+            p["district"] = ""
+            out["people-models" if p["section"] == "models" else "people-outfits" if p["section"] == "outfits" else "people"].append(p)
+    town_sections = dict(tp.SECTIONS)
+    for p in tp.build_prompts(locations, properties, transit, city, sim):
+        if not tp.filed_as(p["save_as"]):
+            p["group_label"] = town_sections.get(p["section"], p["section"])
+            out["town"].append(p)
+    out["rooms-places"].sort(key=lambda p: (p["district"], p["title"]))
+    out["rooms-homes"].sort(key=lambda p: (p["district"], p["title"]))
+    order = [key for key, _ in tp.SECTIONS]
+    out["town"].sort(key=lambda p: (order.index(p["section"]), p["district"], p["title"]))
+    return out
+
+
+def render(groups):
+    h = tp.esc
+    total = sum(len(v) for v in groups.values())
+    js = tp.JS.replace("livera.prompts_town.", "livera.prompts_needed.")
+    out = ["<!doctype html>", '<html lang="en">', "<head>", '<meta charset="utf-8">',
+           '<meta name="viewport" content="width=device-width, initial-scale=1">',
+           "<title>LIVÉRA art still needed</title>", f"<style>{tp.CSS}</style>", "</head>", "<body>", '<div class="wrap">',
+           "<h1>LIVÉRA art still needed</h1>",
+           f'<p class="lead">{total} pictures the game doesn\'t have yet, generated by <code>{h(SELF)}</code> from the prompt packs '
+           f"(<code>docs/proposals/showdown/golden_hour_art.md</code>, <code>art/PROMPT_PACK_INTERIORS.md</code>, <code>art/PROMPT_PACK_CHARACTERS.md</code>, <code>art/PROMPT_PACK_TOWN.md</code>). "
+           "Golden Hour's pictures come first: the fight sheets make Beat Brawl look like a fight, then the alley, the court and the "
+           "Underpass for nights out. Then the rooms, so characters can walk around and sit down, a model sheet for each "
+           "townsperson, who has none yet, and each person's walking and sitting sprite sheet: attach their model sheet when you "
+           "paste the prompt. Then the outfit sprite sheets: everyone has three looks (everyday, work, going out) and their art "
+           "shows one; each prompt is the same sheet in another look, made with their sheet attached so only the clothes "
+           "change. Tap Copy, paste into the image generator, save under the name at the end, "
+           "send it over, tick done.</p>",
+           '<div class="bar"><strong id="progress">0 done</strong><label><input type="checkbox" id="hide-done"> hide done</label></div>',
+           "<nav>" + " ".join(f'<a href="#{h(k)}">{h(label)} ({len(groups[k])})</a>' for k, label, _ in GROUPS) + "</nav>"]
+    for key, label, pack in GROUPS:
+        items = groups[key]
+        out.append(f'<h2 id="{h(key)}">{h(label)} · {len(items)}</h2>')
+        if not items:
+            out.append('<p class="lead">Nothing left here.</p>')
+            continue
+        out.append(f'<p class="lead">The style sheet and facts behind these are in <code>{h(pack)}</code>; every prompt already carries them.</p>')
+        sub = None
+        for p in items:
+            heading = p.get("group_label") or p["district"]
+            if heading and heading != sub:
+                sub = heading
+                out.append(f"<h3>{h(sub)}</h3>")
+            out.append(f'<article class="card" data-id="{h(p["save_as"])}">')
+            out.append(f"<h4>{h(p['title'])}</h4>")
+            meta = f'Save as <code>{h(p["save_as"])}</code> · {h(p["size"])}'
+            if p.get("sign"):
+                meta += f" · sign: {h(p['sign'])}"
+            out.append(f'<p class="meta">{meta}</p>')
+            out.append(f'<pre class="prompt">{h(p["prompt"])}</pre>')
+            out.append('<div class="row"><button type="button" class="copy">Copy</button>'
+                       '<label><input type="checkbox" class="done-box"> done</label></div>')
+            out.append("<details><summary>Facts from the data</summary><dl>"
+                       + "".join(f"<dt>{h(k)}</dt><dd>{h(v)}</dd>" for k, v in p["facts"]) + "</dl></details>")
+            out.append("</article>")
+    out += ["<footer>No external resources. The done ticks live in this browser's localStorage only. "
+            "When a picture gets a fact wrong, say so in art/manifest.json under notes.</footer>",
+            "</div>", f"<script>{js}</script>", "</body>", "</html>", ""]
+    return "\n".join(out), total
+
+
+def main(argv):
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--check", action="store_true", help="exit 1 if the page is stale; write nothing")
+    args = ap.parse_args(argv)
+    page, total = render(needed())
+    if args.check:
+        if not HTML_PATH.exists() or HTML_PATH.read_text(encoding="utf-8") != page:
+            print(f"art_needed: {HTML_PATH.relative_to(ROOT)} is stale; run python3 {SELF}", file=sys.stderr)
+            return 1
+        print(f"art_needed: ok, {total} pictures still needed")
+        return 0
+    HTML_PATH.write_text(page, encoding="utf-8")
+    print(f"art_needed: wrote {HTML_PATH.relative_to(ROOT)} ({total} pictures still needed)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

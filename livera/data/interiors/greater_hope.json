@@ -1,0 +1,186 @@
+{
+  "interior": {
+    "id": "greater_hope",
+    "places": ["greater_hope"],
+    "size": [1536, 1024],
+    "person_px": 125,
+    "floor": [
+      [
+        [90, 590],
+        [610, 335],
+        [690, 375],
+        [905, 500],
+        [975, 540],
+        [1100, 555],
+        [1190, 520],
+        [1350, 525],
+        [1360, 470],
+        [1500, 510],
+        [1500, 540],
+        [1300, 690],
+        [960, 860],
+        [910, 840],
+        [650, 880],
+        [600, 860],
+        [455, 775],
+        [410, 800],
+        [270, 740],
+        [245, 640]
+      ],
+      [[960, 470], [1040, 420], [1160, 470], [1120, 530], [1000, 535]],
+      [[700, 380], [780, 340], [930, 420], [900, 460], [860, 470]]
+    ],
+    "blocked": [
+      {"label": "offering table", "poly": [[1090, 595], [1150, 565], [1220, 600], [1160, 630]], "height": 70},
+      {"label": "side table", "poly": [[140, 565], [200, 535], [245, 560], [185, 590]], "height": 70},
+      {"label": "plant", "poly": [[1300, 600], [1322, 588], [1345, 600], [1322, 612]], "height": 110},
+      {"label": "pew", "poly": [[205, 613], [440.0, 728.15], [448.0, 722.15], [213, 607]], "height": 48},
+      {"label": "pew", "poly": [[265, 578], [500.0, 693.15], [508.0, 687.15], [273, 572]], "height": 48},
+      {"label": "pew", "poly": [[325, 543], [560.0, 658.15], [568.0, 652.15], [333, 537]], "height": 48},
+      {"label": "pew", "poly": [[385, 508], [620.0, 623.15], [628.0, 617.15], [393, 502]], "height": 48},
+      {"label": "pew", "poly": [[445, 473], [680.0, 588.15], [688.0, 582.15], [453, 467]], "height": 48},
+      {"label": "pew", "poly": [[505, 438], [740.0, 553.15], [748.0, 547.15], [513, 432]], "height": 48},
+      {"label": "pew", "poly": [[596, 745], [811.0, 850.35], [819.0, 844.35], [604, 739]], "height": 48},
+      {"label": "pew", "poly": [[653, 709], [868.0, 814.35], [876.0, 808.35], [661, 703]], "height": 48},
+      {"label": "pew", "poly": [[710, 673], [925.0, 778.35], [933.0, 772.35], [718, 667]], "height": 48},
+      {"label": "pew", "poly": [[767, 637], [982.0, 742.35], [990.0, 736.35], [775, 631]], "height": 48},
+      {"label": "pew", "poly": [[824, 601], [1039.0, 706.35], [1047.0, 700.35], [832, 595]], "height": 48},
+      {"label": "pew", "poly": [[881, 565], [1096.0, 670.35], [1104.0, 664.35], [889, 559]], "height": 48},
+      {"label": "pew", "poly": [[938, 529], [1153.0, 634.35], [1161.0, 628.35], [946, 523]], "height": 48}
+    ],
+    "entrance": {"at": [480, 760], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [345, 765], "facing": "w", "label": "Front doors"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1450, 515],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "offering",
+        "kind": "counter",
+        "at": [1095, 645],
+        "facing": "e",
+        "label": "Offering bowl",
+        "offers": true
+      },
+      {"id": "stage", "kind": "stage", "at": [1060, 470], "facing": "w", "label": "Stage"},
+      {"id": "pulpit", "kind": "station", "at": [820, 405], "facing": "w", "label": "Pulpit", "staff": true},
+      {
+        "id": "pew_l1_a",
+        "kind": "seat",
+        "at": [300, 634],
+        "facing": "e",
+        "label": "Pew",
+        "activity": "service"
+      },
+      {
+        "id": "pew_l1_b",
+        "kind": "seat",
+        "at": [394, 680],
+        "facing": "e",
+        "label": "Pew",
+        "activity": "service"
+      },
+      {
+        "id": "pew_l3_a",
+        "kind": "seat",
+        "at": [420, 564],
+        "facing": "e",
+        "label": "Pew",
+        "activity": "service"
+      },
+      {
+        "id": "pew_l3_b",
+        "kind": "seat",
+        "at": [514, 610],
+        "facing": "e",
+        "label": "Pew",
+        "activity": "service"
+      },
+      {
+        "id": "pew_l5_a",
+        "kind": "seat",
+        "at": [540, 494],
+        "facing": "e",
+        "label": "Pew",
+        "activity": "service"
+      },
+      {
+        "id": "pew_l5_b",
+        "kind": "seat",
+        "at": [634, 540],
+        "facing": "e",
+        "label": "Pew",
+        "activity": "service"
+      },
+      {
+        "id": "pew_r1_a",
+        "kind": "seat",
+        "at": [684, 763],
+        "facing": "e",
+        "label": "Pew",
+        "activity": "service"
+      },
+      {
+        "id": "pew_r1_b",
+        "kind": "seat",
+        "at": [770, 805],
+        "facing": "e",
+        "label": "Pew",
+        "activity": "service"
+      },
+      {
+        "id": "pew_r3_a",
+        "kind": "seat",
+        "at": [798, 691],
+        "facing": "e",
+        "label": "Pew",
+        "activity": "service"
+      },
+      {
+        "id": "pew_r3_b",
+        "kind": "seat",
+        "at": [884, 733],
+        "facing": "e",
+        "label": "Pew",
+        "activity": "service"
+      },
+      {
+        "id": "pew_r5_a",
+        "kind": "seat",
+        "at": [912, 619],
+        "facing": "e",
+        "label": "Pew",
+        "activity": "service"
+      },
+      {
+        "id": "pew_r5_b",
+        "kind": "seat",
+        "at": [998, 661],
+        "facing": "e",
+        "label": "Pew",
+        "activity": "service"
+      },
+      {
+        "id": "pew_r7_a",
+        "kind": "seat",
+        "at": [1026, 547],
+        "facing": "e",
+        "label": "Pew",
+        "activity": "service"
+      },
+      {
+        "id": "pew_r7_b",
+        "kind": "seat",
+        "at": [1112, 589],
+        "facing": "e",
+        "label": "Pew",
+        "activity": "service"
+      }
+    ]
+  }
+}

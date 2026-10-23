@@ -1,0 +1,94 @@
+{
+  "interior": {
+    "id": "thread_co",
+    "places": ["thread_co"],
+    "size": [1099, 724],
+    "person_px": 90,
+    "floor": [
+      [
+        [130, 422],
+        [150, 433],
+        [186, 450],
+        [198, 532],
+        [296, 588],
+        [300, 492],
+        [352, 512],
+        [478, 598],
+        [500, 590],
+        [533, 606],
+        [536, 668],
+        [577, 650],
+        [620, 672],
+        [1048, 410],
+        [1050, 370],
+        [900, 309],
+        [802, 268],
+        [765, 252],
+        [716, 272],
+        [708, 288],
+        [648, 262],
+        [640, 251],
+        [612, 240],
+        [606, 247],
+        [508, 206],
+        [180, 393]
+      ]
+    ],
+    "blocked": [
+      {"label": "shelving", "poly": [[125, 417], [182, 388], [188, 398], [132, 428]], "height": 150},
+      {"label": "plant", "poly": [[192, 398], [212, 388], [232, 398], [212, 408]], "height": 100},
+      {"label": "clothes rack", "poly": [[255, 350], [340, 308], [363, 321], [277, 365]], "height": 78},
+      {"label": "plant", "poly": [[355, 285], [366, 279], [378, 285], [366, 291]], "height": 70},
+      {"label": "clothes rack", "poly": [[381, 292], [466, 246], [492, 262], [406, 309]], "height": 90},
+      {"label": "tree", "poly": [[502, 215], [520, 206], [538, 215], [520, 224]], "height": 120},
+      {"label": "clothes rack", "poly": [[530, 305], [548, 296], [655, 346], [637, 357]], "height": 75},
+      {"label": "plant", "poly": [[514, 322], [530, 314], [546, 322], [530, 330]], "height": 80},
+      {"label": "folding table", "poly": [[423, 375], [478, 348], [590, 405], [535, 432]], "height": 52},
+      {"label": "clothes rack", "poly": [[318, 410], [345, 398], [425, 440], [398, 452]], "height": 80},
+      {"label": "clothes rack", "poly": [[205, 448], [228, 437], [312, 470], [290, 481]], "height": 82},
+      {"label": "plant", "poly": [[478, 488], [497, 478], [518, 488], [497, 498]], "height": 90},
+      {"label": "sale bin", "poly": [[347, 512], [394, 480], [520, 550], [473, 582]], "height": 42},
+      {"label": "umbrella stands", "poly": [[486, 584], [508, 574], [532, 584], [510, 594]], "height": 65},
+      {"label": "accessories table", "poly": [[527, 510], [592, 472], [678, 518], [613, 556]], "height": 45},
+      {"label": "clothes rack", "poly": [[645, 447], [701, 415], [785, 462], [728, 492]], "height": 80},
+      {"label": "bench", "poly": [[724, 328], [750, 313], [823, 347], [797, 363]], "height": 22},
+      {"label": "clothes rack", "poly": [[792, 530], [883, 481], [905, 494], [818, 545]], "height": 82},
+      {"label": "clothes rack", "poly": [[600, 645], [703, 590], [728, 603], [625, 661]], "height": 80},
+      {"label": "checkout counter", "poly": [[859, 385], [896, 360], [1015, 410], [978, 435]], "height": 50},
+      {"label": "plant", "poly": [[887, 305], [900, 299], [913, 305], [900, 311]], "height": 90},
+      {"label": "shelving", "poly": [[915, 313], [1008, 351], [1000, 360], [906, 321]], "height": 175}
+    ],
+    "entrance": {"at": [335, 478], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [250, 552], "facing": "w", "label": "Front door"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1035, 373],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "checkout",
+        "kind": "counter",
+        "at": [880, 410],
+        "facing": "e",
+        "label": "Checkout",
+        "offers": true
+      },
+      {
+        "id": "register",
+        "kind": "station",
+        "at": [912, 346],
+        "facing": "w",
+        "label": "Behind the register",
+        "staff": true
+      },
+      {"id": "bench_1", "kind": "seat", "at": [752, 335], "facing": "w", "label": "Bench"},
+      {"id": "bench_2", "kind": "seat", "at": [781, 349], "facing": "w", "label": "Bench"},
+      {"id": "pouf_1", "kind": "stool", "at": [745, 270], "facing": "w", "label": "Fitting pouf"},
+      {"id": "pouf_2", "kind": "stool", "at": [625, 254], "facing": "w", "label": "Fitting pouf"}
+    ]
+  }
+}

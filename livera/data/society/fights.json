@@ -1,0 +1,76 @@
+{
+  "$comment": "Fist fights, no weapons (D-070, core/Fights.cpp). Someone within range_m starts one; the person attacked has window_minutes (game minutes) to fight back, run or take it, else they froze and took it. Scores are the World's own stats: base + skill x athletics + energy and health shares - per_injury for each injury already carried, plus noise from the saved random stream. A blow that lands is the crime `crime` for whoever started it (self-defence never is). Walking away (a person's choice in the You card, and what an autopilot founder does unless its trait says it fights back) means no blow lands. One fight per pair a game day, a cooldown for whoever starts one, and protection for whoever was attacked.",
+  "fights": {
+    "crime": "assault",
+    "range_m": 3,
+    "window_minutes": 15,
+    "attacker_cooldown_minutes": 120,
+    "protected_minutes": 480,
+    "no_fight_place_types": ["hospital", "clinic", "school", "daycare", "civic", "church", "courthouse"],
+    "autopilot": {"at_work": false, "fight_back_trait": "competitiveness", "fight_back_at": 70},
+    "score": {
+      "base": 40,
+      "skills": {"athletics": 0.35},
+      "needs": {"energy": 0.15, "health": 0.15},
+      "per_injury": 8,
+      "noise": 20
+    },
+    "run": {"base": 0.55, "per_point": 0.006, "min": 0.15, "max": 0.9, "distance_m": 30},
+    "injuries": [
+      {"condition": "bruises", "margin": 0},
+      {"condition": "black_eye", "margin": 12},
+      {"condition": "cracked_rib", "margin": 28}
+    ],
+    "winner": {
+      "needs": {"energy": -10, "health": -3, "comfort": -4},
+      "emotions": {"excitement": 15, "anger": 10, "stress": 8, "confidence": 6},
+      "injury_chance": 0.35,
+      "injury": "bruises"
+    },
+    "loser": {
+      "needs": {"energy": -14, "health": -8, "comfort": -12},
+      "emotions": {"embarrassment": 20, "anger": 12, "sadness": 10, "stress": 15, "confidence": -8}
+    },
+    "took_it": {
+      "needs": {"health": -6, "comfort": -10},
+      "emotions": {"embarrassment": 15, "sadness": 12, "stress": 15, "anger": 8},
+      "injury": "bruises"
+    },
+    "attacker_hit": {"needs": {"energy": -6}, "emotions": {"excitement": 8, "stress": 5}},
+    "ran": {"needs": {"energy": -8}, "emotions": {"stress": 12, "excitement": 6}},
+    "walked_away": {"emotions": {"stress": 6}},
+    "attacker_walked_away": {"emotions": {"embarrassment": 6, "anger": 6}},
+    "victim_relationship": {"trust": -35, "friendship": -25, "resentment": 35, "conflict": 30, "respect": -10},
+    "attacker_relationship": {"conflict": 20, "resentment": 10},
+    "witness_relationship": {"trust": -12, "respect": -8},
+    "report_chance": 0.7,
+    "witness_report_chance": 0.4,
+    "importance": 55,
+    "impact": -40,
+    "witness_importance": 35,
+    "witness_impact": -15,
+    "brawl": {
+      "$comment": "Beat Brawl (D-077): fighting back, with a person in the fight, is played beat by beat in real seconds. Each beat one fighter throws (hook, jab, shove) and the other answers (duck, block, jab) before the beat ends; the tell shows tell_at into the beat (at once if you know how they fight) and feints with feint_chance. Hook: duck slips it (they're open next beat: jab to counter), block takes a chip, jab trades. Jab: a perfect duck slips it, else it lands; a perfect block parries (open), else it's blocked; jab clashes. Shove: duck gets you grabbed, block pushed, jab stuffs it. No answer takes the blow. Perfect = answered after perfect_from of the time left; your blows then land perfect_multiplier harder. Every blow is scaled by the edge: the thrower's score over the receiver's (score above), clamped. A founder a script plays throws every beat in its traits' style; between two people the throws alternate. Composure 0 is a knockout; otherwise three rounds and the higher composure wins, the difference x margin_per_composure being the margin `injuries` reads.",
+      "lead_in_seconds": 1.5,
+      "rounds": [{"beats": 7, "seconds": 1.3}, {"beats": 8, "seconds": 1.1}, {"beats": 8, "seconds": 0.9}],
+      "tell_at": 0.25,
+      "perfect_from": 0.6,
+      "perfect_multiplier": 1.5,
+      "feint_chance": 0.2,
+      "known_feint_chance": 0.05,
+      "known_familiarity": 60,
+      "composure": 100,
+      "edge_min": 0.6,
+      "edge_max": 1.6,
+      "damage": {"hook": 16, "jab": 9, "shove": 7, "chip": 4, "pushed": 3, "counter": 20, "stuffed": 11},
+      "trade": 0.7,
+      "moves": {
+        "hook": {"base": 1.0, "traits": {"impulsiveness": 0.012, "competitiveness": 0.006}},
+        "jab": {"base": 1.0, "traits": {"patience": 0.012, "confidence": 0.006}},
+        "shove": {"base": 0.8, "traits": {"risk_tolerance": 0.01}}
+      },
+      "margin_per_composure": 0.5,
+      "max_game_minutes": 180
+    }
+  }
+}

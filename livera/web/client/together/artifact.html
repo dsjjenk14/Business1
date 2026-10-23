@@ -1,0 +1,79 @@
+<title>Livéra Together</title>
+<!-- "Play together" as published to a Claude artifact. The artifact wraps this file in its own
+     <html>/<head>/<body>, so it has no document skeleton, and it sits at the root of the published
+     files: css/, faces/, the client modules, solo/livera_solo.js and together/ are published beside it
+     at the same relative paths as in web/client (see livera/web/README.md, "Play together"). The
+     platform provides window.claude (room, db, user); fake_platform.js is not published. Same markup as
+     together/index.html. -->
+<meta name="description" content="LIVÉRA, play together: one person's browser hosts the town and up to 16 people play in it. 2.5D web preview.">
+<link rel="stylesheet" href="css/app.css">
+<script>
+  // Before the modules run: boot Play together, not the live game (main.js checks this).
+  document.body.dataset.boot = "together";
+  window.LIVERA_IN_ARTIFACT = true;
+</script>
+<script type="module" src="together/together.js"></script>
+<div id="app">
+  <canvas id="town" aria-label="The town of Livéra, seen from above. Tap the ground to walk, a building to go there, a person to see them, a bus stop to ride. The Places button lists every place."></canvas>
+  <h1 class="sr-only" id="game-title">Livéra</h1>
+
+  <div id="hud" hidden>
+    <div class="topbar">
+      <button type="button" class="chip" id="clock" aria-label="Time and weather"><span class="big" id="clock-time">--:--</span><span class="small" id="clock-sub"></span></button>
+      <button type="button" class="chip" id="needs-meter" aria-label="Your needs"></button>
+      <button type="button" class="chip" id="money" aria-label="Money: open the bank app"><span class="big" id="money-bank">$—</span><span class="small" id="money-cash"></span></button>
+      <button type="button" class="iconbtn" id="menu-btn" aria-label="Menu" aria-haspopup="dialog"></button>
+    </div>
+    <div class="needs" id="needs" role="group" aria-label="Needs running low"></div>
+    <div class="faces" id="faces" role="group" aria-label="People in sight" hidden></div>
+    <div id="conn" role="status" hidden></div>
+  </div>
+
+  <div id="mapctl" hidden>
+    <button type="button" class="iconbtn" id="z-in" aria-label="Zoom in"></button>
+    <button type="button" class="iconbtn" id="z-out" aria-label="Zoom out"></button>
+    <button type="button" class="iconbtn" id="z-fit" aria-label="See the whole town"></button>
+    <button type="button" class="iconbtn on" id="z-me" aria-label="Follow me" aria-pressed="true"></button>
+  </div>
+
+  <div id="feed"></div>
+  <div id="doing" hidden></div>
+  <div id="banner" hidden></div>
+
+  <section id="sheet" hidden role="dialog" aria-modal="false"></section>
+
+  <div id="dock" hidden>
+    <div id="next" role="region" aria-label="Next" hidden></div>
+    <form id="chatbar" hidden autocomplete="off" aria-label="Talk">
+      <div class="row">
+        <div class="seg" role="group" aria-label="How loud">
+          <button type="button" data-volume="whisper" aria-pressed="false">Whisper</button>
+          <button type="button" data-volume="say" aria-pressed="true">Say</button>
+          <button type="button" data-volume="shout" aria-pressed="false">Shout</button>
+        </div>
+        <span class="range-note" id="range-note"></span>
+        <button type="button" class="iconbtn" id="log-btn" aria-label="Log: what you heard and what happened"></button>
+      </div>
+      <div class="targets" id="whisper-targets" hidden></div>
+      <div class="row">
+        <input type="text" id="chat-input" class="input" maxlength="300" placeholder="Say something" aria-label="Message" enterkeyhint="send">
+        <button type="submit" class="btn primary" id="chat-send">Send</button>
+      </div>
+    </form>
+    <div class="attrib" id="attrib">
+      <button type="button" class="attrib-btn" id="attrib-btn" aria-expanded="false" aria-controls="attrib-pop"><span class="attrib-short" id="attrib-short" aria-hidden="true">2.5D preview · sketched streets and buildings</span><span class="attrib-full"><span class="sketch-note" id="sketch-note"></span><span class="sketch-note" id="together-note"></span></span><span class="attrib-i" aria-hidden="true"></span></button>
+    </div>
+    <nav id="bar" aria-label="Game">
+      <button type="button" class="tab" id="places-btn"><span class="tab-icon"></span><span class="tab-label">Places</span></button>
+      <button type="button" class="tab" id="talk-btn" aria-expanded="false" aria-controls="chatbar"><span class="tab-icon"></span><span class="tab-label">Talk</span><span class="count" id="talk-count" hidden></span></button>
+      <button type="button" class="tab ctx" id="ctx-btn"><span class="ctx-disc"><span class="tab-icon"></span><span class="tab-label">Today</span></span></button>
+      <button type="button" class="tab" id="phone-btn" aria-label="Phone"><span class="tab-icon"></span><span class="tab-label">Phone</span><span class="count" id="phone-count" hidden></span></button>
+      <button type="button" class="tab" id="you-btn" aria-label="You: needs, feelings and today"><span class="tab-icon you-face" id="you-face"></span><span class="tab-label">You</span></button>
+    </nav>
+  </div>
+  <div class="attrib-pop" id="attrib-pop" role="dialog" aria-label="About this page" hidden></div>
+  <div id="announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <div id="phone" hidden></div>
+  <div id="screen" class="screen"><div class="screen-inner"><div class="wordmark"><span class="wordmark-text">Livéra</span></div><h1>Livéra</h1><p class="hint" role="status">Connecting to the room…</p></div></div>
+</div>

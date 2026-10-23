@@ -1,0 +1,632 @@
+{
+ "baptiste_events": {
+  "offset": [
+   5,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1530,
+   1014
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "body_balance": {
+  "offset": [
+   4,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1532,
+   1018
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "circuit_electronics": {
+  "offset": [
+   16,
+   4
+  ],
+  "scale": 1.0,
+  "size": [
+   1511,
+   1006
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "common_ground": {
+  "offset": [
+   10,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1526,
+   1015
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "copper_tap": {
+  "offset": [
+   4,
+   2
+  ],
+  "scale": 1.0,
+  "size": [
+   1531,
+   1001
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "eclat": {
+  "offset": [
+   0,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1274,
+   724
+  ],
+  "source": [
+   1282,
+   724
+  ]
+ },
+ "ellis_atelier": {
+  "offset": [
+   8,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   933,
+   576
+  ],
+  "source": [
+   948,
+   584
+  ]
+ },
+ "fade_glow": {
+  "offset": [
+   11,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1515,
+   1022
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "forge_site_office": {
+  "offset": [
+   8,
+   8
+  ],
+  "scale": 1.0,
+  "size": [
+   909,
+   693
+  ],
+  "source": [
+   917,
+   701
+  ]
+ },
+ "founders_animal_hospital": {
+  "offset": [
+   34,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1502,
+   1024
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "founders_row_3": {
+  "offset": [
+   0,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1529,
+   976
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "founders_school": {
+  "offset": [
+   8,
+   8
+  ],
+  "scale": 1.0,
+  "size": [
+   1308,
+   722
+  ],
+  "source": [
+   1324,
+   734
+  ]
+ },
+ "greater_hope": {
+  "offset": [
+   25,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1511,
+   1002
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "greenleaf_market": {
+  "offset": [
+   3,
+   5
+  ],
+  "scale": 1.0,
+  "size": [
+   1533,
+   1012
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "hale_partners": {
+  "offset": [
+   8,
+   3
+  ],
+  "scale": 1.0,
+  "size": [
+   1140,
+   606
+  ],
+  "source": [
+   1156,
+   617
+  ]
+ },
+ "heritage_coffee": {
+  "offset": [
+   4,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1531,
+   1016
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "james_wellness": {
+  "offset": [
+   8,
+   8
+  ],
+  "scale": 1.0,
+  "size": [
+   710,
+   498
+  ],
+  "source": [
+   726,
+   514
+  ]
+ },
+ "lakeview_1a_2b_3a_4c": {
+  "offset": [
+   4,
+   7
+  ],
+  "scale": 1.0,
+  "size": [
+   1524,
+   1017
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "lexington_0602": {
+  "offset": [
+   16,
+   6
+  ],
+  "scale": 1.0,
+  "size": [
+   1516,
+   1012
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "lexington_0807_1502": {
+  "offset": [
+   8,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1068,
+   724
+  ],
+  "source": [
+   1084,
+   724
+  ]
+ },
+ "lexington_0904": {
+  "offset": [
+   8,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1066,
+   724
+  ],
+  "source": [
+   1082,
+   724
+  ]
+ },
+ "lexington_1204": {
+  "offset": [
+   1,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1535,
+   1024
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "lexington_ph1": {
+  "offset": [
+   0,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1535,
+   1022
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "little_sprouts": {
+  "offset": [
+   3,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1533,
+   1023
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "livera_general": {
+  "offset": [
+   0,
+   13
+  ],
+  "scale": 1.0,
+  "size": [
+   1536,
+   972
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "livera_ledger": {
+  "offset": [
+   14,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1513,
+   1018
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "livera_university": {
+  "offset": [
+   11,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1523,
+   1006
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "low_end_studios": {
+  "offset": [
+   7,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1528,
+   1004
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "lumen_creative": {
+  "offset": [
+   6,
+   8
+  ],
+  "scale": 1.0,
+  "size": [
+   1527,
+   955
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "lumiere_bistro": {
+  "offset": [
+   3,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1533,
+   1024
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "lustre_jewelers": {
+  "offset": [
+   13,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1523,
+   1012
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "meridian_talent": {
+  "offset": [
+   2,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1534,
+   1024
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "parallax_labs": {
+  "offset": [
+   3,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1533,
+   1012
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "paws_whiskers": {
+  "offset": [
+   8,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1523,
+   1022
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "police_station": {
+  "offset": [
+   12,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1517,
+   1015
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "riverdale_clinic": {
+  "offset": [
+   3,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1533,
+   1024
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "riverdale_pharmacy": {
+  "offset": [
+   9,
+   3
+  ],
+  "scale": 1.0,
+  "size": [
+   1521,
+   1005
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "riverside_clubhouse": {
+  "offset": [
+   8,
+   4
+  ],
+  "scale": 1.0,
+  "size": [
+   1063,
+   717
+  ],
+  "source": [
+   1079,
+   724
+  ]
+ },
+ "starlight_cinema": {
+  "offset": [
+   6,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1528,
+   1013
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "suds_spin": {
+  "offset": [
+   15,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1519,
+   1017
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ },
+ "thread_co": {
+  "offset": [
+   8,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1083,
+   724
+  ],
+  "source": [
+   1099,
+   724
+  ]
+ },
+ "whitaker_capital": {
+  "offset": [
+   5,
+   0
+  ],
+  "scale": 1.0,
+  "size": [
+   1531,
+   1015
+  ],
+  "source": [
+   1536,
+   1024
+  ]
+ }
+}

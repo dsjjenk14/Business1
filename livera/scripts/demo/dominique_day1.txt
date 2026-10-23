@@ -1,0 +1,32 @@
+# Dominique's first morning in Livéra. Run by scripts/demo_slice.sh.
+register dom livera-demo-1
+login dom livera-demo-1
+characters
+play dominique
+phone bank
+do shower
+exit
+walk heritage_coffee
+enter heritage_coffee
+buy latte card
+# Dax and Nico are still walking over from Maple Court (about 20 s at D-075's pace); Nico plays the open mic.
+wait 24
+look
+say Welcome to Livéra, Nico! That was beautiful.
+tip nico-vale 5
+talk dax deep_talk
+msg dax Good seeing you. Let's get lunch when the gym opens.
+exit
+walk meridian_talent
+enter meridian_talent
+work start
+# Eight hours at the desk (dev server time skip).
+skip 480
+work end
+phone career
+exit
+walk lexington_1204
+enter lexington_1204
+phone bank
+phone city
+quit

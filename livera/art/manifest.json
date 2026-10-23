@@ -1,0 +1,1237 @@
+{
+  "$comment": "Art for things that live in a save rather than in data/: residents made in the character creator (by character id) and named pets (by owner id and name), plus pictures of places, the bus, the city and concept posters. Paths are relative to the livera folder. tests/test_cast.cpp checks that every path exists, that no resident here is a character in data/characters (their art is linked from there, the four residents' too since D-073), that each pet key is owner:name with a real species, and that place and stop ids are the game's. Facts on the cards were checked against the game's data; anything the card gets wrong is listed under notes so nobody mistakes it for the game's state.",
+  "residents": {
+    "$comment": "Characters made in the creator whose art exists, by character id (sheet, avatar, card_title, notes). Empty since D-073: Kai Morgan, Rosa Delgado, Sol Rivera and Theo Grant, the four whose sheets were drawn from the town-preview recording, are data characters now and link their art from data/characters (profile.appearance.visual_reference, avatar, art_notes)."
+  },
+  "pets": {
+    "aaliyah:Bramble": {
+      "owner": "aaliyah",
+      "species": "rabbit",
+      "breed": "Dutch",
+      "sheet": "art/pets/named/aaliyah_bramble.jpg",
+      "face": "art/pets/named/aaliyah_bramble_face.jpg",
+      "notes": [
+        "Card says adult, 3 years; the game had Bramble at about 2 years 3 months when adopted on Day 22.",
+        "The card's sex, weight, coat and eye colour are the artist's choices: the game records none of them for pets. Keep them fixed from now on."
+      ]
+    },
+    "rosa-delgado:Rocky": {
+      "owner": "rosa-delgado",
+      "species": "dog",
+      "breed": "Beagle",
+      "sheet": "art/pets/named/rosa-delgado_rocky.jpg",
+      "face": "art/pets/named/rosa-delgado_rocky_face.jpg",
+      "notes": [
+        "Card says adult, 5 years; the game had Rocky at 6 years 11 months when adopted on Day 28, so he becomes a senior a month later.",
+        "The card's sex, weight, coat and eye colour are the artist's choices: the game records none of them for pets. Keep them fixed from now on."
+      ]
+    },
+    "harper:Pepper": {
+      "owner": "harper",
+      "species": "dog",
+      "breed": "Terrier mix",
+      "sheet": "art/pets/named/harper_pepper.jpg",
+      "face": "art/pets/named/harper_pepper_face.jpg",
+      "notes": [
+        "Card home is 3 Founders Row; Harper and Pepper move to 8 Willow Lane on Day 32 of the recording.",
+        "The PUPPY and SENIOR panels are the artist's guesses; the game has only ever had Pepper as an adult."
+      ]
+    },
+    "leila:Shadow": {
+      "owner": "leila",
+      "species": "cat",
+      "breed": "Maine Coon mix",
+      "portrait": "art/pets/named/leila_shadow.jpg",
+      "face": "art/pets/named/leila_shadow_face.jpg",
+      "notes": [
+        "A single portrait, not a model sheet: there is no card and no turnaround, so nothing to check beyond the species. Leila adopted Shadow on Day 9 of the recording at 4 years 9 months; he lives at 7 Founders Row.",
+        "The desk, papers and skyline are the artist's; the long brown tabby coat and green eyes are the artist's choices too, since the game records none of them. Keep them fixed from now on."
+      ]
+    }
+  },
+  "places": {
+    "body_balance": {
+      "sprite": "art/places/body_balance.webp",
+      "photo": "art/places/body_balance.jpg",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The finished gym, drawn when the project 'Body & Balance gym' completes. The rooftop lounge is the picture's own (the prompt asked for a rooftop planter); weights, bikes and treadmills match the data's free weights and spin room.",
+        "body_balance.jpg, the earlier photograph the prompt was drawn from, is kept as `photo`."
+      ]
+    },
+    "baptiste_events": {
+      "sprite": "art/places/baptiste_events.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md."
+      ]
+    },
+    "ellis_atelier": {
+      "sprite": "art/places/ellis_atelier.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Several rails of black pieces where the data says one rail; harmless."
+      ]
+    },
+    "fire_station": {
+      "sprite": "art/places/fire_station.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "It looks like a working fire station with lit windows; in the game Station 1 is a placeholder landmark that nobody can enter, and the client says so. The crest and banners are invented, as the prompt asked."
+      ]
+    },
+    "founders_school": {
+      "sprite": "art/places/founders_school.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The arched hall at the east end reads as the gym that doubles as the auditorium, as the data says; the flag's sprig emblem is the picture's own."
+      ]
+    },
+    "greenleaf_market": {
+      "sprite": "art/places/greenleaf_market.webp",
+      "alternate": "art/places/greenleaf_market_alt.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The shelves look fully stocked; the game says the store is still half-stocked while the distribution road is paved. The alternate shows empty shelves (closer to the data) but has dark planters and less of the town's gold."
+      ]
+    },
+    "hale_partners": {
+      "sprite": "art/places/hale_partners.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md."
+      ]
+    },
+    "heritage_coffee": {
+      "sprite": "art/places/heritage_coffee.webp",
+      "alternate": "art/places/heritage_coffee_alt.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The alternate (brick corner with black planters) is also faithful; this one matches the rest of the set's gold and emerald."
+      ]
+    },
+    "james_wellness": {
+      "sprite": "art/places/james_wellness.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md."
+      ]
+    },
+    "little_sprouts": {
+      "sprite": "art/places/little_sprouts.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The play yard, slide and rainbow decals are the picture's; the data says only that it is a bright daycare for babies and toddlers."
+      ]
+    },
+    "livera_ledger": {
+      "sprite": "art/places/livera_ledger.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md."
+      ]
+    },
+    "lumen_creative": {
+      "sprite": "art/places/lumen_creative.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md."
+      ]
+    },
+    "lustre_jewelers": {
+      "sprite": "art/places/lustre_jewelers.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md."
+      ]
+    },
+    "parallax_labs": {
+      "sprite": "art/places/parallax_labs.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The rooftop lounge and terrace are the picture's own; the data describes only the office floor (standing desks, a whiteboard wall)."
+      ]
+    },
+    "police_station": {
+      "sprite": "art/places/police_station.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The crest and flags are invented, as the prompt asked: no real department's marks."
+      ]
+    },
+    "fade_glow": {
+      "sprite": "art/places/fade_glow.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Three barber chairs, the nail station and a gold-and-black striped pole match the data; the hair-wash basins are the picture's own."
+      ]
+    },
+    "circuit_electronics": {
+      "sprite": "art/places/circuit_electronics.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Demo laptops on white tables and the wall of headphones match the data. The second floor is the picture's own; the data says nothing about storeys. The devices carry no brand."
+      ]
+    },
+    "the_underpass": {
+      "sprite": "art/places/the_underpass.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Drawn as asked: an empty corner under the overpass, no people and nothing for sale. The overpass looks finished and the corner tidy (planters, lamps, bollards); the data calls it half-built, and the trade after dark is the game's, never the picture's."
+      ]
+    },
+    "founders_animal_hospital": {
+      "sprite": "art/places/founders_animal_hospital.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The paw-and-cross mark and the ANIMAL HOSPITAL sign are as asked; the brick side panels and the exam room seen through the window are the picture's own."
+      ]
+    },
+    "riverdale_pharmacy": {
+      "sprite": "art/places/riverdale_pharmacy.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The aisles and the counter at the back match the data. The green cross is the picture's own colour (pharmacies use one; the palette asked for gold), and the light is warm rather than the data's fluorescent."
+      ]
+    },
+    "common_ground": {
+      "sprite": "art/places/common_ground.webp",
+      "alternate": "art/places/common_ground_alt.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The first version (no sign on the front) is kept as the alternate. The posters on the noticeboard are illegible decoration, not real notices; the benches and the bookshelves inside are the picture's own."
+      ]
+    },
+    "suds_spin": {
+      "sprite": "art/places/suds_spin.webp",
+      "alternate": "art/places/suds_spin_alt.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The first version is kept as the alternate. Washers, stacked dryers and one bench, as asked; the number of machines is not the data's twelve washers and eight dryers."
+      ]
+    },
+    "starlight_cinema": {
+      "sprite": "art/places/starlight_cinema.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The bulb marquee and the red-velvet lobby and seats are as asked. The poster of a skyline under a crescent moon is a film poster, not the town (art/STYLE.md: no towers that don't exist)."
+      ]
+    },
+    "copper_tap": {
+      "sprite": "art/places/copper_tap.webp",
+      "alternate": "art/places/copper_tap_alt.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The first version is kept as the alternate. The long copper bar, the dartboard and the corner stage with a guitar match the data; the railed terraces with tables are the picture's own."
+      ]
+    },
+    "eclat": {
+      "sprite": "art/places/eclat.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The finished nightclub (it opens when its project completes): the velvet rope and the riverside terrace are as asked. The lounge seating on the terrace and the bollards on the quay are the picture's own; the sound system is not shown."
+      ]
+    },
+    "willow_lake_park": {
+      "sprite": "art/places/willow_lake_park.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Willows, the boardwalk, the boathouse with rowboats and the picnic lawns match the data. The lake's shape and the brick-and-stone gate are the picture's own; the client draws it on the park's square between Lakeshore Drive and Willow Lane in place of its hand-drawn lake (web/client/layout.js, D-059)."
+      ]
+    },
+    "founders_row_3": {
+      "sprite": "art/places/founders_row_3.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Plants on the stoop and books in the bay window match the data's plants, books and armchairs."
+      ]
+    },
+    "founders_row_7": {
+      "sprite": "art/places/founders_row_7.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A narrow brick townhouse with the curtains drawn, as asked; the desk buried in files is inside and not shown."
+      ]
+    },
+    "willow_lane_2": {
+      "sprite": "art/places/willow_lane_2.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The four Willow Lane houses share one description; this one carries the number 2. The fenced back yard with a table is the data's back yard."
+      ]
+    },
+    "willow_lane_4": {
+      "sprite": "art/places/willow_lane_4.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The twin of 2 Willow Lane with the number 4. 6 and 8 Willow Lane have no picture yet."
+      ]
+    },
+    "forge_site_office": {
+      "sprite": "art/places/forge_site_office.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Two stacked site trailers behind a temporary fence with plans on the table upstairs, as asked. The concrete barriers and cones are the picture's own."
+      ]
+    },
+    "riverside_field": {
+      "sprite": "art/places/riverside_field.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The floodlit grass pitch and the small grandstand match the data. The prompt asked for four floodlight masts; three are visible. The river is not in the picture."
+      ]
+    },
+    "riverside_court": {
+      "sprite": "art/places/riverside_court.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The two hoops with new nets match the data; the bleachers look new rather than old."
+      ]
+    },
+    "riverside_clubhouse": {
+      "sprite": "art/places/riverside_clubhouse.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Locker rooms through the ground-floor glass and the league office upstairs match the data; the trophy shelf upstairs is empty, as the data says."
+      ]
+    },
+    "low_end_studios": {
+      "sprite": "art/places/low_end_studios.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A brick studio with the mixing console and a wall of synths through the windows, as in the data. The prompt asked for a converted warehouse with a small sign; the picture's sign is large."
+      ]
+    },
+    "livera_general": {
+      "sprite": "art/places/livera_general.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The hospital block and the mostly-gravel parking lot match the data. The prompt asked for a lit EMERGENCY entrance; the picture has none, and the gold cross on the glass stair tower is the picture's own hospital mark."
+      ]
+    },
+    "greater_hope": {
+      "sprite": "art/places/greater_hope.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A brick church with a white steeple and open double doors, as asked. The gold crosses are the picture's own; the choir and the kitchen are inside and not shown."
+      ]
+    },
+    "body_balance_site": {
+      "sprite": "art/places/body_balance_site.webp",
+      "framed": "art/places/body_balance_site_framed.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A construction site the client folds into the building going up on it; the sprite is the bare site and `framed` is the same lot once work shows above ground (art direction: the game only says the project is active and how far along it is).",
+        "A dug foundation with rebar, a site hut and a skip, no workers, as asked. The framed stage: two storeys of concrete columns with rebar, formwork, scaffolding, lumber stacks, a fence and a tower crane of its own (so the client draws no crane marker over it), sent twice. Founders Park's picture stands in front of the lot on the map, so its trees hide part of it."
+      ]
+    },
+    "maple_court_ii_site": {
+      "sprite": "art/places/maple_court_ii_site.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A construction site the client folds into the building going up on it; the sprite is the bare site and `framed` is the same lot once work shows above ground (art direction: the game only says the project is active and how far along it is).",
+        "Lumber stacks, a site hut and the first slab with column stubs, as asked. The two tower cranes are the picture's own (the data's description mentions cranes); the client also draws its own crane marker over active projects.",
+        "The framed stage (concrete columns and slabs, formwork, one tower crane, lumber stacks and a fence) came unlabelled; it is filed as Maple Court Phase II's because the frame is a multi-storey block with a lift core, not a two-storey gym. Body & Balance's own framed stage (two storeys) has since arrived, which bears that out."
+      ],
+      "framed": "art/places/maple_court_ii_site_framed.webp"
+    },
+    "eclat_site": {
+      "sprite": "art/places/eclat_site.webp",
+      "framed": "art/places/eclat_site_framed.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A construction site the client folds into the building going up on it; the sprite is the bare site and `framed` is the same lot once work shows above ground (art direction: the game only says the project is active and how far along it is).",
+        "Parcel 7 by the river: weeds, surveyor's stakes, a site hut and pallets, no workers. The prompt's leaning site board is missing. In the game the parcel waits for Founders Way to be paved before work starts."
+      ]
+    },
+    "founders_way_site": {
+      "sprite": "art/places/founders_way_site.webp",
+      "framed": "art/places/founders_way_site_framed.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A construction site the client folds into the building going up on it; the sprite is the bare site and `framed` is the same lot once work shows above ground (art direction: the game only says the project is active and how far along it is).",
+        "Founders Way, laid along the road by the client while it is being paved (ROAD_WORKS in web/client/layout.js). The bare stage: a dirt road with a grader, a paver and a roller parked on it, cones, kerb stones, pipes and a sand heap, no crew. It is drawn from a flatter angle than the map's, so the client shears it to lie along the road instead of stretching it. The later stage: half freshly paved with a cream centre line, half gravel, the paver at the join, a dump truck, a grader and a roller, with cones. The machines' cabs are empty; the green fences and lamps are the picture's own."
+      ]
+    },
+    "maple_court_ii": {
+      "sprite": "art/places/maple_court_ii.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The finished Phase II block (drawn when its project completes): brick and stone, four storeys, small balconies and one street door, the twin of Maple Court as asked. It has a dark vignette outside the building instead of a clean edge."
+      ]
+    },
+    "livera_university": {
+      "sprite": "art/places/livera_university.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The lecture hall with its colonnade, the glass library and the river quay match the data's 'new campus on the river'. The framed wing behind a fence is the picture's reading of the law clinic still being built; the game has no project for it, so it is scenery, not a construction site."
+      ]
+    },
+    "thread_co": {
+      "sprite": "art/places/thread_co.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Racks of everyday clothes and folding tables through the windows match the data; the mirror wall and the sale bin are inside and not shown."
+      ]
+    },
+    "willow_lane_6": {
+      "sprite": "art/places/willow_lane_6.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The third Willow Lane house, carrying the number 6: porch, back yard with a table, a young tree."
+      ]
+    },
+    "founders_park": {
+      "sprite": "art/places/founders_park.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The fountain, benches, lamps, lawns and the FOUNDERS PARK sign are the picture's own (the data describes the park only by its activities). The client stands it on the park's square lot in place of the hand-drawn oval (PARK_ART in web/client/layout.js)."
+      ]
+    },
+    "meridian_talent": {
+      "sprite": "art/places/meridian_talent.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A glass-and-stone office with meeting rooms behind the windows, as the data's 'new office' suggests; the sign reads MERIDIAN TALENT, the prompt's short sign."
+      ]
+    },
+    "lumiere_bistro": {
+      "sprite": "art/places/lumiere_bistro.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Candlelit tables, the wine wall through the windows and a terrace, matching the data's date-night spot; the terrace seating is the picture's own."
+      ]
+    },
+    "whitaker_capital": {
+      "sprite": "art/places/whitaker_capital.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Glass, walnut and the model of the future city on the first floor, as the data says. The model's towers are that future city, not the founding town."
+      ]
+    },
+    "paws_whiskers": {
+      "sprite": "art/places/paws_whiskers.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The paw-print roundel, the PAWS & WHISKERS sign, a dog, cats on their towers and the rabbit in a window, as asked. The fenced play yard at the side is the picture's own."
+      ]
+    },
+    "willow_lane_8": {
+      "sprite": "art/places/willow_lane_8.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "The fourth Willow Lane house, carrying the number 8 by the door: porch, shutters, a young tree and a fenced back patio. The data's garage isn't shown."
+      ]
+    },
+    "riverdale_clinic": {
+      "sprite": "art/places/riverdale_clinic.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A single-storey stone clinic with a green cross over the door and the RIVERDALE CLINIC sign, as asked; the awnings, planters and rooftop units are the picture's own. It came in one picture with the bus's front view and was cut out."
+      ]
+    },
+    "courthouse": {
+      "sprite": "art/places/courthouse.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour), generated from its prompt in art/PROMPT_PACK_TOWN.md: a pale stone court with Corinthian columns, the scales-and-lotus pediment, 'MUNICIPAL COURT' on the frieze, gold-railed steps and planted terraces.",
+        "Its glow is painted into the picture, not transparent: the client copy (web/client/sprites/courthouse.webp) was matted with two background models and the holes filled, which drops the big tree at the far left."
+      ]
+    }
+  },
+  "unit_buildings": {
+    "notes": [
+      "Buildings whose units are the game's places: the client draws units that share a door as one building, named by its id prefix (GROUP_SHAPE in web/client/layout.js). `units` lists the unit place ids the picture stands for."
+    ],
+    "lexington": {
+      "sprite": "art/places/lexington.webp",
+      "units": [
+        "lexington_1204",
+        "lexington_0807",
+        "lexington_1502",
+        "lexington_1801",
+        "lexington_ph1",
+        "lexington_0904"
+      ],
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A slim glass tower on a cream stone base with a lit lobby, the tallest thing in town, as asked. It has about sixteen floors above a two-storey base; the unit numbers (up to 1801 and a penthouse) imply nineteen."
+      ]
+    },
+    "maple_court": {
+      "sprite": "art/places/maple_court.webp",
+      "units": [
+        "maple_court_3b",
+        "maple_court_2a",
+        "maple_court_2b",
+        "maple_court_4a",
+        "maple_court_4c",
+        "maple_court_1a"
+      ],
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "Four storeys of brick and render with small balconies and a single street door, as asked (units 1A to 4C)."
+      ]
+    },
+    "riverside_lofts": {
+      "sprite": "art/places/riverside_lofts.webp",
+      "units": [
+        "riverside_lofts_2",
+        "riverside_lofts_3",
+        "riverside_lofts_5"
+      ],
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A converted brick warehouse with black steel windows and a roll-up door beside the entrance. The prompt asked for three tall loft storeys; the picture has two and a rooftop terrace (the data gives no floor count)."
+      ]
+    },
+    "lakeview": {
+      "sprite": "art/places/lakeview.webp",
+      "units": [
+        "lakeview_1a",
+        "lakeview_2b",
+        "lakeview_3a",
+        "lakeview_4c"
+      ],
+      "notes": [
+        "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
+        "A low-rise condo block with balconies, four storeys for units 1A to 4C. The lake is not in the picture."
+      ]
+    }
+  },
+  "interiors": {
+    "notes": [
+      "Rooms a character will walk around and sit in (art/PROMPT_PACK_INTERIORS.md, 'How a picture becomes a room you can walk in'). Several have a soft dark or orange halo outside the room instead of a clean transparent edge; the client copies trim it.",
+      "Near walls are drawn as low emerald half-walls with the entrance doors rather than removed; the floor and every seat stay in view, which is what the prompts were for."
+    ],
+    "livera_ledger": {
+      "picture": "art/interiors/livera_ledger.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Four desks, the corkboard of red string and a sofa match the data; the radios on the shelf stand for the police scanner."
+      ]
+    },
+    "whitaker_capital": {
+      "picture": "art/interiors/whitaker_capital.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Glass, walnut and the model of the city as it will look in ten years, as the data says. The model's towers are that future city, not the founding town."
+      ]
+    },
+    "body_balance": {
+      "picture": "art/interiors/body_balance.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Free weights, the spin room behind glass and the smoothie bar match the data; the treadmills, ellipticals and lockers are the picture's own."
+      ]
+    },
+    "greenleaf_market": {
+      "picture": "art/interiors/greenleaf_market.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The shelves are fully stocked; the data says the store is still half-stocked while the distribution road is paved (as its outside picture). The flowers and the cake case match its offers."
+      ]
+    },
+    "baptiste_events": {
+      "picture": "art/interiors/baptiste_events.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Filed as Baptiste & Co. Events from its seating charts, client table and flowers. The rails of clothes are the picture's reading of 'swatches'; if this was made from the Ellis Atelier prompt, move it to ellis_atelier.webp."
+      ]
+    },
+    "heritage_coffee": {
+      "picture": "art/interiors/heritage_coffee.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Exposed brick, the long communal table, the espresso machine, the pastry case and the open-mic stage match the data."
+      ]
+    },
+    "little_sprouts": {
+      "picture": "art/interiors/little_sprouts.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Cribs, play mats, small tables and the changing table match the data; the stairs lead to the nanny office upstairs, which isn't drawn."
+      ]
+    },
+    "lumen_creative": {
+      "picture": "art/interiors/lumen_creative.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "A softer, painterly render than the rest of the set, with an orange halo. Desks with big screens, pin-up walls and the client table match the prompt."
+      ]
+    },
+    "parallax_labs": {
+      "picture": "art/interiors/parallax_labs.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Desks with monitors, the whiteboard wall, the coffee bar (cold brew on tap) and the glass meeting room match the data; the beanbag lounge is the picture's own."
+      ]
+    },
+    "lustre_jewelers": {
+      "picture": "art/interiors/lustre_jewelers.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Glass cases in a U, black marble and gold, and the velvet-topped table with two chairs; the bags on the stand are the store's designer bag."
+      ]
+    },
+    "low_end_studios": {
+      "picture": "art/interiors/low_end_studios.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The vintage console, the wall of synths, the couch and the live room with mic stands behind glass match the data."
+      ]
+    },
+    "livera_general": {
+      "picture": "art/interiors/livera_general.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Reception, the waiting room, treatment bays behind curtains, a ward and newborn cribs (the maternity ward) match the data. The emergency entrance isn't marked."
+      ]
+    },
+    "common_ground": {
+      "picture": "art/interiors/common_ground.webp",
+      "alternate": "art/interiors/common_ground_alt.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Long dinner tables with benches, the serving counter from the kitchen, the tutoring corner with bookshelves, the noticeboard and an office desk match the data. Two versions; the second is kept as the alternate."
+      ]
+    },
+    "greater_hope": {
+      "picture": "art/interiors/greater_hope.webp",
+      "alternate": "art/interiors/greater_hope_alt.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Pews facing the pulpit, choir seats, the piano and the kitchen through a door match the data; the band corner with drums is the picture's own (the church is a stage in the data). Two versions; the second (no drums, a mic stand on the platform, an open kitchen at the side) is kept as the alternate."
+      ]
+    },
+    "starlight_cinema": {
+      "picture": "art/interiors/starlight_cinema.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The lobby with the popcorn machine and concession counter, the velvet rope and one screening room of red velvet seats match the data; the data has two screens, the picture shows one."
+      ]
+    },
+    "riverdale_pharmacy": {
+      "picture": "art/interiors/riverdale_pharmacy.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Aisles of shelves and the prescription counter at the back with a waiting bench match the data; the light is warm rather than the data's fluorescent."
+      ]
+    },
+    "fade_glow": {
+      "picture": "art/interiors/fade_glow.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Three barber chairs at lit mirrors, two hair-wash basins, the nail station and a waiting sofa match the data."
+      ]
+    },
+    "lumiere_bistro": {
+      "picture": "art/interiors/lumiere_bistro.webp",
+      "alternate": "art/interiors/lumiere_bistro_alt.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Candlelit tables for two and four, booths and the bar in front of the wine wall match the data. Two versions (ivory and black marble tables); the second is kept as the alternate."
+      ]
+    },
+    "riverdale_clinic": {
+      "picture": "art/interiors/riverdale_clinic.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Reception, a waiting room and two exam rooms with exam tables match the prompt."
+      ]
+    },
+    "founders_animal_hospital": {
+      "picture": "art/interiors/founders_animal_hospital.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Reception, waiting chairs, the exam room with a steel table and the recovery kennels (empty) match the data."
+      ]
+    },
+    "livera_university": {
+      "picture": "art/interiors/livera_university.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The lecture hall with rising seats and a lectern, the library's reading tables and shelves, and a coffee counter by the door (the picture's own) match the data's one finished lecture hall and library."
+      ]
+    },
+    "meridian_talent": {
+      "picture": "art/interiors/meridian_talent.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The open floor of desks (eight seats, four each side of the bank), the glass meeting room, the reception desk and the lounge corner's sofa match the data; the small meeting table by the shelves is the picture's own. The glass room has no door in the picture, so nobody walks in. There's no coffee machine: the break room's coffee is at the sideboard by the restroom.",
+        "A second version (cut out of one picture of three offices, with Hale & Partners and James Wellness) is kept as the alternate."
+      ],
+      "alternate": "art/interiors/meridian_talent_alt.webp"
+    },
+    "copper_tap": {
+      "picture": "art/interiors/copper_tap.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The copper bar with nine stools and the bottle wall behind it, the small stage with a mic and a guitar, four high tables, booths along the windows and in the corner, two leather armchairs and the dartboard by the restroom match the data (a bar with a stage and darts)."
+      ]
+    },
+    "eclat": {
+      "picture": "art/interiors/eclat.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The bar along the left, the lit dance floor, the DJ booth and a raised stage under lights, booths, high tables, velvet ropes and a terrace of sofas over the river match the data's nightclub with a stage. It came in one picture with the Forge site office and was cut out.",
+        "Traced into data/interiors/eclat.json (D-066): going inside walks the room."
+      ]
+    },
+    "forge_site_office": {
+      "picture": "art/interiors/forge_site_office.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Two storeys in one cutaway: desks, filing cabinets and a copier on the upper deck, an outside stair, and a plan table with stools and a whiteboard below, as the data's site office. It came in one picture with ÉCLAT and was cut out.",
+        "Traced into data/interiors/forge_site_office.json (D-066): going inside walks the room."
+      ]
+    },
+    "thread_co": {
+      "picture": "art/interiors/thread_co.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Racks of everyday clothes, folding tables, fitting rooms with green curtains, the mirror wall and the checkout match the data. It came in one picture with the Riverside Clubhouse and was cut out.",
+        "Traced into data/interiors/thread_co.json (D-066): going inside walks the room."
+      ]
+    },
+    "riverside_clubhouse": {
+      "picture": "art/interiors/riverside_clubhouse.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The locker room: rows of green lockers with benches, shower stalls, towel cubbies, a drinks fridge and the trophy shelf, matching the data's locker shower and sports drinks. It came in one picture with Thread & Co. and was cut out.",
+        "Traced into data/interiors/riverside_clubhouse.json (D-066): going inside walks the room."
+      ]
+    },
+    "circuit_electronics": {
+      "picture": "art/interiors/circuit_electronics.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Display tables of laptops and phones, a watch table, headphones on the wall and the long counter match what the data sells. The wooden door at the back is a staff door: the store has no restroom in the data.",
+        "Traced into data/interiors/circuit_electronics.json (D-066): going inside walks the room."
+      ]
+    },
+    "paws_whiskers": {
+      "picture": "art/interiors/paws_whiskers.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Reception, shelves of pet food, kennels, a fenced indoor play yard with benches, cat trees and a small-animal pen match the data's shelter (visiting the animals, pet food).",
+        "Traced into data/interiors/paws_whiskers.json (D-066): going inside walks the room."
+      ]
+    },
+    "suds_spin": {
+      "picture": "art/interiors/suds_spin.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Rows of washers and stacked dryers, a folding table, a long bench, a payment kiosk and a sink match the data's laundromat.",
+        "Traced into data/interiors/suds_spin.json (D-066): going inside walks the room."
+      ]
+    },
+    "police_station": {
+      "picture": "art/interiors/police_station.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The front desk, a waiting row, an office of desks, three holding cells with bars and the academy classroom in the back match the data.",
+        "Traced into data/interiors/police_station.json (D-066): going inside walks the room."
+      ]
+    },
+    "hale_partners": {
+      "picture": "art/interiors/hale_partners.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Partners' desks, the glass conference room with a black marble table, the statute library with armchairs and a marble reception match the data. Cut out of one picture of three offices (with James Wellness and a second Meridian Talent).",
+        "Traced into data/interiors/hale_partners.json (D-066): going inside walks the room."
+      ]
+    },
+    "james_wellness": {
+      "picture": "art/interiors/james_wellness.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Two leather chairs in the therapy corner, a waiting sofa and armchairs, a tea counter and stairs up to the yoga room match the data. Cut out of one picture of three offices.",
+        "Traced into data/interiors/james_wellness.json (D-066): going inside walks the room."
+      ]
+    },
+    "ellis_atelier": {
+      "picture": "art/interiors/ellis_atelier.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The sofa and armchair for clients, the design desk under the mood board, the cutting table, dress forms and the rail of finished pieces match the data. It came in one picture with Founders School and was cut out.",
+        "Traced into data/interiors/ellis_atelier.json (D-066): going inside walks the room."
+      ]
+    },
+    "founders_school": {
+      "picture": "art/interiors/founders_school.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "A classroom of small desks facing the teacher's desk and board, beside the gym that doubles as the auditorium (a court, rows of folding chairs, a curtained stage), as the data says. The stage is scenery: the school isn't a stage in the game. It came in one picture with Ellis Atelier and was cut out.",
+        "Traced into data/interiors/founders_school.json (D-066): going inside walks the room."
+      ]
+    },
+    "lexington_1204": {
+      "picture": "art/interiors/lexington_1204.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Dominique's apartment: an L-sofa facing the TV, an island kitchen with three stools, a bedroom with a double bed, a bathroom with a glass shower, and steps up to the front door. A home: the room lets its residents walk, sit, sleep and do their chores where they happen once it's traced.",
+        "Traced into data/interiors/lexington_1204.json (D-066): going inside walks the room."
+      ]
+    },
+    "lexington_0904": {
+      "picture": "art/interiors/lexington_0904.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "A curved sofa, white stools at the island, flowers, a walk-in closet sorted by colour, a vanity and a double bed, matching the data's fresh flowers and sorted closet. It came in one picture with the shared Lexington one-bedroom and was cut out. A home: the room lets its residents walk, sit, sleep and do their chores where they happen once it's traced.",
+        "Traced into data/interiors/lexington_0904.json (D-066): going inside walks the room."
+      ]
+    },
+    "lexington_0807": {
+      "picture": "art/interiors/lexington_0807_1502.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The shared one-bedroom (Apt 0807 and Apt 1502, which the data describes alike, so nothing personal): an island kitchen, a sofa and the TV, a walk-in closet, a vanity, a double bed and a bathroom. It came in one picture with Apt 0904 and was cut out. A home: the room lets its residents walk, sit, sleep and do their chores where they happen once it's traced.",
+        "Traced into data/interiors/lexington_0807_1502.json (D-066): going inside walks the room."
+      ]
+    },
+    "lexington_1502": {
+      "picture": "art/interiors/lexington_0807_1502.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The shared one-bedroom (Apt 0807 and Apt 1502, which the data describes alike, so nothing personal): an island kitchen, a sofa and the TV, a walk-in closet, a vanity, a double bed and a bathroom. It came in one picture with Apt 0904 and was cut out. A home: the room lets its residents walk, sit, sleep and do their chores where they happen once it's traced.",
+        "Traced into data/interiors/lexington_0807_1502.json (D-066): going inside walks the room."
+      ]
+    },
+    "lexington_ph1": {
+      "picture": "art/interiors/lexington_ph1.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The penthouse: an island kitchen, a dining table for eight, an L-sectional and armchairs with the TV, three bedrooms, two bathrooms, a walk-in closet and a terrace with an outdoor table. The data says 'very little furniture yet'; the picture is furnished. A home: the room lets its residents walk, sit, sleep and do their chores where they happen once it's traced.",
+        "Traced into data/interiors/lexington_ph1.json (D-066): going inside walks the room."
+      ]
+    },
+    "founders_row_3": {
+      "picture": "art/interiors/founders_row_3.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The brick stoop, the plants, the books and the mismatched armchairs (a leather club chair and an emerald one) match the description. The bedroom sits up a half-flight of stairs over the kitchen, and the bath is a clawfoot tub.",
+        "Traced (data/interiors/founders_row_3.json): you walk the ground floor from the hall inside the front door past the dining table, the island and the living room; the study, the bedroom up the half-flight and the bath are floors of their own (the stairs aren't floor, so going up is the room's usual straight walk). Seats: four dining chairs, three island stools, the sofa, the leather club chair, the emerald chair by the floor lamp (Nap in the reading chair), the desk chair, the bench at the foot of the bed, the armchair by the bedroom window (Read by the window), the vanity stool (shave, skincare and hair) and the bed for two. The clawfoot tub is Take a bath; the stove, the bin by the island, the bathroom sink and the toilet are where they're drawn. The TV on the stair wall is scenery: the data has no Watch TV here."
+      ]
+    },
+    "lakeview_1a": {
+      "picture": "art/interiors/lakeview_1a_2b_3a_4c.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md; one picture for the four Lakeview condos (1A, 2B, 3A and 4C), which the data describes alike.",
+        "Two bedrooms, the balcony over Willow Lake with two lounge chairs, the laundry nook with a washer and dryer, the walk-in shower and the kitchen island match the prompt.",
+        "Traced (data/interiors/lakeview_1a_2b_3a_4c.json, one room for all four condos): the living room with the balcony deck and its two lounge chairs (the prompt asked for the balcony only at the edge; the picture shows it whole, so it's walkable floor), the kitchen and dining table, the entry, both bedrooms, and the laundry nook with the bathroom. Seats: the L-sofa (Nap on its long side), the armchair, the lounge chairs, four dining chairs, three island stools, the bench and the vanity stool in the main bedroom, and a bed for two in each bedroom. The shower, the stove, the bin, the bathroom sink and the toilet are where they're drawn; the washer and dryer are furniture (laundry at home is a verb, not a spot). The TV is scenery: the data has no Watch TV here. The front door is drawn much taller than the second bedroom's door; the room's scale follows the furniture."
+      ]
+    },
+    "lakeview_2b": {
+      "picture": "art/interiors/lakeview_1a_2b_3a_4c.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md; one picture for the four Lakeview condos (1A, 2B, 3A and 4C), which the data describes alike.",
+        "Two bedrooms, the balcony over Willow Lake with two lounge chairs, the laundry nook with a washer and dryer, the walk-in shower and the kitchen island match the prompt.",
+        "Traced (data/interiors/lakeview_1a_2b_3a_4c.json, one room for all four condos): the living room with the balcony deck and its two lounge chairs (the prompt asked for the balcony only at the edge; the picture shows it whole, so it's walkable floor), the kitchen and dining table, the entry, both bedrooms, and the laundry nook with the bathroom. Seats: the L-sofa (Nap on its long side), the armchair, the lounge chairs, four dining chairs, three island stools, the bench and the vanity stool in the main bedroom, and a bed for two in each bedroom. The shower, the stove, the bin, the bathroom sink and the toilet are where they're drawn; the washer and dryer are furniture (laundry at home is a verb, not a spot). The TV is scenery: the data has no Watch TV here. The front door is drawn much taller than the second bedroom's door; the room's scale follows the furniture."
+      ]
+    },
+    "lakeview_3a": {
+      "picture": "art/interiors/lakeview_1a_2b_3a_4c.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md; one picture for the four Lakeview condos (1A, 2B, 3A and 4C), which the data describes alike.",
+        "Two bedrooms, the balcony over Willow Lake with two lounge chairs, the laundry nook with a washer and dryer, the walk-in shower and the kitchen island match the prompt.",
+        "Traced (data/interiors/lakeview_1a_2b_3a_4c.json, one room for all four condos): the living room with the balcony deck and its two lounge chairs (the prompt asked for the balcony only at the edge; the picture shows it whole, so it's walkable floor), the kitchen and dining table, the entry, both bedrooms, and the laundry nook with the bathroom. Seats: the L-sofa (Nap on its long side), the armchair, the lounge chairs, four dining chairs, three island stools, the bench and the vanity stool in the main bedroom, and a bed for two in each bedroom. The shower, the stove, the bin, the bathroom sink and the toilet are where they're drawn; the washer and dryer are furniture (laundry at home is a verb, not a spot). The TV is scenery: the data has no Watch TV here. The front door is drawn much taller than the second bedroom's door; the room's scale follows the furniture."
+      ]
+    },
+    "lakeview_4c": {
+      "picture": "art/interiors/lakeview_1a_2b_3a_4c.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md; one picture for the four Lakeview condos (1A, 2B, 3A and 4C), which the data describes alike.",
+        "Two bedrooms, the balcony over Willow Lake with two lounge chairs, the laundry nook with a washer and dryer, the walk-in shower and the kitchen island match the prompt.",
+        "Traced (data/interiors/lakeview_1a_2b_3a_4c.json, one room for all four condos): the living room with the balcony deck and its two lounge chairs (the prompt asked for the balcony only at the edge; the picture shows it whole, so it's walkable floor), the kitchen and dining table, the entry, both bedrooms, and the laundry nook with the bathroom. Seats: the L-sofa (Nap on its long side), the armchair, the lounge chairs, four dining chairs, three island stools, the bench and the vanity stool in the main bedroom, and a bed for two in each bedroom. The shower, the stove, the bin, the bathroom sink and the toilet are where they're drawn; the washer and dryer are furniture (laundry at home is a verb, not a spot). The TV is scenery: the data has no Watch TV here. The front door is drawn much taller than the second bedroom's door; the room's scale follows the furniture."
+      ]
+    },
+    "lexington_0602": {
+      "picture": "art/interiors/lexington_0602.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The desk by the window and the view over a roof (Riverdale Clinic's, as the data says) match; the kitchen island is dark marble.",
+        "Traced (data/interiors/lexington_0602.json): the living room and the kitchen as one floor, the bedroom, the bathroom, and the vestibule inside the front door. Seats: the L-sofa (Nap on the chaise, Watch TV from the side facing the TV), the armchair, the desk chair by the window, three island stools, the vanity stool (shave, skincare and hair) and the bed for two. The shower, the stove, the bin, the bathroom sink and the toilet are where they're drawn; the stacked washer and dryer behind the low walls aren't reached."
+      ]
+    },
+    "lexington_1406": {
+      "picture": "art/interiors/lexington_1406.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Judge Evelyn Park's flat: the wall of law books (with a library ladder), the balcony with plants and a domed building in the view up the street, a bed for two, a vanity, a glass shower and the laundry nook match the data.",
+        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+      ]
+    },
+    "lexington_1801": {
+      "picture": "art/interiors/lexington_1801.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The dress form by a worktable of fabric swatches and a balcony window match the data's 'dress form by the window and fabric swatches on every surface'. The picture adds a laundry nook the prompt didn't ask for.",
+        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+      ]
+    },
+    "lexington_1103": {
+      "picture": "art/interiors/lexington_1103.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The wine fridge under the counter the previous tenant left behind, a bed for two, a vanity, a glass shower and the laundry nook match the data.",
+        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+      ]
+    },
+    "founders_row_7": {
+      "picture": "art/interiors/founders_row_7.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The left half is the townhouse the data describes, its two floors stacked with the stairs between them: blackout-green curtains, the bathtub upstairs, the kitchen and the living room downstairs, the front stoop. The right half is a second, separate flat the prompt didn't ask for; the desk buried in files isn't drawn. Trace the left half only.",
+        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+      ]
+    },
+    "courthouse": {
+      "picture": "art/interiors/courthouse.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Livéra Municipal Court's courtroom: the bench with the Livéra scales emblem, the witness box, the clerk's desk, two counsel tables, the bar rail and six benches of public gallery, matching D-083's public hearing.",
+        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+      ]
+    }
+  },
+  "transit": {
+    "bus_line_1": "art/transit/bus_line_1.jpg",
+    "bus_line_1_side": "art/transit/bus_line_1_side.webp",
+    "stops": {
+      "stop_riverside": {
+        "sprite": "art/transit/stops/stop_riverside.webp",
+        "crop": "art/transit/stops/stop_riverside.jpg"
+      },
+      "stop_founders_main": {
+        "sprite": "art/transit/stops/stop_founders_main.webp",
+        "crop": "art/transit/stops/stop_founders_main.jpg"
+      },
+      "stop_maple_court": {
+        "sprite": "art/transit/stops/stop_maple_court.webp",
+        "crop": "art/transit/stops/stop_maple_court.jpg"
+      },
+      "stop_church_street": {
+        "sprite": "art/transit/stops/stop_church_street.webp",
+        "alternate": "art/transit/stops/stop_church_street_alt.webp",
+        "crop": "art/transit/stops/stop_church_street.jpg"
+      },
+      "stop_founders_park": {
+        "sprite": "art/transit/stops/stop_founders_park.webp",
+        "crop": "art/transit/stops/stop_founders_park.jpg"
+      },
+      "stop_civic_row": {
+        "sprite": "art/transit/stops/stop_civic_row.webp",
+        "crop": "art/transit/stops/stop_civic_row.jpg"
+      },
+      "stop_lexington_ave": {
+        "sprite": "art/transit/stops/stop_lexington_ave.webp",
+        "crop": "art/transit/stops/stop_lexington_ave.jpg",
+        "alternate": "art/transit/stops/stop_lexington_ave_alt.webp"
+      }
+    },
+    "notes": [
+      "All seven stops now have a full shelter sprite (stops/<stop_id>.webp, isometric, golden hour, transparent, from PROMPT_PACK_TOWN.md); their `crop` is the earlier small panel from the bus collage. Church Street has two near-identical versions; Lexington Ave & River Rd's tree and planters are the picture's own. Founders Park's shelter and Lexington Ave's `alternate` came as one picture of two shelters side by side: each was cut out and scaled up 1.37x onto the same 1254 px frame as the Riverside Lofts shelter (the same design), so they are a little softer than the others.",
+      "The route diagram names the seven real stops in order and the real $2.75 fare; its geography (the river, the loop's shape, a 'Rivéra River') is stylised and not the game's coordinates.",
+      "The transit card is branding only: fares in the game are paid by card, cash or LivPay, and there is no transit-card item.",
+      "The side view is a crop on a grey studio background, not a transparent sprite.",
+      "The Founders Way & Main totem reads FOUNDERS WAY, as its prompt asked: the stop's name in the data is longer than a totem holds. Every totem's gold 1 is the line number, not the stop's place in the route.",
+      "bus_line_1_rear.webp is the rear three-quarter view (the rear and the left side): emerald livery, gold stripe, LIVÉRA TRANSIT and the 1 badge front and back, as asked. The client still draws its own shuttle on the map.",
+      "bus_line_1_front.webp is the front three-quarter view (the front and the right side with both doors): the destination sign reads 1 RIVERSIDE LOOP, LIVÉRA TRANSIT and the lotus along the side, the gold 1 badge, as asked. It came in one picture with the clinic and was cut out. The client still draws its own shuttle on the map.",
+      "bus_line_1_side.webp is the cut-out side view the prompt asks for (LIVÉRA TRANSIT and the 1 on its flank, empty seats through the windows, on transparency); the earlier bus_line_1_side.jpg is kept beside it."
+    ],
+    "livera_transit_mark": "art/transit/livera_transit_mark.png",
+    "transit_card": "art/transit/transit_card.png",
+    "route_line_1": "art/transit/route_line_1.jpg",
+    "bus_line_1_rear": "art/transit/bus_line_1_rear.webp",
+    "bus_line_1_front": "art/transit/bus_line_1_front.webp",
+    "bus_line_1_side_earlier": "art/transit/bus_line_1_side.jpg"
+  },
+  "tiles": {
+    "notes": [
+      "Ground tiles, the crane and the bridge, made from the 'Ground tiles and the crane' prompts in PROMPT_PACK_TOWN.md: isometric, golden hour, transparent.",
+      "The flat tiles are 2:1 diamonds (1774x887). The web client's view is 30-degree isometric (about 1.73:1), so it re-projects a tile to a flat texture before drawing it; nothing in a tile is a fact about the town.",
+      "road_gravel_alt and road_crossroad_alt are squarer diamonds (about 1.37:1) from a first round; the 2:1 versions are the ones to use.",
+      "river_edge: a stone promenade with a black-and-gold railing and the water; no data file gives the river a shape (the sketch draws it along the east edge).",
+      "bridge: four arches, lamps and a stair at the near end. Like the river it is part of the sketch: no data file has a bridge and nobody can cross it in the game.",
+      "crane: the tower crane the client draws over every active construction project; it is a marker, not a count of real cranes.",
+      "road_t and road_corner_alt came as one picture and were split; both are about 1.65:1 diamonds rather than 2:1. road_corner_alt is a curved bend; the map's streets never bend, so neither is drawn yet (D-059)."
+    ],
+    "grass": {
+      "sprite": "art/tiles/grass.webp"
+    },
+    "sidewalk": {
+      "sprite": "art/tiles/sidewalk.webp"
+    },
+    "road_straight": {
+      "sprite": "art/tiles/road_straight.webp"
+    },
+    "road_corner": {
+      "sprite": "art/tiles/road_corner.webp",
+      "alternate": "art/tiles/road_corner_alt.webp"
+    },
+    "road_crossroad": {
+      "sprite": "art/tiles/road_crossroad.webp",
+      "alternate": "art/tiles/road_crossroad_alt.webp"
+    },
+    "road_gravel": {
+      "sprite": "art/tiles/road_gravel.webp",
+      "alternate": "art/tiles/road_gravel_alt.webp"
+    },
+    "river_edge": {
+      "sprite": "art/tiles/river_edge.webp"
+    },
+    "bridge": {
+      "sprite": "art/tiles/bridge.webp"
+    },
+    "crane": {
+      "sprite": "art/tiles/crane.webp"
+    },
+    "road_t": {
+      "sprite": "art/tiles/road_t.webp"
+    }
+  },
+  "city": {
+    "stage_1": "art/city/stage_1.jpg",
+    "stage_5": "art/city/stage_5.jpg",
+    "construction": "art/city/construction.jpg",
+    "notes": [
+      "Stages 2, 3 and 4 have no panorama yet. construction.jpg is a building site, not a city stage."
+    ]
+  },
+  "concept": {
+    "founding_town_poster": "art/concept/founding_town_poster.jpg",
+    "town_map_poster": "art/concept/town_map_poster.jpg",
+    "notes": [
+      "Concept posters only. Their districts (Riverfront, The Ridge, The Nine, The Meadows...), 'Riverview Park' and the street layout are not the game's; the real places and bus stops are in data/world and data/transit.",
+      "The moonlit salon and the gold mirror wall are unassigned interiors: no place in the data has been given them.",
+      "The laptop set (laptop, mouse, sleeve) is a product mock-up; only the laptop is an item.",
+      "interior_law_office.jpg is a mood reference for interiors (black marble, gold, warm lamps, a dusk skyline through the window; art/STYLE.md). The two people in it are not game characters: no founder is a lawyer and nobody in the cast has this sheet. The book spines (CORPORATE LAW, BLACK WOMEN IN LAW...) are the picture's own text. The skyline outside is the future city of the concept posters, not the founding town."
+    ],
+    "interior_moonlit_salon": "art/concept/interior_moonlit_salon.jpg",
+    "texture_gold_mirror_wall": "art/concept/texture_gold_mirror_wall.jpg",
+    "laptop_set": "art/concept/laptop_set.png",
+    "interior_law_office": "art/concept/interior_law_office.jpg"
+  },
+  "items": {
+    "$comment": "Product pictures keyed by item id (data/items). PNGs are transparent; the phones came on white and are JPEG.",
+    "headphones": "art/items/headphones.png",
+    "laptop": "art/items/laptop.png",
+    "lyra_one": "art/items/lyra_one.jpg",
+    "lyra_air": "art/items/lyra_air.jpg",
+    "lyra_pro": "art/items/lyra_pro.jpg",
+    "notes": [
+      "The phones show an invented Livéra home screen with Messages, Transit, Pay and so on; the game's phone has 26 apps with other names, so the screens are decoration, not the real UI.",
+      "The headphones and phones carry a lyre mark: the Lyra brand is the game's own."
+    ]
+  },
+  "sprite_sheets": {
+    "$comment": "One sheet per person (founders by character id, created residents by their id under residents): art/sprites/characters/<id>/sheet.webp, from art/PROMPT_PACK_CHARACTERS.md.",
+    "theo-grant": {
+      "sheet": "art/sprites/characters/theo-grant/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The royal-blue zip hoodie, white tee, grey cargo joggers and white trainers match his sheet.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did.",
+        "Going out: the cream knit polo, black tailored trousers and white leather sneakers. One half of a two-look picture (the owner's), split at its divider into its own sheet (D-079).",
+        "Work: Greenleaf's dark green apron with his name badge over a white tee, black work trousers and black shoes. One half of a two-look picture (the owner's), split at its divider into its own sheet (D-079)."
+      ],
+      "looks": {
+        "evening": "art/sprites/characters/theo-grant/evening/sheet.webp",
+        "work": "art/sprites/characters/theo-grant/work/sheet.webp"
+      }
+    },
+    "sienna": {
+      "sheet": "art/sprites/characters/sienna/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The burgundy moto jacket, black tank, black high-waisted trousers, black ankle boots and the black quilted bag match the data.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did.",
+        "Going out: the black satin slip dress under the burgundy moto jacket, sheer black tights and heeled ankle boots, as the data says. One half of a two-look picture (the owner's), split at its divider into its own sheet (D-079).",
+        "Everyday: the cropped white tee under an oversized black denim jacket, baggy charcoal cargos, black platform boots and the quilted bag. One half of a two-look picture (the owner's), split at its divider into its own sheet (D-079)."
+      ],
+      "looks": {
+        "evening": "art/sprites/characters/sienna/evening/sheet.webp",
+        "everyday": "art/sprites/characters/sienna/everyday/sheet.webp"
+      }
+    },
+    "graham": {
+      "sheet": "art/sprites/characters/graham/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The navy V-neck over a light-blue collar, charcoal trousers, brown belt, brown oxfords and a strap watch match the data.",
+        "It came as one picture with Harper's sheet and was cut in half.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    },
+    "harper": {
+      "sheet": "art/sprites/characters/harper/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The mustard cardigan, floral blouse, dark jeans, cognac boots, brown tote and glasses match the data.",
+        "It came as one picture with Graham's sheet and was cut in half.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    },
+    "julian": {
+      "sheet": "art/sprites/characters/julian/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The black leather jacket, charcoal crewneck, black trousers, white sneakers, black watch and the laptop match the data.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    },
+    "leila": {
+      "sheet": "art/sprites/characters/leila/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The camel trench, black midi dress with a slit, black ankle boots and the oxblood bag match the data; in the two seated cells the dress is drawn as black trousers.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    },
+    "dominique": {
+      "sheet": "art/sprites/characters/dominique/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The black double-breasted blazer, blush-pink wrap blouse, black wide-leg trousers, patent pumps and the burgundy top-handle bag match the data.",
+        "It came as one picture with Dax's sheet and was cut in half.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    },
+    "dax": {
+      "sheet": "art/sprites/characters/dax/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The black fitted polo, black trousers, silver watch and the laptop under his arm match the data.",
+        "It came as one picture with Dominique's sheet and was cut in half.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    },
+    "aaliyah": {
+      "sheet": "art/sprites/characters/aaliyah/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The emerald satin blouse, black wide-leg trousers, gold cuffs and hoops, black bag and pumps match the data; the glass of champagne in her hand is the picture's own.",
+        "It came as one picture with Andre's sheet and was cut in half.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    },
+    "andre": {
+      "sheet": "art/sprites/characters/andre/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
+        "The olive suede bomber, black tank, black cargo pants and olive-and-white sneakers match the data.",
+        "It came as one picture with Aaliyah's sheet and was cut in half.",
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
+      ]
+    },
+    "sol-rivera": {
+      "sheet": "art/sprites/characters/sol-rivera/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md.",
+        "The deep teal corduroy bucket hat over a copper curly afro, the cream printed shirt with rolled sleeves, the brown corduroy waistcoat and wide trousers and the brown loafers match the data.",
+        "The background is a dark studio gradient, not transparent as asked: scripts/client_figures.py mattes the frames out.",
+        "Going out: the deep teal velvet blazer over a white ribbed tank, wide brown cords, brown loafers and the teal bucket hat. One half of a two-look picture (the owner's), split at its divider into its own sheet (D-079).",
+        "Work: the cream printed shirt with rolled sleeves under a charcoal canvas barista apron, wide brown cords and loafers. The prompt's work look has no hat; the picture keeps the bucket hat. One half of a two-look picture (the owner's), split at its divider into its own sheet (D-079)."
+      ],
+      "looks": {
+        "evening": "art/sprites/characters/sol-rivera/evening/sheet.webp",
+        "work": "art/sprites/characters/sol-rivera/work/sheet.webp"
+      }
+    },
+    "kai-morgan": {
+      "sheet": "art/sprites/characters/kai-morgan/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md.",
+        "The red zip-up hoodie over a white tee, the baggy black cargo jeans, the red-and-white high-tops and the backwards black cap match the data (the data says a black baseball cap; the sheet wears it backwards).",
+        "The background is a dark studio gradient, not transparent as asked: scripts/client_figures.py mattes the frames out."
+      ]
+    },
+    "aisha-farah": {
+      "sheet": "art/sprites/characters/aisha-farah/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md.",
+        "Her navy uniform, duty belt, boots and navy hijab match the data: this is her work look (she is drawn in uniform on and off duty until her other looks are drawn).",
+        "The background is a dark studio gradient, not transparent as asked: scripts/client_figures.py mattes the frames out."
+      ]
+    },
+    "hamid-sultani": {
+      "sheet": "art/sprites/characters/hamid-sultani/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md.",
+        "Greenleaf's green apron over a pressed white shirt, grey slacks and polished black shoes match the data: this is his work look. His reading glasses hang from the apron bib.",
+        "The background is a dark studio gradient with a glow behind each pose, not transparent as asked: scripts/client_figures.py mattes the frames out."
+      ]
+    }
+  },
+  "golden_hour": {
+    "$comment": "Golden Hour's pictures (D-076, docs/proposals/showdown/golden_hour_art.md): the fight sheets for Beat Brawl (D-077), the social sheet pilot and the title key art, and the outdoor rooms of its evenings (Riverside Court is a place you can't go into; the alley behind the Copper Tap isn't a place yet).",
+    "fight_sheets": {
+      "aaliyah": {
+        "sheet": "art/sprites/characters/aaliyah/fight.webp",
+        "notes": [
+          "Twelve fight poses in her emerald satin blouse, black wide-leg trousers and pointed heels. Painted backdrop, not transparent."
+        ]
+      },
+      "andre": {
+        "sheet": "art/sprites/characters/andre/fight.webp",
+        "notes": [
+          "Twelve fight poses in his olive bomber, black tank, cargo pants and olive-and-white sneakers. Of the two versions sent, the second is filed. Painted backdrop."
+        ]
+      },
+      "sienna": {
+        "sheet": "art/sprites/characters/sienna/fight.webp",
+        "notes": [
+          "Twelve fight poses in her burgundy moto jacket, black tank, charcoal trousers and ankle boots; the last cell is a selfie, not a fight pose. Painted backdrop."
+        ]
+      },
+      "dominique": {
+        "sheet": "art/sprites/characters/dominique/fight.webp",
+        "notes": [
+          "Her twelve fight poses (top three rows) with her eight social poses smaller below, on transparency. The fight cells are the ones to cut."
+        ]
+      },
+      "dax": {
+        "sheet": "art/sprites/characters/dax/fight.webp",
+        "notes": [
+          "Twelve fight poses in his work look (black fitted polo, black trousers, black leather shoes, silver watch), with the tattooed forearms. Painted backdrop with a glow behind each pose, not transparent."
+        ]
+      }
+    },
+    "social_sheets": {
+      "dominique": {
+        "sheet": "art/sprites/characters/dominique/social.webp",
+        "notes": [
+          "The pilot social sheet: wave, laugh, toast, dance, clap, arms crossed, whisper, beckon, on transparency (1536 × 1024 rather than the 1536 × 768 asked for).",
+          "A second render of the same eight poses (social_2.webp, 1774 × 887 on transparency, nearer the 2:1 asked for): the first is kept until Beat Brawl's party scenes pick one."
+        ],
+        "second": "art/sprites/characters/dominique/social_2.webp"
+      }
+    },
+    "not_used_yet": "Beat Brawl still draws the figures' fight and flinch poses: cutting these sheets into frames for brawl.js is the next step (D-077's trade-off).",
+    "key_art": {
+      "picture": "art/key/golden_hour_title.webp",
+      "notes": [
+        "The crew at the Copper Tap: Dominique at the bar, Dax leaning on it, Sienna taking a selfie, Aaliyah with champagne, Andre on the stage. 941 × 1672 rather than 1080 × 1920."
+      ]
+    },
+    "outdoor_rooms": {
+      "riverside_court": {
+        "picture": "art/interiors/riverside_court.webp",
+        "notes": [
+          "Outdoor room for Golden Hour (docs/proposals/showdown/golden_hour_art.md: Riverside Court on league night).",
+          "The emerald court, the floodlights, the bleachers and the scorer's table match the prompt; it is lit for dusk.",
+          "Filed, not traced yet, and not a walkable room until the outdoor rooms of Golden Hour's evenings are built (D-076)."
+        ]
+      },
+      "copper_tap_alley": {
+        "picture": "art/interiors/copper_tap_alley.webp",
+        "notes": [
+          "Outdoor room for Golden Hour (docs/proposals/showdown/golden_hour_art.md: the alley behind the Copper Tap).",
+          "The brick walls, the green back door up three steps, the crates, the bench, the string lights and the street lamp match the prompt.",
+          "Filed, not traced yet, and not a walkable room until the outdoor rooms of Golden Hour's evenings are built (D-076)."
+        ]
+      },
+      "the_underpass": {
+        "picture": "art/interiors/the_underpass.webp",
+        "notes": [
+          "Outdoor room for Golden Hour (docs/proposals/showdown/golden_hour_art.md: The Underpass after dark): the overpass on its concrete piers with rebar showing, construction fencing, pallets of blocks, a cable-drum table with a lantern, work lights and a scissor lift.",
+          "Filed, not traced yet, and not a walkable room until the outdoor rooms of Golden Hour's evenings are built (D-076)."
+        ]
+      }
+    }
+  }
+}

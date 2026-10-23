@@ -1,0 +1,90 @@
+{
+  "$comment": "What happens when a need runs out (D-080). Each need has one rule at 0: \"pass_out\" (you collapse where you are and come to after pass_out.hours, energy back to energy_after; outdoors someone may go through your pockets), \"hospital\" (you pass out and an ambulance takes you to the hospital: kept there for hours, billed bill_cents by it, needs set to after when you leave), \"accident\" (bladder only: wetting yourself, data/society/details.json) or \"notice\" (you're told once; while it stays at 0 its emotions_per_hour and needs_per_hour run, people warm to you receptivity times as much, and condition, if named, comes on). A need counts as hitting 0 again only after it has been back above rearm_above. Every time counts toward the conditions in zero_conditions.json (from_zero). summary is what the needs card says; text is what you're told when it happens. {hospital}, {hours} and {bill} are filled in; {where} is \" at <place>\" or \" in the street\".",
+  "needs_at_zero": {
+    "hospital": "livera_general",
+    "rearm_above": 10,
+    "pass_out": {
+      "hours": 3,
+      "energy_after": 35,
+      "emotions": {"embarrassment": 25, "stress": 15},
+      "robbery_chance_outdoors": 0.3,
+      "robbery_max_cash_cents": 6000
+    },
+    "needs": [
+      {
+        "need": "energy",
+        "rule": "pass_out",
+        "summary": "You pass out where you stand and lose about {hours} hours. Out in the street, someone may go through your pockets.",
+        "text": "You ran out of energy and passed out{where}."
+      },
+      {
+        "need": "hunger",
+        "rule": "hospital",
+        "hours": 8,
+        "bill_cents": 38000,
+        "after": {"hunger": 65, "energy": 55, "bladder": 90, "hygiene": 50},
+        "summary": "You pass out from hunger and wake up in {hospital}: kept {hours} hours, billed {bill}.",
+        "text": "You passed out from hunger. Someone called an ambulance, and you came to on a drip at {hospital}. They're keeping you {hours} hours. Bill: {bill}."
+      },
+      {
+        "need": "health",
+        "rule": "hospital",
+        "hours": 4,
+        "bill_cents": 90000,
+        "after": {"health": 45, "energy": 50, "hunger": 50, "bladder": 90, "hygiene": 50},
+        "summary": "You collapse and an ambulance takes you to {hospital}: kept {hours} hours, billed {bill}.",
+        "text": "Your body gave out and you collapsed. An ambulance took you to {hospital}. They're keeping you {hours} hours. Bill: {bill}."
+      },
+      {
+        "need": "bladder",
+        "rule": "accident",
+        "summary": "You wet yourself. Anyone who sees it remembers, and tells their friends."
+      },
+      {
+        "need": "hygiene",
+        "rule": "notice",
+        "receptivity": 0.6,
+        "emotions_per_hour": {"embarrassment": 1},
+        "summary": "You smell: people warm to you far less, and you catch the flu more easily, until you wash.",
+        "text": "Hygiene is at 0: you smell, and people are keeping their distance. A shower fixes it."
+      },
+      {
+        "need": "social",
+        "rule": "notice",
+        "emotions_per_hour": {"loneliness": 4, "sadness": 2},
+        "summary": "Loneliness and sadness climb every hour until you spend time with people.",
+        "text": "Social is at 0: you feel cut off from everyone. Talk to someone, or go where people are."
+      },
+      {
+        "need": "recreation",
+        "rule": "notice",
+        "emotions_per_hour": {"stress": 2, "happiness": -2},
+        "summary": "Stress climbs and happiness drains every hour until you do something fun.",
+        "text": "Recreation is at 0: everything feels like a chore. Do something fun."
+      },
+      {
+        "need": "comfort",
+        "rule": "notice",
+        "emotions_per_hour": {"stress": 2},
+        "needs_per_hour": {"energy": -1},
+        "summary": "Everything aches: stress climbs and you tire faster until you sit or lie somewhere comfortable.",
+        "text": "Comfort is at 0: everything aches. Sit or lie down somewhere comfortable."
+      },
+      {
+        "need": "grooming",
+        "rule": "notice",
+        "receptivity": 0.85,
+        "emotions_per_hour": {"confidence": -2},
+        "summary": "You look a mess: confidence drops every hour and first impressions suffer until you freshen up.",
+        "text": "Grooming is at 0: you look a mess, and you know it. Freshen up."
+      },
+      {
+        "need": "dental",
+        "rule": "notice",
+        "condition": "toothache",
+        "summary": "You get a toothache that stays until a dentist treats it.",
+        "text": "Dental is at 0, and now you have a toothache. The clinic's dentist can fix it."
+      }
+    ]
+  }
+}

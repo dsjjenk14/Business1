@@ -1,0 +1,214 @@
+{
+  "$comment": "Everything a character can own. Shops sell these through offers with an \"item\" field. style counts toward how put-together you look (first impressions). The three personal items (personal: true, one per look) are everyone's own clothes (D-079): always theirs, never sold or given; what each looks like on a person is their profile.appearance.outfits, and description is the line for someone with none (made in the creator).",
+  "items": [
+    {
+      "id": "outfit_everyday",
+      "label": "Everyday clothes",
+      "category": "clothing",
+      "slot": "outfit",
+      "personal": true,
+      "look": "everyday",
+      "description": "Your own everyday clothes: what you put on for a normal day.",
+      "style": 6,
+      "emotions": {"confidence": 1}
+    },
+    {
+      "id": "outfit_work",
+      "label": "Work clothes",
+      "category": "clothing",
+      "slot": "outfit",
+      "personal": true,
+      "look": "work",
+      "description": "What you wear to work: put together for the job you do.",
+      "style": 12,
+      "emotions": {"confidence": 2}
+    },
+    {
+      "id": "outfit_evening",
+      "label": "Going-out clothes",
+      "category": "clothing",
+      "slot": "outfit",
+      "personal": true,
+      "look": "evening",
+      "description": "Your going-out clothes: the outfit you keep for a night out.",
+      "style": 18,
+      "emotions": {"confidence": 2, "excitement": 2}
+    },
+    {
+      "id": "everyday_outfit",
+      "label": "Everyday outfit",
+      "category": "clothing",
+      "slot": "outfit",
+      "style": 5,
+      "emotions": {"confidence": 2}
+    },
+    {
+      "id": "streetwear_set",
+      "label": "Streetwear set",
+      "category": "clothing",
+      "slot": "outfit",
+      "style": 12,
+      "emotions": {"confidence": 4}
+    },
+    {
+      "id": "workwear_suit",
+      "label": "Tailored workwear suit",
+      "category": "clothing",
+      "slot": "outfit",
+      "style": 18,
+      "emotions": {"confidence": 6}
+    },
+    {
+      "id": "evening_outfit",
+      "label": "Evening outfit",
+      "category": "clothing",
+      "slot": "outfit",
+      "style": 22,
+      "emotions": {"confidence": 6, "excitement": 3}
+    },
+    {"id": "gym_clothes", "label": "Gym clothes", "category": "clothing", "slot": "outfit", "style": 3},
+    {
+      "id": "tailored_blazer",
+      "label": "Ellis Atelier tailored blazer",
+      "category": "clothing",
+      "slot": "outfit",
+      "style": 25,
+      "emotions": {"confidence": 8}
+    },
+    {
+      "id": "silk_scarf",
+      "label": "Ellis Atelier silk scarf",
+      "category": "clothing",
+      "slot": "accessory",
+      "style": 10,
+      "emotions": {"confidence": 4}
+    },
+    {
+      "id": "sunglasses",
+      "label": "Sunglasses",
+      "category": "accessory",
+      "slot": "accessory",
+      "style": 8,
+      "emotions": {"confidence": 3}
+    },
+    {
+      "id": "designer_bag",
+      "label": "Designer bag",
+      "category": "accessory",
+      "slot": "accessory",
+      "style": 15,
+      "emotions": {"confidence": 5}
+    },
+    {
+      "id": "gold_watch",
+      "label": "Gold watch",
+      "category": "jewelry",
+      "slot": "accessory",
+      "style": 18,
+      "emotions": {"confidence": 6}
+    },
+    {
+      "id": "smartwatch",
+      "label": "Smartwatch",
+      "category": "electronics",
+      "slot": "accessory",
+      "style": 4,
+      "unlocks": ["health_tracking"]
+    },
+    {
+      "id": "headphones",
+      "label": "Wireless headphones",
+      "category": "electronics",
+      "usable": true,
+      "cooldown_minutes": 30,
+      "needs": {"recreation": 12},
+      "emotions": {"stress": -3},
+      "unlocks": ["music_on_the_go"]
+    },
+    {
+      "id": "laptop",
+      "label": "Laptop",
+      "category": "electronics",
+      "usable": true,
+      "cooldown_minutes": 45,
+      "needs": {"recreation": 10, "social": 3},
+      "unlocks": ["study_online"]
+    },
+    {
+      "id": "cold_medicine",
+      "label": "Cold & flu relief",
+      "category": "medicine",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 240,
+      "needs": {"comfort": 15},
+      "shortens": {"common_cold": 24, "flu": 24}
+    },
+    {
+      "id": "painkillers",
+      "label": "Painkillers",
+      "category": "medicine",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 240,
+      "needs": {"comfort": 20},
+      "shortens": {"hungover": 3}
+    },
+    {
+      "id": "antidepressants",
+      "label": "Antidepressants (30-day supply)",
+      "category": "medicine",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 1440,
+      "condition_recovery": {"depression": 8}
+    },
+    {
+      "id": "glint",
+      "label": "Glint (one dose)",
+      "category": "drug",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 30,
+      "substance": "glint",
+      "illegal": true
+    },
+    {
+      "id": "haze",
+      "label": "Haze (one dose)",
+      "category": "drug",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 30,
+      "substance": "haze",
+      "illegal": true
+    },
+    {
+      "id": "velvet",
+      "label": "Velvet (one dose)",
+      "category": "drug",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 30,
+      "substance": "velvet",
+      "illegal": true
+    },
+    {
+      "id": "engagement_ring",
+      "label": "Engagement ring",
+      "category": "jewelry",
+      "slot": "accessory",
+      "style": 10
+    },
+    {"id": "condoms", "label": "Condoms", "category": "contraception", "contraception": true},
+    {
+      "id": "pregnancy_test",
+      "label": "Pregnancy test",
+      "category": "health",
+      "usable": true,
+      "consumable": true,
+      "cooldown_minutes": 5,
+      "test": "pregnancy"
+    }
+  ]
+}

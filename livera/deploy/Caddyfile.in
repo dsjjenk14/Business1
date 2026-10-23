@@ -1,0 +1,35 @@
+# LIVERA: written by livera/deploy/setup.sh from deploy/Caddyfile.in. Edits here are replaced on
+# the next setup or update; change the template in the repo instead.
+{
+	@EMAIL_LINE@
+}
+
+@SITE@ {
+	# The browser gateway (WebSocket). Everything else is the static web client.
+	handle /ws {
+		reverse_proxy 127.0.0.1:8080
+	}
+	handle {
+		root * /opt/livera/current/web/client
+		encode zstd gzip
+		# Plain ES modules without a build step: always revalidate (ETag) so an update shows at once.
+		header Cache-Control "no-cache"
+		file_server
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "no-referrer"
+		Cross-Origin-Opener-Policy "same-origin"
+		# Voice is planned (docs/proposals/voice.md); allow the microphone for this site only when it ships.
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+		# The same policy as the <meta> in web/client/index.html, plus frame-ancestors (which only
+		# works in a header). The browser enforces both policies and a request must pass each, so a
+		# source added only here is still blocked by the meta: change the two together.
+		# No inline scripts or styles: the client doesn't use any.
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+		-Server
+	}
+}

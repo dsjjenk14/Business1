@@ -1,0 +1,142 @@
+{
+  "interior": {
+    "id": "fade_glow",
+    "places": ["fade_glow"],
+    "size": [1536, 1024],
+    "person_px": 125,
+    "floor": [
+      [
+        [95, 590],
+        [420, 420],
+        [800, 255],
+        [1210, 440],
+        [1290, 430],
+        [1500, 480],
+        [1450, 560],
+        [1400, 690],
+        [1130, 860],
+        [1000, 840],
+        [950, 850],
+        [700, 880],
+        [640, 860],
+        [470, 770],
+        [410, 800],
+        [270, 740],
+        [240, 640]
+      ]
+    ],
+    "blocked": [
+      {"label": "sofa", "poly": [[165, 560], [340, 465], [385, 500], [210, 600]], "height": 60},
+      {"label": "coffee table", "poly": [[315, 580], [360, 555], [410, 580], [365, 605]], "height": 45},
+      {"label": "armchair", "poly": [[410, 655], [450, 635], [500, 660], [460, 680]], "height": 60},
+      {"label": "armchair", "poly": [[480, 590], [520, 570], [575, 595], [535, 615]], "height": 60},
+      {"label": "styling stations", "poly": [[470, 410], [800, 255], [815, 280], [485, 435]], "height": 70},
+      {"label": "styling chair", "poly": [[545, 470], [575, 455], [605, 470], [575, 485]], "height": 70},
+      {"label": "styling chair", "poly": [[650, 415], [680, 400], [710, 415], [680, 430]], "height": 70},
+      {"label": "styling chair", "poly": [[750, 350], [780, 335], [810, 350], [780, 365]], "height": 70},
+      {"label": "shampoo chair", "poly": [[875, 390], [930, 360], [1000, 395], [945, 425]], "height": 70},
+      {"label": "shampoo chair", "poly": [[985, 430], [1040, 400], [1105, 435], [1050, 465]], "height": 70},
+      {"label": "manicure table", "poly": [[725, 500], [790, 465], [985, 575], [920, 610]], "height": 70},
+      {"label": "cart", "poly": [[685, 580], [712, 566], [740, 580], [712, 594]], "height": 80},
+      {"label": "reception desk", "poly": [[1040, 700], [1100, 675], [1270, 765], [1215, 800]], "height": 100},
+      {"label": "shelves", "poly": [[1190, 640], [1225, 620], [1340, 680], [1305, 700]], "height": 120},
+      {"label": "planters", "poly": [[1060, 580], [1120, 550], [1175, 578], [1115, 608]], "height": 100}
+    ],
+    "entrance": {"at": [470, 720], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [345, 745], "facing": "w", "label": "Front doors"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1420, 470],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "reception",
+        "kind": "counter",
+        "at": [1020, 725],
+        "facing": "e",
+        "label": "Reception",
+        "offers": true
+      },
+      {
+        "id": "receptionist",
+        "kind": "seat",
+        "at": [1150, 640],
+        "facing": "w",
+        "label": "Behind the desk",
+        "staff": true
+      },
+      {
+        "id": "styling_1",
+        "kind": "seat",
+        "at": [575, 478],
+        "facing": "n",
+        "label": "Styling chair",
+        "offers": ["haircut", "shave"]
+      },
+      {
+        "id": "styling_2",
+        "kind": "seat",
+        "at": [680, 423],
+        "facing": "n",
+        "label": "Styling chair",
+        "offers": ["haircut", "shave"]
+      },
+      {
+        "id": "styling_3",
+        "kind": "seat",
+        "at": [780, 358],
+        "facing": "n",
+        "label": "Styling chair",
+        "offers": ["haircut", "shave"]
+      },
+      {
+        "id": "facial_1",
+        "kind": "seat",
+        "at": [925, 420],
+        "facing": "w",
+        "label": "Facial chair",
+        "offers": ["facial"]
+      },
+      {
+        "id": "facial_2",
+        "kind": "seat",
+        "at": [1035, 460],
+        "facing": "w",
+        "label": "Facial chair",
+        "offers": ["facial"]
+      },
+      {
+        "id": "manicure_1",
+        "kind": "seat",
+        "at": [780, 640],
+        "facing": "e",
+        "label": "Manicure table",
+        "offers": ["manicure"]
+      },
+      {
+        "id": "manicure_2",
+        "kind": "seat",
+        "at": [860, 680],
+        "facing": "e",
+        "label": "Manicure table",
+        "offers": ["manicure"]
+      },
+      {
+        "id": "nail_tech",
+        "kind": "seat",
+        "at": [905, 520],
+        "facing": "w",
+        "label": "Manicure table",
+        "staff": true
+      },
+      {"id": "sofa_1", "kind": "sofa", "at": [250, 560], "facing": "s", "label": "Sofa"},
+      {"id": "sofa_2", "kind": "sofa", "at": [320, 525], "facing": "s", "label": "Sofa"},
+      {"id": "armchair_1", "kind": "seat", "at": [455, 668], "facing": "n", "label": "Armchair"},
+      {"id": "armchair_2", "kind": "seat", "at": [528, 605], "facing": "n", "label": "Armchair"}
+    ]
+  }
+}

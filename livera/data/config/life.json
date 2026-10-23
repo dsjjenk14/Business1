@@ -1,0 +1,74 @@
+{
+  "$comment": "Everyday life: the offline rule, bathroom, housework, weight, aging, grooming. See docs/SIMULATION.md.",
+  "life": {
+    "offline": {
+      "$comment": "A played character looks after themself for self_care_real_days of real time offline; after that they are depressed and only keep up the very basics.",
+      "self_care_real_days": 21,
+      "depressed_need_targets": {
+        "hunger": 35,
+        "energy": 45,
+        "hygiene": 25,
+        "bladder": 70,
+        "dental": 20,
+        "grooming": 10,
+        "social": 10,
+        "recreation": 10,
+        "comfort": 25,
+        "health": 55
+      },
+      "depressed_emotion_targets": {"happiness": 15, "sadness": 70, "loneliness": 80, "stress": 60, "confidence": 20},
+      "depression_condition": "depression",
+      "recovery_per_good_hour": 1,
+      "away_work": {
+        "$comment": "Away, a character's routine includes their job (D-063): each scheduled work block they spend offline (the schedule line marked \"work\": true, or default_block for a character without one) is paid at pay_share of the wage from the employer, through the ledger, with promotion_share of the hours toward the next title and no work decisions. Never while depressed, in jail, without a job, or when the employer can't pay.",
+        "pay_share": 0.8,
+        "promotion_share": 0.5,
+        "default_block": {"days": [0, 1, 2, 3, 4], "hours": [9, 17]}
+      }
+    },
+    "bathroom": {"accident_hygiene_loss": 40, "accident_embarrassment": 40},
+    "home": {
+      "dirt_per_hour": 1.0,
+      "dust_per_hour": 0.2,
+      "trash_per_hour": 0.5,
+      "full_trash_dirt_multiplier": 3,
+      "dirty_below": 30,
+      "dirty_home_needs_per_hour": {"comfort": -3},
+      "offline_cleanliness": 80,
+      "depressed_cleanliness": 10
+    },
+    "weight": {
+      "calories_per_hunger_point": 14,
+      "base_burn_per_day": 2000,
+      "kcal_per_kg": 7700,
+      "default_bmi": 23,
+      "depressed_loss_per_day": 0.1,
+      "high_bmi": 30,
+      "low_bmi": 18.5,
+      "unhealthy_bmi_health_decay": 0.5
+    },
+    "aging": {
+      "$comment": "Ages follow the calendar: one birthday a game year (12 months of 28 days). At one game minute a real second that is a year every 5.6 real days.",
+      "adult_age": 18,
+      "life_stages": [
+        {"id": "baby", "min_age": 0},
+        {"id": "toddler", "min_age": 1},
+        {"id": "child", "min_age": 4},
+        {"id": "teen", "min_age": 13},
+        {"id": "young_adult", "min_age": 18},
+        {"id": "adult", "min_age": 30},
+        {"id": "elder", "min_age": 60, "health_decay_multiplier": 1.5},
+        {"id": "senior", "min_age": 75, "health_decay_multiplier": 2.5}
+      ]
+    },
+    "grooming": {"attraction_min": 0.6, "attraction_max": 1.4},
+    "sleep": {
+      "$comment": "Going to bed (the sleep op): at home, from bed_hours[0] until bed_hours[1] (past midnight), or any time as a nap when energy is below nap_below_energy. Everyone asleep for the night wakes at wake_hour; a nap ends when energy would be full (at most nap_max_hours). Asleep, your routine looks after you, and energy comes back at energy_per_hour from where it was when you lay down. Where the night is skipped, it is skipped to wake_hour, or to the first nap's end.",
+      "bed_hours": [21, 3],
+      "wake_hour": 7,
+      "energy_per_hour": 12.5,
+      "nap_below_energy": 40,
+      "nap_max_hours": 4
+    }
+  }
+}

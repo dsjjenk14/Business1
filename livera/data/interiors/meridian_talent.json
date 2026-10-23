@@ -1,0 +1,106 @@
+{
+  "interior": {
+    "id": "meridian_talent",
+    "places": ["meridian_talent"],
+    "size": [1536, 1024],
+    "person_px": 130,
+    "floor": [
+      [
+        [85, 570],
+        [805, 212],
+        [1222, 420],
+        [1262, 380],
+        [1465, 480],
+        [1478, 612],
+        [1300, 730],
+        [1110, 855],
+        [1060, 820],
+        [960, 862],
+        [895, 872],
+        [670, 880],
+        [610, 860],
+        [470, 785],
+        [410, 815],
+        [270, 755],
+        [245, 650]
+      ]
+    ],
+    "blocked": [
+      {
+        "label": "glass meeting room",
+        "poly": [[822, 305], [940, 245], [1225, 412], [1110, 472]],
+        "height": 320
+      },
+      {"label": "desks", "poly": [[595, 425], [650, 385], [1110, 613], [1060, 655]], "height": 120},
+      {"label": "bookshelf", "poly": [[472, 520], [502, 505], [625, 580], [595, 595]], "height": 100},
+      {"label": "reception desk", "poly": [[497, 728], [557, 698], [765, 813], [705, 843]], "height": 75},
+      {"label": "reception desk", "poly": [[745, 800], [785, 780], [805, 795], [765, 815]], "height": 75},
+      {"label": "sofa", "poly": [[120, 555], [300, 465], [330, 500], [150, 590]], "height": 70},
+      {"label": "coffee table", "poly": [[235, 582], [290, 552], [350, 580], [292, 612]], "height": 45},
+      {"label": "armchair", "poly": [[350, 537], [390, 517], [430, 539], [390, 559]], "height": 60},
+      {"label": "armchair", "poly": [[300, 642], [340, 622], [380, 644], [340, 664]], "height": 60},
+      {"label": "sideboard", "poly": [[300, 460], [435, 393], [455, 410], [320, 478]], "height": 60},
+      {"label": "sideboard", "poly": [[540, 340], [675, 272], [690, 290], [555, 357]], "height": 60},
+      {"label": "bookshelf", "poly": [[725, 250], [800, 212], [815, 225], [740, 262]], "height": 150},
+      {"label": "meeting table", "poly": [[1042, 717], [1180, 655], [1255, 685], [1120, 770]], "height": 45},
+      {"label": "bookshelf", "poly": [[922, 818], [952, 803], [1070, 862], [1040, 877]], "height": 120},
+      {"label": "sideboard", "poly": [[1220, 560], [1250, 545], [1400, 622], [1370, 640]], "height": 70},
+      {"label": "partition", "poly": [[1262, 505], [1285, 495], [1478, 592], [1455, 605]], "height": 90},
+      {"label": "sideboard", "poly": [[1262, 402], [1300, 383], [1345, 405], [1307, 425]], "height": 70},
+      {"label": "plant", "poly": [[82, 555], [100, 546], [118, 555], [100, 564]], "height": 100},
+      {"label": "plant", "poly": [[427, 415], [445, 406], [463, 415], [445, 424]], "height": 90},
+      {"label": "plant", "poly": [[487, 355], [505, 346], [523, 355], [505, 364]], "height": 160},
+      {"label": "plant", "poly": [[617, 610], [635, 601], [653, 610], [635, 619]], "height": 120},
+      {"label": "plant", "poly": [[672, 250], [690, 241], [708, 250], [690, 259]], "height": 120},
+      {"label": "plant", "poly": [[807, 222], [825, 213], [843, 222], [825, 231]], "height": 130},
+      {"label": "plant", "poly": [[790, 805], [808, 796], [826, 805], [808, 814]], "height": 110},
+      {"label": "plant", "poly": [[1217, 468], [1235, 459], [1253, 468], [1235, 477]], "height": 120},
+      {"label": "plant", "poly": [[1392, 665], [1410, 656], [1428, 665], [1410, 674]], "height": 120},
+      {"label": "plant", "poly": [[1361, 435], [1375, 428], [1389, 435], [1375, 442]], "height": 60}
+    ],
+    "entrance": {"at": [440, 690], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [340, 785], "facing": "w", "label": "Front door"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1405, 458],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "coffee",
+        "kind": "fixture",
+        "at": [1300, 632],
+        "facing": "e",
+        "label": "Coffee sideboard",
+        "activity": "break_coffee"
+      },
+      {
+        "id": "reception",
+        "kind": "seat",
+        "at": [690, 705],
+        "facing": "w",
+        "label": "Reception",
+        "staff": true
+      },
+      {"id": "desk_1", "kind": "seat", "at": [655, 445], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_2", "kind": "seat", "at": [760, 505], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_3", "kind": "seat", "at": [868, 572], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_4", "kind": "seat", "at": [955, 622], "facing": "e", "label": "Desk", "staff": true},
+      {"id": "desk_5", "kind": "seat", "at": [772, 358], "facing": "w", "label": "Desk", "staff": true},
+      {"id": "desk_6", "kind": "seat", "at": [858, 402], "facing": "w", "label": "Desk", "staff": true},
+      {"id": "desk_7", "kind": "seat", "at": [952, 455], "facing": "w", "label": "Desk", "staff": true},
+      {"id": "desk_8", "kind": "seat", "at": [1030, 495], "facing": "w", "label": "Desk", "staff": true},
+      {"id": "sofa_1", "kind": "sofa", "at": [180, 545], "facing": "s", "label": "Sofa"},
+      {"id": "sofa_2", "kind": "sofa", "at": [240, 515], "facing": "s", "label": "Sofa"},
+      {"id": "armchair_1", "kind": "seat", "at": [390, 539], "facing": "w", "label": "Armchair"},
+      {"id": "armchair_2", "kind": "seat", "at": [340, 644], "facing": "n", "label": "Armchair"},
+      {"id": "meeting_1", "kind": "seat", "at": [1088, 668], "facing": "s", "label": "Meeting table"},
+      {"id": "meeting_2", "kind": "seat", "at": [1228, 632], "facing": "w", "label": "Meeting table"},
+      {"id": "meeting_3", "kind": "seat", "at": [1238, 712], "facing": "n", "label": "Meeting table"},
+      {"id": "meeting_4", "kind": "seat", "at": [1168, 752], "facing": "n", "label": "Meeting table"}
+    ]
+  }
+}

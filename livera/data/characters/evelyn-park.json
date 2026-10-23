@@ -1,0 +1,176 @@
+{
+  "characters": [
+    {
+      "id": "evelyn-park",
+      "cast": "townsperson",
+      "first_name": "Evelyn",
+      "last_name": "Park",
+      "pronouns": "she/her",
+      "gender": "woman",
+      "age": 58,
+      "playable": true,
+      "personality": {
+        "ambition": 55,
+        "sociability": 42,
+        "empathy": 74,
+        "patience": 88,
+        "confidence": 78,
+        "risk_tolerance": 25,
+        "competitiveness": 40,
+        "impulsiveness": 10
+      },
+      "values": {
+        "family": 72,
+        "career": 76,
+        "wealth": 22,
+        "loyalty": 66,
+        "freedom": 58,
+        "status": 38,
+        "community": 92,
+        "romance": 34,
+        "creativity": 45
+      },
+      "traits": ["fair-minded", "unhurried", "dry"],
+      "interests": ["jazz", "reading", "gardening", "crosswords", "wine"],
+      "skills": {"music": 22},
+      "career": {"id": "judiciary", "level": 2},
+      "degrees": ["high_school", "bachelors", "jd"],
+      "fame": 18,
+      "finances": {"cash_cents": 20000, "bank_cents": 2600000},
+      "home": {"property": "lexington_1406", "tenure": "rent"},
+      "spawn_location": "lexington_1406",
+      "relationships": [
+        {
+          "to": "marcus-bell",
+          "history": "He testified in her Cook County courtroom once, against his own partner. She hasn't told him she remembers.",
+          "dimensions": {"familiarity": 30, "respect": 82, "trust": 60}
+        },
+        {
+          "to": "maya",
+          "history": "Common Ground takes her community-service placements. Maya argues every one of them up to the bench, and is usually right.",
+          "dimensions": {"familiarity": 40, "respect": 70, "trust": 58, "friendship": 34}
+        },
+        {
+          "to": "leila",
+          "history": "In the public benches every week with a notebook. Evelyn approves, and won't say so.",
+          "dimensions": {"familiarity": 28, "respect": 60, "trust": 40}
+        },
+        {
+          "to": "graham",
+          "history": "Whitaker Capital offered to pay for the courtroom's benches. She sent the letter back unopened.",
+          "dimensions": {"familiarity": 22, "respect": 30, "trust": 10}
+        }
+      ],
+      "memories": [
+        {
+          "type": "career",
+          "participants": ["evelyn-park"],
+          "importance": 80,
+          "emotional_impact": 40,
+          "days_ago": 60,
+          "info": "Sworn in as Livéra's first judge, in a courtroom with no benches yet.",
+          "public": true
+        },
+        {
+          "type": "career",
+          "participants": ["evelyn-park", "marcus-bell"],
+          "importance": 60,
+          "emotional_impact": -20,
+          "days_ago": 900,
+          "info": "Heard Marcus Bell testify against his own partner in her Cook County courtroom.",
+          "about": "marcus-bell"
+        }
+      ],
+      "aspirations": ["give_back", "build_something_that_lasts"],
+      "profile": {
+        "tagline": "Thirty years of other people's worst days, and she still listens to every one.",
+        "why_livera": "new_job",
+        "ethnicity": "Korean American",
+        "card": {
+          "occupation": "Presiding Judge, Livéra Municipal Court",
+          "height_cm": 163,
+          "build": "Slight",
+          "skin_tone": "Light, warm"
+        },
+        "appearance": {
+          "height_cm": 163,
+          "build": "slight and very upright",
+          "skin": "light, warm undertone",
+          "eyes": "dark brown, steady, behind tortoiseshell reading glasses",
+          "face": "fine lines at the eyes, a calm mouth, a small scar through the left eyebrow",
+          "hair": "a chin-length silver bob, side-parted",
+          "style": "on the bench: a black judicial robe over a white collared blouse, charcoal trousers, low black pumps; off the bench: a camel cardigan and dark jeans",
+          "outfits": {
+            "everyday": "a camel cardigan over a cream blouse, dark straight jeans, white canvas sneakers, the jade bangle",
+            "work": "a black judicial robe over a white collared blouse, charcoal wool trousers, low black pumps, tortoiseshell reading glasses on a beaded cord",
+            "evening": "a navy silk wrap dress under a grey wool coat, low black heels, small pearl earrings, the jade bangle",
+            "drawn": "work"
+          },
+          "jewelry": "a jade bangle from her mother, small pearl studs, reading glasses on a beaded cord",
+          "silhouette": "a small upright woman in black who takes up the whole room",
+          "key_features": [
+            "Chin-length silver bob",
+            "Tortoiseshell reading glasses on a cord",
+            "Black judicial robe",
+            "A jade bangle",
+            "Very upright"
+          ],
+          "stand_in": {
+            "skin": "#e3bf9c",
+            "hair": "#c9c6c2",
+            "hair_style": "short",
+            "top": "#16161a",
+            "bottom": "#3a3a40",
+            "shoes": "#121212",
+            "accent": "#f2f0ea",
+            "outfits": {
+              "everyday": {"top": "#b8875a", "bottom": "#2d3a55", "shoes": "#efeae0", "accent": "#5f9e7d"},
+              "evening": {"top": "#1f2b4d", "bottom": "#1f2b4d", "shoes": "#121212", "accent": "#e8e2d4"}
+            }
+          }
+        },
+        "family_background": "Born in Philadelphia, the daughter of a Korean grocer and a church organist. Her wife, Ruth, stays in Chicago until the house sells; they talk every night at nine.",
+        "education": "B.A. History, Temple University; J.D., University of Pennsylvania Law School",
+        "goals": [
+          "Clear the docket every sitting day",
+          "Make community service mean something",
+          "Get Ruth here by spring"
+        ],
+        "ambitions": ["A court nobody is afraid to walk into"],
+        "social_preferences": "A quiet table, one glass of wine, and nobody who has a case before her.",
+        "secrets": [
+          {
+            "id": "evelyn_technicality",
+            "truth": "Years ago she let a man walk on a technicality she knew was wrong, and he hurt someone a month later. She hasn't ruled on a technicality since.",
+            "known_by": []
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "08:30", "activity": "Livéra Municipal Court", "work": true},
+            {"time": "17:30", "activity": "Home"}
+          ],
+          "saturday": [
+            {"time": "08:30", "activity": "Livéra Municipal Court", "work": true},
+            {"time": "17:30", "activity": "Home"}
+          ],
+          "sunday": [{"time": "10:00", "activity": "Willow Lake Park"}, {"time": "12:00", "activity": "Home"}]
+        },
+        "starting_inventory": ["phone", "reading glasses", "gavel", "crossword book"],
+        "social_media": {
+          "handle": "@livera.court",
+          "followers": 1200,
+          "bio": "Livéra Municipal Court. Hearings are public, Monday to Saturday, nine to five."
+        },
+        "reputation": {"professional": 88, "social": 45, "public": 62},
+        "life_history": [
+          "Eleven years as a public defender in Philadelphia.",
+          "Fourteen years on the Cook County circuit bench.",
+          "Came to Livéra to build a court from an empty room."
+        ],
+        "archetype": "The Last Word"
+      },
+      "sex": "female"
+    }
+  ]
+}

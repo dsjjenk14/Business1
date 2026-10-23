@@ -1,0 +1,149 @@
+{
+  "characters": [
+    {
+      "id": "julian",
+      "cast": "founder",
+      "first_name": "Julian",
+      "last_name": "Park",
+      "pronouns": "he/him",
+      "gender": "man",
+      "age": 30,
+      "playable": true,
+      "personality": {
+        "ambition": 90,
+        "sociability": 78,
+        "empathy": 45,
+        "patience": 25,
+        "confidence": 85,
+        "risk_tolerance": 90,
+        "competitiveness": 78,
+        "impulsiveness": 70
+      },
+      "values": {
+        "family": 45,
+        "career": 92,
+        "wealth": 80,
+        "loyalty": 50,
+        "freedom": 85,
+        "status": 75,
+        "community": 40,
+        "romance": 55,
+        "creativity": 85
+      },
+      "traits": ["restless", "inventive", "charming"],
+      "interests": ["tech", "gaming", "travel", "fitness", "networking"],
+      "career": {"id": "startup", "level": 1},
+      "degrees": ["high_school"],
+      "fame": 15,
+      "finances": {"cash_cents": 12000, "bank_cents": 1900000},
+      "home": {"property": "riverside_lofts_5", "tenure": "rent"},
+      "spawn_location": "riverside_lofts_5",
+      "relationships": [
+        {
+          "to": "dax",
+          "history": "The best engineer he's ever hired, and the only one who can say no to him.",
+          "dimensions": {"familiarity": 60, "respect": 66, "trust": 58, "friendship": 42}
+        },
+        {
+          "to": "graham",
+          "history": "Graham led his seed round. Julian needs his Series A more than he likes him.",
+          "dimensions": {"familiarity": 48, "respect": 50, "trust": 34, "resentment": 10}
+        },
+        {
+          "to": "naomi",
+          "history": "One summer in New York. He still thinks about it more than he should.",
+          "dimensions": {"familiarity": 52, "friendship": 28, "romantic_attraction": 32, "trust": 40}
+        }
+      ],
+      "memories": [
+        {
+          "type": "romance",
+          "participants": ["julian", "naomi"],
+          "importance": 65,
+          "emotional_impact": -30,
+          "days_ago": 1500,
+          "info": "The rooftop in Brooklyn where Naomi told him it was over.",
+          "about": "naomi"
+        },
+        {
+          "type": "business",
+          "participants": ["julian", "graham"],
+          "importance": 70,
+          "emotional_impact": 45,
+          "days_ago": 200,
+          "info": "Graham wired the seed round an hour after the pitch.",
+          "about": "graham"
+        }
+      ],
+      "aspirations": ["get_promoted", "build_something_that_lasts", "find_love"],
+      "profile": {
+        "tagline": "Thinks Livéra is a product. Might be right.",
+        "why_livera": "business_opportunity",
+        "ethnicity": "White and Asian American",
+        "card": {
+          "occupation": "Startup Founder",
+          "height_cm": 181,
+          "build": "Lean muscular",
+          "skin_tone": "Fair with warm undertones"
+        },
+        "appearance": {
+          "height_cm": 181,
+          "build": "lean muscular",
+          "skin": "fair with warm undertones",
+          "eyes": "dark, expressive",
+          "face": "strong, clean jawline, quick crooked smile",
+          "hair": "textured black hair, tousled",
+          "style": "black leather jacket, charcoal crewneck sweater, black slim trousers, white sneakers, matte black watch, laptop in hand",
+          "outfits": {
+            "everyday": "heather-grey hoodie, black slim joggers, white sneakers, matte black watch, canvas backpack",
+            "work": "black leather jacket, charcoal crewneck sweater, black slim trousers, white sneakers, matte black watch, laptop in hand",
+            "evening": "charcoal unstructured blazer over a black tee, black slim jeans, black leather Chelsea boots, matte black watch",
+            "drawn": "work"
+          },
+          "silhouette": "leather jacket, always moving",
+          "key_features": [
+            "Dark, expressive eyes",
+            "Textured black hair",
+            "Strong, clean jawline",
+            "Athletic build",
+            "Modern, effortless style"
+          ],
+          "visual_reference": "art/reference/characters/julian.jpg"
+        },
+        "family_background": "Only child of a Korean-American cardiologist and a white high-school robotics coach in Seattle.",
+        "education": "B.S. Computer Science, Stanford (left senior year)",
+        "goals": [
+          "Close Parallax's Series A",
+          "Make Livéra the first city planned by AI",
+          "Get Naomi to take his calls"
+        ],
+        "ambitions": ["Every new city on Earth runs on Parallax"],
+        "social_preferences": "Charming in a crowd, restless one-on-one; always half on his phone.",
+        "secrets": [
+          {
+            "id": "julian_demo",
+            "truth": "Parallax's demo to the consortium used results the model can't reproduce yet.",
+            "known_by": ["dax"]
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "07:00", "activity": "Gym"},
+            {"time": "08:30", "activity": "Parallax Labs", "work": true},
+            {"time": "23:00", "activity": "Still at Parallax Labs"}
+          ]
+        },
+        "starting_inventory": ["phone", "laptop", "leather jacket", "Parallax pitch deck"],
+        "social_media": {"handle": "@julianpark", "followers": 22100, "bio": "Founder, Parallax. Cities are software now."},
+        "reputation": {"professional": 64, "social": 60, "public": 42},
+        "life_history": [
+          "Sold his first app at twenty-three.",
+          "Founded Parallax Labs at twenty-eight.",
+          "Talked the consortium into making Livéra Parallax's first customer."
+        ],
+        "archetype": "The Innovator"
+      },
+      "sex": "male"
+    }
+  ]
+}

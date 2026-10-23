@@ -1,0 +1,95 @@
+{
+  "interior": {
+    "id": "ellis_atelier",
+    "places": ["ellis_atelier"],
+    "size": [948, 584],
+    "person_px": 86,
+    "floor": [
+      [
+        [62, 331],
+        [358, 161],
+        [505, 205],
+        [533, 184],
+        [600, 200],
+        [905, 318],
+        [830, 365],
+        [740, 425],
+        [660, 480],
+        [578, 534],
+        [548, 522],
+        [510, 516],
+        [330, 454],
+        [305, 444],
+        [215, 401],
+        [200, 391],
+        [155, 369],
+        [125, 356]
+      ]
+    ],
+    "blocked": [
+      {"label": "side table", "poly": [[145, 290], [170, 278], [198, 290], [172, 302]], "height": 35},
+      {"label": "plant", "poly": [[230, 232], [245, 224], [260, 232], [245, 240]], "height": 70},
+      {
+        "label": "sofa",
+        "poly": [[186, 298], [195, 272], [260, 262], [330, 248], [342, 262], [332, 280], [262, 296], [200, 306]],
+        "height": 45
+      },
+      {"label": "coffee table", "poly": [[272, 309], [305, 293], [340, 309], [305, 327]], "height": 25},
+      {"label": "side table", "poly": [[336, 272], [348, 266], [360, 272], [348, 278]], "height": 30},
+      {"label": "armchair", "poly": [[356, 307], [384, 290], [412, 305], [386, 323]], "height": 50},
+      {"label": "plant", "poly": [[318, 195], [330, 189], [343, 195], [330, 201]], "height": 60},
+      {"label": "design desk", "poly": [[350, 178], [380, 162], [510, 205], [480, 221]], "height": 37},
+      {"label": "plant", "poly": [[515, 196], [527, 190], [540, 196], [527, 202]], "height": 55},
+      {"label": "cutting table", "poly": [[478, 298], [539, 261], [703, 320], [642, 357]], "height": 55},
+      {"label": "dress form", "poly": [[600, 237], [614, 230], [628, 237], [614, 244]], "height": 85},
+      {"label": "dress form", "poly": [[656, 258], [668, 252], [680, 258], [668, 264]], "height": 95},
+      {"label": "clothes rail", "poly": [[688, 262], [700, 256], [812, 312], [797, 324]], "height": 85},
+      {"label": "arched shelf", "poly": [[780, 270], [885, 312], [880, 322], [775, 282]], "height": 110},
+      {"label": "mirror", "poly": [[816, 352], [848, 336], [880, 344], [848, 362]], "height": 120},
+      {"label": "plant", "poly": [[860, 326], [890, 310], [912, 315], [884, 331]], "height": 80},
+      {"label": "dress form", "poly": [[719, 407], [735, 399], [751, 407], [735, 415]], "height": 115},
+      {"label": "planter", "poly": [[760, 405], [812, 374], [826, 380], [772, 412]], "height": 45},
+      {"label": "display table", "poly": [[562, 428], [610, 401], [728, 447], [680, 474]], "height": 46}
+    ],
+    "entrance": {"at": [290, 398], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [258, 418], "facing": "w", "label": "Front door"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [578, 204],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "display",
+        "kind": "counter",
+        "at": [612, 480],
+        "facing": "e",
+        "label": "Finished pieces",
+        "offers": true
+      },
+      {
+        "id": "cutting_table",
+        "kind": "station",
+        "at": [572, 348],
+        "facing": "e",
+        "label": "Cutting table",
+        "staff": true
+      },
+      {
+        "id": "design_desk",
+        "kind": "seat",
+        "at": [392, 208],
+        "facing": "e",
+        "label": "Design desk",
+        "staff": true
+      },
+      {"id": "sofa_1", "kind": "sofa", "at": [222, 292], "facing": "s", "label": "Sofa"},
+      {"id": "sofa_2", "kind": "sofa", "at": [265, 286], "facing": "s", "label": "Sofa"},
+      {"id": "sofa_3", "kind": "sofa", "at": [310, 277], "facing": "w", "label": "Sofa"},
+      {"id": "armchair", "kind": "seat", "at": [384, 306], "facing": "w", "label": "Armchair"}
+    ]
+  }
+}

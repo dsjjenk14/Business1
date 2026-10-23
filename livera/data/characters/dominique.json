@@ -1,0 +1,264 @@
+{
+  "characters": [
+    {
+      "id": "dominique",
+      "cast": "founder",
+      "first_name": "Dominique",
+      "last_name": "Ashford",
+      "pronouns": "she/her",
+      "gender": "woman",
+      "age": 29,
+      "playable": true,
+      "personality": {
+        "ambition": 88,
+        "sociability": 74,
+        "empathy": 68,
+        "patience": 42,
+        "confidence": 81,
+        "risk_tolerance": 62,
+        "competitiveness": 79,
+        "impulsiveness": 33
+      },
+      "values": {
+        "family": 72,
+        "career": 92,
+        "wealth": 76,
+        "loyalty": 81,
+        "freedom": 58,
+        "status": 70,
+        "community": 64,
+        "romance": 52,
+        "creativity": 55
+      },
+      "traits": ["driven", "polished", "perceptive", "guarded", "fiercely_loyal"],
+      "interests": ["fashion", "networking", "real_estate", "fitness", "rnb_music", "brunch", "interior_design"],
+      "career": {"id": "recruiting", "level": 1},
+      "degrees": ["high_school", "bachelors"],
+      "fame": 5,
+      "finances": {"cash_cents": 18000, "bank_cents": 1450000},
+      "home": {"property": "lexington_1204", "tenure": "rent"},
+      "spawn_location": "lexington_1204",
+      "relationships": [
+        {
+          "to": "dax",
+          "history": "She placed three engineers at Parallax Labs. He hired a fourth she'd lined up for someone else, and still thinks he did her a favour.",
+          "dimensions": {
+            "familiarity": 25,
+            "friendship": 12,
+            "trust": 18,
+            "respect": 34,
+            "physical_attraction": 22,
+            "conflict": 6
+          }
+        },
+        {
+          "to": "aaliyah",
+          "history": "Met at a gala Aaliyah produced in Atlanta six years ago. Aaliyah is the reason Dominique said yes to Livéra.",
+          "dimensions": {"familiarity": 78, "friendship": 72, "trust": 66, "loyalty": 64, "respect": 60}
+        },
+        {
+          "to": "graham",
+          "history": "Meridian fills executive roles for Whitaker Capital's portfolio companies. He's her biggest client in town.",
+          "dimensions": {"familiarity": 30, "respect": 48, "trust": 22, "physical_attraction": 24}
+        },
+        {
+          "to": "leila",
+          "history": "Leila keeps asking who's being hired where. Dominique keeps not answering.",
+          "dimensions": {"familiarity": 15, "respect": 32, "trust": 10}
+        },
+        {
+          "to": "harper",
+          "history": "Dominique sees Harper every Thursday at 7 a.m., before anyone else is awake. Nobody knows.",
+          "dimensions": {"familiarity": 42, "trust": 58, "respect": 55, "friendship": 20}
+        },
+        {
+          "to": "sol-rivera",
+          "history": "Oat latte, extra hot, ready at 8:09 for her 8:10. Dominique has never had to ask twice.",
+          "dimensions": {"familiarity": 24, "friendship": 20, "respect": 36}
+        }
+      ],
+      "memories": [
+        {
+          "type": "professional",
+          "participants": ["dominique", "dax"],
+          "importance": 30,
+          "emotional_impact": -10,
+          "days_ago": 21,
+          "info": "Dax hired a candidate she was placing elsewhere, without telling her.",
+          "about": "dax"
+        },
+        {
+          "type": "life_change",
+          "participants": ["dominique"],
+          "importance": 80,
+          "emotional_impact": 35,
+          "days_ago": 45,
+          "info": "Accepted Meridian's offer to open the Livéra office. Left Atlanta in a week."
+        },
+        {
+          "type": "friendship",
+          "participants": ["dominique", "aaliyah"],
+          "importance": 55,
+          "emotional_impact": 45,
+          "days_ago": 47,
+          "info": "Aaliyah flew to Atlanta to help her pack.",
+          "about": "aaliyah"
+        },
+        {
+          "type": "heirloom",
+          "participants": ["dominique"],
+          "importance": 75,
+          "emotional_impact": 45,
+          "days_ago": 3800,
+          "info": "Grandma Inez put the gold coin pendant around her neck the morning she left for Spelman: 'So you remember who sent you.'"
+        },
+        {
+          "type": "career_start",
+          "participants": ["dominique"],
+          "importance": 70,
+          "emotional_impact": 50,
+          "days_ago": 3650,
+          "info": "At 19, matched a classmate with her first internship from the career-center front desk. Found out she was good at this."
+        },
+        {
+          "type": "first_placement",
+          "participants": ["dominique"],
+          "importance": 65,
+          "emotional_impact": 55,
+          "days_ago": 1825,
+          "info": "At 24, placed a nurse who'd been turned down thirty times. Bought her first blazer with the commission."
+        }
+      ],
+      "aspirations": ["get_promoted", "buy_a_home", "make_friends"],
+      "profile": {
+        "tagline": "Came to staff a city. Plans to own part of it.",
+        "why_livera": "career_advancement",
+        "card": {
+          "occupation": "Senior Recruiter, Meridian Talent Partners",
+          "height_cm": 175,
+          "build": "Curvy hourglass",
+          "skin_tone": "Warm medium brown"
+        },
+        "appearance": {
+          "height_cm": 175,
+          "build": "curvy hourglass",
+          "skin": "warm medium brown",
+          "face": "soft oval face, full brows, full lips, a steady gaze and a slight closed-mouth smile",
+          "hair": "long, voluminous jet-black body waves with a centre part",
+          "nails": "soft pink, almond",
+          "style": "black double-breasted blazer with gold buttons, blush-pink wrap blouse, black high-waisted wide-leg trousers, black belt with a gold buckle, black patent pointed pumps, burgundy structured top-handle bag with gold hardware",
+          "jewelry": "her grandmother's gold coin pendant (never off), gold watch, small gold hoops",
+          "silhouette": "sharp-shouldered blazer over a defined waist; wide-leg trousers to the floor",
+          "palette": ["black", "blush pink", "burgundy", "gold"],
+          "outfits": {
+            "everyday": "camel coat over the shoulders, cream ribbed knit, taupe wide-leg trousers, nude pointed heels, cognac top-handle bag",
+            "work": "black double-breasted blazer, blush-pink wrap blouse, black wide-leg trousers, black patent pumps, burgundy top-handle bag",
+            "evening": "burgundy satin one-shoulder midi dress, black blazer over the shoulders, black strappy heels, gold cuff, black satin clutch",
+            "drawn": "work"
+          },
+          "key_features": [
+            "Long jet-black hair: straight at 19, a messy bun at 24, full body waves now",
+            "Her grandmother's gold coin pendant, at every age",
+            "Soft oval face and full lips",
+            "Curvy hourglass figure",
+            "Wide-leg trousers, always; a power palette of black, blush and burgundy"
+          ],
+          "visual_reference": "art/reference/characters/dominique_ages.jpg",
+          "reference_sheets": {
+            "life_stages": "art/reference/characters/dominique_ages.jpg",
+            "turnaround": "art/reference/characters/dominique.jpg"
+          }
+        },
+        "family_background": "Eldest of three, raised in Decatur, Georgia by a mother who ran a hair salon and a father who drove for MARTA. Her grandmother Inez gave her the gold coin pendant the morning she left for Spelman. Sends money home monthly.",
+        "education": "B.A. Communications, Spelman College",
+        "goals": [
+          "Make Recruiting Manager within a year",
+          "Buy, not rent, before thirty-one",
+          "Build a circle in a town where she knows almost nobody"
+        ],
+        "ambitions": ["Run the largest staffing firm in Livéra", "Own a building on Founders Way"],
+        "social_preferences": "Prefers small dinners to big crowds; warms up slowly, then all the way.",
+        "secrets": [
+          {
+            "id": "dom_counteroffer",
+            "truth": "Her old Atlanta firm has a standing offer for her to come back as a partner. She hasn't said no.",
+            "known_by": []
+          },
+          {
+            "id": "dom_therapy",
+            "truth": "She sees Harper James for therapy every Thursday morning.",
+            "known_by": ["harper"]
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "06:30", "activity": "Gym or a run in Founders Park"},
+            {"time": "08:30", "activity": "Meridian Talent Partners", "work": true},
+            {"time": "18:30", "activity": "Home, or networking at Heritage Coffee"}
+          ],
+          "thursday": [{"time": "07:00", "activity": "James Wellness (private)"}],
+          "sunday": [{"time": "10:00", "activity": "Greater Hope service"}]
+        },
+        "starting_inventory": [
+          "phone",
+          "laptop",
+          "grandmother's gold coin pendant",
+          "gold watch",
+          "small gold hoops",
+          "black double-breasted blazer",
+          "burgundy top-handle bag",
+          "camel wool coat",
+          "running shoes",
+          "Lexington key fob"
+        ],
+        "social_media": {"handle": "@dom.ashford", "followers": 2840, "bio": "Talent. Taste. Timing. New to Livéra."},
+        "reputation": {"professional": 62, "social": 40, "public": 15},
+        "life_history": [
+          "19: work-study at the Spelman career center; placed her first classmate in an internship.",
+          "22: graduated from Spelman and took a job nobody else wanted, recruiting night-shift nurses.",
+          "24: top biller on her team; bought her first work wardrobe with her first commission.",
+          "27: moved to Meridian Talent; top-billing recruiter in Atlanta two years running.",
+          "28: ended a four-year relationship the month before moving.",
+          "29: first of the founding residents to sign a lease at The Lexington."
+        ],
+        "archetype": "The Closer",
+        "life_stages": [
+          {
+            "age": 19,
+            "stage": "College",
+            "chapter": "Sophomore at Spelman, working the front desk of the campus career center for work-study. Matched a classmate with her first internship and realised she was good at it.",
+            "look": {
+              "hair": "long, straight, centre part",
+              "outfit": "oversized grey zip hoodie slipping off the shoulders, white ribbed crop tank, light-wash baggy wide-leg jeans, grey-and-white sneakers",
+              "carrying": "monogram backpack, an armful of notebooks",
+              "jewelry": "the gold coin pendant"
+            }
+          },
+          {
+            "age": 24,
+            "stage": "First real job",
+            "chapter": "Recruiter at a healthcare staffing firm in Atlanta: sixty-hour weeks, nurses and night shifts. Bought her first real work clothes with her first commission check.",
+            "look": {
+              "hair": "high messy bun, face-framing strands",
+              "outfit": "chocolate-brown square-neck fitted knit, beige high-waisted pleated wide-leg trousers, dark brown belt with a gold buckle, tan pointed heels",
+              "carrying": "brown leather tote on the shoulder",
+              "jewelry": "the gold coin pendant, a gold watch"
+            }
+          },
+          {
+            "age": 29,
+            "stage": "Opening Livéra",
+            "chapter": "Senior Recruiter sent to open Meridian Talent's Livéra office: the first recruiter in a town that needs to hire everyone.",
+            "look": {
+              "hair": "long, voluminous body waves, centre part",
+              "outfit": "black double-breasted blazer with gold buttons, blush-pink wrap blouse, black high-waisted wide-leg trousers, black patent pointed pumps",
+              "carrying": "burgundy structured top-handle bag",
+              "jewelry": "the gold coin pendant, a gold watch, small gold hoops"
+            }
+          }
+        ]
+      },
+      "sex": "female"
+    }
+  ]
+}

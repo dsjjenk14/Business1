@@ -1,0 +1,81 @@
+{
+  "interior": {
+    "id": "little_sprouts",
+    "places": ["little_sprouts"],
+    "size": [1536, 1024],
+    "person_px": 130,
+    "floor": [
+      [
+        [100, 552],
+        [600, 262],
+        [760, 185],
+        [1070, 335],
+        [1220, 470],
+        [1300, 455],
+        [1330, 390],
+        [1500, 445],
+        [1500, 475],
+        [1460, 560],
+        [1200, 705],
+        [1200, 760],
+        [1000, 880],
+        [990, 905],
+        [745, 925],
+        [700, 890],
+        [470, 760],
+        [405, 805],
+        [275, 745],
+        [240, 640]
+      ]
+    ],
+    "blocked": [
+      {"label": "cubbies", "poly": [[120, 540], [210, 490], [265, 520], [175, 570]], "height": 80},
+      {"label": "window bench", "poly": [[300, 420], [470, 330], [500, 350], [330, 440]], "height": 50},
+      {"label": "tree", "poly": [[490, 330], [520, 315], [550, 330], [520, 345]], "height": 150},
+      {"label": "tree", "poly": [[250, 495], [278, 482], [306, 495], [278, 508]], "height": 150},
+      {"label": "cubbies", "poly": [[570, 410], [640, 370], [705, 405], [635, 445]], "height": 90},
+      {"label": "tree", "poly": [[708, 440], [730, 428], [752, 440], [730, 452]], "height": 120},
+      {"label": "cribs", "poly": [[715, 280], [790, 240], [1060, 370], [985, 415]], "height": 90},
+      {"label": "nursing chair", "poly": [[608, 290], [638, 275], [668, 290], [638, 305]], "height": 60},
+      {"label": "tunnel", "poly": [[390, 515], [435, 492], [480, 515], [435, 538]], "height": 70},
+      {"label": "slide", "poly": [[470, 530], [540, 490], [612, 535], [545, 570]], "height": 80},
+      {"label": "ball pit", "poly": [[675, 585], [740, 552], [805, 585], [740, 618]], "height": 45},
+      {"label": "flower cushion", "poly": [[550, 640], [605, 612], [660, 640], [605, 668]], "height": 25},
+      {"label": "rocking horse", "poly": [[640, 700], [685, 678], [732, 702], [688, 724]], "height": 60},
+      {"label": "book rack", "poly": [[490, 760], [555, 725], [620, 760], [555, 795]], "height": 80},
+      {"label": "low table", "poly": [[850, 480], [930, 440], [1040, 495], [960, 535]], "height": 35},
+      {"label": "round table", "poly": [[840, 705], [895, 680], [950, 705], [895, 730]], "height": 35},
+      {"label": "bookshelf", "poly": [[1035, 700], [1080, 675], [1130, 700], [1085, 725]], "height": 110},
+      {"label": "reading nook", "poly": [[1280, 560], [1330, 530], [1400, 565], [1350, 595]], "height": 140},
+      {"label": "bean bag", "poly": [[1150, 565], [1195, 543], [1240, 565], [1195, 587]], "height": 35},
+      {"label": "changing table", "poly": [[1045, 450], [1080, 430], [1225, 480], [1190, 500]], "height": 70}
+    ],
+    "entrance": {"at": [455, 650], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [340, 772], "facing": "w", "label": "Front door"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1400, 425],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "changing_table",
+        "kind": "station",
+        "at": [1110, 505],
+        "facing": "e",
+        "label": "Changing table",
+        "staff": true
+      },
+      {"id": "nursing_chair", "kind": "seat", "at": [638, 300], "facing": "s", "label": "Nursing chair"},
+      {"id": "window_bench_1", "kind": "sofa", "at": [380, 420], "facing": "s", "label": "Window bench"},
+      {"id": "window_bench_2", "kind": "sofa", "at": [440, 388], "facing": "s", "label": "Window bench"},
+      {"id": "low_table_1", "kind": "seat", "at": [890, 545], "facing": "e", "label": "Little chair"},
+      {"id": "low_table_2", "kind": "seat", "at": [1012, 500], "facing": "w", "label": "Little chair"},
+      {"id": "round_table_1", "kind": "seat", "at": [835, 742], "facing": "e", "label": "Little chair"},
+      {"id": "round_table_2", "kind": "seat", "at": [895, 790], "facing": "n", "label": "Little chair"}
+    ]
+  }
+}

@@ -1,0 +1,161 @@
+{
+  "characters": [
+    {
+      "id": "kai-morgan",
+      "cast": "resident",
+      "first_name": "Kai",
+      "last_name": "Morgan",
+      "pronouns": "he/him",
+      "gender": "man",
+      "age": 22,
+      "playable": true,
+      "personality": {
+        "ambition": 70,
+        "sociability": 84,
+        "empathy": 52,
+        "patience": 34,
+        "confidence": 74,
+        "risk_tolerance": 80,
+        "competitiveness": 66,
+        "impulsiveness": 78
+      },
+      "values": {
+        "family": 62,
+        "career": 78,
+        "wealth": 55,
+        "loyalty": 70,
+        "freedom": 92,
+        "status": 58,
+        "community": 45,
+        "romance": 50,
+        "creativity": 96
+      },
+      "traits": ["outgoing", "rebellious", "creative"],
+      "interests": ["music", "hip_hop", "rnb_music", "gaming", "fashion", "nightlife"],
+      "skills": {"music": 46},
+      "career": {"id": "music_production", "level": 0},
+      "degrees": ["high_school"],
+      "fame": 3,
+      "finances": {"cash_cents": 6500, "bank_cents": 74000},
+      "home": {"property": "riverside_lofts_4", "tenure": "rent"},
+      "spawn_location": "riverside_lofts_4",
+      "relationships": [
+        {
+          "to": "andre",
+          "history": "Andre heard one of his beats through the wall of the Copper Tap's storeroom and gave him the studio's late slot. Kai would walk into traffic for him.",
+          "dimensions": {"familiarity": 40, "respect": 78, "friendship": 38, "trust": 52, "loyalty": 60}
+        },
+        {
+          "to": "theo-grant",
+          "history": "Cousins: their mothers are sisters in Atlanta. Theo needed a room and a fresh start; Kai had both.",
+          "dimensions": {"familiarity": 90, "friendship": 74, "loyalty": 82, "trust": 70}
+        },
+        {
+          "to": "bernie-walsh",
+          "history": "His boss at the Copper Tap for a month. He quit mid-shift on a Friday to finish a beat, and still owes her an apology.",
+          "dimensions": {"familiarity": 44, "respect": 56, "friendship": 30, "conflict": 18}
+        },
+        {
+          "to": "sol-rivera",
+          "history": "Sol sings over his beats at the open mic and won't let him play anything unfinished.",
+          "dimensions": {"familiarity": 46, "friendship": 48, "respect": 50, "physical_attraction": 16}
+        }
+      ],
+      "memories": [
+        {
+          "type": "career",
+          "participants": ["kai-morgan", "andre"],
+          "importance": 80,
+          "emotional_impact": 70,
+          "days_ago": 30,
+          "info": "The night Andre handed him the keys to Low End Studios' B room.",
+          "about": "andre"
+        },
+        {
+          "type": "conflict",
+          "participants": ["kai-morgan", "bernie-walsh"],
+          "importance": 50,
+          "emotional_impact": -25,
+          "days_ago": 26,
+          "info": "Walked out of a Friday shift at the Copper Tap with the bar three deep.",
+          "about": "bernie-walsh",
+          "public": true
+        }
+      ],
+      "aspirations": ["release_an_album", "get_famous"],
+      "profile": {
+        "tagline": "Makes beats in the B room. Makes them louder after midnight.",
+        "why_livera": "adventure",
+        "ethnicity": "Black American",
+        "card": {
+          "occupation": "Beatmaker, Low End Studios",
+          "height_cm": 183,
+          "build": "Lean",
+          "skin_tone": "Deep brown, neutral"
+        },
+        "appearance": {
+          "height_cm": 183,
+          "build": "lean",
+          "skin": "deep brown, neutral",
+          "eyes": "round brown eyes",
+          "face": "square face, wide nose, full lips, stubble",
+          "hair": "black shoulder-length locs under a black baseball cap",
+          "style": "red zip-up hoodie over a white tee, baggy black cargo jeans, plain red-and-white high-top sneakers",
+          "outfits": {
+            "everyday": "red zip-up hoodie over a white tee, baggy black cargo jeans, plain red-and-white high-top sneakers, black baseball cap, silver chain",
+            "work": "black oversized tee with a red graphic print, baggy black cargo jeans, plain black high-top sneakers, black baseball cap, studio headphones around his neck, silver chain",
+            "evening": "black satin bomber jacket over a white tee, black wide-leg trousers, clean white high-top sneakers, black baseball cap, layered silver chains",
+            "drawn": "everyday"
+          },
+          "jewelry": "a silver chain necklace, pierced ears",
+          "silhouette": "an oversized red hoodie over a long, lean frame",
+          "key_features": [
+            "Black locs and stubble",
+            "Round brown eyes, square face",
+            "Forearm-script and hand tattoos",
+            "Pierced ears and a chain necklace",
+            "Baseball cap and streetwear"
+          ],
+          "visual_reference": "art/reference/residents/kai-morgan.jpg",
+          "avatar": "art/avatars/kai-morgan.jpg",
+          "art_notes": [
+            "The red-and-white high-top sneakers resemble a well-known real design; regenerate the turnaround with plain shoes before any commercial use.",
+            "The BAR SHIFT LOOK panel shows the Copper Tap barback job he left before he started at Low End Studios; the data has him as a beatmaker there (career music_production)."
+          ],
+          "art_as_of": "Day 28 of the town-preview recording"
+        },
+        "family_background": "Raised in southwest Atlanta by his mother, a MARTA bus driver, with three sisters and one pair of headphones between them.",
+        "education": "High school diploma; YouTube for everything after",
+        "goals": ["Get a beat on Andre's next record", "Play his own set at ÉCLAT's opening", "Pay Bernie back"],
+        "ambitions": ["A record deal that doesn't own his masters"],
+        "social_preferences": "Loud rooms, late nights, and one person who'll tell him a beat is bad.",
+        "secrets": [
+          {
+            "id": "kai_session",
+            "truth": "He found the original session for Andre's 'Golden Hour' on the studio drive. The sample isn't cleared, and he hasn't told anyone he knows.",
+            "known_by": []
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "11:00", "activity": "Home, headphones on"},
+            {"time": "14:00", "activity": "Low End Studios", "work": true},
+            {"time": "22:00", "activity": "Home"}
+          ],
+          "thursday": [{"time": "22:00", "activity": "Open mic at The Copper Tap"}],
+          "saturday": [{"time": "12:00", "activity": "Low End Studios"}]
+        },
+        "starting_inventory": ["phone", "headphones", "laptop", "beat pad", "black cap"],
+        "social_media": {"handle": "@kaimakesnoise", "followers": 2300, "bio": "beats from the B room. livéra."},
+        "reputation": {"professional": 30, "social": 58, "public": 12},
+        "life_history": [
+          "Sold his first beat at sixteen for forty dollars.",
+          "Came to Livéra for a barback job and a cousin's spare room.",
+          "Quit the Copper Tap the week Andre gave him studio time."
+        ],
+        "archetype": "The Upstart"
+      },
+      "sex": "male"
+    }
+  ]
+}

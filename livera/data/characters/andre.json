@@ -1,0 +1,159 @@
+{
+  "characters": [
+    {
+      "id": "andre",
+      "cast": "founder",
+      "first_name": "Andre",
+      "last_name": "Campbell",
+      "pronouns": "he/him",
+      "gender": "man",
+      "age": 29,
+      "playable": true,
+      "personality": {
+        "ambition": 72,
+        "sociability": 88,
+        "empathy": 55,
+        "patience": 30,
+        "confidence": 82,
+        "risk_tolerance": 85,
+        "competitiveness": 60,
+        "impulsiveness": 85
+      },
+      "values": {
+        "family": 65,
+        "career": 75,
+        "wealth": 70,
+        "loyalty": 55,
+        "freedom": 90,
+        "status": 60,
+        "community": 50,
+        "romance": 70,
+        "creativity": 95
+      },
+      "traits": ["magnetic", "impulsive", "resourceful"],
+      "interests": ["music", "hip_hop", "rnb_music", "nightlife", "basketball", "fashion"],
+      "skills": {"music": 72},
+      "career": {"id": "music_production", "level": 2},
+      "degrees": ["high_school"],
+      "fame": 30,
+      "finances": {"cash_cents": 60000, "bank_cents": 380000},
+      "home": {"property": "riverside_lofts_2", "tenure": "rent"},
+      "spawn_location": "riverside_lofts_2",
+      "relationships": [
+        {
+          "to": "dax",
+          "history": "Saturday pickup partners. Dax wins; Andre gets the better stories out of it.",
+          "dimensions": {"familiarity": 48, "friendship": 50, "respect": 38}
+        },
+        {
+          "to": "aaliyah",
+          "history": "They were together for two years in Miami. He left for a tour and didn't come back for a month.",
+          "dimensions": {"familiarity": 72, "romantic_attraction": 48, "friendship": 22, "resentment": 10, "conflict": 15}
+        },
+        {
+          "to": "sienna",
+          "history": "She art-directed his last cover. He hasn't stopped thinking about her since.",
+          "dimensions": {"familiarity": 22, "physical_attraction": 42, "respect": 36, "friendship": 15}
+        },
+        {
+          "to": "kai-morgan",
+          "history": "The kid from the Copper Tap's storeroom has ears. Andre gave him the B room and checks his sessions more often than he admits.",
+          "dimensions": {"familiarity": 40, "respect": 52, "friendship": 34, "trust": 40}
+        }
+      ],
+      "memories": [
+        {
+          "type": "romance",
+          "participants": ["andre", "aaliyah"],
+          "importance": 70,
+          "emotional_impact": -35,
+          "days_ago": 900,
+          "info": "The night Aaliyah threw his things out of a Miami Beach balcony.",
+          "about": "aaliyah"
+        },
+        {
+          "type": "career",
+          "participants": ["andre"],
+          "importance": 80,
+          "emotional_impact": 60,
+          "days_ago": 600,
+          "info": "Produced 'Golden Hour', the song that put his name on the map."
+        }
+      ],
+      "aspirations": ["release_an_album", "find_love"],
+      "profile": {
+        "tagline": "Makes the town's soundtrack. Makes his own rules.",
+        "why_livera": "financial_opportunity",
+        "ethnicity": "Jamaican American",
+        "card": {
+          "occupation": "Music Producer",
+          "height_cm": 184,
+          "build": "Lean athletic",
+          "skin_tone": "Warm mahogany"
+        },
+        "appearance": {
+          "height_cm": 184,
+          "build": "lean athletic",
+          "skin": "warm mahogany",
+          "eyes": "expressive brown",
+          "face": "defined jawline, thin mustache and chin beard, playful smile, small gold hoop earrings",
+          "hair": "short locs with a taper fade",
+          "style": "olive suede bomber jacket, black tank, black cargo pants, olive-and-white sneakers, gold Cuban chain, gold watch and bracelet",
+          "outfits": {
+            "everyday": "olive suede bomber jacket, black tank, black cargo pants, olive-and-white sneakers, gold Cuban chain, gold watch and bracelet",
+            "work": "oversized charcoal hoodie, black joggers, black slides over white socks, studio headphones around his neck, gold Cuban chain, gold watch",
+            "evening": "black silk camp-collar shirt open at the neck, tailored black trousers, black leather Chelsea boots, gold Cuban chain, gold watch and bracelet",
+            "drawn": "everyday"
+          },
+          "silhouette": "relaxed bomber over a long, lean frame",
+          "key_features": [
+            "Expressive brown eyes",
+            "Short locs with taper fade",
+            "Defined jawline",
+            "Playful smile",
+            "Effortless, modern streetwear style"
+          ],
+          "visual_reference": "art/reference/characters/andre.jpg"
+        },
+        "family_background": "Grew up in Flatbush above his grandmother's record shop. His father played bass in a reggae band that never quite made it.",
+        "education": "Some college (audio engineering), left to tour",
+        "goals": [
+          "Be ÉCLAT's resident producer when it opens",
+          "Sign the first artist out of Livéra",
+          "Win Aaliyah back, or stop wanting to"
+        ],
+        "ambitions": ["Run his own label from Low End Studios"],
+        "social_preferences": "The center of every room, then gone without saying goodbye.",
+        "secrets": [
+          {
+            "id": "andre_sample",
+            "truth": "'Golden Hour' uses a sample he never cleared. If the rights holder finds out, the song that made his name gets pulled.",
+            "known_by": []
+          },
+          {"id": "andre_aaliyah", "truth": "He moved to Livéra because Aaliyah did.", "known_by": []}
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "13:00", "activity": "Low End Studios", "work": true},
+            {"time": "22:00", "activity": "Listening sessions at the studio"}
+          ],
+          "saturday": [{"time": "09:00", "activity": "Pickup basketball with Dax"}]
+        },
+        "starting_inventory": ["phone", "headphones", "drum machine", "gold chain", "studio keys"],
+        "social_media": {
+          "handle": "@andrecampbellmusic",
+          "followers": 48200,
+          "bio": "Producer. Golden Hour. Livéra's loudest neighbor."
+        },
+        "reputation": {"professional": 58, "social": 70, "public": 45},
+        "life_history": [
+          "Made beats in his grandmother's back room at fourteen.",
+          "Toured as a DJ for three years.",
+          "Produced 'Golden Hour', a regional hit, at twenty-six."
+        ],
+        "archetype": "The Wild Card"
+      },
+      "sex": "male"
+    }
+  ]
+}

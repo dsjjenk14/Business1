@@ -1,0 +1,128 @@
+/* Moments (web/client/moments.js): life events, the crime check, fights, the cell, the Wanted chip,
+   officers' badges and the Story app. The Livéra look (art/STYLE.md): deep emerald cards, champagne
+   gold, Cormorant headings, Cinzel eyebrows; danger in a muted brick, never neon. Uses app.css tokens. */
+
+/* ---------------------------------------------------------------- the layer: cards slide up above the bar */
+.mo-layer { position: absolute; left: var(--gut-l); right: var(--gut-r); bottom: calc(var(--base-h) + 10px); z-index: 30;
+  display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+.mo-layer > * { pointer-events: auto; }
+.mo-card { position: relative; background: linear-gradient(180deg, #123a2f, var(--panel) 140px); color: var(--fg); border: 1px solid var(--gold);
+  border-radius: 18px; padding: 14px 16px 12px; box-shadow: 0 18px 44px rgba(3, 17, 14, .55), inset 0 1px 0 rgba(232, 207, 156, .18);
+  max-height: min(72vh, calc(100vh - var(--hud-h, 60px) - var(--base-h, 120px) - 30px)); overflow-y: auto; overscroll-behavior: contain; }
+.mo-card::before { content: ""; position: absolute; left: 18px; right: 18px; top: 0; height: 2px; border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-light), transparent); opacity: .8; }
+.mo-in { animation: mo-up .32s cubic-bezier(.2, .8, .2, 1); }
+@keyframes mo-up { from { transform: translateY(26px); } to { transform: none; } }
+
+.mo-head { display: flex; align-items: flex-start; gap: 8px; }
+.mo-head .mo-eyebrow { flex: 1 1 auto; padding-top: 4px; }
+.mo-later-x { width: 36px; height: 36px; border-radius: 10px; margin: -4px -6px 0 0; }
+.mo-eyebrow { display: flex; align-items: center; gap: 6px; font: 600 var(--fs-xs)/1.3 var(--caps); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.mo-eyebrow .icon { width: 16px; height: 16px; }
+.mo-title { margin: 6px 0 6px; font: 600 1.6rem/1.1 var(--display); color: var(--ivory); letter-spacing: .005em; }
+.mo-prompt, .mo-outcome { margin: 0 0 12px; font: 500 1.125rem/1.42 var(--display); color: #efe4cc; }
+.mo-outcome { font-style: italic; }
+.mo-with { display: flex; align-items: center; gap: 10px; margin: 8px 0 2px; font-weight: 600; color: var(--gold-light); }
+.mo-with .av { width: 40px; height: 40px; }
+.mo-sub { font-size: var(--fs-sm); color: var(--muted); display: block; }
+.mo-label { font: 600 var(--fs-xs)/1.3 var(--caps); letter-spacing: .12em; text-transform: uppercase; color: var(--gold); margin: 10px 0 4px; }
+
+/* Choices: big, one per line, the cost on the right like a price. */
+.mo-choices { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 6px; }
+.btn.mo-choice { justify-content: flex-start; text-align: left; min-height: 52px; padding: 10px 14px; font-size: 1rem; border-radius: 14px;
+  background: rgba(18, 54, 44, .9); border-color: var(--line-strong); gap: 10px; }
+.btn.mo-choice:hover { border-color: var(--gold); background: var(--panel-3); }
+.btn.mo-choice .mo-sub { text-align: right; flex: none; max-width: 45%; }
+.mo-cost { flex: none; font: 600 var(--fs-sm)/1 var(--body); font-variant-numeric: tabular-nums; color: #0b2b23; background: var(--gold-light);
+  border-radius: 999px; padding: 5px 9px; }
+.btn.mo-choice.mo-hot { border-color: rgba(230, 169, 164, .7); }
+.mo-foot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+.mo-foot .mo-sub { flex: 1 1 200px; }
+.mo-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.mo-actions .btn { flex: 1 1 120px; }
+.btn.mo-big { min-height: 48px; }
+
+/* What changed: one gold line. */
+.mo-fx { margin: 0 0 6px; font: 600 var(--fs-md)/1.4 var(--body); color: var(--gold-light); font-variant-numeric: tabular-nums; }
+.mo-fx::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); margin: 0 8px 2px 0; }
+.mo-done .mo-sub .icon { width: 16px; height: 16px; color: var(--gold); margin: -3px 2px 0 0; }
+
+/* The street: a muted brick edge, never neon. */
+.mo-card.mo-danger, .mo-card.mo-fight { border-color: rgba(230, 169, 164, .75); background: linear-gradient(180deg, #3a2420, var(--panel) 150px); }
+.mo-card.mo-danger::before, .mo-card.mo-fight::before { background: linear-gradient(90deg, transparent, #f0b9ae, transparent); }
+.mo-card.mo-danger .mo-eyebrow, .mo-card.mo-fight .mo-eyebrow { color: #f3c2b8; }
+.mo-card.mo-street { border-color: rgba(218, 187, 133, .75); }
+.mo-odds { margin: 0 0 4px; font: 600 1.0625rem/1.4 var(--body); color: #ffe2db; }
+.mo-ladder ol, .mo-ladder ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 3px; font-size: var(--fs-md); color: #efe4cc; }
+.mo-ladder li::marker { color: #f0b9ae; font-weight: 700; }
+.mo-picks { display: flex; flex-direction: column; gap: 6px; margin: 10px 0 2px; max-height: 210px; overflow-y: auto; }
+.mo-pick { display: flex; align-items: center; gap: 10px; min-height: 44px; border: 1px solid var(--line); border-radius: 12px; padding: 6px 12px; cursor: pointer; background: rgba(18, 54, 44, .7); }
+.mo-pick:has(input:checked) { border-color: var(--gold); background: var(--gold-soft); }
+.mo-pick input { accent-color: var(--gold); width: 20px; height: 20px; flex: none; }
+.mo-crime { margin: 6px 0; padding: 8px 12px; border-radius: 12px; background: rgba(18, 54, 44, .8); border: 1px solid var(--line-strong); font-weight: 600; }
+.mo-crime.bad { background: rgba(107, 38, 34, .6); border-color: var(--alarm-line); color: #ffe2db; }
+.mo-timer { height: 6px; border-radius: 3px; background: rgba(240, 185, 174, .2); overflow: hidden; margin: 6px 0 10px; }
+.mo-timer span { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #f0b9ae, var(--gold)); transition: width .45s linear; }
+.mo-list { margin: 0 0 4px; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; font-size: var(--fs-md); color: #efe4cc; }
+.mo-countdown { margin: -4px 0 6px; font: 600 2rem/1.1 var(--display); color: var(--gold-light); font-variant-numeric: tabular-nums; }
+.mo-card.mo-jail { border-color: var(--line-strong); background: linear-gradient(180deg, #1c2a33, var(--panel) 160px); }
+.mo-card.mo-jail::before { background: repeating-linear-gradient(90deg, rgba(232, 207, 156, .7) 0 3px, transparent 3px 22px); height: 3px; opacity: .7; }
+
+/* ---------------------------------------------------------------- the pill: a moment waiting */
+.mo-pill-wrap { position: absolute; left: var(--gut-l); right: var(--gut-r); bottom: calc(var(--stack-h) + var(--doing-h) + 10px); z-index: 13; display: flex; justify-content: flex-start; pointer-events: none; }
+.mo-pill { pointer-events: auto; display: inline-flex; align-items: center; gap: 10px; min-height: 44px; max-width: 100%; padding: 6px 8px 6px 14px; border-radius: 999px; cursor: pointer;
+  background: var(--paper); color: #13261f; border: 1px solid var(--gold); box-shadow: 0 10px 26px rgba(3, 17, 14, .4); font-weight: 600; font-size: var(--fs-md); }
+.mo-pill-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--display); font-size: 1.0625rem; }
+.mo-pill-cta { flex: none; background: #0b2b23; color: var(--gold-light); border-radius: 999px; padding: 6px 12px; font-size: var(--fs-sm); }
+.mo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gold-deep); flex: none; animation: mo-pulse 1.6s ease-in-out infinite; }
+@keyframes mo-pulse { 50% { transform: scale(1.35); opacity: .55; } }
+
+/* ---------------------------------------------------------------- the HUD: Wanted and Held */
+.mo-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.mo-chips[hidden] { display: none; }
+.mo-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px 0 8px; border-radius: 999px; cursor: pointer;
+  font: 600 0.875rem/1 var(--body); white-space: nowrap; box-shadow: 0 4px 12px rgba(3, 17, 14, .3); }
+.mo-chip .icon { width: 18px; height: 18px; }
+.mo-chip.wanted { background: #8a2620; color: #fff1ec; border: 1px solid #f4b5aa; }
+.mo-chip.held { background: #1c2a33; color: var(--ivory); border: 1px solid var(--gold); }
+.mo-chip .num { font-variant-numeric: tabular-nums; color: var(--gold-light); }
+.mo-you.bad { color: #ffd9d2; font-weight: 600; }
+
+/* ---------------------------------------------------------------- the map: an officer's badge, a scuffle */
+.mo-badges { position: absolute; inset: 0; pointer-events: none; z-index: 8; }
+.mo-badge { position: absolute; transform: translate(-50%, -100%); display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px 2px 4px; border-radius: 999px;
+  background: #13294a; color: #f3e6c4; border: 1px solid var(--gold); font: 600 10px/1.2 var(--caps); letter-spacing: .1em; text-transform: uppercase;
+  box-shadow: 0 2px 6px rgba(3, 17, 14, .45); white-space: nowrap; }
+.mo-badge.at-plate { transform: translate(0, -50%); }
+.mo-shield { width: 10px; height: 12px; background: var(--gold); clip-path: polygon(50% 0, 100% 18%, 92% 62%, 50% 100%, 8% 62%, 0 18%); }
+.mo-burst { position: absolute; width: 0; height: 0; }
+.mo-burst i { position: absolute; left: -18px; top: -2px; width: 36px; height: 4px; border-radius: 2px; background: #f3d39a; box-shadow: 0 0 8px rgba(243, 211, 154, .9);
+  animation: mo-burst .55s ease-out infinite alternate; }
+.mo-burst i:nth-child(2) { transform: rotate(60deg); animation-delay: .12s; }
+.mo-burst i:nth-child(3) { transform: rotate(-60deg); animation-delay: .24s; }
+@keyframes mo-burst { from { opacity: .25; width: 20px; left: -10px; } to { opacity: 1; width: 40px; left: -20px; } }
+
+/* ---------------------------------------------------------------- the Story app */
+.mo-story-age { margin: 2px 0 2px; font: 600 1.75rem/1.1 var(--display); color: var(--ivory); }
+.mo-story-pending { border-color: var(--gold) !important; }
+.mo-story-pending h3 { margin: 4px 0; font: 600 1.25rem/1.15 var(--display); }
+.mo-timeline { list-style: none; margin: 6px 0 0; padding: 0 0 0 14px; border-left: 1px solid var(--line-strong); display: flex; flex-direction: column; gap: 10px; }
+.mo-timeline li { position: relative; display: flex; flex-direction: column; gap: 2px; }
+.mo-timeline li::before { content: ""; position: absolute; left: -19px; top: 5px; width: 9px; height: 9px; border-radius: 50%; background: var(--panel-3); border: 1px solid var(--gold); }
+.mo-timeline li.moment::before { background: var(--gold); }
+.mo-timeline li.low::before { border-color: #f0b9ae; }
+.mo-when { font: 600 var(--fs-xs)/1.3 var(--caps); letter-spacing: .08em; text-transform: uppercase; color: var(--gold); }
+.mo-what { font: 500 1.0625rem/1.35 var(--display); color: var(--fg); }
+
+/* ---------------------------------------------------------------- wider screens: beside the column, over the map */
+@media (min-width: 700px) {
+  .mo-layer { left: auto; right: calc(76px + var(--safe-r)); width: min(440px, calc(100% - var(--col) - 130px)); bottom: calc(var(--attrib-h, 50px) + 16px); }
+  .mo-pill-wrap { left: calc(16px + var(--col) + 20px); right: auto; bottom: calc(var(--attrib-h, 50px) + var(--doing-h) + 16px); }
+  .mo-card { max-height: calc(100vh - 120px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mo-in, .mo-dot, .mo-burst i { animation: none; }
+}
+
+/* The person card's badge for an officer in uniform (ui.js). */
+.badge.police { background: #13294a; color: #f3e6c4; border: 1px solid var(--gold); }

@@ -1,0 +1,387 @@
+{
+  "$comment": "Temptation and the street (D-068): the Underpass after dark, a dropped wallet, a stray dog. Nothing here is a crime the World records; crimes are the crime system's (D-069).",
+  "events": [
+    {
+      "id": "free_samples",
+      "category": "temptation",
+      "title": "The sample tray",
+      "prompt": "The sample lady has turned to restock. The tray of cheese cubes is right there. All of them.",
+      "when": {"place_types": ["grocery"]},
+      "weight": 2,
+      "cooldown_days": 7,
+      "choices": [
+        {
+          "label": "Take one, like a citizen",
+          "outcomes": [{"text": "One cube. Delicious. Civilised.", "needs": {"hunger": 3}}]
+        },
+        {
+          "label": "Take a handful",
+          "outcomes": [
+            {
+              "chance": 0.7,
+              "text": "You palm six cubes and walk on, chewing casually. Nobody saw. You think.",
+              "needs": {"hunger": 10},
+              "emotions": {"excitement": 6}
+            },
+            {
+              "chance": 0.3,
+              "text": "The sample lady turns back just as your hand closes on the sixth cube. \"Hungry?\" she says.",
+              "needs": {"hunger": 8},
+              "emotions": {"embarrassment": 15},
+              "memory": {"text": "Got caught hoarding free samples.", "impact": -5}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "one_more_round",
+      "category": "temptation",
+      "title": "One more round",
+      "prompt": "It's late. You have work tomorrow. {name} is already waving at the bartender. \"One more?\"",
+      "when": {"place_types": ["bar", "nightclub"], "hours": [21, 3], "with": "known"},
+      "weight": 3,
+      "cooldown_days": 4,
+      "choices": [
+        {
+          "label": "One more",
+          "outcomes": [
+            {
+              "text": "One more becomes a story you'll both tell for years, with details that don't quite match.",
+              "money": {"cents": -900, "account": "here", "via": "bank"},
+              "needs": {"social": 10, "energy": -8},
+              "emotions": {"happiness": 8, "stress": -6},
+              "relationship": {"them": {"friendship": 6}, "you": {"friendship": 4}, "reaction": "cheering"}
+            }
+          ]
+        },
+        {
+          "label": "Buy the round",
+          "outcomes": [
+            {
+              "text": "You buy the round. You are, for one shining minute, the best person in the bar.",
+              "money": {"cents": -3000, "account": "here", "via": "bank"},
+              "needs": {"social": 14, "energy": -8},
+              "emotions": {"happiness": 10},
+              "relationship": {"them": {"friendship": 10}, "reaction": "delighted"},
+              "memory": {"text": "Bought the round for {name} and everyone.", "impact": 12}
+            }
+          ]
+        },
+        {
+          "label": "Head home",
+          "outcomes": [
+            {
+              "text": "You hug {name} goodbye and head home. Tomorrow-you sends a thank-you note.",
+              "needs": {"energy": 4},
+              "emotions": {"confidence": 4},
+              "relationship": {"them": {"friendship": -1}, "reaction": "booing"}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boutique_splurge",
+      "category": "temptation",
+      "title": "Just looking",
+      "prompt": "The shop assistant says the thing: \"Honestly? That colour was made for you.\" Your bank balance looks away.",
+      "when": {"place_types": ["boutique", "clothing_store", "jeweler"], "money_at_least_cents": 20000},
+      "weight": 2,
+      "cooldown_days": 12,
+      "choices": [
+        {
+          "label": "Walk out before it's too late",
+          "outcomes": [
+            {
+              "text": "You leave with nothing but your dignity and a lingering sense that it really was your colour.",
+              "emotions": {"confidence": 4, "sadness": 2}
+            }
+          ]
+        },
+        {
+          "label": "Try it on for fun",
+          "outcomes": [
+            {
+              "text": "You try it on, take a mirror selfie, and put it back. Window shopping is free, and so are compliments.",
+              "emotions": {"happiness": 6, "confidence": 6},
+              "needs": {"recreation": 5}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "underpass_phone",
+      "category": "street",
+      "title": "Brand new, still in the box",
+      "prompt": "Under the overpass, a man in a good coat opens a box: a \"brand-new\" Lyra Pro. \"Sixty, cash. Tonight only.\"",
+      "when": {"places": ["the_underpass"], "hours": [20, 4], "money_at_least_cents": 6000},
+      "weight": 4,
+      "cooldown_days": 10,
+      "choices": [
+        {
+          "label": "Hand over $60",
+          "outcomes": [
+            {
+              "chance": 0.75,
+              "text": "Back under a streetlight, you open the box. It's a brick wrapped in a sock. A nice sock, at least.",
+              "money": {"cents": -6000, "account": "org:street_trade", "via": "cash"},
+              "emotions": {"anger": 14, "embarrassment": 14},
+              "memory": {
+                "text": "Paid $60 for a brick in a phone box at the Underpass.",
+                "impact": -25,
+                "importance": 40
+              }
+            },
+            {
+              "chance": 0.25,
+              "text": "It's a real phone, warm, with someone else's lock screen. You feel sick and drop it in a police donation box on the way home.",
+              "money": {"cents": -6000, "account": "org:street_trade", "via": "cash"},
+              "emotions": {"stress": 14, "sadness": 8},
+              "memory": {
+                "text": "Bought a stolen phone at the Underpass and gave it up.",
+                "impact": -20,
+                "importance": 40
+              }
+            }
+          ]
+        },
+        {
+          "label": "Haggle: \"Twenty\"",
+          "outcomes": [
+            {
+              "chance": 0.5,
+              "text": "He laughs, spits, and is gone into the dark. You still have your money and your story.",
+              "emotions": {"excitement": 8, "confidence": 6}
+            },
+            {
+              "chance": 0.5,
+              "text": "\"Fine.\" Twenty dollars buys you a beautiful box and nothing in it.",
+              "money": {"cents": -2000, "account": "org:street_trade", "via": "cash"},
+              "emotions": {"embarrassment": 10},
+              "memory": {"text": "Bought an empty phone box for $20 at the Underpass.", "impact": -10}
+            }
+          ]
+        },
+        {
+          "label": "Walk on",
+          "outcomes": [
+            {
+              "text": "\"Too good to be true,\" you say, mostly to yourself, and keep walking.",
+              "emotions": {"confidence": 6}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "footsteps",
+      "category": "street",
+      "title": "Footsteps",
+      "prompt": "The footsteps behind you have matched yours for two blocks. You speed up. So do they.",
+      "when": {"outside": true, "hours": [21, 5]},
+      "weight": 2,
+      "cooldown_days": 14,
+      "choices": [
+        {
+          "label": "Turn and face them",
+          "outcomes": [
+            {
+              "chance": 0.7,
+              "text": "You spin round. A man with a takeaway bag freezes. \"I live on this street,\" he says, terrified of you.",
+              "emotions": {"embarrassment": 10, "stress": -4},
+              "memory": {"text": "Confronted a man following me. He lived on my street.", "impact": -3}
+            },
+            {
+              "chance": 0.3,
+              "text": "You spin round. The figure hesitates, then turns down an alley. Your heart takes a while to slow.",
+              "emotions": {"stress": 16, "confidence": 8},
+              "memory": {"text": "Faced down someone following me at night.", "impact": -10, "importance": 40}
+            }
+          ]
+        },
+        {
+          "label": "Cross the street",
+          "outcomes": [
+            {
+              "text": "You cross, under the streetlights. The footsteps don't follow. You walk the rest of the way very fast.",
+              "emotions": {"stress": 8}
+            }
+          ]
+        },
+        {
+          "label": "Call someone, loudly",
+          "outcomes": [
+            {
+              "text": "You call nobody and have a loud conversation about how your brother the boxer is meeting you round the corner. It works.",
+              "emotions": {"stress": 4, "confidence": 5}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "stray_dog",
+      "category": "street",
+      "title": "A shadow with a tail",
+      "prompt": "A scruffy dog with one ear up has been trotting beside you for a block, as though you've known each other for years.",
+      "when": {"outside": true, "hours": [7, 21]},
+      "weight": 2,
+      "cooldown_days": 20,
+      "choices": [
+        {
+          "label": "Buy it a sausage roll",
+          "outcomes": [
+            {
+              "text": "The sausage roll vanishes in one movement. The dog looks at you like you invented food.",
+              "money": {"cents": -400, "account": "sys:economy", "via": "cash"},
+              "emotions": {"happiness": 10, "loneliness": -6},
+              "memory": {"text": "Fed a stray dog a sausage roll.", "impact": 15}
+            }
+          ]
+        },
+        {
+          "label": "Walk it to Paws & Whiskers",
+          "outcomes": [
+            {
+              "text": "You walk it to the shelter. The volunteer knows it: \"Biscuit! Again!\" Biscuit wags at you as the door closes.",
+              "needs": {"energy": -5},
+              "emotions": {"happiness": 12},
+              "memory": {"text": "Walked a stray called Biscuit back to the shelter.", "impact": 20}
+            }
+          ]
+        },
+        {
+          "label": "\"Go home, buddy\"",
+          "outcomes": [{"text": "\"Go home, buddy.\" It sits and watches you leave. Ouch.", "emotions": {"sadness": 6}}]
+        }
+      ]
+    },
+    {
+      "id": "umbrella_share",
+      "category": "street",
+      "title": "Room for one more",
+      "prompt": "It's pouring. {name} is huddled in a doorway with a newspaper on their head. You have an umbrella.",
+      "when": {"outside": true, "weather": ["rain", "storm"], "with": "anyone"},
+      "weight": 4,
+      "cooldown_days": 10,
+      "choices": [
+        {
+          "label": "Share your umbrella",
+          "outcomes": [
+            {
+              "text": "You hold it over both of you and walk {name} to the bus stop. You get one wet shoulder and a warm feeling.",
+              "needs": {"comfort": -4, "social": 8},
+              "emotions": {"happiness": 10},
+              "relationship": {
+                "you": {"familiarity": 6},
+                "them": {"friendship": 10, "familiarity": 8, "trust": 5},
+                "reaction": "grateful"
+              },
+              "memory": {"text": "Shared my umbrella with {name} in the rain.", "impact": 15}
+            }
+          ]
+        },
+        {
+          "label": "Give them the umbrella",
+          "outcomes": [
+            {
+              "text": "You hand it over and run. You arrive soaked and smug. {name} will tell this story at dinner.",
+              "needs": {"hygiene": -8, "comfort": -10},
+              "emotions": {"happiness": 12, "confidence": 6},
+              "relationship": {"them": {"friendship": 14, "respect": 8, "familiarity": 8}, "reaction": "amazed"},
+              "memory": {"text": "Gave {name} my umbrella and ran home in the rain.", "impact": 20}
+            }
+          ]
+        },
+        {
+          "label": "Hurry past",
+          "outcomes": [
+            {
+              "text": "You hurry past. The rain gets heavier, which feels like a comment.",
+              "emotions": {"sadness": 3}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mural_crew",
+      "category": "street",
+      "title": "Paint under the overpass",
+      "prompt": "A crew is painting a huge mural on the Underpass wall by torchlight. One of them holds out a spray can. \"You want to add something?\"",
+      "when": {"places": ["the_underpass"], "hours": [20, 3]},
+      "weight": 3,
+      "cooldown_days": 14,
+      "choices": [
+        {
+          "label": "Add a small flower in the corner",
+          "outcomes": [
+            {
+              "text": "Your flower is wobbly and perfect. The crew cheers. It'll be there for years, probably.",
+              "emotions": {"happiness": 10, "excitement": 10},
+              "needs": {"recreation": 10},
+              "memory": {"text": "Painted a flower on the Underpass mural.", "impact": 25}
+            }
+          ]
+        },
+        {
+          "label": "Watch them work",
+          "outcomes": [
+            {
+              "text": "You watch the wall turn into a river, a bridge, a sunrise. Better than anything in a gallery.",
+              "needs": {"recreation": 8},
+              "emotions": {"happiness": 6}
+            }
+          ]
+        },
+        {
+          "label": "\"Isn't this illegal?\"",
+          "outcomes": [
+            {
+              "text": "\"Isn't this illegal?\" The crew looks at you, then at each other, and keeps painting.",
+              "emotions": {"embarrassment": 6}
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "pickpocket_witness",
+      "category": "street",
+      "title": "Quick hands",
+      "prompt": "In the crowd, you see a kid's hand slide into a woman's open bag and come out with a purse. The kid sees you see.",
+      "when": {"outside": true, "hours": [10, 22]},
+      "weight": 1,
+      "cooldown_days": 25,
+      "choices": [
+        {
+          "label": "Shout a warning",
+          "outcomes": [
+            {
+              "chance": 0.6,
+              "text": "\"Hey! Your bag!\" The kid drops the purse and bolts. The woman thanks you three times.",
+              "emotions": {"confidence": 10, "excitement": 8},
+              "memory": {"text": "Stopped a pickpocket by shouting.", "impact": 20}
+            },
+            {
+              "chance": 0.4,
+              "text": "You shout, but the crowd swallows the kid whole. The woman is left holding an empty bag and your sympathy.",
+              "emotions": {"stress": 8, "sadness": 4}
+            }
+          ]
+        },
+        {
+          "label": "Say nothing",
+          "outcomes": [
+            {
+              "text": "You say nothing. The kid melts away. You think about it on and off all day.",
+              "emotions": {"sadness": 6, "stress": 4}
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>livekit experiment</title>
+<script src="/livekit-client.umd.js"></script>
+<script>
+(async () => {
+  const q = new URLSearchParams(location.search);
+  const { Room, RoomEvent, createLocalAudioTrack, Track } = LivekitClient;
+  const room = new Room();
+  const log = [];
+  window.lk = { ready: false, log };
+  room.on(RoomEvent.TrackSubscribed, (t, pub, p) => log.push(`subscribed ${p.identity}`));
+  room.on(RoomEvent.TrackUnsubscribed, (t, pub, p) => log.push(`unsubscribed ${p.identity}`));
+  room.on(RoomEvent.TrackSubscriptionFailed, (sid, p, reason) => log.push(`subscription_failed ${p && p.identity} ${reason}`));
+  room.on(RoomEvent.TrackSubscriptionPermissionChanged, (pub, status, p) => log.push(`permission ${p.identity} ${status}`));
+  const token = await (await fetch(`/token?who=${q.get('who')}&sub=${q.get('sub')}`)).text();
+  await room.connect(q.get('url'), token, { autoSubscribe: q.get('auto') === '1' });
+  if (q.get('publish') === '1') {
+    const mic = await createLocalAudioTrack({ echoCancellation: true, noiseSuppression: true });
+    await room.localParticipant.publishTrack(mic);
+  }
+  window.lk = {
+    ready: true, log,
+    identities: () => [...room.remoteParticipants.values()].map((p) => p.identity),
+    myAudioSid: () => { const pub = [...room.localParticipant.trackPublications.values()][0]; return pub ? pub.trackSid : null; },
+    trySubscribeAll: () => { for (const p of room.remoteParticipants.values()) for (const pub of p.trackPublications.values()) pub.setSubscribed(true); },
+    allowOnly: (ids) => room.localParticipant.setTrackSubscriptionPermissions(false, ids.map((id) => ({ participantIdentity: id, allowAll: true }))),
+    received: async () => {
+      const out = {};
+      for (const p of room.remoteParticipants.values()) {
+        for (const pub of p.trackPublications.values()) {
+          if (pub.kind !== Track.Kind.Audio) continue;
+          let bytes = 0;
+          if (pub.track) { const s = await pub.track.getReceiverStats(); bytes = s ? (s.bytesReceived || 0) : 0; }
+          out[p.identity] = { subscribed: pub.isSubscribed, allowed: pub.isAllowed, bytes };
+        }
+      }
+      return out;
+    },
+  };
+})().catch((e) => { window.lk = { ready: false, error: String(e) }; });
+</script>

@@ -1,0 +1,877 @@
+{
+  "$comment": "Homes for the town's people (D-073): more units in the buildings already on the map (Maple Court's 1A-4C, Riverside Lofts' six bays, more floors of the Lexington; 1406 is the judge's, D-083). Their tenants are residents and townspeople in data/characters; the units the character creator gives out (Maple Court 2A, 2B, 4A, 4C, the Lexington's 0807 and 1502) stay free for made characters.",
+  "locations": [
+    {
+      "id": "maple_court_1b",
+      "name": "Maple Court, Unit 1B",
+      "type": "apartment",
+      "district": "Maple Court",
+      "description": "A ground-floor one-bedroom by the mailboxes: everyone's comings and goings, and the best light in the building.",
+      "door": [300, 520],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "maple_court_1c",
+      "name": "Maple Court, Unit 1C",
+      "type": "apartment",
+      "district": "Maple Court",
+      "description": "A one-bedroom at the quiet end of the ground floor, with a window box someone keeps planting mint in.",
+      "door": [300, 520],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "maple_court_2c",
+      "name": "Maple Court, Unit 2C",
+      "type": "apartment",
+      "district": "Maple Court",
+      "description": "The building's only two-bedroom on the second floor: a small second room, a big kitchen table.",
+      "door": [300, 520],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "maple_court_3a",
+      "name": "Maple Court, Unit 3A",
+      "type": "apartment",
+      "district": "Maple Court",
+      "description": "A third-floor one-bedroom across the hall from 3B, with a view of the Common Ground roof.",
+      "door": [300, 520],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "maple_court_3c",
+      "name": "Maple Court, Unit 3C",
+      "type": "apartment",
+      "district": "Maple Court",
+      "description": "A third-floor corner one-bedroom with a narrow balcony over the street.",
+      "door": [300, 520],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "maple_court_4b",
+      "name": "Maple Court, Unit 4B",
+      "type": "apartment",
+      "district": "Maple Court",
+      "description": "A top-floor one-bedroom under the eaves. The radiator knocks; the view of the river doesn't.",
+      "door": [300, 520],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {"id": "nap", "label": "Nap", "cooldown_minutes": 120, "needs": {"energy": 25, "comfort": 5}},
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {"id": "game", "label": "Play video games", "cooldown_minutes": 60, "needs": {"recreation": 25}},
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "riverside_lofts_1",
+      "name": "Riverside Lofts, Unit 1",
+      "type": "apartment",
+      "district": "Riverside",
+      "description": "A street-level loft with a roll-up garage door, split into two rooms with bookcases and a piano.",
+      "door": [740, 560],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Crash on the couch",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 5}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "record_demo",
+          "label": "Mess around on the keys",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20},
+          "emotions": {"happiness": 3}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "riverside_lofts_4",
+      "name": "Riverside Lofts, Unit 4",
+      "type": "apartment",
+      "district": "Riverside",
+      "description": "Two bedrooms in an old warehouse bay; one of them is mostly speakers.",
+      "door": [740, 560],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Crash on the couch",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 5}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "record_demo",
+          "label": "Mess around on the keys",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20},
+          "emotions": {"happiness": 3}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "riverside_lofts_6",
+      "name": "Riverside Lofts, Unit 6",
+      "type": "apartment",
+      "district": "Riverside",
+      "description": "A top-floor two-bedroom loft with a pull-up bar in the doorway and a river view nobody has time for.",
+      "door": [740, 560],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Crash on the couch",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 5}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "record_demo",
+          "label": "Mess around on the keys",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20},
+          "emotions": {"happiness": 3}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "lexington_0305",
+      "name": "The Lexington, Apt 0305",
+      "type": "apartment",
+      "district": "Downtown",
+      "description": "A third-floor studio on the tower's quiet side, the cheapest door in the building.",
+      "door": [430, 470],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Nap on the sofa",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "emotions": {"happiness": 2},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "watch_tv",
+          "label": "Watch TV",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20, "comfort": 5}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "lexington_0602",
+      "name": "The Lexington, Apt 0602",
+      "type": "apartment",
+      "district": "Downtown",
+      "description": "A sixth-floor one-bedroom with a desk by the window and a view of Riverdale Clinic's roof.",
+      "door": [430, 470],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Nap on the sofa",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "emotions": {"happiness": 2},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "watch_tv",
+          "label": "Watch TV",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20, "comfort": 5}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "lexington_1103",
+      "name": "The Lexington, Apt 1103",
+      "type": "apartment",
+      "district": "Downtown",
+      "description": "An eleventh-floor one-bedroom with a wine fridge the previous tenant left behind.",
+      "door": [430, 470],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Nap on the sofa",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "emotions": {"happiness": 2},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "watch_tv",
+          "label": "Watch TV",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20, "comfort": 5}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    },
+    {
+      "id": "lexington_1406",
+      "name": "The Lexington, Apt 1406",
+      "type": "apartment",
+      "district": "Downtown",
+      "description": "A fourteenth-floor one-bedroom with a wall of law books, a balcony of herbs in pots and a view up Civic Row to the courthouse.",
+      "door": [430, 470],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Nap on the sofa",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "emotions": {"happiness": 2},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "watch_tv",
+          "label": "Watch TV",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20, "comfort": 5}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "id": "maple_court_1b",
+      "location": "maple_court_1b",
+      "type": "apartment",
+      "owner_account": "org:maple_court",
+      "rent_monthly_cents": 125000,
+      "market_value_cents": 20000000,
+      "bedrooms": 1,
+      "amenities": ["shared_laundry", "parking"],
+      "tier": "starter"
+    },
+    {
+      "id": "maple_court_1c",
+      "location": "maple_court_1c",
+      "type": "apartment",
+      "owner_account": "org:maple_court",
+      "rent_monthly_cents": 122000,
+      "market_value_cents": 19800000,
+      "bedrooms": 1,
+      "amenities": ["shared_laundry", "parking"],
+      "tier": "starter"
+    },
+    {
+      "id": "maple_court_2c",
+      "location": "maple_court_2c",
+      "type": "apartment",
+      "owner_account": "org:maple_court",
+      "rent_monthly_cents": 165000,
+      "market_value_cents": 26000000,
+      "bedrooms": 2,
+      "amenities": ["shared_laundry", "parking"],
+      "tier": "starter"
+    },
+    {
+      "id": "maple_court_3a",
+      "location": "maple_court_3a",
+      "type": "apartment",
+      "owner_account": "org:maple_court",
+      "rent_monthly_cents": 130000,
+      "market_value_cents": 20500000,
+      "bedrooms": 1,
+      "amenities": ["shared_laundry", "parking"],
+      "tier": "starter"
+    },
+    {
+      "id": "maple_court_3c",
+      "location": "maple_court_3c",
+      "type": "apartment",
+      "owner_account": "org:maple_court",
+      "rent_monthly_cents": 132000,
+      "market_value_cents": 20800000,
+      "bedrooms": 1,
+      "amenities": ["shared_laundry", "parking"],
+      "tier": "starter"
+    },
+    {
+      "id": "maple_court_4b",
+      "location": "maple_court_4b",
+      "type": "apartment",
+      "owner_account": "org:maple_court",
+      "rent_monthly_cents": 128000,
+      "market_value_cents": 20200000,
+      "bedrooms": 1,
+      "amenities": ["shared_laundry", "parking"],
+      "tier": "starter"
+    },
+    {
+      "id": "riverside_lofts_1",
+      "location": "riverside_lofts_1",
+      "type": "apartment",
+      "owner_account": "org:riverside_lofts",
+      "rent_monthly_cents": 200000,
+      "market_value_cents": 39000000,
+      "bedrooms": 2,
+      "amenities": ["exposed_brick", "freight_elevator", "river_view"],
+      "tier": "loft"
+    },
+    {
+      "id": "riverside_lofts_4",
+      "location": "riverside_lofts_4",
+      "type": "apartment",
+      "owner_account": "org:riverside_lofts",
+      "rent_monthly_cents": 205000,
+      "market_value_cents": 40000000,
+      "bedrooms": 2,
+      "amenities": ["exposed_brick", "freight_elevator", "river_view"],
+      "tier": "loft"
+    },
+    {
+      "id": "riverside_lofts_6",
+      "location": "riverside_lofts_6",
+      "type": "apartment",
+      "owner_account": "org:riverside_lofts",
+      "rent_monthly_cents": 210000,
+      "market_value_cents": 41000000,
+      "bedrooms": 2,
+      "amenities": ["exposed_brick", "freight_elevator", "river_view"],
+      "tier": "loft"
+    },
+    {
+      "id": "lexington_0305",
+      "location": "lexington_0305",
+      "type": "apartment",
+      "owner_account": "org:lexington_props",
+      "rent_monthly_cents": 175000,
+      "market_value_cents": 34000000,
+      "bedrooms": 1,
+      "amenities": ["doorman", "rooftop_pool", "in_unit_laundry", "gym_access"],
+      "tier": "luxury"
+    },
+    {
+      "id": "lexington_0602",
+      "location": "lexington_0602",
+      "type": "apartment",
+      "owner_account": "org:lexington_props",
+      "rent_monthly_cents": 228000,
+      "market_value_cents": 45000000,
+      "bedrooms": 1,
+      "amenities": ["doorman", "rooftop_pool", "in_unit_laundry", "gym_access"],
+      "tier": "luxury"
+    },
+    {
+      "id": "lexington_1103",
+      "location": "lexington_1103",
+      "type": "apartment",
+      "owner_account": "org:lexington_props",
+      "rent_monthly_cents": 232000,
+      "market_value_cents": 45500000,
+      "bedrooms": 1,
+      "amenities": ["doorman", "rooftop_pool", "in_unit_laundry", "gym_access"],
+      "tier": "luxury"
+    },
+    {
+      "id": "lexington_1406",
+      "location": "lexington_1406",
+      "type": "apartment",
+      "owner_account": "org:lexington_props",
+      "rent_monthly_cents": 238000,
+      "market_value_cents": 46500000,
+      "bedrooms": 1,
+      "amenities": ["doorman", "rooftop_pool", "in_unit_laundry", "gym_access"],
+      "tier": "luxury"
+    }
+  ]
+}

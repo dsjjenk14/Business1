@@ -1,0 +1,203 @@
+{
+  "$comment": "M0.8 pets: species, care, the shelter and the vet (docs/m08/pets.md). A pet's needs are 0-100; needs_per_hour are changes per game hour (negative = running down). Ages are in calendar months (28 days). Chances are per game hour.",
+  "pets": {
+    "shelter": "paws_whiskers",
+    "vet": "founders_animal_hospital",
+    "food_item": "pet_food",
+    "needs": ["hunger", "fun", "hygiene", "health"],
+    "adopted_needs": {"hunger": 80, "fun": 70, "hygiene": 80, "health": 90},
+    "listings_per_week": 4,
+    "weekly_intake": 12,
+    "max_pets_per_home": 3,
+    "initial_bond": 10,
+    "max_name_length": 24,
+    "adoption_vaccine_days": 336,
+    "routine_target": 70,
+    "warn_below": 20,
+    "neglect_hunger_hours": 24,
+    "neglect_below": 20,
+    "bond_loss_per_neglected_hour": 0.5,
+    "company": {"min_bond": 40, "emotions_per_hour": {"loneliness": -1.5}},
+    "adoption_emotions": {"happiness": 10, "loneliness": -10},
+    "walk_radius_m": 250,
+    "sickness": {
+      "chance_per_hour": 0.003,
+      "low_need_below": 25,
+      "low_need_multiplier": 3,
+      "vaccinated_multiplier": 0.5,
+      "needs_per_hour": {"health": -1, "fun": -1}
+    },
+    "taken_away_emotions": {"sadness": 30, "loneliness": 15, "happiness": -15},
+    "species": [
+      {
+        "id": "dog",
+        "label": "Dog",
+        "adoption_fee_cents": 25000,
+        "needs_per_hour": {"hunger": -3, "fun": -3, "hygiene": -1, "health": -0.05},
+        "stages": [
+          {"id": "puppy", "min_age_months": 0, "needs_multiplier": 1.3},
+          {"id": "adult", "min_age_months": 12},
+          {"id": "senior", "min_age_months": 84, "needs_multiplier": 0.9, "sick_multiplier": 2}
+        ],
+        "shelter_age_months": [2, 96],
+        "breeds": [
+          "Labrador mix",
+          "Beagle",
+          "Pit bull mix",
+          "Border collie",
+          "Dachshund",
+          "German shepherd mix",
+          "Terrier mix",
+          "Greyhound"
+        ],
+        "names": [
+          "Biscuit",
+          "Luna",
+          "Max",
+          "Pepper",
+          "Rocky",
+          "Daisy",
+          "Bear",
+          "Juniper",
+          "Scout",
+          "Hazel",
+          "Otis",
+          "Maple"
+        ]
+      },
+      {
+        "id": "cat",
+        "label": "Cat",
+        "adoption_fee_cents": 15000,
+        "needs_per_hour": {"hunger": -2.5, "fun": -2, "hygiene": -0.5, "health": -0.05},
+        "stages": [
+          {"id": "kitten", "min_age_months": 0, "needs_multiplier": 1.3},
+          {"id": "adult", "min_age_months": 12},
+          {"id": "senior", "min_age_months": 120, "needs_multiplier": 0.9, "sick_multiplier": 2}
+        ],
+        "shelter_age_months": [2, 120],
+        "breeds": [
+          "Domestic shorthair",
+          "Tabby",
+          "Maine Coon mix",
+          "Siamese mix",
+          "Tuxedo",
+          "Calico",
+          "Russian Blue mix"
+        ],
+        "names": [
+          "Miso",
+          "Clementine",
+          "Pickle",
+          "Shadow",
+          "Nori",
+          "Ziggy",
+          "Olive",
+          "Tofu",
+          "Marble",
+          "Sage",
+          "Cleo",
+          "Jasper"
+        ]
+      },
+      {
+        "id": "rabbit",
+        "label": "Rabbit",
+        "adoption_fee_cents": 8000,
+        "needs_per_hour": {"hunger": -3, "fun": -2, "hygiene": -0.8, "health": -0.06},
+        "stages": [
+          {"id": "kit", "min_age_months": 0, "needs_multiplier": 1.2},
+          {"id": "adult", "min_age_months": 6},
+          {"id": "senior", "min_age_months": 60, "needs_multiplier": 0.9, "sick_multiplier": 2}
+        ],
+        "shelter_age_months": [2, 72],
+        "breeds": ["Holland Lop", "Netherland Dwarf", "Rex", "Lionhead", "Flemish Giant mix", "Dutch"],
+        "names": ["Clover", "Thumper", "Mochi", "Hazelnut", "Pip", "Waffles", "Bramble", "Dot", "Nutmeg", "Basil"]
+      }
+    ],
+    "actions": [
+      {
+        "id": "feed",
+        "label": "Feed",
+        "where": "home",
+        "uses_item": "pet_food",
+        "cooldown_minutes": 120,
+        "pet_needs": {"hunger": 50, "health": 1},
+        "your_emotions": {"loneliness": -2, "happiness": 1},
+        "bond": 1
+      },
+      {
+        "id": "play",
+        "label": "Play",
+        "where": "home",
+        "cooldown_minutes": 60,
+        "pet_needs": {"fun": 30, "hunger": -3},
+        "your_needs": {"recreation": 10, "energy": -3},
+        "your_emotions": {"loneliness": -5, "happiness": 3, "stress": -3},
+        "bond": 3
+      },
+      {
+        "id": "cuddle",
+        "label": "Cuddle",
+        "where": "home",
+        "cooldown_minutes": 45,
+        "pet_needs": {"fun": 8},
+        "your_needs": {"comfort": 8},
+        "your_emotions": {"loneliness": -8, "stress": -5, "happiness": 2},
+        "bond": 4
+      },
+      {
+        "id": "groom",
+        "label": "Groom",
+        "where": "home",
+        "cooldown_minutes": 360,
+        "pet_needs": {"hygiene": 50, "health": 1},
+        "your_needs": {"hygiene": -3},
+        "your_emotions": {"loneliness": -2},
+        "bond": 2
+      },
+      {
+        "id": "walk",
+        "label": "Walk",
+        "species": ["dog"],
+        "where": "outdoors",
+        "cooldown_minutes": 180,
+        "pet_needs": {"fun": 35, "health": 3, "hygiene": -5},
+        "your_needs": {"recreation": 15, "energy": -6, "health": 2},
+        "your_emotions": {"loneliness": -5, "happiness": 4, "stress": -6},
+        "calories_burned": 180,
+        "bond": 4
+      }
+    ],
+    "illnesses": [
+      {"id": "ear_infection", "name": "an ear infection"},
+      {"id": "upset_stomach", "name": "an upset stomach"},
+      {"id": "kennel_cough", "name": "kennel cough", "species": ["dog"]},
+      {"id": "cat_flu", "name": "cat flu", "species": ["cat"]},
+      {"id": "snuffles", "name": "the snuffles", "species": ["rabbit"]}
+    ],
+    "vet_services": [
+      {
+        "id": "checkup",
+        "label": "Checkup",
+        "price_cents": 6500,
+        "pet_needs": {"health": 10},
+        "diagnoses": true
+      },
+      {
+        "id": "vaccines",
+        "label": "Vaccines (a year's protection)",
+        "price_cents": 9000,
+        "vaccinates_days": 336
+      },
+      {
+        "id": "treatment",
+        "label": "Treatment for what's wrong",
+        "price_cents": 18000,
+        "pet_needs": {"health": 30},
+        "cures": true
+      }
+    ]
+  },
+  "items": [{"id": "pet_food", "label": "Pet food", "category": "pet_supplies", "consumable": true}]
+}

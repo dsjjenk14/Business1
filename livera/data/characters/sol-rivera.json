@@ -1,0 +1,155 @@
+{
+  "characters": [
+    {
+      "id": "sol-rivera",
+      "cast": "resident",
+      "first_name": "Sol",
+      "last_name": "Rivera",
+      "pronouns": "they/them",
+      "gender": "nonbinary",
+      "age": 26,
+      "playable": true,
+      "personality": {
+        "ambition": 55,
+        "sociability": 86,
+        "empathy": 74,
+        "patience": 50,
+        "confidence": 72,
+        "risk_tolerance": 70,
+        "competitiveness": 40,
+        "impulsiveness": 66
+      },
+      "values": {
+        "family": 60,
+        "career": 45,
+        "wealth": 25,
+        "loyalty": 72,
+        "freedom": 94,
+        "status": 20,
+        "community": 70,
+        "romance": 62,
+        "creativity": 95
+      },
+      "traits": ["creative", "outgoing", "witty"],
+      "interests": ["music", "jazz", "art", "photography", "nightlife", "brunch"],
+      "skills": {"music": 58},
+      "career": {"id": "cafe", "level": 1},
+      "degrees": ["high_school"],
+      "fame": 5,
+      "finances": {"cash_cents": 4200, "bank_cents": 168000},
+      "home": {"property": "riverside_lofts_1", "tenure": "rent"},
+      "spawn_location": "riverside_lofts_1",
+      "relationships": [
+        {
+          "to": "imani-clarke",
+          "history": "Roommates and the two halves of Heritage Coffee's day. Imani draws; Sol sings; the regulars think they're sisters.",
+          "dimensions": {"familiarity": 70, "friendship": 72, "trust": 66, "loyalty": 60}
+        },
+        {
+          "to": "kai-morgan",
+          "history": "Kai's beats are better when Sol is in the room. Sol tells him so, which doesn't help.",
+          "dimensions": {"familiarity": 46, "friendship": 50, "respect": 48}
+        },
+        {
+          "to": "leila",
+          "history": "Leila writes in the corner every evening and tips like a journalist: badly, but always.",
+          "dimensions": {"familiarity": 30, "friendship": 28, "trust": 34}
+        },
+        {
+          "to": "dominique",
+          "history": "Oat latte, extra hot, 8:10 sharp. Sol has it ready at 8:09.",
+          "dimensions": {"familiarity": 26, "respect": 40, "friendship": 18}
+        }
+      ],
+      "memories": [
+        {
+          "type": "music",
+          "participants": ["sol-rivera"],
+          "importance": 70,
+          "emotional_impact": 60,
+          "days_ago": 20,
+          "info": "First open mic at the Copper Tap: three songs, one standing ovation from Bernie.",
+          "public": true
+        }
+      ],
+      "aspirations": ["release_an_album", "make_friends"],
+      "profile": {
+        "tagline": "Runs the morning rush. Sings the night down.",
+        "why_livera": "fresh_start",
+        "ethnicity": "Puerto Rican and Black American",
+        "card": {
+          "occupation": "Shift Lead, Heritage Coffee Co.",
+          "height_cm": 170,
+          "build": "Lean",
+          "skin_tone": "Golden brown, warm"
+        },
+        "appearance": {
+          "height_cm": 170,
+          "build": "lean",
+          "skin": "golden brown, warm",
+          "eyes": "amber, almond-shaped, graphic liner",
+          "face": "freckles, septum and helix piercings",
+          "hair": "a copper curly afro under a deep teal corduroy bucket hat",
+          "style": "cream shirt with a small red-and-teal print, sleeves rolled, brown corduroy waistcoat, wide brown corduroy trousers, brown leather loafers",
+          "outfits": {
+            "everyday": "cream shirt with a small red-and-teal print, sleeves rolled, brown corduroy waistcoat, wide brown corduroy trousers, brown leather loafers, deep teal corduroy bucket hat",
+            "work": "cream printed shirt with the sleeves rolled, a charcoal canvas barista apron, wide brown corduroy trousers, brown leather loafers",
+            "evening": "deep teal velvet blazer over a white ribbed tank, wide brown corduroy trousers, brown leather loafers, the teal bucket hat, silver rings",
+            "drawn": "everyday"
+          },
+          "jewelry": "silver rings, a small pendant",
+          "silhouette": "a bucket hat over a halo of copper curls, wide cords",
+          "key_features": [
+            "Copper curly afro",
+            "Almond amber eyes",
+            "Graphic liner",
+            "Septum and helix piercings",
+            "Fine-line floral and wrist tattoos",
+            "Rings and a bucket hat"
+          ],
+          "visual_reference": "art/reference/residents/sol-rivera.jpg",
+          "avatar": "art/avatars/sol-rivera.jpg",
+          "art_notes": [],
+          "art_as_of": "Day 28 of the town-preview recording"
+        },
+        "family_background": "Grew up in the Bronx between their abuela's kitchen and their father's church choir. Left New York after a band, a lease and a relationship ended in the same month.",
+        "education": "High school diploma; two semesters of music school",
+        "goals": ["Play a full set at ÉCLAT", "Make shift lead mean something: a raise for Imani", "Write the album"],
+        "ambitions": ["An album recorded at Low End Studios"],
+        "social_preferences": "Everyone at the counter, nobody too close for long.",
+        "secrets": [
+          {
+            "id": "sol_band",
+            "truth": "The song that got their old band signed was Sol's. The band kept it, and the credit.",
+            "known_by": []
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "05:45", "activity": "Heritage Coffee", "work": true},
+            {"time": "14:45", "activity": "Home, a nap, then the piano"}
+          ],
+          "thursday": [{"time": "20:00", "activity": "Open mic at The Copper Tap"}],
+          "saturday": [{"time": "11:00", "activity": "Founders Park"}],
+          "sunday": [
+            {"time": "07:00", "activity": "Heritage Coffee", "work": true},
+            {"time": "15:00", "activity": "Home"}
+          ]
+        },
+        "starting_inventory": ["phone", "bucket hat", "keyboard", "silver rings", "café keys"],
+        "social_media": {
+          "handle": "@sol.sings.sometimes",
+          "followers": 5100,
+          "bio": "shift lead @ heritage. open mic thursdays. they/them."
+        },
+        "reputation": {"professional": 52, "social": 66, "public": 22},
+        "life_history": [
+          "Sang in their father's choir until they were sixteen.",
+          "Played keys in a Bronx band that got signed without them.",
+          "Shift lead at Heritage Coffee within a month of arriving."
+        ],
+        "archetype": "The Free Spirit"
+      }
+    }
+  ]
+}

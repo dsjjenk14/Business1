@@ -1,0 +1,11 @@
+{
+  "name": "livera-voice-experiment-livekit",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Experiment 2 of docs/proposals/voice.md: can a LiveKit server decide who hears whom?",
+  "license": "ISC",
+  "dependencies": {
+    "livekit-client": "^2.23.0",
+    "livekit-server-sdk": "^2.19.1"
+  }
+}

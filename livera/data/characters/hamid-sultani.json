@@ -1,0 +1,158 @@
+{
+  "characters": [
+    {
+      "id": "hamid-sultani",
+      "cast": "townsperson",
+      "first_name": "Hamid",
+      "last_name": "Sultani",
+      "pronouns": "he/him",
+      "gender": "man",
+      "age": 41,
+      "playable": true,
+      "personality": {
+        "ambition": 64,
+        "sociability": 50,
+        "empathy": 82,
+        "patience": 88,
+        "confidence": 52,
+        "risk_tolerance": 26,
+        "competitiveness": 30,
+        "impulsiveness": 12
+      },
+      "values": {
+        "family": 98,
+        "career": 60,
+        "wealth": 50,
+        "loyalty": 94,
+        "freedom": 50,
+        "status": 30,
+        "community": 74,
+        "romance": 40,
+        "creativity": 30
+      },
+      "traits": ["careful", "dignified", "quietly funny"],
+      "interests": ["cooking", "reading", "faith", "fishing"],
+      "career": {"id": "grocery", "level": 0},
+      "degrees": ["high_school", "bachelors"],
+      "fame": 1,
+      "finances": {"cash_cents": 4000, "bank_cents": 190000},
+      "home": {"property": "maple_court_1c", "tenure": "rent"},
+      "spawn_location": "maple_court_1c",
+      "relationships": [
+        {
+          "to": "theo-grant",
+          "history": "His supervisor, young enough to be his son, and a good one. Hamid has told him so exactly once.",
+          "dimensions": {"familiarity": 46, "respect": 60, "friendship": 34, "trust": 50}
+        },
+        {
+          "to": "noor-haddad",
+          "history": "His neighbour across the landing. He leaves her leftovers; she fixes his phone.",
+          "dimensions": {"familiarity": 40, "friendship": 40, "trust": 46}
+        },
+        {
+          "to": "leila",
+          "history": "She wants to write about the interpreters. He has said no twice, kindly.",
+          "dimensions": {"familiarity": 20, "respect": 40, "trust": 22}
+        }
+      ],
+      "memories": [
+        {
+          "type": "family",
+          "participants": ["hamid-sultani"],
+          "importance": 95,
+          "emotional_impact": -20,
+          "days_ago": 1500,
+          "info": "The flight out of Kabul with his wife and daughters, and his brother not on it."
+        }
+      ],
+      "aspirations": ["buy_a_home", "start_a_business"],
+      "profile": {
+        "tagline": "Eleven years translating for an army. Now he translates the register for new arrivals.",
+        "why_livera": "fresh_start",
+        "ethnicity": "Afghan American",
+        "card": {
+          "occupation": "Cashier, Greenleaf Market",
+          "height_cm": 176,
+          "build": "Lean",
+          "skin_tone": "Light olive"
+        },
+        "appearance": {
+          "height_cm": 176,
+          "build": "lean",
+          "skin": "light olive, sun-lined",
+          "eyes": "deep-set, hazel",
+          "face": "a trimmed salt-and-pepper beard, a careful smile",
+          "hair": "short, grey at the sides",
+          "style": "Greenleaf's green apron over a pressed white shirt, grey slacks, polished black shoes",
+          "outfits": {
+            "everyday": "a charcoal wool overshirt over a pale blue shirt, grey slacks, brown leather shoes, reading glasses on a cord",
+            "work": "Greenleaf's green apron over a pressed white shirt, grey slacks, polished black shoes, reading glasses on a cord",
+            "evening": "a dark navy suit jacket over a crisp white shirt buttoned to the top, charcoal trousers, polished black shoes, the silver ring with the blue stone",
+            "drawn": "work"
+          },
+          "jewelry": "a silver ring with a blue stone, reading glasses on a cord",
+          "silhouette": "a lean man in a green apron standing very straight",
+          "key_features": [
+            "Trimmed salt-and-pepper beard",
+            "Reading glasses on a cord",
+            "Pressed white shirt under a green apron",
+            "Silver ring with a blue stone"
+          ],
+          "stand_in": {
+            "skin": "#c9a07c",
+            "hair": "#6a655f",
+            "hair_style": "short",
+            "top": "#f2f2ee",
+            "bottom": "#5f6368",
+            "shoes": "#151515",
+            "apron": "#2f5d3a",
+            "outfits": {
+              "everyday": {"top": "#3e4044", "bottom": "#5f6368", "shoes": "#5a3a22"},
+              "evening": {"top": "#1f2a44", "bottom": "#33363b", "shoes": "#151515"}
+            }
+          }
+        },
+        "family_background": "Born in Kabul, interpreter for US forces for eleven years, resettled in Sacramento on a special visa. His wife and two daughters stay in Sacramento while he finds them a home here.",
+        "education": "B.A. English Literature, Kabul University",
+        "goals": [
+          "A two-bedroom on Willow Lane for his family",
+          "Open a kebab counter at Greenleaf",
+          "Find out where his brother is"
+        ],
+        "ambitions": ["A restaurant his daughters are embarrassed by"],
+        "social_preferences": "Tea, chess, a long story told slowly.",
+        "secrets": [
+          {
+            "id": "hamid_brother",
+            "truth": "He sends money every month to a man in Peshawar who says he can get his brother out. He doesn't know if it's real.",
+            "known_by": []
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "14:00", "activity": "Greenleaf Market", "work": true},
+            {"time": "22:00", "activity": "Home"}
+          ],
+          "sunday": [
+            {"time": "10:00", "activity": "Greenleaf Market", "work": true},
+            {"time": "18:00", "activity": "Home"}
+          ]
+        },
+        "starting_inventory": ["phone", "reading glasses", "prayer beads", "chess set", "family photo"],
+        "social_media": {
+          "handle": "@hamid.s",
+          "followers": 140,
+          "bio": "Greenleaf Market, evenings. Ask me for the good dates."
+        },
+        "reputation": {"professional": 64, "social": 46, "public": 8},
+        "life_history": [
+          "Taught English at a Kabul high school.",
+          "Eleven years as an interpreter for US forces.",
+          "Cashier at Greenleaf Market, evenings and Sundays."
+        ],
+        "archetype": "The Survivor"
+      },
+      "sex": "male"
+    }
+  ]
+}

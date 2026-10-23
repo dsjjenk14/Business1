@@ -1,0 +1,37 @@
+{
+  "$comment": "Injuries from fist fights (D-070, data/society/fights.json). You know you've been hit, so they're diagnosed the moment they happen; treatment at the clinic or the ER ends them early, otherwise they heal on their own. Kind 'injury'.",
+  "conditions": [
+    {
+      "id": "bruises",
+      "name": "Bruises",
+      "kind": "injury",
+      "hours": [24, 48],
+      "needs_per_hour": {"comfort": -0.5},
+      "performance_penalty": 0.03,
+      "onset": "You're bruised. It'll ache for a day or two.",
+      "treated_by": ["treatment"]
+    },
+    {
+      "id": "black_eye",
+      "name": "A black eye",
+      "kind": "injury",
+      "hours": [48, 96],
+      "needs_per_hour": {"comfort": -0.8},
+      "emotions_per_hour": {"embarrassment": 0.4},
+      "performance_penalty": 0.06,
+      "onset": "Your eye is swelling shut. Everyone is going to ask.",
+      "treated_by": ["treatment"]
+    },
+    {
+      "id": "cracked_rib",
+      "name": "A cracked rib",
+      "kind": "injury",
+      "hours": [120, 240],
+      "needs_per_hour": {"comfort": -1.5, "energy": -0.5, "health": -0.2},
+      "emotions_per_hour": {"stress": 0.3},
+      "performance_penalty": 0.15,
+      "onset": "Every breath hurts: a cracked rib. A clinic can strap it up.",
+      "treated_by": ["treatment"]
+    }
+  ]
+}

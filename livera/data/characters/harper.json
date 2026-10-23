@@ -1,0 +1,160 @@
+{
+  "characters": [
+    {
+      "id": "harper",
+      "cast": "founder",
+      "first_name": "Harper",
+      "last_name": "James",
+      "pronouns": "she/her",
+      "gender": "woman",
+      "age": 32,
+      "playable": true,
+      "personality": {
+        "ambition": 60,
+        "sociability": 68,
+        "empathy": 92,
+        "patience": 80,
+        "confidence": 62,
+        "risk_tolerance": 40,
+        "competitiveness": 35,
+        "impulsiveness": 25
+      },
+      "values": {
+        "family": 75,
+        "career": 70,
+        "wealth": 45,
+        "loyalty": 80,
+        "freedom": 55,
+        "status": 35,
+        "community": 85,
+        "romance": 60,
+        "creativity": 55
+      },
+      "traits": ["empathetic", "insightful", "quietly_stubborn"],
+      "interests": ["reading", "fitness", "cooking", "interior_design", "volunteering", "jazz"],
+      "career": {"id": "therapy", "level": 3},
+      "degrees": ["high_school", "bachelors", "masters"],
+      "fame": 5,
+      "finances": {"cash_cents": 22000, "bank_cents": 2150000},
+      "home": {"property": "founders_row_3", "tenure": "rent"},
+      "spawn_location": "founders_row_3",
+      "relationships": [
+        {
+          "to": "dominique",
+          "history": "Dominique is one of her first clients in Livéra. The boundary is the whole point.",
+          "dimensions": {"familiarity": 42, "friendship": 18, "respect": 52, "trust": 40}
+        },
+        {
+          "to": "maya",
+          "history": "Harper runs a free group at Common Ground on Tuesdays. They've become the kind of friends who text at midnight.",
+          "dimensions": {"familiarity": 55, "friendship": 58, "trust": 52, "respect": 60}
+        },
+        {
+          "to": "leila",
+          "history": "College roommates at Northwestern. Leila was the reason Harper heard about Livéra.",
+          "dimensions": {"familiarity": 82, "friendship": 62, "trust": 56, "loyalty": 58, "conflict": 8}
+        },
+        {
+          "to": "ngozi-adeyemi",
+          "history": "They send each other patients and never say who. The only doctor in town who asks Harper how she is.",
+          "dimensions": {"familiarity": 34, "respect": 64, "trust": 58, "friendship": 34}
+        }
+      ],
+      "memories": [
+        {
+          "type": "friendship",
+          "participants": ["harper", "leila"],
+          "importance": 75,
+          "emotional_impact": 40,
+          "days_ago": 2400,
+          "info": "Leila sat with her in the hospital the night her father died.",
+          "about": "leila"
+        },
+        {
+          "type": "business",
+          "participants": ["harper"],
+          "importance": 60,
+          "emotional_impact": 15,
+          "days_ago": 40,
+          "info": "Opened James Wellness's doors to three bookings and a broken heater."
+        }
+      ],
+      "aspirations": ["get_promoted", "give_back"],
+      "profile": {
+        "tagline": "Holds everyone's secrets. Keeps her own.",
+        "why_livera": "business_opportunity",
+        "ethnicity": "White and Black American",
+        "card": {
+          "occupation": "Therapist & Wellness Studio Owner",
+          "height_cm": 169,
+          "build": "Soft curvy",
+          "skin_tone": "Light brown",
+          "eye_color": "Green-hazel"
+        },
+        "appearance": {
+          "height_cm": 169,
+          "build": "soft curvy",
+          "skin": "light brown with freckles",
+          "eyes": "green-hazel",
+          "face": "freckles across the nose and cheeks, expressive eyes, a warm closed-mouth smile",
+          "hair": "shoulder-length auburn curls",
+          "style": "mustard cardigan, burgundy-and-cream floral blouse, dark straight-leg jeans, cognac ankle boots, brown leather tote, gold coin pendant, gold hoops",
+          "outfits": {
+            "everyday": "long oatmeal cardigan over a sage-green ribbed top, cream wide-leg linen trousers, white canvas trainers, canvas tote",
+            "work": "mustard cardigan, burgundy-and-cream floral blouse, dark straight-leg jeans, cognac ankle boots, brown leather tote",
+            "evening": "burgundy velvet wrap midi dress, black tights, cognac heeled ankle boots, small brown leather crossbody bag",
+            "drawn": "work"
+          },
+          "silhouette": "soft cardigan layers, oversized red glasses",
+          "key_features": [
+            "Freckles",
+            "Shoulder-length auburn hair",
+            "Expressive eyes",
+            "Oversized red glasses",
+            "Warm, approachable style"
+          ],
+          "visual_reference": "art/reference/characters/harper.jpg"
+        },
+        "family_background": "Raised in Evanston by a Black schoolteacher mother and a white jazz-pianist father, who died when she was twenty.",
+        "education": "M.A. Clinical Mental Health Counseling, Northwestern University",
+        "goals": [
+          "Keep James Wellness open past its first year",
+          "Build a sliding-scale practice the whole town can use",
+          "Learn to take a day off"
+        ],
+        "ambitions": ["A wellness centre in every Livéra district"],
+        "social_preferences": "One-on-one, never small talk. Hosts Sunday dinners for strays.",
+        "secrets": [
+          {
+            "id": "harper_studio_money",
+            "truth": "James Wellness is losing money. She has about two months before she has to close or take on an investor.",
+            "known_by": []
+          },
+          {
+            "id": "harper_clients",
+            "truth": "Several of the founding residents are her clients. She will never say which.",
+            "known_by": []
+          }
+        ],
+        "schedule": {
+          "weekdays": [
+            {"time": "07:00", "activity": "James Wellness: early clients", "work": true},
+            {"time": "18:00", "activity": "Yoga class she teaches"}
+          ],
+          "tuesday": [{"time": "19:00", "activity": "Free support group at Common Ground"}],
+          "sunday": [{"time": "18:00", "activity": "Sunday dinner at 3 Founders Row"}]
+        },
+        "starting_inventory": ["phone", "red glasses", "brown leather tote", "client notebook", "yoga mat"],
+        "social_media": {"handle": "@harperjames.wellness", "followers": 5100, "bio": "Therapist. Feelings are information."},
+        "reputation": {"professional": 66, "social": 52, "public": 20},
+        "life_history": [
+          "Six years in community mental health in Chicago.",
+          "Opened James Wellness with her savings and a small loan.",
+          "Moved to Livéra because Leila told her the town had no therapists at all."
+        ],
+        "archetype": "The Confidante"
+      },
+      "sex": "female"
+    }
+  ]
+}

@@ -1,0 +1,178 @@
+{
+  "interior": {
+    "id": "heritage_coffee",
+    "places": ["heritage_coffee"],
+    "size": [1536, 1024],
+    "person_px": 125,
+    "floor": [
+      [
+        [110, 572],
+        [215, 615],
+        [270, 772],
+        [392, 842],
+        [445, 780],
+        [590, 865],
+        [650, 885],
+        [935, 848],
+        [1280, 628],
+        [1300, 530],
+        [1350, 505],
+        [1335, 455],
+        [1455, 470],
+        [1460, 420],
+        [1385, 405],
+        [1290, 430],
+        [1225, 428],
+        [905, 290],
+        [845, 318],
+        [835, 262],
+        [750, 232],
+        [660, 250],
+        [640, 270],
+        [610, 250],
+        [400, 360],
+        [140, 500]
+      ]
+    ],
+    "blocked": [
+      {"label": "long table", "poly": [[565, 493], [655, 441], [960, 601], [870, 653]], "height": 53},
+      {"label": "counter", "poly": [[810, 410], [845, 388], [1112, 525], [1080, 545]], "height": 70},
+      {"label": "pastry case", "poly": [[1080, 545], [1112, 525], [1288, 600], [1255, 622]], "height": 105},
+      {"label": "sofa", "poly": [[305, 645], [460, 568], [500, 628], [350, 702]], "height": 60},
+      {"label": "coffee table", "poly": [[445, 700], [505, 668], [565, 700], [505, 732]], "height": 45},
+      {"label": "stage", "poly": [[655, 300], [760, 270], [835, 300], [800, 340], [700, 340]], "height": 15},
+      {"label": "window bench", "poly": [[112, 572], [395, 392], [420, 410], [135, 592]], "height": 45},
+      {"label": "table A", "poly": [[188, 548], [230, 527], [272, 548], [230, 569]], "height": 38},
+      {"label": "table B", "poly": [[315, 468], [357, 447], [399, 468], [357, 489]], "height": 38},
+      {"label": "table C", "poly": [[433, 392], [475, 371], [517, 392], [475, 413]], "height": 38},
+      {"label": "table D", "poly": [[528, 333], [570, 312], [612, 333], [570, 354]], "height": 38},
+      {"label": "tree", "poly": [[402, 402], [425, 390], [448, 402], [425, 414]], "height": 160},
+      {"label": "table E", "poly": [[1000, 670], [1085, 622], [1145, 655], [1060, 703]], "height": 45},
+      {"label": "table F", "poly": [[855, 755], [945, 705], [1005, 740], [915, 790]], "height": 45},
+      {"label": "planter", "poly": [[945, 700], [1025, 655], [1090, 700], [1010, 748]], "height": 60}
+    ],
+    "entrance": {"at": [455, 750], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [335, 805], "facing": "w", "label": "Front door"},
+      {
+        "id": "counter",
+        "kind": "counter",
+        "at": [1005, 525],
+        "facing": "e",
+        "label": "Counter",
+        "offers": true
+      },
+      {
+        "id": "barista",
+        "kind": "station",
+        "at": [1000, 432],
+        "facing": "w",
+        "label": "Behind the counter",
+        "staff": true
+      },
+      {"id": "stage", "kind": "stage", "at": [745, 290], "facing": "s", "label": "Stage"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1405, 440],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "table_far_1",
+        "kind": "seat",
+        "at": [712, 470],
+        "facing": "w",
+        "label": "Long table",
+        "activity": "chat_regulars"
+      },
+      {
+        "id": "table_far_2",
+        "kind": "seat",
+        "at": [765, 498],
+        "facing": "w",
+        "label": "Long table",
+        "activity": "chat_regulars"
+      },
+      {
+        "id": "table_far_3",
+        "kind": "seat",
+        "at": [818, 526],
+        "facing": "w",
+        "label": "Long table",
+        "activity": "chat_regulars"
+      },
+      {
+        "id": "table_far_4",
+        "kind": "seat",
+        "at": [870, 553],
+        "facing": "w",
+        "label": "Long table",
+        "activity": "chat_regulars"
+      },
+      {
+        "id": "table_far_5",
+        "kind": "seat",
+        "at": [924, 582],
+        "facing": "w",
+        "label": "Long table",
+        "activity": "chat_regulars"
+      },
+      {
+        "id": "table_near_1",
+        "kind": "seat",
+        "at": [600, 505],
+        "facing": "e",
+        "label": "Long table",
+        "activity": "chat_regulars"
+      },
+      {
+        "id": "table_near_2",
+        "kind": "seat",
+        "at": [650, 532],
+        "facing": "e",
+        "label": "Long table",
+        "activity": "chat_regulars"
+      },
+      {
+        "id": "table_near_3",
+        "kind": "seat",
+        "at": [702, 560],
+        "facing": "e",
+        "label": "Long table",
+        "activity": "chat_regulars"
+      },
+      {
+        "id": "table_near_4",
+        "kind": "seat",
+        "at": [754, 588],
+        "facing": "e",
+        "label": "Long table",
+        "activity": "chat_regulars"
+      },
+      {
+        "id": "table_near_5",
+        "kind": "seat",
+        "at": [806, 615],
+        "facing": "e",
+        "label": "Long table",
+        "activity": "chat_regulars"
+      },
+      {"id": "sofa_left", "kind": "sofa", "at": [392, 662], "facing": "s", "label": "Chesterfield"},
+      {"id": "sofa_right", "kind": "sofa", "at": [446, 634], "facing": "s", "label": "Chesterfield"},
+      {"id": "armchair_right", "kind": "seat", "at": [580, 700], "facing": "w", "label": "Armchair"},
+      {"id": "armchair_front", "kind": "seat", "at": [540, 740], "facing": "n", "label": "Armchair"},
+      {"id": "win_a_bench", "kind": "sofa", "at": [222, 522], "facing": "s", "label": "Window bench"},
+      {"id": "win_a_chair", "kind": "seat", "at": [200, 572], "facing": "e", "label": "Window table"},
+      {"id": "win_b_bench", "kind": "sofa", "at": [350, 442], "facing": "s", "label": "Window bench"},
+      {"id": "win_b_chair", "kind": "seat", "at": [328, 494], "facing": "e", "label": "Window table"},
+      {"id": "win_c_chair", "kind": "seat", "at": [505, 392], "facing": "w", "label": "Window table"},
+      {"id": "win_d_chair", "kind": "seat", "at": [597, 322], "facing": "w", "label": "Window table"},
+      {"id": "tbl_e_1", "kind": "seat", "at": [1040, 632], "facing": "s", "label": "Corner table"},
+      {"id": "tbl_e_2", "kind": "seat", "at": [1112, 700], "facing": "w", "label": "Corner table"},
+      {"id": "tbl_f_1", "kind": "seat", "at": [892, 722], "facing": "s", "label": "Corner table"},
+      {"id": "tbl_f_2", "kind": "seat", "at": [972, 790], "facing": "w", "label": "Corner table"}
+    ]
+  }
+}

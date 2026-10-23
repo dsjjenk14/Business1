@@ -1,0 +1,102 @@
+{
+  "interior": {
+    "id": "james_wellness",
+    "places": ["james_wellness"],
+    "size": [726, 514],
+    "person_px": 76,
+    "floor": [
+      [
+        [105, 362],
+        [100, 306],
+        [155, 300],
+        [332, 220],
+        [338, 228],
+        [382, 210],
+        [384, 152],
+        [402, 150],
+        [688, 268],
+        [684, 280],
+        [578, 340],
+        [570, 357],
+        [357, 472],
+        [340, 462],
+        [310, 478]
+      ]
+    ],
+    "blocked": [
+      {"label": "tea counter", "poly": [[205, 264], [305, 214], [313, 224], [213, 274]], "height": 33},
+      {"label": "plant", "poly": [[180, 286], [192, 280], [204, 286], [192, 292]], "height": 70},
+      {"label": "plant", "poly": [[209, 306], [220, 301], [231, 306], [220, 311]], "height": 40},
+      {"label": "plant", "poly": [[312, 236], [321, 232], [330, 236], [321, 240]], "height": 35},
+      {"label": "plant", "poly": [[104, 368], [118, 362], [132, 368], [118, 374]], "height": 45},
+      {"label": "reception desk", "poly": [[310, 312], [340, 297], [500, 371], [470, 386]], "height": 40},
+      {"label": "sofa", "poly": [[138, 376], [200, 343], [242, 364], [178, 397]], "height": 40},
+      {"label": "coffee table", "poly": [[218, 372], [248, 360], [278, 372], [248, 384]], "height": 18},
+      {"label": "armchair", "poly": [[283, 385], [310, 368], [332, 382], [305, 400]], "height": 45},
+      {"label": "armchair", "poly": [[240, 410], [265, 393], [293, 405], [268, 423]], "height": 45},
+      {"label": "leather chair", "poly": [[395, 205], [425, 185], [462, 203], [432, 226]], "height": 45},
+      {"label": "leather chair", "poly": [[500, 232], [530, 212], [565, 228], [537, 252]], "height": 45},
+      {"label": "side table", "poly": [[450, 237], [472, 227], [494, 237], [472, 247]], "height": 25},
+      {"label": "sideboard", "poly": [[472, 178], [532, 202], [523, 208], [468, 190]], "height": 35},
+      {"label": "plant", "poly": [[435, 160], [448, 154], [461, 160], [448, 166]], "height": 75},
+      {"label": "plant", "poly": [[576, 241], [588, 236], [600, 241], [588, 246]], "height": 80}
+    ],
+    "entrance": {"at": [420, 420], "facing": "n"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [382, 455], "facing": "s", "label": "Front door"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [657, 259],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "stairs",
+        "kind": "counter",
+        "at": [128, 316],
+        "facing": "e",
+        "label": "Stairs to the yoga room",
+        "offers": ["yoga_class"]
+      },
+      {
+        "id": "tea",
+        "kind": "counter",
+        "at": [262, 268],
+        "facing": "n",
+        "label": "Tea counter",
+        "offers": ["herbal_tea"]
+      },
+      {
+        "id": "reception",
+        "kind": "station",
+        "at": [425, 318],
+        "facing": "w",
+        "label": "Reception",
+        "staff": true
+      },
+      {
+        "id": "therapy_1",
+        "kind": "seat",
+        "at": [432, 212],
+        "facing": "s",
+        "label": "Therapist's chair",
+        "offers": ["therapy_session"],
+        "staff": true
+      },
+      {
+        "id": "therapy_2",
+        "kind": "seat",
+        "at": [527, 238],
+        "facing": "w",
+        "label": "Leather chair",
+        "offers": ["therapy_session"]
+      },
+      {"id": "sofa_1", "kind": "sofa", "at": [178, 378], "facing": "s", "label": "Sofa"},
+      {"id": "sofa_2", "kind": "sofa", "at": [210, 362], "facing": "s", "label": "Sofa"},
+      {"id": "armchair_1", "kind": "seat", "at": [300, 388], "facing": "w", "label": "Armchair"},
+      {"id": "armchair_2", "kind": "seat", "at": [258, 413], "facing": "w", "label": "Armchair"}
+    ]
+  }
+}

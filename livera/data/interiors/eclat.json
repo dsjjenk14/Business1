@@ -1,0 +1,172 @@
+{
+  "interior": {
+    "id": "eclat",
+    "places": ["eclat"],
+    "size": [1282, 724],
+    "person_px": 95,
+    "floor": [
+      [
+        [30, 442],
+        [103, 400],
+        [147, 382],
+        [205, 375],
+        [427, 292],
+        [445, 278],
+        [476, 250],
+        [478, 182],
+        [570, 145],
+        [655, 148],
+        [663, 180],
+        [725, 188],
+        [1045, 312],
+        [1182, 367],
+        [1232, 387],
+        [1248, 395],
+        [1252, 405],
+        [1120, 466],
+        [1090, 480],
+        [945, 543],
+        [905, 522],
+        [893, 507],
+        [870, 515],
+        [835, 548],
+        [797, 546],
+        [727, 573],
+        [725, 555],
+        [690, 548],
+        [673, 560],
+        [680, 640],
+        [552, 695]
+      ]
+    ],
+    "blocked": [
+      {
+        "label": "bar",
+        "poly": [[180, 363], [180, 395], [262, 430], [555, 303], [565, 293], [555, 283], [275, 395]],
+        "height": 45
+      },
+      {
+        "label": "VIP booth",
+        "poly": [[478, 228], [515, 240], [590, 232], [655, 205], [655, 150], [570, 140], [480, 175]],
+        "height": 45
+      },
+      {
+        "label": "stage",
+        "poly": [
+          [600, 250],
+          [625, 268],
+          [665, 280],
+          [710, 278],
+          [752, 268],
+          [782, 248],
+          [775, 225],
+          [740, 205],
+          [700, 195],
+          [650, 205],
+          [615, 225]
+        ],
+        "height": 18
+      },
+      {
+        "label": "DJ booth",
+        "poly": [[770, 200], [1010, 298], [1012, 330], [955, 355], [750, 272], [782, 248]],
+        "height": 60
+      },
+      {
+        "label": "booth by the wall",
+        "poly": [[1018, 312], [1018, 375], [1075, 395], [1110, 400], [1168, 372], [1168, 350], [1030, 305]],
+        "height": 45
+      },
+      {
+        "label": "booth by the restroom",
+        "poly": [[1078, 445], [1130, 420], [1160, 368], [1255, 400], [1120, 466]],
+        "height": 45
+      },
+      {
+        "label": "front booth",
+        "poly": [[968, 452], [1075, 486], [1090, 480], [945, 540], [962, 500]],
+        "height": 45
+      },
+      {"label": "high table", "poly": [[540, 438], [562, 427], [584, 438], [562, 449]], "height": 55},
+      {"label": "high table", "poly": [[475, 465], [497, 454], [519, 465], [497, 476]], "height": 50},
+      {"label": "high table", "poly": [[620, 475], [643, 464], [666, 475], [643, 486]], "height": 48},
+      {"label": "high table", "poly": [[737, 540], [760, 529], [783, 540], [760, 551]], "height": 58},
+      {"label": "high table", "poly": [[836, 487], [860, 475], [884, 487], [860, 499]], "height": 60},
+      {"label": "low table", "poly": [[925, 530], [950, 518], [975, 530], [950, 542]], "height": 32},
+      {"label": "velvet rope", "poly": [[435, 485], [497, 512], [497, 518], [435, 491]], "height": 35},
+      {"label": "velvet rope", "poly": [[495, 512], [557, 545], [557, 551], [495, 518]], "height": 35},
+      {"label": "velvet rope", "poly": [[578, 545], [657, 585], [657, 591], [578, 551]], "height": 35},
+      {"label": "velvet rope", "poly": [[965, 420], [1027, 442], [1027, 448], [965, 426]], "height": 35},
+      {"label": "terrace armchair", "poly": [[100, 430], [150, 405], [193, 425], [145, 455]], "height": 45},
+      {"label": "terrace armchair", "poly": [[213, 470], [262, 440], [300, 460], [250, 505]], "height": 45},
+      {"label": "terrace sofa", "poly": [[310, 525], [380, 490], [435, 515], [360, 555]], "height": 45},
+      {"label": "terrace armchair", "poly": [[460, 615], [520, 580], [550, 600], [490, 645]], "height": 40},
+      {"label": "terrace table", "poly": [[185, 463], [210, 450], [235, 463], [210, 476]], "height": 25},
+      {"label": "terrace table", "poly": [[430, 583], [460, 568], [490, 583], [460, 598]], "height": 33},
+      {"label": "side table", "poly": [[385, 595], [410, 583], [435, 595], [410, 607]], "height": 25},
+      {"label": "plant", "poly": [[68, 445], [85, 437], [102, 445], [85, 453]], "height": 80},
+      {"label": "plant", "poly": [[150, 388], [167, 380], [184, 388], [167, 396]], "height": 110},
+      {"label": "plant", "poly": [[275, 543], [292, 535], [309, 543], [292, 551]], "height": 90},
+      {"label": "plant", "poly": [[530, 672], [553, 660], [576, 672], [553, 684]], "height": 95},
+      {"label": "plant", "poly": [[445, 265], [460, 258], [475, 265], [460, 272]], "height": 80},
+      {"label": "plant", "poly": [[663, 188], [678, 180], [693, 188], [678, 196]], "height": 125}
+    ],
+    "entrance": {"at": [812, 530], "facing": "n"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [762, 550], "facing": "s", "label": "Front steps"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1207, 378],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "bar",
+        "kind": "counter",
+        "at": [286, 442],
+        "facing": "n",
+        "label": "Bar",
+        "offers": ["cocktail"]
+      },
+      {
+        "id": "door_counter",
+        "kind": "counter",
+        "at": [668, 540],
+        "facing": "e",
+        "label": "Door",
+        "offers": ["cover"]
+      },
+      {"id": "stage", "kind": "stage", "at": [685, 242], "facing": "s", "label": "Stage"},
+      {"id": "bar_stool_1", "kind": "stool", "at": [325, 428], "facing": "n", "label": "Bar stool"},
+      {"id": "bar_stool_2", "kind": "stool", "at": [370, 408], "facing": "n", "label": "Bar stool"},
+      {"id": "bar_stool_3", "kind": "stool", "at": [420, 388], "facing": "n", "label": "Bar stool"},
+      {"id": "bar_stool_4", "kind": "stool", "at": [467, 368], "facing": "n", "label": "Bar stool"},
+      {"id": "bar_stool_5", "kind": "stool", "at": [517, 348], "facing": "n", "label": "Bar stool"},
+      {"id": "bar_stool_6", "kind": "stool", "at": [565, 328], "facing": "n", "label": "Bar stool"},
+      {"id": "table1_stool_1", "kind": "stool", "at": [470, 478], "facing": "e", "label": "High table"},
+      {"id": "table1_stool_2", "kind": "stool", "at": [525, 478], "facing": "w", "label": "High table"},
+      {"id": "table2_stool_1", "kind": "stool", "at": [735, 540], "facing": "e", "label": "High table"},
+      {"id": "table2_stool_2", "kind": "stool", "at": [790, 543], "facing": "w", "label": "High table"},
+      {"id": "table3_stool_1", "kind": "stool", "at": [832, 490], "facing": "e", "label": "High table"},
+      {"id": "table3_stool_2", "kind": "stool", "at": [886, 490], "facing": "w", "label": "High table"},
+      {"id": "pouf", "kind": "seat", "at": [921, 520], "facing": "e", "label": "Pouf"},
+      {"id": "vip_1", "kind": "sofa", "at": [500, 228], "facing": "e", "label": "VIP booth"},
+      {"id": "vip_2", "kind": "sofa", "at": [560, 215], "facing": "s", "label": "VIP booth"},
+      {"id": "vip_3", "kind": "sofa", "at": [612, 205], "facing": "w", "label": "VIP booth"},
+      {"id": "booth_1", "kind": "sofa", "at": [1045, 378], "facing": "e", "label": "Booth"},
+      {"id": "booth_2", "kind": "sofa", "at": [1100, 385], "facing": "w", "label": "Booth"},
+      {"id": "booth_3", "kind": "sofa", "at": [1145, 448], "facing": "w", "label": "Booth"},
+      {"id": "booth_4", "kind": "sofa", "at": [1172, 432], "facing": "w", "label": "Booth"},
+      {"id": "booth_5", "kind": "sofa", "at": [995, 505], "facing": "w", "label": "Booth"},
+      {"id": "booth_6", "kind": "sofa", "at": [1030, 495], "facing": "w", "label": "Booth"},
+      {"id": "club_chair", "kind": "seat", "at": [1043, 432], "facing": "w", "label": "Club chair"},
+      {"id": "terrace_1", "kind": "seat", "at": [145, 452], "facing": "s", "label": "Terrace armchair"},
+      {"id": "terrace_2", "kind": "seat", "at": [240, 495], "facing": "w", "label": "Terrace armchair"},
+      {"id": "terrace_3", "kind": "sofa", "at": [340, 545], "facing": "s", "label": "Terrace sofa"},
+      {"id": "terrace_4", "kind": "sofa", "at": [390, 540], "facing": "s", "label": "Terrace sofa"},
+      {"id": "terrace_5", "kind": "seat", "at": [485, 630], "facing": "w", "label": "Terrace armchair"}
+    ]
+  }
+}

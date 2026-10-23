@@ -1,0 +1,46 @@
+{
+  "$comment": "How autopilot founders treat people (D-064, core/Autopilot.cpp). They greet a person they meet, once per person per game day (by name only if they know them), and sometimes start a chat with someone they know: the chance is base + per_trait x their trait/100 + per_friendship x their friendship/100, rolled once per person per day. Asks are answered by these rules from their own side of the relationship; a kind with no rule is declined, and intimacy is never accepted (the loader refuses a rule for it). People only: never other autopilot founders or scripts. Messages (D-074): a message to someone it plays is read read_after_minutes after it arrives, once they're awake, in the world and off shift (the writer then sees it as seen), and answered with the first reply rule whose minimums its own side of the relationship meets (known: only someone it has met), at most replies_per_day a day to each person; {first} is the writer's first name.",
+  "autopilot_manners": {
+    "greet": {
+      "range_m": 20,
+      "known": ["Hi, {first}.", "Hey, {first}!", "Good to see you, {first}."],
+      "stranger": ["Hi.", "Hello there."]
+    },
+    "chat": {"interaction": "chat", "trait": "sociability", "base": 0.1, "per_trait": 0.35, "per_friendship": 0.3},
+    "asks": [
+      {"kind": "date", "min": {"compatibility": 60, "friendship": 30, "romantic_attraction": 15}},
+      {"kind": "kiss", "min": {"compatibility": 60, "friendship": 40, "romantic_attraction": 30}}
+    ],
+    "messages": {
+      "read_after_minutes": [2, 20],
+      "replies_per_day": 3,
+      "replies": [
+        {
+          "min": {"conflict": 40},
+          "lines": ["I don't have anything to say to you right now.", "Not today, {first}."]
+        },
+        {
+          "min": {"friendship": 50},
+          "lines": [
+            "Always good to hear from you, {first}.",
+            "Ha, {first}! Yes. Talk soon.",
+            "Was just thinking about you, {first}."
+          ]
+        },
+        {
+          "min": {"friendship": 15},
+          "lines": [
+            "Hey {first}! Got your message.",
+            "Thanks, {first}. Talk later?",
+            "Good to hear from you, {first}."
+          ]
+        },
+        {
+          "known": true,
+          "lines": ["Got it, thanks.", "Noted. Busy day, talk later.", "Thanks for the message."]
+        },
+        {"lines": ["Sorry, who is this?", "I don't think we've met."]}
+      ]
+    }
+  }
+}

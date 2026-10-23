@@ -1,0 +1,118 @@
+{
+  "interior": {
+    "id": "paws_whiskers",
+    "places": ["paws_whiskers"],
+    "size": [1536, 1024],
+    "person_px": 105,
+    "floor": [
+      [
+        [92, 543],
+        [880, 236],
+        [1005, 290],
+        [1072, 322],
+        [1074, 383],
+        [1300, 467],
+        [1440, 527],
+        [1495, 548],
+        [1430, 590],
+        [1240, 730],
+        [1100, 820],
+        [898, 922],
+        [886, 916],
+        [886, 890],
+        [866, 880],
+        [805, 912],
+        [803, 870],
+        [788, 860],
+        [762, 872],
+        [750, 888],
+        [605, 805],
+        [552, 784],
+        [440, 720],
+        [398, 696],
+        [380, 795],
+        [258, 728],
+        [222, 617],
+        [183, 595]
+      ]
+    ],
+    "blocked": [
+      {"label": "pet food shelves", "poly": [[83, 547], [248, 481], [278, 494], [113, 562]], "height": 155},
+      {"label": "kennels", "poly": [[305, 455], [880, 236], [887, 306], [452, 532]], "height": 130},
+      {"label": "pet food shelf", "poly": [[298, 468], [314, 459], [444, 523], [432, 529]], "height": 57},
+      {"label": "reception counter", "poly": [[266, 616], [313, 594], [497, 678], [450, 700]], "height": 65},
+      {"label": "shelf", "poly": [[545, 690], [595, 665], [705, 720], [655, 747]], "height": 82},
+      {"label": "shelf", "poly": [[665, 817], [743, 782], [787, 800], [712, 840]], "height": 72},
+      {"label": "play yard fence", "poly": [[586, 575], [802, 459], [802, 465], [586, 581]], "height": 12},
+      {"label": "play yard fence", "poly": [[586, 575], [903, 754], [903, 760], [586, 581]], "height": 12},
+      {"label": "play yard fence", "poly": [[903, 754], [1098, 647], [1098, 653], [903, 760]], "height": 12},
+      {"label": "play yard fence", "poly": [[802, 459], [930, 519], [930, 525], [802, 465]], "height": 12},
+      {"label": "play yard gate", "poly": [[1098, 612], [1122, 596], [1124, 600], [1100, 616]], "height": 12},
+      {"label": "bench", "poly": [[660, 538], [762, 498], [783, 511], [681, 551]], "height": 30},
+      {"label": "bench", "poly": [[996, 526], [1022, 512], [1109, 556], [1083, 570]], "height": 40},
+      {"label": "dog ramp", "poly": [[770, 585], [835, 545], [890, 580], [805, 610]], "height": 60},
+      {"label": "dog tunnel", "poly": [[905, 610], [960, 580], [985, 592], [930, 625]], "height": 45},
+      {"label": "planter", "poly": [[895, 487], [935, 462], [972, 490], [930, 522]], "height": 190},
+      {"label": "plant", "poly": [[617, 568], [634, 560], [651, 568], [634, 577]], "height": 85},
+      {"label": "plant", "poly": [[799, 486], [815, 478], [831, 486], [815, 494]], "height": 85},
+      {"label": "plant", "poly": [[964, 508], [980, 500], [996, 508], [980, 516]], "height": 80},
+      {"label": "plant", "poly": [[897, 750], [917, 740], [937, 750], [917, 760]], "height": 105},
+      {"label": "plant", "poly": [[950, 286], [966, 278], [982, 286], [966, 294]], "height": 100},
+      {"label": "plant", "poly": [[1126, 650], [1142, 642], [1158, 650], [1142, 658]], "height": 70},
+      {"label": "plant", "poly": [[1160, 628], [1176, 620], [1192, 628], [1176, 636]], "height": 95},
+      {"label": "plant", "poly": [[1276, 548], [1290, 541], [1304, 548], [1290, 555]], "height": 70},
+      {"label": "plant", "poly": [[1439, 538], [1457, 529], [1475, 538], [1457, 547]], "height": 130},
+      {"label": "cat trees", "poly": [[1080, 408], [1097, 388], [1278, 458], [1258, 498]], "height": 255},
+      {
+        "label": "cat condo cabinet",
+        "poly": [[1280, 477], [1300, 465], [1440, 526], [1420, 537]],
+        "height": 175
+      },
+      {
+        "label": "small-animal enclosure",
+        "poly": [[1152, 662], [1302, 577], [1432, 632], [1265, 717]],
+        "height": 85
+      }
+    ],
+    "entrance": {"at": [345, 712], "facing": "e"},
+    "spots": [
+      {"id": "door", "kind": "door", "at": [318, 754], "facing": "w", "label": "Front door"},
+      {
+        "id": "restroom",
+        "kind": "door",
+        "at": [1040, 316],
+        "facing": "e",
+        "label": "Restroom",
+        "activity": "restroom"
+      },
+      {
+        "id": "front_desk",
+        "kind": "counter",
+        "at": [365, 684],
+        "facing": "e",
+        "label": "Front desk",
+        "offers": ["pet_food"]
+      },
+      {
+        "id": "play_yard",
+        "kind": "fixture",
+        "at": [965, 648],
+        "facing": "n",
+        "label": "Play yard",
+        "activity": "visit_animals"
+      },
+      {
+        "id": "kennels",
+        "kind": "fixture",
+        "at": [637, 457],
+        "facing": "n",
+        "label": "Kennels",
+        "activity": "visit_animals"
+      },
+      {"id": "bench_1", "kind": "seat", "at": [703, 536], "facing": "s", "label": "Bench"},
+      {"id": "bench_2", "kind": "seat", "at": [748, 518], "facing": "s", "label": "Bench"},
+      {"id": "bench_3", "kind": "seat", "at": [1026, 535], "facing": "w", "label": "Bench"},
+      {"id": "bench_4", "kind": "seat", "at": [1065, 555], "facing": "w", "label": "Bench"}
+    ]
+  }
+}

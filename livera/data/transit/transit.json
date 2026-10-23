@@ -1,0 +1,27 @@
+{
+  "$comment": "Livéra Transit. Buses move like walkers but faster, server-side. Riding without paying risks an inspection and a fine.",
+  "transit": {
+    "operator_account": "org:livera_transit",
+    "boarding_radius_m": 15,
+    "lines": [
+      {
+        "id": "line_1",
+        "name": "Line 1 · Riverside Loop",
+        "fare_cents": 275,
+        "speed_mps": 40,
+        "hours": [5, 1],
+        "inspection_chance": 0.15,
+        "evasion_fine_cents": 10000,
+        "stops": [
+          {"id": "stop_riverside", "name": "Riverside Lofts", "at": [760, 575]},
+          {"id": "stop_founders_main", "name": "Founders Way & Main", "at": [465, 575]},
+          {"id": "stop_maple_court", "name": "Maple Court", "at": [300, 535]},
+          {"id": "stop_church_street", "name": "Church Street", "at": [245, 445]},
+          {"id": "stop_founders_park", "name": "Founders Park", "at": [465, 350]},
+          {"id": "stop_civic_row", "name": "Civic Row", "at": [630, 320]},
+          {"id": "stop_lexington_ave", "name": "Lexington Ave & River Rd", "at": [790, 470]}
+        ]
+      }
+    ]
+  }
+}

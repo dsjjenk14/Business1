@@ -1,0 +1,21 @@
+/* The wardrobe card (wardrobe.js, D-079): three big look buttons, then bought outfits. Uses app.css's tokens. */
+.wardrobe { display: flex; flex-direction: column; gap: var(--sp-3); }
+.wd-looks { display: grid; grid-template-columns: 1fr; gap: var(--sp-2); }
+@media (min-width: 700px) { .wd-looks { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.wd-look { display: flex; flex-direction: column; align-items: stretch; gap: 6px; min-height: 88px; padding: 12px 14px; text-align: left;
+  border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--panel-2); color: var(--fg); font: inherit; cursor: pointer; }
+.wd-look:hover { border-color: var(--gold); background: var(--panel-3); }
+.wd-look:disabled { opacity: .6; cursor: progress; }
+.wd-look.wearing { border-color: var(--gold); background: linear-gradient(180deg, rgba(218, 187, 133, .18), var(--panel-2)); }
+.wd-head { display: flex; align-items: center; gap: 8px; }
+.wd-head .icon { width: 20px; height: 20px; color: var(--gold); flex: none; }
+.wd-name { font: 600 var(--fs-xl)/1.1 var(--display); color: var(--ivory); flex: 1; min-width: 0; }
+.wd-garments { font-size: var(--fs-sm); color: var(--fg); overflow-wrap: anywhere; }
+.wd-foot { display: flex; flex-wrap: wrap; gap: 6px 10px; font: 600 var(--fs-xs)/1.3 var(--caps); letter-spacing: .08em; text-transform: uppercase; }
+.wd-cond { color: var(--emerald); }
+.wd-cond.dirty { color: var(--copper); }
+.wd-cond.ruined { color: var(--neg); }
+.wd-undrawn { color: var(--muted); border-left: 1px solid var(--line); padding-left: 10px; }
+.wd-result { min-height: 1.2em; margin: 0; color: var(--gold-light); font-size: var(--fs-sm); }
+.wd-result:empty { display: none; }
+.wd-bought li + li { margin-top: var(--sp-2); }
