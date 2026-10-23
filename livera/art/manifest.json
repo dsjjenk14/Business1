@@ -423,6 +423,13 @@
         "Map sprite (isometric, golden hour, transparent), generated from its prompt in art/PROMPT_PACK_TOWN.md.",
         "A single-storey stone clinic with a green cross over the door and the RIVERDALE CLINIC sign, as asked; the awnings, planters and rooftop units are the picture's own. It came in one picture with the bus's front view and was cut out."
       ]
+    },
+    "courthouse": {
+      "sprite": "art/places/courthouse.webp",
+      "notes": [
+        "Map sprite (isometric, golden hour), generated from its prompt in art/PROMPT_PACK_TOWN.md: a pale stone court with Corinthian columns, the scales-and-lotus pediment, 'MUNICIPAL COURT' on the frieze, gold-railed steps and planted terraces.",
+        "Its glow is painted into the picture, not transparent: the client copy (web/client/sprites/courthouse.webp) was matted with two background models and the holes filled, which drops the big tree at the far left."
+      ]
     }
   },
   "unit_buildings": {
@@ -839,11 +846,51 @@
         "The desk by the window and the view over a roof (Riverdale Clinic's, as the data says) match; the kitchen island is dark marble.",
         "Traced (data/interiors/lexington_0602.json): the living room and the kitchen as one floor, the bedroom, the bathroom, and the vestibule inside the front door. Seats: the L-sofa (Nap on the chaise, Watch TV from the side facing the TV), the armchair, the desk chair by the window, three island stools, the vanity stool (shave, skincare and hair) and the bed for two. The shower, the stove, the bin, the bathroom sink and the toilet are where they're drawn; the stacked washer and dryer behind the low walls aren't reached."
       ]
+    },
+    "lexington_1406": {
+      "picture": "art/interiors/lexington_1406.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Judge Evelyn Park's flat: the wall of law books (with a library ladder), the balcony with plants and a domed building in the view up the street, a bed for two, a vanity, a glass shower and the laundry nook match the data.",
+        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+      ]
+    },
+    "lexington_1801": {
+      "picture": "art/interiors/lexington_1801.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The dress form by a worktable of fabric swatches and a balcony window match the data's 'dress form by the window and fabric swatches on every surface'. The picture adds a laundry nook the prompt didn't ask for.",
+        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+      ]
+    },
+    "lexington_1103": {
+      "picture": "art/interiors/lexington_1103.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The wine fridge under the counter the previous tenant left behind, a bed for two, a vanity, a glass shower and the laundry nook match the data.",
+        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+      ]
+    },
+    "founders_row_7": {
+      "picture": "art/interiors/founders_row_7.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "The left half is the townhouse the data describes, its two floors stacked with the stairs between them: blackout-green curtains, the bathtub upstairs, the kitchen and the living room downstairs, the front stoop. The right half is a second, separate flat the prompt didn't ask for; the desk buried in files isn't drawn. Trace the left half only.",
+        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+      ]
+    },
+    "courthouse": {
+      "picture": "art/interiors/courthouse.webp",
+      "notes": [
+        "Interior (isometric cutaway, golden hour), generated from its prompt in art/PROMPT_PACK_INTERIORS.md.",
+        "Livéra Municipal Court's courtroom: the bench with the Livéra scales emblem, the witness box, the clerk's desk, two counsel tables, the bar rail and six benches of public gallery, matching D-083's public hearing.",
+        "Filed, not traced yet: the game walks a room once its floor, furniture and spots are traced into data/interiors (D-066)."
+      ]
     }
   },
   "transit": {
     "bus_line_1": "art/transit/bus_line_1.jpg",
-    "bus_line_1_side": "art/transit/bus_line_1_side.jpg",
+    "bus_line_1_side": "art/transit/bus_line_1_side.webp",
     "stops": {
       "stop_riverside": {
         "sprite": "art/transit/stops/stop_riverside.webp",
@@ -883,13 +930,15 @@
       "The side view is a crop on a grey studio background, not a transparent sprite.",
       "The Founders Way & Main totem reads FOUNDERS WAY, as its prompt asked: the stop's name in the data is longer than a totem holds. Every totem's gold 1 is the line number, not the stop's place in the route.",
       "bus_line_1_rear.webp is the rear three-quarter view (the rear and the left side): emerald livery, gold stripe, LIVÉRA TRANSIT and the 1 badge front and back, as asked. The client still draws its own shuttle on the map.",
-      "bus_line_1_front.webp is the front three-quarter view (the front and the right side with both doors): the destination sign reads 1 RIVERSIDE LOOP, LIVÉRA TRANSIT and the lotus along the side, the gold 1 badge, as asked. It came in one picture with the clinic and was cut out. The client still draws its own shuttle on the map."
+      "bus_line_1_front.webp is the front three-quarter view (the front and the right side with both doors): the destination sign reads 1 RIVERSIDE LOOP, LIVÉRA TRANSIT and the lotus along the side, the gold 1 badge, as asked. It came in one picture with the clinic and was cut out. The client still draws its own shuttle on the map.",
+      "bus_line_1_side.webp is the cut-out side view the prompt asks for (LIVÉRA TRANSIT and the 1 on its flank, empty seats through the windows, on transparency); the earlier bus_line_1_side.jpg is kept beside it."
     ],
     "livera_transit_mark": "art/transit/livera_transit_mark.png",
     "transit_card": "art/transit/transit_card.png",
     "route_line_1": "art/transit/route_line_1.jpg",
     "bus_line_1_rear": "art/transit/bus_line_1_rear.webp",
-    "bus_line_1_front": "art/transit/bus_line_1_front.webp"
+    "bus_line_1_front": "art/transit/bus_line_1_front.webp",
+    "bus_line_1_side_earlier": "art/transit/bus_line_1_side.jpg"
   },
   "tiles": {
     "notes": [
@@ -976,16 +1025,28 @@
       "notes": [
         "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
         "The royal-blue zip hoodie, white tee, grey cargo joggers and white trainers match his sheet.",
-        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
-      ]
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did.",
+        "Going out: the cream knit polo, black tailored trousers and white leather sneakers. One half of a two-look picture (the owner's), split at its divider into its own sheet (D-079).",
+        "Work: Greenleaf's dark green apron with his name badge over a white tee, black work trousers and black shoes. One half of a two-look picture (the owner's), split at its divider into its own sheet (D-079)."
+      ],
+      "looks": {
+        "evening": "art/sprites/characters/theo-grant/evening/sheet.webp",
+        "work": "art/sprites/characters/theo-grant/work/sheet.webp"
+      }
     },
     "sienna": {
       "sheet": "art/sprites/characters/sienna/sheet.webp",
       "notes": [
         "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md. The game doesn't use the sheets yet: the map and the rooms still draw cut-outs from the model sheets (D-067).",
         "The burgundy moto jacket, black tank, black high-waisted trousers, black ankle boots and the black quilted bag match the data.",
-        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did."
-      ]
+        "The background is a dark studio gradient, not transparent as asked: cutting the frames out will need a matte, as the model sheets did.",
+        "Going out: the black satin slip dress under the burgundy moto jacket, sheer black tights and heeled ankle boots, as the data says. One half of a two-look picture (the owner's), split at its divider into its own sheet (D-079).",
+        "Everyday: the cropped white tee under an oversized black denim jacket, baggy charcoal cargos, black platform boots and the quilted bag. One half of a two-look picture (the owner's), split at its divider into its own sheet (D-079)."
+      ],
+      "looks": {
+        "evening": "art/sprites/characters/sienna/evening/sheet.webp",
+        "everyday": "art/sprites/characters/sienna/everyday/sheet.webp"
+      }
     },
     "graham": {
       "sheet": "art/sprites/characters/graham/sheet.webp",
@@ -1062,8 +1123,14 @@
       "notes": [
         "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md.",
         "The deep teal corduroy bucket hat over a copper curly afro, the cream printed shirt with rolled sleeves, the brown corduroy waistcoat and wide trousers and the brown loafers match the data.",
-        "The background is a dark studio gradient, not transparent as asked: scripts/client_figures.py mattes the frames out."
-      ]
+        "The background is a dark studio gradient, not transparent as asked: scripts/client_figures.py mattes the frames out.",
+        "Going out: the deep teal velvet blazer over a white ribbed tank, wide brown cords, brown loafers and the teal bucket hat. One half of a two-look picture (the owner's), split at its divider into its own sheet (D-079).",
+        "Work: the cream printed shirt with rolled sleeves under a charcoal canvas barista apron, wide brown cords and loafers. The prompt's work look has no hat; the picture keeps the bucket hat. One half of a two-look picture (the owner's), split at its divider into its own sheet (D-079)."
+      ],
+      "looks": {
+        "evening": "art/sprites/characters/sol-rivera/evening/sheet.webp",
+        "work": "art/sprites/characters/sol-rivera/work/sheet.webp"
+      }
     },
     "kai-morgan": {
       "sheet": "art/sprites/characters/kai-morgan/sheet.webp",
@@ -1116,6 +1183,12 @@
         "notes": [
           "Her twelve fight poses (top three rows) with her eight social poses smaller below, on transparency. The fight cells are the ones to cut."
         ]
+      },
+      "dax": {
+        "sheet": "art/sprites/characters/dax/fight.webp",
+        "notes": [
+          "Twelve fight poses in his work look (black fitted polo, black trousers, black leather shoes, silver watch), with the tattooed forearms. Painted backdrop with a glow behind each pose, not transparent."
+        ]
       }
     },
     "social_sheets": {
@@ -1128,7 +1201,7 @@
         "second": "art/sprites/characters/dominique/social_2.webp"
       }
     },
-    "not_used_yet": "Beat Brawl still draws the figures' fight and flinch poses: cutting these sheets into frames for brawl.js is the next step (D-077's trade-off). Dax's fight sheet is still to come.",
+    "not_used_yet": "Beat Brawl still draws the figures' fight and flinch poses: cutting these sheets into frames for brawl.js is the next step (D-077's trade-off).",
     "key_art": {
       "picture": "art/key/golden_hour_title.webp",
       "notes": [
@@ -1149,6 +1222,13 @@
         "notes": [
           "Outdoor room for Golden Hour (docs/proposals/showdown/golden_hour_art.md: the alley behind the Copper Tap).",
           "The brick walls, the green back door up three steps, the crates, the bench, the string lights and the street lamp match the prompt.",
+          "Filed, not traced yet, and not a walkable room until the outdoor rooms of Golden Hour's evenings are built (D-076)."
+        ]
+      },
+      "the_underpass": {
+        "picture": "art/interiors/the_underpass.webp",
+        "notes": [
+          "Outdoor room for Golden Hour (docs/proposals/showdown/golden_hour_art.md: The Underpass after dark): the overpass on its concrete piers with rebar showing, construction fencing, pallets of blocks, a cable-drum table with a lantern, work lights and a scissor lift.",
           "Filed, not traced yet, and not a walkable room until the outdoor rooms of Golden Hour's evenings are built (D-076)."
         ]
       }

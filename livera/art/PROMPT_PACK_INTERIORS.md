@@ -76,9 +76,9 @@ once its picture has data in `data/interiors/`.
 
 ### Civic Row
 
-#### Livéra Municipal Court
+#### Livéra Municipal Court (filed)
 
-Save as `art/interiors/courthouse.png` · 1536×1024
+Save as `art/interiors/courthouse.png` · 1536×1024 · filed as `art/interiors/courthouse.webp`
 
 Facts from the data:
 
@@ -1077,9 +1077,9 @@ The Lexington, Apt 0904: the inside of a modern apartment in the Downtown distri
 Size 1536×1024, transparent background. Save as art/interiors/lexington_0904.png
 ```
 
-#### The Lexington, Apt 1103
+#### The Lexington, Apt 1103 (filed)
 
-Save as `art/interiors/lexington_1103.png` · 1536×1024
+Save as `art/interiors/lexington_1103.png` · 1536×1024 · filed as `art/interiors/lexington_1103.webp`
 
 Facts from the data:
 
@@ -1127,9 +1127,9 @@ The Lexington, Apt 1204: the inside of a modern apartment in the Downtown distri
 Size 1536×1024, transparent background. Save as art/interiors/lexington_1204.png
 ```
 
-#### The Lexington, Apt 1406
+#### The Lexington, Apt 1406 (filed)
 
-Save as `art/interiors/lexington_1406.png` · 1536×1024
+Save as `art/interiors/lexington_1406.png` · 1536×1024 · filed as `art/interiors/lexington_1406.webp`
 
 Facts from the data:
 
@@ -1153,9 +1153,9 @@ The Lexington, Apt 1406: the inside of a modern apartment in the Downtown distri
 Size 1536×1024, transparent background. Save as art/interiors/lexington_1406.png
 ```
 
-#### The Lexington, Apt 1801
+#### The Lexington, Apt 1801 (filed)
 
-Save as `art/interiors/lexington_1801.png` · 1536×1024
+Save as `art/interiors/lexington_1801.png` · 1536×1024 · filed as `art/interiors/lexington_1801.webp`
 
 Facts from the data:
 
@@ -1227,9 +1227,9 @@ LIVÉRA interior. Isometric 2:1 (30°) cutaway view from the south-west, the sam
 Size 1536×1024, transparent background. Save as art/interiors/founders_row_3.png
 ```
 
-#### 7 Founders Row
+#### 7 Founders Row (filed)
 
-Save as `art/interiors/founders_row_7.png` · 1536×1024
+Save as `art/interiors/founders_row_7.png` · 1536×1024 · filed as `art/interiors/founders_row_7.webp`
 
 Facts from the data:
 

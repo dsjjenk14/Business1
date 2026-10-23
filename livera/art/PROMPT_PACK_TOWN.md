@@ -70,9 +70,9 @@ Every prompt below repeats this in brief, so you can paste any single prompt on 
 
 ### Civic Row
 
-#### Livéra Municipal Court
+#### Livéra Municipal Court (in the game)
 
-Save as `art/places/courthouse.png` · 1536×1024 · sign: MUNICIPAL COURT
+Save as `art/places/courthouse.png` · 1536×1024 · sign: MUNICIPAL COURT · filed as `art/places/courthouse.webp`
 
 Facts from the data:
 
@@ -1721,9 +1721,9 @@ The Line 1 · Riverside Loop bus, the town's only vehicle: a modern low-floor ci
 Size 1024×1024, transparent background. Save as art/transit/bus_line_1_rear.png
 ```
 
-#### Bus: Line 1 · Riverside Loop, side view
+#### Bus: Line 1 · Riverside Loop, side view (in the game)
 
-Save as `art/transit/bus_line_1_side.png` · 1536×1024 · sign: LIVÉRA TRANSIT · 1
+Save as `art/transit/bus_line_1_side.png` · 1536×1024 · sign: LIVÉRA TRANSIT · 1 · filed as `art/transit/bus_line_1_side.webp`
 
 Facts from the data:
 
