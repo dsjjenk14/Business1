@@ -178,10 +178,12 @@ CELL_PAD = (0.2, 0.06)               # how much of the neighbouring cells is seg
 # Cells the generator drew wrong, and the frame that stands in (the showdown's PITCH.md §10 risk 7): Dax's and
 # Harper's standing cell is drawn seated, so their standing frame is the walk's passing frame (feet nearest together).
 STAND_INS = {"dax": {"idle_front34": "walk_front34_3"}, "harper": {"idle_front34": "walk_front34_3"}}
-# Bits of the generator's furniture the seated cut leaves, erased by hand: polygons on the sheet (pixels).
+# Bits the cut keeps that aren't the person, erased by hand: polygons on the sheet (pixels). The generator's furniture
+# under a seated figure, or a neighbouring cell's figure close enough to touch (its head under a shoe).
 ERASE = {
     ("leila", "sit_chair"): [[(1001, 886), (1012, 882), (1031, 940), (1018, 945)]],   # the chair's back leg under her coat
     ("sienna", "sit_chair"): [[(848, 914), (865, 914), (869, 926), (863, 973), (847, 973)]],   # the front leg between her boots
+    ("hamid-sultani", "walk_back34_1"): [[(232, 655), (275, 655), (275, 705), (200, 705), (200, 668), (222, 664)]],  # the head below his shoe
 }
 # Per kind of seat in the rooms (data/interiors spots): how high the seat is, as a fraction of a standing 1.75 m
 # person; a nudge of a seated frame's seat point (fractions of the person's height: dx toward the way they face, dy
@@ -695,20 +697,20 @@ def cut_sprites(cid, sheet, cache, models, masters, look=None):
         alpha = segment(img, box, cache, models)
         main = cell_figure(alpha, box, W, H, r, c)
         kind = SEATED.get(name)
+        erase = np.zeros(main.shape, bool)
+        for poly in ERASE.get((key, name), []):
+            m = Image.new("L", (main.shape[1], main.shape[0]), 0)
+            ImageDraw.Draw(m).polygon([(x - box[0], y - box[1]) for x, y in poly], fill=1)
+            erase |= np.asarray(m).astype(bool)
         if kind:
             hs = segment(img, box, cache, models, PERSON_MODEL)
             prior, free = sam_person(img, box, rgb, hs, main, cache, models)
-            erase = np.zeros(main.shape, bool)
-            for poly in ERASE.get((key, name), []):
-                m = Image.new("L", (main.shape[1], main.shape[0]), 0)
-                ImageDraw.Draw(m).polygon([(x - box[0], y - box[1]) for x, y in poly], fill=1)
-                erase |= np.asarray(m).astype(bool)
             person, gone = seated_person(rgb, hs, prior, free, main, kind, erase)
             sofa = sofa_of(rgb, person) if kind == "sofa" else None
             near = ndi.binary_dilation(person, iterations=2)
             alpha = alpha * near * np.clip(ndi.gaussian_filter(person.astype(np.float32), 0.8) * 1.4, 0, 1)
         else:
-            alpha = alpha * ndi.binary_dilation(main, iterations=6)
+            alpha = alpha * ndi.binary_dilation(main & ~erase, iterations=6) * ~erase
         f, a, filled = matte(rgb, alpha, fill_holes=True)
         x0, y0, x1, y1 = bbox(a)
         fx, fy, top = stand_point(a)

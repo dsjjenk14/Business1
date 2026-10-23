@@ -1080,6 +1080,14 @@
         "Her navy uniform, duty belt, boots and navy hijab match the data: this is her work look (she is drawn in uniform on and off duty until her other looks are drawn).",
         "The background is a dark studio gradient, not transparent as asked: scripts/client_figures.py mattes the frames out."
       ]
+    },
+    "hamid-sultani": {
+      "sheet": "art/sprites/characters/hamid-sultani/sheet.webp",
+      "notes": [
+        "Sprite sheet (4 × 3 cells: a walk toward the lower left, a walk away toward the upper right, standing front and back, sitting on a chair and on a sofa), generated from its prompt in art/PROMPT_PACK_CHARACTERS.md.",
+        "Greenleaf's green apron over a pressed white shirt, grey slacks and polished black shoes match the data: this is his work look. His reading glasses hang from the apron bib.",
+        "The background is a dark studio gradient with a glow behind each pose, not transparent as asked: scripts/client_figures.py mattes the frames out."
+      ]
     }
   },
   "golden_hour": {
@@ -1114,8 +1122,10 @@
       "dominique": {
         "sheet": "art/sprites/characters/dominique/social.webp",
         "notes": [
-          "The pilot social sheet: wave, laugh, toast, dance, clap, arms crossed, whisper, beckon, on transparency (1536 × 1024 rather than the 1536 × 768 asked for)."
-        ]
+          "The pilot social sheet: wave, laugh, toast, dance, clap, arms crossed, whisper, beckon, on transparency (1536 × 1024 rather than the 1536 × 768 asked for).",
+          "A second render of the same eight poses (social_2.webp, 1774 × 887 on transparency, nearer the 2:1 asked for): the first is kept until Beat Brawl's party scenes pick one."
+        ],
+        "second": "art/sprites/characters/dominique/social_2.webp"
       }
     },
     "not_used_yet": "Beat Brawl still draws the figures' fight and flinch poses: cutting these sheets into frames for brawl.js is the next step (D-077's trade-off). Dax's fight sheet is still to come.",

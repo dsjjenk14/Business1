@@ -73,29 +73,6 @@
    }
   }
  },
- "hamid-sultani": {
-  "height_cm": 176,
-  "skin": "#c9a07c",
-  "hair": "#6a655f",
-  "top": "#f2f2ee",
-  "bottom": "#5f6368",
-  "shoes": "#151515",
-  "apron": "#2f5d3a",
-  "hair_style": "short",
-  "drawn": "work",
-  "looks": {
-   "everyday": {
-    "top": "#3e4044",
-    "bottom": "#5f6368",
-    "shoes": "#5a3a22"
-   },
-   "evening": {
-    "top": "#1f2a44",
-    "bottom": "#33363b",
-    "shoes": "#151515"
-   }
-  }
- },
  "imani-clarke": {
   "height_cm": 165,
   "skin": "#7b4a30",
