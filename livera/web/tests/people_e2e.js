@@ -80,7 +80,7 @@ async function goInto(p, search, place) {
     const heads = await A.page.$$eval(".cast-head", n => n.map(h => h.dataset.cast));
     assert(JSON.stringify(heads) === JSON.stringify(["founder", "resident", "townsperson"]), "groups: " + heads);
     const cards = await A.page.$$eval(".castcard", n => n.map(c => c.dataset.character));
-    assert(cards.length === 27, `${cards.length} cards`);
+    assert(cards.length === 28, `${cards.length} cards`);
     for (const id of ["kai-morgan", "bernie-walsh", "marcus-bell"]) assert(cards.includes(id), "no card for " + id);
     const wide = await W(A, () => document.documentElement.scrollWidth <= innerWidth);
     assert(wide, "the pick list scrolls sideways");

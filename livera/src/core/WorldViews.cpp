@@ -116,6 +116,8 @@ Result<Json> World::look(const CharacterId& actor) const {
     you["wanted_for"] = crime ? crime->label : c->wantedFor;
   }
   if (c->jailedUntil > state_.now) you["jailed_until"] = c->jailedUntil;
+  // Your court date, your hearing, community service owed (D-083): your own business.
+  if (Json court = courtYou(*c); !court.is_null()) you["court"] = court;
   // A need run down to 0 (D-080): out cold until, or kept in the hospital until (game minutes).
   if (c->passedOutUntil > state_.now) you["passed_out_until"] = c->passedOutUntil;
   if (c->admittedUntil > state_.now) {
@@ -249,7 +251,8 @@ Json World::publicRules() const {
               {"entry_radius_m", sim.entryRadiusMeters},
               {"boarding_radius_m", content_->transit().boardingRadiusMeters},
               {"needs_at_zero", needsAtZeroRules()},
-              {"sleep", sleepRules()}};
+              {"sleep", sleepRules()},
+              {"court", courtRules()}};  // D-083 (null where the world has no court)
 }
 
 // When you can go to bed and nap, and when everyone asleep wakes (Sleep.cpp): the same for everyone.
@@ -506,9 +509,11 @@ Json World::phoneCalendar(const CharacterState& c) const {
     if (p.tenant != c.id) continue;
     const PropertyDef* pd = content_->property(pid);
     if (pd && pd->rentMonthlyCents > 0)
-      events.push_back(Json{{"at", nextMonth}, {"when", formatDateTime(nextMonth)},
+      events.push_back(Json{{"at", nextMonth}, {"when", formatDateTime(nextMonth)}, {"kind", "rent"},
                             {"title", "Rent due: " + formatMoney(pd->rentMonthlyCents)}});
   }
+  courtCalendar(c, events);  // court dates and community service due (D-083)
+  std::sort(events.begin(), events.end(), [](const Json& a, const Json& b) { return a["at"] < b["at"]; });
   return Json{{"now", timeJson(state_.now)},
               {"routine", def ? def->profile.value("schedule", Json::object()) : Json::object()},
               {"upcoming", events}};

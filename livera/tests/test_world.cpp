@@ -1513,7 +1513,9 @@ TEST_CASE("map: the public rules, transit lines and interactions come from data"
   CHECK(rules["needs_at_zero"].is_object());  // what each need does at 0 (D-080): none without needs_at_zero.json
   CHECK(rules["sleep"]["wake_hour"] == db.life().wakeHour);  // and when you can go to bed or nap
   CHECK(rules["sleep"]["nap_below_energy"] == db.life().napBelowEnergy);
-  CHECK(rules.size() == 10);
+  CHECK(rules["court"]["courthouse"] == db.court().courthouse);  // the court's sittings, lawyers and record (D-083)
+  CHECK(rules["court"]["sitting_hours"] == Json::array({db.court().sitFrom, db.court().sitTo}));
+  CHECK(rules.size() == 11);
   REQUIRE(m["transit"]["lines"].size() == db.transit().lines.size());
   const Json& line = m["transit"]["lines"][0];
   CHECK(line["id"] == "line_1");

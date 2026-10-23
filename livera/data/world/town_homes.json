@@ -1,5 +1,5 @@
 {
-  "$comment": "Homes for the town's people (D-073): more units in the buildings already on the map (Maple Court's 1A-4C, Riverside Lofts' six bays, more floors of the Lexington). Their tenants are residents and townspeople in data/characters; the units the character creator gives out (Maple Court 2A, 2B, 4A, 4C, the Lexington's 0807 and 1502) stay free for made characters.",
+  "$comment": "Homes for the town's people (D-073): more units in the buildings already on the map (Maple Court's 1A-4C, Riverside Lofts' six bays, more floors of the Lexington; 1406 is the judge's, D-083). Their tenants are residents and townspeople in data/characters; the units the character creator gives out (Maple Court 2A, 2B, 4A, 4C, the Lexington's 0807 and 1502) stay free for made characters.",
   "locations": [
     {
       "id": "maple_court_1b",
@@ -666,6 +666,67 @@
           "home_effects": {"trash": -100}
         }
       ]
+    },
+    {
+      "id": "lexington_1406",
+      "name": "The Lexington, Apt 1406",
+      "type": "apartment",
+      "district": "Downtown",
+      "description": "A fourteenth-floor one-bedroom with a wall of law books, a balcony of herbs in pots and a view up Civic Row to the courthouse.",
+      "door": [430, 470],
+      "access": "residents",
+      "activities": [
+        {
+          "id": "shower",
+          "label": "Take a shower",
+          "cooldown_minutes": 60,
+          "needs": {"hygiene": 45, "comfort": 5}
+        },
+        {
+          "id": "nap",
+          "label": "Nap on the sofa",
+          "cooldown_minutes": 120,
+          "needs": {"energy": 25, "comfort": 10}
+        },
+        {
+          "id": "cook",
+          "label": "Cook something simple",
+          "cooldown_minutes": 90,
+          "needs": {"hunger": 35},
+          "emotions": {"happiness": 2},
+          "home_effects": {"trash": 15}
+        },
+        {
+          "id": "watch_tv",
+          "label": "Watch TV",
+          "cooldown_minutes": 60,
+          "needs": {"recreation": 20, "comfort": 5}
+        },
+        {"id": "toilet", "label": "Use the bathroom", "cooldown_minutes": 15, "needs": {"bladder": 100}},
+        {"id": "brush_teeth", "label": "Brush your teeth", "cooldown_minutes": 120, "needs": {"dental": 60}},
+        {
+          "id": "groom",
+          "label": "Shave, skincare and hair",
+          "cooldown_minutes": 240,
+          "needs": {"grooming": 30, "hygiene": 5},
+          "emotions": {"confidence": 3}
+        },
+        {
+          "id": "clean_home",
+          "label": "Clean the place",
+          "cooldown_minutes": 60,
+          "needs": {"energy": -10, "comfort": 5},
+          "home_effects": {"cleanliness": 50},
+          "calories_burned": 150
+        },
+        {
+          "id": "take_out_trash",
+          "label": "Take out the trash",
+          "cooldown_minutes": 30,
+          "needs": {"energy": -2},
+          "home_effects": {"trash": -100}
+        }
+      ]
     }
   ],
   "properties": [
@@ -797,6 +858,17 @@
       "owner_account": "org:lexington_props",
       "rent_monthly_cents": 232000,
       "market_value_cents": 45500000,
+      "bedrooms": 1,
+      "amenities": ["doorman", "rooftop_pool", "in_unit_laundry", "gym_access"],
+      "tier": "luxury"
+    },
+    {
+      "id": "lexington_1406",
+      "location": "lexington_1406",
+      "type": "apartment",
+      "owner_account": "org:lexington_props",
+      "rent_monthly_cents": 238000,
+      "market_value_cents": 46500000,
       "bedrooms": 1,
       "amenities": ["doorman", "rooftop_pool", "in_unit_laundry", "gym_access"],
       "tier": "luxury"

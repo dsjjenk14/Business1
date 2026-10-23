@@ -7,7 +7,7 @@
 // moved it); the Story app lists it. Shoplifting at Thread & Co.: the odds and the ladder first; until caught;
 // arrested: the cell's card and the Held chip; released. Play together, desktop host and phone friend: a fight
 // from the person card (the ladder first), the friend's card with Fight back / Run / Take it, both result cards,
-// and the Wanted chip when it's reported. No console errors.
+// and the summons to court when it's reported (D-083). No console errors.
 
 const { chromium } = require("playwright");
 const fs = require("fs");
@@ -248,9 +248,9 @@ async function later(p) { const b = await p.page.$(".mo-card.mo-life:not(.mo-don
     assert((await req(H, "phone", { app: "bank" })).data.cash_cents === cash, "Back still picked her pocket");
   });
 
-  await test("together: a fight: the ladder first, the person attacked chooses, both see how it went; reported means Wanted", async () => {
-    let state = { wanted: null, jail: null };
-    for (let day = 0; day < 4 && !state.wanted && !state.jail; day++) {
+  await test("together: a fight: the ladder first, the person attacked chooses, both see how it went; reported means a summons", async () => {
+    let state = { wanted: null, jail: null, court: null };
+    for (let day = 0; day < 4 && !state.wanted && !state.jail && !state.court; day++) {
       // The next day (the host fast-forwards at most 600 s a call): once a pair a day.
       if (day) { for (let k = 0; k < 3; k++) { await W(H, () => { window.__liveraTogether.host.advance(600); window.__liveraTogether.host.care(); }); await sleep(300); } await sleep(2500); }
       await later(F); await later(H);
@@ -297,15 +297,22 @@ async function later(p) { const b = await p.page.$(".mo-card.mo-life:not(.mo-don
       await F.page.click('.mo-card[data-moment="fight-result"] .btn.primary');
       await H.page.click('.mo-card[data-moment="fight-result"] .btn.primary');
       await sleep(800);
-      state = await W(F, () => ({ wanted: window.__liveraMoments.wanted(), jail: window.__liveraMoments.jail() }));
+      state = await W(F, () => ({ wanted: window.__liveraMoments.wanted(), jail: window.__liveraMoments.jail(), court: window.__liveraMoments.court() }));
     }
-    assert(state.wanted || state.jail, "four fights and never reported or caught");
+    assert(state.wanted || state.jail || state.court, "four fights and never reported or caught");
+    for (const k of ["summons", "jail"]) { const b = await F.page.$(`.mo-card[data-moment="${k}"] .btn.link`); if (b) await b.click(); }
     if (state.jail) {
       await F.page.waitForSelector('#street-chips [data-street="held"]', { timeout: 10000 });
       await shot(F, "street_02_held_phone.png");
-      // The cell's card sits over the sheet: hide it to get at the rest of the screen.
-      const hide = await F.page.$('.mo-card[data-moment="jail"] .btn.link');
-      if (hide) await hide.click();
+    } else if (state.court) {
+      // Reported: a summons to court (D-083), with its date in a chip and the charge on the card.
+      await F.page.waitForSelector('#street-chips [data-street="court"]', { timeout: 10000 });
+      await F.page.click('#street-chips [data-street="court"]');
+      await F.page.waitForSelector('.mo-card[data-moment="summons"]', { timeout: 10000 });
+      const summons = await F.page.textContent('.mo-card[data-moment="summons"]');
+      assert(/You're charged with Assault/.test(summons) && /Your hearing: /.test(summons), "the summons: " + summons);
+      await shot(F, "street_02_summons_phone.png");
+      await F.page.click('.mo-card[data-moment="summons"] .btn.link');
     } else {
       await F.page.waitForSelector('#street-chips [data-street="wanted"]', { timeout: 10000 });
       const chip = await F.page.textContent('#street-chips [data-street="wanted"]');
@@ -322,6 +329,7 @@ async function later(p) { const b = await p.page.$(".mo-card.mo-life:not(.mo-don
     const you = await F.page.textContent("#sheet");
     assert(/The street/i.test(you) && /walk away from fights/.test(you), "the You card lacks the street lines: " + you);
     if (state.wanted) assert(/Wanted for assault/.test(you), "the You card doesn't say wanted: " + you);
+    if (state.court && !state.jail) assert(/Your hearing: /.test(you), "the You card doesn't give the court date: " + you);
     await F.page.$eval('#sheet [data-pref="walk_away"]', n => n.scrollIntoView({ block: "center" }));
     await shot(F, "street_05_you_phone.png");
     // Walking away is a choice the server keeps.

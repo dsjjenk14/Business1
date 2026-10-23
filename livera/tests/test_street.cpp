@@ -146,9 +146,12 @@ TEST_CASE("street: crime_risk shows the odds from who would see it, and the ladd
   REQUIRE(out);
   CHECK(out.value()["chance"].is_null());
   CHECK(out.value().contains("note"));
-  CHECK(out.value()["if_caught"]["fine_cents"] == shoplifting->fineCents);
-  CHECK(out.value()["if_caught"]["jail_minutes"] == shoplifting->jailMinutes);
-  CHECK(out.value()["if_caught"]["jail_if_unpaid_minutes"] == shoplifting->jailMinutes * 2 + 240);
+  // Shoplifting is tried in court (D-083): caught, you're booked and held a while; the sentence is the court's.
+  CHECK(out.value()["if_caught"]["arrested"] == true);
+  CHECK(out.value()["if_caught"]["booking_minutes"] == w.content().court().bookingMinutes);
+  CHECK(out.value()["if_caught"]["held_at"] == "Livéra Police Station");
+  CHECK(out.value()["if_caught"]["court"]["if_convicted"]["fine_cents"] ==
+        w.content().court().sentences.at("shoplifting").front().fineCents);
   CHECK(out.value()["if_caught"]["record"] == true);
   // Inside, with one other shopper: the base plus one witness, exactly as steal() would count it.
   walkInto(w, "dominique", "thread_co");
@@ -228,7 +231,7 @@ TEST_CASE("street: an officer on duty is in uniform for anyone who sees them; of
   CHECK(told);
 }
 
-TEST_CASE("street: look and the record app say you're wanted, and how long you're held") {
+TEST_CASE("street: look and the record app say you're summoned, then wanted, and how long you're held") {
   World w = streetWorld(streetContent([](Json& c) {
     setCrime(c, "pickpocketing", 0.0);
     c["pickpocket_notice_chance"] = 1.0;
@@ -237,6 +240,13 @@ TEST_CASE("street: look and the record app say you're wanted, and how long you'r
   walkInto(w, "dominique", "heritage_coffee");
   walkInto(w, "dax", "heritage_coffee");
   REQUIRE(w.pickpocket("dominique", "dax"));
+  // Reported, she's summoned to court (D-083), not wanted: a patrol has nothing on her.
+  const Json summoned = w.look("dominique").value()["you"];
+  CHECK(!summoned.contains("wanted_for"));
+  REQUIRE(summoned["court"]["status"] == "summoned");
+  CHECK(w.openPhoneApp("dominique", "record").value()["court"]["case"] == summoned["court"]["case"]);
+  // She doesn't go: a warrant.
+  w.advanceMinutes(summoned["court"]["late_until"].get<GameMinutes>() - w.now());
   CHECK(w.look("dominique").value()["you"]["wanted_for"] == "Pickpocketing");
   const Json rec = w.openPhoneApp("dominique", "record").value();
   CHECK(rec["wanted"] == true);
@@ -430,12 +440,14 @@ TEST_CASE("fights: running: a clean break gets distance and nothing lands; a fai
     REQUIRE(r);
     CHECK(r.value()["outcome"] == "caught");
     CHECK(injured(w, "dax"));
-    CHECK(w.character("dominique")->wantedFor == "assault");  // reported
+    // Reported: summoned to court for it (D-083), not wanted.
+    CHECK(w.character("dominique")->wantedFor.empty());
+    CHECK(w.look("dominique").value()["you"]["court"]["status"] == "summoned");
     CHECK(r.value()["crime"]["reported"] == true);
   }
 }
 
-TEST_CASE("fights: whoever starts it commits assault when a blow lands: caught in the act, or reported and wanted") {
+TEST_CASE("fights: whoever starts it commits assault when a blow lands: caught in the act, or reported and summoned") {
   {
     // Caught in the act (as every crime, at most 95% sure): over a few worlds, nearly always; never the defender.
     int arrested = 0;
@@ -456,9 +468,13 @@ TEST_CASE("fights: whoever starts it commits assault when a blow lands: caught i
       CHECK(w.character("dax")->record.empty());  // fighting back is self-defence
       if (!out.defender.contains("crime") || !out.defender["crime"].value("arrested", false)) continue;
       ++arrested;
-      CHECK(w.inJail("dominique"));
-      REQUIRE(w.character("dominique")->record.size() == 1);
-      CHECK(w.character("dominique")->record[0].crime == "assault");
+      CHECK(w.inJail("dominique"));  // booked: the court decides the rest (D-083)
+      CHECK(w.character("dominique")->record.empty());
+      const CourtCase* k = w.courtCase(out.attacker["crime"]["court"]["case"]);
+      REQUIRE(k);
+      CHECK(k->charges == std::vector<std::string>{"assault"});
+      CHECK(k->victim == "dax");
+      CHECK(k->how == "caught");
     }
     CHECK(arrested >= 8);
   }
@@ -498,7 +514,12 @@ TEST_CASE("fights: witnesses see who started it, think less of them, and talk") 
   CHECK(saw);
   REQUIRE(w.state().details.rumors.size() == rumors + 1);
   CHECK(contains(w.state().details.rumors.back().what, "started a fight"));
-  CHECK(w.character("dominique")->wantedFor == "assault");  // a witness reported it
+  // A witness reported it: she's summoned (D-083), and the court knows Aaliyah saw it.
+  CHECK(w.character("dominique")->wantedFor.empty());
+  REQUIRE(w.state().court.cases.size() == 1);
+  CHECK(w.state().court.cases[0].how == "reported");
+  CHECK(w.state().court.cases[0].victim == "dax");
+  CHECK(w.state().court.cases[0].witnesses == std::vector<CharacterId>{"aaliyah"});
 }
 
 TEST_CASE("fights: someone who always walks away is never hurt, and nothing lands") {

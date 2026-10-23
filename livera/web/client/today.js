@@ -156,6 +156,18 @@ export class Agenda {
         target: fix && fix.place ? fix.place.id : null, source: "From your needs",
         action: fix && fix.here ? { label: "Do it", icon: "check", run: fix.run } : fix && fix.place ? goTo(fix.place) : { label: "Places", icon: "places", run: () => this.game.ui.sheetPlaces({ category: NEED_PLACES[k] }) } };
     }
+    // 1b. Your court date (D-083, look.you.court): under way, or within three hours (or late but still heard).
+    const court = w.court;
+    if (court && court.status === "hearing") {
+      return { kind: "court", eyebrow: "Court · now", urgent: true, title: "Your hearing has begun", detail: "Plead guilty or not guilty",
+        source: "From the court", action: { label: "Plead", icon: "check", run: () => this.game.moments && this.game.moments.openCourtroom(court.case) } };
+    }
+    if (court && court.status === "summoned" && typeof court.hearing_at === "number" && court.hearing_at - m <= 180 && m <= (court.late_until ?? court.hearing_at)) {
+      const house = w.placeById.get((w.rules.court || {}).courthouse) || null;
+      return { kind: "court", eyebrow: `Court · ${hm(court.hearing_at)}${m > court.hearing_at ? " · late" : ""}`, urgent: m >= court.hearing_at - 30,
+        title: house ? house.name : "The courthouse", detail: [house && s.inside !== house.id ? this.distanceText(house) : "You're here", "miss it and there's a warrant"].filter(Boolean).join(" · "),
+        target: house ? house.id : null, source: "From the court", action: house && s.inside !== house.id ? goTo(house) : null };
+    }
     const career = w.career && w.career.career ? w.career : null;
     // 2. At work, off shift.
     if (career && !s.onShift && this.atWork()) {
@@ -185,6 +197,7 @@ export class Agenda {
     // 5. A bill due within three game days.
     for (const u of (this.calendar && Array.isArray(this.calendar.upcoming) ? this.calendar.upcoming : [])) {
       if (!u || typeof u.at !== "number" || u.at - m > 3 * 1440 || u.at < m) continue;
+      if (u.kind && u.kind !== "rent") continue;  // a court date or community service isn't a bill (D-083)
       return { kind: "bill", eyebrow: `Due ${stamp(u.at).slice(0, 3)} · ${hm(u.at)}`, title: String(u.title || "A bill"), detail: "Paid from your bank account",
         source: "From your Calendar", action: { label: "Bank", icon: "bank", run: () => this.game.openPhone("bank") } };
     }
@@ -216,7 +229,7 @@ export class Agenda {
     const bills = (this.calendar && this.calendar.upcoming) || [];
     if (bills.length) {
       out.push(el("div", { class: "eyebrow" }, "Coming up"));
-      out.push(el("ul", { class: "list" }, bills.map(u => el("li", null, el("div", { class: "offer-head" }, el("span", null, String(u.title || "")), el("span", { class: "hint" }, String(u.when || "")))))));
+      out.push(el("ul", { class: "list" }, bills.map(u => el("li", { dataset: { kind: u.kind || "" } }, el("div", { class: "offer-head" }, el("span", null, String(u.title || "")), el("span", { class: "hint" }, String(u.when || "")))))));
     }
     const c = w.career && w.career.career ? w.career : null;
     if (c) {

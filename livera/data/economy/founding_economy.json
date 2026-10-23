@@ -32,6 +32,7 @@
     {"id": "org:livera_university", "name": "Livéra University", "opening_balance_cents": 50000000},
     {"id": "org:livera_general", "name": "Livéra General Hospital", "opening_balance_cents": 80000000},
     {"id": "org:livera_pd", "name": "Livéra Police Department", "opening_balance_cents": 30000000},
+    {"id": "org:town_of_livera", "name": "Town of Livéra", "opening_balance_cents": 50000000},
     {"id": "org:copper_tap", "name": "The Copper Tap", "opening_balance_cents": 2500000},
     {"id": "org:street_trade", "name": "Street trade (off the books)", "opening_balance_cents": 0},
     {"id": "org:little_sprouts", "name": "Little Sprouts Daycare", "opening_balance_cents": 2000000},

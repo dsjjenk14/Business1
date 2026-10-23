@@ -251,6 +251,18 @@ See DECISIONS.md D-028. Jail time is game time (240 minutes = 4 real minutes). S
 shop `crime.shoplift_place_types` names; `crime_risk` shows anyone the chance of being caught in the act from who could
 see them right now, and the consequence ladder (D-069). An officer on duty is in uniform for anyone in sight.
 
+**The court (D-083).** A crime the court tries isn't punished on the spot: caught, you're booked (held 2 h) and charged;
+reported, you're summoned. The hearing is the first free 30-minute slot of the sittings (09:00-17:00, Monday to
+Saturday) at least 4 h away, at Livéra Municipal Court; 40 minutes late is still heard. Plead guilty and you're
+convicted with a third off the sentence; plead not guilty and you're convicted with the chance shown: 0.55 caught or
+0.30 reported, +0.06 a witness, +0.10 a member of staff, +0.15 an officer, +0.10 the victim's word, and once it opens
++0.06 for each of them in the courtroom and +0.05 for the victim there; less a lawyer's edge (Hale & Partners 0.15; a
+person who's a lawyer 0.12 + 0.04 a level); within 5% and 95%. The sentence is data per crime, by the convictions
+already on your record: a fine to the town (unpaid: 8 h in a cell), community service at Common Ground within 7 days
+(unserved: a warrant, then 2 h in a cell for each hour left), probation (convicted again on it: +12 h in a cell) and
+time in a cell. A missed hearing is a warrant; nobody is tried while nobody plays them (put off, at most twice).
+Employers that need a clean record see a fixed penalty for 14 days, a conviction for 56, one with jail for 112.
+
 ## Fist fights
 
 D-070. A fight is started with someone within 3 m; they have 15 game minutes to fight back, run or take it (or they
@@ -258,7 +270,8 @@ always walk away, by their own choice). Score = base + skills and needs as the d
 already carried ± noise; the higher wins (a tie goes to the one defending themself), and the loser's injury follows the
 margin (bruises from 0, a black eye from 12, a cracked rib from 28 points). Running gets away with 0.55 + 0.006 × (their
 score − the attacker's), between 15% and 90%. A blow that lands is assault for whoever started it: caught in the act by
-the crime's own detection, otherwise reported (70% by the person attacked, 40% by each witness) and wanted. One fight a
+the crime's own detection, otherwise reported (70% by the person attacked, 40% by each witness) and summoned to court
+(D-083). One fight a
 pair a game day, 2 h before an attacker can start another, 8 h of protection for whoever was attacked.
 
 ## Life events

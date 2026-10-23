@@ -175,7 +175,7 @@ TEST_CASE("server: the founding vertical slice works over the network and surviv
     jax.ok({{"op", "login"}, {"username", "jax"}, {"password", "livera-pass-2"}});
 
     // Select characters; nobody can take a character someone else plays.
-    CHECK(dom.ok({{"op", "characters"}})["characters"].size() == 27);  // the town's people: founders, residents, townspeople
+    CHECK(dom.ok({{"op", "characters"}})["characters"].size() == 28);  // the town's people: founders, residents, townspeople
     CHECK(dom.refusal({{"op", "look"}}) == "not_playing");
     Json start = dom.ok({{"op", "play"}, {"character", "dominique"}});
     CHECK(start["you"]["inside"] == "lexington_1204");
@@ -1239,7 +1239,10 @@ TEST_CASE("server: street life: crime_risk, the wanted line in look, a fight ask
   dax.ok({{"op", "enter"}, {"location", "heritage_coffee"}});
   const Json risk = dom.ok({{"op", "crime_risk"}, {"crime", "assault"}, {"target", "dax"}});
   CHECK(risk["chance"].is_number());
-  CHECK(risk["if_caught"]["fine_cents"].is_number_integer());
+  // Assault is tried in court (D-083): booked if caught, then the court's sentence and odds, the server's own numbers.
+  CHECK(risk["if_caught"]["booking_minutes"].is_number_integer());
+  CHECK(risk["if_caught"]["court"]["if_convicted"]["fine_cents"].is_number_integer());
+  CHECK(risk["if_caught"]["court"]["odds_if_reported"].is_number());
   CHECK(risk["self_defence"].is_string());
   CHECK(dom.refusal({{"op", "crime_risk"}, {"crime", "littering"}}) == "unknown_crime");
   CHECK(dom.refusal({{"op", "fight_prefs"}}) == "bad_request");
@@ -1280,8 +1283,93 @@ TEST_CASE("server: street life: crime_risk, the wanted line in look, a fight ask
   // If it was reported, look says so; if she was caught, look says until when.
   const Json you = dom.ok({{"op", "look"}})["you"];
   if (told.contains("crime") && told["crime"].value("arrested", false)) CHECK(you["jailed_until"].is_number_integer());
-  if (told.contains("crime") && told["crime"].value("wanted", false)) CHECK(you["wanted_for"] == "Assault");
+  // Reported: a summons, with the court date in look (D-083).
+  if (told.contains("crime") && told["crime"].value("summoned", false)) CHECK(you["court"]["case"] == told["crime"]["case"]);
   CHECK(dom.refusal({{"op", "fight"}, {"target", "dax"}}) != "(accepted)");  // once a pair a day
+}
+
+TEST_CASE("server: the court over the wire: the summons, the court app, a public hearing, a lawyer, a plea, the verdict") {
+  RunningServer server(tempPath("court_net.db").string(), true, [](ServerConfig& cfg) {
+    cfg.content = patchedContent([](Json& doc, const std::string& file) {
+      if (file == "simulation.json") doc["simulation"]["walk_speed_mps"] = 400.0;
+      if (file == "crimes.json") {
+        for (auto& c : doc["crime"]["crimes"]) {
+          if (c["id"] == "shoplifting") c["detection"] = 1.0;
+        }
+      }
+    });
+  });
+  TestClient dom(server.port()), dax(server.port());
+  dom.login("domcourt", "dom-pass-123");
+  dax.login("daxcourt", "dax-pass-123");
+  dom.ok({{"op", "play"}, {"character", "dominique"}});
+  dax.ok({{"op", "play"}, {"character", "dax"}});
+  dom.ok({{"op", "dev_advance"}, {"minutes", 3 * 60}});  // 10:00
+  dom.ok({{"op", "exit"}});
+  dom.walkTo("thread_co");
+  dom.ok({{"op", "enter"}, {"location", "thread_co"}});
+  const Json stole = dom.ok({{"op", "steal"}, {"offer", "sunglasses"}});
+  REQUIRE(stole["caught"] == true);
+  const std::string id = stole["court"]["case"];
+  // Summoned: the event, look, the court app (the honest odds) and the calendar.
+  const Json you = dom.ok({{"op", "look"}})["you"];
+  CHECK(dom.sawEvent("court_summons"));
+  CHECK(you["court"]["case"] == id);
+  CHECK(you["court"]["status"] == "summoned");
+  const Json app = dom.ok({{"op", "phone"}, {"app", "court"}});
+  REQUIRE(app["cases"].size() == 1);
+  CHECK(app["cases"][0]["odds"]["convicted_if_not_guilty"].is_number());
+  CHECK(app["cases"][0]["if_guilty_plea"]["text"].is_string());
+  CHECK(app["rules"]["courthouse"] == "courthouse");
+  bool listed = false;
+  const Json calendar = dom.ok({{"op", "phone"}, {"app", "calendar"}});
+  for (const auto& u : calendar["upcoming"]) listed |= u.value("kind", "") == "court";
+  CHECK(listed);
+  CHECK(dom.ok({{"op", "map"}})["rules"]["court"]["courthouse_name"] == "Livéra Municipal Court");
+  // Refusals, as stable codes.
+  CHECK(dom.refusal({{"op", "court_plea"}, {"case", id}, {"plea", "guilty"}}) == "not_open");
+  CHECK(dom.refusal({{"op", "court_plea"}, {"case", "case-0"}, {"plea", "guilty"}}) == "unknown_case");
+  CHECK(dom.refusal({{"op", "court_lawyer"}, {"case", id}, {"lawyer", "dax"}}) == "not_a_lawyer");
+  CHECK(dom.refusal({{"op", "court_represent"}, {"case", id}}) == "bad_request");
+  CHECK(dax.refusal({{"op", "court_represent"}, {"case", id}, {"accept", true}}) == "unknown_case");
+  CHECK(dom.refusal({{"op", "community_service"}, {"action", "dance"}}) == "bad_request");
+  CHECK(dom.refusal({{"op", "community_service"}, {"action", "start"}}) == "nothing_owed");
+  // Booked, let go, to the courthouse; Dax comes to watch.
+  const Json now = dom.ok({{"op", "look"}});
+  dom.ok({{"op", "dev_advance"}, {"minutes", now["you"]["jailed_until"].get<GameMinutes>() - now["time"]["minute"].get<GameMinutes>() + 61}});
+  dom.ok({{"op", "exit"}});
+  dom.walkTo("courthouse");
+  dom.ok({{"op", "enter"}, {"location", "courthouse"}});
+  dax.ok({{"op", "exit"}});
+  dax.walkTo("courthouse");
+  dax.ok({{"op", "enter"}, {"location", "courthouse"}});
+  const Json before = dom.ok({{"op", "look"}});
+  const GameMinutes hearing = before["you"]["court"]["hearing_at"];
+  const GameMinutes minute = before["time"]["minute"];
+  if (hearing > minute) dom.ok({{"op", "dev_advance"}, {"minutes", hearing - minute}});
+  dom.pump(0.3);
+  dax.pump(0.3);
+  CHECK(dom.sawEvent("court_hearing"));
+  bool opened = false;
+  for (const auto& e : dax.events) opened |= e.value("event", "") == "court" && e["data"]["stage"] == "opened";
+  CHECK(opened);
+  CHECK(!dax.sawEvent("court_hearing"));  // the courtroom card is the accused's
+  // The firm at the hearing: paid now, the odds come down; then the plea.
+  const Json hired = dom.ok({{"op", "court_lawyer"}, {"case", id}, {"lawyer", "firm"}});
+  CHECK(hired["lawyer"]["kind"] == "firm");
+  CHECK(hired["odds"]["convicted_if_not_guilty"].get<double>() < hired["odds"]["without_lawyer"].get<double>());
+  CHECK(dom.refusal({{"op", "court_plea"}, {"case", id}, {"plea", "maybe"}}) == "bad_plea");
+  const Json verdict = dom.ok({{"op", "court_plea"}, {"case", id}, {"plea", "guilty"}});
+  CHECK(verdict["verdict"] == "convicted");
+  CHECK(verdict["sentence"]["fine_cents"].is_number_integer());
+  dax.pump(0.3);
+  bool ruled = false;
+  for (const auto& e : dax.events) ruled |= e.value("event", "") == "court" && e["data"]["stage"] == "verdict";
+  CHECK(ruled);
+  const Json rec = dom.ok({{"op", "phone"}, {"app", "record"}});
+  REQUIRE(rec["record"].size() == 1);
+  CHECK(rec["record"][0]["kind"] == "conviction");
+  CHECK(dom.refusal({{"op", "court_plea"}, {"case", id}, {"plea", "guilty"}}) == "already_decided");
 }
 
 TEST_CASE("server: three looks over the wire: wear, what look and the people stream say, the Items app, give refused") {

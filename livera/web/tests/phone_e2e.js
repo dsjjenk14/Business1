@@ -163,8 +163,9 @@ async function screenProblems(p) {
     assert(JSON.stringify(more.groups) === JSON.stringify(["Everyday", "Life", "Ambition", "Town"]), "groups: " + more.groups);
     assert(!more.apps.includes("store"), "the coin store is on a single-player phone");
     assert(!more.apps.some(a => DAILY.includes(a)), "an everyday app is under More apps too");
-    // 26 apps besides the everyday seven: 20 here, the Story app (moments.js, D-068), and Goals when the server has it.
-    assert(more.apps.includes("story") && (more.apps.length === 20 || (more.apps.length === 21 && more.apps.includes("goals"))), `expected 20 more apps (21 with goals), got ${more.apps.length}: ${more.apps}`);
+    // 27 apps besides the everyday seven: 21 here, with the Story app (moments.js, D-068) and the Court app (D-083), and
+    // Goals when the server has it.
+    assert(more.apps.includes("story") && more.apps.includes("court") && (more.apps.length === 21 || (more.apps.length === 22 && more.apps.includes("goals"))), `expected 21 more apps (22 with goals), got ${more.apps.length}: ${more.apps}`);
     assert(/No coin store here/.test(more.text), "the phone doesn't say why there's no coin store");
     const icons = [...home.icons, ...more.icons];
     assert(icons.length === home.apps.length + more.apps.length, `${icons.length} icons for ${home.apps.length + more.apps.length} apps`);

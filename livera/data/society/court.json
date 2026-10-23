@@ -1,0 +1,78 @@
+{
+  "$comment": "The court (D-083, core/Court.cpp). Crimes listed under sentences are tried here: an arrest books you (held booking_minutes at the jail) and a report summons you, and either way you are charged and given a court date, the first free slot of the sittings at least notice_minutes away (the courthouse's own open days, sitting.hours, one case a slot). Be in the courthouse at that time; within grace_minutes of it is late but heard. Missed: a warrant (Wanted), unless nobody is playing you, which adjourns it (at most max_adjournments times). At the hearing you plead guilty (convicted, guilty_plea_discount off the sentence) or not guilty (convicted with the chance shown, otherwise dismissed); no plea by plea_minutes and the court enters not guilty. The chance: evidence.caught or evidence.reported, plus each witness, member of staff and officer who saw it, plus the victim when a victim reported it, each witness in the courtroom when the hearing opens counting again (in_court) and the victim there adding victim_in_court, less your lawyer's edge, within min and max. Lawyers: the firm (fee to its account, paid when hired) or a person whose career is in lawyer_careers (fee_cents, paid to them when the hearing opens with them in the courtroom; edge_base plus edge_per_level for each level). sentences: for each crime, by how many convictions you already have (the last entry is for that many or more): fine_cents (to fines_account; if you can't pay it, held unpaid_fine_jail_minutes instead), service_hours (community service at community_service.place within due_days; unserved, a warrant, and arrested you serve breach_jail_minutes_per_hour for each hour left), probation_days (convicted again while on it adds probation.breach_jail_minutes) and jail_minutes. The record: everything stays on it, and employers that need a clean record see a fixed penalty for record.penalty_days, a conviction for record.conviction_days and one with jail time for record.jail_days.",
+  "court": {
+    "courthouse": "courthouse",
+    "fines_account": "org:town_of_livera",
+    "booking_minutes": 120,
+    "sitting": {
+      "hours": [9, 17],
+      "slot_minutes": 30,
+      "notice_minutes": 240,
+      "grace_minutes": 40,
+      "plea_minutes": 120,
+      "max_adjournments": 2
+    },
+    "evidence": {
+      "caught": 0.55,
+      "reported": 0.3,
+      "per_witness": 0.06,
+      "per_staff": 0.1,
+      "per_officer": 0.15,
+      "victim": 0.1,
+      "in_court": 0.06,
+      "victim_in_court": 0.05,
+      "min": 0.05,
+      "max": 0.95
+    },
+    "lawyers": {
+      "lawyer_careers": ["law"],
+      "firm": {
+        "name": "Hale & Partners",
+        "place": "hale_partners",
+        "account": "org:hale_law",
+        "fee_cents": 120000,
+        "edge": 0.15
+      },
+      "fee_cents": 120000,
+      "edge_base": 0.12,
+      "edge_per_level": 0.04
+    },
+    "guilty_plea_discount": 0.34,
+    "unpaid_fine_jail_minutes": 480,
+    "community_service": {
+      "place": "common_ground",
+      "due_days": 7,
+      "needs_per_hour": {"energy": -4, "hygiene": -2, "social": 2},
+      "breach_jail_minutes_per_hour": 120
+    },
+    "probation": {"breach_jail_minutes": 720},
+    "record": {"penalty_days": 14, "conviction_days": 56, "jail_days": 112},
+    "sentences": {
+      "shoplifting": [
+        {"fine_cents": 25000},
+        {"fine_cents": 40000, "service_hours": 4},
+        {"jail_minutes": 720, "probation_days": 7}
+      ],
+      "pickpocketing": [
+        {"fine_cents": 40000, "probation_days": 7},
+        {"fine_cents": 60000, "service_hours": 6, "probation_days": 14},
+        {"jail_minutes": 1440, "probation_days": 14}
+      ],
+      "drug_purchase": [
+        {"fine_cents": 50000, "probation_days": 7},
+        {"service_hours": 8, "probation_days": 14},
+        {"jail_minutes": 1440}
+      ],
+      "drug_possession": [
+        {"fine_cents": 30000},
+        {"fine_cents": 30000, "probation_days": 7},
+        {"service_hours": 6, "probation_days": 14}
+      ],
+      "assault": [
+        {"fine_cents": 60000, "service_hours": 6},
+        {"jail_minutes": 1440, "probation_days": 14},
+        {"jail_minutes": 2880, "probation_days": 28}
+      ]
+    }
+  }
+}

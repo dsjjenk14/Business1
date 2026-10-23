@@ -41,7 +41,7 @@ check(call("solo_new").ok === true, "solo_new founds the town");
 const pilot = call("solo_autopilot_start", null);
 // Everyone in the pick list: the founders, the residents and the townspeople (D-073).
 const cast = call("solo_characters").data.characters.map(c => c.id).sort();
-check(cast.length === 27 && cast.includes("bernie-walsh"), "the town has its 27 people", cast);
+check(cast.length === 28 && cast.includes("bernie-walsh") && cast.includes("evelyn-park"), "the town has its 28 people", cast);
 check(pilot.ok && JSON.stringify([...pilot.data.running].sort()) === JSON.stringify(cast),
       "everyone in the town starts on autopilot", pilot);
 const five = ["aaliyah", "dominique", "graham", "naomi", "maya"];

@@ -82,7 +82,7 @@ TEST_CASE("crime: shoplifting you get away with costs nothing") {
   CHECK(w.character("andre")->record.empty());
 }
 
-TEST_CASE("crime: caught shoplifting means a fine, a cell, a record, and witnesses who remember") {
+TEST_CASE("crime: caught shoplifting means a cell, a charge and a court date, and witnesses who remember") {
   World w = crimeWorld(crimeContent([](Json& c) { setCrime(c, "shoplifting", 1.0); }));
   walkInto(w, "andre", "thread_co");
   walkInto(w, "aaliyah", "thread_co");
@@ -91,10 +91,12 @@ TEST_CASE("crime: caught shoplifting means a fine, a cell, a record, and witness
   auto r = w.steal("andre", "streetwear_set");
   REQUIRE(r);
   CHECK(r.value().at("caught") == true);
-  CHECK(r.value().at("fine_cents") == 25000);
+  // The court decides the fine and the record (D-083): arrested, he's booked, held and charged.
+  CHECK(r.value().at("fine_cents") == 0);
+  CHECK(r.value().at("court").at("charges") == Json::array({"Shoplifting"}));
   CHECK(!w.owns("andre", "streetwear_set"));
-  CHECK(w.state().ledger.balance(bankAccountOf("andre")) == bank - 25000);
-  CHECK(w.character("andre")->record.size() == 1);
+  CHECK(w.state().ledger.balance(bankAccountOf("andre")) == bank);
+  CHECK(w.character("andre")->record.empty());
   CHECK(w.inJail("andre"));
   CHECK(w.character("andre")->inside == "police_station");
   CHECK(w.exitBuilding("andre").error().code == "in_jail");
@@ -103,20 +105,24 @@ TEST_CASE("crime: caught shoplifting means a fine, a cell, a record, and witness
   bool saw = false;
   for (const Memory* m : w.memoriesOf("aaliyah")) saw |= m->type == "saw_crime" && m->about == "andre";
   CHECK(saw);
-  CHECK(w.openPhoneApp("andre", "record").value().at("clean") == false);
-  w.advanceMinutes(5 * 60);  // four hours served
+  CHECK(w.openPhoneApp("andre", "record").value().at("clean") == true);  // charged isn't convicted
+  w.advanceMinutes(3 * 60);  // booked for two hours, let go on the hour
   CHECK(!w.inJail("andre"));
-  CHECK(notified(w, "andre", "served your time"));
+  CHECK(notified(w, "andre", "free to go until your hearing"));
   REQUIRE(w.exitBuilding("andre"));
 }
 
-TEST_CASE("crime: if you can't pay the fine you serve longer") {
-  World w = crimeWorld(crimeContent([](Json& c) {
-    setCrime(c, "shoplifting", 1.0);
-    for (auto& k : c["crimes"]) {
-      if (k["id"] == "shoplifting") k["fine_cents"] = 100000000;
-    }
-  }));
+TEST_CASE("crime: without a court, an arrest fines you on the spot; can't pay it and you serve longer") {
+  World w = crimeWorld(crimeContent(
+      [](Json& c) {
+        setCrime(c, "shoplifting", 1.0);
+        for (auto& k : c["crimes"]) {
+          if (k["id"] == "shoplifting") k["fine_cents"] = 100000000;
+        }
+      },
+      [](Json& doc, const std::string& file) {
+        if (file == "court.json") doc = Json::object();  // the court tries nothing (D-083): D-069's fixed penalties
+      }));
   walkInto(w, "andre", "thread_co");
   auto r = w.steal("andre", "sunglasses");
   REQUIRE(r);
@@ -124,7 +130,7 @@ TEST_CASE("crime: if you can't pay the fine you serve longer") {
   CHECK(r.value().at("jail_minutes") == 240 * 2 + 240);
 }
 
-TEST_CASE("crime: pickpocketing; a victim who notices reports you, and patrols find you") {
+TEST_CASE("crime: pickpocketing; a victim who notices reports you, and you're summoned to court, not hunted") {
   World w = crimeWorld(crimeContent([](Json& c) {
     setCrime(c, "pickpocketing", 0.0);
     c["pickpocket_notice_chance"] = 1.0;
@@ -141,13 +147,14 @@ TEST_CASE("crime: pickpocketing; a victim who notices reports you, and patrols f
   CHECK(w.state().ledger.balance(cashAccountOf("dominique")) == cash - taken);
   CHECK(w.pickpocket("andre", "dominique").error().code == "too_soon");
   CHECK(notified(w, "dominique", "Andre Campbell picked your pocket"));
-  CHECK(w.character("andre")->wantedFor == "pickpocketing");
   CHECK(w.relationshipValue("dominique", "andre", "trust") < 0);
-  // Out in the open, a patrol picks him up.
+  // Reported: a summons with a court date (D-083). Not wanted, so a patrol out in the open leaves him be.
+  CHECK(r.value()["reported"]["summoned"] == true);
+  CHECK(w.character("andre")->wantedFor.empty());
+  CHECK(notified(w, "andre", "You're charged with Pickpocketing"));
   REQUIRE(w.exitBuilding("andre"));
   w.advanceMinutes(60);
-  CHECK(w.inJail("andre"));
-  CHECK(w.character("andre")->wantedFor.empty());
+  CHECK(!w.inJail("andre"));
   CHECK(w.state().ledger.sumOfBalances() == 0);
 }
 
@@ -187,8 +194,17 @@ TEST_CASE("police: officers on duty patrol outdoors and arrest wanted people") {
   // Andre lifts Dominique's cash on the street; she sees him.
   walkTo(w, "andre", "heritage_coffee");
   walkTo(w, "dominique", "heritage_coffee");
-  REQUIRE(w.pickpocket("andre", "dominique"));
+  auto picked = w.pickpocket("andre", "dominique");
+  REQUIRE(picked);
   CHECK(notified(w, "aaliyah", "Pickpocketing reported"));
+  // Reported is a summons (D-083): there's nothing to arrest him for until he misses his hearing.
+  CHECK(w.arrest("aaliyah", "andre").error().code == "not_wanted");
+  const GameMinutes hearing = picked.value()["reported"]["hearing_at"].get<GameMinutes>();
+  w.advanceMinutes(hearing + w.content().court().graceMinutes - w.now());
+  REQUIRE(w.character("andre")->wantedFor == "pickpocketing");
+  CHECK(notified(w, "aaliyah", "Warrant: Andre Campbell"));
+  REQUIRE(w.moveTo("aaliyah", Vec2{100, 700}));  // on patrol, far away
+  for (int i = 0; i < 300 && w.character("aaliyah")->moveTarget; ++i) w.advanceRealTime(0.1);
   CHECK(w.arrest("aaliyah", "andre").error().code == "too_far");
   walkTo(w, "aaliyah", "heritage_coffee");
   CHECK(w.arrest("aaliyah", "dominique").error().code == "not_wanted");
@@ -198,6 +214,7 @@ TEST_CASE("police: officers on duty patrol outdoors and arrest wanted people") {
   REQUIRE(r);
   CHECK(w.inJail("andre"));
   CHECK(r.value().at("by") == "Aaliyah Baptiste");
+  CHECK(r.value().at("court").at("remanded") == true);  // held until a new hearing, brought to it from the cell
   CHECK(w.state().ledger.balance(bankAccountOf("aaliyah")) > pay);
 }
 
@@ -294,8 +311,9 @@ TEST_CASE("crime: getting arrested with drugs on you adds a possession charge") 
   REQUIRE(r);
   CHECK(r.value().at("seized").at(0) == "Haze (one dose)");
   CHECK(!w.owns("andre", "haze"));
-  REQUIRE(w.character("andre")->record.size() == 2);
-  CHECK(w.character("andre")->record.at(1).crime == "drug_possession");
+  // Both charges go to court together (D-083).
+  CHECK(r.value().at("court").at("charges") == Json::array({"Shoplifting", "Drug possession"}));
+  CHECK(w.character("andre")->record.empty());
 }
 
 TEST_CASE("crime: jail time, warrants, highs and dependency are saved") {

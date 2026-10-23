@@ -1325,6 +1325,46 @@ struct FightsConfig {
   int witnessImpact = -15;
 };
 
+// --- The court (data/society/court.json, Court.cpp, D-083) ---
+// What one charge costs a person convicted of it, for how many convictions they already have.
+struct CourtSentenceDef {
+  Cents fineCents = 0;
+  double serviceHours = 0;   // community service
+  int probationDays = 0;
+  GameMinutes jailMinutes = 0;
+};
+
+struct CourtConfig {
+  bool enabled = false;
+  LocationId courthouse;
+  LedgerAccountId finesAccount;
+  GameMinutes bookingMinutes = 120;  // held after an arrest, before you're let go with a court date
+  int sitFrom = 9, sitTo = 17;       // the court sits these hours on the courthouse's open days
+  int slotMinutes = 30, noticeMinutes = 240, graceMinutes = 40, pleaMinutes = 120, maxAdjournments = 2;
+  // The chance of a conviction on a not-guilty plea, from the evidence (see court.json).
+  double caught = 0.55, reported = 0.3, perWitness = 0.06, perStaff = 0.1, perOfficer = 0.15, victim = 0.1;
+  double inCourt = 0.06, victimInCourt = 0.05, minChance = 0.05, maxChance = 0.95;
+  std::vector<std::string> lawyerCareers;
+  std::string firmName;
+  LocationId firmPlace;
+  LedgerAccountId firmAccount;
+  Cents firmFeeCents = 0;
+  double firmEdge = 0;
+  Cents lawyerFeeCents = 0;  // a person defending you
+  double lawyerEdgeBase = 0, lawyerEdgePerLevel = 0;
+  double guiltyPleaDiscount = 0;
+  GameMinutes unpaidFineJailMinutes = 480;
+  LocationId servicePlace;
+  int serviceDueDays = 7;
+  StatMap serviceNeedsPerHour;
+  GameMinutes breachJailMinutesPerHour = 120;
+  GameMinutes probationBreachJailMinutes = 720;
+  int penaltyDays = 14, convictionDays = 56, jailDays = 112;  // how long employers see a record entry
+  std::map<std::string, std::vector<CourtSentenceDef>> sentences;  // crime -> by convictions already on record
+  // A crime the court tries (an arrest books you and a report summons you); any other is a fixed penalty.
+  bool tries(const std::string& crime) const { return enabled && sentences.count(crime) > 0; }
+};
+
 // --- Social media (Social.cpp, D-074): data/society/social.json ---
 // A voice is how someone writes, picked from their personality: the first voice whose minimums and maximums the
 // character's traits meet; lines for a voice a moment doesn't have fall back to its "default" lines.
@@ -1479,6 +1519,7 @@ class ContentDatabase {
   const LifeEventDef* lifeEvent(const std::string& id) const;
   const FightsConfig& fights() const { return fights_; }
   const SocialConfig& social() const { return social_; }  // social media (Social.cpp, D-074)
+  const CourtConfig& court() const { return court_; }     // the court (Court.cpp, D-083)
   const GoalsConfig& goals() const { return goals_; }
   const AspirationDef* aspiration(const std::string& id) const;
   const AspirationDef* aspirationForCreatorGoal(const std::string& creatorGoal) const;
@@ -1548,6 +1589,8 @@ class ContentDatabase {
   Status validateFights() const;
   Status ingestSocial(const std::string& source, const std::string& section, const Json& body, bool& handled);
   Status validateSocial();  // resolves the gossip account's runner from the secret, so not const
+  Status ingestCourt(const std::string& source, const std::string& section, const Json& body, bool& handled);
+  Status validateCourt() const;
   Status validateInteriors() const;
   Status validate() const;
 
@@ -1626,6 +1669,7 @@ class ContentDatabase {
   std::map<std::string, LifeEventDef> lifeEventDefs_;
   FightsConfig fights_;                                      // fist fights (Fights.cpp)
   SocialConfig social_;                                      // social media (Social.cpp)
+  CourtConfig court_;                                        // the court (Court.cpp)
 };
 
 }  // namespace livera

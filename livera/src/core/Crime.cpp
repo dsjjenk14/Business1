@@ -78,10 +78,23 @@ void World::dispatchPolice(const std::string& text) {
   }
 }
 
-Json World::arrestCharacter(CharacterState& c, const std::string& crime, const std::string& by) {
+Json World::arrestCharacter(CharacterState& c, const std::string& crime, const std::string& by, const CharacterId& victim) {
   const CrimeConfig& cfg = content_->crime();
+  const CourtConfig& court = content_->court();
   const CrimeDef* def = content_->crimeDef(crime);
   Json out{{"crime", def ? def->label : crime}, {"by", by}};
+  // Picked up on a warrant (D-083): for missing a hearing (the case waits) or community service left undone.
+  CourtCase* warrant = nullptr;
+  CourtCase* breach = nullptr;
+  if (court.enabled && !c.wantedFor.empty() && crime == c.wantedFor) {
+    for (auto& k : state_.court.cases) {
+      if (k.accused != c.id) continue;
+      if (k.status == "warrant") warrant = &k;
+      else if (k.status == "decided" && k.breached && k.serviceDone + 1e-9 < k.serviceHours) breach = &k;
+    }
+  }
+  const std::string warrantCase = warrant ? warrant->id : "";
+  const bool onWarrant = warrant != nullptr, onBreach = breach != nullptr;
   // Who saw the police take them, before they're taken (Social.cpp, D-074: a rumour, and maybe the gossip account).
   const LocationId arrestedAt = c.inside;
   const std::vector<CharacterId> onlookers = presentWith(c, content_->sim().hearingRangeMeters);
@@ -107,9 +120,26 @@ Json World::arrestCharacter(CharacterState& c, const std::string& crime, const s
   std::sort(extra.begin(), extra.end());
   extra.erase(std::unique(extra.begin(), extra.end()), extra.end());
   charges.insert(charges.end(), extra.begin(), extra.end());
+  // Community service left undone: the hours left are served in a cell now; the court already sentenced it.
+  if (breach) {
+    const double left = breach->serviceHours - breach->serviceDone;
+    jail = std::max<GameMinutes>(jail, static_cast<GameMinutes>(std::ceil(left * static_cast<double>(court.breachJailMinutesPerHour))));
+    breach->serviceDone = breach->serviceHours;
+    out["breach_minutes"] = jail;
+  }
+  std::string caseId = warrantCase;
+  bool freshCase = false;
   for (const auto& charge : charges) {
     const CrimeDef* d = content_->crimeDef(charge);
     if (!d) continue;
+    // A crime the court tries is charged, not punished here (D-083): who saw it is taken now, before they're moved.
+    if (court.tries(charge)) {
+      if ((onWarrant || onBreach) && charge == crime) continue;  // that's the warrant itself
+      bool fresh = false;
+      caseId = chargeCase(c, charge, victim, "caught", fresh).id;
+      freshCase = freshCase || fresh;
+      continue;
+    }
     Cents fine = d->fineCents;
     GameMinutes time = d->jailMinutes;
     // Can't pay the fine: serve longer instead.
@@ -121,16 +151,25 @@ Json World::arrestCharacter(CharacterState& c, const std::string& crime, const s
     fines += fine;
     jail += time;
   }
-  if (jail > 0) {
-    c.moveTarget.reset();
-    c.moveSpeedMps = 0;
-    if (const LocationDef* cell = content_->location(cfg.jail)) {
-      c.inside = cell->id;
-      c.position = cell->door;
-    }
-    c.jailedUntil = state_.now + jail;
-    (void)takeRoomSpot(c, [](const InteriorSpotDef& s) { return s.kind == "cell"; });  // interiors: into a cell
+  // Charged: booked and held a while, then a court date. On a warrant for a missed hearing: held until a new hearing,
+  // and brought to it from the cell (stepCourtMinute).
+  CourtCase* charged = nullptr;
+  for (auto& k : state_.court.cases) {
+    if (!caseId.empty() && k.id == caseId) charged = &k;
   }
+  bool remanded = false;
+  if (charged) {
+    if (charged->status == "warrant") {
+      charged->status = "summoned";
+      charged->hearingAt = nextSitting(state_.now + court.bookingMinutes, charged->id);
+      jail = std::max(jail, charged->hearingAt + court.graceMinutes + 1 - state_.now);
+      remanded = true;
+    } else {
+      if (freshCase) charged->hearingAt = nextSitting(state_.now + std::max(court.bookingMinutes, static_cast<GameMinutes>(court.noticeMinutes)), charged->id);
+      jail = std::max(jail, court.bookingMinutes);
+    }
+  }
+  if (jail > 0) holdInCell(c, jail);
   c.wantedFor.clear();
   applyEmotions(c, {{"embarrassment", 30}, {"stress", 20}, {"sadness", 10}});
   if (def) addFame(c, def->notoriety);  // any headline makes you known
@@ -140,7 +179,23 @@ Json World::arrestCharacter(CharacterState& c, const std::string& crime, const s
   std::string text = "Arrested for " + (def ? def->label : crime);
   if (fines > 0) text += ": fined " + formatMoney(fines);
   if (jail > 0) text += (fines > 0 ? ", " : ": ") + std::string("held until ") + formatDateTime(c.jailedUntil);
+  if (onBreach) text += ", for the community service you didn't do";
   notify(c.id, "police", text + ".");
+  if (charged) {
+    // The charges and the court date (D-083): the summons, the case in the reply.
+    Json booked{{"case", charged->id}, {"remanded", remanded}, {"held_until", c.jailedUntil}};
+    Json labels = Json::array();
+    for (const auto& id : charged->charges) {
+      const CrimeDef* d = content_->crimeDef(id);
+      labels.push_back(d ? d->label : id);
+    }
+    booked["charges"] = labels;
+    booked["hearing_at"] = charged->hearingAt;
+    if (const LocationDef* house = content_->location(court.courthouse)) booked["courthouse"] = house->name;
+    out["court"] = booked;
+    summon(*charged, remanded ? "Picked up on the warrant, you're held until your new hearing and brought to it from the cell."
+                              : "You're booked and held until " + formatDateTime(c.jailedUntil) + ".");
+  }
   const CharacterDef* who = definition(c.id);
   dispatchPolice((who ? who->fullName() : c.id) + " was arrested for " + (def ? def->label : crime) + ".");
   emit(presentWith(c), "incident", Json{{"character", c.id}, {"kind", "arrest"}, {"crime", def ? def->label : crime}});
@@ -235,10 +290,11 @@ Result<Json> World::pickpocket(const CharacterId& actor, const CharacterId& targ
     notify(target, "police", (thief ? thief->fullName() : actor) + " tried to pick your pocket and got caught.");
     adjustRelationship(target, actor, "trust", -30);
     adjustRelationship(target, actor, "resentment", 25);
-    Json out = arrestCharacter(c, "pickpocketing", "witnesses");
+    Json out = arrestCharacter(c, "pickpocketing", "witnesses", target);
     out["caught"] = true;
     return out;
   }
+  Json reported;
   const Cents cash = state_.ledger.balance(cashAccountOf(target));
   if (cash <= 0) return Json{{"stolen_cents", 0}, {"caught", false}, {"note", "Their pockets are empty."}};
   const Cents amount = std::min(cash, std::max<Cents>(100, static_cast<Cents>(roll() * static_cast<double>(cfg.pickpocketMaxCents))));
@@ -261,12 +317,14 @@ Result<Json> World::pickpocket(const CharacterId& actor, const CharacterId& targ
     m.about = actor;
     m.info = (thief ? thief->fullName() : actor) + " picked my pocket";
     addMemory(std::move(m));
-    c.wantedFor = "pickpocketing";
+    reported = reportCrime(c, "pickpocketing", target);  // a summons to court, or wanted where nobody tries it (D-083)
     dispatchPolice("Pickpocketing reported. Suspect: " + (thief ? thief->fullName() : actor) + ".");
   } else {
     notify(target, "bank", "You're missing " + formatMoney(amount) + " in cash. You don't know where it went.");
   }
-  return Json{{"stolen_cents", amount}, {"caught", false}};
+  Json out{{"stolen_cents", amount}, {"caught", false}};
+  if (!reported.is_null()) out["reported"] = reported;
+  return out;
 }
 
 Result<Json> World::arrest(const CharacterId& officer, const CharacterId& suspect) {
@@ -292,7 +350,17 @@ void World::stepCrimeHourly() {
   for (auto& [id, c] : state_.characters) {
     if (c.jailedUntil >= 0 && c.jailedUntil <= state_.now) {
       c.jailedUntil = -1;
-      notify(id, "police", "You've served your time. You're free to go.");
+      // Booked and let go before a hearing (D-083), or the time served.
+      const CourtCase* next = nullptr;
+      for (const auto& k : state_.court.cases) {
+        if (k.accused == id && k.status == "summoned" && k.hearingAt > state_.now) next = &k;
+      }
+      const LocationDef* house = content_->location(content_->court().courthouse);
+      if (next)
+        notify(id, "police", "You're free to go until your hearing: " + formatDateTime(next->hearingAt) + " at " +
+                                 (house ? house->name : std::string("the courthouse")) + ".");
+      else
+        notify(id, "police", "You've served your time. You're free to go.");
     }
     // A wanted person out in the open gets picked up by patrols eventually.
     if (c.online && !c.wantedFor.empty() && c.inside.empty() && c.jailedUntil < 0 && roll() < cfg.patrolArrestPerHour)
@@ -304,10 +372,13 @@ Json World::phoneRecord(const CharacterState& c) const {
   Json entries = Json::array();
   for (const auto& e : c.record) {
     const CrimeDef* d = content_->crimeDef(e.crime);
-    entries.push_back(Json{{"crime", d ? d->label : e.crime}, {"when", formatDateTime(e.at)}, {"fine_cents", e.fineCents},
-                           {"jail_minutes", e.jailMinutes}});
+    Json entry{{"crime", d ? d->label : e.crime}, {"when", formatDateTime(e.at)}, {"fine_cents", e.fineCents},
+               {"jail_minutes", e.jailMinutes}};
+    recordEntryCourt(e, entry);  // a conviction or a fixed penalty, and whether employers still see it (D-083)
+    entries.push_back(entry);
   }
   Json out{{"record", entries}, {"clean", c.record.empty()}};
+  addCourtToRecord(c, out);
   if (!c.wantedFor.empty()) {
     out["wanted"] = true;  // you'd know: it's in the news, and people look at you
     const CrimeDef* d = content_->crimeDef(c.wantedFor);
@@ -336,6 +407,15 @@ Result<Json> World::crimeRisk(const CharacterId& actor, const std::string& crime
               {"notoriety", crime->notoriety},
               {"seized", "anything illegal on you goes, with a possession charge"}};
   if (crime->fineCents > 0) ladder["jail_if_unpaid_minutes"] = crime->jailMinutes * 2 + 240;
+  // A crime the court tries (D-083): caught, you're booked and held a while, then the court decides; the sentence
+  // and the court's odds are under `court`.
+  const bool tried = content_->court().tries(crimeId);
+  if (tried)
+    ladder = Json{{"arrested", true},
+                  {"booking_minutes", content_->court().bookingMinutes},
+                  {"record", true},
+                  {"notoriety", crime->notoriety},
+                  {"seized", "anything illegal on you goes, with a possession charge"}};
   if (const LocationDef* cell = content_->location(cfg.jail)) ladder["held_at"] = cell->name;
   Json out{{"crime", crime->id}, {"label", crime->label}, {"chance", nullptr}, {"if_caught", ladder}};
   auto odds = [&](const CharacterId& besides) {
@@ -418,6 +498,11 @@ Result<Json> World::crimeRisk(const CharacterId& actor, const std::string& crime
     else out["note"] = "Get close to them and you'll see the odds.";
   } else {
     out["note"] = "This one isn't something you choose to do.";
+  }
+  if (tried) {
+    // The person it's done to is the victim in court, not one more witness.
+    const bool targeted = crimeId == "pickpocketing" || crimeId == "assault";
+    out["if_caught"]["court"] = courtRisk(*c, *crime, targeted && t ? target : "", out["chance"].is_number());
   }
   return out;
 }

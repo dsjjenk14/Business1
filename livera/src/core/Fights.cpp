@@ -564,7 +564,7 @@ Json World::concludeFight(const PendingFight& f, FightEnd e) {
       const double caught = std::min(0.95, crime->detection + seen.witnesses * crime->perWitness +
                                                seen.staff * crime->perStaff + seen.police * crime->perPolice);
       if (roll() < caught) {
-        Json arrest = arrestCharacter(a, crime->id, seen.police > 0 ? "the police" : "people who saw it");
+        Json arrest = arrestCharacter(a, crime->id, seen.police > 0 ? "the police" : "people who saw it", d.id);
         arrest["arrested"] = true;
         aOut["crime"] = arrest;
         dOut["crime"] = Json{{"arrested", true}, {"text", aName + " was arrested for " + crime->label + "."}};
@@ -572,11 +572,22 @@ Json World::concludeFight(const PendingFight& f, FightEnd e) {
         double noReport = 1 - F.reportChance;
         for (std::size_t i = 0; i < witnesses.size(); ++i) noReport *= 1 - F.witnessReportChance;
         if (roll() >= noReport) {
-          a.wantedFor = crime->id;
           dispatchPolice(crime->label + " reported at " + where + ". Suspect: " + (ad ? ad->fullName() : a.id) + ".");
-          notify(a.id, "police", "It was reported. You're wanted for " + crime->label + ".");
-          aOut["crime"] = Json{{"wanted", true}, {"crime", crime->label}};
-          dOut["crime"] = Json{{"reported", true}, {"text", "It's been reported. The police are looking for " + aName + "."}};
+          const Json report = reportCrime(a, crime->id, d.id);  // a summons to court (D-083), or wanted
+          if (report.value("summoned", false)) {
+            aOut["crime"] = Json{{"summoned", true}, {"crime", crime->label}, {"case", report["case"]},
+                                 {"hearing_at", report["hearing_at"]}, {"hearing_text", report.value("hearing_text", "")},
+                                 {"courthouse", report.value("courthouse", "")}};
+            dOut["crime"] = Json{{"reported", true},
+                                 {"text", "It's been reported. " + aName + " is charged with " + crime->label +
+                                              (report.contains("hearing_text") ? ": the hearing is " + report["hearing_text"].get<std::string>() +
+                                                                                     " at " + report.value("courthouse", std::string("the courthouse"))
+                                                                               : std::string()) + "."}};
+          } else {
+            notify(a.id, "police", "It was reported. You're wanted for " + crime->label + ".");
+            aOut["crime"] = Json{{"wanted", true}, {"crime", crime->label}};
+            dOut["crime"] = Json{{"reported", true}, {"text", "It's been reported. The police are looking for " + aName + "."}};
+          }
         } else {
           aOut["crime"] = Json{{"wanted", false}, {"crime", crime->label}};
         }
