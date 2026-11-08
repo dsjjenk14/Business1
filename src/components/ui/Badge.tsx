@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { useTheme, fontStyle } from '@/theme';
 
@@ -32,35 +32,7 @@ export function Badge({ label, tone = 'primary', glyph, verified }: BadgeProps) 
             : tone === 'ai'
               ? t.colors.onAi
               : t.colors.onSponsored;
-    // A little tilt, the same every time for the same word, like a sticker slapped on.
-    // Shrink the letters so the longest word always fits on one line inside the circle.
-    const longest = Math.max(...label.split(/\s+/).map((w) => w.length));
-    const size = Math.min(11, 50 / (longest * 0.6));
-    const tilt = ((label.split('').reduce((n, c) => n + c.charCodeAt(0), 0) % 13) - 6) * 1.2;
-    return (
-      <View
-        style={{
-          width: 66,
-          height: 66,
-          borderRadius: 33,
-          backgroundColor: fill,
-          borderWidth: 2.5,
-          borderColor: t.mode === 'dark' ? '#F5F5F5' : '#FFFFFF',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 4,
-          gap: 1,
-          transform: [{ rotate: `${tilt}deg` }],
-        }}>
-        {glyph ? <Glyph name={glyph} size={12} color={ink} strokeWidth={2.4} /> : null}
-        <AppText
-          align="center"
-          numberOfLines={3}
-          style={{ color: ink, ...fontStyle(t.fonts.displayBold), fontSize: size, lineHeight: Math.round(size * 1.15) }}>
-          {label}
-        </AppText>
-      </View>
-    );
+    return <StickerCircle label={label} fill={fill} ink={ink} glyph={glyph} />;
   }
 
   if (t.style.badge === 'words') {
@@ -136,5 +108,75 @@ export function Badge({ label, tone = 'primary', glyph, verified }: BadgeProps) 
         {label}
       </AppText>
     </View>
+  );
+}
+
+/**
+ * A round sticker: a solid circle with an edge, chunky rounded letters, and a
+ * little tilt that's the same every time for the same word.
+ */
+export function StickerCircle({
+  label,
+  fill,
+  ink,
+  edge,
+  glyph,
+}: {
+  label: string;
+  fill: string;
+  ink: string;
+  /** Defaults to a white edge. */
+  edge?: string;
+  glyph?: GlyphName;
+}) {
+  const t = useTheme();
+  // Shrink the letters so the longest word always fits on one line inside the circle.
+  const longest = Math.max(...label.split(/\s+/).map((w) => w.length));
+  const size = Math.min(11, 50 / (longest * 0.6));
+  const tilt = ((label.split('').reduce((n, c) => n + c.charCodeAt(0), 0) % 13) - 6) * 1.2;
+  return (
+    <View
+      style={{
+        width: 66,
+        height: 66,
+        borderRadius: 33,
+        backgroundColor: fill,
+        borderWidth: 2.5,
+        borderColor: edge ?? (t.mode === 'dark' ? '#F5F5F5' : '#FFFFFF'),
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 4,
+        gap: 1,
+        transform: [{ rotate: `${tilt}deg` }],
+      }}>
+      {glyph ? <Glyph name={glyph} size={12} color={ink} strokeWidth={2.4} /> : null}
+      <AppText
+        align="center"
+        numberOfLines={3}
+        style={{ color: ink, ...fontStyle(t.fonts.displayBold), fontSize: size, lineHeight: Math.round(size * 1.15) }}>
+        {label}
+      </AppText>
+    </View>
+  );
+}
+
+/** A round sticker you tap to pick or unpick (e.g. interests in Edit profile). */
+export function StickerToggle({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  const t = useTheme();
+  return (
+    <Pressable
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: selected }}
+      accessibilityLabel={label}
+      onPress={onPress}
+      hitSlop={2}
+      style={({ pressed }) => ({ opacity: pressed ? 0.75 : 1 })}>
+      <StickerCircle
+        label={label}
+        fill={selected ? t.colors.primary : t.colors.surfaceAlt}
+        ink={selected ? t.colors.onPrimary : t.colors.textMuted}
+        edge={selected ? undefined : t.colors.borderStrong}
+      />
+    </Pressable>
   );
 }

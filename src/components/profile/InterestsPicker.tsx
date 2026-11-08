@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
-import { AppText, Chip } from '@/components/ui';
+import { AppText, Chip, StickerToggle } from '@/components/ui';
 import { fetchInterestOptions, type InterestOption } from '@/features/ai/api';
 import { useTheme } from '@/theme';
 
@@ -11,6 +11,8 @@ export const MAX_INTERESTS = 12;
 export function InterestsPicker({ value, onChange }: { value: string[]; onChange: (next: string[]) => void }) {
   const t = useTheme();
   const [options, setOptions] = useState<InterestOption[] | null>(null);
+  // Themes with round sticker badges pick interests with round stickers too.
+  const round = t.style.badge === 'sticker';
 
   useEffect(() => {
     fetchInterestOptions()
@@ -42,9 +44,13 @@ export function InterestsPicker({ value, onChange }: { value: string[]; onChange
             {category}
           </AppText>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
-            {list.map((o) => (
-              <Chip key={o.key} label={o.label} selected={value.includes(o.key)} onPress={() => toggle(o.key)} />
-            ))}
+            {list.map((o) =>
+              round ? (
+                <StickerToggle key={o.key} label={o.label} selected={value.includes(o.key)} onPress={() => toggle(o.key)} />
+              ) : (
+                <Chip key={o.key} label={o.label} selected={value.includes(o.key)} onPress={() => toggle(o.key)} />
+              ),
+            )}
           </View>
         </View>
       ))}

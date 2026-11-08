@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, Switch, View } from 'react-native';
@@ -6,7 +7,7 @@ import { BackHeader } from '@/components/nav/AppHeader';
 import { MusicPicker } from '@/components/music/MusicPicker';
 import { InterestsPicker } from '@/components/profile/InterestsPicker';
 import { PromptsEditor } from '@/components/profile/PromptsEditor';
-import { AppText, Avatar, Button, Chip, Screen, TextField, useToast } from '@/components/ui';
+import { AppText, Avatar, Button, Screen, TextField, useToast } from '@/components/ui';
 import { useAppConfig } from '@/config/useAppConfig';
 import { setProfileSong, type Song } from '@/features/music/api';
 import { setProfilePrompts } from '@/features/profiles/api';
@@ -115,10 +116,24 @@ function EditProfileForm({ profile }: { profile: NonNullable<ReturnType<typeof u
           <AppText variant="small" weight="medium" tone="muted">
             City
           </AppText>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
-            {cities.map((c) => (
-              <Chip key={c.id} label={c.name} selected={cityId === c.id} onPress={() => setCityId(cityId === c.id ? null : c.id)} />
-            ))}
+          {/* Cities as plain words next to a pin. Tap again to clear. */}
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: t.space[4] }}>
+            {cities.map((c) => {
+              const on = cityId === c.id;
+              return (
+                <Pressable
+                  key={c.id}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: on }}
+                  onPress={() => setCityId(on ? null : c.id)}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 4, minHeight: 40 }}>
+                  <Ionicons name={on ? 'location' : 'location-outline'} size={16} color={on ? t.colors.primary : t.colors.textSubtle} />
+                  <AppText weight={on ? 'bold' : 'regular'} style={{ color: on ? t.colors.text : t.colors.textMuted }}>
+                    {c.name}
+                  </AppText>
+                </Pressable>
+              );
+            })}
           </View>
         </View>
 

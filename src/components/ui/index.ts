@@ -1,6 +1,6 @@
 export { AppText } from './AppText';
 export { Avatar } from './Avatar';
-export { Badge } from './Badge';
+export { Badge, StickerCircle, StickerToggle } from './Badge';
 export { Button } from './Button';
 export { Card } from './Card';
 export { FadeIn } from './FadeIn';
