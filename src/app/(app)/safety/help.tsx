@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
+import { NonEmergencyLine } from '@/components/safety/NonEmergencyLine';
 import { AppText, Button, Card, GlyphTile, Screen, useToast, type GlyphName } from '@/components/ui';
 import {
   alertMessage,
@@ -123,6 +124,9 @@ export default function Help() {
             <Button label="I need to leave now" variant="secondary" onPress={() => alert('leaving')} disabled={busy} />
             <Button label="Emergency: call 911" variant="danger" onPress={() => alert('emergency')} disabled={busy} />
             <Button label="I'm okay, go back" variant="ghost" onPress={() => goBackOr(router, '/')} disabled={busy} />
+            <Card>
+              <NonEmergencyLine />
+            </Card>
           </>
         ) : step === 'unsafe' ? (
           <>

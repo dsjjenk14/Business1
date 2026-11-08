@@ -71,6 +71,15 @@ launch. Many offer a flat-fee review for startups.
 7. **Set the real support email** (`app_config.support_email`). The Terms send copyright notices, privacy requests and arbitration opt-outs there.
 8. **Taxes:** ask an accountant about sales tax on Premium and tickets, and about reporting host payouts (Stripe sends hosts 1099s).
 
+## Police non-emergency numbers
+
+The app shows the local police non-emergency number on the Report screen, in My reports and on
+"I Need Help". It picks the area from the phone's location (checked on the phone only, never sent
+to us, and only if the member already allowed location), then from their city. The 52 numbers are in
+`src/features/safety/nonEmergency.ts`, each with the official page it came from. **Check them once a
+year**: departments change numbers. Places whose number we couldn't confirm on an official site
+(for example St. Louis, El Paso, Honolulu, Boston, Oklahoma City) aren't listed.
+
 ## When to update the documents
 
 Any time you add a feature that collects new information, takes payments,

@@ -161,7 +161,7 @@ export const PRIVACY: LegalDoc = {
     },
     {
       heading: 'Your location',
-      body: 'We never show your exact location to anyone. Locations you share are rounded to about a quarter mile. Precise readings from Check In are used only to confirm you met someone in person. Nobody can see them, not even you, and they’re deleted after 30 days. If you allow arrival alerts, your phone watches only the places of events and plans you said I’m In to, so you can be marked there when you arrive. You can turn location off in your phone’s Settings.',
+      body: 'We never show your exact location to anyone. To show your local police non-emergency number, the app checks your location on your phone only; it isn’t sent to us. Locations you share are rounded to about a quarter mile. Precise readings from Check In are used only to confirm you met someone in person. Nobody can see them, not even you, and they’re deleted after 30 days. If you allow arrival alerts, your phone watches only the places of events and plans you said I’m In to, so you can be marked there when you arrive. You can turn location off in your phone’s Settings.',
     },
     {
       heading: 'What other members see',

@@ -1,8 +1,8 @@
 import { Switch, View } from 'react-native';
 
-import { AppText, Button, Card, Chip, TextField } from '@/components/ui';
+import { NonEmergencyLine } from '@/components/safety/NonEmergencyLine';
+import { AppText, Card, Chip, TextField } from '@/components/ui';
 import type { Incident, PoliceStatus } from '@/features/safety/api';
-import { callNumber } from '@/lib/sms';
 import { useTheme } from '@/theme';
 
 /** A strong, plain push to report to police, without making it a condition of reporting to us. */
@@ -18,13 +18,13 @@ export function PoliceEncouragement({ after }: { after?: boolean }) {
         can do it later.
       </AppText>
       <AppText variant="small" tone="muted">
-        {'• Call 911, or 311 in DC if it isn’t an emergency, and say you want to report a crime.\n'}
+        {'• Call 911, or your police non-emergency line below if it isn’t an emergency, and say you want to report a crime.\n'}
         {'• Keep screenshots, texts and receipts. If you’re getting a medical exam, try not to shower or change first, but go even if you have.\n'}
         {after
           ? '• When you have a case number, add it in Settings, My reports, and we’ll send police the messages between you two.'
           : '• With your OK, we give police the messages between you two and your date plans, so you don’t have to.'}
       </AppText>
-      <Button label="Call 311 (DC, not an emergency)" size="md" variant="secondary" onPress={() => callNumber('311')} />
+      <NonEmergencyLine />
     </Card>
   );
 }
