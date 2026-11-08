@@ -10,7 +10,7 @@ import { haptic } from '@/lib/haptics';
 import { useTheme } from '@/theme';
 
 import { Confetti } from './Confetti';
-import { MilestoneSticker } from './MilestoneSticker';
+import { MATERIALS, MilestoneSticker } from './MilestoneSticker';
 
 const LINES: Record<number, string> = {
   10: 'Ten people met you and said yes. That’s real.',
@@ -95,6 +95,9 @@ function Moment({ m, reduce, onDone }: { m: number; reduce: boolean; onDone: (go
         </View>
         <AppText variant="hero" align="center" accessibilityRole="header" style={{ color: '#F5F5F5', fontSize: famous ? 44 : 34 + level * 2, lineHeight: famous ? 48 : 40 + level * 2 }}>
           {shown.toLocaleString()} vouches
+        </AppText>
+        <AppText variant="label" align="center" style={{ color: MATERIALS[m]?.stops[1] ?? '#F5F5F5', letterSpacing: 2, marginTop: -t.space[3] }}>
+          {MATERIALS[m]?.name.toUpperCase()}
         </AppText>
         <AppText align="center" style={{ color: 'rgba(245,245,245,0.8)', maxWidth: 340 }}>
           {LINES[m]}
