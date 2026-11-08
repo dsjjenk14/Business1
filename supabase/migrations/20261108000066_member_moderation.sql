@@ -129,10 +129,10 @@ begin
     update public.profiles set banned_at = coalesce(banned_at, now()) where id = target;
     update public.pins set hidden_at = coalesce(hidden_at, now()) where author_id = target;
     update public.pin_replies set hidden_at = coalesce(hidden_at, now()) where author_id = target;
-    -- Everyone who vouched for them hears it, without any details of the report.
+    -- Everyone who vouched for them hears it. It never mentions a report.
     for voucher in select distinct v.voucher_id from public.vouches v where v.vouchee_id = target and v.voucher_id <> target loop
       perform private.notify_later(voucher, 'moderation_voucher', 'Someone you vouched for was removed',
-        format('%s was removed from I’m In after a report was reviewed and found to break our Community Guidelines.', who),
+        format('%s was removed from I’m In for breaking our Community Guidelines.', who),
         '/legal/guidelines');
     end loop;
   else

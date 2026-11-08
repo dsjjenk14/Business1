@@ -2,7 +2,7 @@
 -- notices to the reported member are delayed; restricted members can't act.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(13);
+select plan(14);
 
 create or replace function pg_temp.new_user(p_email text, p_name text) returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();
@@ -60,6 +60,7 @@ select pg_temp.act_as('adm');
 select lives_ok($$ select public.admin_member_action(pg_temp.idn('r2'), 'ban') $$, 'an admin can remove a member');
 set local role postgres;
 select ok(exists (select 1 from private.delayed_notices where user_id = pg_temp.uid('vic') and kind = 'moderation_voucher'), 'everyone who vouched for them is told');
+select ok(not exists (select 1 from private.delayed_notices where user_id = pg_temp.uid('vic') and kind = 'moderation_voucher' and (body ilike '%report%' or title ilike '%report%')), 'the voucher notice never mentions a report');
 select pg_temp.act_as('ana');
 select is(public.profile_card(pg_temp.uid('bad')), null, 'a removed member''s profile is gone for everyone else');
 set local role postgres;
