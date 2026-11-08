@@ -20,7 +20,7 @@ export function Badge({ label, tone = 'primary', glyph, verified }: BadgeProps) 
   const color = tone === 'neutral' ? t.colors.textMuted : tone === 'primary' ? t.colors.primaryText : t.colors[tone];
 
   if (t.style.badge === 'sticker') {
-    // Round sticker: solid color, chunky rounded letters.
+    // Round sticker: a solid circle with a white edge, chunky rounded letters.
     const fill = tone === 'neutral' ? t.colors.surfaceAlt : tone === 'primary' ? t.colors.primary : t.colors[tone];
     const ink =
       tone === 'neutral'
@@ -32,20 +32,33 @@ export function Badge({ label, tone = 'primary', glyph, verified }: BadgeProps) 
             : tone === 'ai'
               ? t.colors.onAi
               : t.colors.onSponsored;
+    // A little tilt, the same every time for the same word, like a sticker slapped on.
+    // Shrink the letters so the longest word always fits on one line inside the circle.
+    const longest = Math.max(...label.split(/\s+/).map((w) => w.length));
+    const size = Math.min(12.5, 64 / (longest * 0.64));
+    const tilt = ((label.split('').reduce((n, c) => n + c.charCodeAt(0), 0) % 13) - 6) * 1.2;
     return (
       <View
         style={{
-          alignSelf: 'flex-start',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 4,
+          width: 84,
+          height: 84,
+          borderRadius: 42,
           backgroundColor: fill,
-          borderRadius: t.radius.pill,
-          paddingHorizontal: 11,
-          paddingVertical: 4,
+          borderWidth: 3,
+          borderColor: t.mode === 'dark' ? '#F5F5F5' : '#FFFFFF',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 7,
+          gap: 1,
+          transform: [{ rotate: `${tilt}deg` }],
         }}>
-        {glyph ? <Glyph name={glyph} size={13} color={ink} strokeWidth={2.4} /> : null}
-        <AppText style={{ color: ink, ...fontStyle(t.fonts.displayBold), fontSize: 13, lineHeight: 17 }}>{label}</AppText>
+        {glyph ? <Glyph name={glyph} size={14} color={ink} strokeWidth={2.4} /> : null}
+        <AppText
+          align="center"
+          numberOfLines={3}
+          style={{ color: ink, ...fontStyle(t.fonts.displayBold), fontSize: size, lineHeight: Math.round(size * 1.15) }}>
+          {label}
+        </AppText>
       </View>
     );
   }
