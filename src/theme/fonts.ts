@@ -16,6 +16,8 @@ import { Fraunces_500Medium } from '@expo-google-fonts/fraunces/500Medium';
 import { Fraunces_600SemiBold } from '@expo-google-fonts/fraunces/600SemiBold';
 import { Fraunces_700Bold } from '@expo-google-fonts/fraunces/700Bold';
 import { JetBrainsMono_500Medium } from '@expo-google-fonts/jetbrains-mono/500Medium';
+import { Nunito_800ExtraBold } from '@expo-google-fonts/nunito/800ExtraBold';
+import { Nunito_900Black } from '@expo-google-fonts/nunito/900Black';
 import { SpaceGrotesk_600SemiBold } from '@expo-google-fonts/space-grotesk/600SemiBold';
 import { SpaceGrotesk_700Bold } from '@expo-google-fonts/space-grotesk/700Bold';
 import { Syne_400Regular } from '@expo-google-fonts/syne/400Regular';
@@ -37,6 +39,8 @@ export const FONT_MAP = {
   Fraunces_600SemiBold,
   Fraunces_700Bold,
   JetBrainsMono_500Medium,
+  Nunito_800ExtraBold,
+  Nunito_900Black,
   SpaceGrotesk_600SemiBold,
   SpaceGrotesk_700Bold,
   Syne_400Regular,

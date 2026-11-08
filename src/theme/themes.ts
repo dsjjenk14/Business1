@@ -317,11 +317,10 @@ const guestType: ThemeType = {
   label: { fontSize: 13, lineHeight: 18, letterSpacing: -0.1 },
   number: { fontSize: 30, lineHeight: 34, letterSpacing: -0.6 },
 };
-// Headlines in Bold, not ExtraBold/Black: heavy type everywhere reads as loud
-// rather than polished. The black weight is kept for the one hero line.
+// Headlines and buttons in Nunito, a rounded, friendly face; Figtree for reading.
 const guestFonts = {
-  display: 'Figtree_700Bold',
-  displayBold: 'Figtree_800ExtraBold',
+  display: 'Nunito_800ExtraBold',
+  displayBold: 'Nunito_900Black',
   body: 'Figtree_400Regular',
   bodyMedium: 'Figtree_600SemiBold',
   bodyBold: 'Figtree_700Bold',
@@ -334,7 +333,8 @@ const guestStyle: Theme['style'] = {
   monoNumbers: false,
   monoLabels: false,
   surface: 'flat',
-  controls: 'ticket',
+  controls: 'soft',
+  avatarShape: 'squircle',
 };
 
 /** L: Original Light. The Guest List look in the original light colors. */

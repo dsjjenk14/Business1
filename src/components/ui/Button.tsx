@@ -57,7 +57,8 @@ export function Button({ label, variant = 'primary', size = 'lg', loading, disab
         {
           minHeight: size === 'lg' ? 48 : 40,
           paddingHorizontal: t.space[5],
-          borderRadius: t.radius.md,
+          // Ticket themes are square-cut; soft themes use fully rounded buttons.
+          borderRadius: ticket ? t.radius.md : t.radius.pill,
           backgroundColor: palette.bg,
           borderWidth: variant === 'ghost' || ticket ? 0 : t.borderWidth.regular,
           borderColor: palette.border,

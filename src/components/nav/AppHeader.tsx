@@ -29,19 +29,21 @@ export function AppHeader() {
         flexDirection: 'row',
         alignItems: 'center',
       }}>
-      <View style={{ flex: 1, paddingLeft: t.space[1] }}>
-        <Logo />
-      </View>
-      <IconButton icon="chatbubble-ellipses-outline" label="Messages" badgeCount={unread.messages} onPress={() => router.push('/messages')} />
-      <IconButton icon="notifications-outline" label="Notifications" badgeCount={unread.notifications} onPress={() => router.push('/notifications')} />
+      {/* Left: you and the camera. Middle: the logo. Right: notifications, chats, menu. */}
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Your profile"
         onPress={() => router.push('/profile')}
         hitSlop={6}
         style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
-        <Avatar name={profile?.display_name ?? 'You'} uri={profile?.avatar_url} size={30} userId={profile?.id} />
+        <Avatar name={profile?.display_name ?? 'You'} uri={profile?.avatar_url} size={32} userId={profile?.id} />
       </Pressable>
+      <IconButton icon="camera-outline" label="Take an Out" onPress={() => router.push('/outs/new')} />
+      <View style={{ flex: 1, alignItems: 'center' }}>
+        <Logo />
+      </View>
+      <IconButton icon="notifications-outline" label="Notifications" badgeCount={unread.notifications} onPress={() => router.push('/notifications')} />
+      <IconButton icon="chatbubble-ellipses-outline" label="Messages" badgeCount={unread.messages} onPress={() => router.push('/messages')} />
       <IconButton icon="menu" label="Menu" onPress={() => router.push('/menu')} />
     </View>
   );

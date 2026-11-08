@@ -59,7 +59,7 @@ export function Avatar({ name, uri, size = 44, ring, userId }: AvatarProps) {
       style={{
         width: size,
         height: size,
-        borderRadius: size / 2,
+        borderRadius: t.style.avatarShape === 'squircle' ? Math.round(size * 0.34) : size / 2,
         borderWidth: ringWidth,
         borderColor: ringColor ?? 'transparent',
         backgroundColor: tint?.bg ?? t.colors.surfaceAlt,

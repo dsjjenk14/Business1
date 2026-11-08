@@ -6,6 +6,7 @@ import { ActivityRow, EventRow, GroupSuggestion } from '@/components/home/HomePa
 import { InviteVerifyCard } from '@/components/home/InviteVerifyCard';
 import { NewcomerEvents } from '@/components/home/NewcomerEvents';
 import { StartCard } from '@/components/home/StartCard';
+import { StoriesRow } from '@/components/home/StoriesRow';
 import { WhatsInHero } from '@/components/home/WhatsInHero';
 import { LiveNowRow } from '@/components/live/LiveNowRow';
 import { PinCard } from '@/components/pins/PinCard';
@@ -134,6 +135,7 @@ export default function Home() {
     <ScrollView
       contentContainerStyle={{ padding: t.space[4], gap: t.space[6], paddingBottom: t.space[8], width: '100%', maxWidth: 640, alignSelf: 'center' }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={t.colors.primary} />}>
+      <StoriesRow />
       <LiveNowRow />
 
       <InviteVerifyCard />
