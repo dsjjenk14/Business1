@@ -26,3 +26,5 @@
 ## Still to build before a public launch (build plan)
 - Phase 7: AI features (waiting on your OK for the paid Claude API)
 - The TestFlight build itself (waiting on the Apple Developer account; everything else for it is ready)
+
+- [ ] **Official I'm In account** (for 1,000-vouch shoutouts). Sign up a normal account for I'm In itself (photo: your logo), then tell me its email and I'll mark it as the official account (`app_config.official_account_id`). Members who say yes to a shoutout before then are kept in line and posted automatically once it's set.

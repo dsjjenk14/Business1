@@ -25,3 +25,10 @@ export async function fetchFamous(): Promise<FamousMember[]> {
   if (error) throw error;
   return (data ?? []) as FamousMember[];
 }
+
+/** At 1,000 vouches: yes or no to a shoutout from the official I'm In account. */
+export async function answerShoutout(yes: boolean): Promise<'posted' | 'waiting' | 'declined'> {
+  const { data, error } = await supabase.rpc('answer_shoutout', { p_yes: yes });
+  if (error) throw error;
+  return data as 'posted' | 'waiting' | 'declined';
+}

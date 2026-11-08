@@ -5,7 +5,7 @@ import { useReducedMotion } from 'react-native-reanimated';
 
 import { AppText, Button } from '@/components/ui';
 import { STICKER_SIZE } from '@/components/ui/Badge';
-import { celebrateMilestone, fetchPendingMilestone, FAMOUS_AT, MILESTONES } from '@/features/milestones/api';
+import { answerShoutout, celebrateMilestone, fetchPendingMilestone, FAMOUS_AT, MILESTONES } from '@/features/milestones/api';
 import { haptic } from '@/lib/haptics';
 import { useTheme } from '@/theme';
 
@@ -85,10 +85,22 @@ function Moment({ m, reduce, onDone }: { m: number; reduce: boolean; onDone: (go
 
   const shown = useCountUp(m, m >= 100 && !reduce);
   const done = onDone;
+  const [asked, setAsked] = useState<'posted' | 'waiting' | 'declined' | null>(null);
+  const [busy, setBusy] = useState(false);
+  async function shoutout(yes: boolean) {
+    setBusy(true);
+    try {
+      setAsked(await answerShoutout(yes));
+    } catch {
+      setAsked(yes ? 'waiting' : 'declined');
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={() => done()}>
-      <View style={{ flex: 1, backgroundColor: famous ? 'rgba(12,12,12,0.98)' : 'rgba(12,12,12,0.94)', alignItems: 'center', justifyContent: 'center', padding: t.space[6], gap: t.space[5] }}>
+      <View style={{ flex: 1, backgroundColor: '#0C0C0C', alignItems: 'center', justifyContent: 'center', padding: t.space[6], gap: t.space[5] }}>
         {confetti ? <Confetti count={confetti} colors={colors} duration={2200 + level * 400} /> : null}
         <View style={{ transform: [{ scale: stickerSize / STICKER_SIZE }], marginVertical: (stickerSize - STICKER_SIZE) / 2 }}>
           <MilestoneSticker count={m} />
@@ -102,10 +114,28 @@ function Moment({ m, reduce, onDone }: { m: number; reduce: boolean; onDone: (go
         <AppText align="center" style={{ color: 'rgba(245,245,245,0.8)', maxWidth: 340 }}>
           {LINES[m]}
         </AppText>
-        <View style={{ width: '100%', maxWidth: 340, gap: t.space[2] }}>
-          <Button label={level >= 3 ? 'See my profile' : 'Nice'} onPress={() => done(level >= 3 ? '/profile' : undefined)} />
-          {level >= 3 ? <Button label="Later" variant="ghost" onPress={() => done()} /> : null}
-        </View>
+        {famous && asked === null ? (
+          <View style={{ width: '100%', maxWidth: 340, gap: t.space[2] }}>
+            <AppText weight="bold" align="center" style={{ color: '#F5F5F5' }}>
+              Want a shoutout from the official I&apos;m In account?
+            </AppText>
+            <AppText variant="small" align="center" style={{ color: 'rgba(245,245,245,0.7)' }}>
+              We&apos;d post your name and 1,000 vouches for everyone on I&apos;m In to see. Only if you say yes.
+            </AppText>
+            <Button label="Yes, shout me out" onPress={() => shoutout(true)} loading={busy} />
+            <Button label="No thanks" variant="ghost" onPress={() => shoutout(false)} disabled={busy} />
+          </View>
+        ) : (
+          <View style={{ width: '100%', maxWidth: 340, gap: t.space[2] }}>
+            {asked ? (
+              <AppText variant="small" align="center" style={{ color: 'rgba(245,245,245,0.8)' }}>
+                {asked === 'posted' ? 'Your shoutout is up on I’m In.' : asked === 'waiting' ? 'Your shoutout is coming soon. We’ll let you know when it’s up.' : 'No shoutout. Congrats all the same.'}
+              </AppText>
+            ) : null}
+            <Button label={level >= 3 ? 'See my profile' : 'Nice'} onPress={() => done(level >= 3 ? '/profile' : undefined)} />
+            {level >= 3 ? <Button label="Later" variant="ghost" onPress={() => done()} /> : null}
+          </View>
+        )}
       </View>
     </Modal>
   );

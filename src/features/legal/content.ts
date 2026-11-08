@@ -49,6 +49,10 @@ export const TERMS: LegalDoc = {
       body: 'You own what you post: pins, replies, photos, videos, Outs, messages and your profile. You give I’m In a worldwide, non-exclusive, royalty-free license to host, store, display, adapt (for example, resize) and deliver it to the people you choose, only to run, improve and promote I’m In. This ends when you delete the content or your account, except for copies others have kept (for example, pinned Outs), backups, and what the law requires us to keep. You’re responsible for what you post, and you must have the right to share it, including any photos of other people. We don’t endorse what members post, and we may remove anything for any reason.',
     },
     {
+      heading: 'Shoutouts',
+      body: 'When you reach 1,000 vouches, we ask whether you’d like a shoutout from the official I’m In account. Only if you say yes, we post your display name and vouch count for everyone on I’m In to see. You can ask us to take it down at any time.',
+    },
+    {
       heading: 'Copyright complaints',
       body: 'If you believe something on I’m In infringes your copyright, email us. Include your contact details, what the work is, where the content is on I’m In, a statement that you believe in good faith the use isn’t authorized, and a statement, under penalty of perjury, that your notice is accurate and you’re authorized to act. We remove infringing content and end the accounts of repeat infringers.',
     },

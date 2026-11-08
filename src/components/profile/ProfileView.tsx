@@ -189,6 +189,7 @@ export function ProfileView({
         ) : null}
         {/* One or two badges at most: what people vouch them for (or their level), and membership. */}
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+          {card.is_official ? <HoloSticker label="Official" glyph="check" /> : null}
           {card.background_checked ? <HoloSticker label="Background checked" glyph="shield" /> : null}
           {card.id_verified ? <HoloSticker label="Identity confirmed" glyph="person" /> : null}
           <MilestoneSticker count={card.vouch_count} />

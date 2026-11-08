@@ -2067,6 +2067,32 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"shoutouts": {
+                  Row: {
+                    "created_at": string,"milestone": number,"pin_id": number | null,"posted_at": string | null,"status": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"milestone": number,"pin_id"?: number | null,"posted_at"?: string | null,"status": string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"milestone"?: number,"pin_id"?: number | null,"posted_at"?: string | null,"status"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "shoutouts_pin_id_fkey"
+      columns: ["pin_id"]
+isOneToOne: false
+      referencedRelation: "pins"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "shoutouts_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"trusted_contacts": {
                   Row: {
                     "created_at": string,"id": number,"name": string,"phone": string,"user_id": string
@@ -2500,6 +2526,9 @@ isOneToOne: true
                            },
 "ai_tonight_options":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"answer_shoutout":
+{ Args: { "p_yes": boolean }; Returns: string
                            },
 "arrival_regions":
 { Args: Record<PropertyKey, never>; Returns: {

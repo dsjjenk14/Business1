@@ -25,6 +25,8 @@ export type ProfileCard = {
   /** A short line under their name, up to 60 characters. */
   mood?: string | null;
   header_url?: string | null;
+  /** The official I'm In account. */
+  is_official?: boolean;
   profile_color?: string | null;
   /** Passed a background check in the last year: shows the Background checked tag. */
   background_checked?: boolean;
