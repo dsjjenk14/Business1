@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 import { supabase } from '@/lib/supabase';
 
 export type MyVerification = {
@@ -28,6 +30,7 @@ export async function submitPhotoCheck(userId: string, requestId: number, uri: s
   const path = `${userId}/${requestId}.${ext}`;
   const up = await supabase.storage.from('verifications').upload(path, blob, { contentType, upsert: true });
   if (up.error) throw up.error;
-  const { error } = await supabase.rpc('submit_photo_verification', { p_request: requestId, p_path: path });
+  // A browser may let someone pick a saved photo instead of the camera, so reviewers are told.
+  const { error } = await supabase.rpc('submit_photo_verification', { p_request: requestId, p_path: path, p_from_browser: Platform.OS === 'web' });
   if (error) throw error;
 }

@@ -19,6 +19,7 @@
 - [ ] **Public web pages** for the Privacy Policy and Terms. The App Store listing needs a Privacy Policy URL. I can publish them as simple pages once the text is final.
 - [ ] **Moderation owner:** Apple expects reports to be acted on within about 24 hours. Make yourself an admin (GitHub → Actions → **Make admin**), then use **Menu → Admin → Reports**. Admins get a notification for each report.
 - [ ] **Register with NCMEC** for CyberTipline reporting. Federal law (18 U.S.C. § 2258A) requires apps to report child sexual abuse material they find. You need an account with the National Center for Missing & Exploited Children before you can file. Start at report.cybertip.org.
+- [ ] **Photo reviewers (optional helpers).** Add them in Admin → More → Photo reviewers, by email. They only see photo checks (selfie and profile photos). Have each one sign a short confidentiality agreement first (ask your lawyer for one); the Privacy Policy says reviewers agree to keep selfies confidential.
 - [ ] **Check intimate image removal requests daily.** Federal law (the TAKE IT DOWN Act) gives you 48 hours from each request. They show at the top of Admin → Reports with a countdown, and admins get a reminder with 12 hours left.
 - [ ] **Twilio** (texts) and an **email-sending service** (Resend or SendGrid free tier). See `docs/DEPLOY.md`.
 - [ ] **Apple Developer account** ($99/year), for TestFlight and the App Store. Step-by-step: `docs/TESTFLIGHT.md`.

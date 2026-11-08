@@ -81,7 +81,7 @@ select pg_temp.act_as('bo');
 select isnt(photo_verification_challenge()->>'gesture', null, 'The photo check gives a random gesture');
 select lives_ok(format($$ select submit_photo_verification((select id from verification_requests where user_id = %L), %L) $$,
   pg_temp.uid('bo'), pg_temp.uid('bo')::text || '/selfie.jpg'), 'Submit the selfie');
-select throws_ok($$ select admin_verifications() $$, '42501', 'Admins only.', 'Only admins see the review queue');
+select throws_ok($$ select admin_verifications() $$, '42501', 'Photo reviewers only.', 'Only admins and reviewers see the review queue');
 select pg_temp.act_as('boss');
 select is((select count(*)::int from admin_verifications()), 1, 'The admin sees it waiting');
 select admin_review_verification((select id from verification_requests where user_id = pg_temp.uid('bo')), true);

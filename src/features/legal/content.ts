@@ -149,7 +149,7 @@ export const PRIVACY: LegalDoc = {
     },
     {
       heading: 'Verification',
-      body: 'Phone: we text you a code through Twilio to confirm your number. Photo check: you take a live selfie doing a random gesture, and a person on our team compares it with your profile photos. We don’t use face-recognition software or make a faceprint. Your selfie is stored privately, only our review team can see it, and it’s kept until you delete your account. Identity checks with a government ID aren’t open yet. When they are, we’ll explain here how they work before you can use them.',
+      body: 'Phone: we text you a code through Twilio to confirm your number. Photo check: you take a live selfie doing a random gesture, and a person on our review team (our staff, or trusted reviewers who have agreed to keep it confidential) compares it with your profile photos. We don’t use face-recognition software or make a faceprint. Your selfie is stored privately, only our review team can see it, and it’s kept until you delete your account. Identity checks with a government ID aren’t open yet. When they are, we’ll explain here how they work before you can use them.',
     },
     {
       heading: 'Background checks',
