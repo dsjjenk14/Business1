@@ -87,6 +87,19 @@ export type PolicePacket = {
 export const policePacket = async (reportId: number, basis: PoliceBasis, agency: string, caseNumber?: string) =>
   unwrap<PolicePacket>(await supabase.rpc('admin_police_packet', { p_report: reportId, p_basis: basis, p_agency: agency, p_case: caseNumber || undefined }));
 
+export type Takedown = Fn['admin_takedowns']['Returns'][number];
+export const fetchTakedowns = async () => unwrap<Takedown[]>(await supabase.rpc('admin_takedowns'));
+/** Remove for good: deletes the post or Out and its files (server function). */
+export async function removeTakedown(id: number, note?: string) {
+  const { data, error } = await supabase.functions.invoke<{ removed: boolean; files: number; file_errors: boolean }>('takedown', { body: { id, note } });
+  if (error) {
+    const body = await (error as { context?: Response }).context?.json().catch(() => null);
+    throw new Error(body?.error ?? 'Couldn’t remove it. Try again.');
+  }
+  return data;
+}
+export const declineTakedown = async (id: number, note: string) => unwrap<null>(await supabase.rpc('admin_takedown_decline', { p_id: id, p_note: note }));
+
 export type Appeal = Fn['admin_appeals']['Returns'][number];
 export const fetchAppeals = async () => unwrap<Appeal[]>(await supabase.rpc('admin_appeals'));
 /** lift: account back to normal. Otherwise the decision stays. */

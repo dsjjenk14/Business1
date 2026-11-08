@@ -44,6 +44,7 @@ export default function Settings() {
         { label: 'Blocked members', icon: 'ban-outline', href: '/settings/blocked' },
         { label: 'Hidden and muted', icon: 'eye-off-outline', href: '/settings/hidden' },
         { label: 'My reports', icon: 'flag-outline', href: '/settings/reports' },
+        { label: 'Remove an intimate image', icon: 'close-circle-outline', href: '/remove-image' },
       ],
     },
     {

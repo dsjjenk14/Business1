@@ -47,6 +47,57 @@ const GUIDE: { title: string; body: string }[] = [
   },
 ];
 
+const EVERYDAY: { title: string; body: string }[] = [
+  {
+    title: 'Two things with legal deadlines',
+    body: 'Intimate images shared without consent (real or AI-made): remove within 48 hours of a request, and remove the member. They show up at the top of this tab with a countdown. Anything sexual involving someone under 18: don’t download or forward it, remove the account, report it to NCMEC’s CyberTipline (required by law), and call your lawyer.',
+  },
+  {
+    title: 'Harassment',
+    body: 'Keeps messaging after a no, insults, pins mocking someone. Check the saved messages and whether others reported them. First time: warn. Keeps going: suspend 7 days. Several people, or still going: suspend 30 days or remove. Threats: treat as violence (Urgent).',
+  },
+  {
+    title: '“Made me feel unsafe,” nothing specific',
+    body: 'Pushy about going to their place, kept asking where she lives, showed up where he knew she’d be. One vague report is information, not proof: warn and watch. Two or more people: suspend 30 days or remove. Following someone or showing up uninvited more than once is stalking: Urgent, remove.',
+  },
+  {
+    title: 'Unwanted sexual messages or photos',
+    body: 'A nude nobody asked for, sexual comments on a pin. Remove it and suspend 30 days. Again: remove.',
+  },
+  {
+    title: 'Hate',
+    body: 'A slur in a reply, a pin attacking a group. Remove it. One-off: warn or suspend 7 days. Aimed at a person, or again: remove.',
+  },
+  {
+    title: 'Fake or misleading',
+    body: 'Old but real photos: warn and ask them to update. Someone else’s photos, or pretending to be a real person: remove. Not sure: ask them to verify again with a selfie.',
+  },
+  {
+    title: 'Privacy',
+    body: 'Screenshots of private messages, someone’s phone number or workplace: remove it, warn, suspend if it happens again. A home address (doxxing): remove the member; it can put someone in danger.',
+  },
+  {
+    title: 'Spam and scams',
+    body: 'Selling or promotion: remove it and warn; again, remove. Asking anyone for money (“I’ll pay you back”): remove right away. That’s the classic romance scam.',
+  },
+  {
+    title: 'Fake vouches',
+    body: 'Vouch rings or paid vouches: take the vouches back and remove the accounts involved.',
+  },
+  {
+    title: 'Hosts and events',
+    body: 'Not as described, host didn’t show, refund fights: hosts decide refunds (it’s in the Terms), so point the member to the host and warn the host. Repeated: stop them hosting. Problems with a bar itself go to the venue.',
+  },
+  {
+    title: 'Not a rule break',
+    body: '“He was boring,” “she ghosted me,” “didn’t show up,” “rude at the bar.” Dismiss kindly and suggest blocking. Punishing bad manners makes reports mean less.',
+  },
+  {
+    title: 'Revenge reports',
+    body: 'Exes reporting each other, someone reporting a whole group. Check the reporter’s history in the evidence panel. Don’t act on the report alone. Both harassing each other: warn both. A pattern of false reports gets the reporter removed.',
+  },
+];
+
 /** The written rules for deciding reports. Collapsed until opened. */
 export function DecisionGuide() {
   const t = useTheme();
@@ -61,14 +112,24 @@ export function DecisionGuide() {
           <Button label={open ? 'Hide' : 'Read'} size="md" variant="ghost" onPress={() => setOpen((o) => !o)} />
         </View>
         {open
-          ? GUIDE.map((g, i) => (
-              <View key={g.title} style={{ gap: 2 }}>
-                <AppText variant="small" weight="bold">
-                  {i + 1}. {g.title}
+          ? ([
+              ['Serious and in person', GUIDE],
+              ['Everyday reports', EVERYDAY],
+            ] as const).map(([heading, items]) => (
+              <View key={heading} style={{ gap: t.space[2] }}>
+                <AppText variant="label" tone="subtle">
+                  {heading}
                 </AppText>
-                <AppText variant="small" tone="muted">
-                  {g.body}
-                </AppText>
+                {items.map((g, i) => (
+                  <View key={g.title} style={{ gap: 2 }}>
+                    <AppText variant="small" weight="bold">
+                      {i + 1}. {g.title}
+                    </AppText>
+                    <AppText variant="small" tone="muted">
+                      {g.body}
+                    </AppText>
+                  </View>
+                ))}
               </View>
             ))
           : null}

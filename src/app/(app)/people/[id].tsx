@@ -160,6 +160,7 @@ export default function PersonProfile() {
         { label: privacy?.muted ? `Unmute ${first}` : `Mute ${first} (hide their posts from me)`, onPress: () => toggle('muted') },
         { label: privacy?.hidden ? `Show my posts to ${first} again` : `Hide my posts from ${first}`, onPress: () => toggle('hidden') },
         { label: `Report ${first}`, onPress: () => router.push({ pathname: '/report', params: { user: card.id, name: card.display_name } }) },
+        { label: 'Remove an intimate image of me', danger: true, onPress: () => router.push({ pathname: '/remove-image', params: { poster: card.id, name: card.display_name } }) },
         { label: `Block ${first}`, danger: true, onPress: () => setConfirmBlock(true) },
       ]
     : [];

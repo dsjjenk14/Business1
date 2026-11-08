@@ -2165,6 +2165,50 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"takedown_requests": {
+                  Row: {
+                    "admin_note": string | null,"code": string,"contact": string,"created_at": string,"decided_at": string | null,"decided_by": string | null,"due_at": string,"for_self": boolean,"held": boolean,"id": number,"kind": string,"location": string | null,"out_id": number | null,"pin_id": number | null,"poster_id": string | null,"reminded_at": string | null,"requester_id": string | null,"signature": string,"statement": string,"status": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "admin_note"?: string | null,"code"?: string,"contact": string,"created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"due_at"?: string,"for_self"?: boolean,"held"?: boolean,"id"?: never,"kind": string,"location"?: string | null,"out_id"?: number | null,"pin_id"?: number | null,"poster_id"?: string | null,"reminded_at"?: string | null,"requester_id"?: string | null,"signature": string,"statement": string,"status"?: string
+                  }
+                  Update: {
+                    "admin_note"?: string | null,"code"?: string,"contact"?: string,"created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"due_at"?: string,"for_self"?: boolean,"held"?: boolean,"id"?: never,"kind"?: string,"location"?: string | null,"out_id"?: number | null,"pin_id"?: number | null,"poster_id"?: string | null,"reminded_at"?: string | null,"requester_id"?: string | null,"signature"?: string,"statement"?: string,"status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "takedown_requests_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "takedown_requests_out_id_fkey"
+      columns: ["out_id"]
+isOneToOne: false
+      referencedRelation: "outs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "takedown_requests_pin_id_fkey"
+      columns: ["pin_id"]
+isOneToOne: false
+      referencedRelation: "pins"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "takedown_requests_poster_id_fkey"
+      columns: ["poster_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "takedown_requests_requester_id_fkey"
+      columns: ["requester_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"trusted_contacts": {
                   Row: {
                     "created_at": string,"id": number,"name": string,"phone": string,"user_id": string
@@ -2593,6 +2637,17 @@ isOneToOne: true
                            },
 "admin_set_verified_host":
 { Args: { "p_email": string,"p_on": boolean }; Returns: undefined
+                           },
+"admin_takedown_decline":
+{ Args: { "p_id": number,"p_note": string }; Returns: undefined
+                           },
+"admin_takedown_remove":
+{ Args: { "p_id": number,"p_note"?: string }; Returns: Json
+                           },
+"admin_takedowns":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "admin_note": string,"code": string,"contact": string,"created_at": string,"decided_at": string,"due_at": string,"for_self": boolean,"held": boolean,"id": number,"kind": string,"location": string,"out_id": number,"pin_body": string,"pin_id": number,"poster_id": string,"poster_name": string,"requester_name": string,"signature": string,"statement": string,"status": string
+            }[]
                            },
 "admin_usage":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -3347,6 +3402,12 @@ isOneToOne: true
                            },
 "submit_photo_verification":
 { Args: { "p_path": string,"p_request": number }; Returns: undefined
+                           },
+"submit_takedown":
+{ Args: { "p_confirm": boolean,"p_contact": string,"p_for_self"?: boolean,"p_kind": string,"p_location"?: string,"p_out"?: number,"p_pin"?: number,"p_poster"?: string,"p_signature": string,"p_statement": string }; Returns: string
+                           },
+"takedown_status":
+{ Args: { "p_code": string }; Returns: Json
                            },
 "tonight_ends_at":
 { Args: Record<PropertyKey, never>; Returns: string

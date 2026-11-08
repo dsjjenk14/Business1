@@ -301,7 +301,17 @@ export default function ViewOuts() {
               >
                 <Ionicons name="trash-outline" size={20} color="#FFFFFF" />
               </Pressable>
-            ) : null}
+            ) : (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Remove an intimate image of me"
+                onPress={() => router.push({ pathname: "/remove-image", params: { out: String(currentId), name: out.sender_name } })}
+                hitSlop={10}
+                style={{ width: 40, height: 40, borderRadius: 20, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(0,0,0,0.55)" }}
+              >
+                <Ionicons name="flag-outline" size={20} color="#FFFFFF" />
+              </Pressable>
+            )}
             <AppText variant="small" style={{ color: "#FFFFFF" }}>
               {out.pinned ? "Pinned: it stays" : timeLeft(out.expires_at)}
             </AppText>

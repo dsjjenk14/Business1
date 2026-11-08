@@ -56,6 +56,8 @@ function RootNavigator() {
         </Stack.Protected>
         {/* Readable whether signed in or not. */}
         <Stack.Screen name="legal/[doc]" />
+        {/* Removal requests for intimate images: open to anyone, with or without an account. */}
+        <Stack.Screen name="remove-image" />
         {/* Event rooms opened from a phone: the link carries its own pass. */}
         <Stack.Screen name="room" />
       </Stack>

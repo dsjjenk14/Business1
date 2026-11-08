@@ -71,6 +71,22 @@ launch. Many offer a flat-fee review for startups.
 7. **Set the real support email** (`app_config.support_email`). The Terms send copyright notices, privacy requests and arbitration opt-outs there.
 8. **Taxes:** ask an accountant about sales tax on Premium and tickets, and about reporting host payouts (Stripe sends hosts 1099s).
 
+## Intimate image removal (TAKE IT DOWN Act)
+
+Since May 19, 2026, apps must remove intimate images shared without consent within 48 hours of a
+valid request, along with known identical copies, and must explain the process clearly. The FTC
+enforces it. What the app does:
+
+- **Anyone can ask, with or without an account**: from the sign-in screen, Settings, and the menu on
+  any post, Out or profile (`/remove-image`). The form asks for a typed signature, where the image is,
+  a good-faith statement, and contact details, and gives a confirmation number. Anyone can check the
+  status with that number.
+- **A member pointing at a specific post or Out hides it right away**, before review.
+- **Admins see a 48-hour countdown** at the top of Admin → Reports, and get reminded with 12 hours
+  left. "Remove for good" deletes the post or Out and its files (the `takedown` server function).
+  Declining needs a written reason.
+- **The Terms explain the process** ("Removing intimate images (48 hours)").
+
 ## Police non-emergency numbers
 
 The app shows the local police non-emergency number on the Report screen, in My reports and on

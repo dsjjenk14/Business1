@@ -150,6 +150,7 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
           { label: `View ${firstName}'s profile`, onPress: openAuthor },
           { label: `Mute ${firstName}`, onPress: mute },
           { label: 'Report this pin', danger: true, onPress: () => router.push({ pathname: '/report', params: { pin: String(pin.id), name: pin.author_name } }) },
+          { label: 'Remove an intimate image of me', danger: true, onPress: () => router.push({ pathname: '/remove-image', params: { pin: String(pin.id), name: pin.author_name } }) },
           { label: `Block ${firstName}`, danger: true, onPress: block },
         ]
       : []),

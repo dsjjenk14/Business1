@@ -6,6 +6,7 @@ import { Linking, View } from 'react-native';
 
 import { AdminClaims, AdminVerifiedHosts } from '@/components/admin/AdminClaims';
 import { AdminAppeals, DecisionGuide } from '@/components/admin/Moderation';
+import { AdminTakedowns } from '@/components/admin/AdminTakedowns';
 import { ReportEvidence } from '@/components/admin/ReportEvidence';
 import { ReporterAnswers, SendToPolice } from '@/components/admin/ReportFollowup';
 import { BackHeader } from '@/components/nav/AppHeader';
@@ -192,6 +193,7 @@ function Reports({ onChange }: { onChange: () => void }) {
 
   return (
     <View style={{ gap: t.space[3] }}>
+      <AdminTakedowns onChange={onChange} />
       <DecisionGuide />
       <AdminAppeals onChange={onChange} />
       <View style={{ flexDirection: 'row', gap: t.space[2] }}>
