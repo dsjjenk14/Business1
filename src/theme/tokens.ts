@@ -119,8 +119,8 @@ export type Theme = {
     controls?: 'soft' | 'ticket';
     /** circle = round profile photos; squircle = rounded squares. */
     avatarShape?: 'circle' | 'squircle';
-    /** How badges and tier chips look. */
-    badge: 'pill' | 'credential';
+    /** How badges and tier chips look. words = no box, a colored dot and the word; sticker = solid round sticker. */
+    badge: 'pill' | 'credential' | 'words' | 'sticker';
     /** Uppercase small labels ("GOING OUT TONIGHT"). */
     uppercaseLabels: boolean;
     /** Use the mono font for counts and scores. */

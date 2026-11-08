@@ -1,18 +1,18 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import type { BottomTabBarProps } from 'expo-router/tabs';
 import { Pressable, View } from 'react-native';
 
-import { AppText, type IconName } from '@/components/ui';
+import { AppText, Glyph, type GlyphName } from '@/components/ui';
 import { useNewOuts } from '@/features/outs/useNewOuts';
 import { haptic } from '@/lib/haptics';
 import { useTheme, fontStyle } from '@/theme';
 
-const TABS: Record<string, { label: string; icon: IconName; iconActive: IconName }> = {
-  index: { label: 'Home', icon: 'home-outline', iconActive: 'home' },
-  pins: { label: 'Pins', icon: 'pin-outline', iconActive: 'pin' },
-  outs: { label: 'Outs', icon: 'camera-outline', iconActive: 'camera' },
-  tonight: { label: 'Tonight', icon: 'moon-outline', iconActive: 'moon' },
-  circles: { label: 'Insiders', icon: 'people-circle-outline', iconActive: 'people-circle' },
+// The app's own drawn icons (Glyph), not a stock icon set.
+const TABS: Record<string, { label: string; glyph: GlyphName }> = {
+  index: { label: 'Home', glyph: 'home' },
+  pins: { label: 'Pins', glyph: 'pin' },
+  outs: { label: 'Outs', glyph: 'camera' },
+  tonight: { label: 'Tonight', glyph: 'moon' },
+  circles: { label: 'Insiders', glyph: 'people' },
 };
 
 /** The tab bar: Home, Pins, Outs (in the middle, the main button), Tonight, Circles. */
@@ -77,7 +77,7 @@ export function TabBar({ state, emitter, navigateToTab, insets }: BottomTabBarPr
                     borderWidth: raised ? 3 : 0,
                     borderColor: focused ? t.colors.text : t.colors.tabBar,
                   }}>
-                  <Ionicons name={tab.iconActive} size={squircle ? 24 : 20} color={raised || focused ? t.colors.onPrimary : t.colors.primaryText} />
+                  <Glyph name={tab.glyph} size={squircle ? 26 : 22} strokeWidth={2.2} color={raised || focused ? t.colors.onPrimary : t.colors.primaryText} />
                   {outsNew ? (
                     <View
                       accessibilityLabel={`${outsNew} new`}
@@ -86,7 +86,7 @@ export function TabBar({ state, emitter, navigateToTab, insets }: BottomTabBarPr
                   ) : null}
                 </View>
               ) : (
-                <Ionicons name={focused ? tab.iconActive : tab.icon} size={22} color={color} />
+                <Glyph name={tab.glyph} size={24} strokeWidth={focused ? 2.4 : 1.7} color={color} />
               )}
               {ticket ? (
                 <AppText style={{ color, ...fontStyle(t.fonts.bodyMedium), fontSize: 10.5, lineHeight: 13 }}>{tab.label}</AppText>

@@ -43,6 +43,10 @@ Deno.serve(async (req) => {
           // Card saved (free months) or first month paid: the place goes live.
           await rpc('place_claim_activate', { p_claim: Number(meta.claim_id), p_subscription: o.subscription });
         }
+        if (meta.kind === 'background_check' && o.payment_status === 'paid' && /^\d+$/.test(meta.check_id ?? '')) {
+          // Fee paid: the check moves on to the background-check company.
+          await rpc('background_check_paid', { p_check: Number(meta.check_id) });
+        }
         if (meta.kind === 'drinks' && o.payment_status === 'paid' && UUID.test(meta.user_id ?? '')) {
           // Credit exactly what was paid, once per checkout.
           await rpc('wallet_credit', { p_user: meta.user_id, p_cents: o.amount_total, p_session: o.id });

@@ -1,4 +1,4 @@
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 
 import { BackHeader } from '@/components/nav/AppHeader';
@@ -15,6 +15,7 @@ const STATUS: Record<MyReport['status'], { label: string; tone: 'sponsored' | 'a
 
 /** Reports you've filed and where they stand. Moderator notes are never shown. */
 export default function MyReports() {
+  const router = useRouter();
   const [list, setList] = useState<MyReport[] | null>(null);
   useFocusEffect(
     useCallback(() => {
@@ -29,12 +30,15 @@ export default function MyReports() {
         <AppText tone="muted">We review reports promptly, usually within 24 hours. If you&apos;re in danger, call 911.</AppText>
         {list?.length === 0 ? <AppText tone="subtle">You haven&apos;t filed any reports.</AppText> : null}
         {list?.map((r) => (
-          <Card key={r.id}>
+          <Card key={r.id} onPress={() => router.push(`/settings/report/${r.id}`)} accessibilityLabel={`Open your report: ${REPORT_REASONS.find((x) => x.key === r.reason)?.label ?? r.reason}`}>
             <AppText weight="bold">{REPORT_REASONS.find((x) => x.key === r.reason)?.label ?? r.reason}</AppText>
             <AppText variant="small" tone="muted">
               {r.about === 'member' ? 'Member' : r.about === 'pin' ? 'Pin' : r.about === 'message' ? 'Message' : 'Reply'} by {r.reported_name ?? 'a deleted account'} · {timeAgo(r.created_at)}
             </AppText>
             <Badge label={STATUS[r.status].label} tone={STATUS[r.status].tone} />
+            <AppText variant="caption" tone="subtle">
+              Tap to see messages from our team or add details
+            </AppText>
           </Card>
         ))}
       </Screen>

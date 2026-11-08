@@ -123,7 +123,7 @@ export default function Verification() {
                   {challenge.gesture}
                 </AppText>
                 <AppText variant="small" tone="muted">
-                  Face the camera in good light. The gesture proves it&apos;s a live photo of you. Only reviewers see it.
+                  Face the camera in good light. The gesture proves it&apos;s a live photo of you. Take it within 10 minutes. Only reviewers see it.
                 </AppText>
                 {selfie ? (
                   <Image source={{ uri: selfie }} style={{ width: 160, height: 200, borderRadius: t.radius.md, alignSelf: 'center' }} contentFit="cover" />

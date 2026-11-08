@@ -10,6 +10,7 @@
  * POST { action: 'drink_credit', cents } → { url } (buy drink credit: a pack from DRINK_PACKS)
  * POST { action: 'drink_cashout' } → { cents } (send a host's drink earnings to their bank)
  * POST { action: 'place_subscribe' } → { url } (Claim your place: $49/month, free months for the first places)
+ * POST { action: 'background_check' } → { url } (pay the one-time fee for the check you just started)
  * GET  ?done=… : where Stripe sends people back; redirects into the app.
  *
  * Off until the STRIPE_SECRET_KEY function secret is set (docs/PAYMENTS.md).
@@ -58,6 +59,8 @@ Deno.serve(async (req) => {
           ? 'imin://premium?paid=1'
           : done === 'place'
             ? 'imin://places/claim?paid=1'
+          : done === 'background_check'
+            ? 'imin://safety/background-check?paid=1'
           : done === 'payouts'
             ? 'imin://settings/payouts'
             : done === 'drinks'
@@ -219,6 +222,27 @@ Deno.serve(async (req) => {
         );
         await rpc('stripe_ticket_refunded', { p_payment_intent: check.payment_intent });
         return json({ refunded: true });
+      }
+      case 'background_check': {
+        // Pays for the check this member started (start_background_check), at the price in app_config.
+        const { data: checks } = await adminRest<{ id: number }[]>(
+          `background_checks?select=id&user_id=eq.${caller.id}&status=eq.awaiting_payment&order=created_at.desc&limit=1`,
+        );
+        const checkId = checks?.[0]?.id;
+        if (!checkId) return json({ error: 'Start your background check first.' }, 400);
+        const { data: cfg } = await adminRest<{ value: unknown }[]>(`app_config?select=value&key=eq.background_check_price_cents`);
+        const cents = Number(cfg?.[0]?.value ?? 1999);
+        const session = await stripe<{ url: string }>('/checkout/sessions', {
+          mode: 'payment',
+          client_reference_id: caller.id,
+          customer_email: (await emailOf(caller.id)) ?? undefined,
+          line_items: [{ quantity: 1, price_data: { currency: 'usd', unit_amount: cents, product_data: { name: 'I’m In background check' } } }],
+          metadata: { kind: 'background_check', user_id: caller.id, check_id: String(checkId) },
+          expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
+          success_url: back('background_check'),
+          cancel_url: back('cancel'),
+        });
+        return json({ url: session.url });
       }
       case 'drink_credit': {
         const cents = Number(body.cents);

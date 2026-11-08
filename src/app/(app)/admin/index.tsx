@@ -1,45 +1,26 @@
 import * as Location from 'expo-location';
-import { Image } from 'expo-image';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Linking, View } from 'react-native';
 
 import { AdminClaims, AdminVerifiedHosts } from '@/components/admin/AdminClaims';
+import { AdminAppeals, DecisionGuide } from '@/components/admin/Moderation';
+import { AdminTakedowns } from '@/components/admin/AdminTakedowns';
+import { AdminNotable } from '@/components/admin/AdminNotable';
+import { PhotoChecks } from '@/components/admin/PhotoChecks';
+import { PhotoReviewers } from '@/components/admin/PhotoReviewers';
+import { ReportEvidence } from '@/components/admin/ReportEvidence';
+import { ReporterAnswers, SendToPolice } from '@/components/admin/ReportFollowup';
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Badge, Button, Card, Chip, EmptyState, Glyph, LoadingList, Screen, Section, Segmented, Skeleton, TextField, useToast, type GlyphName } from '@/components/ui';
-import {
-  actOnReport,
-  addPlacement,
-  addVenue,
-  endPlacement,
-  fetchInquiries,
-  fetchLaunchMetrics,
-  fetchOverview,
-  fetchPlacements,
-  fetchReports,
-  fetchRevenue,
-  fetchUsage,
-  fetchVenues,
-  fetchVerifications,
-  grantPremium,
-  reviewVerification,
-  setInquiryStatus,
-  signedSelfie,
-  type AdminReport,
-  type AdminVenue,
-  type AdminVerification,
-  type Inquiry,
-  type LaunchMetrics,
-  type Overview,
-  type Placement,
-  type RevenueRow,
-  type UsageRow,
-} from '@/features/admin/api';
+import { AppText, Badge, Button, Card, Chip, EmptyState, Glyph, LoadingList, Screen, Section, Segmented, TextField, useToast, type GlyphName } from '@/components/ui';
+import { actOnReport, addPlacement, clearHold, addVenue, endPlacement, fetchInquiries, fetchLaunchMetrics, fetchOverview, fetchPlacements, fetchReports, fetchRevenue, fetchUsage, fetchVenues, grantPremium, setInquiryStatus, type AdminReport, type AdminVenue, type Inquiry, type LaunchMetrics, type Overview, type Placement, type RevenueRow, type UsageRow, memberAction } from '@/features/admin/api';
 import { setVenueManager } from '@/features/places/specials';
+import { REPORT_REASONS } from '@/features/safety/api';
 import { money } from '@/features/payments/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { timeAgo } from '@/lib/time';
+import { confirmThen } from '@/lib/confirm';
 import { useTheme } from '@/theme';
 
 type Tab = 'launch' | 'reports' | 'verify' | 'places' | 'more';
@@ -178,6 +159,31 @@ function Reports({ onChange }: { onChange: () => void }) {
   }, []);
   useEffect(load, [load]);
 
+  const member = (r: AdminReport, action: 'warn' | 'suspend' | 'ban', days: number | undefined, done: string) =>
+    run(() => memberAction(r.id, action, days), done).then(() => {
+      load();
+      onChange();
+    });
+  const removeMember = (r: AdminReport) =>
+    confirmThen(
+      `Remove ${r.reported_name ?? 'this member'} from I’m In?`,
+      'Their posts are hidden, they can’t use the app, and everyone who vouched for them is told. The person who reported them is never named.',
+      () => member(r, 'ban', undefined, 'Removed from the app'),
+      'Remove',
+    );
+
+  const releaseHold = (r: AdminReport) =>
+    confirmThen(
+      `Clear the hold on ${r.reported_name ?? 'this member'}?`,
+      'They can use I’m In again. Do this only if the report didn’t hold up.',
+      () =>
+        run(() => clearHold(r.reported_id as string), 'Hold cleared').then(() => {
+          load();
+          onChange();
+        }),
+      'Clear hold',
+    );
+
   const act = (r: AdminReport, action: 'resolve' | 'remove' | 'restore' | 'dismiss', done: string) =>
     run(() => actOnReport(r.id, action), done).then(() => {
       load();
@@ -189,17 +195,31 @@ function Reports({ onChange }: { onChange: () => void }) {
 
   return (
     <View style={{ gap: t.space[3] }}>
+      <AdminTakedowns onChange={onChange} />
+      <DecisionGuide />
+      <AdminAppeals onChange={onChange} />
       <View style={{ flexDirection: 'row', gap: t.space[2] }}>
         <Chip label={`Open (${open.length})`} selected={!showClosed} onPress={() => setShowClosed(false)} />
         <Chip label="All" selected={showClosed} onPress={() => setShowClosed(true)} />
       </View>
       {rows === null ? <LoadingList rows={2} /> : list.length === 0 ? <AppText tone="muted">Nothing waiting. Nice.</AppText> : null}
-      {list.map((r) => (
+      {list.map((r) => {
+        const live = r.status === 'open' || r.status === 'reviewing';
+        const label = REPORT_REASONS.find((x) => x.key === r.reason)?.label ?? r.reason;
+        const pattern = r.independent_reporters >= 2;
+        return (
         <Card key={r.id} accent={r.status === 'open' ? 'primary' : undefined}>
           <View style={{ gap: t.space[2] }}>
+            {r.priority <= 2 || r.on_hold || pattern ? (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+                {r.priority <= 2 ? <Pill label={r.priority === 1 ? 'Urgent' : 'Serious'} strong={r.priority === 1} /> : null}
+                {r.on_hold ? <Pill label="On hold" /> : null}
+                {pattern ? <Pill label={`${r.independent_reporters} different people reported them`} strong={r.priority <= 2} /> : null}
+              </View>
+            ) : null}
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: t.space[2] }}>
               <AppText weight="bold" style={{ flex: 1 }}>
-                {r.reason} · {r.about} by {r.reported_name ?? 'deleted account'}
+                {label} · {r.about === 'member' ? 'about' : `${r.about} by`} {r.reported_name ?? 'deleted account'}
               </AppText>
               <AppText variant="caption" tone="subtle">
                 {timeAgo(r.created_at)}
@@ -223,7 +243,15 @@ function Reports({ onChange }: { onChange: () => void }) {
               {r.reports_on_target} report{r.reports_on_target === 1 ? '' : 's'} on this member in total · {r.status}
               {r.hidden ? ' · content hidden' : ''}
             </AppText>
-            {r.status === 'open' || r.status === 'reviewing' ? (
+            {pattern && r.priority <= 2 && live ? (
+              <AppText variant="small" weight="bold" style={{ color: t.colors.danger }}>
+                More than one person reported something serious. The guide says remove.
+              </AppText>
+            ) : null}
+            <ReporterAnswers r={r} onChange={load} />
+            {r.reported_id ? <ReportEvidence reportId={r.id} /> : null}
+            {r.priority <= 2 && r.reported_id ? <SendToPolice r={r} onChange={load} /> : null}
+            {live ? (
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
                 {r.pin_id || r.reply_id ? (
                   r.hidden ? (
@@ -236,9 +264,55 @@ function Reports({ onChange }: { onChange: () => void }) {
                 <Button label="Dismiss" size="md" variant="ghost" onPress={() => act(r, 'dismiss', 'Dismissed')} disabled={busy} />
               </View>
             ) : null}
+            {r.status === 'open' || r.status === 'reviewing' ? (
+              <View style={{ gap: t.space[2] }}>
+                <AppText variant="caption" weight="bold" tone="muted">
+                  Action on the member (they&apos;re never told who reported them)
+                </AppText>
+                {r.on_hold ? (
+                  <AppText variant="small" tone="muted">
+                    Already on hold, so they can&apos;t use the app. Remove them, or clear the hold if the report didn&apos;t hold up.
+                  </AppText>
+                ) : null}
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+                  {r.on_hold ? null : (
+                    <>
+                      <Button label="Warn" size="md" variant="secondary" onPress={() => member(r, 'warn', undefined, 'Warning sent')} disabled={busy} />
+                      <Button label="Suspend 7 days" size="md" variant="secondary" onPress={() => member(r, 'suspend', 7, 'Suspended 7 days')} disabled={busy} />
+                      <Button label="Suspend 30 days" size="md" variant="secondary" onPress={() => member(r, 'suspend', 30, 'Suspended 30 days')} disabled={busy} />
+                    </>
+                  )}
+                  <Button label="Remove from app" size="md" variant="danger" onPress={() => removeMember(r)} disabled={busy} />
+                  {r.on_hold ? <Button label="Clear hold" size="md" variant="ghost" onPress={() => releaseHold(r)} disabled={busy} /> : null}
+                </View>
+              </View>
+            ) : r.on_hold ? (
+              <Button label="Clear hold" size="md" variant="ghost" onPress={() => releaseHold(r)} disabled={busy} />
+            ) : null}
           </View>
         </Card>
-      ))}
+        );
+      })}
+    </View>
+  );
+}
+
+/** A small label on a report: how serious it is, or that the member is on hold. */
+function Pill({ label, strong }: { label: string; strong?: boolean }) {
+  const t = useTheme();
+  return (
+    <View
+      style={{
+        paddingHorizontal: t.space[2],
+        paddingVertical: 2,
+        borderRadius: t.radius.pill,
+        backgroundColor: strong ? t.colors.danger : t.colors.surfaceAlt,
+        borderWidth: strong ? 0 : t.borderWidth.hairline,
+        borderColor: t.colors.border,
+      }}>
+      <AppText variant="caption" weight="bold" style={{ color: strong ? '#FFFFFF' : t.colors.text }}>
+        {label}
+      </AppText>
     </View>
   );
 }
@@ -246,72 +320,10 @@ function Reports({ onChange }: { onChange: () => void }) {
 // ── Photo verification ──────────────────────────────────────────────────────
 function Verify({ onChange }: { onChange: () => void }) {
   const t = useTheme();
-  const { busy, run } = useRun();
-  const [rows, setRows] = useState<AdminVerification[] | null>(null);
-  const [urls, setUrls] = useState<Record<number, string>>({});
-  const [note, setNote] = useState('');
-  const load = useCallback(() => {
-    fetchVerifications()
-      .then(async (r) => {
-        setRows(r);
-        const entries = await Promise.all(r.map(async (x) => [x.id, x.selfie_path ? await signedSelfie(x.selfie_path) : null] as const));
-        setUrls(Object.fromEntries(entries.filter((e) => e[1]).map(([k, v]) => [k, v as string])));
-      })
-      .catch(() => setRows([]));
-  }, []);
-  useEffect(load, [load]);
-
-  const review = (id: number, approve: boolean) =>
-    run(() => reviewVerification(id, approve, approve ? undefined : note || 'The selfie didn’t match your profile photos, or the gesture wasn’t clear.'), approve ? 'Approved' : 'Declined').then(() => {
-      setNote('');
-      load();
-      onChange();
-    });
-
   return (
     <View style={{ gap: t.space[3] }}>
-      {rows === null ? <LoadingList rows={2} /> : rows.length === 0 ? <AppText tone="muted">No photo checks waiting.</AppText> : null}
-      {(rows ?? []).map((r) => (
-        <Card key={r.id}>
-          <View style={{ gap: t.space[3] }}>
-            <AppText weight="bold">
-              {r.display_name} · {r.vouch_count} vouches
-            </AppText>
-            <AppText variant="small" tone="ai">
-              Asked to: {r.gesture}
-            </AppText>
-            <View style={{ flexDirection: 'row', gap: t.space[3] }}>
-              <View style={{ flex: 1, gap: 4 }}>
-                <AppText variant="caption" tone="subtle">
-                  Selfie
-                </AppText>
-                {urls[r.id] ? (
-                  <Image source={{ uri: urls[r.id] }} style={{ width: '100%', aspectRatio: 0.8, borderRadius: t.radius.md }} contentFit="cover" />
-                ) : (
-                  <Skeleton height={200} radius={t.radius.md} />
-                )}
-              </View>
-              <View style={{ flex: 1, gap: 4 }}>
-                <AppText variant="caption" tone="subtle">
-                  Profile photo
-                </AppText>
-                {r.avatar_url ? (
-                  <Image source={{ uri: r.avatar_url }} style={{ width: '100%', aspectRatio: 0.8, borderRadius: t.radius.md }} contentFit="cover" />
-                ) : (
-                  <AppText variant="caption" tone="sponsored">
-                    No profile photo. Decline and ask them to add one.
-                  </AppText>
-                )}
-              </View>
-            </View>
-            <TextField label="Note if declining" optional value={note} onChangeText={setNote} maxLength={200} />
-            <View style={{ flexDirection: 'row', gap: t.space[2] }}>
-              <Button label="Approve" size="md" variant="trust" style={{ flex: 1 }} onPress={() => review(r.id, true)} disabled={busy} />
-              <Button label="Decline" size="md" variant="secondary" style={{ flex: 1 }} onPress={() => review(r.id, false)} disabled={busy} />
-            </View>
-          </View>
-        </Card>
-      ))}
+      <AdminNotable />
+      <PhotoChecks onChange={onChange} />
     </View>
   );
 }
@@ -572,6 +584,7 @@ function More({ onChange }: { onChange: () => void }) {
 
   return (
     <View style={{ gap: t.space[4] }}>
+      <PhotoReviewers />
       <Section title="Ticket fees (what I’m In kept)">
         {revenue.length === 0 ? (
           <AppText tone="muted">No ticket sales yet.</AppText>

@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Avatar, Button, Card, Chip, GlyphTitle, Screen, useToast } from '@/components/ui';
+import { AppText, Avatar, Button, Card, Chip, GlyphTitle, Screen, useCelebrate, useToast, LegalNote } from '@/components/ui';
 import { checkIn, fetchCircle, fetchMeetups, fetchVouchWords, giveVouch, vouchesLeftLabel, vouchFromContacts, type Meetup } from '@/features/circles/api';
 import { canPickContacts, pickContactPhones } from '@/features/circles/contacts';
 import { fetchProfileCard } from '@/features/profiles/api';
@@ -21,6 +21,7 @@ import { useTheme } from '@/theme';
 export default function Vouch() {
   const t = useTheme();
   const toast = useToast();
+  const [celebration, celebrate] = useCelebrate();
   const { session } = useAuth();
   const params = useLocalSearchParams<{ user?: string }>();
   const me = session?.user.id;
@@ -86,7 +87,7 @@ export default function Vouch() {
     setBusy(true);
     try {
       await giveVouch(me, chosen.user_id, wordId, chosen.encounter_id);
-      toast(`You vouched for ${chosen.display_name}`);
+      celebrate('Vouched', `for ${chosen.display_name}`);
       setSelected(null);
       setWordId(null);
       await refresh();
@@ -109,7 +110,7 @@ export default function Vouch() {
         return;
       }
       if (await vouchFromContacts(person.id, contactWordId, phones)) {
-        toast(`You vouched for ${person.name}`);
+        celebrate('Vouched', `for ${person.name}`);
         setContactWordId(null);
         await refresh();
       } else {
@@ -221,6 +222,7 @@ export default function Vouch() {
                 loading={busy}
                 disabled={!wordId || left === 0}
               />
+              <LegalNote doc="guidelines">A vouch is your honest, personal opinion, and it shows on their profile.</LegalNote>
               {left === 0 ? (
                 <AppText variant="caption" tone="danger">
                   You&apos;ve used your 5 vouches for this month. You get more on the 1st, or go unlimited with Premium.
@@ -284,6 +286,7 @@ export default function Vouch() {
           </View>
         ) : null}
       </Screen>
+      {celebration}
     </>
   );
 }

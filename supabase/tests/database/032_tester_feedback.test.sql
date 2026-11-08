@@ -4,6 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 select plan(33);
+update app_config set value = 'false' where key = 'photo_check_required'; -- tests that aren't about the photo check
 
 create or replace function pg_temp.new_user(p_email text, p_name text, p_birth date default '1990-01-01') returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();

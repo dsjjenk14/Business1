@@ -27,6 +27,7 @@ export default function Settings() {
         { label: 'Edit profile', icon: 'person-outline', href: '/settings/profile' },
         { label: 'Premium', icon: 'star-outline', href: '/premium', detail: 'Get Premium, or manage it' },
         { label: 'Vouches you gave', icon: 'ribbon-outline', href: '/settings/vouches', detail: 'Take back a vouch' },
+        { label: 'Notable', icon: 'person-circle-outline', href: '/settings/notable', detail: 'For public figures' },
         { label: 'My tickets', icon: 'ticket-outline', href: '/settings/tickets' },
         { label: 'Payouts', icon: 'cash-outline', href: '/settings/payouts', detail: 'Sell tickets to your events' },
         ...(drinksOn
@@ -44,6 +45,7 @@ export default function Settings() {
         { label: 'Blocked members', icon: 'ban-outline', href: '/settings/blocked' },
         { label: 'Hidden and muted', icon: 'eye-off-outline', href: '/settings/hidden' },
         { label: 'My reports', icon: 'flag-outline', href: '/settings/reports' },
+        { label: 'Remove an intimate image', icon: 'close-circle-outline', href: '/remove-image' },
       ],
     },
     {

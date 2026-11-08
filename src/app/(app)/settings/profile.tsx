@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, Switch, View } from 'react-native';
@@ -6,7 +7,7 @@ import { BackHeader } from '@/components/nav/AppHeader';
 import { MusicPicker } from '@/components/music/MusicPicker';
 import { InterestsPicker } from '@/components/profile/InterestsPicker';
 import { PromptsEditor } from '@/components/profile/PromptsEditor';
-import { AppText, Avatar, Button, Chip, Screen, TextField, useToast } from '@/components/ui';
+import { AppText, Avatar, Button, Screen, TextField, useToast } from '@/components/ui';
 import { useAppConfig } from '@/config/useAppConfig';
 import { setProfileSong, type Song } from '@/features/music/api';
 import { setProfilePrompts } from '@/features/profiles/api';
@@ -18,10 +19,17 @@ import { goBackOr } from '@/lib/navigation';
 
 /** Edit your photo, name, headline, bio, pronouns, area, interests, and whether your age shows. */
 export default function EditProfile() {
+  const { profile } = useAuth();
+  // Wait for the profile before building the form, so the boxes start filled in.
+  if (!profile) return <BackHeader title="Edit profile" />;
+  return <EditProfileForm key={profile.id} profile={profile} />;
+}
+
+function EditProfileForm({ profile }: { profile: NonNullable<ReturnType<typeof useAuth>['profile']> }) {
   const t = useTheme();
   const router = useRouter();
   const toast = useToast();
-  const { profile, refreshProfile } = useAuth();
+  const { refreshProfile } = useAuth();
   const { cities } = useAppConfig();
 
   const [displayName, setDisplayName] = useState(profile?.display_name ?? '');
@@ -32,13 +40,12 @@ export default function EditProfile() {
   const [neighborhood, setNeighborhood] = useState(profile?.neighborhood ?? '');
   const [cityId, setCityId] = useState<number | null>(profile?.city_id ?? null);
   const [showAge, setShowAge] = useState(profile?.show_age ?? true);
+  const [showArea, setShowArea] = useState(profile?.show_area ?? true);
   const [interests, setInterests] = useState<string[]>(profile?.interests ?? []);
   const [song, setSong] = useState<Song | null>((profile?.song as Song | null) ?? null);
   const [prompts, setPrompts] = useState<ProfilePrompt[]>((profile?.prompts as ProfilePrompt[] | null) ?? []);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  if (!profile) return <BackHeader title="Edit profile" />;
 
   async function save() {
     if (!profile) return;
@@ -60,6 +67,7 @@ export default function EditProfile() {
           neighborhood: neighborhood.trim() || null,
           city_id: cityId,
           show_age: showAge,
+          show_area: showArea,
           interests,
         })
         .eq('id', profile.id);
@@ -108,11 +116,40 @@ export default function EditProfile() {
           <AppText variant="small" weight="medium" tone="muted">
             City
           </AppText>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
-            {cities.map((c) => (
-              <Chip key={c.id} label={c.name} selected={cityId === c.id} onPress={() => setCityId(c.id)} />
-            ))}
+          {/* Cities as plain words next to a pin. Tap again to clear. */}
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: t.space[4] }}>
+            {cities.map((c) => {
+              const on = cityId === c.id;
+              return (
+                <Pressable
+                  key={c.id}
+                  accessibilityRole="radio"
+                  accessibilityState={{ selected: on }}
+                  onPress={() => setCityId(on ? null : c.id)}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 4, minHeight: 40 }}>
+                  <Ionicons name={on ? 'location' : 'location-outline'} size={16} color={on ? t.colors.primary : t.colors.textSubtle} />
+                  <AppText weight={on ? 'bold' : 'regular'} style={{ color: on ? t.colors.text : t.colors.textMuted }}>
+                    {c.name}
+                  </AppText>
+                </Pressable>
+              );
+            })}
           </View>
+        </View>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+          <View style={{ flex: 1 }}>
+            <AppText weight="bold">Show my area on my profile</AppText>
+            <AppText variant="small" tone="muted">
+              Off hides your neighborhood and city. We still use your city to show what&apos;s nearby.
+            </AppText>
+          </View>
+          <Switch
+            accessibilityLabel="Show my area on my profile"
+            value={showArea}
+            onValueChange={setShowArea}
+            trackColor={{ true: t.colors.primary, false: t.colors.surfaceAlt }}
+          />
         </View>
 
         <InterestsPicker value={interests} onChange={setInterests} />

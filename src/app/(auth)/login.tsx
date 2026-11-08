@@ -86,6 +86,11 @@ export default function Login() {
           <View style={{ flex: 1, height: 1, backgroundColor: t.colors.border }} />
         </View>
         <Button label="Create an Account" variant="secondary" onPress={() => router.replace('/signup')} />
+        <Pressable accessibilityRole="link" onPress={() => router.push('/remove-image')} style={{ alignSelf: 'center' }} hitSlop={10}>
+          <AppText variant="small" tone="subtle" style={{ textDecorationLine: 'underline' }}>
+            Remove an intimate image of you from I’m In
+          </AppText>
+        </Pressable>
       </Screen>
     </KeyboardAvoidingView>
   );

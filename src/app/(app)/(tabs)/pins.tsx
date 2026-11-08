@@ -56,9 +56,19 @@ export default function Pins() {
     }
   }, [tab, category, effectiveRadius, location?.lat, location?.lng]);
 
-  // Loads on first view, whenever filters change, and when coming back from a thread or New Pin.
+  // Loads on first view and whenever filters change. Coming back within a minute (from a
+  // thread, a profile) keeps the list as it was, so you stay where you were scrolled to.
+  const lastLoad = useRef<{ fn: typeof load; at: number } | null>(null);
+  // After posting, coming back shows your new pin.
+  const newPin = () => {
+    lastLoad.current = null;
+    router.push('/pins/new');
+  };
   useFocusEffect(
     useCallback(() => {
+      const last = lastLoad.current;
+      if (last && last.fn === load && Date.now() - last.at < 60_000) return;
+      lastLoad.current = { fn: load, at: Date.now() };
       load();
     }, [load]),
   );
@@ -101,7 +111,7 @@ export default function Pins() {
         </AppText>
         <IconButton icon="flame-outline" label="What's In: trending" onPress={() => router.push('/whats-in')} />
         <IconButton icon="bookmark-outline" label="Bookmarks" onPress={() => router.push('/pins/bookmarks')} />
-        <IconButton icon="create-outline" label="New pin" onPress={() => router.push('/pins/new')} />
+        <IconButton icon="create-outline" label="New pin" onPress={newPin} />
       </View>
 
       <Segmented<Tab>
@@ -200,7 +210,7 @@ export default function Pins() {
               glyph="pin"
               title="Nothing here yet"
               body={tab === 'nearby' ? `No pins within ${effectiveRadius} miles yet. Widen the radius, or be the first to drop one.` : 'No pins in this category yet.'}
-              action={{ label: 'Drop a pin', onPress: () => router.push('/pins/new') }}
+              action={{ label: 'Drop a pin', onPress: newPin }}
             />
           )
         }
@@ -219,7 +229,7 @@ export default function Pins() {
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="New pin"
-        onPress={() => router.push('/pins/new')}
+        onPress={newPin}
         style={({ pressed }) => ({
           position: 'absolute',
           right: t.space[4],

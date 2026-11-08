@@ -7,6 +7,7 @@ create extension if not exists pgtap with schema extensions;
 update app_config set value = '0' where key = 'safety_min_vouches';
 alter table user_settings alter column here_delay_minutes set default 0;
 select plan(31);
+update app_config set value = 'false' where key = 'photo_check_required'; -- tests that aren't about the photo check
 
 -- Test members are on the free plan (no founding Premium) unless a test says otherwise.
 update app_config set value = '0' where key = 'founding_member_limit';
@@ -135,12 +136,12 @@ select lives_ok($$ insert into messages (conversation_id, sender_id, body)
   values ((select id from conversations where group_id = (select id from groups where name = 'Run Club')), pg_temp.uid('bo'), 'See you Saturday') $$,
   'Members can post in the group chat');
 select pg_temp.act_as('ana');
-select lives_ok($$ select report('harassment', '', p_message => (select id from messages where body = 'See you Saturday')) $$,
+select lives_ok($$ select report('harassment', 'Rude to me', p_message => (select id from messages where body = 'See you Saturday')) $$,
   'A member can report a chat message');
 select pg_temp.admin();
 select set_config('test.msg', (select max(id)::text from messages), true);
 select pg_temp.act_as('cy');
-select throws_ok($$ select report('harassment', '', p_message => current_setting('test.msg')::bigint) $$, '23514', 'Nothing to report.',
+select throws_ok($$ select report('harassment', 'Rude to me', p_message => current_setting('test.msg')::bigint) $$, '23514', 'Nothing to report.',
   'You can''t report messages from chats you''re not in');
 
 select * from finish();

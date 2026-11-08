@@ -27,6 +27,7 @@ export type Database = {
                   Row: {
                     "created_at": string,"created_by": string | null,"expires_at": string,"feature": string,"person_id": string | null,"result": NonNullable<Json>,"scope": string,"subject": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"created_by"?: string | null,"expires_at": string,"feature": string,"person_id"?: string | null,"result": NonNullable<Json>,"scope": string,"subject"?: string
                   }
@@ -40,6 +41,7 @@ export type Database = {
                   Row: {
                     "created_at": string,"feature": string,"id": number,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"feature": string,"id"?: never,"user_id": string
                   }
@@ -53,6 +55,7 @@ export type Database = {
                   Row: {
                     "created_at": string,"id": number,"name": string,"props": NonNullable<Json>,"user_id": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"id"?: number,"name": string,"props"?: NonNullable<Json>,"user_id"?: string | null
                   }
@@ -72,6 +75,7 @@ isOneToOne: false
                   Row: {
                     "description": string,"key": string,"value": NonNullable<Json>
                   }
+                  ComputedFields: never
                   Insert: {
                     "description"?: string,"key": string,"value": NonNullable<Json>
                   }
@@ -81,10 +85,51 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"appeals": {
+                  Row: {
+                    "created_at": string,"decided_at": string | null,"id": number,"message": string,"status": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"decided_at"?: string | null,"id"?: never,"message": string,"status"?: string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"decided_at"?: string | null,"id"?: never,"message"?: string,"status"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "appeals_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"background_checks": {
+                  Row: {
+                    "completed_at": string | null,"consented_at": string,"created_at": string,"id": number,"paid_with": string,"provider": string | null,"provider_ref": string | null,"status": Database["public"]['Enums']["background_check_status"],"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "completed_at"?: string | null,"consented_at"?: string,"created_at"?: string,"id"?: never,"paid_with": string,"provider"?: string | null,"provider_ref"?: string | null,"status": Database["public"]['Enums']["background_check_status"],"user_id": string
+                  }
+                  Update: {
+                    "completed_at"?: string | null,"consented_at"?: string,"created_at"?: string,"id"?: never,"paid_with"?: string,"provider"?: string | null,"provider_ref"?: string | null,"status"?: Database["public"]['Enums']["background_check_status"],"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "background_checks_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"bill_shares": {
                   Row: {
                     "amount_cents": number,"bill_id": number,"paid_at": string | null,"reminded_at": string | null,"settled_at": string | null,"status": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "amount_cents": number,"bill_id": number,"paid_at"?: string | null,"reminded_at"?: string | null,"settled_at"?: string | null,"status"?: string,"user_id": string
                   }
@@ -110,6 +155,7 @@ isOneToOne: false
                   Row: {
                     "canceled_at": string | null,"created_at": string,"creator_id": string,"event_id": number | null,"id": number,"note": string | null,"receipt_path": string | null,"split": string,"tip_cents": number,"title": string,"total_cents": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "canceled_at"?: string | null,"created_at"?: string,"creator_id": string,"event_id"?: number | null,"id"?: number,"note"?: string | null,"receipt_path"?: string | null,"split": string,"tip_cents"?: number,"title": string,"total_cents": number
                   }
@@ -135,6 +181,7 @@ isOneToOne: false
                   Row: {
                     "blocked_id": string,"blocker_id": string,"created_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "blocked_id": string,"blocker_id": string,"created_at"?: string
                   }
@@ -160,6 +207,7 @@ isOneToOne: false
                   Row: {
                     "option": number,"poll_id": number,"user_id": string,"voted_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "option": number,"poll_id": number,"user_id": string,"voted_at"?: string
                   }
@@ -185,6 +233,7 @@ isOneToOne: false
                   Row: {
                     "conversation_id": number,"created_at": string,"created_by": string,"id": number,"options": (string)[],"question": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "conversation_id": number,"created_at"?: string,"created_by": string,"id"?: never,"options": (string)[],"question": string
                   }
@@ -210,6 +259,7 @@ isOneToOne: false
                   Row: {
                     "active": boolean,"center": unknown,"id": number,"metro": string,"name": string,"region": string,"slug": string,"sort": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "active"?: boolean,"center": unknown,"id"?: number,"metro"?: string,"name": string,"region": string,"slug": string,"sort"?: number
                   }
@@ -223,6 +273,7 @@ isOneToOne: false
                   Row: {
                     "code": string,"created_at": string,"expires_at": string,"kind": string,"owner_id": string,"used_at": string | null,"used_by": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "code": string,"created_at"?: string,"expires_at": string,"kind": string,"owner_id": string,"used_at"?: string | null,"used_by"?: string | null
                   }
@@ -248,6 +299,7 @@ isOneToOne: false
                   Row: {
                     "connector_id": string | null,"created_at": string,"source": Database["public"]['Enums']["connection_source"],"user_a": string,"user_b": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "connector_id"?: string | null,"created_at"?: string,"source": Database["public"]['Enums']["connection_source"],"user_a": string,"user_b": string
                   }
@@ -279,6 +331,7 @@ isOneToOne: false
                   Row: {
                     "conversation_id": number,"last_read_at": string | null,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "conversation_id": number,"last_read_at"?: string | null,"user_id": string
                   }
@@ -304,6 +357,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"created_by": string | null,"direct_a": string | null,"direct_b": string | null,"group_id": number | null,"id": number,"kind": string,"last_message_at": string | null,"name": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"created_by"?: string | null,"direct_a"?: string | null,"direct_b"?: string | null,"group_id"?: number | null,"id"?: number,"kind": string,"last_message_at"?: string | null,"name"?: string | null
                   }
@@ -341,6 +395,7 @@ isOneToOne: true
                   Row: {
                     "created_at": string,"from_id": string,"id": number,"note": string | null,"parent_id": number | null,"place_text": string | null,"responded_at": string | null,"starts_at": string | null,"status": Database["public"]['Enums']["date_status"],"to_id": string,"venue_id": number | null,"vibe": string | null,"when_kind": Database["public"]['Enums']["date_when"]
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"from_id": string,"id"?: number,"note"?: string | null,"parent_id"?: number | null,"place_text"?: string | null,"responded_at"?: string | null,"starts_at"?: string | null,"status"?: Database["public"]['Enums']["date_status"],"to_id": string,"venue_id"?: number | null,"vibe"?: string | null,"when_kind": Database["public"]['Enums']["date_when"]
                   }
@@ -378,6 +433,7 @@ isOneToOne: false
                   Row: {
                     "missed_notified": boolean,"next_checkin_at": string | null,"session_id": number,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "missed_notified"?: boolean,"next_checkin_at"?: string | null,"session_id": number,"user_id": string
                   }
@@ -403,6 +459,7 @@ isOneToOne: false
                   Row: {
                     "activated_at": string | null,"checkin_minutes": number,"created_at": string,"date_request_id": number | null,"distance_m": number | null,"ended_at": string | null,"id": number,"initiator_id": string,"last_problem": string | null,"partner_id": string,"status": Database["public"]['Enums']["date_session_status"]
                   }
+                  ComputedFields: never
                   Insert: {
                     "activated_at"?: string | null,"checkin_minutes"?: number,"created_at"?: string,"date_request_id"?: number | null,"distance_m"?: number | null,"ended_at"?: string | null,"id"?: number,"initiator_id": string,"last_problem"?: string | null,"partner_id": string,"status"?: Database["public"]['Enums']["date_session_status"]
                   }
@@ -434,6 +491,7 @@ isOneToOne: false
                   Row: {
                     "cents": number,"created_at": string,"id": number,"status": string,"stripe_transfer": string | null,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "cents": number,"created_at"?: string,"id"?: never,"status"?: string,"stripe_transfer"?: string | null,"user_id": string
                   }
@@ -453,6 +511,7 @@ isOneToOne: false
                   Row: {
                     "available_cents": number,"lifetime_cents": number,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "available_cents"?: number,"lifetime_cents"?: number,"user_id": string
                   }
@@ -472,6 +531,7 @@ isOneToOne: true
                   Row: {
                     "anonymous": boolean,"cents": number,"created_at": string,"drink_key": string,"event_id": number | null,"from_user": string | null,"host_cents": number,"id": number,"live_id": number | null,"to_user": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "anonymous"?: boolean,"cents": number,"created_at"?: string,"drink_key": string,"event_id"?: number | null,"from_user"?: string | null,"host_cents": number,"id"?: never,"live_id"?: number | null,"to_user": string
                   }
@@ -515,6 +575,7 @@ isOneToOne: false
                   Row: {
                     "cents": number,"key": string,"name": string,"sort": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "cents": number,"key": string,"name": string,"sort"?: number
                   }
@@ -528,6 +589,7 @@ isOneToOne: false
                   Row: {
                     "context": Database["public"]['Enums']["encounter_context"],"created_at": string,"distance_m": number,"event_id": number | null,"id": number,"overlap_end": string,"overlap_start": string,"place_label": string | null,"user_a": string,"user_b": string,"venue_id": number | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "context": Database["public"]['Enums']["encounter_context"],"created_at"?: string,"distance_m": number,"event_id"?: number | null,"id"?: number,"overlap_end": string,"overlap_start": string,"place_label"?: string | null,"user_a": string,"user_b": string,"venue_id"?: number | null
                   }
@@ -563,13 +625,14 @@ isOneToOne: false
                   ]
                 },"entitlements": {
                   Row: {
-                    "premium_until": string | null,"source": string,"updated_at": string,"user_id": string
+                    "premium_since": string | null,"premium_until": string | null,"source": string,"updated_at": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
-                    "premium_until"?: string | null,"source"?: string,"updated_at"?: string,"user_id": string
+                    "premium_since"?: string | null,"premium_until"?: string | null,"source"?: string,"updated_at"?: string,"user_id": string
                   }
                   Update: {
-                    "premium_until"?: string | null,"source"?: string,"updated_at"?: string,"user_id"?: string
+                    "premium_since"?: string | null,"premium_until"?: string | null,"source"?: string,"updated_at"?: string,"user_id"?: string
                   }
                   Relationships: [
                     {
@@ -584,6 +647,7 @@ isOneToOne: true
                   Row: {
                     "event_id": number,"url": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "event_id": number,"url": string
                   }
@@ -603,6 +667,7 @@ isOneToOne: true
                   Row: {
                     "event_id": number,"last_seen": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "event_id": number,"last_seen"?: string,"user_id": string
                   }
@@ -628,6 +693,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"event_id": number,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"event_id": number,"user_id": string
                   }
@@ -653,6 +719,7 @@ isOneToOne: false
                   Row: {
                     "amount_cents": number,"created_at": string,"event_id": number,"fee_cents": number,"id": number,"status": string,"stripe_payment_intent": string | null,"stripe_session_id": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "amount_cents": number,"created_at"?: string,"event_id": number,"fee_cents": number,"id"?: number,"status"?: string,"stripe_payment_intent"?: string | null,"stripe_session_id": string,"user_id": string
                   }
@@ -678,6 +745,7 @@ isOneToOne: false
                   Row: {
                     "author_id": string,"body": string,"created_at": string,"event_id": number,"id": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "author_id": string,"body": string,"created_at"?: string,"event_id": number,"id"?: number
                   }
@@ -703,6 +771,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"event_id": number,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"event_id": number,"user_id": string
                   }
@@ -728,6 +797,7 @@ isOneToOne: false
                   Row: {
                     "approx_location": unknown,"capacity": number | null,"cover_url": string | null,"created_at": string,"description": string,"emoji": string | null,"ends_at": string | null,"format": string,"group_id": number | null,"host_id": string,"id": number,"is_recurring": boolean,"place_text": string | null,"room_kind": string | null,"starts_at": string,"surprise_for": string | null,"tags": (string)[],"ticket_price_cents": number | null,"title": string,"venue_id": number | null,"visibility": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "approx_location"?: unknown,"capacity"?: number | null,"cover_url"?: string | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"format"?: string,"group_id"?: number | null,"host_id": string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"room_kind"?: string | null,"starts_at": string,"surprise_for"?: string | null,"tags"?: (string)[],"ticket_price_cents"?: number | null,"title": string,"venue_id"?: number | null,"visibility"?: string
                   }
@@ -765,6 +835,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"followee_id": string,"follower_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"followee_id": string,"follower_id": string
                   }
@@ -790,6 +861,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"post_id": number,"status": Database["public"]['Enums']["going_out_join_status"],"updated_at": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"post_id": number,"status"?: Database["public"]['Enums']["going_out_join_status"],"updated_at"?: string,"user_id": string
                   }
@@ -815,6 +887,7 @@ isOneToOne: false
                   Row: {
                     "approx_location": unknown,"arrived_at": string | null,"audience": string,"created_at": string,"event_id": number | null,"expires_at": string,"here_audience": string,"id": number,"is_hosting": boolean,"is_priority": boolean,"live_until": string | null,"note": string | null,"open_to_join": boolean,"place_text": string | null,"starts_at": string,"user_id": string,"venue_id": number | null,"vibes": (string)[],"when_kind": Database["public"]['Enums']["going_out_when"]
                   }
+                  ComputedFields: never
                   Insert: {
                     "approx_location"?: unknown,"arrived_at"?: string | null,"audience"?: string,"created_at"?: string,"event_id"?: number | null,"expires_at": string,"here_audience"?: string,"id"?: number,"is_hosting"?: boolean,"is_priority"?: boolean,"live_until"?: string | null,"note"?: string | null,"open_to_join"?: boolean,"place_text"?: string | null,"starts_at": string,"user_id": string,"venue_id"?: number | null,"vibes"?: (string)[],"when_kind": Database["public"]['Enums']["going_out_when"]
                   }
@@ -846,6 +919,7 @@ isOneToOne: false
                   Row: {
                     "post_id": number,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "post_id": number,"user_id": string
                   }
@@ -871,6 +945,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"group_id": number,"invited_by": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"group_id": number,"invited_by": string,"user_id": string
                   }
@@ -902,6 +977,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"group_id": number,"how_found": string | null,"id": number,"reviewed_by": string | null,"status": Database["public"]['Enums']["request_status"],"user_id": string,"why": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"group_id": number,"how_found"?: string | null,"id"?: number,"reviewed_by"?: string | null,"status"?: Database["public"]['Enums']["request_status"],"user_id": string,"why"?: string
                   }
@@ -933,6 +1009,7 @@ isOneToOne: false
                   Row: {
                     "group_id": number,"joined_at": string,"role": Database["public"]['Enums']["group_role"],"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "group_id": number,"joined_at"?: string,"role"?: Database["public"]['Enums']["group_role"],"user_id": string
                   }
@@ -958,6 +1035,7 @@ isOneToOne: false
                   Row: {
                     "announcement": string | null,"announcement_at": string | null,"announcement_by": string | null,"beginner_friendly": boolean,"category": string,"city_id": number | null,"created_at": string,"description": string,"emoji": string,"id": number,"invite_token": string | null,"join_type": Database["public"]['Enums']["join_type"],"name": string,"owner_id": string,"schedule_label": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "announcement"?: string | null,"announcement_at"?: string | null,"announcement_by"?: string | null,"beginner_friendly"?: boolean,"category": string,"city_id"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string,"id"?: number,"invite_token"?: string | null,"join_type"?: Database["public"]['Enums']["join_type"],"name": string,"owner_id": string,"schedule_label"?: string | null
                   }
@@ -989,6 +1067,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"hidden_user_id": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"hidden_user_id": string,"user_id": string
                   }
@@ -1014,6 +1093,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"from_id": string,"status": string,"to_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"from_id": string,"status"?: string,"to_id": string
                   }
@@ -1039,6 +1119,7 @@ isOneToOne: false
                   Row: {
                     "exchanges": number,"last_sender": string | null,"turns": number,"updated_at": string,"user_a": string,"user_b": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "exchanges"?: number,"last_sender"?: string | null,"turns"?: number,"updated_at"?: string,"user_a": string,"user_b": string
                   }
@@ -1064,6 +1145,7 @@ isOneToOne: false
                   Row: {
                     "category": string,"key": string,"label": string,"sort": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "category": string,"key": string,"label": string,"sort"?: number
                   }
@@ -1077,6 +1159,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"id": number,"intro_id": number | null,"note": string | null,"requester_id": string,"status": Database["public"]['Enums']["request_status"],"target_id": string,"via_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"id"?: number,"intro_id"?: number | null,"note"?: string | null,"requester_id": string,"status"?: Database["public"]['Enums']["request_status"],"target_id": string,"via_id": string
                   }
@@ -1114,6 +1197,7 @@ isOneToOne: false
                   Row: {
                     "a_status": Database["public"]['Enums']["intro_status"],"b_status": Database["public"]['Enums']["intro_status"],"connector_id": string,"created_at": string,"id": number,"message": string,"person_a": string,"person_b": string,"predicted_score": number | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "a_status"?: Database["public"]['Enums']["intro_status"],"b_status"?: Database["public"]['Enums']["intro_status"],"connector_id": string,"created_at"?: string,"id"?: number,"message": string,"person_a": string,"person_b": string,"predicted_score"?: number | null
                   }
@@ -1145,6 +1229,7 @@ isOneToOne: false
                   Row: {
                     "body": string,"created_at": string,"id": number,"stream_id": number,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "body": string,"created_at"?: string,"id"?: number,"stream_id": number,"user_id": string
                   }
@@ -1170,6 +1255,7 @@ isOneToOne: false
                   Row: {
                     "audience": string,"ended_at": string | null,"host_id": string,"id": number,"room": string,"started_at": string,"status": string,"title": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "audience"?: string,"ended_at"?: string | null,"host_id": string,"id"?: number,"room"?: string,"started_at"?: string,"status"?: string,"title": string
                   }
@@ -1189,6 +1275,7 @@ isOneToOne: false
                   Row: {
                     "accuracy_m": number | null,"event_id": number | null,"id": number,"location": unknown,"purpose": string,"recorded_at": string,"user_id": string,"venue_id": number | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "accuracy_m"?: number | null,"event_id"?: number | null,"id"?: number,"location": unknown,"purpose": string,"recorded_at"?: string,"user_id": string,"venue_id"?: number | null
                   }
@@ -1220,6 +1307,7 @@ isOneToOne: false
                   Row: {
                     "attempted_at": string,"id": number,"phone": string,"succeeded": boolean
                   }
+                  ComputedFields: never
                   Insert: {
                     "attempted_at"?: string,"id"?: number,"phone": string,"succeeded": boolean
                   }
@@ -1233,6 +1321,7 @@ isOneToOne: false
                   Row: {
                     "body": string,"char_length": number | null,"conversation_id": number,"created_at": string,"id": number,"poll_id": number | null,"reply_seconds": number | null,"sender_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "body": string,"char_length"?: never,"conversation_id": number,"created_at"?: string,"id"?: number,"poll_id"?: number | null,"reply_seconds"?: number | null,"sender_id": string
                   }
@@ -1260,10 +1349,43 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"moderation_actions": {
+                  Row: {
+                    "action": string,"admin_id": string | null,"created_at": string,"id": number,"note": string | null,"report_id": number | null,"until": string | null,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action": string,"admin_id"?: string | null,"created_at"?: string,"id"?: never,"note"?: string | null,"report_id"?: number | null,"until"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "action"?: string,"admin_id"?: string | null,"created_at"?: string,"id"?: never,"note"?: string | null,"report_id"?: number | null,"until"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "moderation_actions_admin_id_fkey"
+      columns: ["admin_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "moderation_actions_report_id_fkey"
+      columns: ["report_id"]
+isOneToOne: false
+      referencedRelation: "reports"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "moderation_actions_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"mutes": {
                   Row: {
                     "created_at": string,"muted_user_id": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"muted_user_id": string,"user_id": string
                   }
@@ -1285,10 +1407,63 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"notable_picks": {
+                  Row: {
+                    "created_at": string,"member_id": string,"owner_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"member_id": string,"owner_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"member_id"?: string,"owner_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "notable_picks_member_id_fkey"
+      columns: ["member_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "notable_picks_owner_id_fkey"
+      columns: ["owner_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"notable_requests": {
+                  Row: {
+                    "created_at": string,"decided_at": string | null,"decided_by": string | null,"id": number,"manager": string | null,"note": string | null,"official_url": string,"status": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"id"?: never,"manager"?: string | null,"note"?: string | null,"official_url": string,"status"?: string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"id"?: never,"manager"?: string | null,"note"?: string | null,"official_url"?: string,"status"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "notable_requests_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "notable_requests_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"notifications": {
                   Row: {
                     "actor_id": string | null,"body": string,"created_at": string,"id": number,"is_ai": boolean,"kind": string,"link": string | null,"read_at": string | null,"title": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "actor_id"?: string | null,"body"?: string,"created_at"?: string,"id"?: number,"is_ai"?: boolean,"kind": string,"link"?: string | null,"read_at"?: string | null,"title": string,"user_id": string
                   }
@@ -1314,6 +1489,7 @@ isOneToOne: false
                   Row: {
                     "out_id": number,"pinned_at": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "out_id": number,"pinned_at"?: string,"user_id": string
                   }
@@ -1339,6 +1515,7 @@ isOneToOne: false
                   Row: {
                     "opened_at": string | null,"out_id": number,"screenshot_at": string | null,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "opened_at"?: string | null,"out_id": number,"screenshot_at"?: string | null,"user_id": string
                   }
@@ -1364,6 +1541,7 @@ isOneToOne: false
                   Row: {
                     "out_id": number,"screenshot_at": string | null,"viewed_at": string,"viewer_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "out_id": number,"screenshot_at"?: string | null,"viewed_at"?: string,"viewer_id": string
                   }
@@ -1389,6 +1567,7 @@ isOneToOne: false
                   Row: {
                     "audience": string,"caption": string | null,"created_at": string,"effect": string | null,"event_id": number | null,"expires_at": string,"file_deleted_at": string | null,"hidden_from": (string)[],"id": number,"path": string,"sender_id": string,"to_story": boolean
                   }
+                  ComputedFields: never
                   Insert: {
                     "audience"?: string,"caption"?: string | null,"created_at"?: string,"effect"?: string | null,"event_id"?: number | null,"expires_at"?: string,"file_deleted_at"?: string | null,"hidden_from"?: (string)[],"id"?: number,"path": string,"sender_id": string,"to_story"?: boolean
                   }
@@ -1414,6 +1593,7 @@ isOneToOne: false
                   Row: {
                     "address": string | null,"business_name": string,"contact_name": string,"created_at": string,"email": string,"id": number,"message": string,"phone": string | null,"status": string,"submitted_by": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "address"?: string | null,"business_name": string,"contact_name": string,"created_at"?: string,"email": string,"id"?: number,"message"?: string,"phone"?: string | null,"status"?: string,"submitted_by"?: string | null
                   }
@@ -1433,6 +1613,7 @@ isOneToOne: false
                   Row: {
                     "stripe_customer_id": string,"subscribed": boolean,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "stripe_customer_id": string,"subscribed"?: boolean,"user_id": string
                   }
@@ -1452,6 +1633,7 @@ isOneToOne: true
                   Row: {
                     "cashapp": string | null,"paypal": string | null,"updated_at": string,"user_id": string,"venmo": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "cashapp"?: string | null,"paypal"?: string | null,"updated_at"?: string,"user_id": string,"venmo"?: string | null
                   }
@@ -1471,6 +1653,7 @@ isOneToOne: true
                   Row: {
                     "charges_enabled": boolean,"payouts_enabled": boolean,"stripe_account_id": string,"updated_at": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "charges_enabled"?: boolean,"payouts_enabled"?: boolean,"stripe_account_id": string,"updated_at"?: string,"user_id": string
                   }
@@ -1486,10 +1669,31 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"pending_photos": {
+                  Row: {
+                    "created_at": string,"photo_urls": (string)[],"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"photo_urls": (string)[],"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"photo_urls"?: (string)[],"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "pending_photos_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"phone_verifications": {
                   Row: {
                     "attempts": number,"code_hash": string,"created_at": string,"expires_at": string,"id": number,"phone": string,"user_id": string,"verified_at": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "attempts"?: number,"code_hash": string,"created_at"?: string,"expires_at": string,"id"?: number,"phone": string,"user_id": string,"verified_at"?: string | null
                   }
@@ -1509,6 +1713,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"pin_id": number,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"pin_id": number,"user_id": string
                   }
@@ -1534,6 +1739,7 @@ isOneToOne: false
                   Row: {
                     "pin_id": number,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "pin_id": number,"user_id": string
                   }
@@ -1559,6 +1765,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"kind": string,"pin_id": number,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"kind"?: string,"pin_id": number,"user_id": string
                   }
@@ -1584,6 +1791,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"duration_s": number | null,"effect": string | null,"frames": (string)[] | null,"kind": string,"motion": string,"path": string | null,"pin_id": number,"poster_path": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"duration_s"?: number | null,"effect"?: string | null,"frames"?: (string)[] | null,"kind": string,"motion"?: string,"path"?: string | null,"pin_id": number,"poster_path"?: string | null
                   }
@@ -1603,6 +1811,7 @@ isOneToOne: true
                   Row: {
                     "apple_url": string,"artist": string,"artwork_url": string | null,"pin_id": number,"preview_url": string,"title": string,"track_id": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "apple_url": string,"artist": string,"artwork_url"?: string | null,"pin_id": number,"preview_url": string,"title": string,"track_id": number
                   }
@@ -1622,6 +1831,7 @@ isOneToOne: true
                   Row: {
                     "id": number,"pin_id": number,"position": number,"storage_path": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "id"?: number,"pin_id": number,"position": number,"storage_path": string
                   }
@@ -1641,6 +1851,7 @@ isOneToOne: false
                   Row: {
                     "author_id": string,"body": string,"created_at": string,"deleted_at": string | null,"hidden_at": string | null,"id": number,"pin_id": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "author_id": string,"body": string,"created_at"?: string,"deleted_at"?: string | null,"hidden_at"?: string | null,"id"?: number,"pin_id": number
                   }
@@ -1666,6 +1877,7 @@ isOneToOne: false
                   Row: {
                     "pin_id": number,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "pin_id": number,"user_id": string
                   }
@@ -1691,6 +1903,7 @@ isOneToOne: false
                   Row: {
                     "approx_location": unknown,"audience": Database["public"]['Enums']["pin_audience"],"author_id": string,"body": string,"category": Database["public"]['Enums']["pin_category"],"city_id": number | null,"created_at": string,"deleted_at": string | null,"edited_at": string | null,"event_id": number | null,"going_out_post_id": number | null,"hidden_at": string | null,"id": number,"like_count": number,"place_label": string | null,"reply_count": number,"venue_id": number | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "approx_location"?: unknown,"audience"?: Database["public"]['Enums']["pin_audience"],"author_id": string,"body": string,"category": Database["public"]['Enums']["pin_category"],"city_id"?: number | null,"created_at"?: string,"deleted_at"?: string | null,"edited_at"?: string | null,"event_id"?: number | null,"going_out_post_id"?: number | null,"hidden_at"?: string | null,"id"?: number,"like_count"?: number,"place_label"?: string | null,"reply_count"?: number,"venue_id"?: number | null
                   }
@@ -1734,6 +1947,7 @@ isOneToOne: false
                   Row: {
                     "description": string,"free_value": number | null,"key": string,"premium_value": number | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "description"?: string,"free_value"?: number | null,"key": string,"premium_value"?: number | null
                   }
@@ -1747,6 +1961,7 @@ isOneToOne: false
                   Row: {
                     "ai_chat_opt_in": boolean,"birthdate": string,"created_at": string,"email": string | null,"id": string,"onboarding_checklist_dismissed_at": string | null,"phone": string | null,"phone_verified_at": string | null,"terms_accepted_at": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "ai_chat_opt_in"?: boolean,"birthdate": string,"created_at"?: string,"email"?: string | null,"id": string,"onboarding_checklist_dismissed_at"?: string | null,"phone"?: string | null,"phone_verified_at"?: string | null,"terms_accepted_at"?: string | null
                   }
@@ -1766,6 +1981,7 @@ isOneToOne: true
                   Row: {
                     "day": string,"viewed_id": string,"viewer_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "day"?: string,"viewed_id": string,"viewer_id": string
                   }
@@ -1789,13 +2005,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "approx_location": unknown,"avatar_emoji": string | null,"avatar_url": string | null,"bio": string,"city_id": number | null,"created_at": string,"display_name": string,"full_name": string,"headline": string,"id": string,"id_verified_at": string | null,"interests": (string)[],"invite_code": string,"invited_by": string | null,"is_founding_member": boolean,"location_precision": Database["public"]['Enums']["location_precision"],"member_number": number,"mood": string | null,"neighborhood": string | null,"photo_urls": (string)[],"photo_verified_at": string | null,"prompts": NonNullable<Json>,"pronouns": string | null,"role": Database["public"]['Enums']["user_role"],"show_age": boolean,"song": Json | null,"top_vouch_word": string | null,"updated_at": string,"verified_host": boolean,"vouch_count": number
+                    "approx_location": unknown,"avatar_emoji": string | null,"avatar_url": string | null,"background_checked_at": string | null,"banned_at": string | null,"bio": string,"city_id": number | null,"created_at": string,"display_name": string,"full_name": string,"header_url": string | null,"headline": string,"id": string,"id_verified_at": string | null,"interests": (string)[],"invite_code": string,"invited_by": string | null,"is_founding_member": boolean,"location_precision": Database["public"]['Enums']["location_precision"],"member_number": number,"milestone_celebrated": number,"mood": string | null,"neighborhood": string | null,"notable_at": string | null,"photo_reviewer": boolean,"photo_urls": (string)[],"photo_verified_at": string | null,"profile_color": string | null,"prompts": NonNullable<Json>,"pronouns": string | null,"role": Database["public"]['Enums']["user_role"],"show_age": boolean,"show_area": boolean,"song": Json | null,"suspended_until": string | null,"top_vouch_word": string | null,"under_review": boolean,"updated_at": string,"verified_host": boolean,"vouch_count": number
                   }
+                  ComputedFields: never
                   Insert: {
-                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name": string,"full_name": string,"headline"?: string,"id": string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code": string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"mood"?: string | null,"neighborhood"?: string | null,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"prompts"?: NonNullable<Json>,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"song"?: Json | null,"top_vouch_word"?: string | null,"updated_at"?: string,"verified_host"?: boolean,"vouch_count"?: number
+                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"background_checked_at"?: string | null,"banned_at"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name": string,"full_name": string,"header_url"?: string | null,"headline"?: string,"id": string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code": string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"milestone_celebrated"?: number,"mood"?: string | null,"neighborhood"?: string | null,"notable_at"?: string | null,"photo_reviewer"?: boolean,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"profile_color"?: string | null,"prompts"?: NonNullable<Json>,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"show_area"?: boolean,"song"?: Json | null,"suspended_until"?: string | null,"top_vouch_word"?: string | null,"under_review"?: boolean,"updated_at"?: string,"verified_host"?: boolean,"vouch_count"?: number
                   }
                   Update: {
-                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name"?: string,"full_name"?: string,"headline"?: string,"id"?: string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code"?: string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"mood"?: string | null,"neighborhood"?: string | null,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"prompts"?: NonNullable<Json>,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"song"?: Json | null,"top_vouch_word"?: string | null,"updated_at"?: string,"verified_host"?: boolean,"vouch_count"?: number
+                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"background_checked_at"?: string | null,"banned_at"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name"?: string,"full_name"?: string,"header_url"?: string | null,"headline"?: string,"id"?: string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code"?: string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"milestone_celebrated"?: number,"mood"?: string | null,"neighborhood"?: string | null,"notable_at"?: string | null,"photo_reviewer"?: boolean,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"profile_color"?: string | null,"prompts"?: NonNullable<Json>,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"show_area"?: boolean,"song"?: Json | null,"suspended_until"?: string | null,"top_vouch_word"?: string | null,"under_review"?: boolean,"updated_at"?: string,"verified_host"?: boolean,"vouch_count"?: number
                   }
                   Relationships: [
                     {
@@ -1816,6 +2033,7 @@ isOneToOne: false
                   Row: {
                     "body": string,"created_at": string,"id": number,"link": string | null,"sent": boolean,"title": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "body"?: string,"created_at"?: string,"id"?: number,"link"?: string | null,"sent"?: boolean,"title": string,"user_id": string
                   }
@@ -1835,6 +2053,7 @@ isOneToOne: false
                   Row: {
                     "platform": string,"token": string,"updated_at": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "platform": string,"token": string,"updated_at"?: string,"user_id": string
                   }
@@ -1850,15 +2069,36 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"reports": {
+                },"report_followups": {
                   Row: {
-                    "admin_notes": string | null,"created_at": string,"date_request_id": number | null,"details": string,"id": number,"message_id": number | null,"pin_id": number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number | null,"reported_user_id": string | null,"reporter_id": string,"resolved_at": string | null,"status": Database["public"]['Enums']["report_status"]
+                    "body": string,"created_at": string,"from_admin": boolean,"id": number,"report_id": number
                   }
+                  ComputedFields: never
                   Insert: {
-                    "admin_notes"?: string | null,"created_at"?: string,"date_request_id"?: number | null,"details"?: string,"id"?: number,"message_id"?: number | null,"pin_id"?: number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id": string,"resolved_at"?: string | null,"status"?: Database["public"]['Enums']["report_status"]
+                    "body": string,"created_at"?: string,"from_admin": boolean,"id"?: never,"report_id": number
                   }
                   Update: {
-                    "admin_notes"?: string | null,"created_at"?: string,"date_request_id"?: number | null,"details"?: string,"id"?: number,"message_id"?: number | null,"pin_id"?: number | null,"reason"?: Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id"?: string,"resolved_at"?: string | null,"status"?: Database["public"]['Enums']["report_status"]
+                    "body"?: string,"created_at"?: string,"from_admin"?: boolean,"id"?: never,"report_id"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "report_followups_report_id_fkey"
+      columns: ["report_id"]
+isOneToOne: false
+      referencedRelation: "reports"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"reports": {
+                  Row: {
+                    "admin_notes": string | null,"can_contact": boolean,"created_at": string,"date_request_id": number | null,"details": string,"id": number,"incident_place": string | null,"incident_when": string | null,"message_id": number | null,"pin_id": number | null,"police_agency": string | null,"police_case": string | null,"police_status": string | null,"priority": number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number | null,"reported_user_id": string | null,"reporter_id": string,"resolved_at": string | null,"share_with_police": boolean | null,"status": Database["public"]['Enums']["report_status"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "admin_notes"?: string | null,"can_contact"?: boolean,"created_at"?: string,"date_request_id"?: number | null,"details"?: string,"id"?: number,"incident_place"?: string | null,"incident_when"?: string | null,"message_id"?: number | null,"pin_id"?: number | null,"police_agency"?: string | null,"police_case"?: string | null,"police_status"?: string | null,"priority"?: number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id": string,"resolved_at"?: string | null,"share_with_police"?: boolean | null,"status"?: Database["public"]['Enums']["report_status"]
+                  }
+                  Update: {
+                    "admin_notes"?: string | null,"can_contact"?: boolean,"created_at"?: string,"date_request_id"?: number | null,"details"?: string,"id"?: number,"incident_place"?: string | null,"incident_when"?: string | null,"message_id"?: number | null,"pin_id"?: number | null,"police_agency"?: string | null,"police_case"?: string | null,"police_status"?: string | null,"priority"?: number | null,"reason"?: Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id"?: string,"resolved_at"?: string | null,"share_with_police"?: boolean | null,"status"?: Database["public"]['Enums']["report_status"]
                   }
                   Relationships: [
                     {
@@ -1903,6 +2143,7 @@ isOneToOne: false
                   Row: {
                     "contacts_notified": number,"created_at": string,"id": number,"level": Database["public"]['Enums']["safety_level"],"resolved_at": string | null,"session_id": number | null,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "contacts_notified"?: number,"created_at"?: string,"id"?: number,"level": Database["public"]['Enums']["safety_level"],"resolved_at"?: string | null,"session_id"?: number | null,"user_id": string
                   }
@@ -1928,6 +2169,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"id": number,"kind": string,"session_id": number | null,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"id"?: number,"kind": string,"session_id"?: number | null,"user_id": string
                   }
@@ -1953,6 +2195,7 @@ isOneToOne: false
                   Row: {
                     "check_at": string,"missed_notified": boolean,"note": string | null,"started_at": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "check_at": string,"missed_notified"?: boolean,"note"?: string | null,"started_at"?: string,"user_id": string
                   }
@@ -1968,10 +2211,81 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"shoutouts": {
+                  Row: {
+                    "created_at": string,"milestone": number,"pin_id": number | null,"posted_at": string | null,"status": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"milestone": number,"pin_id"?: number | null,"posted_at"?: string | null,"status": string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"milestone"?: number,"pin_id"?: number | null,"posted_at"?: string | null,"status"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "shoutouts_pin_id_fkey"
+      columns: ["pin_id"]
+isOneToOne: false
+      referencedRelation: "pins"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "shoutouts_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"takedown_requests": {
+                  Row: {
+                    "admin_note": string | null,"code": string,"contact": string,"created_at": string,"decided_at": string | null,"decided_by": string | null,"due_at": string,"for_self": boolean,"held": boolean,"id": number,"kind": string,"location": string | null,"out_id": number | null,"pin_id": number | null,"poster_id": string | null,"reminded_at": string | null,"requester_id": string | null,"signature": string,"statement": string,"status": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "admin_note"?: string | null,"code"?: string,"contact": string,"created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"due_at"?: string,"for_self"?: boolean,"held"?: boolean,"id"?: never,"kind": string,"location"?: string | null,"out_id"?: number | null,"pin_id"?: number | null,"poster_id"?: string | null,"reminded_at"?: string | null,"requester_id"?: string | null,"signature": string,"statement": string,"status"?: string
+                  }
+                  Update: {
+                    "admin_note"?: string | null,"code"?: string,"contact"?: string,"created_at"?: string,"decided_at"?: string | null,"decided_by"?: string | null,"due_at"?: string,"for_self"?: boolean,"held"?: boolean,"id"?: never,"kind"?: string,"location"?: string | null,"out_id"?: number | null,"pin_id"?: number | null,"poster_id"?: string | null,"reminded_at"?: string | null,"requester_id"?: string | null,"signature"?: string,"statement"?: string,"status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "takedown_requests_decided_by_fkey"
+      columns: ["decided_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "takedown_requests_out_id_fkey"
+      columns: ["out_id"]
+isOneToOne: false
+      referencedRelation: "outs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "takedown_requests_pin_id_fkey"
+      columns: ["pin_id"]
+isOneToOne: false
+      referencedRelation: "pins"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "takedown_requests_poster_id_fkey"
+      columns: ["poster_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "takedown_requests_requester_id_fkey"
+      columns: ["requester_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"trusted_contacts": {
                   Row: {
                     "created_at": string,"id": number,"name": string,"phone": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"id"?: number,"name": string,"phone": string,"user_id": string
                   }
@@ -1989,13 +2303,14 @@ isOneToOne: false
                   ]
                 },"user_settings": {
                   Row: {
-                    "allow_intro_requests": boolean,"app_sounds": boolean,"discoverable": boolean,"findable_by_phone": boolean,"friday_drop": boolean,"ghost_mode": boolean,"here_delay_minutes": number,"messages_need_vouches": boolean,"notify_date_requests": boolean,"notify_gps_vouch": boolean,"notify_intro_requests": boolean,"notify_messages": boolean,"notify_pin_replies": boolean,"notify_rsvps": boolean,"radius_mi": number,"show_going_out_venue": boolean,"show_in_nearby": boolean,"show_locked_in": boolean,"show_vouch_count": boolean,"theme_id": string,"updated_at": string,"user_id": string
+                    "allow_intro_requests": boolean,"app_sounds": boolean,"discoverable": boolean,"findable_by_phone": boolean,"friday_drop": boolean,"ghost_mode": boolean,"here_delay_minutes": number,"messages_need_vouches": boolean,"notable_arrivals": boolean,"notable_location": string,"notable_messages": string,"notable_replies": string,"notify_date_requests": boolean,"notify_gps_vouch": boolean,"notify_intro_requests": boolean,"notify_messages": boolean,"notify_pin_replies": boolean,"notify_rsvps": boolean,"radius_mi": number,"show_going_out_venue": boolean,"show_in_nearby": boolean,"show_locked_in": boolean,"show_vouch_count": boolean,"theme_id": string,"updated_at": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
-                    "allow_intro_requests"?: boolean,"app_sounds"?: boolean,"discoverable"?: boolean,"findable_by_phone"?: boolean,"friday_drop"?: boolean,"ghost_mode"?: boolean,"here_delay_minutes"?: number,"messages_need_vouches"?: boolean,"notify_date_requests"?: boolean,"notify_gps_vouch"?: boolean,"notify_intro_requests"?: boolean,"notify_messages"?: boolean,"notify_pin_replies"?: boolean,"notify_rsvps"?: boolean,"radius_mi"?: number,"show_going_out_venue"?: boolean,"show_in_nearby"?: boolean,"show_locked_in"?: boolean,"show_vouch_count"?: boolean,"theme_id"?: string,"updated_at"?: string,"user_id": string
+                    "allow_intro_requests"?: boolean,"app_sounds"?: boolean,"discoverable"?: boolean,"findable_by_phone"?: boolean,"friday_drop"?: boolean,"ghost_mode"?: boolean,"here_delay_minutes"?: number,"messages_need_vouches"?: boolean,"notable_arrivals"?: boolean,"notable_location"?: string,"notable_messages"?: string,"notable_replies"?: string,"notify_date_requests"?: boolean,"notify_gps_vouch"?: boolean,"notify_intro_requests"?: boolean,"notify_messages"?: boolean,"notify_pin_replies"?: boolean,"notify_rsvps"?: boolean,"radius_mi"?: number,"show_going_out_venue"?: boolean,"show_in_nearby"?: boolean,"show_locked_in"?: boolean,"show_vouch_count"?: boolean,"theme_id"?: string,"updated_at"?: string,"user_id": string
                   }
                   Update: {
-                    "allow_intro_requests"?: boolean,"app_sounds"?: boolean,"discoverable"?: boolean,"findable_by_phone"?: boolean,"friday_drop"?: boolean,"ghost_mode"?: boolean,"here_delay_minutes"?: number,"messages_need_vouches"?: boolean,"notify_date_requests"?: boolean,"notify_gps_vouch"?: boolean,"notify_intro_requests"?: boolean,"notify_messages"?: boolean,"notify_pin_replies"?: boolean,"notify_rsvps"?: boolean,"radius_mi"?: number,"show_going_out_venue"?: boolean,"show_in_nearby"?: boolean,"show_locked_in"?: boolean,"show_vouch_count"?: boolean,"theme_id"?: string,"updated_at"?: string,"user_id"?: string
+                    "allow_intro_requests"?: boolean,"app_sounds"?: boolean,"discoverable"?: boolean,"findable_by_phone"?: boolean,"friday_drop"?: boolean,"ghost_mode"?: boolean,"here_delay_minutes"?: number,"messages_need_vouches"?: boolean,"notable_arrivals"?: boolean,"notable_location"?: string,"notable_messages"?: string,"notable_replies"?: string,"notify_date_requests"?: boolean,"notify_gps_vouch"?: boolean,"notify_intro_requests"?: boolean,"notify_messages"?: boolean,"notify_pin_replies"?: boolean,"notify_rsvps"?: boolean,"radius_mi"?: number,"show_going_out_venue"?: boolean,"show_in_nearby"?: boolean,"show_locked_in"?: boolean,"show_vouch_count"?: boolean,"theme_id"?: string,"updated_at"?: string,"user_id"?: string
                   }
                   Relationships: [
                     {
@@ -2010,6 +2325,7 @@ isOneToOne: true
                   Row: {
                     "address": string | null,"business_name": string,"contact_name": string,"created_at": string,"free_months": number,"id": number,"perk": string,"perk_details": string | null,"phone": string | null,"placement_id": number | null,"reviewed_at": string | null,"status": string,"stripe_subscription_id": string | null,"user_id": string,"venue_id": number | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "address"?: string | null,"business_name": string,"contact_name": string,"created_at"?: string,"free_months"?: number,"id"?: number,"perk": string,"perk_details"?: string | null,"phone"?: string | null,"placement_id"?: number | null,"reviewed_at"?: string | null,"status"?: string,"stripe_subscription_id"?: string | null,"user_id": string,"venue_id"?: number | null
                   }
@@ -2041,6 +2357,7 @@ isOneToOne: false
                   Row: {
                     "user_id": string,"venue_id": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "user_id": string,"venue_id": number
                   }
@@ -2066,6 +2383,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"created_by": string | null,"ends_at": string,"id": number,"kind": string,"perk": string,"perk_details": string,"starts_at": string,"venue_id": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"created_by"?: string | null,"ends_at": string,"id"?: number,"kind": string,"perk": string,"perk_details"?: string,"starts_at": string,"venue_id": number
                   }
@@ -2091,6 +2409,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"event_id": number,"note": string | null,"stars": number,"updated_at": string,"user_id": string,"venue_id": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"event_id": number,"note"?: string | null,"stars": number,"updated_at"?: string,"user_id": string,"venue_id": number
                   }
@@ -2122,6 +2441,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"created_by": string,"details": string | null,"ends_at": string,"id": number,"title": string,"venue_id": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"created_by": string,"details"?: string | null,"ends_at": string,"id"?: number,"title": string,"venue_id": number
                   }
@@ -2147,6 +2467,7 @@ isOneToOne: false
                   Row: {
                     "address": string | null,"category": string | null,"city_id": number | null,"created_at": string,"description": string,"emoji": string | null,"id": number,"location": unknown,"name": string,"neighborhood": string | null,"osm_id": string | null,"price_level": number | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "address"?: string | null,"category"?: string | null,"city_id"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"id"?: number,"location": unknown,"name": string,"neighborhood"?: string | null,"osm_id"?: string | null,"price_level"?: number | null
                   }
@@ -2164,13 +2485,14 @@ isOneToOne: false
                   ]
                 },"verification_requests": {
                   Row: {
-                    "created_at": string,"gesture": string | null,"id": number,"kind": string,"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"selfie_path": string | null,"status": string,"submitted_at": string | null,"user_id": string
+                    "created_at": string,"from_browser": boolean,"gesture": string | null,"id": number,"kind": string,"review_note": string | null,"reviewed_at": string | null,"reviewed_by": string | null,"selfie_path": string | null,"status": string,"submitted_at": string | null,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"gesture"?: string | null,"id"?: number,"kind": string,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"selfie_path"?: string | null,"status"?: string,"submitted_at"?: string | null,"user_id": string
+                    "created_at"?: string,"from_browser"?: boolean,"gesture"?: string | null,"id"?: number,"kind": string,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"selfie_path"?: string | null,"status"?: string,"submitted_at"?: string | null,"user_id": string
                   }
                   Update: {
-                    "created_at"?: string,"gesture"?: string | null,"id"?: number,"kind"?: string,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"selfie_path"?: string | null,"status"?: string,"submitted_at"?: string | null,"user_id"?: string
+                    "created_at"?: string,"from_browser"?: boolean,"gesture"?: string | null,"id"?: number,"kind"?: string,"review_note"?: string | null,"reviewed_at"?: string | null,"reviewed_by"?: string | null,"selfie_path"?: string | null,"status"?: string,"submitted_at"?: string | null,"user_id"?: string
                   }
                   Relationships: [
                     {
@@ -2191,6 +2513,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"encounter_id": number | null,"id": number,"requester_id": string,"status": Database["public"]['Enums']["request_status"],"target_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"encounter_id"?: number | null,"id"?: number,"requester_id": string,"status"?: Database["public"]['Enums']["request_status"],"target_id": string
                   }
@@ -2222,6 +2545,7 @@ isOneToOne: false
                   Row: {
                     "emoji": string,"id": number,"min_vouches": number,"name": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "emoji"?: string,"id"?: number,"min_vouches": number,"name": string
                   }
@@ -2235,6 +2559,7 @@ isOneToOne: false
                   Row: {
                     "active": boolean,"id": number,"sort": number,"word": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "active"?: boolean,"id"?: number,"sort"?: number,"word": string
                   }
@@ -2248,6 +2573,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"encounter_id": number | null,"id": number,"status": Database["public"]['Enums']["vouch_status"],"type": Database["public"]['Enums']["vouch_type"],"vouchee_id": string,"voucher_id": string,"word_id": number | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"encounter_id"?: number | null,"id"?: number,"status"?: Database["public"]['Enums']["vouch_status"],"type": Database["public"]['Enums']["vouch_type"],"vouchee_id": string,"voucher_id": string,"word_id"?: number | null
                   }
@@ -2285,6 +2611,7 @@ isOneToOne: false
                   Row: {
                     "cents": number,"created_at": string,"id": number,"stripe_session": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "cents": number,"created_at"?: string,"id"?: never,"stripe_session": string,"user_id": string
                   }
@@ -2304,6 +2631,7 @@ isOneToOne: false
                   Row: {
                     "balance_cents": number,"updated_at": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "balance_cents"?: number,"updated_at"?: string,"user_id": string
                   }
@@ -2331,15 +2659,59 @@ isOneToOne: true
 "admin_act_on_report":
 { Args: { "p_action": string,"p_note"?: string,"p_report": number }; Returns: undefined
                            },
+"admin_appeals":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "banned": boolean,"created_at": string,"history": Json,"id": number,"message": string,"name": string,"suspended_until": string,"under_review": boolean,"user_id": string
+            }[]
+                           },
+"admin_ask_reporter":
+{ Args: { "p_question": string,"p_report": number }; Returns: undefined
+                           },
+"admin_clear_hold":
+{ Args: { "p_user": string }; Returns: undefined
+                           },
+"admin_decide_appeal":
+{ Args: { "p_appeal": number,"p_lift": boolean }; Returns: undefined
+                           },
+"admin_decide_notable":
+{ Args: { "p_approve": boolean,"p_note"?: string,"p_request": number }; Returns: undefined
+                           },
 "admin_grant_premium":
 { Args: { "p_days": number,"p_email": string }; Returns: string
+                           },
+"admin_member_action":
+{ Args: { "p_action": string,"p_days"?: number,"p_note"?: string,"p_report": number }; Returns: undefined
+                           },
+"admin_notable_requests":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "code": string,"created_at": string,"id": number,"manager": string,"name": string,"official_url": string,"user_id": string,"verified": boolean
+            }[]
                            },
 "admin_overview":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"admin_pending_photos":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "created_at": string,"current_photos": (string)[],"display_name": string,"new_photos": (string)[],"selfie_path": string,"user_id": string
+            }[]
+                           },
+"admin_photo_reviewers":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "display_name": string,"email": string,"id": string,"reviewed": number
+            }[]
+                           },
+"admin_police_packet":
+{ Args: { "p_agency": string,"p_basis": string,"p_case"?: string,"p_report": number }; Returns: Json
+                           },
+"admin_remove_notable":
+{ Args: { "p_user": string }; Returns: undefined
+                           },
+"admin_report_evidence":
+{ Args: { "p_report": number }; Returns: Json
+                           },
 "admin_reports":
 { Args: Record<PropertyKey, never>; Returns: {
-              "about": string,"admin_notes": string,"content": string,"created_at": string,"details": string,"hidden": boolean,"id": number,"message_id": number,"pin_id": number,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number,"reported_id": string,"reported_name": string,"reporter_name": string,"reports_on_target": number,"status": Database["public"]['Enums']["report_status"]
+              "about": string,"admin_notes": string,"can_contact": boolean,"content": string,"created_at": string,"details": string,"hidden": boolean,"id": number,"incident_place": string,"incident_when": string,"independent_reporters": number,"message_id": number,"on_hold": boolean,"pin_id": number,"police_agency": string,"police_case": string,"police_status": string,"priority": number,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number,"reported_id": string,"reported_name": string,"reporter_name": string,"reports_on_target": number,"sent_to_police": number,"share_with_police": boolean,"status": Database["public"]['Enums']["report_status"],"thread": Json
             }[]
                            },
 "admin_revenue":
@@ -2350,14 +2722,31 @@ isOneToOne: true
 "admin_review_claim":
 { Args: { "p_approve": boolean,"p_claim": number,"p_venue"?: number }; Returns: undefined
                            },
+"admin_review_photos":
+{ Args: { "p_approve": boolean,"p_note"?: string,"p_user": string }; Returns: undefined
+                           },
 "admin_review_verification":
 { Args: { "p_approve": boolean,"p_note"?: string,"p_request": number }; Returns: undefined
+                           },
+"admin_set_photo_reviewer":
+{ Args: { "p_email": string,"p_on": boolean }; Returns: string
                            },
 "admin_set_venue_manager":
 { Args: { "p_email": string,"p_venue": number }; Returns: undefined
                            },
 "admin_set_verified_host":
 { Args: { "p_email": string,"p_on": boolean }; Returns: undefined
+                           },
+"admin_takedown_decline":
+{ Args: { "p_id": number,"p_note": string }; Returns: undefined
+                           },
+"admin_takedown_remove":
+{ Args: { "p_id": number,"p_note"?: string }; Returns: Json
+                           },
+"admin_takedowns":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "admin_note": string,"code": string,"contact": string,"created_at": string,"decided_at": string,"due_at": string,"for_self": boolean,"held": boolean,"id": number,"kind": string,"location": string,"out_id": number,"pin_body": string,"pin_id": number,"poster_id": string,"poster_name": string,"requester_name": string,"signature": string,"statement": string,"status": string
+            }[]
                            },
 "admin_usage":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -2366,7 +2755,7 @@ isOneToOne: true
                            },
 "admin_verifications":
 { Args: Record<PropertyKey, never>; Returns: {
-              "avatar_url": string,"display_name": string,"gesture": string,"id": number,"kind": string,"member_since": string,"selfie_path": string,"submitted_at": string,"user_id": string,"vouch_count": number
+              "avatar_url": string,"display_name": string,"from_browser": boolean,"gesture": string,"id": number,"kind": string,"member_since": string,"photo_urls": (string)[],"selfie_path": string,"submitted_at": string,"user_id": string,"vouch_count": number
             }[]
                            },
 "ai_cache_get":
@@ -2387,6 +2776,12 @@ isOneToOne: true
 "ai_tonight_options":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"answer_report_question":
+{ Args: { "p_answer": string,"p_report": number }; Returns: undefined
+                           },
+"answer_shoutout":
+{ Args: { "p_yes": boolean }; Returns: string
+                           },
 "arrival_regions":
 { Args: Record<PropertyKey, never>; Returns: {
               "key": string,"lat": number,"lng": number,"radius_m": number,"title": string
@@ -2397,6 +2792,15 @@ isOneToOne: true
                            },
 "auto_arrive":
 { Args: { "p_accuracy_m"?: number,"p_lat": number,"p_lng": number }; Returns: Json
+                           },
+"background_check_paid":
+{ Args: { "p_check": number }; Returns: undefined
+                           },
+"background_check_result":
+{ Args: { "p_check": number,"p_clear": boolean,"p_provider"?: string,"p_provider_ref"?: string }; Returns: undefined
+                           },
+"background_check_status":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "bill_detail":
 { Args: { "p_bill": number }; Returns: Json
@@ -2417,6 +2821,12 @@ isOneToOne: true
                            },
 "cancel_date_request":
 { Args: { "p_request": number }; Returns: undefined
+                           },
+"cancel_pending_photos":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
+"celebrate_milestone":
+{ Args: { "p_milestone": number }; Returns: undefined
                            },
 "chat_candidates":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -2556,6 +2966,11 @@ isOneToOne: true
 "extend_safety_timer":
 { Args: { "p_minutes": number }; Returns: string
                            },
+"famous_members":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "avatar_url": string,"display_name": string,"id": string,"vouch_count": number
+            }[]
+                           },
 "featured_places":
 { Args: { "p_lat"?: number,"p_lng"?: number }; Returns: {
               "category": string,"distance_mi": number,"ends_at": string,"glyph": string,"kind": string,"name": string,"neighborhood": string,"network_visited": number,"perk": string,"perk_details": string,"placement_id": number,"price_level": number,"venue_id": number
@@ -2615,6 +3030,9 @@ isOneToOne: true
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"is_photo_reviewer":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
 "is_premium":
 { Args: { "p_user": string }; Returns: boolean
                            },
@@ -2671,6 +3089,9 @@ isOneToOne: true
 "message_status":
 { Args: { "p_other": string }; Returns: Json
                            },
+"my_account_status":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "my_ai_quota":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
@@ -2708,6 +3129,9 @@ isOneToOne: true
 "my_intros":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"my_notable":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "my_out_event":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
@@ -2716,6 +3140,9 @@ isOneToOne: true
                            },
 "my_payout_status":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"my_pending_milestone":
+{ Args: Record<PropertyKey, never>; Returns: number
                            },
 "my_place_claim":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -2729,6 +3156,9 @@ isOneToOne: true
 { Args: { "p_minutes"?: number }; Returns: {
               "already_vouched": boolean,"avatar_emoji": string,"avatar_url": string,"degree": number,"display_name": string,"encounter_id": number,"met_at": string,"place_label": string,"user_id": string,"vouch_count": number
             }[]
+                           },
+"my_report_detail":
+{ Args: { "p_report": number }; Returns: Json
                            },
 "my_reports":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -2762,6 +3192,11 @@ isOneToOne: true
 "newcomer_events":
 { Args: { "p_limit"?: number }; Returns: {
               "cover_url": string,"emoji": string,"going_count": number,"host_name": string,"id": number,"newcomers": boolean,"place": string,"starts_at": string,"tags": (string)[],"title": string
+            }[]
+                           },
+"notable_members":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "avatar_url": string,"display_name": string,"headline": string,"id": string,"note": string
             }[]
                            },
 "open_direct_conversation":
@@ -2886,11 +3321,17 @@ isOneToOne: true
 "report_date":
 { Args: { "p_date"?: number,"p_details"?: string,"p_other": string,"p_reason": Database["public"]['Enums']["report_reason"] }; Returns: number
                            },
+"report_incident":
+{ Args: { "p_agency"?: string,"p_case"?: string,"p_contact"?: boolean,"p_place": string,"p_police": string,"p_report": number,"p_share"?: boolean,"p_when": string }; Returns: undefined
+                           },
 "request_intro":
 { Args: { "p_note"?: string,"p_target": string,"p_via": string }; Returns: number
                            },
 "request_join_group":
 { Args: { "p_group": number,"p_how"?: string,"p_why": string }; Returns: number
+                           },
+"request_notable":
+{ Args: { "p_manager"?: string,"p_official_url": string }; Returns: undefined
                            },
 "request_vouch":
 { Args: { "p_target": string }; Returns: number
@@ -2971,6 +3412,12 @@ isOneToOne: true
 "set_muted":
 { Args: { "p_on": boolean,"p_user": string }; Returns: undefined
                            },
+"set_notable_pick":
+{ Args: { "p_member": string,"p_on": boolean }; Returns: undefined
+                           },
+"set_notable_settings":
+{ Args: { "p_arrivals": boolean,"p_intro_requests": boolean,"p_location": string,"p_messages": string,"p_replies": string,"p_show_vouch_count": boolean }; Returns: undefined
+                           },
 "set_open_to_join":
 { Args: { "p_open": boolean,"p_post": number }; Returns: undefined
                            },
@@ -2986,8 +3433,11 @@ isOneToOne: true
 "set_plan_audience":
 { Args: { "p_audience": string,"p_post": number }; Returns: undefined
                            },
+"set_profile_header":
+{ Args: { "p_url": string }; Returns: string
+                           },
 "set_profile_photos":
-{ Args: { "p_urls": (string)[] }; Returns: (string)[]
+{ Args: { "p_urls": (string)[] }; Returns: Json
                            },
 "set_profile_prompts":
 { Args: { "p_prompts": Json }; Returns: undefined
@@ -3023,6 +3473,9 @@ isOneToOne: true
 { Args: { "p_venue"?: number }; Returns: {
               "can_manage": boolean,"details": string,"ends_at": string,"id": number,"neighborhood": string,"title": string,"venue_id": number,"venue_name": string
             }[]
+                           },
+"start_background_check":
+{ Args: { "p_consent": boolean }; Returns: Json
                            },
 "start_date_mode":
 { Args: { "p_accuracy_m"?: number,"p_lat": number,"p_lng": number,"p_partner": string }; Returns: number
@@ -3063,11 +3516,20 @@ isOneToOne: true
 "stripe_ticket_refunded":
 { Args: { "p_payment_intent": string }; Returns: undefined
                            },
+"submit_appeal":
+{ Args: { "p_message": string }; Returns: undefined
+                           },
 "submit_partner_inquiry":
 { Args: { "p_address"?: string,"p_business": string,"p_contact": string,"p_email": string,"p_message"?: string,"p_phone"?: string }; Returns: number
                            },
 "submit_photo_verification":
-{ Args: { "p_path": string,"p_request": number }; Returns: undefined
+{ Args: { "p_from_browser"?: boolean,"p_path": string,"p_request": number }; Returns: undefined
+                           },
+"submit_takedown":
+{ Args: { "p_confirm": boolean,"p_contact": string,"p_for_self"?: boolean,"p_kind": string,"p_location"?: string,"p_out"?: number,"p_pin"?: number,"p_poster"?: string,"p_signature": string,"p_statement": string }; Returns: string
+                           },
+"takedown_status":
+{ Args: { "p_code": string }; Returns: Json
                            },
 "tonight_ends_at":
 { Args: Record<PropertyKey, never>; Returns: string
@@ -3128,7 +3590,7 @@ isOneToOne: true
                            }
           }
           Enums: {
-            "connection_source": "invite"|"intro"|"event"|"group"|"date"|"manual"|"qr"|"code"|"contacts","date_session_status": "waiting"|"active"|"ended"|"cancelled","date_status": "pending"|"accepted"|"countered"|"passed"|"cancelled","date_when": "tonight"|"this_weekend"|"next_week"|"specific","encounter_context": "venue"|"event"|"group"|"date"|"nearby","going_out_join_status": "heading"|"here","going_out_when": "tonight"|"weekend"|"scheduled","group_role": "owner"|"admin"|"member","intro_status": "pending"|"accepted"|"declined","join_type": "request"|"open","location_precision": "approximate"|"precise","pin_audience": "everyone"|"network"|"circle","pin_category": "thought"|"question"|"photos"|"event"|"going_out"|"recap","report_reason": "misrepresentation"|"harassment"|"unsafe"|"privacy"|"spam"|"inappropriate"|"other","report_status": "open"|"reviewing"|"resolved"|"dismissed","request_status": "pending"|"accepted"|"declined"|"cancelled","safety_level": "unsafe"|"leaving"|"emergency","user_role": "user"|"admin","vouch_status": "active"|"flagged"|"revoked","vouch_type": "gps"|"invite"|"contact"
+            "background_check_status": "awaiting_payment"|"pending"|"clear"|"not_clear"|"cancelled","connection_source": "invite"|"intro"|"event"|"group"|"date"|"manual"|"qr"|"code"|"contacts","date_session_status": "waiting"|"active"|"ended"|"cancelled","date_status": "pending"|"accepted"|"countered"|"passed"|"cancelled","date_when": "tonight"|"this_weekend"|"next_week"|"specific","encounter_context": "venue"|"event"|"group"|"date"|"nearby","going_out_join_status": "heading"|"here","going_out_when": "tonight"|"weekend"|"scheduled","group_role": "owner"|"admin"|"member","intro_status": "pending"|"accepted"|"declined","join_type": "request"|"open","location_precision": "approximate"|"precise","pin_audience": "everyone"|"network"|"circle","pin_category": "thought"|"question"|"photos"|"event"|"going_out"|"recap","report_reason": "misrepresentation"|"harassment"|"unsafe"|"privacy"|"spam"|"inappropriate"|"other"|"assault"|"violence","report_status": "open"|"reviewing"|"resolved"|"dismissed","request_status": "pending"|"accepted"|"declined"|"cancelled","safety_level": "unsafe"|"leaving"|"emergency","user_role": "user"|"admin","vouch_status": "active"|"flagged"|"revoked","vouch_type": "gps"|"invite"|"contact"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -3248,8 +3710,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "connection_source": ["invite", "intro", "event", "group", "date", "manual", "qr", "code", "contacts"],"date_session_status": ["waiting", "active", "ended", "cancelled"],"date_status": ["pending", "accepted", "countered", "passed", "cancelled"],"date_when": ["tonight", "this_weekend", "next_week", "specific"],"encounter_context": ["venue", "event", "group", "date", "nearby"],"going_out_join_status": ["heading", "here"],"going_out_when": ["tonight", "weekend", "scheduled"],"group_role": ["owner", "admin", "member"],"intro_status": ["pending", "accepted", "declined"],"join_type": ["request", "open"],"location_precision": ["approximate", "precise"],"pin_audience": ["everyone", "network", "circle"],"pin_category": ["thought", "question", "photos", "event", "going_out", "recap"],"report_reason": ["misrepresentation", "harassment", "unsafe", "privacy", "spam", "inappropriate", "other"],"report_status": ["open", "reviewing", "resolved", "dismissed"],"request_status": ["pending", "accepted", "declined", "cancelled"],"safety_level": ["unsafe", "leaving", "emergency"],"user_role": ["user", "admin"],"vouch_status": ["active", "flagged", "revoked"],"vouch_type": ["gps", "invite", "contact"]
+            "background_check_status": ["awaiting_payment", "pending", "clear", "not_clear", "cancelled"],"connection_source": ["invite", "intro", "event", "group", "date", "manual", "qr", "code", "contacts"],"date_session_status": ["waiting", "active", "ended", "cancelled"],"date_status": ["pending", "accepted", "countered", "passed", "cancelled"],"date_when": ["tonight", "this_weekend", "next_week", "specific"],"encounter_context": ["venue", "event", "group", "date", "nearby"],"going_out_join_status": ["heading", "here"],"going_out_when": ["tonight", "weekend", "scheduled"],"group_role": ["owner", "admin", "member"],"intro_status": ["pending", "accepted", "declined"],"join_type": ["request", "open"],"location_precision": ["approximate", "precise"],"pin_audience": ["everyone", "network", "circle"],"pin_category": ["thought", "question", "photos", "event", "going_out", "recap"],"report_reason": ["misrepresentation", "harassment", "unsafe", "privacy", "spam", "inappropriate", "other", "assault", "violence"],"report_status": ["open", "reviewing", "resolved", "dismissed"],"request_status": ["pending", "accepted", "declined", "cancelled"],"safety_level": ["unsafe", "leaving", "emergency"],"user_role": ["user", "admin"],"vouch_status": ["active", "flagged", "revoked"],"vouch_type": ["gps", "invite", "contact"]
           }
         }
 } as const
-

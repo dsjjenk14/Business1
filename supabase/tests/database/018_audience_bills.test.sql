@@ -5,6 +5,7 @@ create extension if not exists pgtap with schema extensions;
 update app_config set value = '0' where key = 'safety_min_vouches';
 alter table user_settings alter column here_delay_minutes set default 0;
 select plan(35);
+update app_config set value = 'false' where key = 'photo_check_required'; -- tests that aren't about the photo check
 
 create or replace function pg_temp.new_user(p_email text, p_name text) returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();

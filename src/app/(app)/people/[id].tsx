@@ -109,7 +109,7 @@ export default function PersonProfile() {
               }
             }}
           />
-        ) : card.degree === 2 ? (
+        ) : card.degree === 2 && !card.notable ? (
           <Button
             label="Request Intro"
             variant="secondary"
@@ -119,14 +119,18 @@ export default function PersonProfile() {
           />
         ) : null}
       </View>
-      {card.degree === 1 && !card.can_message ? (
+      {card.notable && !card.can_message ? (
+        <AppText variant="caption" tone="subtle" align="center">
+          Messages are limited: {first} is Notable and chooses who can message them. Intro requests are off.
+        </AppText>
+      ) : card.degree === 1 && !card.can_message ? (
         <AppText variant="caption" tone="subtle" align="center">
           Messaging unlocks after {needed} back-and-forths with {first} on Pins
           {exchanges != null ? ` (${Math.min(exchanges, needed)} of ${needed} so far)` : ''}. Premium skips the wait.
         </AppText>
       ) : null}
       <IcebreakersCard userId={card.id} firstName={first} connected={card.degree === 1} />
-      {card.degree === 2 ? (
+      {card.degree === 2 && !card.notable ? (
         <AppText variant="caption" tone="subtle" align="center">
           {first} is one intro away. Ask {card.via[0]?.display_name ?? 'an Insider you share'} to introduce you, and you can message right away.
         </AppText>
@@ -160,6 +164,7 @@ export default function PersonProfile() {
         { label: privacy?.muted ? `Unmute ${first}` : `Mute ${first} (hide their posts from me)`, onPress: () => toggle('muted') },
         { label: privacy?.hidden ? `Show my posts to ${first} again` : `Hide my posts from ${first}`, onPress: () => toggle('hidden') },
         { label: `Report ${first}`, onPress: () => router.push({ pathname: '/report', params: { user: card.id, name: card.display_name } }) },
+        { label: 'Remove an intimate image of me', danger: true, onPress: () => router.push({ pathname: '/remove-image', params: { poster: card.id, name: card.display_name } }) },
         { label: `Block ${first}`, danger: true, onPress: () => setConfirmBlock(true) },
       ]
     : [];

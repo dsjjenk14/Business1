@@ -32,18 +32,16 @@ export default function Messages() {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [dates, setDates] = useState<MyDate[]>([]);
 
+  const load = useCallback(async () => {
+    const [inbox, d] = await Promise.all([supabase.rpc('inbox'), fetchMyDates().catch(() => [])]);
+    setRows(((inbox.data ?? []) as Row[]).filter(Boolean));
+    setDates(d);
+  }, []);
+
   useFocusEffect(
     useCallback(() => {
-      let cancelled = false;
-      Promise.all([supabase.rpc('inbox'), fetchMyDates().catch(() => [])]).then(([inbox, d]) => {
-        if (cancelled) return;
-        setRows(((inbox.data ?? []) as Row[]).filter(Boolean));
-        setDates(d);
-      });
-      return () => {
-        cancelled = true;
-      };
-    }, []),
+      load().catch(() => undefined);
+    }, [load]),
   );
 
   const open = (r: Row) => router.push({ pathname: '/chat/[id]', params: { id: String(r.conversation_id) } });
@@ -82,7 +80,7 @@ export default function Messages() {
   return (
     <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
       <BackHeader title="Messages" right={<IconButton icon="create-outline" label="New group chat" onPress={() => router.push('/chat/new')} />} />
-      <Screen contentGap={t.space[5]}>
+      <Screen contentGap={t.space[5]} onRefresh={load}>
         {waiting.length ? (
           <Section title="Date requests">
             {waiting.map((d) => (

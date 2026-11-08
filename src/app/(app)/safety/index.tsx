@@ -123,6 +123,20 @@ export default function Safety() {
           ) : null}
         </Section>
 
+        <Section title="Background check">
+          <Card onPress={() => router.push('/safety/background-check')} accessibilityLabel="Get a background check">
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+              <GlyphTile name="shield" size={44} tone="trust" />
+              <View style={{ flex: 1 }}>
+                <AppText weight="bold">Get a background check</AppText>
+                <AppText variant="small" tone="muted">
+                  Adds a Background checked tag to your profile
+                </AppText>
+              </View>
+            </View>
+          </Card>
+        </Section>
+
         <Section title="If you need help">
           <Card onPress={() => router.push('/safety/help')} accessibilityLabel="I need help right now">
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>

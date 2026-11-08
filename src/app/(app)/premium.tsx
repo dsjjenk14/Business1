@@ -159,8 +159,9 @@ export default function Premium() {
 
         {payButton}
         <AppText variant="caption" tone="subtle" align="center">
-          Premium never skips intros: people outside your Insiders are always one intro away, on every plan. Payments are handled by Stripe;
-          cancel any time from this screen.
+          {PREMIUM_PRICE}/month, renews automatically every month until you cancel. Cancel any time from this screen, and Premium stays on until
+          the end of the month you paid for. Payments are handled by Stripe. Premium never skips intros: people outside your Insiders are always
+          one intro away, on every plan.
         </AppText>
       </Screen>
     </View>

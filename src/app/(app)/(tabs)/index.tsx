@@ -6,7 +6,11 @@ import { ActivityRow, EventRow, GroupSuggestion } from '@/components/home/HomePa
 import { InviteVerifyCard } from '@/components/home/InviteVerifyCard';
 import { NewcomerEvents } from '@/components/home/NewcomerEvents';
 import { StartCard } from '@/components/home/StartCard';
+import { ExamplePins } from '@/components/home/ExamplePins';
+import { FamousRow } from '@/components/home/FamousRow';
+import { NotableRow } from '@/components/home/NotableRow';
 import { StoriesRow } from '@/components/home/StoriesRow';
+import { HomeProfileNudge } from '@/components/profile/ProfileExtras';
 import { WhatsInHero } from '@/components/home/WhatsInHero';
 import { LiveNowRow } from '@/components/live/LiveNowRow';
 import { PinCard } from '@/components/pins/PinCard';
@@ -136,6 +140,9 @@ export default function Home() {
       contentContainerStyle={{ padding: t.space[4], gap: t.space[6], paddingBottom: t.space[8], width: '100%', maxWidth: 640, alignSelf: 'center' }}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={t.colors.primary} />}>
       <StoriesRow />
+      <HomeProfileNudge />
+      <NotableRow />
+      <FamousRow />
       <LiveNowRow />
 
       <InviteVerifyCard />
@@ -149,7 +156,8 @@ export default function Home() {
       <Section title="Your Insiders’ pins" action={{ label: 'Post', onPress: () => router.push('/pins/new') }}>
         {feed.pins.length === 0 ? (
           <Card>
-            <View style={{ gap: t.space[2] }}>
+            <View style={{ gap: t.space[3] }}>
+              {feed.friend_count === 0 ? <ExamplePins /> : null}
               <AppText variant="small" tone="muted">
                 {feed.friend_count === 0
                   ? 'Add Insiders to see their pins here. Scan each other’s code when you’re together, or send a code to someone you know.'

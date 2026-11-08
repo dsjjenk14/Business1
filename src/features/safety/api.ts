@@ -5,18 +5,24 @@ export type ReportReason = Database['public']['Enums']['report_reason'];
 export type MyReport = Database['public']['Functions']['my_reports']['Returns'][number];
 export type BlockedMember = Database['public']['Functions']['my_blocked']['Returns'][number];
 
+/** Reports about something that happened in person. The member is put on hold while we review. */
+export const SERIOUS_REASONS: ReportReason[] = ['assault', 'violence'];
+
 export const REPORT_REASONS: { key: ReportReason; label: string; detail: string }[] = [
+  { key: 'assault', label: 'Sexual assault or rape', detail: 'Any sexual contact without consent' },
+  { key: 'violence', label: 'Violence or threats in person', detail: 'Hurt, threatened, or followed you' },
   { key: 'harassment', label: 'Harassment', detail: 'Unwanted contact, threats, or bullying' },
   { key: 'unsafe', label: 'Made me feel unsafe', detail: 'Predatory or aggressive behavior' },
   { key: 'inappropriate', label: 'Inappropriate content', detail: 'Sexual, hateful, or violent content' },
-  { key: 'misrepresentation', label: 'Fake or misleading', detail: "Photos or info didn't match, or impersonation" },
+  { key: 'misrepresentation', label: 'Fake or misleading', detail: "AI-made photos, photos or info that didn't match, or impersonation" },
   { key: 'privacy', label: 'Privacy violation', detail: 'Shared my info without consent' },
   { key: 'spam', label: 'Spam or scam', detail: 'Selling, scams, or repetitive posts' },
   { key: 'other', label: 'Something else', detail: 'Tell us in the details' },
 ];
 
+/** Sends a report and returns its id. */
 export async function report(input: { reason: ReportReason; details?: string; userId?: string; pinId?: number; replyId?: number; messageId?: number }) {
-  const { error } = await supabase.rpc('report', {
+  const { data, error } = await supabase.rpc('report', {
     p_reason: input.reason,
     p_details: input.details ?? '',
     p_user: input.userId,
@@ -24,6 +30,55 @@ export async function report(input: { reason: ReportReason; details?: string; us
     p_reply: input.replyId,
     p_message: input.messageId,
   });
+  if (error) throw error;
+  return data as number;
+}
+
+export type PoliceStatus = 'reported' | 'not_yet' | 'no';
+/** When and where it happened, police, and whether we may share the messages with police. */
+export type Incident = {
+  when: string;
+  place: string;
+  police: PoliceStatus | null;
+  agency?: string;
+  caseNumber?: string;
+  shareWithPolice: boolean | null;
+  canContact: boolean;
+};
+export async function reportIncident(reportId: number, i: Incident) {
+  const { error } = await supabase.rpc('report_incident', {
+    p_report: reportId,
+    p_when: i.when,
+    p_place: i.place,
+    p_police: i.police as string,
+    p_agency: i.agency || undefined,
+    p_case: i.caseNumber || undefined,
+    p_share: i.shareWithPolice ?? undefined,
+    p_contact: i.canContact,
+  });
+  if (error) throw error;
+}
+
+export type ReportDetail = {
+  id: number;
+  reason: ReportReason;
+  serious: boolean;
+  incident_when: string | null;
+  incident_place: string | null;
+  police_status: PoliceStatus | null;
+  police_agency: string | null;
+  police_case: string | null;
+  share_with_police: boolean | null;
+  can_contact: boolean;
+  thread: { from_admin: boolean; body: string; at: string }[];
+};
+export async function fetchReportDetail(id: number) {
+  const { data, error } = await supabase.rpc('my_report_detail', { p_report: id });
+  if (error) throw error;
+  return data as unknown as ReportDetail | null;
+}
+export async function answerReportQuestion(id: number, answer: string) {
+  const { error } = await supabase.rpc('answer_report_question', { p_report: id, p_answer: answer });
   if (error) throw error;
 }
 
@@ -151,11 +206,12 @@ export async function setPinHiddenFrom(pinId: number, userIds: string[]) {
 
 /** Report a date: what happened with someone you asked out or went on Date Mode with. */
 export async function reportDate(input: { otherId: string; reason: ReportReason; details?: string; dateId?: number }) {
-  const { error } = await supabase.rpc('report_date', {
+  const { data, error } = await supabase.rpc('report_date', {
     p_other: input.otherId,
     p_reason: input.reason,
     p_details: input.details ?? '',
     p_date: input.dateId,
   });
   if (error) throw error;
+  return data as number;
 }

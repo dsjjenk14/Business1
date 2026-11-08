@@ -61,7 +61,7 @@ export default function Circles() {
   const pendingCount = (intros?.to_answer.length ?? 0) + (intros?.requests.length ?? 0);
 
   return (
-    <Screen>
+    <Screen onRefresh={load}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <AppText variant="h1" accessibilityRole="header" style={{ flex: 1 }}>
           Insiders

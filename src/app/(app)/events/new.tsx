@@ -7,7 +7,7 @@ import { BackHeader } from '@/components/nav/AppHeader';
 import { DateTimeChips, upcomingDays } from '@/components/tonight/DateTimeChips';
 import { VenuePicker, type PlaceChoice } from '@/components/tonight/VenuePicker';
 import { useAppConfig, useFeature } from '@/config/useAppConfig';
-import { AppText, Button, Chip, type GlyphName, isGlyphName, Screen, TextField, useToast } from '@/components/ui';
+import { AppText, Button, Chip, type GlyphName, isGlyphName, Screen, TextField, useToast, LegalNote } from '@/components/ui';
 import { PeoplePicker } from '@/components/chat/PeoplePicker';
 import { fetchChatCandidates, type ChatCandidate } from '@/features/chat/api';
 import { CoverPicker } from '@/components/events/CoverPicker';
@@ -354,6 +354,7 @@ export default function NewEvent() {
         <TextField label="Details" optional value={description} onChangeText={setDescription} maxLength={1000} multiline placeholder="What to expect, what to bring…" />
 
         <Button label="Post Event" onPress={submit} loading={busy} disabled={!ready} />
+        <LegalNote>You&apos;re responsible for your event: describing it honestly, following the law and the venue&apos;s rules, and serving alcohol only to people 21+.</LegalNote>
         <AppText variant="caption" tone="subtle">
           Your Insiders and Network see it first; people nearby see it on Tonight. You&apos;re automatically going.
         </AppText>

@@ -1,5 +1,7 @@
 import { ActivityIndicator, Pressable, View, type PressableProps, type StyleProp, type ViewStyle } from 'react-native';
 
+import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
+
 import { haptic } from '@/lib/haptics';
 import { useTheme } from '@/theme';
 
@@ -23,10 +25,17 @@ export type ButtonProps = Omit<PressableProps, 'style' | 'children'> & {
   loading?: boolean;
   icon?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
+  /** Stamp animation on press. On by default for "I'm In". */
+  stamp?: boolean;
 };
 
-export function Button({ label, variant = 'primary', size = 'lg', loading, disabled, icon, style, onPress, ...rest }: ButtonProps) {
+export function Button({ label, variant = 'primary', size = 'lg', loading, disabled, icon, style, onPress, stamp, ...rest }: ButtonProps) {
   const t = useTheme();
+  // "I'm In" buttons stamp: the words punch down and bounce back, with a buzz.
+  const stamps = stamp ?? /^I['’]m In$/.test(label);
+  const reduce = useReducedMotion();
+  const pop = useSharedValue(1);
+  const popStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.get() }, { rotate: `${(1 - pop.get()) * -20}deg` }] }));
   const isDisabled = disabled || loading;
   const { ticket } = look(t);
 
@@ -50,7 +59,10 @@ export function Button({ label, variant = 'primary', size = 'lg', loading, disab
       disabled={isDisabled}
       onPress={(e) => {
         // A light tap for the main actions you take.
-        if (variant === 'primary' || variant === 'trust') haptic.tap();
+        if (stamps) {
+          haptic.success();
+          if (!reduce) pop.set(withSequence(withTiming(0.82, { duration: 70 }), withSpring(1, { damping: 6, stiffness: 320 })));
+        } else if (variant === 'primary' || variant === 'trust') haptic.tap();
         onPress?.(e);
       }}
       style={({ pressed }) => [
@@ -75,12 +87,12 @@ export function Button({ label, variant = 'primary', size = 'lg', loading, disab
       {loading ? (
         <ActivityIndicator color={palette.fg} />
       ) : (
-        <>
+        <Animated.View style={[{ flexDirection: 'row', alignItems: 'center', gap: t.space[2] }, popStyle]}>
           {icon ? <View>{icon}</View> : null}
           <AppText weight="bold" style={{ color: palette.fg, fontSize: size === 'lg' ? 16 : 14, letterSpacing: -0.2 }}>
             {label}
           </AppText>
-        </>
+        </Animated.View>
       )}
     </Pressable>
   );

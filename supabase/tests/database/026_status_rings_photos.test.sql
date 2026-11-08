@@ -5,6 +5,7 @@ create extension if not exists pgtap with schema extensions;
 update app_config set value = '0' where key = 'safety_min_vouches';
 alter table user_settings alter column here_delay_minutes set default 0;
 select plan(21);
+update app_config set value = 'false' where key = 'photo_check_required'; -- tests that aren't about the photo check
 
 create or replace function pg_temp.new_user(p_email text, p_name text) returns uuid language plpgsql as $$
 declare uid uuid := gen_random_uuid();
@@ -38,7 +39,7 @@ insert into connections (user_a, user_b, source) values (least(pg_temp.uid('a'),
 
 -- ── Photos ────────────────────────────────────────────────────────────────
 select pg_temp.act_as('a');
-select is(set_profile_photos(array[pg_temp.url('a', '1.jpg'), pg_temp.url('a', '2.jpg'), pg_temp.url('a', '3.jpg')]), array[pg_temp.url('a', '1.jpg'), pg_temp.url('a', '2.jpg'), pg_temp.url('a', '3.jpg')], 'Save 3 photos');
+select is(set_profile_photos(array[pg_temp.url('a', '1.jpg'), pg_temp.url('a', '2.jpg'), pg_temp.url('a', '3.jpg')])->'photos', to_jsonb(array[pg_temp.url('a', '1.jpg'), pg_temp.url('a', '2.jpg'), pg_temp.url('a', '3.jpg')]), 'Save 3 photos');
 select is((select avatar_url from profiles where id = pg_temp.uid('a')), pg_temp.url('a', '1.jpg'), 'The first is the main photo');
 select throws_ok(format('select set_profile_photos(array[%L,%L,%L,%L])', pg_temp.url('a', '1.jpg'), pg_temp.url('a', '2.jpg'), pg_temp.url('a', '3.jpg'), pg_temp.url('a', '4.jpg')),
   '23514', 'Up to 3 profile photos.', 'No more than 3');
@@ -50,7 +51,7 @@ select is((select photos from people_status(array[pg_temp.uid('a')])), array[pg_
 select pg_temp.act_as('a');
 update profiles set avatar_url = pg_temp.url('a', 'new.jpg') where id = pg_temp.uid('a');
 select is((select photo_urls from profiles where id = pg_temp.uid('a')), array[pg_temp.url('a', 'new.jpg'), pg_temp.url('a', '2.jpg'), pg_temp.url('a', '3.jpg')], 'Changing the main photo the old way keeps the others');
-select is(set_profile_photos(array[]::text[]), array[]::text[], 'Remove all photos');
+select is(set_profile_photos(array[]::text[])->'photos', '[]'::jsonb, 'Remove all photos');
 select is((select avatar_url from profiles where id = pg_temp.uid('a')), null, 'No main photo left');
 
 -- ── Status ────────────────────────────────────────────────────────────────

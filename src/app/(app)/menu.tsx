@@ -63,7 +63,11 @@ export default function Menu() {
     items: g.items.filter((i) => (drinksOn || i.href !== '/settings/wallet') && (aiOn || !i.ai)),
   }));
   const groups: typeof GROUPS =
-    profile?.role === 'admin' ? [...base, { title: 'Team', items: [{ label: 'Admin', icon: 'construct-outline', href: '/admin' }] }] : base;
+    profile?.role === 'admin'
+      ? [...base, { title: 'Team', items: [{ label: 'Admin', icon: 'construct-outline', href: '/admin' }] }]
+      : profile?.photo_reviewer
+        ? [...base, { title: 'Team', items: [{ label: 'Review photos', icon: 'images-outline', href: '/review' }] }]
+        : base;
 
   return (
     <>
