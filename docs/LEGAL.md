@@ -47,7 +47,7 @@ launch. Many offer a flat-fee review for startups.
 ## Things only you can do (in order)
 
 1. **Form a company (an LLC).** This is the biggest protection: it keeps the business's debts and lawsuits separate from your personal savings and home. Then put the company's name in the Terms (tell me the exact name).
-2. **Confirm the governing state.** The Terms say **Virginia** (`GOVERNING_STATE` in `content.ts`). If your company is formed somewhere else, tell me and I'll change it.
+2. **Governing state: Virginia** (confirmed by the owner, November 8, 2026). It's `GOVERNING_STATE` in `content.ts`.
 3. **Get insurance.** Ask an insurance broker for:
    - general liability
    - cyber/data breach
