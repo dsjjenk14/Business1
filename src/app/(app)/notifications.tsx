@@ -1,5 +1,5 @@
-import { useRouter, type Href } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useFocusEffect, useRouter, type Href } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
@@ -16,25 +16,25 @@ export default function Notifications() {
   const { session } = useAuth();
   const [items, setItems] = useState<Tables<'notifications'>[] | null>(null);
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!session) return;
-    supabase
-      .from('notifications')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(50)
-      .then(({ data }) => {
-        setItems(data ?? []);
-        // Opening the list marks everything as read.
-        const unread = (data ?? []).filter((n) => !n.read_at).map((n) => n.id);
-        if (unread.length) supabase.from('notifications').update({ read_at: new Date().toISOString() }).in('id', unread).then(() => {});
-      });
+    const { data } = await supabase.from('notifications').select('*').order('created_at', { ascending: false }).limit(50);
+    setItems(data ?? []);
+    // Opening the list marks everything as read.
+    const unread = (data ?? []).filter((n) => !n.read_at).map((n) => n.id);
+    if (unread.length) await supabase.from('notifications').update({ read_at: new Date().toISOString() }).in('id', unread);
   }, [session]);
+
+  useFocusEffect(
+    useCallback(() => {
+      load().catch(() => undefined);
+    }, [load]),
+  );
 
   return (
     <>
       <BackHeader title="Notifications" />
-      <Screen contentGap={t.space[3]}>
+      <Screen contentGap={t.space[3]} onRefresh={load}>
         {items === null ? (
           <LoadingList rows={4} />
         ) : items.length === 0 ? (
