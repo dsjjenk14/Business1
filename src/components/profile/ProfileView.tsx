@@ -40,7 +40,9 @@ export function ProfileView({
   const { tiers } = useAppConfig();
   const { current } = tierProgress(card.vouch_count ?? 0, tiers);
   const place = card.neighborhood || card.city_name;
-  const subtitle = [card.age ? String(card.age) : null, place, card.pronouns].filter(Boolean).join(' · ');
+  // Skip the area when the headline already says it (e.g. "Howard Alum · Fairfax, VA").
+  const placeInHeadline = !!place && !!card.headline && card.headline.toLowerCase().includes(place.toLowerCase());
+  const subtitle = [card.age ? String(card.age) : null, placeInHeadline ? null : place, card.pronouns].filter(Boolean).join(' · ');
   const verified = card.id_verified || card.photo_verified;
   const [tab, setTab] = useState<Tab>('pins');
   const hasPhotos = pins.some((p) => p.photo_paths.length > 0);

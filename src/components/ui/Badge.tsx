@@ -35,24 +35,24 @@ export function Badge({ label, tone = 'primary', glyph, verified }: BadgeProps) 
     // A little tilt, the same every time for the same word, like a sticker slapped on.
     // Shrink the letters so the longest word always fits on one line inside the circle.
     const longest = Math.max(...label.split(/\s+/).map((w) => w.length));
-    const size = Math.min(12.5, 64 / (longest * 0.64));
+    const size = Math.min(11, 50 / (longest * 0.6));
     const tilt = ((label.split('').reduce((n, c) => n + c.charCodeAt(0), 0) % 13) - 6) * 1.2;
     return (
       <View
         style={{
-          width: 84,
-          height: 84,
-          borderRadius: 42,
+          width: 66,
+          height: 66,
+          borderRadius: 33,
           backgroundColor: fill,
-          borderWidth: 3,
+          borderWidth: 2.5,
           borderColor: t.mode === 'dark' ? '#F5F5F5' : '#FFFFFF',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: 7,
+          padding: 4,
           gap: 1,
           transform: [{ rotate: `${tilt}deg` }],
         }}>
-        {glyph ? <Glyph name={glyph} size={14} color={ink} strokeWidth={2.4} /> : null}
+        {glyph ? <Glyph name={glyph} size={12} color={ink} strokeWidth={2.4} /> : null}
         <AppText
           align="center"
           numberOfLines={3}
