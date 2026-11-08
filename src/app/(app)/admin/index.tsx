@@ -5,10 +5,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { Linking, View } from 'react-native';
 
 import { AdminClaims, AdminVerifiedHosts } from '@/components/admin/AdminClaims';
+import { AdminAppeals, DecisionGuide } from '@/components/admin/Moderation';
+import { ReportEvidence } from '@/components/admin/ReportEvidence';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Badge, Button, Card, Chip, EmptyState, Glyph, LoadingList, Screen, Section, Segmented, Skeleton, TextField, useToast, type GlyphName } from '@/components/ui';
-import { actOnReport, addPlacement, addVenue, endPlacement, fetchInquiries, fetchLaunchMetrics, fetchOverview, fetchPlacements, fetchReports, fetchRevenue, fetchUsage, fetchVenues, fetchVerifications, grantPremium, reviewVerification, setInquiryStatus, signedSelfie, type AdminReport, type AdminVenue, type AdminVerification, type Inquiry, type LaunchMetrics, type Overview, type Placement, type RevenueRow, type UsageRow, memberAction } from '@/features/admin/api';
+import { actOnReport, addPlacement, clearHold, addVenue, endPlacement, fetchInquiries, fetchLaunchMetrics, fetchOverview, fetchPlacements, fetchReports, fetchRevenue, fetchUsage, fetchVenues, fetchVerifications, grantPremium, reviewVerification, setInquiryStatus, signedSelfie, type AdminReport, type AdminVenue, type AdminVerification, type Inquiry, type LaunchMetrics, type Overview, type Placement, type RevenueRow, type UsageRow, memberAction } from '@/features/admin/api';
 import { setVenueManager } from '@/features/places/specials';
+import { REPORT_REASONS } from '@/features/safety/api';
 import { money } from '@/features/payments/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
@@ -165,6 +168,18 @@ function Reports({ onChange }: { onChange: () => void }) {
       'Remove',
     );
 
+  const releaseHold = (r: AdminReport) =>
+    confirmThen(
+      `Clear the hold on ${r.reported_name ?? 'this member'}?`,
+      'They can use I’m In again. Do this only if the report didn’t hold up.',
+      () =>
+        run(() => clearHold(r.reported_id as string), 'Hold cleared').then(() => {
+          load();
+          onChange();
+        }),
+      'Clear hold',
+    );
+
   const act = (r: AdminReport, action: 'resolve' | 'remove' | 'restore' | 'dismiss', done: string) =>
     run(() => actOnReport(r.id, action), done).then(() => {
       load();
@@ -176,17 +191,30 @@ function Reports({ onChange }: { onChange: () => void }) {
 
   return (
     <View style={{ gap: t.space[3] }}>
+      <DecisionGuide />
+      <AdminAppeals onChange={onChange} />
       <View style={{ flexDirection: 'row', gap: t.space[2] }}>
         <Chip label={`Open (${open.length})`} selected={!showClosed} onPress={() => setShowClosed(false)} />
         <Chip label="All" selected={showClosed} onPress={() => setShowClosed(true)} />
       </View>
       {rows === null ? <LoadingList rows={2} /> : list.length === 0 ? <AppText tone="muted">Nothing waiting. Nice.</AppText> : null}
-      {list.map((r) => (
+      {list.map((r) => {
+        const live = r.status === 'open' || r.status === 'reviewing';
+        const label = REPORT_REASONS.find((x) => x.key === r.reason)?.label ?? r.reason;
+        const pattern = r.independent_reporters >= 2;
+        return (
         <Card key={r.id} accent={r.status === 'open' ? 'primary' : undefined}>
           <View style={{ gap: t.space[2] }}>
+            {r.priority <= 2 || r.on_hold || pattern ? (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+                {r.priority <= 2 ? <Pill label={r.priority === 1 ? 'Urgent' : 'Serious'} strong={r.priority === 1} /> : null}
+                {r.on_hold ? <Pill label="On hold" /> : null}
+                {pattern ? <Pill label={`${r.independent_reporters} different people reported them`} strong={r.priority <= 2} /> : null}
+              </View>
+            ) : null}
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: t.space[2] }}>
               <AppText weight="bold" style={{ flex: 1 }}>
-                {r.reason} · {r.about} by {r.reported_name ?? 'deleted account'}
+                {label} · {r.about === 'member' ? 'about' : `${r.about} by`} {r.reported_name ?? 'deleted account'}
               </AppText>
               <AppText variant="caption" tone="subtle">
                 {timeAgo(r.created_at)}
@@ -210,7 +238,13 @@ function Reports({ onChange }: { onChange: () => void }) {
               {r.reports_on_target} report{r.reports_on_target === 1 ? '' : 's'} on this member in total · {r.status}
               {r.hidden ? ' · content hidden' : ''}
             </AppText>
-            {r.status === 'open' || r.status === 'reviewing' ? (
+            {pattern && r.priority <= 2 && live ? (
+              <AppText variant="small" weight="bold" style={{ color: t.colors.danger }}>
+                More than one person reported something serious. The guide says remove.
+              </AppText>
+            ) : null}
+            {r.reported_id ? <ReportEvidence reportId={r.id} /> : null}
+            {live ? (
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
                 {r.pin_id || r.reply_id ? (
                   r.hidden ? (
@@ -233,12 +267,36 @@ function Reports({ onChange }: { onChange: () => void }) {
                   <Button label="Suspend 7 days" size="md" variant="secondary" onPress={() => member(r, 'suspend', 7, 'Suspended 7 days')} disabled={busy} />
                   <Button label="Suspend 30 days" size="md" variant="secondary" onPress={() => member(r, 'suspend', 30, 'Suspended 30 days')} disabled={busy} />
                   <Button label="Remove from app" size="md" variant="danger" onPress={() => removeMember(r)} disabled={busy} />
+                  {r.on_hold ? <Button label="Clear hold" size="md" variant="ghost" onPress={() => releaseHold(r)} disabled={busy} /> : null}
                 </View>
               </View>
+            ) : r.on_hold ? (
+              <Button label="Clear hold" size="md" variant="ghost" onPress={() => releaseHold(r)} disabled={busy} />
             ) : null}
           </View>
         </Card>
-      ))}
+        );
+      })}
+    </View>
+  );
+}
+
+/** A small label on a report: how serious it is, or that the member is on hold. */
+function Pill({ label, strong }: { label: string; strong?: boolean }) {
+  const t = useTheme();
+  return (
+    <View
+      style={{
+        paddingHorizontal: t.space[2],
+        paddingVertical: 2,
+        borderRadius: t.radius.pill,
+        backgroundColor: strong ? t.colors.danger : t.colors.surfaceAlt,
+        borderWidth: strong ? 0 : t.borderWidth.hairline,
+        borderColor: t.colors.border,
+      }}>
+      <AppText variant="caption" weight="bold" style={{ color: strong ? '#FFFFFF' : t.colors.text }}>
+        {label}
+      </AppText>
     </View>
   );
 }

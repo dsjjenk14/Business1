@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 
 import { ScreenError } from '@/components/ScreenError';
-import { AccountBlocked, useAccountStatus } from '@/components/safety/AccountBlocked';
+import { AccountBlocked, isBlocked, useAccountStatus } from '@/components/safety/AccountBlocked';
 import { useAutoArrive } from '@/features/arrival/useAutoArrive';
 import { usePush } from '@/features/notifications/usePush';
 import { useAuth } from '@/lib/auth';
@@ -15,9 +15,9 @@ export default function AppLayout() {
   const { session } = useAuth();
   useAutoArrive(!!session);
   usePush(!!session);
-  // Suspended or removed accounts see only a notice, never the app.
+  // Accounts on hold, suspended or removed see only a notice, never the app.
   const status = useAccountStatus(!!session);
-  if (status && (status.banned || status.suspended_until)) return <AccountBlocked status={status} />;
+  if (status && isBlocked(status)) return <AccountBlocked status={status} />;
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.colors.bg } }}>
       <Stack.Screen name="(tabs)" />

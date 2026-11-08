@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, Switch, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
+import { SafetyHelp } from '@/components/safety/SafetyHelp';
 import { AppText, Button, Screen, TextField, useToast } from '@/components/ui';
-import { REPORT_REASONS, blockUser, report, reportDate, type ReportReason } from '@/features/safety/api';
+import { REPORT_REASONS, SERIOUS_REASONS, blockUser, report, reportDate, type ReportReason } from '@/features/safety/api';
 import { goBackOr } from '@/lib/navigation';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
@@ -22,6 +23,9 @@ export default function Report() {
   const [alsoBlock, setAlsoBlock] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // After a serious report, stay on a page with help instead of going back.
+  const [sent, setSent] = useState(false);
+  const serious = !!reason && SERIOUS_REASONS.includes(reason);
 
   const isDate = !!params.date && !!params.user;
   const what = isDate ? `your date with ${params.name ?? 'this member'}` : params.pin ? 'this pin' : params.reply ? 'this reply' : params.message ? 'this message' : params.name ?? 'this member';
@@ -44,7 +48,11 @@ export default function Report() {
         replyId: params.reply ? Number(params.reply) : undefined,
         messageId: params.message ? Number(params.message) : undefined,
       });
-      if (alsoBlock && params.user) await blockUser(params.user);
+      if (alsoBlock && params.user && !serious) await blockUser(params.user);
+      if (serious) {
+        setSent(true);
+        return;
+      }
       toast(alsoBlock ? 'Reported and blocked. Thank you.' : 'Report sent. Thank you for keeping I’m In safe.');
       goBackOr(router, '/');
     } catch (e) {
@@ -53,6 +61,24 @@ export default function Report() {
       setBusy(false);
     }
   }
+
+  if (sent && reason && serious)
+    return (
+      <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
+        <BackHeader title="Report sent" />
+        <Screen>
+          <AppText variant="h2" accessibilityRole="header">
+            We got your report.
+          </AppText>
+          <AppText tone="muted">
+            Our team is reviewing it first, before anything else. You two can’t see or contact each other on I’m In anymore. They’ll never
+            know who reported them. We’ll let you know when we’ve finished.
+          </AppText>
+          <SafetyHelp kind={reason === 'assault' ? 'assault' : 'violence'} />
+          <Button label="Done" variant="secondary" onPress={() => goBackOr(router, '/')} />
+        </Screen>
+      </View>
+    );
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
@@ -105,7 +131,8 @@ export default function Report() {
           maxLength={2000}
           style={{ minHeight: 96, textAlignVertical: 'top', paddingTop: 12 }}
         />
-        {params.user ? (
+        {serious ? <SafetyHelp kind={reason === 'assault' ? 'assault' : 'violence'} /> : null}
+        {params.user && !serious ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
             <View style={{ flex: 1 }}>
               <AppText weight="bold">Also block {params.name ?? 'them'}</AppText>

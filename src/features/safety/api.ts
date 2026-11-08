@@ -5,7 +5,12 @@ export type ReportReason = Database['public']['Enums']['report_reason'];
 export type MyReport = Database['public']['Functions']['my_reports']['Returns'][number];
 export type BlockedMember = Database['public']['Functions']['my_blocked']['Returns'][number];
 
+/** Reports about something that happened in person. The member is put on hold while we review. */
+export const SERIOUS_REASONS: ReportReason[] = ['assault', 'violence'];
+
 export const REPORT_REASONS: { key: ReportReason; label: string; detail: string }[] = [
+  { key: 'assault', label: 'Sexual assault or rape', detail: 'Any sexual contact without consent' },
+  { key: 'violence', label: 'Violence or threats in person', detail: 'Hurt, threatened, or followed you' },
   { key: 'harassment', label: 'Harassment', detail: 'Unwanted contact, threats, or bullying' },
   { key: 'unsafe', label: 'Made me feel unsafe', detail: 'Predatory or aggressive behavior' },
   { key: 'inappropriate', label: 'Inappropriate content', detail: 'Sexual, hateful, or violent content' },

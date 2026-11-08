@@ -42,6 +42,16 @@ launch. Many offer a flat-fee review for startups.
   - Checking contacts: only contacts you have permission to share.
   - Vouching: it's your personal opinion.
   - Background check: authorization, a copy of the report, free disputes, what the badge means, no refund once started.
+- **Reports about things that happen in person** (added November 8, 2026):
+  - Two new report reasons: sexual assault or rape, and violence or threats in person. These are sorted to the top as Urgent.
+  - If the two people actually met, planned a date or messaged, the reported member is put on hold right away, before review, and the two are blocked from each other. A reporter can trigger at most two automatic holds a month, so holds can't be used to harass strangers.
+  - The records about the two of them are copied the moment the report comes in (messages, where they met, date plans, Date Mode and alerts) and kept even if an account is deleted.
+  - The reporter always gets an answer, with 911, RAINN (800-656-4673) and, for violence, the National Domestic Violence Hotline (800-799-7233).
+  - Admins see the saved records, the reported member's history, how many different people reported them, and the reporter's history. A written "How to decide" guide is in the admin Reports tab.
+  - Removed members' phone numbers are blocked (stored scrambled), and the vouches they gave stop counting.
+  - Anyone on hold, suspended or removed can ask for a second look. An admin keeps or reverses the decision.
+  - The Terms, Privacy Policy and Guidelines describe all of this.
+- **Police requests:** under the federal Stored Communications Act (18 U.S.C. §§ 2702–2703), give message contents to police only with a warrant, or in an emergency involving danger of death or serious injury. Send every request to your lawyer.
 - **Deleting an account** now removes every file the member uploaded: photos, post photos and videos, Outs, event covers and verification selfies. Receipt photos stay with shared bills, as the Privacy Policy says.
 
 ## Things only you can do (in order)

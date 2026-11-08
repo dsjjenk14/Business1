@@ -46,6 +46,32 @@ export const actOnReport = async (id: number, action: 'resolve' | 'remove' | 're
 /** Act on the member a report is about: warn, suspend for some days, or remove from the app. */
 export const memberAction = async (reportId: number, action: 'warn' | 'suspend' | 'ban', days?: number) =>
   unwrap<null>(await supabase.rpc('admin_member_action', { p_report: reportId, p_action: action, p_days: days ?? undefined }));
+/** Clear an automatic hold when the report didn't hold up. */
+export const clearHold = async (userId: string) => unwrap<null>(await supabase.rpc('admin_clear_hold', { p_user: userId }));
+
+type Dated = { at: string };
+/** Everything saved about one report, plus both people's history. */
+export type ReportEvidence = {
+  saved: {
+    met_in_person?: ({ until: string; place: string | null; context: string } & Dated)[];
+    date_requests?: { from_id: string; status: string; starts_at: string | null; place_text: string | null; note: string | null; created_at: string }[];
+    date_mode?: { status: string; activated_at: string | null; ended_at: string | null; last_problem: string | null; alerts: ({ who: 'reporter' | 'reported'; level: string } & Dated)[] }[];
+    messages?: ({ from: 'reporter' | 'reported'; body: string } & Dated)[];
+  };
+  independent_reporters: number;
+  serious_reports: number;
+  past_actions: ({ action: string; note: string | null } & Dated)[];
+  vouches_taken_back_90d: number;
+  reporter_reports_made: number;
+  reporter_reports_dismissed: number;
+  reporter_was_reported: number;
+};
+export const fetchEvidence = async (reportId: number) => unwrap<ReportEvidence>(await supabase.rpc('admin_report_evidence', { p_report: reportId }));
+
+export type Appeal = Fn['admin_appeals']['Returns'][number];
+export const fetchAppeals = async () => unwrap<Appeal[]>(await supabase.rpc('admin_appeals'));
+/** lift: account back to normal. Otherwise the decision stays. */
+export const decideAppeal = async (id: number, lift: boolean) => unwrap<null>(await supabase.rpc('admin_decide_appeal', { p_appeal: id, p_lift: lift }));
 export const fetchVerifications = async () => unwrap<AdminVerification[]>(await supabase.rpc('admin_verifications'));
 export const reviewVerification = async (id: number, approve: boolean, note?: string) =>
   unwrap<null>(await supabase.rpc('admin_review_verification', { p_request: id, p_approve: approve, p_note: note ?? undefined }));

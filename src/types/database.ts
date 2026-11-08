@@ -85,6 +85,26 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"appeals": {
+                  Row: {
+                    "created_at": string,"decided_at": string | null,"id": number,"message": string,"status": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"decided_at"?: string | null,"id"?: never,"message": string,"status"?: string,"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"decided_at"?: string | null,"id"?: never,"message"?: string,"status"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "appeals_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"background_checks": {
                   Row: {
                     "completed_at": string | null,"consented_at": string,"created_at": string,"id": number,"paid_with": string,"provider": string | null,"provider_ref": string | null,"status": Database["public"]['Enums']["background_check_status"],"user_id": string
@@ -1913,14 +1933,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "approx_location": unknown,"avatar_emoji": string | null,"avatar_url": string | null,"background_checked_at": string | null,"banned_at": string | null,"bio": string,"city_id": number | null,"created_at": string,"display_name": string,"full_name": string,"header_url": string | null,"headline": string,"id": string,"id_verified_at": string | null,"interests": (string)[],"invite_code": string,"invited_by": string | null,"is_founding_member": boolean,"location_precision": Database["public"]['Enums']["location_precision"],"member_number": number,"milestone_celebrated": number,"mood": string | null,"neighborhood": string | null,"photo_urls": (string)[],"photo_verified_at": string | null,"profile_color": string | null,"prompts": NonNullable<Json>,"pronouns": string | null,"role": Database["public"]['Enums']["user_role"],"show_age": boolean,"show_area": boolean,"song": Json | null,"suspended_until": string | null,"top_vouch_word": string | null,"updated_at": string,"verified_host": boolean,"vouch_count": number
+                    "approx_location": unknown,"avatar_emoji": string | null,"avatar_url": string | null,"background_checked_at": string | null,"banned_at": string | null,"bio": string,"city_id": number | null,"created_at": string,"display_name": string,"full_name": string,"header_url": string | null,"headline": string,"id": string,"id_verified_at": string | null,"interests": (string)[],"invite_code": string,"invited_by": string | null,"is_founding_member": boolean,"location_precision": Database["public"]['Enums']["location_precision"],"member_number": number,"milestone_celebrated": number,"mood": string | null,"neighborhood": string | null,"photo_urls": (string)[],"photo_verified_at": string | null,"profile_color": string | null,"prompts": NonNullable<Json>,"pronouns": string | null,"role": Database["public"]['Enums']["user_role"],"show_age": boolean,"show_area": boolean,"song": Json | null,"suspended_until": string | null,"top_vouch_word": string | null,"under_review": boolean,"updated_at": string,"verified_host": boolean,"vouch_count": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"background_checked_at"?: string | null,"banned_at"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name": string,"full_name": string,"header_url"?: string | null,"headline"?: string,"id": string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code": string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"milestone_celebrated"?: number,"mood"?: string | null,"neighborhood"?: string | null,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"profile_color"?: string | null,"prompts"?: NonNullable<Json>,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"show_area"?: boolean,"song"?: Json | null,"suspended_until"?: string | null,"top_vouch_word"?: string | null,"updated_at"?: string,"verified_host"?: boolean,"vouch_count"?: number
+                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"background_checked_at"?: string | null,"banned_at"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name": string,"full_name": string,"header_url"?: string | null,"headline"?: string,"id": string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code": string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"milestone_celebrated"?: number,"mood"?: string | null,"neighborhood"?: string | null,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"profile_color"?: string | null,"prompts"?: NonNullable<Json>,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"show_area"?: boolean,"song"?: Json | null,"suspended_until"?: string | null,"top_vouch_word"?: string | null,"under_review"?: boolean,"updated_at"?: string,"verified_host"?: boolean,"vouch_count"?: number
                   }
                   Update: {
-                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"background_checked_at"?: string | null,"banned_at"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name"?: string,"full_name"?: string,"header_url"?: string | null,"headline"?: string,"id"?: string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code"?: string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"milestone_celebrated"?: number,"mood"?: string | null,"neighborhood"?: string | null,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"profile_color"?: string | null,"prompts"?: NonNullable<Json>,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"show_area"?: boolean,"song"?: Json | null,"suspended_until"?: string | null,"top_vouch_word"?: string | null,"updated_at"?: string,"verified_host"?: boolean,"vouch_count"?: number
+                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"background_checked_at"?: string | null,"banned_at"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name"?: string,"full_name"?: string,"header_url"?: string | null,"headline"?: string,"id"?: string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code"?: string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"milestone_celebrated"?: number,"mood"?: string | null,"neighborhood"?: string | null,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"profile_color"?: string | null,"prompts"?: NonNullable<Json>,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"show_area"?: boolean,"song"?: Json | null,"suspended_until"?: string | null,"top_vouch_word"?: string | null,"under_review"?: boolean,"updated_at"?: string,"verified_host"?: boolean,"vouch_count"?: number
                   }
                   Relationships: [
                     {
@@ -1979,14 +1999,14 @@ isOneToOne: false
                   ]
                 },"reports": {
                   Row: {
-                    "admin_notes": string | null,"created_at": string,"date_request_id": number | null,"details": string,"id": number,"message_id": number | null,"pin_id": number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number | null,"reported_user_id": string | null,"reporter_id": string,"resolved_at": string | null,"status": Database["public"]['Enums']["report_status"]
+                    "admin_notes": string | null,"created_at": string,"date_request_id": number | null,"details": string,"id": number,"message_id": number | null,"pin_id": number | null,"priority": number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number | null,"reported_user_id": string | null,"reporter_id": string,"resolved_at": string | null,"status": Database["public"]['Enums']["report_status"]
                   }
                   ComputedFields: never
                   Insert: {
-                    "admin_notes"?: string | null,"created_at"?: string,"date_request_id"?: number | null,"details"?: string,"id"?: number,"message_id"?: number | null,"pin_id"?: number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id": string,"resolved_at"?: string | null,"status"?: Database["public"]['Enums']["report_status"]
+                    "admin_notes"?: string | null,"created_at"?: string,"date_request_id"?: number | null,"details"?: string,"id"?: number,"message_id"?: number | null,"pin_id"?: number | null,"priority"?: number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id": string,"resolved_at"?: string | null,"status"?: Database["public"]['Enums']["report_status"]
                   }
                   Update: {
-                    "admin_notes"?: string | null,"created_at"?: string,"date_request_id"?: number | null,"details"?: string,"id"?: number,"message_id"?: number | null,"pin_id"?: number | null,"reason"?: Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id"?: string,"resolved_at"?: string | null,"status"?: Database["public"]['Enums']["report_status"]
+                    "admin_notes"?: string | null,"created_at"?: string,"date_request_id"?: number | null,"details"?: string,"id"?: number,"message_id"?: number | null,"pin_id"?: number | null,"priority"?: number | null,"reason"?: Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id"?: string,"resolved_at"?: string | null,"status"?: Database["public"]['Enums']["report_status"]
                   }
                   Relationships: [
                     {
@@ -2503,6 +2523,17 @@ isOneToOne: true
 "admin_act_on_report":
 { Args: { "p_action": string,"p_note"?: string,"p_report": number }; Returns: undefined
                            },
+"admin_appeals":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "banned": boolean,"created_at": string,"history": Json,"id": number,"message": string,"name": string,"suspended_until": string,"under_review": boolean,"user_id": string
+            }[]
+                           },
+"admin_clear_hold":
+{ Args: { "p_user": string }; Returns: undefined
+                           },
+"admin_decide_appeal":
+{ Args: { "p_appeal": number,"p_lift": boolean }; Returns: undefined
+                           },
 "admin_grant_premium":
 { Args: { "p_days": number,"p_email": string }; Returns: string
                            },
@@ -2512,9 +2543,12 @@ isOneToOne: true
 "admin_overview":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"admin_report_evidence":
+{ Args: { "p_report": number }; Returns: Json
+                           },
 "admin_reports":
 { Args: Record<PropertyKey, never>; Returns: {
-              "about": string,"admin_notes": string,"content": string,"created_at": string,"details": string,"hidden": boolean,"id": number,"message_id": number,"pin_id": number,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number,"reported_id": string,"reported_name": string,"reporter_name": string,"reports_on_target": number,"status": Database["public"]['Enums']["report_status"]
+              "about": string,"admin_notes": string,"content": string,"created_at": string,"details": string,"hidden": boolean,"id": number,"independent_reporters": number,"message_id": number,"on_hold": boolean,"pin_id": number,"priority": number,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number,"reported_id": string,"reported_name": string,"reporter_name": string,"reports_on_target": number,"status": Database["public"]['Enums']["report_status"]
             }[]
                            },
 "admin_revenue":
@@ -3270,6 +3304,9 @@ isOneToOne: true
 "stripe_ticket_refunded":
 { Args: { "p_payment_intent": string }; Returns: undefined
                            },
+"submit_appeal":
+{ Args: { "p_message": string }; Returns: undefined
+                           },
 "submit_partner_inquiry":
 { Args: { "p_address"?: string,"p_business": string,"p_contact": string,"p_email": string,"p_message"?: string,"p_phone"?: string }; Returns: number
                            },
@@ -3335,7 +3372,7 @@ isOneToOne: true
                            }
           }
           Enums: {
-            "background_check_status": "awaiting_payment"|"pending"|"clear"|"not_clear"|"cancelled","connection_source": "invite"|"intro"|"event"|"group"|"date"|"manual"|"qr"|"code"|"contacts","date_session_status": "waiting"|"active"|"ended"|"cancelled","date_status": "pending"|"accepted"|"countered"|"passed"|"cancelled","date_when": "tonight"|"this_weekend"|"next_week"|"specific","encounter_context": "venue"|"event"|"group"|"date"|"nearby","going_out_join_status": "heading"|"here","going_out_when": "tonight"|"weekend"|"scheduled","group_role": "owner"|"admin"|"member","intro_status": "pending"|"accepted"|"declined","join_type": "request"|"open","location_precision": "approximate"|"precise","pin_audience": "everyone"|"network"|"circle","pin_category": "thought"|"question"|"photos"|"event"|"going_out"|"recap","report_reason": "misrepresentation"|"harassment"|"unsafe"|"privacy"|"spam"|"inappropriate"|"other","report_status": "open"|"reviewing"|"resolved"|"dismissed","request_status": "pending"|"accepted"|"declined"|"cancelled","safety_level": "unsafe"|"leaving"|"emergency","user_role": "user"|"admin","vouch_status": "active"|"flagged"|"revoked","vouch_type": "gps"|"invite"|"contact"
+            "background_check_status": "awaiting_payment"|"pending"|"clear"|"not_clear"|"cancelled","connection_source": "invite"|"intro"|"event"|"group"|"date"|"manual"|"qr"|"code"|"contacts","date_session_status": "waiting"|"active"|"ended"|"cancelled","date_status": "pending"|"accepted"|"countered"|"passed"|"cancelled","date_when": "tonight"|"this_weekend"|"next_week"|"specific","encounter_context": "venue"|"event"|"group"|"date"|"nearby","going_out_join_status": "heading"|"here","going_out_when": "tonight"|"weekend"|"scheduled","group_role": "owner"|"admin"|"member","intro_status": "pending"|"accepted"|"declined","join_type": "request"|"open","location_precision": "approximate"|"precise","pin_audience": "everyone"|"network"|"circle","pin_category": "thought"|"question"|"photos"|"event"|"going_out"|"recap","report_reason": "misrepresentation"|"harassment"|"unsafe"|"privacy"|"spam"|"inappropriate"|"other"|"assault"|"violence","report_status": "open"|"reviewing"|"resolved"|"dismissed","request_status": "pending"|"accepted"|"declined"|"cancelled","safety_level": "unsafe"|"leaving"|"emergency","user_role": "user"|"admin","vouch_status": "active"|"flagged"|"revoked","vouch_type": "gps"|"invite"|"contact"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -3455,7 +3492,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "background_check_status": ["awaiting_payment", "pending", "clear", "not_clear", "cancelled"],"connection_source": ["invite", "intro", "event", "group", "date", "manual", "qr", "code", "contacts"],"date_session_status": ["waiting", "active", "ended", "cancelled"],"date_status": ["pending", "accepted", "countered", "passed", "cancelled"],"date_when": ["tonight", "this_weekend", "next_week", "specific"],"encounter_context": ["venue", "event", "group", "date", "nearby"],"going_out_join_status": ["heading", "here"],"going_out_when": ["tonight", "weekend", "scheduled"],"group_role": ["owner", "admin", "member"],"intro_status": ["pending", "accepted", "declined"],"join_type": ["request", "open"],"location_precision": ["approximate", "precise"],"pin_audience": ["everyone", "network", "circle"],"pin_category": ["thought", "question", "photos", "event", "going_out", "recap"],"report_reason": ["misrepresentation", "harassment", "unsafe", "privacy", "spam", "inappropriate", "other"],"report_status": ["open", "reviewing", "resolved", "dismissed"],"request_status": ["pending", "accepted", "declined", "cancelled"],"safety_level": ["unsafe", "leaving", "emergency"],"user_role": ["user", "admin"],"vouch_status": ["active", "flagged", "revoked"],"vouch_type": ["gps", "invite", "contact"]
+            "background_check_status": ["awaiting_payment", "pending", "clear", "not_clear", "cancelled"],"connection_source": ["invite", "intro", "event", "group", "date", "manual", "qr", "code", "contacts"],"date_session_status": ["waiting", "active", "ended", "cancelled"],"date_status": ["pending", "accepted", "countered", "passed", "cancelled"],"date_when": ["tonight", "this_weekend", "next_week", "specific"],"encounter_context": ["venue", "event", "group", "date", "nearby"],"going_out_join_status": ["heading", "here"],"going_out_when": ["tonight", "weekend", "scheduled"],"group_role": ["owner", "admin", "member"],"intro_status": ["pending", "accepted", "declined"],"join_type": ["request", "open"],"location_precision": ["approximate", "precise"],"pin_audience": ["everyone", "network", "circle"],"pin_category": ["thought", "question", "photos", "event", "going_out", "recap"],"report_reason": ["misrepresentation", "harassment", "unsafe", "privacy", "spam", "inappropriate", "other", "assault", "violence"],"report_status": ["open", "reviewing", "resolved", "dismissed"],"request_status": ["pending", "accepted", "declined", "cancelled"],"safety_level": ["unsafe", "leaving", "emergency"],"user_role": ["user", "admin"],"vouch_status": ["active", "flagged", "revoked"],"vouch_type": ["gps", "invite", "contact"]
           }
         }
 } as const

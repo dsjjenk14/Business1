@@ -58,7 +58,7 @@ export const TERMS: LegalDoc = {
     },
     {
       heading: 'Reporting and blocking',
-      body: 'You can report any member, pin, reply or date, and block any member at any time. Reports are confidential: we never tell anyone who reported them. We review reports promptly, usually within 24 hours. If we find a member broke these terms, we may warn them, suspend them, or remove them from I’m In. When we remove someone, we tell the members who vouched for them that they were removed for breaking our Community Guidelines. Content reported by several members may be hidden while we review it. We aren’t required to review everything posted, and we can’t promise to catch every problem.',
+      body: 'You can report any member, pin, reply or date, and block any member at any time. Reports are confidential: we never tell anyone who reported them. We review reports promptly, usually within 24 hours. To investigate a report, our team may look at the records related to it, including messages between the people involved, whether and where they were in the same place, date plans, and Date Mode and safety alerts. When a member is reported for sexual assault or violence after meeting someone through I’m In, we may put their account on hold right away, before we finish reviewing, and block the two from each other. A hold is not a finding that they did anything wrong. If we find a member broke these terms, we may warn them, suspend them, or remove them from I’m In. When we remove someone, we tell the members who vouched for them that they were removed for breaking our Community Guidelines. Content reported by several members may be hidden while we review it. We aren’t required to review everything posted, and we can’t promise to catch every problem. We decide reports on the information we have; we aren’t a court and don’t decide guilt.',
     },
     {
       heading: 'Safety features are not emergency services',
@@ -102,7 +102,7 @@ export const TERMS: LegalDoc = {
     },
     {
       heading: 'Ending your account',
-      body: 'You can delete your account at any time in Settings → Delete account. We may suspend or end your account, or remove content, at any time if we believe you’ve broken these terms, put anyone at risk, or exposed I’m In to legal risk. The parts of these terms that by their nature should last (for example payments owed, disclaimers, limits on liability, and disputes) still apply after your account ends.',
+      body: 'You can delete your account at any time in Settings → Delete account. We may suspend or end your account, or remove content, at any time if we believe you’ve broken these terms, put anyone at risk, or exposed I’m In to legal risk. If we remove you, you may not create another account, and we block the verified phone number on your account from being used again. The vouches you gave other members stop counting. If your account is on hold, suspended or removed, you can ask for a second look from the notice in the app; we’ll review it and tell you what we decided, and our decision after that review is final. The parts of these terms that by their nature should last (for example payments owed, disclaimers, limits on liability, and disputes) still apply after your account ends.',
     },
     {
       heading: 'Disclaimers',
@@ -173,15 +173,15 @@ export const PRIVACY: LegalDoc = {
     },
     {
       heading: 'How we use information',
-      body: 'To run I’m In and show you relevant people, posts and events. To keep members safe, prevent fraud and abuse, review reports, and enforce our terms. To process payments and payouts. To send you notifications you can turn off. To understand and improve the app. To follow the law.',
+      body: 'To run I’m In and show you relevant people, posts and events. To keep members safe, prevent fraud and abuse, review and investigate reports, and enforce our terms. To process payments and payouts. To send you notifications you can turn off. To understand and improve the app. To follow the law.',
     },
     {
       heading: 'Who we share with',
-      body: 'We don’t sell your personal information or share it for targeted advertising. We use service providers to run the app, and they must protect your data: hosting and database (Supabase), text messages (Twilio), app delivery and notifications (Expo, Apple, Google), payments (Stripe; we never see or store your full card number), song previews (Apple Music), live video (LiveKit, only while you’re watching or broadcasting; live videos aren’t recorded), AI processing (Anthropic), and, only if you choose one, the background-check company. We also share information if the law requires it, to protect someone’s safety, to investigate abuse, or if I’m In is sold or reorganized (under this policy).',
+      body: 'We don’t sell your personal information or share it for targeted advertising. We use service providers to run the app, and they must protect your data: hosting and database (Supabase), text messages (Twilio), app delivery and notifications (Expo, Apple, Google), payments (Stripe; we never see or store your full card number), song previews (Apple Music), live video (LiveKit, only while you’re watching or broadcasting; live videos aren’t recorded), AI processing (Anthropic), and, only if you choose one, the background-check company. We also share information if the law requires it (for example, a subpoena or warrant), in an emergency where someone could be seriously hurt, to protect someone’s safety, to investigate abuse, or if I’m In is sold or reorganized (under this policy).',
     },
     {
       heading: 'Keeping and deleting your data',
-      body: 'Outs are deleted 6, 12 or 24 hours after they’re sent, unless someone pinned them. A pinned Out is kept until everyone who pinned it unpins it, or the sender deletes their account. We keep your information while your account is open. When you delete your account in Settings → Delete account, we delete your profile, photos, posts, replies, vouches, Insiders, messages and verification selfie. Some records may stay briefly in backups, and we keep what the law requires, or what we need to resolve disputes, prevent fraud or keep a banned person from coming back.',
+      body: 'Outs are deleted 6, 12 or 24 hours after they’re sent, unless someone pinned them. A pinned Out is kept until everyone who pinned it unpins it, or the sender deletes their account. We keep your information while your account is open. When you delete your account in Settings → Delete account, we delete your profile, photos, posts, replies, vouches, Insiders, messages and verification selfie. Some records may stay briefly in backups, and we keep what the law requires, or what we need to resolve disputes, prevent fraud or keep a banned person from coming back. When someone is reported, we save a copy of the records related to that report (messages between the two people, whether and where they were in the same place, date plans, and Date Mode and safety alerts) so they can be reviewed and given to law enforcement if the law requires it. We keep this copy even if either account is deleted, and only our safety team can see it. For serious reports, we keep check-in location readings for up to a year instead of deleting them after 30 days. If we remove someone, we keep a scrambled (hashed) copy of their phone number so it can’t be used to make a new account.',
     },
     {
       heading: 'Security',
@@ -228,11 +228,11 @@ export const GUIDELINES: LegalDoc = {
     },
     {
       heading: 'If something’s wrong',
-      body: 'Report it: tap Report on the member’s profile, post, reply or date. Block anyone, any time. We review reports promptly, usually within 24 hours. If you’re in danger, call 911.',
+      body: 'Report it: tap Report on the member’s profile, post, reply or date. Block anyone, any time. We review reports promptly, usually within 24 hours, and the most serious first. If you’re in danger, call 911. If you were sexually assaulted, the RAINN hotline (800-656-4673) is free, confidential and open 24/7. You don’t need proof to report something that happened in person: tell us what happened, and we’ll put the member on hold while we look into it.',
     },
     {
       heading: 'What happens when rules are broken',
-      body: 'Depending on what happened: content removed, a warning, a suspension, or removal from I’m In. Serious violations lead to immediate removal and, where appropriate, a report to law enforcement. When someone is removed, the members who vouched for them are told. Trying to find out who reported you, or going after anyone you think did, gets you removed right away.',
+      body: 'Depending on what happened: content removed, a warning, a suspension, or removal from I’m In. Serious violations lead to immediate removal and, where appropriate, a report to law enforcement. When someone is removed, the members who vouched for them are told. Trying to find out who reported you, or going after anyone you think did, gets you removed right away. Removed members can’t come back with a new account. If you think we got it wrong, you can ask for a second look from the notice in the app.',
     },
   ],
 };
