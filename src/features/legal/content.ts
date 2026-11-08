@@ -30,7 +30,7 @@ export const TERMS: LegalDoc = {
     },
     {
       heading: 'What vouches, badges and verification mean',
-      body: 'Vouches are other members’ personal opinions, not our endorsement. Vouch levels, Verified host, Photo verified, Identity confirmed, Background checked and other badges each confirm only one limited thing, at one point in time. They are not a promise that anyone is safe, honest, or who they say they are, and we don’t guarantee they’re accurate or current. Never rely on a badge or a vouch count alone.',
+      body: 'Vouches are other members’ personal opinions, not our endorsement. Vouch levels, Verified host, Photo verified, Identity confirmed, Background checked, In Crowd and other badges each confirm only one limited thing, at one point in time. In Crowd means we checked that a public figure controls the official account they named; it isn’t an endorsement, and we don’t pay them or speak for them. They are not a promise that anyone is safe, honest, or who they say they are, and we don’t guarantee they’re accurate or current. Never rely on a badge or a vouch count alone.',
     },
     {
       heading: 'Background checks',
@@ -216,7 +216,7 @@ export const GUIDELINES: LegalDoc = {
     },
     {
       heading: 'Not allowed, ever',
-      body: 'Sexual assault, or any sexual contact without consent. Violence, threats, stalking, following someone, or intimidation. Harassment, hate or discrimination. Anything involving minors. Sharing someone’s private information, their location, or photos or video of them they didn’t agree to. Fake profiles or impersonation. Scams, spam, or selling. Anything illegal or dangerous. Fake or traded vouches, or check-ins you didn’t really do together. Using anything you learn here, including someone’s badges, to harass, shame or discriminate against them.',
+      body: 'Sexual assault, or any sexual contact without consent. Violence, threats, stalking, following someone, or intimidation. Harassment, hate or discrimination. Anything involving minors. Sharing someone’s private information, their location, or photos or video of them they didn’t agree to. Fake profiles or impersonation. Scams, spam, or selling. Anything illegal or dangerous. Fake or traded vouches, or check-ins you didn’t really do together. Using anything you learn here, including someone’s badges, to harass, shame or discriminate against them. Using I’m In to track down, follow or crowd a public figure.',
     },
     {
       heading: 'Consent, every time',

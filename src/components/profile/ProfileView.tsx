@@ -189,6 +189,7 @@ export function ProfileView({
         ) : null}
         {/* One or two badges at most: what people vouch them for (or their level), and membership. */}
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+          {card.in_crowd ? <SpecialSticker label="In Crowd" glyph="star" /> : null}
           {card.is_official ? <SpecialSticker label="Official" glyph="check" /> : null}
           {card.background_checked ? <SpecialSticker label="Background checked" glyph="shield" /> : null}
           {card.id_verified ? <SpecialSticker label="Identity confirmed" glyph="person" /> : null}
@@ -208,6 +209,22 @@ export function ProfileView({
           </AppText>
         ) : null}
       </View>
+
+      {card.last_place && !card.is_me ? (
+        <Card>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+            <Glyph name="pin" size={18} color={t.colors.primary} />
+            <View style={{ flex: 1 }}>
+              <AppText variant="small" weight="bold">
+                Was at {card.last_place.place} {sinceLabel(card.last_place.at)}
+              </AppText>
+              <AppText variant="caption" tone="subtle">
+                Shown only after they leave
+              </AppText>
+            </View>
+          </View>
+        </Card>
+      ) : null}
 
       {card.tonight ? (
         <Card accent="trust">
@@ -481,4 +498,13 @@ function SquarePhoto({ name, uri, userId }: { name: string; uri: string | null; 
       {w ? <Avatar name={name} uri={uri} size={w} userId={userId} /> : null}
     </View>
   );
+}
+
+/** "earlier today", "last night", "on Saturday". */
+function sinceLabel(iso: string, now = new Date()) {
+  const d = new Date(iso);
+  const days = Math.floor((new Date(now.toDateString()).getTime() - new Date(d.toDateString()).getTime()) / 86_400_000);
+  if (days <= 0) return d.getHours() >= 17 ? 'tonight' : 'earlier today';
+  if (days === 1) return d.getHours() >= 17 || d.getHours() < 5 ? 'last night' : 'yesterday';
+  return `on ${d.toLocaleDateString('en-US', { weekday: 'long' })}`;
 }

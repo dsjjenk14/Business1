@@ -87,6 +87,19 @@ enforces it. What the app does:
   Declining needs a written reason.
 - **The Terms explain the process** ("Removing intimate images (48 hours)").
 
+## The In Crowd (public figures)
+
+- Public figures ask from Settings → The In Crowd. They pass the selfie check, put a code
+  (IMIN-xxxx) in the bio of an official account, and you approve in Admin → Verify after checking
+  the code is there and the account is clearly theirs.
+- Their protections start at the safest setting: where they are shows only after they leave,
+  messages and replies only from people they pick, arrivals and intro requests off.
+- **Don't use their name or photo to promote I'm In without their written permission.** Virginia
+  law lets people sue over using their name or picture for advertising without written consent
+  (Va. Code § 8.01-40).
+- **If you ever pay or give perks to someone to post about I'm In**, they must say so clearly, and
+  you can be responsible too (FTC Endorsement Guides, 16 CFR Part 255).
+
 ## Police non-emergency numbers
 
 The app shows the local police non-emergency number on the Report screen, in My reports and on
