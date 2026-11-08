@@ -209,7 +209,7 @@ export default function Pins() {
             <View style={{ paddingTop: t.space[4] }}>
               <LoadingList rows={1} />
             </View>
-          ) : null
+          ) : undefined
         }
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}

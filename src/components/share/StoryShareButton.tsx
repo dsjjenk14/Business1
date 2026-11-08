@@ -33,7 +33,7 @@ const H = 480;
  */
 export function StoryShareButton({ story, label = 'Share to Instagram Stories' }: { story: Story; label?: string }) {
   const toast = useToast();
-  const ref = useRef<View>(null);
+  const ref = useRef<React.ComponentRef<typeof View>>(null);
   const [drawing, setDrawing] = useState(false);
   const [imageReady, setImageReady] = useState(!story.imageUrl);
   const url = `${WEB_URL}${story.path}`;

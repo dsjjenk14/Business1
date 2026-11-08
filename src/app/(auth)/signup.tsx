@@ -43,8 +43,8 @@ export default function SignUp() {
 
   const clearError = (key: keyof Errors) => setErrors((e) => (e[key] || e.form ? { ...e, [key]: undefined, form: undefined } : e));
 
-  const ddRef = useRef<TextInput>(null);
-  const yyyyRef = useRef<TextInput>(null);
+  const ddRef = useRef<React.ComponentRef<typeof TextInput>>(null);
+  const yyyyRef = useRef<React.ComponentRef<typeof TextInput>>(null);
 
   // Live invite-code check: "Alex R. invited you ✓"
   useEffect(() => {

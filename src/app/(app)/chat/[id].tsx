@@ -159,14 +159,14 @@ export default function Chat() {
                     {info.members.length} members · See group →
                   </AppText>
                 </Pressable>
-              ) : null
+              ) : undefined
             }
             ListEmptyComponent={
               info ? (
                 <AppText tone="subtle" align="center" style={{ padding: t.space[6], transform: [{ scaleY: -1 }] }}>
                   No messages yet. Say hi.
                 </AppText>
-              ) : null
+              ) : undefined
             }
             renderItem={({ item, index }) => {
               const mine = item.sender_id === me;
