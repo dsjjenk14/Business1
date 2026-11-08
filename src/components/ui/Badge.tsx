@@ -162,7 +162,14 @@ export function StickerCircle({
       </AppText>
     </View>
   );
-  return slap ? <Animated.View entering={SLAP}>{circle}</Animated.View> : circle;
+  // A fixed-size box keeps the layout steady while the sticker animates in.
+  return slap ? (
+    <View style={{ width: 66, height: 66 }}>
+      <Animated.View entering={SLAP}>{circle}</Animated.View>
+    </View>
+  ) : (
+    circle
+  );
 }
 
 /** Big and faded, then pressed flat: a sticker landing. Skipped when Reduce Motion is on. */

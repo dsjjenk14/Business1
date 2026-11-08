@@ -6,7 +6,7 @@ import { Pressable, Share, View } from 'react-native';
 
 import { PinCard } from '@/components/pins/PinCard';
 import { PhotoGrid } from '@/components/profile/PhotoGrid';
-import { AppText, Avatar, Badge, Button, Card, GlyphTile, isGlyphName, Section } from '@/components/ui';
+import { AppText, Avatar, Badge, Button, Card, GlyphTile, isGlyphName, Section, HoloSticker } from '@/components/ui';
 import { tierProgress, useAppConfig } from '@/config/useAppConfig';
 import { STATUS_COLORS, STATUS_LABELS, usePersonInfo } from '@/features/people/status';
 import type { FeedPin } from '@/features/pins/api';
@@ -147,7 +147,7 @@ export function ProfileView({
           <AppText variant="h1" accessibilityRole="header" style={{ fontFamily: t.fonts.displayBold }}>
             {card.display_name}
           </AppText>
-          {verified ? <Ionicons name="checkmark-circle" size={20} color={t.colors.trust} accessibilityLabel={card.id_verified ? 'ID verified' : 'Photo verified'} /> : null}
+          {verified ? <Ionicons name="checkmark-circle" size={20} color={t.colors.trust} accessibilityLabel={card.id_verified ? 'Identity confirmed' : 'Photo verified'} /> : null}
           {card.verified_host ? (
             <AppText variant="small" weight="bold" tone="trust">
               Verified host
@@ -189,7 +189,8 @@ export function ProfileView({
         ) : null}
         {/* One or two badges at most: what people vouch them for (or their level), and membership. */}
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
-          {card.background_checked ? <Badge label="Background checked" glyph="shield" tone="trust" /> : null}
+          {card.background_checked ? <HoloSticker label="Background checked" glyph="shield" /> : null}
+          {card.id_verified ? <HoloSticker label="Identity confirmed" glyph="person" /> : null}
           {card.top_vouch_word ? (
             <Badge label={card.top_vouch_word} glyph="medal" tone="trust" />
           ) : current ? (

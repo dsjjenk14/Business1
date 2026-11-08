@@ -30,7 +30,7 @@ export const TERMS: LegalDoc = {
     },
     {
       heading: 'What vouches, badges and verification mean',
-      body: 'Vouches are other members’ personal opinions, not our endorsement. Vouch levels, Verified host, Photo verified, ID verified, Background checked and other badges each confirm only one limited thing, at one point in time. They are not a promise that anyone is safe, honest, or who they say they are, and we don’t guarantee they’re accurate or current. Never rely on a badge or a vouch count alone.',
+      body: 'Vouches are other members’ personal opinions, not our endorsement. Vouch levels, Verified host, Photo verified, Identity confirmed, Background checked and other badges each confirm only one limited thing, at one point in time. They are not a promise that anyone is safe, honest, or who they say they are, and we don’t guarantee they’re accurate or current. Never rely on a badge or a vouch count alone.',
     },
     {
       heading: 'Background checks',
@@ -141,7 +141,7 @@ export const PRIVACY: LegalDoc = {
     },
     {
       heading: 'Verification',
-      body: 'Phone: we text you a code through Twilio to confirm your number. Photo check: you take a live selfie doing a random gesture, and a person on our team compares it with your profile photos. We don’t use face-recognition software or make a faceprint. Your selfie is stored privately, only our review team can see it, and it’s kept until you delete your account. ID verification is done by a person on our team, and we keep only the date you were verified.',
+      body: 'Phone: we text you a code through Twilio to confirm your number. Photo check: you take a live selfie doing a random gesture, and a person on our team compares it with your profile photos. We don’t use face-recognition software or make a faceprint. Your selfie is stored privately, only our review team can see it, and it’s kept until you delete your account. Identity checks with a government ID aren’t open yet. When they are, we’ll explain here how they work before you can use them.',
     },
     {
       heading: 'Background checks',

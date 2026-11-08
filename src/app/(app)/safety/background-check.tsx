@@ -4,7 +4,7 @@ import { Pressable, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Badge, Button, Card, LoadingDetail, Screen, Section, useToast, LegalNote } from '@/components/ui';
+import { AppText, Button, HoloSticker, Card, LoadingDetail, Screen, Section, useToast, LegalNote } from '@/components/ui';
 import { fetchBackgroundCheck, startBackgroundCheck, type BackgroundCheckStatus } from '@/features/safety/backgroundCheck';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
@@ -67,7 +67,7 @@ export default function BackgroundCheck() {
       <BackHeader title="Background check" />
       <Screen>
         <View style={{ alignItems: 'center', gap: t.space[3] }}>
-          <Badge label="Background checked" glyph="shield" tone="trust" />
+          <HoloSticker label="Background checked" glyph="shield" size={96} />
           <AppText variant="h1" align="center" accessibilityRole="header">
             Show people you&apos;re safe to meet
           </AppText>
