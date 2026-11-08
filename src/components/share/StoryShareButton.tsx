@@ -111,7 +111,7 @@ export function StoryShareButton({ story, label = 'Share to Instagram Stories' }
               {story.line2 ? <AppText style={{ color: BRAND.muted, fontSize: 13 }}>{story.line2}</AppText> : null}
               {story.mood ? (
                 <AppText style={{ color: BRAND.text, fontSize: 14 }}>
-                  <AppText style={{ color: BRAND.gold, fontSize: 14, fontWeight: '800' }}>Mood:</AppText> {story.mood}
+                  <AppText style={{ color: BRAND.muted, fontSize: 14, fontWeight: '800' }}>Mood:</AppText> {story.mood}
                 </AppText>
               ) : null}
               {story.stickers?.length ? (

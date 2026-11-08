@@ -167,7 +167,7 @@ export function ProfileView({
             onPress={() => setSheet('mood')}
             style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <AppText style={{ flexShrink: 1 }}>
-              <AppText weight="bold" style={{ color: t.colors.secondary }}>
+              <AppText weight="bold" tone="muted">
                 Mood:
               </AppText>{' '}
               {card.mood ? card.mood : <AppText tone="subtle">tap to add yours</AppText>}
