@@ -1,6 +1,6 @@
 export { AppText } from './AppText';
 export { Avatar } from './Avatar';
-export { Badge, StickerCircle, StickerToggle } from './Badge';
+export { Badge, SpecialSticker, StickerCircle, StickerToggle } from './Badge';
 export { Button } from './Button';
 export { Card } from './Card';
 export { FadeIn } from './FadeIn';
@@ -22,4 +22,4 @@ export { DateTile } from './DateTile';
 export { Sheet } from './Sheet';
 export { useCelebrate } from './Celebrate';
 export { LegalNote } from './LegalNote';
-export { HoloSticker } from './HoloSticker';
+export { MetalSticker } from './MetalSticker';

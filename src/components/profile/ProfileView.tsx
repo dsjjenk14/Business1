@@ -6,7 +6,7 @@ import { Pressable, Share, View } from 'react-native';
 
 import { PinCard } from '@/components/pins/PinCard';
 import { PhotoGrid } from '@/components/profile/PhotoGrid';
-import { AppText, Avatar, Badge, Button, Card, GlyphTile, Section, HoloSticker, Glyph } from '@/components/ui';
+import { AppText, Avatar, Badge, Button, Card, GlyphTile, Section, SpecialSticker, Glyph } from '@/components/ui';
 import { STATUS_COLORS, STATUS_LABELS, usePersonInfo } from '@/features/people/status';
 import type { FeedPin } from '@/features/pins/api';
 import { MusicChip } from '@/components/music/MusicChip';
@@ -189,9 +189,9 @@ export function ProfileView({
         ) : null}
         {/* One or two badges at most: what people vouch them for (or their level), and membership. */}
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
-          {card.is_official ? <HoloSticker label="Official" glyph="check" /> : null}
-          {card.background_checked ? <HoloSticker label="Background checked" glyph="shield" /> : null}
-          {card.id_verified ? <HoloSticker label="Identity confirmed" glyph="person" /> : null}
+          {card.is_official ? <SpecialSticker label="Official" glyph="check" /> : null}
+          {card.background_checked ? <SpecialSticker label="Background checked" glyph="shield" /> : null}
+          {card.id_verified ? <SpecialSticker label="Identity confirmed" glyph="person" /> : null}
           <MilestoneSticker count={card.vouch_count} />
           {card.top_vouch_word ? <Badge label={card.top_vouch_word} glyph="medal" tone="trust" /> : null}
           {card.is_founding_member ? (

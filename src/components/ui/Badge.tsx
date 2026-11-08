@@ -122,6 +122,7 @@ export function StickerCircle({
   ink,
   edge,
   glyph,
+  glyphColor,
   slap,
 }: {
   label: string;
@@ -130,6 +131,8 @@ export function StickerCircle({
   /** Defaults to a white edge. */
   edge?: string;
   glyph?: GlyphName;
+  /** The symbol's color, if not the letter color. */
+  glyphColor?: string;
   /** Lands like a sticker being slapped on when it first shows. */
   slap?: boolean;
 }) {
@@ -151,7 +154,7 @@ export function StickerCircle({
         gap: 0,
         transform: [{ rotate: `${tilt}deg` }],
       }}>
-      {glyph && lines < 3 ? <Glyph name={glyph} size={10} color={ink} strokeWidth={2.4} /> : null}
+      {glyph && lines < 3 ? <Glyph name={glyph} size={10} color={glyphColor ?? ink} strokeWidth={2.4} /> : null}
       <AppText
         align="center"
         numberOfLines={3}
@@ -234,4 +237,10 @@ export function fitSticker(label: string, diameter: number) {
   const lines = text.split(/\n| /).length;
   const inner = diameter * 0.8;
   return { text, lines, size: Math.min(diameter * 0.2, inner / (longest * 0.6)) };
+}
+
+/** Special badges (Background checked, Identity confirmed, Official): solid black, white letters, a red symbol. */
+export function SpecialSticker({ label, glyph }: { label: string; glyph?: GlyphName }) {
+  const t = useTheme();
+  return <StickerCircle label={label} fill="#0C0C0C" ink="#F5F5F5" glyph={glyph} glyphColor={t.colors.primary} slap />;
 }
