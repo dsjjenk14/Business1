@@ -6,7 +6,11 @@ import { AppState, Platform } from 'react-native';
 
 import type { Database } from '@/types/database';
 
-const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const envUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+// Local previews only: EXPO_PUBLIC_SUPABASE_URL=same-origin makes the web app reach
+// Supabase through the page's own address (a relay serves both on one port).
+// Real builds always set a full URL, so this never applies to them.
+const url = envUrl === 'same-origin' && Platform.OS === 'web' && typeof window !== 'undefined' ? window.location.origin : envUrl;
 const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
 if (!url || !anonKey) {

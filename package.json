@@ -9,6 +9,7 @@
     "@expo-google-fonts/figtree": "^0.4.1",
     "@expo-google-fonts/fraunces": "^0.4.1",
     "@expo-google-fonts/jetbrains-mono": "^0.4.1",
+    "@expo-google-fonts/nunito": "^0.4.2",
     "@expo-google-fonts/space-grotesk": "^0.4.1",
     "@expo-google-fonts/syne": "^0.4.2",
     "@expo/metro-runtime": "~57.0.16",

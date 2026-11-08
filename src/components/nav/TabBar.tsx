@@ -38,6 +38,9 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
         const focused = state.index === index;
         const color = focused ? t.colors.tabActive : t.colors.tabInactive;
         const ticket = t.style.controls === 'ticket';
+        // Mix look: the camera is a big red rounded square that rises out of the bar.
+        const squircle = t.style.avatarShape === 'squircle';
+        const raised = ticket || squircle;
 
         return (
           <Pressable
@@ -62,19 +65,19 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
               {route.name === 'outs' ? (
                 <View
                   style={{
-                    width: 44,
-                    height: ticket ? 44 : 30,
-                    borderRadius: ticket ? 22 : 15,
+                    width: squircle ? 52 : 44,
+                    height: squircle ? 52 : ticket ? 44 : 30,
+                    borderRadius: squircle ? 18 : ticket ? 22 : 15,
                     // The shutter rises above the bar; its label lines up with the others.
-                    marginTop: ticket ? -22 : 0,
+                    marginTop: squircle ? -26 : ticket ? -22 : 0,
                     alignItems: 'center',
                     justifyContent: 'center',
-                    backgroundColor: ticket || focused ? t.colors.primary : t.colors.surfaceAlt,
+                    backgroundColor: raised || focused ? t.colors.primary : t.colors.surfaceAlt,
                     // Ticket look: a camera shutter, with an inner ring.
-                    borderWidth: ticket ? 3 : 0,
+                    borderWidth: raised ? 3 : 0,
                     borderColor: focused ? t.colors.text : t.colors.tabBar,
                   }}>
-                  <Ionicons name={tab.iconActive} size={20} color={ticket || focused ? t.colors.onPrimary : t.colors.primaryText} />
+                  <Ionicons name={tab.iconActive} size={squircle ? 24 : 20} color={raised || focused ? t.colors.onPrimary : t.colors.primaryText} />
                   {outsNew ? (
                     <View
                       accessibilityLabel={`${outsNew} new`}

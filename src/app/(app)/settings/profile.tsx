@@ -26,6 +26,7 @@ export default function EditProfile() {
 
   const [displayName, setDisplayName] = useState(profile?.display_name ?? '');
   const [headline, setHeadline] = useState(profile?.headline ?? '');
+  const [mood, setMood] = useState(profile?.mood ?? '');
   const [bio, setBio] = useState(profile?.bio ?? '');
   const [pronouns, setPronouns] = useState(profile?.pronouns ?? '');
   const [neighborhood, setNeighborhood] = useState(profile?.neighborhood ?? '');
@@ -53,6 +54,7 @@ export default function EditProfile() {
         .update({
           display_name: displayName.trim(),
           headline: headline.trim(),
+          mood: mood.trim() || null,
           bio: bio.trim(),
           pronouns: pronouns.trim() || null,
           neighborhood: neighborhood.trim() || null,
@@ -88,6 +90,7 @@ export default function EditProfile() {
 
         <TextField label="Display name" value={displayName} onChangeText={setDisplayName} maxLength={40} hint="How your name shows around the app, e.g. “Alex R.”" />
         <TextField label="Headline" optional value={headline} onChangeText={setHeadline} maxLength={80} placeholder="Howard Alum · Fairfax, VA" />
+        <TextField label="Mood" optional value={mood} onChangeText={setMood} maxLength={60} placeholder="ready for the weekend" />
         <TextField
           label="About you"
           optional

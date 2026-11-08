@@ -22,6 +22,10 @@ export type ProfileCard = {
   top_vouch_word: string | null;
   /** Their profile song (30-second preview). */
   song: Song | null;
+  /** A short line under their name, up to 60 characters. */
+  mood?: string | null;
+  /** How many posts they've made. */
+  pin_count?: number;
   /** Up to 3 profile prompts. */
   prompts: { key: string; answer: string }[];
   /** Runs events; their vouches count double. */

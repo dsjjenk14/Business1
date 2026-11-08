@@ -117,6 +117,8 @@ export type Theme = {
     surface?: 'boxed' | 'flat';
     /** soft = rounded controls; ticket = square-cut, stamped controls (poster buttons, tag chips, underline tabs). */
     controls?: 'soft' | 'ticket';
+    /** circle = round profile photos; squircle = rounded squares. */
+    avatarShape?: 'circle' | 'squircle';
     /** How badges and tier chips look. */
     badge: 'pill' | 'credential';
     /** Uppercase small labels ("GOING OUT TONIGHT"). */
