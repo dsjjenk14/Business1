@@ -143,6 +143,7 @@ export function ProfileView({
         ) : null}
         {/* One or two badges at most: what people vouch them for (or their level), and membership. */}
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+          {card.background_checked ? <Badge label="Background checked" glyph="shield" tone="trust" /> : null}
           {card.top_vouch_word ? (
             <Badge label={card.top_vouch_word} glyph="medal" tone="trust" />
           ) : current ? (
