@@ -107,6 +107,11 @@ export const decideAppeal = async (id: number, lift: boolean) => unwrap<null>(aw
 export const fetchVerifications = async () => unwrap<AdminVerification[]>(await supabase.rpc('admin_verifications'));
 export const reviewVerification = async (id: number, approve: boolean, note?: string) =>
   unwrap<null>(await supabase.rpc('admin_review_verification', { p_request: id, p_approve: approve, p_note: note ?? undefined }));
+/** New profile photos from photo-verified members, waiting for a reviewer. */
+export type PendingPhotoSet = Fn['admin_pending_photos']['Returns'][number];
+export const fetchPendingPhotoSets = async () => unwrap<PendingPhotoSet[]>(await supabase.rpc('admin_pending_photos'));
+export const reviewPhotoSet = async (userId: string, approve: boolean, note?: string) =>
+  unwrap<null>(await supabase.rpc('admin_review_photos', { p_user: userId, p_approve: approve, p_note: note ?? undefined }));
 export const grantPremium = async (email: string, days: number) =>
   unwrap<string>(await supabase.rpc('admin_grant_premium', { p_email: email, p_days: days }));
 

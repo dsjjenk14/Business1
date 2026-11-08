@@ -1,5 +1,5 @@
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,22 +9,46 @@ import { useAuth } from '@/lib/auth';
 import { friendlyError, supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 
-export type AccountStatus = { banned: boolean; under_review?: boolean; suspended_until: string | null; appeal_open?: boolean };
+export type AccountStatus = {
+  banned: boolean;
+  under_review?: boolean;
+  suspended_until: string | null;
+  appeal_open?: boolean;
+  /** Still has to pass the photo check before using the app. */
+  needs_photo_check?: boolean;
+  has_photo?: boolean;
+  /** The latest photo check: waiting for a reviewer, approved or declined. */
+  photo_check?: 'pending' | 'approved' | 'declined' | null;
+  photo_check_note?: string | null;
+};
 type Status = AccountStatus;
+
+// One shared copy, so the photo-check screen can refresh what the app gate sees.
+let current: Status | null = null;
+const listeners = new Set<(s: Status | null) => void>();
+
+/** Ask the server again whether this account is on hold or still needs its photo check. */
+export async function refreshAccountStatus() {
+  const { data } = await supabase.rpc('my_account_status');
+  if (!data) return current;
+  current = data as unknown as Status;
+  listeners.forEach((l) => l(current));
+  return current;
+}
 
 /** Checks whether this account is on hold, suspended or removed. Null while checking. */
 export function useAccountStatus(enabled: boolean) {
   const [status, setStatus] = useState<Status | null>(null);
+  useEffect(() => {
+    if (!enabled) return;
+    listeners.add(setStatus);
+    return () => {
+      listeners.delete(setStatus);
+    };
+  }, [enabled]);
   useFocusEffect(
     useCallback(() => {
-      if (!enabled) return;
-      let live = true;
-      supabase.rpc('my_account_status').then(({ data }) => {
-        if (live && data) setStatus(data as unknown as Status);
-      });
-      return () => {
-        live = false;
-      };
+      if (enabled) refreshAccountStatus();
     }, [enabled]),
   );
   return status;

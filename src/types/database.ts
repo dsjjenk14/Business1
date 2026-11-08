@@ -1669,6 +1669,26 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"pending_photos": {
+                  Row: {
+                    "created_at": string,"photo_urls": (string)[],"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"photo_urls": (string)[],"user_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"photo_urls"?: (string)[],"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "pending_photos_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"phone_verifications": {
                   Row: {
                     "attempts": number,"code_hash": string,"created_at": string,"expires_at": string,"id": number,"phone": string,"user_id": string,"verified_at": string | null
@@ -2670,6 +2690,11 @@ isOneToOne: true
 "admin_overview":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"admin_pending_photos":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "created_at": string,"current_photos": (string)[],"display_name": string,"new_photos": (string)[],"selfie_path": string,"user_id": string
+            }[]
+                           },
 "admin_photo_reviewers":
 { Args: Record<PropertyKey, never>; Returns: {
               "display_name": string,"email": string,"id": string,"reviewed": number
@@ -2696,6 +2721,9 @@ isOneToOne: true
                            },
 "admin_review_claim":
 { Args: { "p_approve": boolean,"p_claim": number,"p_venue"?: number }; Returns: undefined
+                           },
+"admin_review_photos":
+{ Args: { "p_approve": boolean,"p_note"?: string,"p_user": string }; Returns: undefined
                            },
 "admin_review_verification":
 { Args: { "p_approve": boolean,"p_note"?: string,"p_request": number }; Returns: undefined
@@ -2793,6 +2821,9 @@ isOneToOne: true
                            },
 "cancel_date_request":
 { Args: { "p_request": number }; Returns: undefined
+                           },
+"cancel_pending_photos":
+{ Args: Record<PropertyKey, never>; Returns: undefined
                            },
 "celebrate_milestone":
 { Args: { "p_milestone": number }; Returns: undefined
@@ -3406,7 +3437,7 @@ isOneToOne: true
 { Args: { "p_url": string }; Returns: string
                            },
 "set_profile_photos":
-{ Args: { "p_urls": (string)[] }; Returns: (string)[]
+{ Args: { "p_urls": (string)[] }; Returns: Json
                            },
 "set_profile_prompts":
 { Args: { "p_prompts": Json }; Returns: undefined

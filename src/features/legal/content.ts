@@ -46,7 +46,7 @@ export const TERMS: LegalDoc = {
     },
     {
       heading: 'Your content',
-      body: 'Your profile photos must be real, recent photos of you. AI-generated photos, photos changed with AI or filters to alter how you look, and photos of anyone else aren’t allowed; we may remove them, ask you to redo the photo check, or suspend your account. You own what you post: pins, replies, photos, videos, Outs, messages and your profile. You give I’m In a worldwide, non-exclusive, royalty-free license to host, store, display, adapt (for example, resize) and deliver it to the people you choose, only to run, improve and promote I’m In. This ends when you delete the content or your account, except for copies others have kept (for example, pinned Outs), backups, and what the law requires us to keep. You’re responsible for what you post, and you must have the right to share it, including any photos of other people. We don’t endorse what members post, and we may remove anything for any reason.',
+      body: 'Everyone passes a photo check before using I’m In. After that, new profile photos are checked by our review team before anyone sees them. Your profile photos must be real, recent photos of you. AI-generated photos, photos changed with AI or filters to alter how you look, and photos of anyone else aren’t allowed; we may remove them, ask you to redo the photo check, or suspend your account. You own what you post: pins, replies, photos, videos, Outs, messages and your profile. You give I’m In a worldwide, non-exclusive, royalty-free license to host, store, display, adapt (for example, resize) and deliver it to the people you choose, only to run, improve and promote I’m In. This ends when you delete the content or your account, except for copies others have kept (for example, pinned Outs), backups, and what the law requires us to keep. You’re responsible for what you post, and you must have the right to share it, including any photos of other people. We don’t endorse what members post, and we may remove anything for any reason.',
     },
     {
       heading: 'Shoutouts',
@@ -149,7 +149,7 @@ export const PRIVACY: LegalDoc = {
     },
     {
       heading: 'Verification',
-      body: 'Phone: we text you a code through Twilio to confirm your number. Photo check: you take a live selfie doing a random gesture, and a person on our review team (our staff, or trusted reviewers who have agreed to keep it confidential) compares it with your profile photos. We don’t use face-recognition software or make a faceprint. Your selfie is stored privately, only our review team can see it, and it’s kept until you delete your account. Identity checks with a government ID aren’t open yet. When they are, we’ll explain here how they work before you can use them.',
+      body: 'Phone: we text you a code through Twilio to confirm your number. Photo check: you take a live selfie doing a random gesture, and a person on our review team (our staff, or trusted reviewers who have agreed to keep it confidential) compares it with your profile photos. Everyone does this before using the app. When you add a new profile photo later, a reviewer compares it with your selfie before anyone sees it. We don’t use face-recognition software or make a faceprint. Your selfie is stored privately, only our review team can see it, and it’s kept until you delete your account. Identity checks with a government ID aren’t open yet. When they are, we’ll explain here how they work before you can use them.',
     },
     {
       heading: 'Background checks',

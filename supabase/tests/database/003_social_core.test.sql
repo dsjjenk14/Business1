@@ -2,6 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 select plan(15);
+update app_config set value = 'false' where key = 'photo_check_required'; -- tests that aren't about the photo check
 
 -- Test members are on the free plan (no founding Premium) unless a test says otherwise.
 update app_config set value = '0' where key = 'founding_member_limit';

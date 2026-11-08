@@ -3,6 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 select plan(38);
+update app_config set value = 'false' where key = 'photo_check_required'; -- tests that aren't about the photo check
 -- These checks use a 2-vouch month so the budget runs out quickly (the real free limit is 5).
 update plan_limits set free_value = 2 where key = 'vouches_per_month';
 
