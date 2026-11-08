@@ -10,6 +10,7 @@ import { tierProgress, useAppConfig } from '@/config/useAppConfig';
 import { STATUS_COLORS, STATUS_LABELS, usePersonInfo } from '@/features/people/status';
 import type { FeedPin } from '@/features/pins/api';
 import { MusicChip } from '@/components/music/MusicChip';
+import { PromptCards } from '@/components/profile/PromptsEditor';
 import { StoryShareButton } from '@/components/share/StoryShareButton';
 import { fetchLockedIn, profileLink, type LockedInPerson, type ProfileCard } from '@/features/profiles/api';
 import { clockTime, timeAgo } from '@/lib/time';
@@ -111,6 +112,7 @@ export function ProfileView({
           ) : current ? (
             <Badge label={current.name} glyph={isGlyphName(current.emoji) ? current.emoji : 'medal'} tone="trust" />
           ) : null}
+          {card.verified_host ? <Badge label="Verified host" glyph="crown" tone="trust" /> : null}
           {card.is_founding_member ? (
             <Badge label="Founding Member" glyph="star" tone="sponsored" />
           ) : card.is_premium ? (
@@ -177,6 +179,8 @@ export function ProfileView({
           }}
         />
       ) : null}
+
+      <PromptCards prompts={card.prompts} />
 
       {card.song ? (
         <Section title={card.is_me ? 'My song' : `${card.display_name.split(' ')[0]}’s song`}>

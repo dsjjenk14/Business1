@@ -4,6 +4,7 @@ import { Alert, Platform, Pressable, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
 import { GroupInviteLink } from '@/components/groups/GroupInviteLink';
+import { GroupOwnerTools } from '@/components/groups/GroupOwnerTools';
 import { BackHeader } from '@/components/nav/AppHeader';
 import {
   AppText,
@@ -180,6 +181,10 @@ export default function Group() {
         )}
 
         {group.description ? <AppText>{group.description}</AppText> : null}
+
+        {group.beginner_friendly ? <Badge label="Beginner friendly" tone="trust" /> : null}
+
+        {isAdmin ? <GroupOwnerTools groupId={group.id} beginnerFriendly={!!group.beginner_friendly} onChanged={load} /> : null}
 
         {isAdmin ? <GroupInviteLink groupId={group.id} groupName={group.name} /> : null}
 

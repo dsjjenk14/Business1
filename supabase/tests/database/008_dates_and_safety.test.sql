@@ -31,6 +31,8 @@ insert into t values
   ('bo',  pg_temp.new_user('bo8@test.dev',  'Bo Eight')),
   ('cy',  pg_temp.new_user('cy8@test.dev',  'Cy Eight')),
   ('di',  pg_temp.new_user('di8@test.dev',  'Di Eight'));
+-- Ask on a Date needs a photo check.
+update profiles set photo_verified_at = now() where id in (select id from t);
 -- ana–bo met through an intro (can message right away); ana–cy connected but no back-and-forths yet.
 insert into connections (user_a, user_b, source) values
   (least(pg_temp.uid('ana'), pg_temp.uid('bo')), greatest(pg_temp.uid('ana'), pg_temp.uid('bo')), 'intro'),

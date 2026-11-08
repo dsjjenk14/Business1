@@ -5,6 +5,7 @@ import { RefreshControl, ScrollView, View } from 'react-native';
 import { ActivityRow, EventRow, GroupSuggestion } from '@/components/home/HomeParts';
 import { InviteVerifyCard } from '@/components/home/InviteVerifyCard';
 import { NewcomerEvents } from '@/components/home/NewcomerEvents';
+import { StartCard } from '@/components/home/StartCard';
 import { WhatsInHero } from '@/components/home/WhatsInHero';
 import { LiveNowRow } from '@/components/live/LiveNowRow';
 import { PinCard } from '@/components/pins/PinCard';
@@ -136,6 +137,7 @@ export default function Home() {
       <LiveNowRow />
 
       <InviteVerifyCard />
+      <StartCard />
       <WhatsInHero events={trending} spots={hotSpots} onIn={onIn} />
 
       {/* Still finding your people: events you can go to without knowing anyone. */}

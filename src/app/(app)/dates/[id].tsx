@@ -167,6 +167,14 @@ export default function DateScreen() {
         ) : (
           hero('seed', 'Cancelled', 'This date request was cancelled.', 'muted')
         )}
+
+        {d.status === 'accepted' ? (
+          <Button
+            label="Report this date"
+            variant="ghost"
+            onPress={() => router.push({ pathname: '/report', params: { user: d.other.id, name: d.other.display_name, date: String(d.id) } })}
+          />
+        ) : null}
       </Screen>
     </View>
   );

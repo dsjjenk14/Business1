@@ -30,6 +30,7 @@ export type GroupDetail = {
   description: string;
   join_type: 'open' | 'request';
   schedule_label: string | null;
+  beginner_friendly?: boolean;
   owner: { id: string; display_name: string };
   member_count: number;
   my_role: GroupRole | null;
@@ -123,4 +124,45 @@ export async function joinGroupByLink(token: string) {
   const { data, error } = await supabase.rpc('join_group_by_link', { p_token: token });
   if (error) throw error;
   return data as number;
+}
+
+// ── Groups near you ───────────────────────────────────────────────────────
+export type NearbyGroup = {
+  id: number;
+  name: string;
+  emoji: string;
+  category: GroupCategory;
+  description: string;
+  schedule_label: string | null;
+  join_type: 'open' | 'request';
+  beginner_friendly: boolean;
+  member_count: number;
+  insiders_in: number;
+  is_member: boolean;
+};
+
+export async function fetchGroupsNearYou(category?: GroupCategory | null) {
+  const { data, error } = await supabase.rpc('groups_near_you', category ? { p_category: category } : {});
+  if (error) throw error;
+  return (data ?? []) as NearbyGroup[];
+}
+
+/** Owner and co-hosts: mark the group Beginner friendly. */
+export async function setBeginnerFriendly(groupId: number, on: boolean) {
+  const { error } = await supabase.rpc('set_group_beginner_friendly', { p_group: groupId, p_on: on });
+  if (error) throw error;
+}
+
+export type GroupStats = {
+  members: number;
+  new_this_week: number;
+  new_names: string[];
+  next_event: { id: number; title: string; starts_at: string; going: string[] } | null;
+};
+
+/** Owner and co-hosts: new members this week and who's coming next. */
+export async function fetchGroupStats(groupId: number) {
+  const { data, error } = await supabase.rpc('group_stats', { p_group: groupId });
+  if (error) throw error;
+  return data as unknown as GroupStats;
 }

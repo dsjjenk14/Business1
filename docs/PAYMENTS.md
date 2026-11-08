@@ -83,3 +83,10 @@ virtual event's room). Each drink is real money for the host.
   to go (RevenueCat is already set up for in-app purchases).
 - Have a lawyer look over the drink credit terms (Terms → "Drinks and drink
   credit") before launch.
+
+## Claim your place (partner places)
+- A business fills in **Places → Own a place? Claim it** (the perk they'll offer, their name and number).
+- You check it's really theirs (a call or their website), then tap **Approve** in **Admin → Places → Place claims**.
+- They tap **Start**, which opens Stripe: **$49/month**. The first 10 approved places get **3 free months** (they add a card; nothing is charged until the free months end). The price, the number of free spots and the free months are settings: `place_price_cents`, `place_free_spots`, `place_free_months`.
+- When Stripe confirms, the place goes live as a Featured partner and its owner can post a special every day. If the subscription ends (cancelled or unpaid), the partnership ends on its own.
+- Uses the same webhook events as above; nothing new to set up in Stripe.

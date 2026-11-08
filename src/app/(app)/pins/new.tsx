@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, View } from 'react-native';
 
@@ -33,8 +33,11 @@ export default function NewPin() {
   const toast = useToast();
   const { session } = useAuth();
   const { location, status } = useApproxLocation();
+  // Opened from an event you went to: a photo post for its gallery.
+  const params = useLocalSearchParams<{ event?: string; eventTitle?: string }>();
+  const eventId = params.event ? Number(params.event) : null;
 
-  const [category, setCategory] = useState<PinCategory>('thought');
+  const [category, setCategory] = useState<PinCategory>(params.event ? 'photos' : 'thought');
   const [body, setBody] = useState('');
   const [photos, setPhotos] = useState<string[]>([]);
   const [music, setMusic] = useState<Song | null>(null);
@@ -82,6 +85,7 @@ export default function NewPin() {
         photoUris: photos.map((p) => filtered[p]?.uri ?? p),
         music: photos.length || media?.kind === 'boomerang' ? music : null,
         media,
+        eventId: category === 'photos' ? eventId : null,
       });
       if (hideFrom.size) await setPinHiddenFrom(pinId, [...hideFrom]).catch(() => toast('Couldn’t hide it from everyone you picked. Try again from the pin.'));
       track('pin_posted', { category, photos: photos.length, audience, music: !!(photos.length && music), filters: Object.keys(filtered).length, hidden_from: hideFrom.size });
@@ -96,7 +100,7 @@ export default function NewPin() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <BackHeader title="New Pin" />
+      <BackHeader title={eventId ? `Photos from ${params.eventTitle ?? 'the event'}` : 'New Pin'} />
       <Screen contentGap={t.space[5]}>
         <View style={{ gap: t.space[2] }}>
           <AppText variant="label" tone="subtle">

@@ -3,20 +3,21 @@ import { Switch, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Card, Chip, Screen, Section, useToast } from '@/components/ui';
-import { SAFETY_MIN_VOUCHES, useGhostMode } from '@/features/safety/ghost';
+import { SAFETY_VOUCHES_TEXT, useGhostMode } from '@/features/safety/ghost';
 import { useAuth } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 
-type Key = 'show_in_nearby' | 'show_going_out_venue' | 'show_locked_in' | 'messages_need_vouches' | 'allow_intro_requests' | 'discoverable';
+type Key = 'show_in_nearby' | 'show_going_out_venue' | 'show_locked_in' | 'messages_need_vouches' | 'allow_intro_requests' | 'discoverable' | 'findable_by_phone';
 
 const OPTIONS: { key: Key; label: string; detail: string }[] = [
   { key: 'show_in_nearby', label: 'Show me when I go out', detail: 'Appear on Home and Tonight when you tap I\'m In tonight' },
   { key: 'show_going_out_venue', label: 'Show where I’m going', detail: 'Show the venue when you go out (otherwise just “going out”). Off by default' },
   { key: 'show_locked_in', label: 'Show Locked In', detail: 'Your Insiders see who you go out with most (names only, never places). Off also leaves you out of other people’s Locked In' },
-  { key: 'messages_need_vouches', label: `Only people with ${SAFETY_MIN_VOUCHES} vouches can message me`, detail: 'New chats only from Insiders who’ve been vouched for in person. Chats you already have stay open' },
+  { key: 'messages_need_vouches', label: `Only people with ${SAFETY_VOUCHES_TEXT} can message me`, detail: 'New chats only from Insiders who’ve been vouched for in person. Chats you already have stay open' },
   { key: 'allow_intro_requests', label: 'Allow intro requests', detail: 'Let people one intro away ask an Insider you share to introduce you' },
   { key: 'discoverable', label: 'Show me in search', detail: 'People outside your Insiders can find you by name' },
+  { key: 'findable_by_phone', label: 'Let people who have my number find me', detail: 'Friends who have your verified number saved can see you’re here and ask to be Insiders' },
 ];
 
 const DELAYS: { minutes: number; label: string }[] = [
@@ -125,7 +126,7 @@ export default function Privacy() {
 
         <Section title="Always on">
           <AppText variant="small" tone="muted">
-            To see who’s out from outside your Insiders, people need {SAFETY_MIN_VOUCHES} vouches from meeting people in person. Nobody sees how far
+            To see who’s out from outside your Insiders, people need {SAFETY_VOUCHES_TEXT} from someone they met in person or know. Nobody sees how far
             away you are, other people aren’t shown on the map, and your vouch count always shows.
           </AppText>
           <AppText variant="small" tone="subtle">

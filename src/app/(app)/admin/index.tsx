@@ -4,6 +4,7 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Linking, View } from 'react-native';
 
+import { AdminClaims, AdminVerifiedHosts } from '@/components/admin/AdminClaims';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Badge, Button, Card, Chip, EmptyState, Glyph, LoadingList, Screen, Section, Segmented, Skeleton, TextField, useToast, type GlyphName } from '@/components/ui';
 import {
@@ -509,6 +510,8 @@ function Places() {
         </Card>
       ) : null}
 
+      <AdminClaims venues={venues} onChange={load} />
+
       <Section title="Placements">
         {placements.length === 0 ? <AppText tone="muted">None yet.</AppText> : null}
         {placements.map((p) => {
@@ -681,6 +684,8 @@ function More({ onChange }: { onChange: () => void }) {
         </View>
         <Button label="Save" size="md" onPress={() => run(() => grantPremium(email, days), days ? 'Premium given' : 'Premium removed')} loading={busy} disabled={!email.includes('@')} />
       </Section>
+
+      <AdminVerifiedHosts />
     </View>
   );
 }

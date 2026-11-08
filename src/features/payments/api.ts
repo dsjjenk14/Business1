@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 
 import { supabase } from '@/lib/supabase';
 
-export type PaymentAction = 'premium' | 'manage_premium' | 'ticket' | 'payouts_setup' | 'payouts_dashboard';
+export type PaymentAction = 'premium' | 'manage_premium' | 'ticket' | 'payouts_setup' | 'payouts_dashboard' | 'place_subscribe';
 
 /**
  * Open Stripe for a payment or payout step. Card details only ever go to

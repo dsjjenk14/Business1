@@ -22,7 +22,7 @@ import {
   type FeedPerson,
   type GoingOutFeed,
 } from '@/features/tonight/api';
-import { SAFETY_MIN_VOUCHES, useGhostMode } from '@/features/safety/ghost';
+import { SAFETY_MIN_VOUCHES, SAFETY_VOUCHES_TEXT, useGhostMode } from '@/features/safety/ghost';
 import { useAuth } from '@/lib/auth';
 import { DEFAULT_RADIUS_MI, SEARCH_RADIUS_MI } from '@/lib/radius';
 import { friendlyError } from '@/lib/supabase';
@@ -41,7 +41,7 @@ export default function Tonight() {
   const me = session?.user.id;
   const { location } = useApproxLocation();
   const { ghost, setGhost } = useGhostMode();
-  // Under 2 vouches you only see your Insiders going out (safety).
+  // Without enough vouches you only see your Insiders going out (safety).
   const fewVouches = (profile?.vouch_count ?? 0) < SAFETY_MIN_VOUCHES;
   const lat = location?.lat;
   const lng = location?.lng;
@@ -218,7 +218,7 @@ export default function Tonight() {
           <Section title={weekend ? 'Going out this weekend' : 'Going out tonight'}>
             {fewVouches ? (
               <AppText variant="caption" tone="subtle">
-                You see your Insiders here. To also see other people going out, get {SAFETY_MIN_VOUCHES} vouches from people you meet in person.
+                You see your Insiders here. To also see other people going out, get {SAFETY_VOUCHES_TEXT} from someone you meet or know.
               </AppText>
             ) : null}
             {people.length ? (

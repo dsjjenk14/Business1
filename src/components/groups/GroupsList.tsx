@@ -80,6 +80,7 @@ export function GroupsList({ groups, onChange }: { groups: GroupsOverview; onCha
       </Section>
       {groups.from_circle.length ? <Section title="From your Insiders">{groups.from_circle.map((g) => row(g, 'join'))}</Section> : null}
       {groups.discover.length ? <Section title="Discover more">{groups.discover.map((g) => row(g, 'join'))}</Section> : null}
+      <Button label="Browse groups near you" variant="secondary" onPress={() => router.push('/groups/near')} />
       <Card onPress={() => router.push('/groups/new')} accessibilityLabel="Create your own group">
         <GlyphTitle glyph="plus">Create your own group</GlyphTitle>
         <AppText variant="small" tone="muted">

@@ -6,6 +6,7 @@ import { Alert, Platform, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
 import { CoverPicker } from '@/components/events/CoverPicker';
+import { EventPhotos } from '@/components/events/EventPhotos';
 import { EventTagBadges, EventUpdates, HostEventTags } from '@/components/events/EventUpdates';
 import { VirtualRoomCard } from '@/components/events/VirtualRoomCard';
 import { StoryShareButton } from '@/components/share/StoryShareButton';
@@ -435,6 +436,8 @@ export default function EventScreen() {
             </View>
           </Card>
         ) : null}
+
+        {phase !== 'upcoming' ? <EventPhotos eventId={event.id} title={event.title} went={event.i_am_going || event.is_host} /> : null}
 
         {phase !== 'upcoming' ? <RateVenue eventId={event.id} /> : null}
 

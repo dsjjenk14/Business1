@@ -136,8 +136,8 @@ export default function Places() {
             </Card>
           ))
         )}
-        <Card onPress={() => router.push('/places/partner')} accessibilityLabel="Become a partner">
-          <GlyphTitle glyph="briefcase">Own a venue? Become a partner</GlyphTitle>
+        <Card onPress={() => router.push('/places/claim')} accessibilityLabel="Become a partner">
+          <GlyphTitle glyph="briefcase">Own a place? Claim it</GlyphTitle>
           <AppText variant="small" tone="muted">
             Offer a perk to trusted members and get featured.
           </AppText>

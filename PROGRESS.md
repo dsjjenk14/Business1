@@ -5,6 +5,19 @@
 
 ---
 
+## ✅ Feedback round two (dating and social app reviewers)
+- **Profile prompts:** pick up to 3 from 10 ("My ideal Friday is…", "Ask me about…", "I'm the friend who…"). None ask for a place.
+- **Photo check for dates:** asking someone out, suggesting a new time or saying yes needs a verified photo.
+- **Report a date:** "Report this date" on an accepted date and in Date Mode. Admins see it marked as a date report.
+- **Date Mode safety guide:** four short tips the first time you turn it on.
+- **Get started card:** on Home for new members, with a progress bar: find friends, say I'm In to an event, join a group, post a pin.
+- **1 vouch to start:** you need 1 vouch to see people out. **Verified hosts** (set in Admin → More) get a badge, and their vouches count double toward the safety rules. Vouch counts still show real vouches.
+- **Event photos:** after an event, people who went see "Post a photo from …?". Photos show in a gallery on the event page.
+- **Groups near you:** every group in the DC area by category, with a **Beginner friendly** tag and filter. Owners and co-hosts see **This week**: new members and who's coming to the next event.
+- **Claim your place:** businesses claim their place, you approve with one tap, then they pay $49/month (first 10 get 3 free months) and post specials themselves. See `docs/PAYMENTS.md`.
+- **Friends already here:** after sign-up (and in Add someone), check your contacts for people on I'm In. Add them as Insiders (they accept) or vouch for them; there's no "ask for a vouch". Only fingerprints of numbers are sent, nothing is kept, and anyone can turn off "Let people who have my number find me".
+- **Tested:** 40 new database tests (766 total pass), and checked in a browser.
+
 ## ✅ Tester feedback round
 - **Safety timer before a date:** on I'm On a Date, set "check on me in 30 min to 2 hours" before you walk in. Miss it and you get the check-in alert with one-tap help. Date Mode still starts once you're together.
 - **Go without knowing anyone:** new members (fewer than 3 Insiders or 2 vouches) see public events this week on Home, with "New faces welcome" events first.

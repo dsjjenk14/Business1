@@ -9,6 +9,7 @@
  * POST { action: 'refund_ticket', ticket_id } → { refunded: true } (host only; full refund)
  * POST { action: 'drink_credit', cents } → { url } (buy drink credit: a pack from DRINK_PACKS)
  * POST { action: 'drink_cashout' } → { cents } (send a host's drink earnings to their bank)
+ * POST { action: 'place_subscribe' } → { url } (Claim your place: $49/month, free months for the first places)
  * GET  ?done=… : where Stripe sends people back; redirects into the app.
  *
  * Off until the STRIPE_SECRET_KEY function secret is set (docs/PAYMENTS.md).
@@ -55,6 +56,8 @@ Deno.serve(async (req) => {
         ? `imin://events/${event}?paid=1`
         : done === 'premium'
           ? 'imin://premium?paid=1'
+          : done === 'place'
+            ? 'imin://places/claim?paid=1'
           : done === 'payouts'
             ? 'imin://settings/payouts'
             : done === 'drinks'
@@ -101,6 +104,32 @@ Deno.serve(async (req) => {
           metadata: { kind: 'premium', user_id: caller.id },
           allow_promotion_codes: true,
           success_url: back('premium'),
+          cancel_url: back('cancel'),
+        });
+        return json({ url: session.url });
+      }
+      case 'place_subscribe': {
+        // Only an approved claim can start. The subscription's metadata has no
+        // user_id, so it never counts as Premium.
+        const { data: claims } = await adminRest<{ id: number; status: string; free_months: number; business_name: string }[]>(
+          `venue_claims?select=id,status,free_months,business_name&user_id=eq.${caller.id}&status=eq.approved&order=created_at.desc&limit=1`,
+        );
+        const claim = claims?.[0];
+        if (!claim) return json({ error: 'Your place needs to be approved first.' }, 400);
+        const { data: cfg } = await adminRest<{ value: unknown }[]>(`app_config?select=value&key=eq.place_price_cents`);
+        const cents = Number(cfg?.[0]?.value ?? 4900);
+        const customer = await customerFor(caller.id, await emailOf(caller.id));
+        const session = await stripe<{ url: string }>('/checkout/sessions', {
+          mode: 'subscription',
+          customer,
+          client_reference_id: caller.id,
+          line_items: [{ quantity: 1, price_data: { currency: 'usd', unit_amount: cents, recurring: { interval: 'month' }, product_data: { name: `I’m In partner: ${claim.business_name}` } } }],
+          subscription_data: {
+            metadata: { kind: 'place', claim_id: String(claim.id) },
+            ...(claim.free_months > 0 ? { trial_period_days: claim.free_months * 30 } : {}),
+          },
+          metadata: { kind: 'place', claim_id: String(claim.id) },
+          success_url: back('place'),
           cancel_url: back('cancel'),
         });
         return json({ url: session.url });
