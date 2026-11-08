@@ -46,3 +46,4 @@ yarn-error.*
 !.env.example
 supabase/.temp/
 supabase/.branches/
+play-service-account.json

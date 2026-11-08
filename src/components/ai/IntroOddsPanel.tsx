@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { AIMark, AppText, Button, Card, useToast } from '@/components/ui';
-import { aiErrorText, fetchIntroOdds, runAI, type IntroOdds } from '@/features/ai/api';
+import { aiErrorText, fetchIntroOdds, runAI, useAIAvailable, type IntroOdds } from '@/features/ai/api';
 import { track } from '@/features/analytics/track';
 import { useTheme } from '@/theme';
 
@@ -18,6 +18,7 @@ export function IntroOddsPanel({ a, b }: { a: string; b: string }) {
   const [odds, setOdds] = useState<{ pair: string; value: IntroOdds | null } | null>(null);
   const [why, setWhy] = useState<{ pair: string; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const aiOn = useAIAvailable();
 
   useEffect(() => {
     let cancelled = false;
@@ -91,9 +92,9 @@ export function IntroOddsPanel({ a, b }: { a: string; b: string }) {
             <AIMark label="Why" />
             <AppText variant="small">{why.text}</AppText>
           </View>
-        ) : (
+        ) : aiOn ? (
           <Button label="Explain with AI" size="md" variant="ghost" onPress={explain} loading={busy} />
-        )}
+        ) : null}
       </View>
     </Card>
   );

@@ -49,6 +49,7 @@ export default function Settings() {
     {
       title: 'About',
       rows: [
+        { label: 'How I’m In works', icon: 'help-circle-outline', href: '/settings/how-it-works', detail: 'Insiders, vouches, Network and more' },
         { label: 'Community Guidelines', icon: 'shield-outline', href: '/legal/guidelines' },
         { label: 'Terms of Service', icon: 'document-text-outline', href: '/legal/terms' },
         { label: 'Privacy Policy', icon: 'document-text-outline', href: '/legal/privacy' },

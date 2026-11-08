@@ -674,6 +674,31 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"event_updates": {
+                  Row: {
+                    "author_id": string,"body": string,"created_at": string,"event_id": number,"id": number
+                  }
+                  Insert: {
+                    "author_id": string,"body": string,"created_at"?: string,"event_id": number,"id"?: number
+                  }
+                  Update: {
+                    "author_id"?: string,"body"?: string,"created_at"?: string,"event_id"?: number,"id"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "event_updates_author_id_fkey"
+      columns: ["author_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "event_updates_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"event_waitlist": {
                   Row: {
                     "created_at": string,"event_id": number,"user_id": string
@@ -701,13 +726,13 @@ isOneToOne: false
                   ]
                 },"events": {
                   Row: {
-                    "approx_location": unknown,"capacity": number | null,"cover_url": string | null,"created_at": string,"description": string,"emoji": string | null,"ends_at": string | null,"format": string,"group_id": number | null,"host_id": string,"id": number,"is_recurring": boolean,"place_text": string | null,"room_kind": string | null,"starts_at": string,"surprise_for": string | null,"ticket_price_cents": number | null,"title": string,"venue_id": number | null,"visibility": string
+                    "approx_location": unknown,"capacity": number | null,"cover_url": string | null,"created_at": string,"description": string,"emoji": string | null,"ends_at": string | null,"format": string,"group_id": number | null,"host_id": string,"id": number,"is_recurring": boolean,"place_text": string | null,"room_kind": string | null,"starts_at": string,"surprise_for": string | null,"tags": (string)[],"ticket_price_cents": number | null,"title": string,"venue_id": number | null,"visibility": string
                   }
                   Insert: {
-                    "approx_location"?: unknown,"capacity"?: number | null,"cover_url"?: string | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"format"?: string,"group_id"?: number | null,"host_id": string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"room_kind"?: string | null,"starts_at": string,"surprise_for"?: string | null,"ticket_price_cents"?: number | null,"title": string,"venue_id"?: number | null,"visibility"?: string
+                    "approx_location"?: unknown,"capacity"?: number | null,"cover_url"?: string | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"format"?: string,"group_id"?: number | null,"host_id": string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"room_kind"?: string | null,"starts_at": string,"surprise_for"?: string | null,"tags"?: (string)[],"ticket_price_cents"?: number | null,"title": string,"venue_id"?: number | null,"visibility"?: string
                   }
                   Update: {
-                    "approx_location"?: unknown,"capacity"?: number | null,"cover_url"?: string | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"format"?: string,"group_id"?: number | null,"host_id"?: string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"room_kind"?: string | null,"starts_at"?: string,"surprise_for"?: string | null,"ticket_price_cents"?: number | null,"title"?: string,"venue_id"?: number | null,"visibility"?: string
+                    "approx_location"?: unknown,"capacity"?: number | null,"cover_url"?: string | null,"created_at"?: string,"description"?: string,"emoji"?: string | null,"ends_at"?: string | null,"format"?: string,"group_id"?: number | null,"host_id"?: string,"id"?: number,"is_recurring"?: boolean,"place_text"?: string | null,"room_kind"?: string | null,"starts_at"?: string,"surprise_for"?: string | null,"tags"?: (string)[],"ticket_price_cents"?: number | null,"title"?: string,"venue_id"?: number | null,"visibility"?: string
                   }
                   Relationships: [
                     {
@@ -931,13 +956,13 @@ isOneToOne: false
                   ]
                 },"groups": {
                   Row: {
-                    "announcement": string | null,"announcement_at": string | null,"announcement_by": string | null,"category": string,"city_id": number | null,"created_at": string,"description": string,"emoji": string,"id": number,"join_type": Database["public"]['Enums']["join_type"],"name": string,"owner_id": string,"schedule_label": string | null
+                    "announcement": string | null,"announcement_at": string | null,"announcement_by": string | null,"category": string,"city_id": number | null,"created_at": string,"description": string,"emoji": string,"id": number,"invite_token": string | null,"join_type": Database["public"]['Enums']["join_type"],"name": string,"owner_id": string,"schedule_label": string | null
                   }
                   Insert: {
-                    "announcement"?: string | null,"announcement_at"?: string | null,"announcement_by"?: string | null,"category": string,"city_id"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string,"id"?: number,"join_type"?: Database["public"]['Enums']["join_type"],"name": string,"owner_id": string,"schedule_label"?: string | null
+                    "announcement"?: string | null,"announcement_at"?: string | null,"announcement_by"?: string | null,"category": string,"city_id"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string,"id"?: number,"invite_token"?: string | null,"join_type"?: Database["public"]['Enums']["join_type"],"name": string,"owner_id": string,"schedule_label"?: string | null
                   }
                   Update: {
-                    "announcement"?: string | null,"announcement_at"?: string | null,"announcement_by"?: string | null,"category"?: string,"city_id"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string,"id"?: number,"join_type"?: Database["public"]['Enums']["join_type"],"name"?: string,"owner_id"?: string,"schedule_label"?: string | null
+                    "announcement"?: string | null,"announcement_at"?: string | null,"announcement_by"?: string | null,"category"?: string,"city_id"?: number | null,"created_at"?: string,"description"?: string,"emoji"?: string,"id"?: number,"invite_token"?: string | null,"join_type"?: Database["public"]['Enums']["join_type"],"name"?: string,"owner_id"?: string,"schedule_label"?: string | null
                   }
                   Relationships: [
                     {
@@ -1739,13 +1764,13 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "approx_location": unknown,"avatar_emoji": string | null,"avatar_url": string | null,"bio": string,"city_id": number | null,"created_at": string,"display_name": string,"full_name": string,"headline": string,"id": string,"id_verified_at": string | null,"interests": (string)[],"invite_code": string,"invited_by": string | null,"is_founding_member": boolean,"location_precision": Database["public"]['Enums']["location_precision"],"member_number": number,"neighborhood": string | null,"photo_urls": (string)[],"photo_verified_at": string | null,"pronouns": string | null,"role": Database["public"]['Enums']["user_role"],"show_age": boolean,"top_vouch_word": string | null,"updated_at": string,"vouch_count": number
+                    "approx_location": unknown,"avatar_emoji": string | null,"avatar_url": string | null,"bio": string,"city_id": number | null,"created_at": string,"display_name": string,"full_name": string,"headline": string,"id": string,"id_verified_at": string | null,"interests": (string)[],"invite_code": string,"invited_by": string | null,"is_founding_member": boolean,"location_precision": Database["public"]['Enums']["location_precision"],"member_number": number,"neighborhood": string | null,"photo_urls": (string)[],"photo_verified_at": string | null,"pronouns": string | null,"role": Database["public"]['Enums']["user_role"],"show_age": boolean,"song": Json | null,"top_vouch_word": string | null,"updated_at": string,"vouch_count": number
                   }
                   Insert: {
-                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name": string,"full_name": string,"headline"?: string,"id": string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code": string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"neighborhood"?: string | null,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"top_vouch_word"?: string | null,"updated_at"?: string,"vouch_count"?: number
+                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name": string,"full_name": string,"headline"?: string,"id": string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code": string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"neighborhood"?: string | null,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"song"?: Json | null,"top_vouch_word"?: string | null,"updated_at"?: string,"vouch_count"?: number
                   }
                   Update: {
-                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name"?: string,"full_name"?: string,"headline"?: string,"id"?: string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code"?: string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"neighborhood"?: string | null,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"top_vouch_word"?: string | null,"updated_at"?: string,"vouch_count"?: number
+                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name"?: string,"full_name"?: string,"headline"?: string,"id"?: string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code"?: string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"neighborhood"?: string | null,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"song"?: Json | null,"top_vouch_word"?: string | null,"updated_at"?: string,"vouch_count"?: number
                   }
                   Relationships: [
                     {
@@ -1893,6 +1918,25 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"safety_timers": {
+                  Row: {
+                    "check_at": string,"missed_notified": boolean,"note": string | null,"started_at": string,"user_id": string
+                  }
+                  Insert: {
+                    "check_at": string,"missed_notified"?: boolean,"note"?: string | null,"started_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "check_at"?: string,"missed_notified"?: boolean,"note"?: string | null,"started_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "safety_timers_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"trusted_contacts": {
                   Row: {
                     "created_at": string,"id": number,"name": string,"phone": string,"user_id": string
@@ -1928,6 +1972,31 @@ isOneToOne: false
       columns: ["user_id"]
 isOneToOne: true
       referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"venue_managers": {
+                  Row: {
+                    "user_id": string,"venue_id": number
+                  }
+                  Insert: {
+                    "user_id": string,"venue_id": number
+                  }
+                  Update: {
+                    "user_id"?: string,"venue_id"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "venue_managers_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "venue_managers_venue_id_fkey"
+      columns: ["venue_id"]
+isOneToOne: false
+      referencedRelation: "venues"
       referencedColumns: ["id"]
     }
                   ]
@@ -1981,6 +2050,31 @@ isOneToOne: false
       referencedColumns: ["id"]
     },{
       foreignKeyName: "venue_ratings_venue_id_fkey"
+      columns: ["venue_id"]
+isOneToOne: false
+      referencedRelation: "venues"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"venue_specials": {
+                  Row: {
+                    "created_at": string,"created_by": string,"details": string | null,"ends_at": string,"id": number,"title": string,"venue_id": number
+                  }
+                  Insert: {
+                    "created_at"?: string,"created_by": string,"details"?: string | null,"ends_at": string,"id"?: number,"title": string,"venue_id": number
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string,"details"?: string | null,"ends_at"?: string,"id"?: number,"title"?: string,"venue_id"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "venue_specials_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "venue_specials_venue_id_fkey"
       columns: ["venue_id"]
 isOneToOne: false
       referencedRelation: "venues"
@@ -2194,6 +2288,9 @@ isOneToOne: true
 "admin_review_verification":
 { Args: { "p_approve": boolean,"p_note"?: string,"p_request": number }; Returns: undefined
                            },
+"admin_set_venue_manager":
+{ Args: { "p_email": string,"p_venue": number }; Returns: undefined
+                           },
 "admin_usage":
 { Args: Record<PropertyKey, never>; Returns: {
               "events_30d": number,"events_7d": number,"name": string,"people_30d": number,"people_7d": number
@@ -2243,6 +2340,9 @@ isOneToOne: true
                            },
 "block_user":
 { Args: { "p_user": string }; Returns: undefined
+                           },
+"can_post_special":
+{ Args: { "p_venue": number }; Returns: boolean
                            },
 "cancel_bill":
 { Args: { "p_bill": number }; Returns: undefined
@@ -2342,6 +2442,9 @@ isOneToOne: true
                            } |
 { Args: { "p_stream": number }; Returns: undefined
                            },
+"end_safety_timer":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
 "event_check_in":
 { Args: { "p_accuracy_m"?: number,"p_event": number,"p_lat": number,"p_lng": number }; Returns: {
               "already_vouched": boolean,"avatar_emoji": string,"avatar_url": string,"degree": number,"display_name": string,"encounter_id": number,"met_at": string,"place_label": string,"user_id": string,"vouch_count": number
@@ -2363,6 +2466,14 @@ isOneToOne: true
 { Args: { "p_event": number }; Returns: {
               "amount_cents": number,"bought_at": string,"display_name": string,"status": string,"ticket_id": number,"user_id": string
             }[]
+                           },
+"event_updates_for":
+{ Args: { "p_event": number }; Returns: {
+              "body": string,"created_at": string,"id": number
+            }[]
+                           },
+"extend_safety_timer":
+{ Args: { "p_minutes": number }; Returns: string
                            },
 "featured_places":
 { Args: { "p_lat"?: number,"p_lng"?: number }; Returns: {
@@ -2388,6 +2499,9 @@ isOneToOne: true
                            },
 "group_detail":
 { Args: { "p_group": number }; Returns: Json
+                           },
+"group_invite_link":
+{ Args: { "p_group": number,"p_new"?: boolean }; Returns: string
                            },
 "groups_overview":
 { Args: Record<PropertyKey, never>; Returns: Json
@@ -2420,6 +2534,9 @@ isOneToOne: true
                            },
 "join_group":
 { Args: { "p_group": number }; Returns: string
+                           },
+"join_group_by_link":
+{ Args: { "p_token": string }; Returns: number
                            },
 "join_waitlist":
 { Args: { "p_event": number }; Returns: number
@@ -2458,6 +2575,9 @@ isOneToOne: true
                            },
 "mark_contacts_notified":
 { Args: { "p_alert": number,"p_count": number }; Returns: undefined
+                           },
+"message_event_guests":
+{ Args: { "p_body": string,"p_event": number }; Returns: number
                            },
 "message_status":
 { Args: { "p_other": string }; Returns: Json
@@ -2540,6 +2660,11 @@ isOneToOne: true
               "actor_avatar": string,"actor_emoji": string,"actor_id": string,"actor_name": string,"at": string,"detail": string,"kind": string,"subject_id": string,"subject_name": string
             }[]
                            },
+"newcomer_events":
+{ Args: { "p_limit"?: number }; Returns: {
+              "cover_url": string,"emoji": string,"going_count": number,"host_name": string,"id": number,"newcomers": boolean,"place": string,"starts_at": string,"tags": (string)[],"title": string
+            }[]
+                           },
 "open_direct_conversation":
 { Args: { "p_other": string }; Returns: number
                            },
@@ -2601,6 +2726,9 @@ isOneToOne: true
                            },
 "post_recap":
 { Args: { "p_body": string,"p_event": number,"p_tags"?: (string)[] }; Returns: number
+                           },
+"post_venue_special":
+{ Args: { "p_details"?: string,"p_title": string,"p_venue": number }; Returns: number
                            },
 "prepare_account_deletion":
 { Args: { "p_user": string }; Returns: undefined
@@ -2705,6 +2833,9 @@ isOneToOne: true
 "set_event_mode":
 { Args: { "p_event": number,"p_surprise_for"?: string,"p_visibility": string }; Returns: undefined
                            },
+"set_event_tags":
+{ Args: { "p_event": number,"p_tags": (string)[] }; Returns: undefined
+                           },
 "set_event_virtual":
 { Args: { "p_event": number,"p_format": string,"p_join_url"?: string,"p_room_kind"?: string }; Returns: undefined
                            },
@@ -2741,6 +2872,9 @@ isOneToOne: true
 "set_profile_photos":
 { Args: { "p_urls": (string)[] }; Returns: (string)[]
                            },
+"set_profile_song":
+{ Args: { "p_song": Json }; Returns: undefined
+                           },
 "set_ticket_price":
 { Args: { "p_cents": number,"p_event": number }; Returns: undefined
                            },
@@ -2765,11 +2899,19 @@ isOneToOne: true
 "snap_location":
 { Args: { "p_lat": number,"p_lng": number }; Returns: unknown
                            },
+"specials_tonight":
+{ Args: { "p_venue"?: number }; Returns: {
+              "can_manage": boolean,"details": string,"ends_at": string,"id": number,"neighborhood": string,"title": string,"venue_id": number,"venue_name": string
+            }[]
+                           },
 "start_date_mode":
 { Args: { "p_accuracy_m"?: number,"p_lat": number,"p_lng": number,"p_partner": string }; Returns: number
                            },
 "start_live":
 { Args: { "p_audience"?: string,"p_title": string }; Returns: number
+                           },
+"start_safety_timer":
+{ Args: { "p_minutes": number,"p_note"?: string }; Returns: string
                            },
 "stripe_account_updated":
 { Args: { "p_account": string,"p_charges": boolean,"p_payouts": boolean }; Returns: undefined

@@ -110,3 +110,17 @@ export async function setGroupRole(groupId: number, userId: string, role: 'admin
   const { error } = await supabase.rpc('set_group_role', { p_group: groupId, p_user: userId, p_role: role });
   if (error) throw error;
 }
+
+/** The group's invite link token (owner and co-hosts). `fresh` makes a new one so the old link stops working. */
+export async function groupInviteLink(groupId: number, fresh = false) {
+  const { data, error } = await supabase.rpc('group_invite_link', { p_group: groupId, p_new: fresh });
+  if (error) throw error;
+  return data as string;
+}
+
+/** Opening an invite link joins the group. Resolves to the group's id. */
+export async function joinGroupByLink(token: string) {
+  const { data, error } = await supabase.rpc('join_group_by_link', { p_token: token });
+  if (error) throw error;
+  return data as number;
+}

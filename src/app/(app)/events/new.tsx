@@ -11,7 +11,8 @@ import { AppText, Button, Chip, type GlyphName, isGlyphName, Screen, TextField, 
 import { PeoplePicker } from '@/components/chat/PeoplePicker';
 import { fetchChatCandidates, type ChatCandidate } from '@/features/chat/api';
 import { CoverPicker } from '@/components/events/CoverPicker';
-import { createEvent, setEventCover, uploadEventCover, type EventVisibility } from '@/features/events/api';
+import { createEvent, setEventCover, setEventTags, uploadEventCover, type EventTag, type EventVisibility } from '@/features/events/api';
+import { EventTagPicker } from '@/components/events/EventUpdates';
 import { ROOM_KINDS, setEventVirtual, type RoomKind } from '@/features/events/room';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { fetchPayoutStatus, money, parsePrice, setTicketPrice, ticketSplit, type PayoutStatus } from '@/features/payments/api';
@@ -70,6 +71,7 @@ export default function NewEvent() {
   const [groups, setGroups] = useState<{ id: number; name: string; emoji: string }[]>([]);
   const [groupId, setGroupId] = useState<number | null>(params.group ? Number(params.group) : null);
   const [busy, setBusy] = useState(false);
+  const [tags, setTags] = useState<EventTag[]>([]);
   // In person, online, or both. Online events are for groups you run.
   const [format, setFormat] = useState<'in_person' | 'virtual' | 'hybrid'>('in_person');
   const virtualOn = useFeature('virtual_events_enabled');
@@ -119,6 +121,7 @@ export default function NewEvent() {
           toast('The event is up, but the photo didn’t upload. Add it from the event page.');
         }
       }
+      if (tags.length) await setEventTags(id, tags).catch(() => toast('The event is up, but its tags didn’t save. Add them from the event page.'));
       if (online) await setEventVirtual(id, format, roomKind, roomKind === 'link' ? joinUrl.trim() : null);
       const cents = payouts?.charges_enabled ? parsePrice(price) : null;
       if (cents != null) {
@@ -258,6 +261,13 @@ export default function NewEvent() {
         ) : null}
 
         {format !== 'virtual' ? <VenuePicker value={place} onChange={setPlace} lat={location?.lat} lng={location?.lng} /> : null}
+
+        <View style={{ gap: t.space[2] }}>
+          <AppText variant="label" tone="muted">
+            Tags · optional
+          </AppText>
+          <EventTagPicker value={tags} onChange={setTags} />
+        </View>
 
         <View style={{ gap: t.space[2] }}>
           <AppText variant="label" tone="muted">

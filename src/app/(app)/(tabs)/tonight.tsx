@@ -5,6 +5,7 @@ import { RefreshControl, ScrollView, View } from 'react-native';
 import { RadiusControl } from '@/components/pins/RadiusControl';
 import { EmptyCard, EventCard, GoingOutPersonRow, MyNightOut } from '@/components/tonight/GoingOutList';
 import { AppText, Button, Card, Chip, IconButton, LoadingList, Section, Segmented, useToast } from '@/components/ui';
+import { useAIAvailable } from '@/features/ai/api';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { preciseLocation } from '@/features/circles/api';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
@@ -34,6 +35,7 @@ type Tab = 'tonight' | 'weekend';
 export default function Tonight() {
   const t = useTheme();
   const router = useRouter();
+  const aiOn = useAIAvailable();
   const toast = useToast();
   const { session, profile } = useAuth();
   const me = session?.user.id;
@@ -105,6 +107,8 @@ export default function Tonight() {
   }
 
   const people = (feed?.people ?? []).filter((p) => !p.is_me && (!vibe || (p.vibes ?? []).includes(vibe)));
+  // Low-key and 30+ also filter events by the host's tags.
+  const events = (feed?.events ?? []).filter((e) => !vibe || !['low_key', 'thirty_plus'].includes(vibe) || (e.tags ?? []).includes(vibe));
   const mine = feed?.people.find((p) => p.is_me);
   const editMine = () => router.push({ pathname: '/tonight/post', params: mine ? { when: mine.when_kind } : {} });
 
@@ -141,7 +145,7 @@ export default function Tonight() {
         <AppText variant="h1" accessibilityRole="header" style={{ flex: 1 }}>
           Tonight
         </AppText>
-        <IconButton icon="sparkles-outline" label="Tonight for You, an AI pick" onPress={() => router.push('/tonight/for-you')} />
+        {aiOn ? <IconButton icon="sparkles-outline" label="Tonight for You, an AI pick" onPress={() => router.push('/tonight/for-you')} /> : null}
         <IconButton icon="map-outline" label="Map of who's out" onPress={() => router.push({ pathname: '/tonight/map', params: { when: weekend ? 'weekend' : 'tonight' } })} />
         <Button label="Make plans" size="md" onPress={() => router.push({ pathname: '/tonight/post', params: { when: weekend ? 'weekend' : 'tonight' } })} />
       </View>
@@ -229,9 +233,9 @@ export default function Tonight() {
           </Section>
 
           <Section title={weekend ? 'Weekend events' : 'Events tonight'} action={{ label: 'Host an event', onPress: () => router.push('/events/new') }}>
-            {feed.events.length ? (
+            {events.length ? (
               <View style={{ gap: t.space[3] }}>
-                {feed.events.map((e) => (
+                {events.map((e) => (
                   <EventCard key={e.id} event={e} weekend={weekend} onRsvp={onRsvp} />
                 ))}
               </View>

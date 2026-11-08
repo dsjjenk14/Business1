@@ -5,6 +5,22 @@
 
 ---
 
+## ✅ Tester feedback round
+- **Safety timer before a date:** on I'm On a Date, set "check on me in 30 min to 2 hours" before you walk in. Miss it and you get the check-in alert with one-tap help. Date Mode still starts once you're together.
+- **Go without knowing anyone:** new members (fewer than 3 Insiders or 2 vouches) see public events this week on Home, with "New faces welcome" events first.
+- **Event tags:** hosts can tag events **New faces welcome**, **Low-key** and **30+**. Plans get Low-key and 30+ vibes too, and Tonight's filters use them. Only people 30 and over can say I'm In to a 30+ event or plan, checked privately from birthdays; ages are never shown.
+- **Group invite link:** owners and co-hosts share one link; anyone who opens it joins right away. "New link" turns off the old one.
+- **Profile song:** pick a song in Edit profile; it plays a 30-second preview on your profile.
+- **Tonight's specials:** a partner place's manager (set by the admin when adding a placement) posts one special a day. It shows on the place's page and on What's In until 4 AM.
+- **Premium is $4.99 a month.** Change the App Store subscription price to match when you set it up.
+- **Outs last until the next morning by default** (gone at 11 AM). 6, 12 and 24 hours are still there.
+- **Unfinished features are hidden:** AI buttons only show once the AI key is added.
+- **Share to Instagram Stories:** events and your own profile make a branded story image and open the share sheet. On the web it copies the link.
+- **Hosts can message everyone going** ("Doors moved to 10"). Up to 5 a day; updates show on the event page.
+- **How I'm In works:** a page in Settings explaining Insiders, Network, vouches, Intros and Locked In. The names stay the same.
+- **Android:** build settings and a Google Play workflow are ready; see `docs/ANDROID.md`. Needs your Google Play account ($25).
+- **Tested:** 33 new database tests (726 total pass), and checked each screen in a browser.
+
 ## ✅ Real phone verification with Twilio Verify
 - Phone codes now go through **Twilio Verify**: Twilio makes the code, texts it and checks it. No phone number to buy and no carrier paperwork.
 - **Set up:** three Twilio values in Supabase's Edge Function secrets. Steps are in `docs/DEPLOY.md`.

@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { Alert, Platform, Pressable, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
+import { GroupInviteLink } from '@/components/groups/GroupInviteLink';
 import { BackHeader } from '@/components/nav/AppHeader';
 import {
   AppText,
@@ -179,6 +180,8 @@ export default function Group() {
         )}
 
         {group.description ? <AppText>{group.description}</AppText> : null}
+
+        {isAdmin ? <GroupInviteLink groupId={group.id} groupName={group.name} /> : null}
 
         {isMember && (announcement || isAdmin) ? (
           <Card accent="primary">

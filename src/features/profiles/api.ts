@@ -1,3 +1,4 @@
+import type { Song } from '@/features/music/api';
 import { supabase } from '@/lib/supabase';
 
 export type ProfileCard = {
@@ -19,6 +20,8 @@ export type ProfileCard = {
   photo_verified: boolean;
   vouch_count: number | null;
   top_vouch_word: string | null;
+  /** Their profile song (30-second preview). */
+  song: Song | null;
   interests: { key: string; label: string }[];
   is_me: boolean;
   degree: 0 | 1 | 2 | null;

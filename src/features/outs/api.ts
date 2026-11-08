@@ -35,9 +35,10 @@ export async function fetchOutsInbox() {
   return data as unknown as OutsInbox;
 }
 
-/** How long an Out lasts; the sender picks. */
-export type OutHours = 6 | 12 | 24;
-export const OUT_HOURS: OutHours[] = [6, 12, 24];
+/** How long an Out lasts; the sender picks. 0 means until the next morning (11 AM). */
+export type OutHours = 0 | 6 | 12 | 24;
+export const OUT_HOURS: OutHours[] = [0, 6, 12, 24];
+export const outHoursLabel = (h: OutHours) => (h === 0 ? 'until morning' : `${h} hours`);
 
 /** Upload the photo, then send it to Insiders and/or post it to your Out. */
 export async function sendOut(input: {
@@ -93,7 +94,7 @@ export async function setOutEffect(outId: number, effect: EffectKey) {
   if (error) throw error;
 }
 
-/** Open an Out: anyone it was meant for, as often as they like until it runs out (6, 12 or 24 hours); after that, only people who pinned it. */
+/** Open an Out: anyone it was meant for, as often as they like until it runs out (morning, 6, 12 or 24 hours); after that, only people who pinned it. */
 export async function openOut(outId: number): Promise<OpenedOut> {
   const { data, error } = await supabase.functions.invoke('open-out', { body: { out_id: outId } });
   if (error) {

@@ -34,6 +34,7 @@ import {
   type RevenueRow,
   type UsageRow,
 } from '@/features/admin/api';
+import { setVenueManager } from '@/features/places/specials';
 import { money } from '@/features/payments/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
@@ -341,6 +342,7 @@ function Places() {
   const [details, setDetails] = useState('');
   const [days, setDays] = useState(30);
   const [venueQuery, setVenueQuery] = useState('');
+  const [managerEmail, setManagerEmail] = useState('');
 
   const load = useCallback(() => {
     Promise.all([fetchVenues(), fetchPlacements()])
@@ -390,21 +392,24 @@ function Places() {
 
   const savePlacement = () =>
     run(
-      () =>
-        addPlacement({
+      async () => {
+        await addPlacement({
           venue_id: venueId as number,
           kind,
           perk: perk.trim(),
           perk_details: details.trim(),
           starts_at: new Date().toISOString(),
           ends_at: new Date(Date.now() + days * 86_400_000).toISOString(),
-        }),
-      'Placement is live',
+        });
+        if (managerEmail.trim()) await setVenueManager(venueId as number, managerEmail);
+      },
+      managerEmail.trim() ? 'Placement is live. The manager can post specials now.' : 'Placement is live',
     ).then((ok) => {
       if (!ok) return;
       setAdding(null);
       setPerk('');
       setDetails('');
+      setManagerEmail('');
       setVenueId(null);
       load();
     });
@@ -481,6 +486,16 @@ function Places() {
             </View>
             <TextField label="Member perk" value={perk} onChangeText={setPerk} maxLength={80} placeholder="15% off for I'm In members" />
             <TextField label="Perk details" optional value={details} onChangeText={setDetails} maxLength={400} multiline placeholder="Weeknights before 7 PM. Show your I'm In profile." />
+            <TextField
+              label="Manager's email"
+              optional
+              value={managerEmail}
+              onChangeText={setManagerEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              placeholder="owner@restaurant.com"
+              hint="Their I'm In account email. They can post a special every day while the placement runs."
+            />
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2], alignItems: 'center' }}>
               <AppText variant="caption" tone="subtle">
                 Runs for

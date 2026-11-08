@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
+import { VenueSpecials } from '@/components/places/VenueSpecials';
 import { AppText, Card, GlyphTile, GlyphTitle, LoadingDetail, Screen, Section, SponsoredLabel, Stars } from '@/components/ui';
 import { fetchVenue, type VenueDetail } from '@/features/tonight/api';
 import { dayTime, timeAgo } from '@/lib/time';
@@ -73,6 +74,8 @@ export default function Venue() {
                 </View>
               </Card>
             ) : null}
+
+            <VenueSpecials venueId={venue.id} />
 
             <Section title="Happening here">
               {venue.events.length ? (

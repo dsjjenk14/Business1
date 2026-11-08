@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 import { supabase } from '@/lib/supabase';
 
 const unwrap = <T,>({ data, error }: { data: unknown; error: unknown }): T => {
@@ -41,6 +43,33 @@ export async function runAI<R>(feature: AIFeature, opts: { subject?: string; ref
     throw new AIError(message, code, quota);
   }
   return { result: data.result as R, cached: !!data.cached, quota: data.quota ?? null, created_at: data.created_at ?? null };
+}
+
+let aiStatus: Promise<boolean> | null = null;
+/** Whether the business's AI key is set up. Asked once per app launch. */
+function fetchAIAvailable(): Promise<boolean> {
+  aiStatus ??= supabase.functions
+    .invoke('ai', { body: { feature: 'status' } })
+    .then(({ data, error }) => !error && data?.configured === true)
+    .catch(() => false)
+    .then((ok) => {
+      if (!ok) aiStatus = null; // ask again next time something mounts
+      return ok;
+    });
+  return aiStatus;
+}
+
+/** False until we know AI works, so AI buttons stay hidden until the AI key is added. */
+export function useAIAvailable(): boolean {
+  const [ok, setOk] = useState(false);
+  useEffect(() => {
+    let live = true;
+    fetchAIAvailable().then((v) => live && setOk(v));
+    return () => {
+      live = false;
+    };
+  }, []);
+  return ok;
 }
 
 /** Short, friendly text for an AI failure. */

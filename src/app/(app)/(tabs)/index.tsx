@@ -4,6 +4,7 @@ import { RefreshControl, ScrollView, View } from 'react-native';
 
 import { ActivityRow, EventRow, GroupSuggestion } from '@/components/home/HomeParts';
 import { InviteVerifyCard } from '@/components/home/InviteVerifyCard';
+import { NewcomerEvents } from '@/components/home/NewcomerEvents';
 import { WhatsInHero } from '@/components/home/WhatsInHero';
 import { LiveNowRow } from '@/components/live/LiveNowRow';
 import { PinCard } from '@/components/pins/PinCard';
@@ -15,6 +16,7 @@ import { useApproxLocation } from '@/features/location/useApproxLocation';
 import { useFirstWeekChecklist } from '@/features/onboarding/useFirstWeekChecklist';
 import { welcomeSeen } from '@/features/onboarding/welcome';
 import type { FeedPin } from '@/features/pins/api';
+import { SAFETY_MIN_VOUCHES } from '@/features/safety/ghost';
 import { rsvp } from '@/features/tonight/api';
 import { fetchWhatsIn, type HotSpot } from '@/features/trending/api';
 import { PeopleLikeYou } from '@/components/ai/PeopleLikeYou';
@@ -34,7 +36,7 @@ export default function Home() {
   const t = useTheme();
   const router = useRouter();
   const toast = useToast();
-  const { session } = useAuth();
+  const { session, profile } = useAuth();
   const me = session?.user.id;
   const { location } = useApproxLocation();
   const { dismissed } = useFirstWeekChecklist();
@@ -135,6 +137,9 @@ export default function Home() {
 
       <InviteVerifyCard />
       <WhatsInHero events={trending} spots={hotSpots} onIn={onIn} />
+
+      {/* Still finding your people: events you can go to without knowing anyone. */}
+      {feed.friend_count < 3 || (profile?.vouch_count ?? 0) < SAFETY_MIN_VOUCHES ? <NewcomerEvents /> : null}
 
       {/* 1. Your Insiders' pins */}
       <Section title="Your Insiders’ pins" action={{ label: 'Post', onPress: () => router.push('/pins/new') }}>

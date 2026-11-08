@@ -59,7 +59,9 @@ export function OutSettingsSheet({
                 ))}
               </View>
               <AppText variant="caption" tone="muted">
-                After {hours} hours it&apos;s gone, unless someone pins it.
+                {hours === 0
+                  ? 'It stays up through the night and is gone at 11 AM, unless someone pins it.'
+                  : `After ${hours} hours it's gone, unless someone pins it.`}
               </AppText>
             </View>
 
@@ -96,7 +98,8 @@ function HourCard({ hours, selected, onPress }: { hours: OutHours; selected: boo
   const size = 56;
   const r = 24;
   const c = size / 2;
-  const share = hours / 24;
+  // "Until morning" shows as a half-filled ring (about 12 hours).
+  const share = (hours || 12) / 24;
   // The filled wedge: from 12 o'clock, clockwise.
   const angle = share * 2 * Math.PI;
   const x = c + r * Math.sin(angle);
@@ -107,7 +110,7 @@ function HourCard({ hours, selected, onPress }: { hours: OutHours; selected: boo
     <Pressable
       accessibilityRole="radio"
       accessibilityState={{ selected }}
-      accessibilityLabel={`${hours} hours`}
+      accessibilityLabel={hours === 0 ? 'Until morning' : `${hours} hours`}
       onPress={onPress}
       style={({ pressed }) => ({
         flex: 1,
@@ -126,9 +129,9 @@ function HourCard({ hours, selected, onPress }: { hours: OutHours; selected: boo
         <Circle cx={c} cy={c} r={2.5} fill={t.colors.text} />
       </Svg>
       <View style={{ alignItems: 'center' }}>
-        <AppText style={{ ...fontStyle(t.fonts.displayBold), fontSize: 26, lineHeight: 28 }}>{hours}</AppText>
+        <AppText style={{ ...fontStyle(t.fonts.displayBold), fontSize: 26, lineHeight: 28 }}>{hours || 'AM'}</AppText>
         <AppText variant="caption" tone={selected ? 'text' : 'muted'} weight={selected ? 'bold' : undefined}>
-          hours
+          {hours ? 'hours' : 'morning'}
         </AppText>
       </View>
     </Pressable>

@@ -152,3 +152,28 @@ export async function endDateMode() {
   const { error } = await supabase.rpc('end_date_mode');
   if (error) throw error;
 }
+
+// ── Safety timer (before a date) ──────────────────────────────────────────
+/** "Check on me at 8:30." Miss it and you get the same alert as a missed Date Mode check-in. */
+export type SafetyTimer = { check_at: string; note: string | null; started_at: string; missed_notified: boolean };
+
+export async function fetchSafetyTimer(userId: string) {
+  const { data, error } = await supabase.from('safety_timers').select('check_at, note, started_at, missed_notified').eq('user_id', userId).maybeSingle();
+  if (error) throw error;
+  return (data ?? null) as SafetyTimer | null;
+}
+
+export async function startSafetyTimer(minutes: number, note: string) {
+  const { error } = await supabase.rpc('start_safety_timer', { p_minutes: minutes, p_note: note.trim() });
+  if (error) throw error;
+}
+
+export async function extendSafetyTimer(minutes: number) {
+  const { error } = await supabase.rpc('extend_safety_timer', { p_minutes: minutes });
+  if (error) throw error;
+}
+
+export async function endSafetyTimer() {
+  const { error } = await supabase.rpc('end_safety_timer');
+  if (error) throw error;
+}

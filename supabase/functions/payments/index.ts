@@ -91,7 +91,7 @@ Deno.serve(async (req) => {
         const freeUntil = state.premium_until ? Math.floor(new Date(state.premium_until).getTime() / 1000) : 0;
         const trialEnd = freeUntil > Math.floor(Date.now() / 1000) + 2 * 86400 ? freeUntil : undefined;
         const { data: cfg } = await adminRest<{ value: unknown }[]>(`app_config?select=value&key=eq.premium_price_cents`);
-        const cents = Number(cfg?.[0]?.value ?? 1499);
+        const cents = Number(cfg?.[0]?.value ?? 499);
         const session = await stripe<{ url: string }>('/checkout/sessions', {
           mode: 'subscription',
           customer,

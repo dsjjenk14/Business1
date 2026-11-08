@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
+import { SafetyTimerCard } from '@/components/safety/SafetyTimerCard';
 import { AppText, Avatar, Button, Card, Chip, GlyphTile, GlyphTitle, LoadingDetail, Screen, useToast } from '@/components/ui';
 import { preciseLocation } from '@/features/circles/api';
 import {
@@ -241,8 +242,9 @@ export default function DateMode() {
     <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
       {header}
       <Screen contentGap={t.space[5]}>
+        <SafetyTimerCard />
         <Card accent="primary">
-          <GlyphTitle glyph="shield">Date Mode needs GPS proximity</GlyphTitle>
+          <GlyphTitle glyph="shield">Then, once you&apos;re together: Date Mode</GlyphTitle>
           <AppText variant="small" tone="muted">
             You and your date must be within 1 mile of each other to turn it on. That confirms the date is real and starts safety check-ins
             for both of you.

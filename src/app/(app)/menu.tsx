@@ -5,6 +5,7 @@ import { Pressable, View } from 'react-native';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Glyph, Screen, Section, type IconName } from '@/components/ui';
 import { useFeature } from '@/config/useAppConfig';
+import { useAIAvailable } from '@/features/ai/api';
 import { useAuth } from '@/lib/auth';
 import { useTheme } from '@/theme';
 import { goBackOr } from '@/lib/navigation';
@@ -55,8 +56,12 @@ export default function Menu() {
   const router = useRouter();
   const { signOut, profile } = useAuth();
   const drinksOn = useFeature('drinks_enabled');
-  // Launch mode: drinks stay out of the menu until they're turned on.
-  const base = drinksOn ? GROUPS : GROUPS.map((g) => ({ ...g, items: g.items.filter((i) => i.href !== '/settings/wallet') }));
+  const aiOn = useAIAvailable();
+  // Launch mode: drinks stay out of the menu until they're turned on, and AI until its key is added.
+  const base = GROUPS.map((g) => ({
+    ...g,
+    items: g.items.filter((i) => (drinksOn || i.href !== '/settings/wallet') && (aiOn || !i.ai)),
+  }));
   const groups: typeof GROUPS =
     profile?.role === 'admin' ? [...base, { title: 'Team', items: [{ label: 'Admin', icon: 'construct-outline', href: '/admin' }] }] : base;
 

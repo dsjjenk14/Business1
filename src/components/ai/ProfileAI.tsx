@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { AIMark, AppText, Button, Card, useToast } from '@/components/ui';
-import { aiErrorText, quotaText, runAI, type AIQuota, type Icebreakers } from '@/features/ai/api';
+import { aiErrorText, quotaText, runAI, useAIAvailable, type AIQuota, type Icebreakers } from '@/features/ai/api';
 import { track } from '@/features/analytics/track';
 import { useTheme } from '@/theme';
 
@@ -14,6 +14,7 @@ export function IcebreakersCard({ userId, firstName, connected }: { userId: stri
   const [list, setList] = useState<string[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [quota, setQuota] = useState<AIQuota | null>(null);
+  const aiOn = useAIAvailable();
 
   async function load(refresh: boolean) {
     setBusy(true);
@@ -35,6 +36,7 @@ export function IcebreakersCard({ userId, firstName, connected }: { userId: stri
   }
 
   if (!list) {
+    if (!aiOn) return null;
     return (
       <Button
         label={`Icebreakers for ${firstName}`}
