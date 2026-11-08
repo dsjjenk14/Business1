@@ -328,7 +328,7 @@ const guestFonts = {
 } as const;
 const guestStyle: Theme['style'] = {
   section: 'poster',
-  badge: 'pill',
+  badge: 'words',
   uppercaseLabels: false,
   monoNumbers: false,
   monoLabels: false,

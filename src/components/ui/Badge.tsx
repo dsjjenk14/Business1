@@ -19,6 +19,18 @@ export function Badge({ label, tone = 'primary', glyph, verified }: BadgeProps) 
   const t = useTheme();
   const color = tone === 'neutral' ? t.colors.textMuted : tone === 'primary' ? t.colors.primaryText : t.colors[tone];
 
+  if (t.style.badge === 'words') {
+    // Just words: a small colored dot and the label, no box around it.
+    return (
+      <View style={{ alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 2 }}>
+        <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: tone === 'neutral' ? t.colors.textSubtle : color }} />
+        <AppText variant="small" weight="bold" style={{ color: tone === 'neutral' ? t.colors.text : color }}>
+          {label}
+        </AppText>
+      </View>
+    );
+  }
+
   if (t.style.badge === 'credential') {
     return (
       <View
