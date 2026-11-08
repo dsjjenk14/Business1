@@ -60,7 +60,6 @@ export function ProfileView({
 
   const first = card.display_name.split(' ')[0] ?? '';
   const counts = [
-    { n: card.vouch_count, one: 'vouch', many: 'vouches', tone: 'trust' as const },
     { n: card.circle_count, one: 'Insider', many: 'Insiders' },
     { n: card.pin_count, one: 'pin', many: 'pins' },
   ].filter((c) => c.n != null);
@@ -179,7 +178,7 @@ export function ProfileView({
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: t.space[4] }}>
             {counts.map((c) => (
               <AppText key={c.one} variant="small" tone="muted">
-                <AppText variant="small" weight="bold" tone={c.tone ?? 'text'}>
+                <AppText variant="small" weight="bold" tone="text">
                   {c.n}
                 </AppText>{' '}
                 {c.n === 1 ? c.one : c.many}

@@ -1,4 +1,5 @@
 import { MetalSticker } from '@/components/ui';
+import { useTheme } from '@/theme';
 import { FAMOUS_AT, milestoneFor } from '@/features/milestones/api';
 
 /** Each vouch milestone has its own metal or gem. The sticker shows just the number and "vouches". */
@@ -13,13 +14,29 @@ export const MATERIALS: Record<number, { name: string; stops: string[]; ink: str
   1000: { name: 'Diamond', stops: ['#FFFFFF', '#E3F6FF', '#A9DBF5', '#F2FBFF', '#8FCFEF'], ink: '#0C2230' },
 };
 
+/**
+ * The only place a profile shows its vouch count: the exact number, in the metal of the
+ * highest milestone reached. Under 10 it's a plain sticker; with no vouches (or the count hidden), nothing.
+ */
 export function MilestoneSticker({ count, size }: { count: number | null | undefined; size?: number }) {
+  const t = useTheme();
+  if (!count || count < 1) return null;
   const m = milestoneFor(count);
-  if (!m) return null;
+  const label = count.toLocaleString('en-US');
+  if (!m)
+    return (
+      <MetalSticker
+        label={label}
+        sub={count === 1 ? 'VOUCH' : 'VOUCHES'}
+        stops={[t.colors.surfaceAlt, t.colors.surface, t.colors.surface, t.colors.surfaceAlt, t.colors.surface]}
+        ink={t.colors.text}
+        size={size}
+      />
+    );
   const mat = MATERIALS[m]!;
   return (
     <MetalSticker
-      label={m >= FAMOUS_AT ? '1,000' : String(m)}
+      label={label}
       sub="VOUCHES"
       glyph={m >= FAMOUS_AT ? 'star' : undefined}
       stops={mat.stops}
