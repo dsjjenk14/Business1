@@ -376,6 +376,7 @@ function LockedIn({ userId, isMe, firstName }: { userId: string; isMe: boolean; 
   const t = useTheme();
   const router = useRouter();
   const [people, setPeople] = useState<LockedInPerson[] | null>(null);
+  const [about, setAbout] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -411,11 +412,19 @@ function LockedIn({ userId, isMe, firstName }: { userId: string; isMe: boolean; 
           The Insiders you go out with most show up here on their own.
         </AppText>
       )}
-      <AppText variant="caption" tone="subtle">
-        {isMe
-          ? 'Filled in from the nights you go out with your Insiders. Only your Insiders see this, and never where you went. You can hide it in Settings, Privacy.'
-          : `The Insiders ${firstName} goes out with most.`}
-      </AppText>
+      {isMe ? (
+        <Pressable accessibilityRole="button" onPress={() => setAbout((v) => !v)} hitSlop={6}>
+          <AppText variant="caption" tone="subtle">
+            {about
+              ? 'Filled in from the nights you go out together. Only your Insiders see it, never where you went. Hide it in Settings, Privacy.'
+              : 'How does this work?'}
+          </AppText>
+        </Pressable>
+      ) : (
+        <AppText variant="caption" tone="subtle">
+          Who {firstName} goes out with most.
+        </AppText>
+      )}
     </Section>
   );
 }

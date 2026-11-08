@@ -141,7 +141,7 @@ function EditProfileForm({ profile }: { profile: NonNullable<ReturnType<typeof u
           <View style={{ flex: 1 }}>
             <AppText weight="bold">Show my area on my profile</AppText>
             <AppText variant="small" tone="muted">
-              Your neighborhood and city. Off: nobody sees them on your profile. Your city still picks what&apos;s near you. Tap a city again to clear it.
+              Off hides your neighborhood and city. We still use your city to show what&apos;s nearby.
             </AppText>
           </View>
           <Switch
