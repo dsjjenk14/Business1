@@ -39,6 +39,12 @@ export async function attachMusic(pinId: number, song: Song) {
   if (error) throw error;
 }
 
+/** The song on your profile (null removes it). */
+export async function setProfileSong(song: Song | null) {
+  const { error } = await supabase.rpc('set_profile_song', { p_song: song as never });
+  if (error) throw error;
+}
+
 // Pin cards ask for their song one by one; batch those into one request.
 const cache = new Map<number, Promise<Song | null>>();
 let queue: { id: number; resolve: (s: Song | null) => void }[] = [];

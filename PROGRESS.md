@@ -5,6 +5,41 @@
 
 ---
 
+## ✅ Feedback round two (dating and social app reviewers)
+- **Profile prompts:** pick up to 3 from 10 ("My ideal Friday is…", "Ask me about…", "I'm the friend who…"). None ask for a place.
+- **Photo check for dates:** asking someone out, suggesting a new time or saying yes needs a verified photo.
+- **Report a date:** "Report this date" on an accepted date and in Date Mode. Admins see it marked as a date report.
+- **Date Mode safety guide:** four short tips the first time you turn it on.
+- **Get started card:** on Home for new members, with a progress bar: find friends, say I'm In to an event, join a group, post a pin.
+- **1 vouch to start:** you need 1 vouch to see people out. **Verified hosts** (set in Admin → More) get a badge, and their vouches count double toward the safety rules. Vouch counts still show real vouches.
+- **Event photos:** after an event, people who went see "Post a photo from …?". Photos show in a gallery on the event page.
+- **Groups near you:** every group in the DC area by category, with a **Beginner friendly** tag and filter. Owners and co-hosts see **This week**: new members and who's coming to the next event.
+- **Claim your place:** businesses claim their place, you approve with one tap, then they pay $49/month (first 10 get 3 free months) and post specials themselves. See `docs/PAYMENTS.md`.
+- **Friends already here:** after sign-up (and in Add someone), check your contacts for people on I'm In. Add them as Insiders (they accept) or vouch for them; there's no "ask for a vouch". Only fingerprints of numbers are sent, nothing is kept, and anyone can turn off "Let people who have my number find me".
+- **Tested:** 40 new database tests (766 total pass), and checked in a browser.
+
+## ✅ Tester feedback round
+- **Safety timer before a date:** on I'm On a Date, set "check on me in 30 min to 2 hours" before you walk in. Miss it and you get the check-in alert with one-tap help. Date Mode still starts once you're together.
+- **Go without knowing anyone:** new members (fewer than 3 Insiders or 2 vouches) see public events this week on Home, with "New faces welcome" events first.
+- **Event tags:** hosts can tag events **New faces welcome**, **Low-key** and **30+**. Plans get Low-key and 30+ vibes too, and Tonight's filters use them. Only people 30 and over can say I'm In to a 30+ event or plan, checked privately from birthdays; ages are never shown.
+- **Group invite link:** owners and co-hosts share one link; anyone who opens it joins right away. "New link" turns off the old one.
+- **Profile song:** pick a song in Edit profile; it plays a 30-second preview on your profile.
+- **Tonight's specials:** a partner place's manager (set by the admin when adding a placement) posts one special a day. It shows on the place's page and on What's In until 4 AM.
+- **Premium is $4.99 a month.** Change the App Store subscription price to match when you set it up.
+- **Outs last until the next morning by default** (gone at 11 AM). 6, 12 and 24 hours are still there.
+- **Unfinished features are hidden:** AI buttons only show once the AI key is added.
+- **Share to Instagram Stories:** events and your own profile make a branded story image and open the share sheet. On the web it copies the link.
+- **Hosts can message everyone going** ("Doors moved to 10"). Up to 5 a day; updates show on the event page.
+- **How I'm In works:** a page in Settings explaining Insiders, Network, vouches, Intros and Locked In. The names stay the same.
+- **Android:** build settings and a Google Play workflow are ready; see `docs/ANDROID.md`. Needs your Google Play account ($25).
+- **Tested:** 33 new database tests (726 total pass), and checked each screen in a browser.
+
+## ✅ Real phone verification with Twilio Verify
+- Phone codes now go through **Twilio Verify**: Twilio makes the code, texts it and checks it. No phone number to buy and no carrier paperwork.
+- **Set up:** three Twilio values in Supabase's Edge Function secrets. Steps are in `docs/DEPLOY.md`.
+- The hourly limit on codes and the "too many wrong tries" limit stay in place, and members get clear messages for a bad number or too many tries.
+- **Tested:** against a stand-in for Twilio (sending, right code, wrong code, expired code, bad number, too many tries). The real texts can only be tried once the Twilio account exists.
+
 ## ✅ Vouch from your contacts
 - If someone's number is saved in your phone, you can vouch for them without checking in together. On their profile, tap Vouch, pick a word, then **Pick from my contacts**.
 - Only the one contact you pick is checked, against the number they verified. Your contacts are never uploaded or saved.

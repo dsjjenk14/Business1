@@ -5,7 +5,7 @@ import { KeyboardAvoidingView, Platform, Pressable, Switch, View } from 'react-n
 
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Button, Screen, TextField, useToast } from '@/components/ui';
-import { REPORT_REASONS, blockUser, report, type ReportReason } from '@/features/safety/api';
+import { REPORT_REASONS, blockUser, report, reportDate, type ReportReason } from '@/features/safety/api';
 import { goBackOr } from '@/lib/navigation';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
@@ -15,14 +15,16 @@ export default function Report() {
   const t = useTheme();
   const router = useRouter();
   const toast = useToast();
-  const params = useLocalSearchParams<{ user?: string; pin?: string; reply?: string; message?: string; name?: string }>();
+  // date=1 (or a date request id): report the whole date with this person.
+  const params = useLocalSearchParams<{ user?: string; pin?: string; reply?: string; message?: string; name?: string; date?: string }>();
   const [reason, setReason] = useState<ReportReason | null>(null);
   const [details, setDetails] = useState('');
   const [alsoBlock, setAlsoBlock] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const what = params.pin ? 'this pin' : params.reply ? 'this reply' : params.message ? 'this message' : params.name ?? 'this member';
+  const isDate = !!params.date && !!params.user;
+  const what = isDate ? `your date with ${params.name ?? 'this member'}` : params.pin ? 'this pin' : params.reply ? 'this reply' : params.message ? 'this message' : params.name ?? 'this member';
 
   async function submit() {
     if (!reason) {
@@ -32,7 +34,9 @@ export default function Report() {
     setBusy(true);
     setError(null);
     try {
-      await report({
+      if (isDate)
+        await reportDate({ otherId: params.user as string, reason, details, dateId: params.date && params.date !== '1' ? Number(params.date) : undefined });
+      else await report({
         reason,
         details,
         userId: params.user,

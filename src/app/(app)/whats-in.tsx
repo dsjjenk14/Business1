@@ -4,6 +4,7 @@ import { RefreshControl, ScrollView, View } from 'react-native';
 
 import { EventRow } from '@/components/home/HomeParts';
 import { BackHeader } from '@/components/nav/AppHeader';
+import { SpecialsTonight } from '@/components/places/VenueSpecials';
 import { PinCard } from '@/components/pins/PinCard';
 import { AppText, Card, GlyphTile, LoadingList, Section, Stars, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
@@ -112,6 +113,8 @@ export default function WhatsIn() {
             </Card>
           </Section>
         ) : null}
+
+        <SpecialsTonight />
 
         {data?.hot_tonight.length ? (
           <Section title="Hot tonight">

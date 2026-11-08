@@ -53,7 +53,14 @@ In GitHub, open **dsjjenk14/Business1 → Settings → Secrets and variables →
 
 ## Before real members: Twilio (texts) and email
 
-- **Twilio:** in Supabase → **Edge Functions → Secrets**, add `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `TWILIO_FROM_NUMBER`. In production there's no demo mode, so phone verification shows "We couldn't send a text right now" until these are set.
+- **Twilio (phone verification):** uses Twilio Verify, so there's no phone number to buy and no carrier registration. In production there's no demo mode, so phone verification shows "We couldn't send a text right now" until this is set up.
+  1. Sign up at twilio.com, then upgrade the account (add a card). Trial accounts can only text numbers you've verified yourself.
+  2. In the Twilio Console, go to **Verify → Services → Create new**. Name it `I'm In`, turn on **SMS**, and create it. Copy its **Service SID** (starts with `VA`).
+  3. On the Console home page, copy the **Account SID** (starts with `AC`) and the **Auth Token**.
+  4. In Supabase, go to **Edge Functions → Secrets** and add `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and `TWILIO_VERIFY_SERVICE_SID`. They take effect right away, with no deploy needed.
+  5. Test it: in the app, go to **Settings → Verification → Phone number** and send yourself a code.
+
+  Cost: about $0.05 for each successful verification plus about $0.008 per text. (Sending your own texts instead, with `TWILIO_FROM_NUMBER`, still works, but US carriers require a registered number for that.)
 - **Email:** Supabase's built-in email is capped at a handful of messages per hour, which isn't enough for signup confirmations and password resets at launch. Add a sending service (e.g. Resend or SendGrid, both have free tiers) under **Authentication → Emails → SMTP settings**.
 
 ## If something fails

@@ -5,6 +5,7 @@ import { RefreshControl, ScrollView, View } from 'react-native';
 import { RadiusControl } from '@/components/pins/RadiusControl';
 import { EmptyCard, EventCard, GoingOutPersonRow, MyNightOut } from '@/components/tonight/GoingOutList';
 import { AppText, Button, Card, Chip, IconButton, LoadingList, Section, Segmented, useToast } from '@/components/ui';
+import { useAIAvailable } from '@/features/ai/api';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { preciseLocation } from '@/features/circles/api';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
@@ -21,7 +22,7 @@ import {
   type FeedPerson,
   type GoingOutFeed,
 } from '@/features/tonight/api';
-import { SAFETY_MIN_VOUCHES, useGhostMode } from '@/features/safety/ghost';
+import { SAFETY_MIN_VOUCHES, SAFETY_VOUCHES_TEXT, useGhostMode } from '@/features/safety/ghost';
 import { useAuth } from '@/lib/auth';
 import { DEFAULT_RADIUS_MI, SEARCH_RADIUS_MI } from '@/lib/radius';
 import { friendlyError } from '@/lib/supabase';
@@ -34,12 +35,13 @@ type Tab = 'tonight' | 'weekend';
 export default function Tonight() {
   const t = useTheme();
   const router = useRouter();
+  const aiOn = useAIAvailable();
   const toast = useToast();
   const { session, profile } = useAuth();
   const me = session?.user.id;
   const { location } = useApproxLocation();
   const { ghost, setGhost } = useGhostMode();
-  // Under 2 vouches you only see your Insiders going out (safety).
+  // Without enough vouches you only see your Insiders going out (safety).
   const fewVouches = (profile?.vouch_count ?? 0) < SAFETY_MIN_VOUCHES;
   const lat = location?.lat;
   const lng = location?.lng;
@@ -105,6 +107,8 @@ export default function Tonight() {
   }
 
   const people = (feed?.people ?? []).filter((p) => !p.is_me && (!vibe || (p.vibes ?? []).includes(vibe)));
+  // Low-key and 30+ also filter events by the host's tags.
+  const events = (feed?.events ?? []).filter((e) => !vibe || !['low_key', 'thirty_plus'].includes(vibe) || (e.tags ?? []).includes(vibe));
   const mine = feed?.people.find((p) => p.is_me);
   const editMine = () => router.push({ pathname: '/tonight/post', params: mine ? { when: mine.when_kind } : {} });
 
@@ -141,7 +145,7 @@ export default function Tonight() {
         <AppText variant="h1" accessibilityRole="header" style={{ flex: 1 }}>
           Tonight
         </AppText>
-        <IconButton icon="sparkles-outline" label="Tonight for You, an AI pick" onPress={() => router.push('/tonight/for-you')} />
+        {aiOn ? <IconButton icon="sparkles-outline" label="Tonight for You, an AI pick" onPress={() => router.push('/tonight/for-you')} /> : null}
         <IconButton icon="map-outline" label="Map of who's out" onPress={() => router.push({ pathname: '/tonight/map', params: { when: weekend ? 'weekend' : 'tonight' } })} />
         <Button label="Make plans" size="md" onPress={() => router.push({ pathname: '/tonight/post', params: { when: weekend ? 'weekend' : 'tonight' } })} />
       </View>
@@ -214,7 +218,7 @@ export default function Tonight() {
           <Section title={weekend ? 'Going out this weekend' : 'Going out tonight'}>
             {fewVouches ? (
               <AppText variant="caption" tone="subtle">
-                You see your Insiders here. To also see other people going out, get {SAFETY_MIN_VOUCHES} vouches from people you meet in person.
+                You see your Insiders here. To also see other people going out, get {SAFETY_VOUCHES_TEXT} from someone you meet or know.
               </AppText>
             ) : null}
             {people.length ? (
@@ -229,9 +233,9 @@ export default function Tonight() {
           </Section>
 
           <Section title={weekend ? 'Weekend events' : 'Events tonight'} action={{ label: 'Host an event', onPress: () => router.push('/events/new') }}>
-            {feed.events.length ? (
+            {events.length ? (
               <View style={{ gap: t.space[3] }}>
-                {feed.events.map((e) => (
+                {events.map((e) => (
                   <EventCard key={e.id} event={e} weekend={weekend} onRsvp={onRsvp} />
                 ))}
               </View>

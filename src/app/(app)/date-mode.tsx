@@ -3,6 +3,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
+import { DateSafetyGuide } from '@/components/safety/DateSafetyGuide';
+import { SafetyTimerCard } from '@/components/safety/SafetyTimerCard';
 import { AppText, Avatar, Button, Card, Chip, GlyphTile, GlyphTitle, LoadingDetail, Screen, useToast } from '@/components/ui';
 import { preciseLocation } from '@/features/circles/api';
 import {
@@ -16,6 +18,8 @@ import {
   type DateModeCandidate,
   type DateModeStatus,
 } from '@/features/dates/api';
+import { dateGuideSeen, markDateGuideSeen } from '@/features/safety/dateGuide';
+import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { clockTime } from '@/lib/time';
 import { useTheme } from '@/theme';
@@ -35,6 +39,9 @@ export default function DateMode() {
   const [chosen, setChosen] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [now, setNow] = useState(() => Date.now());
+  const { session } = useAuth();
+  const me = session?.user.id;
+  const [guideFor, setGuideFor] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [s, c] = await Promise.all([fetchDateMode(), fetchDateModeCandidates()]);
@@ -193,6 +200,11 @@ export default function DateMode() {
           </Card>
 
           <Button label="End Date Mode" variant="ghost" onPress={() => run(endDateMode, 'Date Mode ended. Get home safe.')} disabled={busy} />
+          <Button
+            label="Report this date"
+            variant="ghost"
+            onPress={() => router.push({ pathname: '/report', params: { user: status.partner.id, name: status.partner.display_name, date: '1' } })}
+          />
         </Screen>
       </View>
     );
@@ -241,8 +253,9 @@ export default function DateMode() {
     <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
       {header}
       <Screen contentGap={t.space[5]}>
+        <SafetyTimerCard />
         <Card accent="primary">
-          <GlyphTitle glyph="shield">Date Mode needs GPS proximity</GlyphTitle>
+          <GlyphTitle glyph="shield">Then, once you&apos;re together: Date Mode</GlyphTitle>
           <AppText variant="small" tone="muted">
             You and your date must be within 1 mile of each other to turn it on. That confirms the date is real and starts safety check-ins
             for both of you.
@@ -300,7 +313,28 @@ export default function DateMode() {
             })
           )}
         </View>
-        <Button label="Activate Date Mode" variant="trust" onPress={() => chosen && activate(chosen)} disabled={!chosen} loading={busy} />
+        <Button
+          label="Activate Date Mode"
+          variant="trust"
+          onPress={async () => {
+            if (!chosen) return;
+            // The first time: a short safety guide, then Date Mode.
+            if (me && !(await dateGuideSeen(me))) setGuideFor(chosen);
+            else activate(chosen);
+          }}
+          disabled={!chosen}
+          loading={busy}
+        />
+        <DateSafetyGuide
+          visible={!!guideFor}
+          onClose={() => setGuideFor(null)}
+          onDone={() => {
+            const partner = guideFor;
+            setGuideFor(null);
+            if (me) markDateGuideSeen(me);
+            if (partner) activate(partner);
+          }}
+        />
         <AppText variant="caption" tone="subtle">
           Your date gets a request to confirm they&apos;re there. Exact locations are never shown to anyone and are deleted after 30 days.
         </AppText>

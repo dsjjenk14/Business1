@@ -9,6 +9,9 @@ import { AppText, Avatar, Badge, Button, Card, GlyphTile, isGlyphName, Section, 
 import { tierProgress, useAppConfig } from '@/config/useAppConfig';
 import { STATUS_COLORS, STATUS_LABELS, usePersonInfo } from '@/features/people/status';
 import type { FeedPin } from '@/features/pins/api';
+import { MusicChip } from '@/components/music/MusicChip';
+import { PromptCards } from '@/components/profile/PromptsEditor';
+import { StoryShareButton } from '@/components/share/StoryShareButton';
 import { fetchLockedIn, profileLink, type LockedInPerson, type ProfileCard } from '@/features/profiles/api';
 import { clockTime, timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
@@ -109,6 +112,7 @@ export function ProfileView({
           ) : current ? (
             <Badge label={current.name} glyph={isGlyphName(current.emoji) ? current.emoji : 'medal'} tone="trust" />
           ) : null}
+          {card.verified_host ? <Badge label="Verified host" glyph="crown" tone="trust" /> : null}
           {card.is_founding_member ? (
             <Badge label="Founding Member" glyph="star" tone="sponsored" />
           ) : card.is_premium ? (
@@ -162,6 +166,27 @@ export function ProfileView({
 
       {/* Your own profile has Share next to Edit profile. */}
       {!card.is_me ? <Button label="Share profile" size="md" variant="secondary" onPress={shareProfile} /> : null}
+      {card.is_me ? (
+        <StoryShareButton
+          label="Share my profile to my story"
+          story={{
+            kind: 'profile',
+            title: card.display_name,
+            line1: card.headline || null,
+            line2: card.vouch_count ? `${card.vouch_count} ${card.vouch_count === 1 ? 'vouch' : 'vouches'}${card.top_vouch_word ? ` · ${card.top_vouch_word}` : ''}` : null,
+            imageUrl: card.avatar_url,
+            path: `/people/${card.id}`,
+          }}
+        />
+      ) : null}
+
+      <PromptCards prompts={card.prompts} />
+
+      {card.song ? (
+        <Section title={card.is_me ? 'My song' : `${card.display_name.split(' ')[0]}’s song`}>
+          <MusicChip song={card.song} />
+        </Section>
+      ) : null}
 
       <LockedIn userId={card.id} isMe={card.is_me} firstName={card.display_name.split(' ')[0] ?? ''} />
 

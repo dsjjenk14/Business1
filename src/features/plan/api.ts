@@ -47,4 +47,4 @@ export function recordProfileView(userId: string) {
 }
 
 /** Premium's monthly price (the charge itself is set by config.premium_price_cents on the server). */
-export const PREMIUM_PRICE = '$14.99';
+export const PREMIUM_PRICE = '$4.99';

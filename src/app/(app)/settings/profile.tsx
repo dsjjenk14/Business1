@@ -3,9 +3,14 @@ import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, Switch, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
+import { MusicPicker } from '@/components/music/MusicPicker';
 import { InterestsPicker } from '@/components/profile/InterestsPicker';
+import { PromptsEditor } from '@/components/profile/PromptsEditor';
 import { AppText, Avatar, Button, Chip, Screen, TextField, useToast } from '@/components/ui';
 import { useAppConfig } from '@/config/useAppConfig';
+import { setProfileSong, type Song } from '@/features/music/api';
+import { setProfilePrompts } from '@/features/profiles/api';
+import type { ProfilePrompt } from '@/features/profiles/prompts';
 import { useAuth } from '@/lib/auth';
 import { friendlyError, supabase } from '@/lib/supabase';
 import { useTheme } from '@/theme';
@@ -27,6 +32,8 @@ export default function EditProfile() {
   const [cityId, setCityId] = useState<number | null>(profile?.city_id ?? null);
   const [showAge, setShowAge] = useState(profile?.show_age ?? true);
   const [interests, setInterests] = useState<string[]>(profile?.interests ?? []);
+  const [song, setSong] = useState<Song | null>((profile?.song as Song | null) ?? null);
+  const [prompts, setPrompts] = useState<ProfilePrompt[]>((profile?.prompts as ProfilePrompt[] | null) ?? []);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,6 +62,9 @@ export default function EditProfile() {
         })
         .eq('id', profile.id);
       if (e) throw e;
+      if ((song?.track_id ?? null) !== ((profile.song as Song | null)?.track_id ?? null)) await setProfileSong(song);
+      const answered = prompts.map((p) => ({ key: p.key, answer: p.answer.trim() })).filter((p) => p.answer);
+      if (JSON.stringify(answered) !== JSON.stringify(profile.prompts ?? [])) await setProfilePrompts(answered);
       await refreshProfile();
       toast('Profile saved');
       goBackOr(router, '/profile');
@@ -103,6 +113,16 @@ export default function EditProfile() {
         </View>
 
         <InterestsPicker value={interests} onChange={setInterests} />
+
+        <PromptsEditor value={prompts} onChange={setPrompts} />
+
+        <View style={{ gap: t.space[2] }}>
+          <AppText weight="bold">Your song</AppText>
+          <AppText variant="small" tone="muted">
+            The song that says you. It plays a 30-second preview on your profile.
+          </AppText>
+          <MusicPicker value={song} onChange={setSong} />
+        </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
           <View style={{ flex: 1 }}>

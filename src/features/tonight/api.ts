@@ -42,6 +42,9 @@ export const VIBES: { key: string; label: string; glyph: GlyphName }[] = [
   { key: 'brunch', label: 'Brunch', glyph: 'brunch' },
   { key: 'fitness', label: 'Fitness', glyph: 'fitness' },
   { key: 'outdoors', label: 'Outdoors', glyph: 'outdoors' },
+  { key: 'low_key', label: 'Low-key', glyph: 'moon' },
+  // Only people 30 and over can say I'm In to a 30+ plan (checked privately; ages are never shown).
+  { key: 'thirty_plus', label: '30+', glyph: 'star' },
 ];
 
 export const vibeLabel = (key: string) => VIBES.find((v) => v.key === key)?.label ?? key;
@@ -100,6 +103,8 @@ export type FeedEvent = {
   going_count: number;
   network_going: number;
   i_am_going: boolean;
+  /** Host tags: thirty_plus, low_key, newcomers. */
+  tags?: string[];
   distance_mi: number | null;
   lat: number | null;
   lng: number | null;

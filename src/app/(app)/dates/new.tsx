@@ -9,6 +9,7 @@ import { AppText, Avatar, Button, Card, Chip, LoadingList, Screen, TextField, us
 import { DATE_VIBES, DATE_WHEN, counterDateRequest, fetchDate, sendDateRequest, type DateDetail, type DateWhen } from '@/features/dates/api';
 import { fetchProfileCard, type ProfileCard } from '@/features/profiles/api';
 import { useApproxLocation } from '@/features/location/useApproxLocation';
+import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { marketDate } from '@/lib/time';
 import { useTheme } from '@/theme';
@@ -24,6 +25,9 @@ export default function NewDate() {
   const params = useLocalSearchParams<{ to?: string; counter?: string }>();
   const counterId = params.counter ? Number(params.counter) : null;
   const { location } = useApproxLocation();
+  const { profile } = useAuth();
+  // Ask on a Date needs a photo check, for everyone's safety.
+  const photoChecked = !!profile?.photo_verified_at;
 
   const [person, setPerson] = useState<ProfileCard | null>(null);
   const [original, setOriginal] = useState<DateDetail | null>(null);
@@ -146,7 +150,18 @@ export default function NewDate() {
         <VenuePicker label="Where?" value={place} onChange={setPlace} lat={location?.lat} lng={location?.lng} />
         <TextField label="Add a note" optional value={note} onChangeText={setNote} maxLength={300} multiline placeholder="I've been wanting to try this place." />
 
-        <Button label={counterId ? 'Send Suggestion' : 'Send Date Request'} onPress={submit} loading={busy} disabled={!ready} />
+        {!photoChecked ? (
+          <Card accent="primary">
+            <View style={{ gap: t.space[2] }}>
+              <AppText weight="bold">Verify your photo first</AppText>
+              <AppText variant="small" tone="muted">
+                Everyone who asks someone out, or says yes, has a verified photo. It takes a minute: one selfie that matches your profile.
+              </AppText>
+              <Button label="Verify my photo" size="md" onPress={() => router.push('/settings/verification')} />
+            </View>
+          </Card>
+        ) : null}
+        <Button label={counterId ? 'Send Suggestion' : 'Send Date Request'} onPress={submit} loading={busy} disabled={!ready || !photoChecked} />
         <AppText variant="caption" tone="subtle">
           {first || 'They'} can accept, suggest another time, or pass. Passing is always okay, and no reason is ever needed.
         </AppText>

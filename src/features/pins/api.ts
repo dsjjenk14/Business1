@@ -164,11 +164,20 @@ export async function createPin(input: {
   music?: Song | null;
   /** A video or burst (boomerang, slo-mo, rewind, loop) instead of photos. */
   media?: MediaDraft;
+  /** Photos from an event you went to: they show in its recap gallery. */
+  eventId?: number | null;
 }): Promise<{ pinId: number; failedPhotos: number }> {
   const location = input.lat != null && input.lng != null ? `SRID=4326;POINT(${input.lng} ${input.lat})` : undefined;
   const { data, error } = await supabase
     .from('pins')
-    .insert({ author_id: input.userId, category: input.category, body: input.body.trim(), audience: input.audience, approx_location: location })
+    .insert({
+      author_id: input.userId,
+      category: input.category,
+      body: input.body.trim(),
+      audience: input.audience,
+      approx_location: location,
+      event_id: input.eventId ?? null,
+    })
     .select('id')
     .single();
   if (error) throw error;
@@ -212,4 +221,13 @@ export async function signPhotoPaths(paths: string[]): Promise<Record<string, st
   if (paths.length === 0) return {};
   const { data } = await supabase.storage.from('pin-photos').createSignedUrls(paths, 60 * 60);
   return Object.fromEntries((data ?? []).filter((d) => d.signedUrl && d.path).map((d) => [d.path as string, d.signedUrl as string]));
+}
+
+/** Photos people posted from an event, for its gallery (signed links). */
+export async function fetchEventPhotos(eventId: number) {
+  const { data, error } = await supabase.rpc('event_photos', { p_event: eventId });
+  if (error) throw error;
+  const rows = (data ?? []) as { pin_id: number; path: string; author_name: string; created_at: string }[];
+  const urls = await signPhotoPaths(rows.map((r) => r.path));
+  return rows.filter((r) => urls[r.path]).map((r) => ({ ...r, url: urls[r.path]! }));
 }

@@ -1,9 +1,9 @@
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 
 import { EventRow, GroupSuggestion } from '@/components/home/HomeParts';
-import { AppText, Button, LoadingList, Screen, Section, useToast } from '@/components/ui';
+import { AppText, Button, Card, GlyphTitle, LoadingList, Screen, Section, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { fetchHomeFeed, type HomeEvent, type SuggestedGroup } from '@/features/home/api';
@@ -78,6 +78,17 @@ export default function GetStarted() {
         </AppText>
         <AppText tone="muted">Join a group or say I&apos;m In to something coming up. That&apos;s how your Insiders start.</AppText>
       </View>
+
+      {Platform.OS !== 'web' ? (
+        <Card onPress={() => router.push('/connect/contacts')} accessibilityLabel="Find friends already on I'm In">
+          <View style={{ gap: t.space[1] }}>
+            <GlyphTitle glyph="people">Friends already here</GlyphTitle>
+            <AppText variant="small" tone="muted">
+              See who in your contacts is on I&apos;m In. Add them as Insiders, or vouch for them.
+            </AppText>
+          </View>
+        </Card>
+      ) : null}
 
       <Section title="Groups in your area">
         {groups === null ? (

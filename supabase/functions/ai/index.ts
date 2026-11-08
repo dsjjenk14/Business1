@@ -2,6 +2,7 @@
  * AI features. One entry point; each feature lives in its own module in
  * ./features with its method explained at the top (and in README.md).
  *
+ * POST { feature: 'status' } → { configured } (is the AI key set?)
  * POST { feature, subject?, refresh? }
  *   feature: people_like_you | icebreakers | tonight | intro_odds
  *   subject: the person's id (icebreakers) or "a:b" (intro_odds)
@@ -43,6 +44,8 @@ Deno.serve(async (req) => {
   } catch {
     return json({ error: 'Bad request' }, 400);
   }
+  // The app asks once so it can hide AI buttons until the AI key is added.
+  if (body.feature === 'status') return json({ configured: aiConfigured() });
   const name = String(body.feature ?? '');
   const feature = FEATURES[name];
   if (!feature) return json({ error: 'Unknown feature' }, 400);

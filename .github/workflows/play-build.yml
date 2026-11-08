@@ -1,0 +1,28 @@
+# Builds the Android app in the cloud and sends it to Google Play's internal
+# testing track. Run it from GitHub: Actions → "Google Play build" → Run workflow.
+# Needs (one time): a Google Play developer account, the app created in Play
+# Console with its first build uploaded by hand, and a service account key
+# saved as a GitHub secret (see docs/ANDROID.md).
+name: Google Play build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Save the Google Play key for EAS
+        run: printf '%s' "$PLAY_KEY" > play-service-account.json
+        env:
+          PLAY_KEY: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+      - name: Build and send to Google Play (internal testing)
+        run: npx eas-cli@latest build --platform android --profile production --non-interactive --auto-submit --no-wait
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

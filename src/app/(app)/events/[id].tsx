@@ -6,7 +6,10 @@ import { Alert, Platform, View } from 'react-native';
 
 import { PersonRow } from '@/components/circles/PersonRow';
 import { CoverPicker } from '@/components/events/CoverPicker';
+import { EventPhotos } from '@/components/events/EventPhotos';
+import { EventTagBadges, EventUpdates, HostEventTags } from '@/components/events/EventUpdates';
 import { VirtualRoomCard } from '@/components/events/VirtualRoomCard';
+import { StoryShareButton } from '@/components/share/StoryShareButton';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { useAppConfig, useFeature } from '@/config/useAppConfig';
 import {
@@ -256,6 +259,12 @@ export default function EventScreen() {
           ) : null}
         </Ticket>
 
+        {event.is_host && phase !== 'ended' ? (
+          <HostEventTags eventId={event.id} tags={event.tags ?? []} onChanged={load} />
+        ) : (
+          <EventTagBadges tags={event.tags} />
+        )}
+
         {event.surprise_for ? (
           <Card accent="sponsored">
             <View style={{ gap: t.space[1] }}>
@@ -350,6 +359,18 @@ export default function EventScreen() {
         ) : null}
 
         {phase !== 'ended' ? <Button label="Share with my Insiders" variant="secondary" size="md" onPress={share} loading={sharing} /> : null}
+        {phase !== 'ended' && event.visibility === 'public' && !event.surprise_for ? (
+          <StoryShareButton
+            story={{
+              kind: 'event',
+              title: event.title,
+              line1: dayTime(event.starts_at),
+              line2: event.venue ? [event.venue.name, event.venue.neighborhood].filter(Boolean).join(' · ') : event.place,
+              imageUrl: event.cover_url,
+              path: `/events/${event.id}`,
+            }}
+          />
+        ) : null}
 
         {canCheckIn && event.i_am_here ? (
           <Card accent="trust">
@@ -416,7 +437,11 @@ export default function EventScreen() {
           </Card>
         ) : null}
 
+        {phase !== 'upcoming' ? <EventPhotos eventId={event.id} title={event.title} went={event.i_am_going || event.is_host} /> : null}
+
         {phase !== 'upcoming' ? <RateVenue eventId={event.id} /> : null}
+
+        <EventUpdates eventId={event.id} isHost={event.is_host && phase !== 'ended'} goingCount={event.going_count} />
 
         <Section title="Hosted by">
           <PersonRow id={event.host.id} name={event.host.display_name} avatarUrl={event.host.avatar_url} vouches={event.host.vouch_count} />

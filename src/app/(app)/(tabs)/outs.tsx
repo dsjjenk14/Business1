@@ -13,7 +13,7 @@ import { timeAgo } from '@/lib/time';
 import { useTheme, fontStyle } from '@/theme';
 
 /**
- * Outs: photos that disappear after 6, 12 or 24 hours (the sender picks). Send
+ * Outs: photos that disappear the next morning or after 6, 12 or 24 hours (the sender picks). Send
  * one to your Insiders or post it to your Out (your Insiders, or your network).
  * Pinning an Out keeps it; the person who took it is told. You can delete an
  * Out you sent at any time.
@@ -117,7 +117,7 @@ export default function Outs() {
 
           <Section title="Received">
             {inbox.received.length === 0 ? (
-              <EmptyState glyph="camera" title="No Outs right now" body="When your Insiders send you an Out, it shows up here until its time is up (6, 12 or 24 hours)." />
+              <EmptyState glyph="camera" title="No Outs right now" body="When your Insiders send you an Out, it shows up here until its time is up (the next morning, or 6, 12 or 24 hours)." />
             ) : (
               inbox.received.map((r) => (
                 <Card
@@ -217,7 +217,7 @@ export default function Outs() {
               Your Out: {inbox.my_story.length} photo{inbox.my_story.length === 1 ? '' : 's'}, seen by {Math.max(0, ...inbox.my_story.map((s) => s.views))}
               {inbox.my_story.some((s) => s.pins) ? `, pinned by ${inbox.my_story.reduce((a, s) => a + s.pins, 0)}` : ''}
               {inbox.my_story.some((s) => s.screenshots) ? `, ${inbox.my_story.reduce((a, s) => a + s.screenshots, 0)} screenshot(s)` : ''}. Each one is gone when its time is up
-              (6, 12 or 24 hours, you pick), unless someone pins it.
+              (the next morning, or 6, 12 or 24 hours, you pick), unless someone pins it.
             </AppText>
           ) : null}
         </>

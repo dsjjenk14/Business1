@@ -118,6 +118,17 @@ export default function Connect() {
           </Card>
         </Section>
 
+        {Platform.OS !== 'web' ? (
+          <Card onPress={() => router.push('/connect/contacts')} accessibilityLabel="Friends already on I'm In, from your contacts">
+            <View style={{ gap: t.space[1] }}>
+              <GlyphTitle glyph="people">Friends already here</GlyphTitle>
+              <AppText variant="small" tone="muted">
+                Check your contacts for people on I&apos;m In.
+              </AppText>
+            </View>
+          </Card>
+        ) : null}
+
         <Section title="Know each other outside the app?">
           <Card>
             <View style={{ gap: t.space[3] }}>

@@ -3,7 +3,9 @@
  *  - checkout.session.completed: a ticket or drink credit was paid (or a Premium customer created).
  *    If the event filled up while they paid, the ticket is refunded in full.
  *  - invoice.paid: Premium paid or renewed → Premium until the end of the period
- *  - customer.subscription.deleted: Premium cancelled (runs to the end of what was paid)
+ *  - customer.subscription.deleted: Premium cancelled (runs to the end of what was paid),
+ *    or a place's partnership ended
+ *  - checkout.session.completed with kind 'place': a claimed place goes live
  *  - charge.refunded: a ticket was refunded → no longer going
  *  - account.updated: a host finished (or lost) payout setup (a Connect event;
  *    the app also asks Stripe directly when the host returns from setup)
@@ -37,6 +39,10 @@ Deno.serve(async (req) => {
       case 'checkout.session.completed': {
         const meta = o.metadata ?? {};
         if (o.customer && UUID.test(o.client_reference_id ?? '')) await rpc('stripe_set_customer', { p_user: o.client_reference_id, p_customer: o.customer });
+        if (meta.kind === 'place' && o.subscription && /^\d+$/.test(meta.claim_id ?? '')) {
+          // Card saved (free months) or first month paid: the place goes live.
+          await rpc('place_claim_activate', { p_claim: Number(meta.claim_id), p_subscription: o.subscription });
+        }
         if (meta.kind === 'drinks' && o.payment_status === 'paid' && UUID.test(meta.user_id ?? '')) {
           // Credit exactly what was paid, once per checkout.
           await rpc('wallet_credit', { p_user: meta.user_id, p_cents: o.amount_total, p_session: o.id });
@@ -70,7 +76,8 @@ Deno.serve(async (req) => {
         break;
       }
       case 'customer.subscription.deleted': {
-        if (UUID.test(o.metadata?.user_id ?? '')) await rpc('stripe_premium_ended', { p_user: o.metadata.user_id });
+        if (o.metadata?.kind === 'place') await rpc('place_claim_cancel', { p_subscription: o.id });
+        else if (UUID.test(o.metadata?.user_id ?? '')) await rpc('stripe_premium_ended', { p_user: o.metadata.user_id });
         break;
       }
       case 'charge.refunded': {

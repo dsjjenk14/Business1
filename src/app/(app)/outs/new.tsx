@@ -13,7 +13,7 @@ import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Button, Chip, useToast } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { fetchChatCandidates, type ChatCandidate } from '@/features/chat/api';
-import { fetchOutEvent, sendOut, setOutEffect, type OutAudience, type OutEvent, type OutHours } from '@/features/outs/api';
+import { fetchOutEvent, outHoursLabel, sendOut, setOutEffect, type OutAudience, type OutEvent, type OutHours } from '@/features/outs/api';
 import { applyFilter } from '@/features/photos/applyFilter';
 import type { EffectKey } from '@/features/photos/effects';
 import { MAX_SIDE, type FilterKey } from '@/features/photos/filters';
@@ -23,7 +23,7 @@ import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme, fontStyle } from '@/theme';
 
-/** Take an Out anywhere: snap, add a caption, send to Insiders and/or your Out. Gone in 6, 12 or 24 hours (you pick) unless pinned. */
+/** Take an Out anywhere: snap, add a caption, send to Insiders and/or your Out. Gone the next morning, or in 6, 12 or 24 hours (you pick), unless pinned. */
 export default function NewOut() {
   const t = useTheme();
   const router = useRouter();
@@ -63,7 +63,7 @@ export default function NewOut() {
   // Each My Out picks who sees it: 1st degree only (the default) or 1st + 2nd.
   const [audience, setAudience] = useState<OutAudience>('circle');
   // Out settings (one tap away): how long it lasts, and who it's hidden from.
-  const [hours, setHours] = useState<OutHours>(6);
+  const [hours, setHours] = useState<OutHours>(0);
   const [hidden, setHidden] = useState<Set<string>>(new Set());
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -187,12 +187,12 @@ export default function NewOut() {
         ) : null}
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={`Out settings: lasts ${hours} hours${hidden.size ? `, hidden from ${hidden.size}` : ''}`}
+          accessibilityLabel={`Out settings: lasts ${outHoursLabel(hours)}${hidden.size ? `, hidden from ${hidden.size}` : ''}`}
           onPress={() => setSettingsOpen(true)}
           style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: t.space[3], paddingVertical: t.space[2], opacity: pressed ? 0.7 : 1 })}>
           <Ionicons name="options-outline" size={20} color={t.colors.textMuted} />
           <AppText variant="small" tone="muted" style={{ flex: 1 }}>
-            Lasts {hours} hours{hidden.size ? ` · Hidden from ${hidden.size}` : ''}
+            Lasts {outHoursLabel(hours)}{hidden.size ? ` · Hidden from ${hidden.size}` : ''}
           </AppText>
           <Ionicons name="chevron-forward" size={18} color={t.colors.textSubtle} />
         </Pressable>

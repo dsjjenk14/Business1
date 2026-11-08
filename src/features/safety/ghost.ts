@@ -46,4 +46,6 @@ export function useGhostMode() {
 }
 
 /** Vouches needed to see people out who aren't your Insiders (matches the server). */
-export const SAFETY_MIN_VOUCHES = 2;
+export const SAFETY_MIN_VOUCHES = 1;
+/** "1 vouch" / "2 vouches", for sentences about the rule. */
+export const SAFETY_VOUCHES_TEXT = `${SAFETY_MIN_VOUCHES} ${SAFETY_MIN_VOUCHES === 1 ? 'vouch' : 'vouches'}`;

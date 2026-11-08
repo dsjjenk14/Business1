@@ -14,6 +14,8 @@ export type EventDetail = {
   is_recurring: boolean;
   host: PersonLite & { vouch_count: number };
   is_host: boolean;
+  /** Host tags: thirty_plus, low_key, newcomers. */
+  tags: EventTag[];
   visibility: 'public' | 'circle';
   /** In person, online, or both. */
   format: 'in_person' | 'virtual' | 'hybrid';
@@ -164,4 +166,54 @@ export async function joinWaitlist(eventId: number) {
 export async function leaveWaitlist(eventId: number) {
   const { error } = await supabase.rpc('leave_waitlist', { p_event: eventId });
   if (error) throw error;
+}
+
+// ── Tags ──────────────────────────────────────────────────────────────────
+export type EventTag = 'thirty_plus' | 'low_key' | 'newcomers';
+export const EVENT_TAGS: { key: EventTag; label: string; hint: string }[] = [
+  { key: 'newcomers', label: 'New faces welcome', hint: 'Good for people who don’t know anyone yet.' },
+  { key: 'low_key', label: 'Low-key', hint: 'Relaxed, easy to talk, not a party.' },
+  { key: 'thirty_plus', label: '30+', hint: 'Only people 30 and over can say I’m In. Ages are never shown.' },
+];
+export const tagLabel = (k: string) => EVENT_TAGS.find((t) => t.key === k)?.label ?? k;
+
+export async function setEventTags(eventId: number, tags: EventTag[]) {
+  const { error } = await supabase.rpc('set_event_tags', { p_event: eventId, p_tags: tags });
+  if (error) throw error;
+}
+
+// ── Updates from the host ─────────────────────────────────────────────────
+export type EventUpdate = { id: number; body: string; created_at: string };
+
+export async function fetchEventUpdates(eventId: number) {
+  const { data, error } = await supabase.rpc('event_updates_for', { p_event: eventId });
+  if (error) throw error;
+  return (data ?? []) as EventUpdate[];
+}
+
+/** Sends an update to everyone going. Resolves to how many people it reached. */
+export async function messageEventGuests(eventId: number, body: string) {
+  const { data, error } = await supabase.rpc('message_event_guests', { p_event: eventId, p_body: body.trim() });
+  if (error) throw error;
+  return data as number;
+}
+
+// ── Events you can go to without knowing anyone ───────────────────────────
+export type NewcomerEvent = {
+  id: number;
+  title: string;
+  emoji: string | null;
+  cover_url: string | null;
+  starts_at: string;
+  place: string | null;
+  host_name: string;
+  going_count: number;
+  newcomers: boolean;
+  tags: EventTag[];
+};
+
+export async function fetchNewcomerEvents(limit = 6) {
+  const { data, error } = await supabase.rpc('newcomer_events', { p_limit: limit });
+  if (error) throw error;
+  return (data ?? []) as NewcomerEvent[];
 }

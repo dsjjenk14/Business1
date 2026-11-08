@@ -287,6 +287,11 @@ export default function PostGoingOut() {
               />
             ))}
           </View>
+          {vibes.includes('thirty_plus') ? (
+            <AppText variant="caption" tone="muted">
+              Only people 30 and over can say I&apos;m In. Ages are never shown.
+            </AppText>
+          ) : null}
         </View>
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>

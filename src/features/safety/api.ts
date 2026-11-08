@@ -148,3 +148,14 @@ export async function setPinHiddenFrom(pinId: number, userIds: string[]) {
   const { error } = await supabase.rpc('set_pin_hidden_from', { p_pin: pinId, p_users: userIds });
   if (error) throw error;
 }
+
+/** Report a date: what happened with someone you asked out or went on Date Mode with. */
+export async function reportDate(input: { otherId: string; reason: ReportReason; details?: string; dateId?: number }) {
+  const { error } = await supabase.rpc('report_date', {
+    p_other: input.otherId,
+    p_reason: input.reason,
+    p_details: input.details ?? '',
+    p_date: input.dateId,
+  });
+  if (error) throw error;
+}

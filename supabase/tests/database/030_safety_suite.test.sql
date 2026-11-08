@@ -36,7 +36,10 @@ insert into t values ('ana', pg_temp.new_user('ana30@test.dev', 'Ana Thirty')),
                      ('new', pg_temp.new_user('new30@test.dev', 'Nia Newcomer')),
                      ('vet', pg_temp.new_user('vet30@test.dev', 'Val Vouched'));
 insert into connections (user_a, user_b, source) values (least(pg_temp.uid('ana'), pg_temp.uid('ins')), greatest(pg_temp.uid('ana'), pg_temp.uid('ins')), 'manual');
-update profiles set vouch_count = 2 where id = pg_temp.uid('vet');
+-- This file checks the rule at 2 vouches (launch uses 1; see 033).
+update app_config set value = '2' where key = 'safety_min_vouches';
+update app_config set value = '10' where key = 'invite_vouch_cap';
+insert into vouches (voucher_id, vouchee_id, type) values (pg_temp.uid('ana'), pg_temp.uid('vet'), 'invite'), (pg_temp.uid('ins'), pg_temp.uid('vet'), 'invite');
 
 -- Defaults.
 select is((select show_going_out_venue from user_settings where user_id = pg_temp.uid('new')), false, 'New members hide the venue by default');
@@ -97,7 +100,7 @@ update user_settings set messages_need_vouches = true where user_id = pg_temp.ui
 select pg_temp.act_as('new');
 select throws_ok(format('select open_direct_conversation(%L)', pg_temp.uid('ana')), '42501', null, 'With the message limit on, people under 2 vouches can''t start a chat');
 select pg_temp.admin();
-update profiles set vouch_count = 2 where id = pg_temp.uid('new');
+insert into vouches (voucher_id, vouchee_id, type) values (pg_temp.uid('vet'), pg_temp.uid('new'), 'invite'), (pg_temp.uid('ins'), pg_temp.uid('new'), 'invite');
 select pg_temp.act_as('new');
 select lives_ok(format('select open_direct_conversation(%L)', pg_temp.uid('ana')), '...with 2 vouches they can');
 

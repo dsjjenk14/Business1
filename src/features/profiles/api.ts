@@ -1,3 +1,4 @@
+import type { Song } from '@/features/music/api';
 import { supabase } from '@/lib/supabase';
 
 export type ProfileCard = {
@@ -19,6 +20,12 @@ export type ProfileCard = {
   photo_verified: boolean;
   vouch_count: number | null;
   top_vouch_word: string | null;
+  /** Their profile song (30-second preview). */
+  song: Song | null;
+  /** Up to 3 profile prompts. */
+  prompts: { key: string; answer: string }[];
+  /** Runs events; their vouches count double. */
+  verified_host: boolean;
   interests: { key: string; label: string }[];
   is_me: boolean;
   degree: 0 | 1 | 2 | null;
@@ -60,3 +67,9 @@ export async function fetchLockedIn(userId: string): Promise<LockedInPerson[]> {
 
 /** A link that opens this profile in the app. */
 export const profileLink = (userId: string) => `imin://people/${userId}`;
+
+/** Save your profile prompts (up to 3). */
+export async function setProfilePrompts(prompts: { key: string; answer: string }[]) {
+  const { error } = await supabase.rpc('set_profile_prompts', { p_prompts: prompts as never });
+  if (error) throw error;
+}
