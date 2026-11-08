@@ -58,7 +58,7 @@ export const TERMS: LegalDoc = {
     },
     {
       heading: 'Reporting and blocking',
-      body: 'You can report any member, pin, reply or date, and block any member at any time. Reports are confidential: we never tell anyone who reported them. We review reports promptly, usually within 24 hours. To investigate a report, our team may look at the records related to it, including messages between the people involved, whether and where they were in the same place, date plans, and Date Mode and safety alerts. When a member is reported for sexual assault or violence after meeting someone through I’m In, we may put their account on hold right away, before we finish reviewing, and block the two from each other. A hold is not a finding that they did anything wrong. If we find a member broke these terms, we may warn them, suspend them, or remove them from I’m In. When we remove someone, we tell the members who vouched for them that they were removed for breaking our Community Guidelines. Content reported by several members may be hidden while we review it. We aren’t required to review everything posted, and we can’t promise to catch every problem. We decide reports on the information we have; we aren’t a court and don’t decide guilt.',
+      body: 'You can report any member, pin, reply or date, and block any member at any time. Reports are confidential: we never tell anyone who reported them. We review reports promptly, usually within 24 hours. To investigate a report, our team may look at the records related to it, including messages between the people involved, whether and where they were in the same place, date plans, and Date Mode and safety alerts. When a member is reported for sexual assault or violence after meeting someone through I’m In, we may put their account on hold right away, before we finish reviewing, and block the two from each other. A hold is not a finding that they did anything wrong. Reports must say what happened. If the person who reported agrees, we may give police the messages between them and the reported member, and their date plans. If we find a member broke these terms, we may warn them, suspend them, or remove them from I’m In. When we remove someone, we tell the members who vouched for them that they were removed for breaking our Community Guidelines. Content reported by several members may be hidden while we review it. We aren’t required to review everything posted, and we can’t promise to catch every problem. We decide reports on the information we have; we aren’t a court and don’t decide guilt.',
     },
     {
       heading: 'Safety features are not emergency services',
@@ -177,7 +177,7 @@ export const PRIVACY: LegalDoc = {
     },
     {
       heading: 'Who we share with',
-      body: 'We don’t sell your personal information or share it for targeted advertising. We use service providers to run the app, and they must protect your data: hosting and database (Supabase), text messages (Twilio), app delivery and notifications (Expo, Apple, Google), payments (Stripe; we never see or store your full card number), song previews (Apple Music), live video (LiveKit, only while you’re watching or broadcasting; live videos aren’t recorded), AI processing (Anthropic), and, only if you choose one, the background-check company. We also share information if the law requires it (for example, a subpoena or warrant), in an emergency where someone could be seriously hurt, to protect someone’s safety, to investigate abuse, or if I’m In is sold or reorganized (under this policy).',
+      body: 'We don’t sell your personal information or share it for targeted advertising. We use service providers to run the app, and they must protect your data: hosting and database (Supabase), text messages (Twilio), app delivery and notifications (Expo, Apple, Google), payments (Stripe; we never see or store your full card number), song previews (Apple Music), live video (LiveKit, only while you’re watching or broadcasting; live videos aren’t recorded), AI processing (Anthropic), and, only if you choose one, the background-check company. If you report someone and say yes, we give police the messages between you and that person and your date plans with them; you can change your answer in Settings, My reports. We also share information if the law requires it (for example, a subpoena or warrant), in an emergency where someone could be seriously hurt, to protect someone’s safety, to investigate abuse, or if I’m In is sold or reorganized (under this policy).',
     },
     {
       heading: 'Keeping and deleting your data',
@@ -208,19 +208,31 @@ export const GUIDELINES: LegalDoc = {
   sections: [
     {
       heading: 'The short version',
-      body: 'Be real. Be kind. Show up. Your reputation is earned in person, so treat people the way you’d want your vouchers to hear about.',
+      body: 'Be real. Be kind. Show up. Ask first. Your reputation is earned in person, so treat people the way you’d want your vouchers to hear about. These rules apply everywhere on I’m In: in posts, messages, live video and virtual meetups, and when you meet someone you found here.',
     },
     {
       heading: 'Not allowed, ever',
-      body: 'Harassment, threats, stalking or intimidation. Hate or discrimination. Sexual content or advances without consent, or anything involving minors. Sharing someone’s private information, or photos of them they didn’t agree to. Fake profiles or impersonation. Scams, spam, or selling. Anything illegal or dangerous. Fake or traded vouches, or check-ins you didn’t really do together. Using anything you learn here, including someone’s badges, to harass, shame or discriminate against them.',
+      body: 'Sexual assault, or any sexual contact without consent. Violence, threats, stalking, following someone, or intimidation. Harassment, hate or discrimination. Anything involving minors. Sharing someone’s private information, their location, or photos or video of them they didn’t agree to. Fake profiles or impersonation. Scams, spam, or selling. Anything illegal or dangerous. Fake or traded vouches, or check-ins you didn’t really do together. Using anything you learn here, including someone’s badges, to harass, shame or discriminate against them.',
+    },
+    {
+      heading: 'Consent, every time',
+      body: 'Ask, and listen to the answer. Consent has to be clear and freely given, and it can be taken back at any moment. Someone who is drunk or high enough to be impaired, asleep, pressured, or afraid can’t consent. Saying yes to a date, a drink, a gift or going home together is not saying yes to anything else. If someone says no, hesitates, or stops responding, stop.',
+    },
+    {
+      heading: 'Meeting up',
+      body: 'Meet in public places, and get yourself there and home. Tell someone you trust where you’ll be. Use Date Mode and safety check-ins, but call 911 if you’re in danger. Passing on a date or an intro is always okay, and no explanation is needed. Badges and vouches help, but they don’t replace your own judgment.',
+    },
+    {
+      heading: 'Virtual meetups and live video',
+      body: 'The same rules apply on camera. No nudity or sexual content on live video or in virtual meetups. Don’t record, screenshot or share someone’s video or voice without their OK. Hosts: keep your room on topic, and remove anyone who breaks these rules.',
+    },
+    {
+      heading: 'Money and gifts',
+      body: 'Sending a drink or a gift is always optional and never owed. A gift doesn’t entitle you to anyone’s time, attention, a date or anything else, and you can say no to any gift. Never ask anyone for money, gift cards, crypto or a loan, and never pressure someone to spend. Someone asking you for money, especially soon after you meet, is a common scam: don’t send it, and report them.',
     },
     {
       heading: 'Vouch honestly',
       body: 'Checking in with someone never vouches for them. Only vouch if you’d recommend them, and take a vouch back if that changes. Only vouch for people you actually spent time with, and pick the word that’s true. Vouch rings and paid vouches get detected and removed, along with the accounts involved.',
-    },
-    {
-      heading: 'Meeting up',
-      body: 'Meet in public places. Tell someone you trust where you’ll be. Use Date Mode and safety check-ins, but call 911 if you’re in danger. Passing on a date or an intro is always okay, and no explanation is needed. Badges and vouches help, but trust your own judgment.',
     },
     {
       heading: 'Hosting and drinking',
@@ -228,7 +240,15 @@ export const GUIDELINES: LegalDoc = {
     },
     {
       heading: 'If something’s wrong',
-      body: 'Report it: tap Report on the member’s profile, post, reply or date. Block anyone, any time. We review reports promptly, usually within 24 hours, and the most serious first. If you’re in danger, call 911. If you were sexually assaulted, the RAINN hotline (800-656-4673) is free, confidential and open 24/7. You don’t need proof to report something that happened in person: tell us what happened, and we’ll put the member on hold while we look into it.',
+      body: 'Report it: tap Report on the member’s profile, post, reply, message or date, and tell us what happened. We review reports promptly, usually within 24 hours, and the most serious first. You don’t need proof to report something that happened in person. Block anyone, any time. If you’re in danger, call 911. If you were sexually assaulted, the RAINN hotline (800-656-4673) is free, confidential and open 24/7.',
+    },
+    {
+      heading: 'Crimes: please go to the police',
+      body: 'If you were assaulted, threatened or hurt, we strongly encourage you to report it to the police as well as to us. Police can investigate in ways we can’t. If you say yes, we give police the messages between you and the person you reported, and your date plans with them, so you don’t have to. If you met through I’m In, we put the other member on hold while we look into it, and you two can’t see or contact each other.',
+    },
+    {
+      heading: 'Report honestly',
+      body: 'Tell us what happened as you remember it. A report we can’t confirm is not a false report. Making something up on purpose to hurt someone is, and it gets you removed. Our safety team may message you in the app with questions; only you can see them.',
     },
     {
       heading: 'What happens when rules are broken',

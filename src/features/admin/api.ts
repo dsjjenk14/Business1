@@ -68,6 +68,25 @@ export type ReportEvidence = {
 };
 export const fetchEvidence = async (reportId: number) => unwrap<ReportEvidence>(await supabase.rpc('admin_report_evidence', { p_report: reportId }));
 
+/** Ask the reporter a follow-up question (they get it in My reports). */
+export const askReporter = async (reportId: number, question: string) =>
+  unwrap<null>(await supabase.rpc('admin_ask_reporter', { p_report: reportId, p_question: question }));
+
+export type PoliceBasis = 'reporter_consent' | 'legal_process' | 'emergency';
+export type PolicePacket = {
+  report: { id: number; reason: string; filed_at: string; details: string; incident_when: string | null; incident_place: string | null; reporter: string | null; reported: string | null };
+  basis: PoliceBasis;
+  agency: string;
+  case: string | null;
+  messages: { from: 'reporter' | 'reported'; body: string; at: string }[];
+  date_requests: { from_id: string; status: string; starts_at: string | null; place_text: string | null; note: string | null; created_at: string }[];
+  met_in_person: { at: string; until: string; place: string | null; context: string }[] | null;
+  date_mode: { status: string; activated_at: string | null; ended_at: string | null; last_problem: string | null; alerts: { who: string; level: string; at: string }[] }[] | null;
+};
+/** The records to give police for a report. Logged every time. */
+export const policePacket = async (reportId: number, basis: PoliceBasis, agency: string, caseNumber?: string) =>
+  unwrap<PolicePacket>(await supabase.rpc('admin_police_packet', { p_report: reportId, p_basis: basis, p_agency: agency, p_case: caseNumber || undefined }));
+
 export type Appeal = Fn['admin_appeals']['Returns'][number];
 export const fetchAppeals = async () => unwrap<Appeal[]>(await supabase.rpc('admin_appeals'));
 /** lift: account back to normal. Otherwise the decision stays. */

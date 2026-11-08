@@ -39,16 +39,16 @@ select ok((select terms_accepted_at is not null from profile_private where id = 
 -- ── Reports + auto-hide ──────────────────────────────────────────────────
 insert into pins (author_id, category, body) values (pg_temp.uid('ana'), 'thought', 'reported pin');
 select pg_temp.act_as('ana');
-select throws_ok(format($$ select report('spam', '', %L) $$, pg_temp.uid('ana')), '23514', null, 'You can''t report yourself');
+select throws_ok(format($$ select report('spam', 'Selling stuff', %L) $$, pg_temp.uid('ana')), '23514', null, 'You can''t report yourself');
 select pg_temp.act_as('bo');
 select lives_ok($$ select report('spam', 'selling stuff', p_pin => (select id from pins where body = 'reported pin')) $$, 'A member reports a pin');
 select is((select count(*)::int from reports), 0, 'Members can''t read the reports table (moderator notes live there)');
 select is((select status::text from my_reports() limit 1), 'open', 'Reporters can see their report''s status');
 select pg_temp.act_as('cy');
-select report('inappropriate', '', p_pin => (select id from pins where body = 'reported pin'));
+select report('inappropriate', 'Not okay', p_pin => (select id from pins where body = 'reported pin'));
 select ok(exists (select 1 from pins_feed('community') where body = 'reported pin'), 'Two reports: still visible');
 select pg_temp.act_as('di');
-select report('inappropriate', '', p_pin => (select id from pins where body = 'reported pin'));
+select report('inappropriate', 'Not okay', p_pin => (select id from pins where body = 'reported pin'));
 select ok(not exists (select 1 from pins_feed('community') where body = 'reported pin'), 'Three different reporters: hidden from everyone else');
 select pg_temp.act_as('ana');
 select ok(exists (select 1 from pins_feed('author', p_author => pg_temp.uid('ana')) where body = 'reported pin'), 'The author still sees their own hidden pin');

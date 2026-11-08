@@ -1997,16 +1997,36 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"reports": {
+                },"report_followups": {
                   Row: {
-                    "admin_notes": string | null,"created_at": string,"date_request_id": number | null,"details": string,"id": number,"message_id": number | null,"pin_id": number | null,"priority": number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number | null,"reported_user_id": string | null,"reporter_id": string,"resolved_at": string | null,"status": Database["public"]['Enums']["report_status"]
+                    "body": string,"created_at": string,"from_admin": boolean,"id": number,"report_id": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "admin_notes"?: string | null,"created_at"?: string,"date_request_id"?: number | null,"details"?: string,"id"?: number,"message_id"?: number | null,"pin_id"?: number | null,"priority"?: number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id": string,"resolved_at"?: string | null,"status"?: Database["public"]['Enums']["report_status"]
+                    "body": string,"created_at"?: string,"from_admin": boolean,"id"?: never,"report_id": number
                   }
                   Update: {
-                    "admin_notes"?: string | null,"created_at"?: string,"date_request_id"?: number | null,"details"?: string,"id"?: number,"message_id"?: number | null,"pin_id"?: number | null,"priority"?: number | null,"reason"?: Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id"?: string,"resolved_at"?: string | null,"status"?: Database["public"]['Enums']["report_status"]
+                    "body"?: string,"created_at"?: string,"from_admin"?: boolean,"id"?: never,"report_id"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "report_followups_report_id_fkey"
+      columns: ["report_id"]
+isOneToOne: false
+      referencedRelation: "reports"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"reports": {
+                  Row: {
+                    "admin_notes": string | null,"can_contact": boolean,"created_at": string,"date_request_id": number | null,"details": string,"id": number,"incident_place": string | null,"incident_when": string | null,"message_id": number | null,"pin_id": number | null,"police_agency": string | null,"police_case": string | null,"police_status": string | null,"priority": number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number | null,"reported_user_id": string | null,"reporter_id": string,"resolved_at": string | null,"share_with_police": boolean | null,"status": Database["public"]['Enums']["report_status"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "admin_notes"?: string | null,"can_contact"?: boolean,"created_at"?: string,"date_request_id"?: number | null,"details"?: string,"id"?: number,"incident_place"?: string | null,"incident_when"?: string | null,"message_id"?: number | null,"pin_id"?: number | null,"police_agency"?: string | null,"police_case"?: string | null,"police_status"?: string | null,"priority"?: number | null,"reason": Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id": string,"resolved_at"?: string | null,"share_with_police"?: boolean | null,"status"?: Database["public"]['Enums']["report_status"]
+                  }
+                  Update: {
+                    "admin_notes"?: string | null,"can_contact"?: boolean,"created_at"?: string,"date_request_id"?: number | null,"details"?: string,"id"?: number,"incident_place"?: string | null,"incident_when"?: string | null,"message_id"?: number | null,"pin_id"?: number | null,"police_agency"?: string | null,"police_case"?: string | null,"police_status"?: string | null,"priority"?: number | null,"reason"?: Database["public"]['Enums']["report_reason"],"reply_id"?: number | null,"reported_user_id"?: string | null,"reporter_id"?: string,"resolved_at"?: string | null,"share_with_police"?: boolean | null,"status"?: Database["public"]['Enums']["report_status"]
                   }
                   Relationships: [
                     {
@@ -2528,6 +2548,9 @@ isOneToOne: true
               "banned": boolean,"created_at": string,"history": Json,"id": number,"message": string,"name": string,"suspended_until": string,"under_review": boolean,"user_id": string
             }[]
                            },
+"admin_ask_reporter":
+{ Args: { "p_question": string,"p_report": number }; Returns: undefined
+                           },
 "admin_clear_hold":
 { Args: { "p_user": string }; Returns: undefined
                            },
@@ -2543,12 +2566,15 @@ isOneToOne: true
 "admin_overview":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"admin_police_packet":
+{ Args: { "p_agency": string,"p_basis": string,"p_case"?: string,"p_report": number }; Returns: Json
+                           },
 "admin_report_evidence":
 { Args: { "p_report": number }; Returns: Json
                            },
 "admin_reports":
 { Args: Record<PropertyKey, never>; Returns: {
-              "about": string,"admin_notes": string,"content": string,"created_at": string,"details": string,"hidden": boolean,"id": number,"independent_reporters": number,"message_id": number,"on_hold": boolean,"pin_id": number,"priority": number,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number,"reported_id": string,"reported_name": string,"reporter_name": string,"reports_on_target": number,"status": Database["public"]['Enums']["report_status"]
+              "about": string,"admin_notes": string,"can_contact": boolean,"content": string,"created_at": string,"details": string,"hidden": boolean,"id": number,"incident_place": string,"incident_when": string,"independent_reporters": number,"message_id": number,"on_hold": boolean,"pin_id": number,"police_agency": string,"police_case": string,"police_status": string,"priority": number,"reason": Database["public"]['Enums']["report_reason"],"reply_id": number,"reported_id": string,"reported_name": string,"reporter_name": string,"reports_on_target": number,"sent_to_police": number,"share_with_police": boolean,"status": Database["public"]['Enums']["report_status"],"thread": Json
             }[]
                            },
 "admin_revenue":
@@ -2595,6 +2621,9 @@ isOneToOne: true
                            },
 "ai_tonight_options":
 { Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"answer_report_question":
+{ Args: { "p_answer": string,"p_report": number }; Returns: undefined
                            },
 "answer_shoutout":
 { Args: { "p_yes": boolean }; Returns: string
@@ -2965,6 +2994,9 @@ isOneToOne: true
               "already_vouched": boolean,"avatar_emoji": string,"avatar_url": string,"degree": number,"display_name": string,"encounter_id": number,"met_at": string,"place_label": string,"user_id": string,"vouch_count": number
             }[]
                            },
+"my_report_detail":
+{ Args: { "p_report": number }; Returns: Json
+                           },
 "my_reports":
 { Args: Record<PropertyKey, never>; Returns: {
               "about": string,"created_at": string,"id": number,"reason": Database["public"]['Enums']["report_reason"],"reported_name": string,"status": Database["public"]['Enums']["report_status"]
@@ -3120,6 +3152,9 @@ isOneToOne: true
                            },
 "report_date":
 { Args: { "p_date"?: number,"p_details"?: string,"p_other": string,"p_reason": Database["public"]['Enums']["report_reason"] }; Returns: number
+                           },
+"report_incident":
+{ Args: { "p_agency"?: string,"p_case"?: string,"p_contact"?: boolean,"p_place": string,"p_police": string,"p_report": number,"p_share"?: boolean,"p_when": string }; Returns: undefined
                            },
 "request_intro":
 { Args: { "p_note"?: string,"p_target": string,"p_via": string }; Returns: number

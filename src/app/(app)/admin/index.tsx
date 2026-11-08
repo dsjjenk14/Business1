@@ -7,6 +7,7 @@ import { Linking, View } from 'react-native';
 import { AdminClaims, AdminVerifiedHosts } from '@/components/admin/AdminClaims';
 import { AdminAppeals, DecisionGuide } from '@/components/admin/Moderation';
 import { ReportEvidence } from '@/components/admin/ReportEvidence';
+import { ReporterAnswers, SendToPolice } from '@/components/admin/ReportFollowup';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Badge, Button, Card, Chip, EmptyState, Glyph, LoadingList, Screen, Section, Segmented, Skeleton, TextField, useToast, type GlyphName } from '@/components/ui';
 import { actOnReport, addPlacement, clearHold, addVenue, endPlacement, fetchInquiries, fetchLaunchMetrics, fetchOverview, fetchPlacements, fetchReports, fetchRevenue, fetchUsage, fetchVenues, fetchVerifications, grantPremium, reviewVerification, setInquiryStatus, signedSelfie, type AdminReport, type AdminVenue, type AdminVerification, type Inquiry, type LaunchMetrics, type Overview, type Placement, type RevenueRow, type UsageRow, memberAction } from '@/features/admin/api';
@@ -243,7 +244,9 @@ function Reports({ onChange }: { onChange: () => void }) {
                 More than one person reported something serious. The guide says remove.
               </AppText>
             ) : null}
+            <ReporterAnswers r={r} onChange={load} />
             {r.reported_id ? <ReportEvidence reportId={r.id} /> : null}
+            {r.priority <= 2 && r.reported_id ? <SendToPolice r={r} onChange={load} /> : null}
             {live ? (
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
                 {r.pin_id || r.reply_id ? (
@@ -262,10 +265,19 @@ function Reports({ onChange }: { onChange: () => void }) {
                 <AppText variant="caption" weight="bold" tone="muted">
                   Action on the member (they&apos;re never told who reported them)
                 </AppText>
+                {r.on_hold ? (
+                  <AppText variant="small" tone="muted">
+                    Already on hold, so they can&apos;t use the app. Remove them, or clear the hold if the report didn&apos;t hold up.
+                  </AppText>
+                ) : null}
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
-                  <Button label="Warn" size="md" variant="secondary" onPress={() => member(r, 'warn', undefined, 'Warning sent')} disabled={busy} />
-                  <Button label="Suspend 7 days" size="md" variant="secondary" onPress={() => member(r, 'suspend', 7, 'Suspended 7 days')} disabled={busy} />
-                  <Button label="Suspend 30 days" size="md" variant="secondary" onPress={() => member(r, 'suspend', 30, 'Suspended 30 days')} disabled={busy} />
+                  {r.on_hold ? null : (
+                    <>
+                      <Button label="Warn" size="md" variant="secondary" onPress={() => member(r, 'warn', undefined, 'Warning sent')} disabled={busy} />
+                      <Button label="Suspend 7 days" size="md" variant="secondary" onPress={() => member(r, 'suspend', 7, 'Suspended 7 days')} disabled={busy} />
+                      <Button label="Suspend 30 days" size="md" variant="secondary" onPress={() => member(r, 'suspend', 30, 'Suspended 30 days')} disabled={busy} />
+                    </>
+                  )}
                   <Button label="Remove from app" size="md" variant="danger" onPress={() => removeMember(r)} disabled={busy} />
                   {r.on_hold ? <Button label="Clear hold" size="md" variant="ghost" onPress={() => releaseHold(r)} disabled={busy} /> : null}
                 </View>

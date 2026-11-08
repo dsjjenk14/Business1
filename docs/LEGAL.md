@@ -51,7 +51,9 @@ launch. Many offer a flat-fee review for startups.
   - Removed members' phone numbers are blocked (stored scrambled), and the vouches they gave stop counting.
   - Anyone on hold, suspended or removed can ask for a second look. An admin keeps or reverses the decision.
   - The Terms, Privacy Policy and Guidelines describe all of this.
-- **Police requests:** under the federal Stored Communications Act (18 U.S.C. §§ 2702–2703), give message contents to police only with a warrant, or in an emergency involving danger of death or serious injury. Send every request to your lawyer.
+- **Reports need details.** Every report must say what happened. Assault and violence reports also ask when, where, whether they've gone to police, and whether we may give police their messages with the other person.
+- **Police:** the app strongly encourages reporting to police. With the reporter's OK, an admin can prepare the messages and date plans for police (allowed with the consent of a sender or recipient). Location and other records about the reported member need a subpoena, court order, warrant or an emergency. Every disclosure is logged. See `docs/LAW-ENFORCEMENT.md` for subpoenas and police requests.
+- **Follow-up questions:** admins can ask the reporter questions in the app (Settings, My reports). The reported member never sees them.
 - **Deleting an account** now removes every file the member uploaded: photos, post photos and videos, Outs, event covers and verification selfies. Receipt photos stay with shared bills, as the Privacy Policy says.
 
 ## Things only you can do (in order)

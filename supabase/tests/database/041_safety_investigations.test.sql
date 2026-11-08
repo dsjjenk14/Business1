@@ -44,7 +44,7 @@ insert into vouches (voucher_id, vouchee_id, type) values (pg_temp.uid('bad'), p
 select pg_temp.act_as('str');
 insert into ids select 'low', public.report('spam', 'Ads', p_user => pg_temp.uid('cat'));
 select pg_temp.act_as('ana');
-insert into ids select 'r1', public.report('assault', 'After our date', p_user => pg_temp.uid('bad'));
+insert into ids select 'r1', public.report('assault', 'After our date he would not stop when I said no.', p_user => pg_temp.uid('bad'));
 
 set local role postgres;
 select is((select priority::int from reports where id = pg_temp.idn('r1')), 1, 'assault reports are urgent');
@@ -63,7 +63,7 @@ select is((select count(*)::int from notifications where user_id = auth.uid() an
 
 -- A report about a stranger they never interacted with: urgent, but no automatic hold.
 select pg_temp.act_as('str');
-insert into ids select 'r2', public.report('violence', 'Threats', p_user => pg_temp.uid('cat'));
+insert into ids select 'r2', public.report('violence', 'He threatened me outside the bar.', p_user => pg_temp.uid('cat'));
 set local role postgres;
 select ok(not (select under_review from profiles where id = pg_temp.uid('cat')), 'no automatic hold without a real interaction');
 select ok(exists (select 1 from notifications where user_id = pg_temp.uid('str') and kind = 'report_received' and body like 'We’re reviewing it first%'),

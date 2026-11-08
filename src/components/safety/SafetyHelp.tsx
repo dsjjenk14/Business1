@@ -32,8 +32,7 @@ export function SafetyHelp({ kind }: { kind: 'assault' | 'violence' }) {
         {kind === 'assault'
           ? 'You can get a medical exam without making a police report, and RAINN can connect you to a local hospital and an advocate. '
           : ''}
-        To make a police report, call 911, or 311 in DC if it isn’t an emergency. We save your messages and date details from the moment you
-        report, so police can ask us for them, even if the other person deletes their account.
+        We save your messages and date details the moment you report, so they’re there for police even if the other person deletes their account.
       </AppText>
     </Card>
   );
