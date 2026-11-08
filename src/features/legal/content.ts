@@ -58,7 +58,7 @@ export const TERMS: LegalDoc = {
     },
     {
       heading: 'Reporting and blocking',
-      body: 'You can report any member, pin, reply or date, and block any member at any time. We review reports promptly, usually within 24 hours, and act on content that breaks these terms. Content reported by several members may be hidden while we review it. We aren’t required to review everything posted, and we can’t promise to catch every problem.',
+      body: 'You can report any member, pin, reply or date, and block any member at any time. Reports are confidential: we never tell anyone who reported them. We review reports promptly, usually within 24 hours. If we find a member broke these terms, we may warn them, suspend them, or remove them from I’m In. When we remove someone, we tell the members who vouched for them that they were removed, without details of the report. Content reported by several members may be hidden while we review it. We aren’t required to review everything posted, and we can’t promise to catch every problem.',
     },
     {
       heading: 'Safety features are not emergency services',
@@ -232,7 +232,7 @@ export const GUIDELINES: LegalDoc = {
     },
     {
       heading: 'What happens when rules are broken',
-      body: 'Depending on what happened: content removed, a warning, a suspension, or a permanent ban. Serious violations lead to an immediate ban and, where appropriate, a report to law enforcement.',
+      body: 'Depending on what happened: content removed, a warning, a suspension, or removal from I’m In. Serious violations lead to immediate removal and, where appropriate, a report to law enforcement. When someone is removed, the members who vouched for them are told. Trying to find out who reported you, or going after anyone you think did, gets you removed right away.',
     },
   ],
 };

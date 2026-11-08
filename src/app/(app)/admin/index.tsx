@@ -7,39 +7,13 @@ import { Linking, View } from 'react-native';
 import { AdminClaims, AdminVerifiedHosts } from '@/components/admin/AdminClaims';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Badge, Button, Card, Chip, EmptyState, Glyph, LoadingList, Screen, Section, Segmented, Skeleton, TextField, useToast, type GlyphName } from '@/components/ui';
-import {
-  actOnReport,
-  addPlacement,
-  addVenue,
-  endPlacement,
-  fetchInquiries,
-  fetchLaunchMetrics,
-  fetchOverview,
-  fetchPlacements,
-  fetchReports,
-  fetchRevenue,
-  fetchUsage,
-  fetchVenues,
-  fetchVerifications,
-  grantPremium,
-  reviewVerification,
-  setInquiryStatus,
-  signedSelfie,
-  type AdminReport,
-  type AdminVenue,
-  type AdminVerification,
-  type Inquiry,
-  type LaunchMetrics,
-  type Overview,
-  type Placement,
-  type RevenueRow,
-  type UsageRow,
-} from '@/features/admin/api';
+import { actOnReport, addPlacement, addVenue, endPlacement, fetchInquiries, fetchLaunchMetrics, fetchOverview, fetchPlacements, fetchReports, fetchRevenue, fetchUsage, fetchVenues, fetchVerifications, grantPremium, reviewVerification, setInquiryStatus, signedSelfie, type AdminReport, type AdminVenue, type AdminVerification, type Inquiry, type LaunchMetrics, type Overview, type Placement, type RevenueRow, type UsageRow, memberAction } from '@/features/admin/api';
 import { setVenueManager } from '@/features/places/specials';
 import { money } from '@/features/payments/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
 import { timeAgo } from '@/lib/time';
+import { confirmThen } from '@/lib/confirm';
 import { useTheme } from '@/theme';
 
 type Tab = 'launch' | 'reports' | 'verify' | 'places' | 'more';
@@ -178,6 +152,19 @@ function Reports({ onChange }: { onChange: () => void }) {
   }, []);
   useEffect(load, [load]);
 
+  const member = (r: AdminReport, action: 'warn' | 'suspend' | 'ban', days: number | undefined, done: string) =>
+    run(() => memberAction(r.id, action, days), done).then(() => {
+      load();
+      onChange();
+    });
+  const removeMember = (r: AdminReport) =>
+    confirmThen(
+      `Remove ${r.reported_name ?? 'this member'} from I’m In?`,
+      'Their posts are hidden, they can’t use the app, and everyone who vouched for them is told. The person who reported them is never named.',
+      () => member(r, 'ban', undefined, 'Removed from the app'),
+      'Remove',
+    );
+
   const act = (r: AdminReport, action: 'resolve' | 'remove' | 'restore' | 'dismiss', done: string) =>
     run(() => actOnReport(r.id, action), done).then(() => {
       load();
@@ -234,6 +221,19 @@ function Reports({ onChange }: { onChange: () => void }) {
                 ) : null}
                 <Button label="Resolved" size="md" variant="secondary" onPress={() => act(r, 'resolve', 'Marked resolved')} disabled={busy} />
                 <Button label="Dismiss" size="md" variant="ghost" onPress={() => act(r, 'dismiss', 'Dismissed')} disabled={busy} />
+              </View>
+            ) : null}
+            {r.status === 'open' || r.status === 'reviewing' ? (
+              <View style={{ gap: t.space[2] }}>
+                <AppText variant="caption" weight="bold" tone="muted">
+                  Action on the member (they&apos;re never told who reported them)
+                </AppText>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+                  <Button label="Warn" size="md" variant="secondary" onPress={() => member(r, 'warn', undefined, 'Warning sent')} disabled={busy} />
+                  <Button label="Suspend 7 days" size="md" variant="secondary" onPress={() => member(r, 'suspend', 7, 'Suspended 7 days')} disabled={busy} />
+                  <Button label="Suspend 30 days" size="md" variant="secondary" onPress={() => member(r, 'suspend', 30, 'Suspended 30 days')} disabled={busy} />
+                  <Button label="Remove from app" size="md" variant="danger" onPress={() => removeMember(r)} disabled={busy} />
+                </View>
               </View>
             ) : null}
           </View>

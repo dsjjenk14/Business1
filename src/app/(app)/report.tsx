@@ -59,8 +59,8 @@ export default function Report() {
       <BackHeader title="Report" />
       <Screen>
         <AppText tone="muted">
-          Reports are confidential. The person won&apos;t know who reported them. We review reports promptly, usually within 24 hours. If
-          you&apos;re in danger, call 911.
+          Reports are confidential. They&apos;ll never know who reported them, and anything we do about it reaches them hours later, so the
+          timing doesn&apos;t give you away. We review reports promptly, usually within 24 hours. If you&apos;re in danger, call 911.
         </AppText>
         <AppText variant="label" tone="subtle">
           What happened with {what}?
@@ -110,7 +110,7 @@ export default function Report() {
             <View style={{ flex: 1 }}>
               <AppText weight="bold">Also block {params.name ?? 'them'}</AppText>
               <AppText variant="small" tone="muted">
-                You won&apos;t see each other anywhere on I&apos;m In.
+                You won&apos;t see each other anywhere on I&apos;m In. They aren&apos;t told.
               </AppText>
             </View>
             <Switch accessibilityLabel="Also block this member" value={alsoBlock} onValueChange={setAlsoBlock} trackColor={{ true: t.colors.danger, false: t.colors.surfaceAlt }} />

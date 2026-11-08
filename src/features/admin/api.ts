@@ -43,6 +43,9 @@ export const fetchLaunchMetrics = async () => unwrap<LaunchMetrics>(await supaba
 export const fetchReports = async () => unwrap<AdminReport[]>(await supabase.rpc('admin_reports'));
 export const actOnReport = async (id: number, action: 'resolve' | 'remove' | 'restore' | 'dismiss', note?: string) =>
   unwrap<null>(await supabase.rpc('admin_act_on_report', { p_report: id, p_action: action, p_note: note ?? undefined }));
+/** Act on the member a report is about: warn, suspend for some days, or remove from the app. */
+export const memberAction = async (reportId: number, action: 'warn' | 'suspend' | 'ban', days?: number) =>
+  unwrap<null>(await supabase.rpc('admin_member_action', { p_report: reportId, p_action: action, p_days: days ?? undefined }));
 export const fetchVerifications = async () => unwrap<AdminVerification[]>(await supabase.rpc('admin_verifications'));
 export const reviewVerification = async (id: number, approve: boolean, note?: string) =>
   unwrap<null>(await supabase.rpc('admin_review_verification', { p_request: id, p_approve: approve, p_note: note ?? undefined }));

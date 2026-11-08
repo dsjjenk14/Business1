@@ -1329,6 +1329,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"moderation_actions": {
+                  Row: {
+                    "action": string,"admin_id": string | null,"created_at": string,"id": number,"note": string | null,"report_id": number | null,"until": string | null,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action": string,"admin_id"?: string | null,"created_at"?: string,"id"?: never,"note"?: string | null,"report_id"?: number | null,"until"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "action"?: string,"admin_id"?: string | null,"created_at"?: string,"id"?: never,"note"?: string | null,"report_id"?: number | null,"until"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "moderation_actions_admin_id_fkey"
+      columns: ["admin_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "moderation_actions_report_id_fkey"
+      columns: ["report_id"]
+isOneToOne: false
+      referencedRelation: "reports"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "moderation_actions_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"mutes": {
                   Row: {
                     "created_at": string,"muted_user_id": string,"user_id": string
@@ -1881,14 +1913,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "approx_location": unknown,"avatar_emoji": string | null,"avatar_url": string | null,"background_checked_at": string | null,"bio": string,"city_id": number | null,"created_at": string,"display_name": string,"full_name": string,"header_url": string | null,"headline": string,"id": string,"id_verified_at": string | null,"interests": (string)[],"invite_code": string,"invited_by": string | null,"is_founding_member": boolean,"location_precision": Database["public"]['Enums']["location_precision"],"member_number": number,"milestone_celebrated": number,"mood": string | null,"neighborhood": string | null,"photo_urls": (string)[],"photo_verified_at": string | null,"profile_color": string | null,"prompts": NonNullable<Json>,"pronouns": string | null,"role": Database["public"]['Enums']["user_role"],"show_age": boolean,"show_area": boolean,"song": Json | null,"top_vouch_word": string | null,"updated_at": string,"verified_host": boolean,"vouch_count": number
+                    "approx_location": unknown,"avatar_emoji": string | null,"avatar_url": string | null,"background_checked_at": string | null,"banned_at": string | null,"bio": string,"city_id": number | null,"created_at": string,"display_name": string,"full_name": string,"header_url": string | null,"headline": string,"id": string,"id_verified_at": string | null,"interests": (string)[],"invite_code": string,"invited_by": string | null,"is_founding_member": boolean,"location_precision": Database["public"]['Enums']["location_precision"],"member_number": number,"milestone_celebrated": number,"mood": string | null,"neighborhood": string | null,"photo_urls": (string)[],"photo_verified_at": string | null,"profile_color": string | null,"prompts": NonNullable<Json>,"pronouns": string | null,"role": Database["public"]['Enums']["user_role"],"show_age": boolean,"show_area": boolean,"song": Json | null,"suspended_until": string | null,"top_vouch_word": string | null,"updated_at": string,"verified_host": boolean,"vouch_count": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"background_checked_at"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name": string,"full_name": string,"header_url"?: string | null,"headline"?: string,"id": string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code": string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"milestone_celebrated"?: number,"mood"?: string | null,"neighborhood"?: string | null,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"profile_color"?: string | null,"prompts"?: NonNullable<Json>,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"show_area"?: boolean,"song"?: Json | null,"top_vouch_word"?: string | null,"updated_at"?: string,"verified_host"?: boolean,"vouch_count"?: number
+                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"background_checked_at"?: string | null,"banned_at"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name": string,"full_name": string,"header_url"?: string | null,"headline"?: string,"id": string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code": string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"milestone_celebrated"?: number,"mood"?: string | null,"neighborhood"?: string | null,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"profile_color"?: string | null,"prompts"?: NonNullable<Json>,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"show_area"?: boolean,"song"?: Json | null,"suspended_until"?: string | null,"top_vouch_word"?: string | null,"updated_at"?: string,"verified_host"?: boolean,"vouch_count"?: number
                   }
                   Update: {
-                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"background_checked_at"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name"?: string,"full_name"?: string,"header_url"?: string | null,"headline"?: string,"id"?: string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code"?: string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"milestone_celebrated"?: number,"mood"?: string | null,"neighborhood"?: string | null,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"profile_color"?: string | null,"prompts"?: NonNullable<Json>,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"show_area"?: boolean,"song"?: Json | null,"top_vouch_word"?: string | null,"updated_at"?: string,"verified_host"?: boolean,"vouch_count"?: number
+                    "approx_location"?: unknown,"avatar_emoji"?: string | null,"avatar_url"?: string | null,"background_checked_at"?: string | null,"banned_at"?: string | null,"bio"?: string,"city_id"?: number | null,"created_at"?: string,"display_name"?: string,"full_name"?: string,"header_url"?: string | null,"headline"?: string,"id"?: string,"id_verified_at"?: string | null,"interests"?: (string)[],"invite_code"?: string,"invited_by"?: string | null,"is_founding_member"?: boolean,"location_precision"?: Database["public"]['Enums']["location_precision"],"member_number"?: number,"milestone_celebrated"?: number,"mood"?: string | null,"neighborhood"?: string | null,"photo_urls"?: (string)[],"photo_verified_at"?: string | null,"profile_color"?: string | null,"prompts"?: NonNullable<Json>,"pronouns"?: string | null,"role"?: Database["public"]['Enums']["user_role"],"show_age"?: boolean,"show_area"?: boolean,"song"?: Json | null,"suspended_until"?: string | null,"top_vouch_word"?: string | null,"updated_at"?: string,"verified_host"?: boolean,"vouch_count"?: number
                   }
                   Relationships: [
                     {
@@ -2474,6 +2506,9 @@ isOneToOne: true
 "admin_grant_premium":
 { Args: { "p_days": number,"p_email": string }; Returns: string
                            },
+"admin_member_action":
+{ Args: { "p_action": string,"p_days"?: number,"p_note"?: string,"p_report": number }; Returns: undefined
+                           },
 "admin_overview":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
@@ -2830,6 +2865,9 @@ isOneToOne: true
                            },
 "message_status":
 { Args: { "p_other": string }; Returns: Json
+                           },
+"my_account_status":
+{ Args: Record<PropertyKey, never>; Returns: Json
                            },
 "my_ai_quota":
 { Args: Record<PropertyKey, never>; Returns: Json
