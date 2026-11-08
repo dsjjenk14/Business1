@@ -5,7 +5,7 @@ import { Pressable, View } from 'react-native';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { DateSafetyGuide } from '@/components/safety/DateSafetyGuide';
 import { SafetyTimerCard } from '@/components/safety/SafetyTimerCard';
-import { AppText, Avatar, Button, Card, Chip, GlyphTile, GlyphTitle, LoadingDetail, Screen, useToast } from '@/components/ui';
+import { AppText, Avatar, Button, Card, Chip, GlyphTile, GlyphTitle, LoadingDetail, Screen, useToast, LegalNote } from '@/components/ui';
 import { preciseLocation } from '@/features/circles/api';
 import {
   checkInSafe,
@@ -115,6 +115,7 @@ export default function DateMode() {
       <View style={{ flex: 1, backgroundColor: t.colors.bg }}>
         {header}
         <Screen contentGap={t.space[5]}>
+          <LegalNote>Date Mode helps, but it isn&apos;t an emergency service and can fail without signal or battery. If you&apos;re in danger, call 911.</LegalNote>
           <Card accent="trust">
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
               <GlyphTile name="shield" size={48} tone="trust" />

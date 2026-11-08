@@ -314,7 +314,7 @@ export default function SignUp() {
           accessibilityRole="checkbox"
           accessibilityState={{ checked: agreed }}
           aria-checked={agreed}
-          accessibilityLabel="I agree to the Terms of Service and Community Guidelines and I've read the Privacy Policy"
+          accessibilityLabel="I agree to the Terms of Service, including arbitration, and the Community Guidelines, and I've read the Privacy Policy"
           onPress={() => {
             setAgreed((a) => !a);
             clearError('terms');
@@ -334,7 +334,7 @@ export default function SignUp() {
             <AppText variant="small" tone="primary" weight="bold" onPress={() => router.push('/legal/privacy')}>
               Privacy Policy
             </AppText>
-            . I understand there&apos;s zero tolerance for abusive behavior.
+            . I understand there&apos;s zero tolerance for abusive behavior, and that the Terms include an arbitration agreement and class action waiver.
           </AppText>
         </Pressable>
         {errors.terms ? (

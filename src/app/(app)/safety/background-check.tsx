@@ -4,7 +4,7 @@ import { Pressable, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Badge, Button, Card, LoadingDetail, Screen, Section, useToast } from '@/components/ui';
+import { AppText, Badge, Button, Card, LoadingDetail, Screen, Section, useToast, LegalNote } from '@/components/ui';
 import { fetchBackgroundCheck, startBackgroundCheck, type BackgroundCheckStatus } from '@/features/safety/backgroundCheck';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
@@ -129,9 +129,11 @@ export default function BackgroundCheck() {
               style={{ flexDirection: 'row', gap: t.space[3], alignItems: 'flex-start', minHeight: 44 }}>
               <Ionicons name={agreed ? 'checkbox' : 'square-outline'} size={24} color={agreed ? t.colors.primary : t.colors.textMuted} />
               <AppText variant="small" style={{ flex: 1 }}>
-                I agree to a background check of my public records by I&apos;m In&apos;s background-check partner. I&apos;ll confirm my details with them, and they&apos;ll give me a copy of my report.
+                I authorize I&apos;m In&apos;s independent background-check company (a consumer reporting agency) to get a report about me from public records, including criminal records and sex offender registries. I&apos;ll confirm my details with them, they&apos;ll give me a copy of my report, and I can dispute anything wrong with them for free. I&apos;m In only learns whether it came back clear.
               </AppText>
             </Pressable>
+
+            <LegalNote>The badge means no records were found in the searches run, as of that date. It isn&apos;t a guarantee. The fee can&apos;t be refunded once the check starts.</LegalNote>
 
             {status.enabled ? (
               <Button

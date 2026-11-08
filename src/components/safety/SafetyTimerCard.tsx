@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
 
-import { AppText, Button, Card, Chip, GlyphTitle, TextField, useToast } from '@/components/ui';
+import { AppText, Button, Card, Chip, GlyphTitle, TextField, useToast, LegalNote } from '@/components/ui';
 import { endSafetyTimer, extendSafetyTimer, fetchSafetyTimer, startSafetyTimer, type SafetyTimer } from '@/features/dates/api';
 import { useAuth } from '@/lib/auth';
 import { friendlyError } from '@/lib/supabase';
@@ -97,6 +97,7 @@ export function SafetyTimerCard() {
         </View>
         <TextField label="Note for yourself" optional value={note} onChangeText={setNote} maxLength={120} placeholder="Meeting Jordan at Busboys" />
         <Button label={`Start timer · check in by ${clockTime(new Date(now + minutes * 60000).toISOString())}`} onPress={() => run(() => startSafetyTimer(minutes, note), 'Timer started')} loading={busy} />
+        <LegalNote align="left">The timer isn&apos;t an emergency service and can fail without signal or battery. In danger? Call 911.</LegalNote>
       </View>
     </Card>
   );

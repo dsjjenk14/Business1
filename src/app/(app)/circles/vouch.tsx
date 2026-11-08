@@ -3,7 +3,7 @@ import { useCallback, useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Avatar, Button, Card, Chip, GlyphTitle, Screen, useCelebrate, useToast } from '@/components/ui';
+import { AppText, Avatar, Button, Card, Chip, GlyphTitle, Screen, useCelebrate, useToast, LegalNote } from '@/components/ui';
 import { checkIn, fetchCircle, fetchMeetups, fetchVouchWords, giveVouch, vouchesLeftLabel, vouchFromContacts, type Meetup } from '@/features/circles/api';
 import { canPickContacts, pickContactPhones } from '@/features/circles/contacts';
 import { fetchProfileCard } from '@/features/profiles/api';
@@ -222,6 +222,7 @@ export default function Vouch() {
                 loading={busy}
                 disabled={!wordId || left === 0}
               />
+              <LegalNote doc="guidelines">A vouch is your honest, personal opinion, and it shows on their profile.</LegalNote>
               {left === 0 ? (
                 <AppText variant="caption" tone="danger">
                   You&apos;ve used your 5 vouches for this month. You get more on the 1st, or go unlimited with Premium.

@@ -3,7 +3,8 @@
  * (App Store requirement: account deletion from inside the app).
  *
  * 1. Hands any groups they own to another member (or deletes empty groups).
- * 2. Deletes their photos (avatar + pin photos) from storage.
+ * 2. Deletes their files from storage: photos, post photos and videos, Outs,
+ *    event covers and verification selfies.
  * 3. Deletes their login, which removes their profile, pins, replies, vouches,
  *    connections, messages and GPS readings (database cascades).
  *
@@ -63,6 +64,11 @@ Deno.serve(async (req) => {
 
   await removePaths('avatars', await listPaths('avatars', user.id, 1));
   await removePaths('pin-photos', await listPaths('pin-photos', user.id, 2));
+  // Verification selfies, videos on posts, Outs and event covers go too (the Privacy Policy promises this).
+  await removePaths('verifications', await listPaths('verifications', user.id, 1));
+  await removePaths('pin-media', await listPaths('pin-media', user.id, 2));
+  await removePaths('outs', await listPaths('outs', user.id, 1));
+  await removePaths('event-covers', await listPaths('event-covers', user.id, 1));
 
   const del = await fetch(`${SUPABASE_URL()}/auth/v1/admin/users/${user.id}`, { method: 'DELETE', headers: serviceHeaders() });
   if (!del.ok) {

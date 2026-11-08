@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Platform, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Avatar, Button, Card, Chip, EmptyState, GlyphTitle, Screen, useCelebrate, useToast } from '@/components/ui';
+import { AppText, Avatar, Button, Card, Chip, EmptyState, GlyphTitle, Screen, useCelebrate, useToast, LegalNote } from '@/components/ui';
 import { fetchVouchWords, vouchFromContacts } from '@/features/circles/api';
 import { findContactsOnApp, sendInsiderRequest, type ContactOnApp } from '@/features/connect/contactsOnApp';
 import { friendlyError } from '@/lib/supabase';
@@ -77,6 +77,7 @@ export default function ContactsOnApp() {
                 numbers themselves, and we don&apos;t keep them. Nobody is told you looked.
               </AppText>
               <Button label="Check my contacts" onPress={check} loading={busy} />
+              <LegalNote doc="privacy">Only check contacts you have permission to share.</LegalNote>
             </View>
           </Card>
         ) : people.length === 0 ? (

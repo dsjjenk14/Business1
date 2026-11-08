@@ -21,3 +21,4 @@ export { Stamp, Ticket } from './Ticket';
 export { DateTile } from './DateTile';
 export { Sheet } from './Sheet';
 export { useCelebrate } from './Celebrate';
+export { LegalNote } from './LegalNote';

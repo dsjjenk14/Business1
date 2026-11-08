@@ -12,25 +12,7 @@ import { VirtualRoomCard } from '@/components/events/VirtualRoomCard';
 import { StoryShareButton } from '@/components/share/StoryShareButton';
 import { BackHeader } from '@/components/nav/AppHeader';
 import { useAppConfig, useFeature } from '@/config/useAppConfig';
-import {
-  AppText,
-  Badge,
-  Button,
-  Card,
-  Chip,
-  DateTile,
-  EmptyState,
-  GlyphTitle,
-  LoadingDetail,
-  Screen,
-  Section,
-  Stamp,
-  Stars,
-  StarsInput,
-  TextField,
-  Ticket,
-  useToast,
-} from '@/components/ui';
+import { AppText, Badge, Button, Card, Chip, DateTile, EmptyState, GlyphTitle, LoadingDetail, Screen, Section, Stamp, Stars, StarsInput, TextField, Ticket, useToast, LegalNote } from '@/components/ui';
 import { track } from '@/features/analytics/track';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { preciseLocation } from '@/features/circles/api';
@@ -302,9 +284,7 @@ export default function EventScreen() {
           ) : event.ticket_price_cents != null && !event.i_am_going && spotsLeft !== 0 ? (
             <View style={{ gap: t.space[2] }}>
               <Button label={`Buy Tickets · ${money(event.ticket_price_cents)}`} onPress={buyTicket} loading={busy} />
-              <AppText variant="caption" tone="subtle" align="center">
-                Paid securely by card through Stripe.
-              </AppText>
+              <LegalNote>Paid securely by card through Stripe. The host sells the tickets and decides refunds.</LegalNote>
             </View>
           ) : event.has_ticket ? (
             <View style={{ gap: t.space[1], alignItems: 'center' }}>
