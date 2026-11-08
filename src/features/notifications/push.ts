@@ -29,6 +29,8 @@ export async function registerForPush(): Promise<boolean> {
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('default', {
         name: 'I’m In',
+        // The SDK 58 build of expo-notifications re-exports this enum in a way the lint plugin can't follow; it is there at runtime.
+        // eslint-disable-next-line import/namespace
         importance: Notifications.AndroidImportance.HIGH,
       });
     }

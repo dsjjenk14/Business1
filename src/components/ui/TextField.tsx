@@ -15,7 +15,7 @@ export type TextFieldProps = TextInputProps & {
   success?: string | null;
 };
 
-export const TextField = forwardRef<TextInput, TextFieldProps>(function TextField(
+export const TextField = forwardRef<React.ComponentRef<typeof TextInput>, TextFieldProps>(function TextField(
   { label, hint, error, optional, success, secureTextEntry, style, ...rest },
   ref,
 ) {

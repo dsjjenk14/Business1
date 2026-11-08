@@ -16,7 +16,7 @@ const TABS: Record<string, { label: string; icon: IconName; iconActive: IconName
 };
 
 /** The tab bar: Home, Pins, Outs (in the middle, the main button), Tonight, Circles. */
-export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
+export function TabBar({ state, emitter, navigateToTab, insets }: BottomTabBarProps) {
   const t = useTheme();
   const outsNew = useNewOuts();
 
@@ -50,8 +50,8 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
             accessibilityLabel={route.name === 'outs' && outsNew ? `${tab.label}, ${outsNew} new` : tab.label}
             onPress={() => {
               if (!focused) haptic.select();
-              const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-              if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
+              const event = emitter.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+              if (!focused && !event.defaultPrevented) navigateToTab(route.key);
             }}
             style={{ flex: 1, alignItems: 'center' }}>
             <View

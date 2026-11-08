@@ -45,7 +45,7 @@ export default function Bookmarks() {
                 Tap the bookmark icon on any pin to save it here.
               </AppText>
             </Card>
-          ) : null
+          ) : undefined
         }
         contentContainerStyle={{ padding: t.space[4], width: '100%', maxWidth: 640, alignSelf: 'center' }}
       />
