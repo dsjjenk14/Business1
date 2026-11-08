@@ -19,6 +19,37 @@ export function Badge({ label, tone = 'primary', glyph, verified }: BadgeProps) 
   const t = useTheme();
   const color = tone === 'neutral' ? t.colors.textMuted : tone === 'primary' ? t.colors.primaryText : t.colors[tone];
 
+  if (t.style.badge === 'sticker') {
+    // Round sticker: solid color, chunky rounded letters.
+    const fill = tone === 'neutral' ? t.colors.surfaceAlt : tone === 'primary' ? t.colors.primary : t.colors[tone];
+    const ink =
+      tone === 'neutral'
+        ? t.colors.text
+        : tone === 'primary'
+          ? t.colors.onPrimary
+          : tone === 'trust'
+            ? t.colors.onTrust
+            : tone === 'ai'
+              ? t.colors.onAi
+              : t.colors.onSponsored;
+    return (
+      <View
+        style={{
+          alignSelf: 'flex-start',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 4,
+          backgroundColor: fill,
+          borderRadius: t.radius.pill,
+          paddingHorizontal: 11,
+          paddingVertical: 4,
+        }}>
+        {glyph ? <Glyph name={glyph} size={13} color={ink} strokeWidth={2.4} /> : null}
+        <AppText style={{ color: ink, ...fontStyle(t.fonts.displayBold), fontSize: 13, lineHeight: 17 }}>{label}</AppText>
+      </View>
+    );
+  }
+
   if (t.style.badge === 'words') {
     // Just words: a small colored dot and the label, no box around it.
     return (
