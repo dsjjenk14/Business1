@@ -11,7 +11,9 @@ import { tierProgress, useAppConfig } from '@/config/useAppConfig';
 import { STATUS_COLORS, STATUS_LABELS, usePersonInfo } from '@/features/people/status';
 import type { FeedPin } from '@/features/pins/api';
 import { MusicChip } from '@/components/music/MusicChip';
+import { HeaderSheet, MoodSheet, StrengthBar } from '@/components/profile/ProfileExtras';
 import { PromptCards } from '@/components/profile/PromptsEditor';
+import { profileAccent } from '@/features/profiles/customize';
 import { StoryShareButton } from '@/components/share/StoryShareButton';
 import { fetchLockedIn, profileLink, type LockedInPerson, type ProfileCard } from '@/features/profiles/api';
 import { clockTime, timeAgo } from '@/lib/time';
@@ -26,8 +28,11 @@ export function ProfileView({
   onPinChange,
   actions,
   children,
+  onEdited,
 }: {
   card: ProfileCard;
+  /** Your own profile: reload after a quick edit (mood, header, color). */
+  onEdited?: () => void;
   pins: FeedPin[];
   onPinChange: (p: FeedPin) => void;
   /** Buttons under the header (Vouch / Message, or Edit profile). */
@@ -47,6 +52,9 @@ export function ProfileView({
   const [tab, setTab] = useState<Tab>('pins');
   const hasPhotos = pins.some((p) => p.photo_paths.length > 0);
   const status = usePersonInfo(card.id)?.status ?? null;
+  const accent = profileAccent(t, card.profile_color);
+  const [sheet, setSheet] = useState<'header' | 'mood' | null>(null);
+  const reload = () => onEdited?.();
 
   const shareProfile = () =>
     Share.share({ message: `${card.is_me ? 'Find me' : `Check out ${card.display_name}`} on I'm In: ${profileLink(card.id)}` }).catch(() => undefined);
@@ -60,12 +68,42 @@ export function ProfileView({
 
   return (
     <>
-      {/* Header photo: a soft, blurred take on their picture, with the picture itself overlapping it. */}
-      <View style={{ marginHorizontal: -t.space[4], marginTop: -t.space[4], height: 150, backgroundColor: `${t.colors.primary}33`, overflow: 'hidden' }}>
-        {card.avatar_url ? (
-          <Image source={{ uri: card.avatar_url }} blurRadius={24} style={{ width: '100%', height: '100%', opacity: 0.85 }} contentFit="cover" accessible={false} />
+      {/* Header: their own header photo, or a soft blurred take on their picture in their profile color. */}
+      <Pressable
+        disabled={!card.is_me}
+        accessibilityRole={card.is_me ? 'button' : undefined}
+        accessibilityLabel={card.is_me ? 'Change your header photo and profile color' : undefined}
+        onPress={() => setSheet('header')}
+        style={{ marginHorizontal: -t.space[4], marginTop: -t.space[4], height: 150, backgroundColor: `${accent}40`, overflow: 'hidden' }}>
+        {card.header_url ? (
+          <Image source={{ uri: card.header_url }} style={{ width: '100%', height: '100%' }} contentFit="cover" accessible={false} />
+        ) : card.avatar_url ? (
+          <>
+            <Image source={{ uri: card.avatar_url }} blurRadius={24} style={{ width: '100%', height: '100%', opacity: 0.7 }} contentFit="cover" accessible={false} />
+            <View style={{ position: 'absolute', inset: 0, backgroundColor: `${accent}33` }} />
+          </>
         ) : null}
-      </View>
+        {card.is_me ? (
+          <View
+            style={{
+              position: 'absolute',
+              right: t.space[3],
+              top: t.space[3],
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 4,
+              paddingHorizontal: 10,
+              paddingVertical: 6,
+              borderRadius: 999,
+              backgroundColor: 'rgba(12,12,12,0.6)',
+            }}>
+            <Ionicons name="color-palette-outline" size={14} color="#F5F5F5" />
+            <AppText variant="caption" weight="bold" style={{ color: '#F5F5F5' }}>
+              Make it yours
+            </AppText>
+          </View>
+        ) : null}
+      </Pressable>
 
       <View style={{ marginTop: -60, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
         <Pressable
@@ -121,13 +159,21 @@ export function ProfileView({
             {[subtitle, card.headline].filter(Boolean).join(' · ')}
           </AppText>
         ) : null}
-        {card.mood ? (
-          <AppText>
-            <AppText weight="bold" style={{ color: t.colors.secondary }}>
-              Mood:
-            </AppText>{' '}
-            {card.mood}
-          </AppText>
+        {card.mood || card.is_me ? (
+          <Pressable
+            disabled={!card.is_me}
+            accessibilityRole={card.is_me ? 'button' : 'text'}
+            accessibilityLabel={card.is_me ? `Mood: ${card.mood ?? 'none'}. Tap to change` : undefined}
+            onPress={() => setSheet('mood')}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <AppText style={{ flexShrink: 1 }}>
+              <AppText weight="bold" style={{ color: t.colors.secondary }}>
+                Mood:
+              </AppText>{' '}
+              {card.mood ? card.mood : <AppText tone="subtle">tap to add yours</AppText>}
+            </AppText>
+            {card.is_me ? <Ionicons name="pencil" size={13} color={t.colors.textSubtle} /> : null}
+          </Pressable>
         ) : null}
         {counts.length ? (
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: t.space[4] }}>
@@ -178,6 +224,10 @@ export function ProfileView({
         </Card>
       ) : null}
 
+      {card.is_me ? (
+        <StrengthBar input={{ ...card, interests: card.interests }} onFix={(key) => setSheet(key === 'mood' ? 'mood' : 'header')} />
+      ) : null}
+
       {actions}
 
       {/* Your own profile has Share next to Edit profile. */}
@@ -200,11 +250,28 @@ export function ProfileView({
 
       {card.song ? (
         <View style={{ gap: t.space[1] }}>
-          <AppText variant="caption" tone="muted">
-            {card.is_me ? 'Now playing on my page' : `Now playing on ${first}’s page`}
-          </AppText>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <AppText variant="caption" tone="muted">
+              {card.is_me ? 'Now playing on my page' : `Now playing on ${first}’s page`}
+            </AppText>
+            {card.is_me ? (
+              <AppText variant="caption" tone="primary" weight="bold" onPress={() => router.push('/settings/profile')}>
+                Change
+              </AppText>
+            ) : null}
+          </View>
           <MusicChip song={card.song} />
         </View>
+      ) : card.is_me ? (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.push('/settings/profile')}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[2], padding: t.space[3], borderRadius: t.radius.md, borderWidth: 1, borderStyle: 'dashed', borderColor: t.colors.borderStrong }}>
+          <Ionicons name="musical-notes-outline" size={18} color={t.colors.textMuted} />
+          <AppText variant="small" tone="muted">
+            Add the song that plays on your page
+          </AppText>
+        </Pressable>
       ) : null}
 
       <LockedIn userId={card.id} isMe={card.is_me} firstName={card.display_name.split(' ')[0] ?? ''} />
@@ -266,7 +333,7 @@ export function ProfileView({
               <AppText weight={on ? 'bold' : 'medium'} tone={on ? 'text' : 'muted'} style={{ paddingBottom: 8 }}>
                 {o.label}
               </AppText>
-              <View style={{ height: 3, borderRadius: 2, backgroundColor: on ? t.colors.primary : 'transparent' }} />
+              <View style={{ height: 3, borderRadius: 2, backgroundColor: on ? accent : 'transparent' }} />
             </Pressable>
           );
         })}
@@ -289,6 +356,13 @@ export function ProfileView({
       )}
 
       {children}
+
+      {card.is_me ? (
+        <>
+          <HeaderSheet visible={sheet === 'header'} onClose={() => setSheet(null)} userId={card.id} hasHeader={!!card.header_url} color={card.profile_color ?? null} onSaved={reload} />
+          <MoodSheet key={card.mood ?? ''} visible={sheet === 'mood'} onClose={() => setSheet(null)} userId={card.id} mood={card.mood ?? null} onSaved={reload} />
+        </>
+      ) : null}
     </>
   );
 }

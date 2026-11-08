@@ -24,6 +24,8 @@ export type ProfileCard = {
   song: Song | null;
   /** A short line under their name, up to 60 characters. */
   mood?: string | null;
+  header_url?: string | null;
+  profile_color?: string | null;
   /** Passed a background check in the last year: shows the Background checked tag. */
   background_checked?: boolean;
   /** How many posts they've made. */

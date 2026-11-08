@@ -20,6 +20,9 @@ export default function MyProfile() {
   const [card, setCard] = useState<ProfileCard | null>(null);
   const [pins, setPins] = useState<FeedPin[]>([]);
   const [phoneVerified, setPhoneVerified] = useState<boolean | null>(null);
+  const reloadCard = useCallback(() => {
+    if (userId) fetchProfileCard(userId).then((c) => c && setCard(c)).catch(() => undefined);
+  }, [userId]);
 
   useFocusEffect(
     useCallback(() => {
@@ -50,6 +53,7 @@ export default function MyProfile() {
             card={card}
             pins={pins}
             onPinChange={(n) => setPins((l) => l.map((p) => (p.id === n.id ? n : p)))}
+            onEdited={reloadCard}
             actions={
               <View style={{ flexDirection: 'row', gap: t.space[2] }}>
                 <Button label="Edit profile" variant="secondary" size="md" style={{ flex: 1 }} onPress={() => router.push('/settings/profile')} />
