@@ -14,7 +14,7 @@ export const REPORT_REASONS: { key: ReportReason; label: string; detail: string 
   { key: 'harassment', label: 'Harassment', detail: 'Unwanted contact, threats, or bullying' },
   { key: 'unsafe', label: 'Made me feel unsafe', detail: 'Predatory or aggressive behavior' },
   { key: 'inappropriate', label: 'Inappropriate content', detail: 'Sexual, hateful, or violent content' },
-  { key: 'misrepresentation', label: 'Fake or misleading', detail: "Photos or info didn't match, or impersonation" },
+  { key: 'misrepresentation', label: 'Fake or misleading', detail: "AI-made photos, photos or info that didn't match, or impersonation" },
   { key: 'privacy', label: 'Privacy violation', detail: 'Shared my info without consent' },
   { key: 'spam', label: 'Spam or scam', detail: 'Selling, scams, or repetitive posts' },
   { key: 'other', label: 'Something else', detail: 'Tell us in the details' },

@@ -75,6 +75,9 @@ export default function ProfilePhotos() {
               ? `Your photo changes on its own every 25 seconds, through all ${photos.length}.`
               : 'Add up to 3 photos. With more than one, your photo changes on its own every 25 seconds.'}
           </AppText>
+          <AppText variant="small" weight="bold" align="center">
+            Real photos of you only. No AI-made or AI-edited photos, and no one else’s.
+          </AppText>
         </View>
 
         <View style={{ flexDirection: 'row', gap: t.space[3] }}>

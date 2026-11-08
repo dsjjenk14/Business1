@@ -70,7 +70,7 @@ const EVERYDAY: { title: string; body: string }[] = [
   },
   {
     title: 'Fake or misleading',
-    body: 'Old but real photos: warn and ask them to update. Someone else’s photos, or pretending to be a real person: remove. Not sure: ask them to verify again with a selfie.',
+    body: 'AI-made or AI-edited profile photos aren’t allowed: decline their photo check, ask them to replace the photo, and suspend 7 days if they put it back. Old but real photos: warn and ask them to update. Someone else’s photos, or pretending to be a real person: remove. Not sure: ask them to verify again with a selfie.',
   },
   {
     title: 'Privacy',

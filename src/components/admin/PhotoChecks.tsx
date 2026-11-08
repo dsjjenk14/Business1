@@ -3,16 +3,19 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 
-import { AppText, Button, Card, LoadingList, Skeleton, TextField, useToast } from '@/components/ui';
+import { AppText, Button, Card, Chip, LoadingList, Skeleton, TextField, useToast } from '@/components/ui';
 import { fetchVerifications, reviewVerification, signedSelfie, type AdminVerification } from '@/features/admin/api';
 import { friendlyError } from '@/lib/supabase';
 import { timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
 
+const AI_NOTE = 'One or more of your profile photos looks AI-made or AI-edited. Profile photos must be real photos of you. Replace it, then do the photo check again.';
+
 const CHECKS = [
   'They’re doing the gesture asked for.',
   'It’s the same person in the selfie and in every profile photo.',
   'It’s a live photo: not a photo of a screen or a printed picture.',
+  'No profile photo is AI-made or AI-edited. Look for warped hands, ears or jewelry, melted or blurry backgrounds, skin that’s too smooth, mismatched earrings, and garbled text or logos.',
   'When in doubt, decline. They can try again, and the note tells them why.',
 ];
 
@@ -108,6 +111,9 @@ export function PhotoChecks({ onChange }: { onChange?: () => void }) {
                     No profile photos. Decline and ask them to add one.
                   </AppText>
                 )}
+              </View>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
+                <Chip label="Looks AI-made" selected={notes[r.id] === AI_NOTE} onPress={() => setNotes((n) => ({ ...n, [r.id]: n[r.id] === AI_NOTE ? '' : AI_NOTE }))} />
               </View>
               <TextField
                 label="Note if declining"

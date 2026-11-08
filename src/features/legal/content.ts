@@ -46,7 +46,7 @@ export const TERMS: LegalDoc = {
     },
     {
       heading: 'Your content',
-      body: 'You own what you post: pins, replies, photos, videos, Outs, messages and your profile. You give I’m In a worldwide, non-exclusive, royalty-free license to host, store, display, adapt (for example, resize) and deliver it to the people you choose, only to run, improve and promote I’m In. This ends when you delete the content or your account, except for copies others have kept (for example, pinned Outs), backups, and what the law requires us to keep. You’re responsible for what you post, and you must have the right to share it, including any photos of other people. We don’t endorse what members post, and we may remove anything for any reason.',
+      body: 'Your profile photos must be real, recent photos of you. AI-generated photos, photos changed with AI or filters to alter how you look, and photos of anyone else aren’t allowed; we may remove them, ask you to redo the photo check, or suspend your account. You own what you post: pins, replies, photos, videos, Outs, messages and your profile. You give I’m In a worldwide, non-exclusive, royalty-free license to host, store, display, adapt (for example, resize) and deliver it to the people you choose, only to run, improve and promote I’m In. This ends when you delete the content or your account, except for copies others have kept (for example, pinned Outs), backups, and what the law requires us to keep. You’re responsible for what you post, and you must have the right to share it, including any photos of other people. We don’t endorse what members post, and we may remove anything for any reason.',
     },
     {
       heading: 'Shoutouts',
@@ -216,7 +216,7 @@ export const GUIDELINES: LegalDoc = {
     },
     {
       heading: 'Not allowed, ever',
-      body: 'Sexual assault, or any sexual contact without consent. Violence, threats, stalking, following someone, or intimidation. Harassment, hate or discrimination. Anything involving minors. Sharing someone’s private information, their location, or photos or video of them they didn’t agree to. Fake profiles or impersonation. Scams, spam, or selling. Anything illegal or dangerous. Fake or traded vouches, or check-ins you didn’t really do together. Using anything you learn here, including someone’s badges, to harass, shame or discriminate against them. Using I’m In to track down, follow or crowd a public figure.',
+      body: 'Sexual assault, or any sexual contact without consent. Violence, threats, stalking, following someone, or intimidation. Harassment, hate or discrimination. Anything involving minors. Sharing someone’s private information, their location, or photos or video of them they didn’t agree to. Fake profiles or impersonation. Profile photos that are AI-made, AI-edited to change how you look, or of someone else. Scams, spam, or selling. Anything illegal or dangerous. Fake or traded vouches, or check-ins you didn’t really do together. Using anything you learn here, including someone’s badges, to harass, shame or discriminate against them. Using I’m In to track down, follow or crowd a public figure.',
     },
     {
       heading: 'Consent, every time',
