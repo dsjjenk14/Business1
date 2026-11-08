@@ -48,7 +48,7 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
 
   // Never how far away a pin was posted: that can help someone work out where a person is.
   const where = locationMode === 'city' ? pin.city_name : null;
-  const meta = [timeAgo(pin.created_at), where, pin.place_label && locationMode !== 'city' ? pin.place_label : null]
+  const meta = [pin.author_vouches != null ? `${pin.author_vouches} ✓` : null, timeAgo(pin.created_at), where, pin.place_label && locationMode !== 'city' ? pin.place_label : null]
     .filter(Boolean)
     .join(' · ');
 
@@ -161,110 +161,110 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
 
   return (
     <Wrap>
-      {/* Twitter-style row: picture on the left, the post on the right. */}
-      <View style={{ flexDirection: 'row', gap: t.space[3] }}>
-        <Pressable accessibilityRole="link" accessibilityLabel={`${pin.author_name}'s profile`} onPress={openAuthor} hitSlop={4}>
-          <Avatar name={pin.author_name} uri={pin.author_avatar} size={44} userId={pin.author_id} />
-        </Pressable>
-        <View style={{ flex: 1, minWidth: 0, gap: t.space[2] }}>
-          {/* Who and when, on one line. */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <Pressable accessibilityRole="link" accessibilityLabel={`${pin.author_name}'s profile`} onPress={openAuthor} style={{ flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-              <AppText weight="bold" numberOfLines={1} style={{ flexShrink: 0, maxWidth: '55%' }}>
-                {pin.is_mine ? 'You' : pin.author_name}
-              </AppText>
-              {pin.author_verified ? <Ionicons name="checkmark-circle" size={15} color={t.colors.trust} accessibilityLabel="Verified" /> : null}
-              {pin.author_vouches != null ? (
-                <AppText variant="small" weight="bold" tone="trust" numberOfLines={1} style={{ flexShrink: 0 }}>
-                  {pin.author_vouches} {pin.author_vouches === 1 ? 'vouch' : 'vouches'}
+      <View style={{ gap: t.space[3] }}>
+        {/* Who, when, where. */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[2] }}>
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel={`${pin.author_name}'s profile`}
+            onPress={openAuthor}
+            style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[2] }}>
+            <Avatar name={pin.author_name} uri={pin.author_avatar} size={40} userId={pin.author_id} />
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <AppText weight="bold" numberOfLines={1} style={{ flexShrink: 1 }}>
+                  {pin.is_mine ? 'You' : pin.author_name}
                 </AppText>
-              ) : null}
-              <AppText variant="small" tone="subtle" numberOfLines={1} style={{ flex: 1 }}>
-                · {meta}
-              </AppText>
-            </Pressable>
-            <Pressable accessibilityRole="button" accessibilityLabel="More options" onPress={() => setMenu(true)} hitSlop={10} style={{ minWidth: 32, alignItems: 'flex-end' }}>
-              <Ionicons name="ellipsis-horizontal" size={18} color={t.colors.textMuted} />
-            </Pressable>
-          </View>
-          {pin.category !== 'thought' ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: -4 }}>
-              <Glyph name={CATEGORY_GLYPH[pin.category]} size={12} tone={CATEGORY_TONE[pin.category]} strokeWidth={2} />
-              <AppText variant="caption" tone="subtle">
-                {[CATEGORY_LABEL[pin.category], pin.edited_at ? 'edited' : null].filter(Boolean).join(' · ')}
-              </AppText>
+                {pin.author_verified ? <Ionicons name="checkmark-circle" size={15} color={t.colors.trust} accessibilityLabel="Verified" /> : null}
+              </View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Glyph name={CATEGORY_GLYPH[pin.category]} size={12} tone={CATEGORY_TONE[pin.category]} strokeWidth={2} />
+                <AppText
+                  variant="caption"
+                  tone="subtle"
+                  numberOfLines={1}
+                  style={{ flex: 1 }}>
+                  {[CATEGORY_LABEL[pin.category], meta, pin.edited_at ? 'edited' : null].filter(Boolean).join(' · ')}
+                </AppText>
+              </View>
             </View>
-          ) : null}
-
-          <Pressable accessibilityRole={linkToThread ? 'link' : 'text'} disabled={!linkToThread} onPress={openThread}>
-            <AppText variant="body" style={{ fontSize: 16, lineHeight: 22 }} numberOfLines={linkToThread ? 8 : undefined}>
-              {pin.body}
-            </AppText>
           </Pressable>
+          <Action icon="ellipsis-horizontal" color={t.colors.textMuted} a11y="More options" onPress={() => setMenu(true)} />
+        </View>
 
-          {/* Photos sit inside the post with rounded corners. */}
-          {hasPhotos ? (
-            <Pressable accessibilityRole={linkToThread ? 'link' : 'image'} disabled={!linkToThread} onPress={openThread} style={{ borderRadius: t.radius.lg, overflow: 'hidden' }}>
-              <PinPhotos paths={pin.photo_paths} />
-            </Pressable>
-          ) : (
-            <View style={{ borderRadius: t.radius.lg, overflow: 'hidden' }}>
-              <PinMediaView pinId={pin.id} />
-            </View>
-          )}
-          {pin.category === 'photos' ? <PinMusic pinId={pin.id} /> : null}
-
-          {pin.event_id && pin.event_title && pin.event_starts_at ? <EventStrip pin={pin} onChange={onChange} /> : null}
-
-          {picking ? (
-            <View accessibilityRole="menu" style={{ flexDirection: 'row', alignSelf: 'flex-start', gap: t.space[1], padding: t.space[1], borderRadius: t.radius.pill, backgroundColor: t.colors.surfaceAlt }}>
-              {REACTIONS.map((r) => {
-                const mine = pin.my_reaction === r.key;
-                return (
-                  <Pressable
-                    key={r.key}
-                    accessibilityRole="menuitem"
-                    accessibilityLabel={`${r.label}${mine ? ', your reaction' : ''}`}
-                    onPress={() => react(mine ? null : r.key)}
-                    style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: mine ? t.colors.surface : 'transparent' }}>
-                    <Glyph name={r.key} size={24} color={t.colors.sponsored} />
-                  </Pressable>
-                );
-              })}
-            </View>
-          ) : null}
-
-          <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: -t.space[2], marginBottom: -t.space[1] }}>
-            <Action icon="chatbubble-outline" color={t.colors.textMuted} label={String(pin.reply_count)} a11y={`${pin.reply_count} replies. Open thread`} onPress={openThread} />
-            {/* "I'm In" on a post (the app's own take on a like): a check, not a heart. */}
-            <Action
-              icon={pin.liked ? 'checkmark-circle' : 'checkmark-circle-outline'}
-              color={pin.liked ? t.colors.primary : t.colors.textMuted}
-              label={`${pin.like_count} in`}
-              labelColor={pin.liked ? t.colors.primary : undefined}
-              a11y={pin.liked ? `You're in. Tap to take it back. ${pin.like_count} in` : `I'm In. ${pin.like_count} in`}
-              onPress={toggleLike}
-              onLongPress={() => setPicking(true)}
-            />
-            <Pressable accessibilityRole="button" accessibilityLabel="React" onPress={() => setPicking((v) => !v)} hitSlop={6} style={{ minHeight: 40, minWidth: 36, flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-              {(pin.top_reactions ?? []).filter((k) => k !== 'heart').length ? (
-                (pin.top_reactions ?? [])
-                  .filter((k) => k !== 'heart')
-                  .slice(0, 2)
-                  .map((k) => <Glyph key={k} name={k as GlyphName} size={16} color={t.colors.sponsored} />)
-              ) : (
-                <Glyph name="smile" size={18} color={t.colors.textMuted} />
-              )}
-            </Pressable>
-            <Action icon="share-outline" color={t.colors.textMuted} a11y="Share" onPress={() => sharePin(pin)} />
-            <View style={{ flex: 1 }} />
-            <Action
-              icon={pin.bookmarked ? 'bookmark' : 'bookmark-outline'}
-              color={pin.bookmarked ? t.colors.sponsored : t.colors.textMuted}
-              a11y={pin.bookmarked ? 'Remove bookmark' : 'Bookmark'}
-              onPress={toggleBookmark}
-            />
+        {/* Photos first, edge to edge. */}
+        {hasPhotos ? (
+          <Pressable accessibilityRole={linkToThread ? 'link' : 'image'} disabled={!linkToThread} onPress={openThread} style={{ marginHorizontal: -t.space[4] }}>
+            <PinPhotos paths={pin.photo_paths} bleed />
+          </Pressable>
+        ) : null}
+        {!hasPhotos ? (
+          <View style={{ marginHorizontal: -t.space[4] }}>
+            <PinMediaView pinId={pin.id} />
           </View>
+        ) : null}
+        {pin.category === 'photos' ? <PinMusic pinId={pin.id} /> : null}
+
+        <Pressable accessibilityRole={linkToThread ? 'link' : 'text'} disabled={!linkToThread} onPress={openThread}>
+          <AppText
+            variant="body"
+            style={hasPhotos ? undefined : { fontSize: 17, lineHeight: 24 }}
+            numberOfLines={linkToThread ? 8 : undefined}>
+            {pin.body}
+          </AppText>
+        </Pressable>
+
+        {pin.event_id && pin.event_title && pin.event_starts_at ? (
+          <EventStrip pin={pin} onChange={onChange} />
+        ) : null}
+
+        {picking ? (
+          <View accessibilityRole="menu" style={{ flexDirection: 'row', alignSelf: 'flex-start', gap: t.space[1], padding: t.space[1], borderRadius: t.radius.pill, backgroundColor: t.colors.surfaceAlt }}>
+            {REACTIONS.map((r) => {
+              const mine = pin.my_reaction === r.key;
+              return (
+                <Pressable
+                  key={r.key}
+                  accessibilityRole="menuitem"
+                  accessibilityLabel={`${r.label}${mine ? ', your reaction' : ''}`}
+                  onPress={() => react(mine ? null : r.key)}
+                  style={{ width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', backgroundColor: mine ? t.colors.surface : 'transparent' }}>
+                  <Glyph name={r.key} size={24} color={t.colors.sponsored} />
+                </Pressable>
+              );
+            })}
+          </View>
+        ) : null}
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: -t.space[2] }}>
+          {/* "I'm In" on a post (the app's own take on a like): a check, not a heart. */}
+          <Action
+            icon={pin.liked ? 'checkmark-circle' : 'checkmark-circle-outline'}
+            color={pin.liked ? t.colors.primary : t.colors.textMuted}
+            label={String(pin.like_count)}
+            a11y={pin.liked ? `You're in. Tap to take it back. ${pin.like_count} in` : `I'm In. ${pin.like_count} in`}
+            onPress={toggleLike}
+            onLongPress={() => setPicking(true)}
+          />
+          <Pressable accessibilityRole="button" accessibilityLabel="React" onPress={() => setPicking((v) => !v)} hitSlop={6} style={{ minHeight: 40, minWidth: 36, flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+            {(pin.top_reactions ?? []).filter((k) => k !== 'heart').length ? (
+              (pin.top_reactions ?? [])
+                .filter((k) => k !== 'heart')
+                .slice(0, 2)
+                .map((k) => <Glyph key={k} name={k as GlyphName} size={16} color={t.colors.sponsored} />)
+            ) : (
+              <Glyph name="smile" size={18} color={t.colors.textMuted} />
+            )}
+          </Pressable>
+          <Action icon="chatbubble-outline" color={t.colors.textMuted} label={String(pin.reply_count)} a11y={`${pin.reply_count} replies. Open thread`} onPress={openThread} />
+          <Action icon="share-outline" color={t.colors.textMuted} a11y="Share" onPress={() => sharePin(pin)} />
+          <View style={{ flex: 1 }} />
+          <Action
+            icon={pin.bookmarked ? 'bookmark' : 'bookmark-outline'}
+            color={pin.bookmarked ? t.colors.sponsored : t.colors.textMuted}
+            a11y={pin.bookmarked ? 'Remove bookmark' : 'Bookmark'}
+            onPress={toggleBookmark}
+          />
         </View>
       </View>
       <OptionsSheet visible={menu} options={menuOptions} onClose={() => setMenu(false)} />
@@ -274,14 +274,13 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
 
 function FlatPost({ children }: { children: React.ReactNode }) {
   const t = useTheme();
-  return <View style={{ paddingTop: t.space[3], paddingBottom: t.space[2], borderBottomWidth: t.borderWidth.hairline, borderColor: t.colors.border }}>{children}</View>;
+  return <View style={{ paddingTop: t.space[2], paddingBottom: t.space[3], borderBottomWidth: t.borderWidth.hairline, borderColor: t.colors.border }}>{children}</View>;
 }
 
 function Action({
   icon,
   color,
   label,
-  labelColor,
   a11y,
   onPress,
   onLongPress,
@@ -289,7 +288,6 @@ function Action({
   icon: React.ComponentProps<typeof Ionicons>['name'];
   color: string;
   label?: string;
-  labelColor?: string;
   a11y: string;
   onPress: () => void;
   onLongPress?: () => void;
@@ -305,7 +303,7 @@ function Action({
       style={({ pressed }) => ({ flexDirection: 'row', alignItems: 'center', gap: 5, minHeight: 40, minWidth: 44, paddingHorizontal: t.space[2], opacity: pressed ? 0.6 : 1 })}>
       <Ionicons name={icon} size={20} color={color} />
       {label != null ? (
-        <AppText variant="small" tone="muted" style={labelColor ? { color: labelColor, fontWeight: '700' } : undefined}>
+        <AppText variant="small" tone="muted">
           {label}
         </AppText>
       ) : null}
@@ -357,7 +355,7 @@ function EventStrip({ pin, onChange }: { pin: FeedPin; onChange?: (pin: FeedPin)
         accessibilityLabel={`Event: ${pin.event_title}, ${dayTime(starts)}`}
         onPress={() => router.push({ pathname: '/events/[id]', params: { id: String(pin.event_id) } })}
         style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
-        <DateTile iso={starts} />
+        <Glyph name="calendar" size={22} tone="primary" />
         <View style={{ flex: 1 }}>
           <AppText variant="small" weight="bold" numberOfLines={1}>
             {pin.event_title}
@@ -372,29 +370,6 @@ function EventStrip({ pin, onChange }: { pin: FeedPin; onChange?: (pin: FeedPin)
       ) : (
         <Button label="I'm In" size="md" onPress={imIn} loading={busy} />
       )}
-    </View>
-  );
-}
-
-/** "TUE / 8P" in a small red-tinted square, like a calendar stub. */
-function DateTile({ iso }: { iso: string }) {
-  const t = useTheme();
-  const d = new Date(iso);
-  const day = d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
-  const h = d.getHours();
-  const m = d.getMinutes();
-  const time = `${h % 12 || 12}${m ? `:${String(m).padStart(2, '0')}` : ''}${h < 12 ? 'A' : 'P'}`;
-  return (
-    <View
-      accessibilityElementsHidden
-      importantForAccessibility="no-hide-descendants"
-      style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: `${t.colors.primary}29`, alignItems: 'center', justifyContent: 'center' }}>
-      <AppText variant="caption" weight="bold" tone="primary" style={{ fontFamily: t.fonts.displayBold, lineHeight: 14 }}>
-        {day}
-      </AppText>
-      <AppText variant="caption" weight="bold" tone="primary" style={{ fontFamily: t.fonts.displayBold, lineHeight: 14 }}>
-        {time}
-      </AppText>
     </View>
   );
 }
