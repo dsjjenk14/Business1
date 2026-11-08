@@ -18,10 +18,17 @@ import { goBackOr } from '@/lib/navigation';
 
 /** Edit your photo, name, headline, bio, pronouns, area, interests, and whether your age shows. */
 export default function EditProfile() {
+  const { profile } = useAuth();
+  // Wait for the profile before building the form, so the boxes start filled in.
+  if (!profile) return <BackHeader title="Edit profile" />;
+  return <EditProfileForm key={profile.id} profile={profile} />;
+}
+
+function EditProfileForm({ profile }: { profile: NonNullable<ReturnType<typeof useAuth>['profile']> }) {
   const t = useTheme();
   const router = useRouter();
   const toast = useToast();
-  const { profile, refreshProfile } = useAuth();
+  const { refreshProfile } = useAuth();
   const { cities } = useAppConfig();
 
   const [displayName, setDisplayName] = useState(profile?.display_name ?? '');
@@ -32,13 +39,12 @@ export default function EditProfile() {
   const [neighborhood, setNeighborhood] = useState(profile?.neighborhood ?? '');
   const [cityId, setCityId] = useState<number | null>(profile?.city_id ?? null);
   const [showAge, setShowAge] = useState(profile?.show_age ?? true);
+  const [showArea, setShowArea] = useState(profile?.show_area ?? true);
   const [interests, setInterests] = useState<string[]>(profile?.interests ?? []);
   const [song, setSong] = useState<Song | null>((profile?.song as Song | null) ?? null);
   const [prompts, setPrompts] = useState<ProfilePrompt[]>((profile?.prompts as ProfilePrompt[] | null) ?? []);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  if (!profile) return <BackHeader title="Edit profile" />;
 
   async function save() {
     if (!profile) return;
@@ -60,6 +66,7 @@ export default function EditProfile() {
           neighborhood: neighborhood.trim() || null,
           city_id: cityId,
           show_age: showAge,
+          show_area: showArea,
           interests,
         })
         .eq('id', profile.id);
@@ -110,9 +117,24 @@ export default function EditProfile() {
           </AppText>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
             {cities.map((c) => (
-              <Chip key={c.id} label={c.name} selected={cityId === c.id} onPress={() => setCityId(c.id)} />
+              <Chip key={c.id} label={c.name} selected={cityId === c.id} onPress={() => setCityId(cityId === c.id ? null : c.id)} />
             ))}
           </View>
+        </View>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+          <View style={{ flex: 1 }}>
+            <AppText weight="bold">Show my area on my profile</AppText>
+            <AppText variant="small" tone="muted">
+              Your neighborhood and city. Off: nobody sees them on your profile. Your city still picks what&apos;s near you. Tap a city again to clear it.
+            </AppText>
+          </View>
+          <Switch
+            accessibilityLabel="Show my area on my profile"
+            value={showArea}
+            onValueChange={setShowArea}
+            trackColor={{ true: t.colors.primary, false: t.colors.surfaceAlt }}
+          />
         </View>
 
         <InterestsPicker value={interests} onChange={setInterests} />
