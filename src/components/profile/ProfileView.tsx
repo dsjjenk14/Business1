@@ -242,6 +242,14 @@ export function ProfileView({
             line2: card.vouch_count ? `${card.vouch_count} ${card.vouch_count === 1 ? 'vouch' : 'vouches'}${card.top_vouch_word ? ` · ${card.top_vouch_word}` : ''}` : null,
             imageUrl: card.avatar_url,
             path: `/people/${card.id}`,
+            mood: card.mood ?? null,
+            accent,
+            stickers: [
+              ...(card.background_checked ? [{ label: 'Background checked', fill: t.colors.trust, ink: t.colors.onTrust }] : []),
+              ...(card.top_vouch_word ? [{ label: card.top_vouch_word, fill: t.colors.trust, ink: t.colors.onTrust }] : current ? [{ label: current.name, fill: t.colors.trust, ink: t.colors.onTrust }] : []),
+              ...(card.verified_host ? [{ label: 'Verified host', fill: t.colors.trust, ink: t.colors.onTrust }] : []),
+              ...(card.is_founding_member ? [{ label: 'Founding Member', fill: t.colors.secondary, ink: t.colors.onSecondary }] : []),
+            ],
           }}
         />
       ) : null}

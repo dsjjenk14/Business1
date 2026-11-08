@@ -6,6 +6,7 @@ import { ActivityRow, EventRow, GroupSuggestion } from '@/components/home/HomePa
 import { InviteVerifyCard } from '@/components/home/InviteVerifyCard';
 import { NewcomerEvents } from '@/components/home/NewcomerEvents';
 import { StartCard } from '@/components/home/StartCard';
+import { ExamplePins } from '@/components/home/ExamplePins';
 import { StoriesRow } from '@/components/home/StoriesRow';
 import { HomeProfileNudge } from '@/components/profile/ProfileExtras';
 import { WhatsInHero } from '@/components/home/WhatsInHero';
@@ -151,7 +152,8 @@ export default function Home() {
       <Section title="Your Insiders’ pins" action={{ label: 'Post', onPress: () => router.push('/pins/new') }}>
         {feed.pins.length === 0 ? (
           <Card>
-            <View style={{ gap: t.space[2] }}>
+            <View style={{ gap: t.space[3] }}>
+              {feed.friend_count === 0 ? <ExamplePins /> : null}
               <AppText variant="small" tone="muted">
                 {feed.friend_count === 0
                   ? 'Add Insiders to see their pins here. Scan each other’s code when you’re together, or send a code to someone you know.'
