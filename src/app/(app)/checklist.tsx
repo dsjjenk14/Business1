@@ -41,7 +41,7 @@ export default function ChecklistModal() {
             Your First Week
           </AppText>
           <AppText variant="small" tone="muted">
-            {doneCount} of {total} done. These get you from New Face to In the Mix fast.
+            {doneCount} of {total} done. These get you to your first 10 vouches fast.
           </AppText>
         </View>
         <View style={{ gap: t.space[2] }}>

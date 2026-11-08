@@ -7,6 +7,7 @@ import { InviteVerifyCard } from '@/components/home/InviteVerifyCard';
 import { NewcomerEvents } from '@/components/home/NewcomerEvents';
 import { StartCard } from '@/components/home/StartCard';
 import { ExamplePins } from '@/components/home/ExamplePins';
+import { FamousRow } from '@/components/home/FamousRow';
 import { StoriesRow } from '@/components/home/StoriesRow';
 import { HomeProfileNudge } from '@/components/profile/ProfileExtras';
 import { WhatsInHero } from '@/components/home/WhatsInHero';
@@ -139,6 +140,7 @@ export default function Home() {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={t.colors.primary} />}>
       <StoriesRow />
       <HomeProfileNudge />
+      <FamousRow />
       <LiveNowRow />
 
       <InviteVerifyCard />

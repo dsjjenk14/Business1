@@ -2,12 +2,15 @@ import { Tabs } from 'expo-router';
 
 import { AppHeader } from '@/components/nav/AppHeader';
 import { TabBar } from '@/components/nav/TabBar';
+import { MilestoneCelebration } from '@/components/milestones/MilestoneCelebration';
 import { useTheme } from '@/theme';
 
 /** The main tabs: Home, Pins, Outs, Tonight, Circles. (Messages is at the top.) */
 export default function TabsLayout() {
   const t = useTheme();
   return (
+    <>
+    <MilestoneCelebration />
     <Tabs
       tabBar={(props) => <TabBar {...props} />}
       screenOptions={{ header: () => <AppHeader />, sceneStyle: { backgroundColor: t.colors.bg } }}>
@@ -17,5 +20,6 @@ export default function TabsLayout() {
       <Tabs.Screen name="tonight" options={{ title: 'Tonight' }} />
       <Tabs.Screen name="circles" options={{ title: 'Insiders' }} />
     </Tabs>
+    </>
   );
 }

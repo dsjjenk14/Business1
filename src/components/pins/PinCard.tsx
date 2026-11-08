@@ -7,6 +7,7 @@ import { AppText, Avatar, Badge, Button, Card, Glyph, OptionsSheet, useToast, ty
 import { track } from '@/features/analytics/track';
 import { enableArrivalWatch } from '@/features/arrival/geofence';
 import { CATEGORY_GLYPH, CATEGORY_LABEL, deletePin, REACTIONS, reactToPin, setBookmarked, setLiked, sharePin, type FeedPin, type Reaction } from '@/features/pins/api';
+import { FAMOUS_AT } from '@/features/milestones/api';
 import { rsvp } from '@/features/tonight/api';
 import { blockUser, setMuted } from '@/features/safety/api';
 import { useAuth } from '@/lib/auth';
@@ -175,6 +176,7 @@ export function PinCard({ pin, locationMode = 'none', onChange, linkToThread = t
                 <AppText weight="bold" numberOfLines={1} style={{ flexShrink: 1 }}>
                   {pin.is_mine ? 'You' : pin.author_name}
                 </AppText>
+                {(pin.author_vouches ?? 0) >= FAMOUS_AT ? <Glyph name="star" size={15} color={t.colors.secondary} strokeWidth={2.6} label="Famous on I’m In" /> : null}
                 {pin.author_verified ? <Ionicons name="checkmark-circle" size={15} color={t.colors.trust} accessibilityLabel="Verified" /> : null}
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>

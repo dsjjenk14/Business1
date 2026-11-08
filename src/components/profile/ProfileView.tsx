@@ -6,12 +6,13 @@ import { Pressable, Share, View } from 'react-native';
 
 import { PinCard } from '@/components/pins/PinCard';
 import { PhotoGrid } from '@/components/profile/PhotoGrid';
-import { AppText, Avatar, Badge, Button, Card, GlyphTile, isGlyphName, Section, HoloSticker } from '@/components/ui';
-import { tierProgress, useAppConfig } from '@/config/useAppConfig';
+import { AppText, Avatar, Badge, Button, Card, GlyphTile, Section, HoloSticker, Glyph } from '@/components/ui';
 import { STATUS_COLORS, STATUS_LABELS, usePersonInfo } from '@/features/people/status';
 import type { FeedPin } from '@/features/pins/api';
 import { MusicChip } from '@/components/music/MusicChip';
+import { MilestoneSticker } from '@/components/milestones/MilestoneSticker';
 import { HeaderSheet, MoodSheet, StrengthBar } from '@/components/profile/ProfileExtras';
+import { FAMOUS_AT, milestoneFor } from '@/features/milestones/api';
 import { PromptCards } from '@/components/profile/PromptsEditor';
 import { profileAccent } from '@/features/profiles/customize';
 import { StoryShareButton } from '@/components/share/StoryShareButton';
@@ -42,8 +43,6 @@ export function ProfileView({
 }) {
   const t = useTheme();
   const router = useRouter();
-  const { tiers } = useAppConfig();
-  const { current } = tierProgress(card.vouch_count ?? 0, tiers);
   const place = card.neighborhood || card.city_name;
   // Skip the area when the headline already says it (e.g. "Howard Alum · Fairfax, VA").
   const placeInHeadline = !!place && !!card.headline && card.headline.toLowerCase().includes(place.toLowerCase());
@@ -147,6 +146,7 @@ export function ProfileView({
           <AppText variant="h1" accessibilityRole="header" style={{ fontFamily: t.fonts.displayBold }}>
             {card.display_name}
           </AppText>
+          {(card.vouch_count ?? 0) >= FAMOUS_AT ? <Glyph name="star" size={22} color={t.colors.secondary} strokeWidth={2.4} label="Famous on I’m In" /> : null}
           {verified ? <Ionicons name="checkmark-circle" size={20} color={t.colors.trust} accessibilityLabel={card.id_verified ? 'Identity confirmed' : 'Photo verified'} /> : null}
           {card.verified_host ? (
             <AppText variant="small" weight="bold" tone="trust">
@@ -191,11 +191,8 @@ export function ProfileView({
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
           {card.background_checked ? <HoloSticker label="Background checked" glyph="shield" /> : null}
           {card.id_verified ? <HoloSticker label="Identity confirmed" glyph="person" /> : null}
-          {card.top_vouch_word ? (
-            <Badge label={card.top_vouch_word} glyph="medal" tone="trust" />
-          ) : current ? (
-            <Badge label={current.name} glyph={isGlyphName(current.emoji) ? current.emoji : 'medal'} tone="trust" />
-          ) : null}
+          <MilestoneSticker count={card.vouch_count} />
+          {card.top_vouch_word ? <Badge label={card.top_vouch_word} glyph="medal" tone="trust" /> : null}
           {card.is_founding_member ? (
             <Badge label="Founding Member" glyph="star" tone="sponsored" />
           ) : card.is_premium ? (
@@ -247,7 +244,8 @@ export function ProfileView({
             accent,
             stickers: [
               ...(card.background_checked ? [{ label: 'Background checked', fill: t.colors.trust, ink: t.colors.onTrust }] : []),
-              ...(card.top_vouch_word ? [{ label: card.top_vouch_word, fill: t.colors.trust, ink: t.colors.onTrust }] : current ? [{ label: current.name, fill: t.colors.trust, ink: t.colors.onTrust }] : []),
+              ...(milestoneFor(card.vouch_count) ? [{ label: `${milestoneFor(card.vouch_count)} vouches`, fill: t.colors.trust, ink: t.colors.onTrust }] : []),
+              ...(card.top_vouch_word ? [{ label: card.top_vouch_word, fill: t.colors.trust, ink: t.colors.onTrust }] : []),
               ...(card.verified_host ? [{ label: 'Verified host', fill: t.colors.trust, ink: t.colors.onTrust }] : []),
               ...(card.is_founding_member ? [{ label: 'Founding Member', fill: t.colors.secondary, ink: t.colors.onSecondary }] : []),
             ],

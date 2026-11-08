@@ -75,7 +75,7 @@ select throws_ok($$ select join_going_out((pg_temp.person('tonight', 'Ana S.')->
 select set_config('role', 'postgres', true);
 select throws_ok($$ insert into groups (name, category, owner_id, emoji) values ('Emoji Club', 'social', pg_temp.uid('ana'), '🍷') $$, '23514', null,
   'Groups only take symbol names, not emoji');
-select is((select string_agg(emoji, ',' order by min_vouches) from vouch_tiers), 'seed,loop,link,bolt,crown', 'Tiers use symbols');
+select is((select string_agg(emoji, ',' order by min_vouches) from vouch_tiers), 'medal,medal,medal,crown,crown,crown,star', 'Vouch milestones use symbols');
 
 select * from finish();
 rollback;
