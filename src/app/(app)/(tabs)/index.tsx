@@ -8,7 +8,7 @@ import { NewcomerEvents } from '@/components/home/NewcomerEvents';
 import { StartCard } from '@/components/home/StartCard';
 import { ExamplePins } from '@/components/home/ExamplePins';
 import { FamousRow } from '@/components/home/FamousRow';
-import { InCrowdRow } from '@/components/home/InCrowdRow';
+import { NotableRow } from '@/components/home/NotableRow';
 import { StoriesRow } from '@/components/home/StoriesRow';
 import { HomeProfileNudge } from '@/components/profile/ProfileExtras';
 import { WhatsInHero } from '@/components/home/WhatsInHero';
@@ -141,7 +141,7 @@ export default function Home() {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={t.colors.primary} />}>
       <StoriesRow />
       <HomeProfileNudge />
-      <InCrowdRow />
+      <NotableRow />
       <FamousRow />
       <LiveNowRow />
 

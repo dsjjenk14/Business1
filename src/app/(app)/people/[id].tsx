@@ -109,7 +109,7 @@ export default function PersonProfile() {
               }
             }}
           />
-        ) : card.degree === 2 && !card.in_crowd ? (
+        ) : card.degree === 2 && !card.notable ? (
           <Button
             label="Request Intro"
             variant="secondary"
@@ -119,9 +119,9 @@ export default function PersonProfile() {
           />
         ) : null}
       </View>
-      {card.in_crowd && !card.can_message ? (
+      {card.notable && !card.can_message ? (
         <AppText variant="caption" tone="subtle" align="center">
-          Messages are limited: {first} is in the In Crowd and chooses who can message them. Intro requests are off.
+          Messages are limited: {first} is Notable and chooses who can message them. Intro requests are off.
         </AppText>
       ) : card.degree === 1 && !card.can_message ? (
         <AppText variant="caption" tone="subtle" align="center">
@@ -130,7 +130,7 @@ export default function PersonProfile() {
         </AppText>
       ) : null}
       <IcebreakersCard userId={card.id} firstName={first} connected={card.degree === 1} />
-      {card.degree === 2 && !card.in_crowd ? (
+      {card.degree === 2 && !card.notable ? (
         <AppText variant="caption" tone="subtle" align="center">
           {first} is one intro away. Ask {card.via[0]?.display_name ?? 'an Insider you share'} to introduce you, and you can message right away.
         </AppText>

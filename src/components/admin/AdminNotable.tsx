@@ -8,26 +8,26 @@ import { timeAgo } from '@/lib/time';
 import { useTheme } from '@/theme';
 import type { Database } from '@/types/database';
 
-type Req = Database['public']['Functions']['admin_in_crowd_requests']['Returns'][number];
+type Req = Database['public']['Functions']['admin_notable_requests']['Returns'][number];
 
-/** In Crowd requests: check the code is in their official account's bio, then approve. */
-export function AdminInCrowd() {
+/** Notable requests: check the code is in their official account's bio, then approve. */
+export function AdminNotable() {
   const t = useTheme();
   const toast = useToast();
   const [rows, setRows] = useState<Req[]>([]);
   const [busy, setBusy] = useState(false);
   const load = useCallback(() => {
-    supabase.rpc('admin_in_crowd_requests').then(({ data }) => setRows((data as Req[] | null) ?? []));
+    supabase.rpc('admin_notable_requests').then(({ data }) => setRows((data as Req[] | null) ?? []));
   }, []);
   useFocusEffect(load);
 
   async function decide(r: Req, approve: boolean) {
     setBusy(true);
-    const { error } = await supabase.rpc('admin_decide_in_crowd', { p_request: r.id, p_approve: approve });
+    const { error } = await supabase.rpc('admin_decide_notable', { p_request: r.id, p_approve: approve });
     setBusy(false);
     if (error) toast(friendlyError(error));
     else {
-      toast(approve ? `${r.name} is in the In Crowd` : 'Declined');
+      toast(approve ? `${r.name} is Notable now` : 'Declined');
       load();
     }
   }
@@ -36,7 +36,7 @@ export function AdminInCrowd() {
   return (
     <View style={{ gap: t.space[2] }}>
       <AppText variant="label" tone="subtle">
-        In Crowd requests ({rows.length})
+        Notable requests ({rows.length})
       </AppText>
       {rows.map((r) => (
         <Card key={r.id} accent="primary">

@@ -30,7 +30,7 @@ export const TERMS: LegalDoc = {
     },
     {
       heading: 'What vouches, badges and verification mean',
-      body: 'Vouches are other members’ personal opinions, not our endorsement. Vouch levels, Verified host, Photo verified, Identity confirmed, Background checked, In Crowd and other badges each confirm only one limited thing, at one point in time. In Crowd means we checked that a public figure controls the official account they named; it isn’t an endorsement, and we don’t pay them or speak for them. They are not a promise that anyone is safe, honest, or who they say they are, and we don’t guarantee they’re accurate or current. Never rely on a badge or a vouch count alone.',
+      body: 'Vouches are other members’ personal opinions, not our endorsement. Vouch levels, Verified host, Photo verified, Identity confirmed, Background checked, Notable and other badges each confirm only one limited thing, at one point in time. Notable means we checked that a public figure controls the official account they named; it isn’t an endorsement, and we don’t pay them or speak for them. They are not a promise that anyone is safe, honest, or who they say they are, and we don’t guarantee they’re accurate or current. Never rely on a badge or a vouch count alone.',
     },
     {
       heading: 'Background checks',

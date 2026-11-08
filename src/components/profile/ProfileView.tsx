@@ -189,7 +189,7 @@ export function ProfileView({
         ) : null}
         {/* One or two badges at most: what people vouch them for (or their level), and membership. */}
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2] }}>
-          {card.in_crowd ? <SpecialSticker label="In Crowd" glyph="star" /> : null}
+          {card.notable ? <SpecialSticker label="Notable" /> : null}
           {card.is_official ? <SpecialSticker label="Official" glyph="check" /> : null}
           {card.background_checked ? <SpecialSticker label="Background checked" glyph="shield" /> : null}
           {card.id_verified ? <SpecialSticker label="Identity confirmed" glyph="person" /> : null}

@@ -1,4 +1,4 @@
--- The In Crowd: request, approval, safest defaults, and the protections.
+-- Notable: request, approval, safest defaults, and the protections.
 begin;
 create extension if not exists pgtap with schema extensions;
 select plan(16);
@@ -31,25 +31,25 @@ select least(a.id, b.id), greatest(a.id, b.id), 'intro', now() from t a, t b whe
 insert into pins (author_id, category, body) values (pg_temp.uid('star'), 'thought', 'New single Friday');
 
 select pg_temp.act_as('star');
-select throws_ok($$ select public.request_in_crowd('https://instagram.com/jordanvale') $$, '23514', 'Do the selfie check first.', 'the selfie check comes first');
+select throws_ok($$ select public.request_notable('https://instagram.com/jordanvale') $$, '23514', 'Do the selfie check first.', 'the selfie check comes first');
 set local role postgres;
 update profiles set photo_verified_at = now() where id = pg_temp.uid('star');
 select pg_temp.act_as('star');
-select lives_ok($$ select public.request_in_crowd('https://instagram.com/jordanvale', 'Sam, manager') $$, 'a member can ask to join');
-select ok((public.my_in_crowd()->>'code') ~ '^IMIN-[0-9A-F]{4}$', 'they get a code for their bio');
+select lives_ok($$ select public.request_notable('https://instagram.com/jordanvale', 'Sam, manager') $$, 'a member can ask to join');
+select ok((public.my_notable()->>'code') ~ '^IMIN-[0-9A-F]{4}$', 'they get a code for their bio');
 select ok(private.can_message(pg_temp.uid('fan'), pg_temp.uid('star')), 'before approval, Insiders can message as usual');
 
 select pg_temp.act_as('fan');
-select throws_ok($$ select * from public.admin_in_crowd_requests() $$, '42501', null, 'only admins see requests');
+select throws_ok($$ select * from public.admin_notable_requests() $$, '42501', null, 'only admins see requests');
 
 select pg_temp.act_as('adm');
-select is((select code from public.admin_in_crowd_requests() limit 1), (select 'IMIN-' || upper(substr(md5(pg_temp.uid('star')::text || 'in-crowd'), 1, 4))), 'admins see the code to look for');
-select public.admin_decide_in_crowd((select id from public.admin_in_crowd_requests() limit 1), true);
+select is((select code from public.admin_notable_requests() limit 1), (select 'IMIN-' || upper(substr(md5(pg_temp.uid('star')::text || 'notable'), 1, 4))), 'admins see the code to look for');
+select public.admin_decide_notable((select id from public.admin_notable_requests() limit 1), true);
 
 select pg_temp.act_as('star');
-select is(public.my_in_crowd()->>'location', 'after', 'location starts at "after I leave"');
-select is((public.my_in_crowd()->>'intro_requests')::boolean, false, 'intro requests start off');
-select lives_ok($$ select public.set_in_crowd_pick(pg_temp.uid('pal'), true) $$, 'they can pick an Insider');
+select is(public.my_notable()->>'location', 'after', 'location starts at "after I leave"');
+select is((public.my_notable()->>'intro_requests')::boolean, false, 'intro requests start off');
+select lives_ok($$ select public.set_notable_pick(pg_temp.uid('pal'), true) $$, 'they can pick an Insider');
 
 set local role postgres;
 select ok(not private.can_message(pg_temp.uid('fan'), pg_temp.uid('star')), 'an Insider they didn''t pick can''t message');
@@ -60,8 +60,8 @@ select ok(private.can_see_out(pg_temp.uid('star'), pg_temp.uid('pal')), 'but not
 select pg_temp.act_as('fan');
 select throws_ok($$ insert into pin_replies (pin_id, author_id, body) values ((select id from pins where body = 'New single Friday'), auth.uid(), 'Love it') $$,
                  '42501', null, 'replies are limited to people they picked');
-select ok(exists (select 1 from public.in_crowd_members() where id = pg_temp.uid('star')), 'they show in the In Crowd row');
-select is((public.profile_card(pg_temp.uid('star'))->>'in_crowd')::boolean, true, 'the profile shows the badge');
+select ok(exists (select 1 from public.notable_members() where id = pg_temp.uid('star')), 'they show in the Notable row');
+select is((public.profile_card(pg_temp.uid('star'))->>'notable')::boolean, true, 'the profile shows the badge');
 
 select * from finish();
 rollback;

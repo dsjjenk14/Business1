@@ -27,9 +27,9 @@ export type ProfileCard = {
   header_url?: string | null;
   /** The official I'm In account. */
   is_official?: boolean;
-  /** In the In Crowd (a verified public figure). */
-  in_crowd?: boolean;
-  /** In Crowd members who show where they were only after leaving: the last place, in the last 3 days. */
+  /** Notable: a verified public figure. */
+  notable?: boolean;
+  /** Notable members who show where they were only after leaving: the last place, in the last 3 days. */
   last_place?: { place: string; at: string } | null;
   profile_color?: string | null;
   /** Passed a background check in the last year: shows the Background checked tag. */

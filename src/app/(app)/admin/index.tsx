@@ -7,7 +7,7 @@ import { Linking, View } from 'react-native';
 import { AdminClaims, AdminVerifiedHosts } from '@/components/admin/AdminClaims';
 import { AdminAppeals, DecisionGuide } from '@/components/admin/Moderation';
 import { AdminTakedowns } from '@/components/admin/AdminTakedowns';
-import { AdminInCrowd } from '@/components/admin/AdminInCrowd';
+import { AdminNotable } from '@/components/admin/AdminNotable';
 import { ReportEvidence } from '@/components/admin/ReportEvidence';
 import { ReporterAnswers, SendToPolice } from '@/components/admin/ReportFollowup';
 import { BackHeader } from '@/components/nav/AppHeader';
@@ -343,7 +343,7 @@ function Verify({ onChange }: { onChange: () => void }) {
 
   return (
     <View style={{ gap: t.space[3] }}>
-      <AdminInCrowd />
+      <AdminNotable />
       {rows === null ? <LoadingList rows={2} /> : rows.length === 0 ? <AppText tone="muted">No photo checks waiting.</AppText> : null}
       {(rows ?? []).map((r) => (
         <Card key={r.id}>

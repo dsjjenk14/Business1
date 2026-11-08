@@ -5,17 +5,17 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Switch, View } f
 import { BackHeader } from '@/components/nav/AppHeader';
 import { AppText, Avatar, Button, Card, Chip, LoadingList, Screen, Segmented, Sheet, SpecialSticker, TextField, useToast } from '@/components/ui';
 import { fetchCircle, type CircleOverview } from '@/features/circles/api';
-import { fetchMyInCrowd, requestInCrowd, saveInCrowdSettings, setInCrowdPick, type MyInCrowd } from '@/features/inCrowd/api';
+import { fetchMyNotable, requestNotable, saveNotableSettings, setNotablePick, type MyNotable } from '@/features/notable/api';
 import { friendlyError } from '@/lib/supabase';
 import { useTheme } from '@/theme';
 
-/** The In Crowd: ask to join (verified public figures), or, once in, the extra privacy settings. */
-export default function InCrowd() {
+/** Notable: ask for the badge (verified public figures), or, once in, the extra privacy settings. */
+export default function Notable() {
   const t = useTheme();
   const toast = useToast();
-  const [me, setMe] = useState<MyInCrowd | null>(null);
+  const [me, setMe] = useState<MyNotable | null>(null);
   const load = useCallback(() => {
-    fetchMyInCrowd()
+    fetchMyNotable()
       .then(setMe)
       .catch((e) => toast(friendlyError(e)));
   }, [toast]);
@@ -23,14 +23,14 @@ export default function InCrowd() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: t.colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <BackHeader title={me?.in_crowd ? 'In Crowd settings' : 'The In Crowd'} />
-      <Screen>{!me ? <LoadingList rows={3} /> : me.in_crowd ? <Settings me={me} reload={load} /> : <Ask me={me} reload={load} />}</Screen>
+      <BackHeader title={me?.notable ? 'Notable settings' : 'Notable'} />
+      <Screen>{!me ? <LoadingList rows={3} /> : me.notable ? <Settings me={me} reload={load} /> : <Ask me={me} reload={load} />}</Screen>
     </KeyboardAvoidingView>
   );
 }
 
 /** Ask to join: selfie check, a code in an official account's bio, and an optional manager. */
-function Ask({ me, reload }: { me: MyInCrowd; reload: () => void }) {
+function Ask({ me, reload }: { me: MyNotable; reload: () => void }) {
   const t = useTheme();
   const router = useRouter();
   const toast = useToast();
@@ -42,7 +42,7 @@ function Ask({ me, reload }: { me: MyInCrowd; reload: () => void }) {
   async function send() {
     setBusy(true);
     try {
-      await requestInCrowd(url, manager);
+      await requestNotable(url, manager);
       toast('Sent. We’ll let you know.');
       reload();
     } catch (e) {
@@ -55,12 +55,12 @@ function Ask({ me, reload }: { me: MyInCrowd; reload: () => void }) {
   return (
     <>
       <View style={{ alignItems: 'center', gap: t.space[2] }}>
-        <SpecialSticker label="In Crowd" glyph="star" />
+        <SpecialSticker label="Notable" />
         <AppText variant="h2" align="center" accessibilityRole="header">
           Are you a public figure?
         </AppText>
         <AppText tone="muted" align="center">
-          Musicians, athletes, creators, chefs, local personalities. We check it’s really you, then add the In Crowd badge and turn on extra privacy.
+          Musicians, athletes, creators, chefs, local personalities. We check it’s really you, then add the Notable badge and turn on extra privacy.
         </AppText>
       </View>
       {open ? (
@@ -112,18 +112,18 @@ function Ask({ me, reload }: { me: MyInCrowd; reload: () => void }) {
 }
 
 /** Their safety settings. They start at the safest choice when the badge is approved. */
-function Settings({ me, reload }: { me: MyInCrowd; reload: () => void }) {
+function Settings({ me, reload }: { me: MyNotable; reload: () => void }) {
   const t = useTheme();
   const toast = useToast();
   const [s, setS] = useState(me);
   const [picking, setPicking] = useState(false);
   const [insiders, setInsiders] = useState<CircleOverview['first'] | null>(null);
 
-  async function save(patch: Partial<MyInCrowd>) {
+  async function save(patch: Partial<MyNotable>) {
     const next = { ...s, ...patch };
     setS(next);
     try {
-      await saveInCrowdSettings(next);
+      await saveNotableSettings(next);
     } catch (e) {
       setS(s);
       toast(friendlyError(e));
@@ -132,7 +132,7 @@ function Settings({ me, reload }: { me: MyInCrowd; reload: () => void }) {
 
   async function pick(id: string, on: boolean) {
     try {
-      await setInCrowdPick(id, on);
+      await setNotablePick(id, on);
       reload();
     } catch (e) {
       toast(friendlyError(e));
@@ -163,7 +163,7 @@ function Settings({ me, reload }: { me: MyInCrowd; reload: () => void }) {
   return (
     <>
       <Card accent="primary">
-        <AppText variant="small">Because you’re in the In Crowd, these start at the safest setting. You can change them any time.</AppText>
+        <AppText variant="small">Because you’re Notable, these start at the safest setting. You can change them any time.</AppText>
       </Card>
 
       <View style={{ gap: t.space[2] }}>
@@ -213,7 +213,7 @@ function Settings({ me, reload }: { me: MyInCrowd; reload: () => void }) {
 
       {toggle('Intro requests', s.intro_requests ? 'On: people can ask a friend to introduce them.' : 'Off: nobody can ask a friend to introduce them.', s.intro_requests, (intro_requests) => save({ intro_requests }))}
       {toggle('Arrival alerts', s.arrivals ? 'On: people who can see your plans see when you arrive.' : 'Off: your arrival is never announced.', s.arrivals, (arrivals) => save({ arrivals }))}
-      {toggle('Show my vouch count', 'You’re listed in The In Crowd, not in “Most vouched”.', s.show_vouch_count, (show_vouch_count) => save({ show_vouch_count }))}
+      {toggle('Show my vouch count', 'You’re listed under Notable, not in “Most vouched”.', s.show_vouch_count, (show_vouch_count) => save({ show_vouch_count }))}
 
       <View style={{ gap: t.space[2] }}>
         <AppText weight="bold">People I pick</AppText>

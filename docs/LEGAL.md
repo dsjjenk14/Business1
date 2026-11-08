@@ -87,9 +87,9 @@ enforces it. What the app does:
   Declining needs a written reason.
 - **The Terms explain the process** ("Removing intimate images (48 hours)").
 
-## The In Crowd (public figures)
+## Notable (public figures)
 
-- Public figures ask from Settings → The In Crowd. They pass the selfie check, put a code
+- Public figures ask from Settings → Notable. They pass the selfie check, put a code
   (IMIN-xxxx) in the bio of an official account, and you approve in Admin → Verify after checking
   the code is there and the account is clearly theirs.
 - Their protections start at the safest setting: where they are shows only after they leave,

@@ -27,7 +27,7 @@ export default function Settings() {
         { label: 'Edit profile', icon: 'person-outline', href: '/settings/profile' },
         { label: 'Premium', icon: 'star-outline', href: '/premium', detail: 'Get Premium, or manage it' },
         { label: 'Vouches you gave', icon: 'ribbon-outline', href: '/settings/vouches', detail: 'Take back a vouch' },
-        { label: 'The In Crowd', icon: 'star-outline', href: '/settings/in-crowd', detail: 'For public figures' },
+        { label: 'Notable', icon: 'person-circle-outline', href: '/settings/notable', detail: 'For public figures' },
         { label: 'My tickets', icon: 'ticket-outline', href: '/settings/tickets' },
         { label: 'Payouts', icon: 'cash-outline', href: '/settings/payouts', detail: 'Sell tickets to your events' },
         ...(drinksOn
