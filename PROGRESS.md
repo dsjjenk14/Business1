@@ -5,6 +5,12 @@
 
 ---
 
+## ✅ Real phone verification with Twilio Verify
+- Phone codes now go through **Twilio Verify**: Twilio makes the code, texts it and checks it. No phone number to buy and no carrier paperwork.
+- **Set up:** three Twilio values in Supabase's Edge Function secrets. Steps are in `docs/DEPLOY.md`.
+- The hourly limit on codes and the "too many wrong tries" limit stay in place, and members get clear messages for a bad number or too many tries.
+- **Tested:** against a stand-in for Twilio (sending, right code, wrong code, expired code, bad number, too many tries). The real texts can only be tried once the Twilio account exists.
+
 ## ✅ Vouch from your contacts
 - If someone's number is saved in your phone, you can vouch for them without checking in together. On their profile, tap Vouch, pick a word, then **Pick from my contacts**.
 - Only the one contact you pick is checked, against the number they verified. Your contacts are never uploaded or saved.

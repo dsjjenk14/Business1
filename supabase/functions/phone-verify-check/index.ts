@@ -1,5 +1,6 @@
 /** Checks a 6-digit code and marks the member's phone as verified. */
 import { adminRest, corsHeaders, getCaller, json, sha256 } from '../_shared/http.ts';
+import { checkVerification, VerifyUserError } from '../_shared/sms.ts';
 
 const MAX_ATTEMPTS = 5;
 
@@ -27,7 +28,20 @@ Deno.serve(async (req) => {
   if (!pending || new Date(pending.expires_at) < new Date()) return json({ error: 'That code expired. Send a new one.' }, 400);
   if (pending.attempts >= MAX_ATTEMPTS) return json({ error: 'Too many wrong tries. Send a new code.' }, 429);
 
-  if ((await sha256(`${user.id}:${code}`)) !== pending.code_hash) {
+  // Codes from Twilio Verify are checked by Twilio; others against our hash.
+  let correct: boolean;
+  if (pending.code_hash === 'twilio-verify') {
+    try {
+      correct = await checkVerification(pending.phone, code);
+    } catch (e) {
+      if (e instanceof VerifyUserError) return json({ error: e.message }, 429);
+      return json({ error: "We couldn't check the code right now. Try again shortly." }, 502);
+    }
+  } else {
+    correct = (await sha256(`${user.id}:${code}`)) === pending.code_hash;
+  }
+
+  if (!correct) {
     await adminRest(`phone_verifications?id=eq.${pending.id}`, { method: 'PATCH', body: { attempts: pending.attempts + 1 }, prefer: 'return=minimal' });
     return json({ error: "That code doesn't match. Check the text and try again." }, 400);
   }
