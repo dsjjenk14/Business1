@@ -1,5 +1,5 @@
 -- Vouch milestones: crossing 10/30/75/100/300/500/1000 notifies you once, Insiders from 100,
--- the app knows which celebration is pending, and 1000+ shows in Famous on I'm In.
+-- the app knows which celebration is pending, and 1000+ shows in Most vouched.
 begin;
 create extension if not exists pgtap with schema extensions;
 select plan(11);
@@ -44,10 +44,10 @@ select is(public.my_pending_milestone(), 0, 'celebrated once, not again');
 set local role postgres;
 update profiles set vouch_count = 1000 where id = pg_temp.uid('ana');
 select is((select count(*)::int from notifications where user_id = pg_temp.uid('ben') and kind = 'milestone_friend'), 1, 'from 100 on, Insiders hear about it');
-select is((select title from notifications where user_id = pg_temp.uid('ana') and kind = 'milestone' order by id desc limit 1), 'You''re famous on I''m In', '1000 is the famous moment');
+select is((select title from notifications where user_id = pg_temp.uid('ana') and kind = 'milestone' order by id desc limit 1), 'You hit 1,000 vouches', '1000 is the biggest moment');
 
 select pg_temp.act_as('ben');
-select ok(exists (select 1 from public.famous_members() where id = pg_temp.uid('ana')), '1000+ shows in Famous on I''m In');
+select ok(exists (select 1 from public.famous_members() where id = pg_temp.uid('ana')), '1000+ shows in Most vouched');
 
 select * from finish();
 rollback;

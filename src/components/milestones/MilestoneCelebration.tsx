@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Modal, View } from 'react-native';
 import { useReducedMotion } from 'react-native-reanimated';
 
@@ -19,7 +19,7 @@ const LINES: Record<number, string> = {
   100: 'One hundred vouches. Your Insiders just heard about it.',
   300: 'Three hundred people vouch for you. That’s rare.',
   500: 'Five hundred vouches. Almost nobody gets here.',
-  1000: 'One thousand people vouched for you. You’re famous on I’m In: a star by your name, and a spot on everyone’s Home.',
+  1000: 'One thousand people met you and vouched for you. Almost nobody gets here. Your star is by your name now, and you’re in Most vouched on everyone’s Home.',
 };
 
 /**
@@ -28,7 +28,6 @@ const LINES: Record<number, string> = {
  * hold. 1000 is the biggest.
  */
 export function MilestoneCelebration() {
-  const t = useTheme();
   const router = useRouter();
   const reduce = useReducedMotion();
   const [m, setM] = useState(0);
@@ -51,18 +50,41 @@ export function MilestoneCelebration() {
   );
 
   if (!m) return null;
+  return <Moment m={m} reduce={reduce} onDone={async (goTo) => {
+    const shown = m;
+    setM(0);
+    await celebrateMilestone(shown).catch(() => undefined);
+    if (goTo) router.push(goTo);
+  }} />;
+}
+
+/** From 100 vouches up, the number counts up on screen before it lands. */
+function useCountUp(target: number, on: boolean) {
+  const [n, setN] = useState(on ? 0 : target);
+  useEffect(() => {
+    if (!on) return;
+    const start = Date.now();
+    const ms = target >= 1000 ? 1800 : 1100;
+    const id = setInterval(() => {
+      const p = Math.min(1, (Date.now() - start) / ms);
+      setN(Math.round(target * (1 - Math.pow(1 - p, 3))));
+      if (p >= 1) clearInterval(id);
+    }, 30);
+    return () => clearInterval(id);
+  }, [target, on]);
+  return n;
+}
+
+function Moment({ m, reduce, onDone }: { m: number; reduce: boolean; onDone: (goTo?: '/profile') => void }) {
+  const t = useTheme();
   const level = MILESTONES.indexOf(m as (typeof MILESTONES)[number]); // 0..6
   const famous = m >= FAMOUS_AT;
   const confetti = reduce ? 0 : [0, 30, 50, 80, 110, 150, 220][level] ?? 0;
   const stickerSize = 120 + level * 16;
   const colors = [t.colors.primary, t.colors.secondary, t.colors.trust, t.colors.ai, '#F5F5F5'];
 
-  async function done(goTo?: '/profile') {
-    const shown = m;
-    setM(0);
-    await celebrateMilestone(shown).catch(() => undefined);
-    if (goTo) router.push(goTo);
-  }
+  const shown = useCountUp(m, m >= 100 && !reduce);
+  const done = onDone;
 
   return (
     <Modal visible transparent animationType="fade" onRequestClose={() => done()}>
@@ -72,7 +94,7 @@ export function MilestoneCelebration() {
           <MilestoneSticker count={m} />
         </View>
         <AppText variant="hero" align="center" accessibilityRole="header" style={{ color: '#F5F5F5', fontSize: famous ? 44 : 34 + level * 2, lineHeight: famous ? 48 : 40 + level * 2 }}>
-          {famous ? 'You’re famous' : `${m} vouches`}
+          {shown.toLocaleString()} vouches
         </AppText>
         <AppText align="center" style={{ color: 'rgba(245,245,245,0.8)', maxWidth: 340 }}>
           {LINES[m]}

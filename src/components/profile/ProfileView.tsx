@@ -146,7 +146,7 @@ export function ProfileView({
           <AppText variant="h1" accessibilityRole="header" style={{ fontFamily: t.fonts.displayBold }}>
             {card.display_name}
           </AppText>
-          {(card.vouch_count ?? 0) >= FAMOUS_AT ? <Glyph name="star" size={22} color={t.colors.secondary} strokeWidth={2.4} label="Famous on I’m In" /> : null}
+          {(card.vouch_count ?? 0) >= FAMOUS_AT ? <Glyph name="star" size={22} color={t.colors.secondary} strokeWidth={2.4} label="1,000+ vouches" /> : null}
           {verified ? <Ionicons name="checkmark-circle" size={20} color={t.colors.trust} accessibilityLabel={card.id_verified ? 'Identity confirmed' : 'Photo verified'} /> : null}
           {card.verified_host ? (
             <AppText variant="small" weight="bold" tone="trust">

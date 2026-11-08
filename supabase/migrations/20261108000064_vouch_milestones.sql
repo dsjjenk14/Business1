@@ -1,6 +1,6 @@
 -- Vouch milestones: 10, 30, 75, 100, 300, 500, 1000. No names, just the number.
 -- Each one is a bigger moment in the app. From 100 on, your Insiders hear about it,
--- and 1000 vouches makes you famous on I'm In (a star by your name, a spot on Home).
+-- and 1000 vouches is the biggest moment: a star by your name and a spot in Most vouched on Home.
 
 -- The milestone ladder replaces the old named levels.
 delete from public.vouch_tiers;
@@ -33,7 +33,7 @@ declare
 begin
   if m = 0 or m <= private.milestone_for(old.vouch_count) then return new; end if;
   perform private.notify(new.id, 'milestone',
-    case when m >= 1000 then 'You''re famous on I''m In' else format('You hit %s vouches', m) end,
+    case when m >= 1000 then 'You hit 1,000 vouches' else format('You hit %s vouches', m) end,
     case when m >= 1000 then '1,000 people vouched for you. Your star is on your profile now.' else format('%s people vouched for you. Open the app to see it.', m) end,
     null, '/profile');
   if m >= 100 then
@@ -43,7 +43,7 @@ begin
       where (c.user_a = new.id or c.user_b = new.id)
     loop
       if not private.is_blocked(friend, new.id) then
-        perform private.notify(friend, 'milestone_friend', format('%s hit %s vouches', first, m), 'Send them some love.', new.id, '/people/' || new.id::text);
+        perform private.notify(friend, 'milestone_friend', format('%s hit %s vouches', first, case when m >= 1000 then '1,000' else m::text end), 'Send them some love.', new.id, '/people/' || new.id::text);
       end if;
     end loop;
   end if;
@@ -68,7 +68,7 @@ language sql security definer set search_path = '' as $$
    where id = auth.uid()
 $$;
 
--- Famous on I'm In: members with 1000+ vouches, for the row on Home.
+-- Most vouched: members with 1000+ vouches, for the row on Home.
 create or replace function public.famous_members() returns table (id uuid, display_name text, avatar_url text, vouch_count int)
 language sql stable security definer set search_path = '' as $$
   select p.id, p.display_name, p.avatar_url, public.visible_vouch_count(p.id)

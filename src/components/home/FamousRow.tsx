@@ -6,7 +6,7 @@ import { AppText, Avatar, Glyph } from '@/components/ui';
 import { fetchFamous, type FamousMember } from '@/features/milestones/api';
 import { useTheme } from '@/theme';
 
-/** Famous on I'm In: members with 1,000+ vouches. Hidden until there's someone to show. */
+/** Most vouched: members with 1,000+ vouches. Hidden until there's someone to show. */
 export function FamousRow() {
   const t = useTheme();
   const router = useRouter();
@@ -30,7 +30,10 @@ export function FamousRow() {
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
         <Glyph name="star" size={18} color={t.colors.secondary} strokeWidth={2.4} />
         <AppText variant="h3" accessibilityRole="header">
-          Famous on I&apos;m In
+          Most vouched
+        </AppText>
+        <AppText variant="caption" tone="muted">
+          1,000+ vouches
         </AppText>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: t.space[3] }}>

@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 
-/** Vouch milestones. Each is a bigger moment than the last; 1000 makes you famous on I'm In. */
+/** Vouch milestones. Each is a bigger moment than the last; 1000 is the biggest. */
 export const MILESTONES = [10, 30, 75, 100, 300, 500, 1000] as const;
 export const FAMOUS_AT = 1000;
 
