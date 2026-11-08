@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Platform, View } from 'react-native';
 
 import { BackHeader } from '@/components/nav/AppHeader';
-import { AppText, Avatar, Button, Card, Chip, EmptyState, GlyphTitle, Screen, useToast } from '@/components/ui';
+import { AppText, Avatar, Button, Card, Chip, EmptyState, GlyphTitle, Screen, useCelebrate, useToast } from '@/components/ui';
 import { fetchVouchWords, vouchFromContacts } from '@/features/circles/api';
 import { findContactsOnApp, sendInsiderRequest, type ContactOnApp } from '@/features/connect/contactsOnApp';
 import { friendlyError } from '@/lib/supabase';
@@ -15,6 +15,7 @@ import { useTheme } from '@/theme';
 export default function ContactsOnApp() {
   const t = useTheme();
   const toast = useToast();
+  const [celebration, celebrate] = useCelebrate();
   const [people, setPeople] = useState<ContactOnApp[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [words, setWords] = useState<{ id: number; word: string }[]>([]);
@@ -52,7 +53,7 @@ export default function ContactsOnApp() {
     try {
       if (await vouchFromContacts(p.id, wordId, [p.phone])) {
         setVouched((s) => new Set(s).add(p.id));
-        toast(`You vouched for ${p.display_name}`);
+        celebrate('Vouched', `for ${p.display_name}`);
       } else toast('That number didn’t match. Try again from their profile.');
     } catch (e) {
       toast(friendlyError(e));
@@ -131,6 +132,7 @@ export default function ContactsOnApp() {
           ))
         )}
       </Screen>
+      {celebration}
     </View>
   );
 }

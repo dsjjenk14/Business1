@@ -20,3 +20,4 @@ export { Stars, StarsInput } from './Stars';
 export { Stamp, Ticket } from './Ticket';
 export { DateTile } from './DateTile';
 export { Sheet } from './Sheet';
+export { useCelebrate } from './Celebrate';

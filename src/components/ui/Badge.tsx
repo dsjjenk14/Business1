@@ -1,5 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, View } from 'react-native';
+import Animated, { Easing, Keyframe } from 'react-native-reanimated';
 
 import { useTheme, fontStyle } from '@/theme';
 
@@ -32,7 +33,7 @@ export function Badge({ label, tone = 'primary', glyph, verified }: BadgeProps) 
             : tone === 'ai'
               ? t.colors.onAi
               : t.colors.onSponsored;
-    return <StickerCircle label={label} fill={fill} ink={ink} glyph={glyph} />;
+    return <StickerCircle label={label} fill={fill} ink={ink} glyph={glyph} slap />;
   }
 
   if (t.style.badge === 'words') {
@@ -121,6 +122,7 @@ export function StickerCircle({
   ink,
   edge,
   glyph,
+  slap,
 }: {
   label: string;
   fill: string;
@@ -128,13 +130,15 @@ export function StickerCircle({
   /** Defaults to a white edge. */
   edge?: string;
   glyph?: GlyphName;
+  /** Lands like a sticker being slapped on when it first shows. */
+  slap?: boolean;
 }) {
   const t = useTheme();
   // Shrink the letters so the longest word always fits on one line inside the circle.
   const longest = Math.max(...label.split(/\s+/).map((w) => w.length));
   const size = Math.min(11, 50 / (longest * 0.6));
   const tilt = ((label.split('').reduce((n, c) => n + c.charCodeAt(0), 0) % 13) - 6) * 1.2;
-  return (
+  const circle = (
     <View
       style={{
         width: 66,
@@ -158,7 +162,16 @@ export function StickerCircle({
       </AppText>
     </View>
   );
+  return slap ? <Animated.View entering={SLAP}>{circle}</Animated.View> : circle;
 }
+
+/** Big and faded, then pressed flat: a sticker landing. Skipped when Reduce Motion is on. */
+const SLAP = new Keyframe({
+  0: { opacity: 0, transform: [{ scale: 1.7 }] },
+  55: { opacity: 1, transform: [{ scale: 0.9 }], easing: Easing.out(Easing.quad) },
+  80: { transform: [{ scale: 1.05 }] },
+  100: { opacity: 1, transform: [{ scale: 1 }] },
+}).duration(420);
 
 /** A round sticker you tap to pick or unpick (e.g. interests in Edit profile). */
 export function StickerToggle({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
