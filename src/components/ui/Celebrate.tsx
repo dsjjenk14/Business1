@@ -32,7 +32,7 @@ function Celebration({ shown, onDone }: { shown: { label: string; line: string }
   return (
     <Modal visible transparent animationType="fade" onRequestClose={onDone}>
       <Pressable accessibilityRole="button" accessibilityLabel={`${shown.label} ${shown.line}. Close`} onPress={onDone} style={{ flex: 1, backgroundColor: t.colors.overlay, alignItems: 'center', justifyContent: 'center', gap: t.space[4] }}>
-        <View style={{ transform: [{ scale: 2.2 }], marginBottom: t.space[8] }}>
+        <View style={{ transform: [{ scale: 3 }], marginVertical: t.space[9] }}>
           <StickerCircle label={shown.label} fill={t.colors.trust} ink={t.colors.onTrust} glyph="check" slap />
         </View>
         <AppText variant="h2" align="center" style={{ color: '#F5F5F5' }}>

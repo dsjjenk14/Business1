@@ -4,6 +4,7 @@ import { Modal, View } from 'react-native';
 import { useReducedMotion } from 'react-native-reanimated';
 
 import { AppText, Button } from '@/components/ui';
+import { STICKER_SIZE } from '@/components/ui/Badge';
 import { celebrateMilestone, fetchPendingMilestone, FAMOUS_AT, MILESTONES } from '@/features/milestones/api';
 import { haptic } from '@/lib/haptics';
 import { useTheme } from '@/theme';
@@ -67,7 +68,7 @@ export function MilestoneCelebration() {
     <Modal visible transparent animationType="fade" onRequestClose={() => done()}>
       <View style={{ flex: 1, backgroundColor: famous ? 'rgba(12,12,12,0.98)' : 'rgba(12,12,12,0.94)', alignItems: 'center', justifyContent: 'center', padding: t.space[6], gap: t.space[5] }}>
         {confetti ? <Confetti count={confetti} colors={colors} duration={2200 + level * 400} /> : null}
-        <View style={{ transform: [{ scale: stickerSize / 66 }], marginVertical: (stickerSize - 66) / 2 }}>
+        <View style={{ transform: [{ scale: stickerSize / STICKER_SIZE }], marginVertical: (stickerSize - STICKER_SIZE) / 2 }}>
           <MilestoneSticker count={m} />
         </View>
         <AppText variant="hero" align="center" accessibilityRole="header" style={{ color: '#F5F5F5', fontSize: famous ? 44 : 34 + level * 2, lineHeight: famous ? 48 : 40 + level * 2 }}>

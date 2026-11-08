@@ -134,37 +134,35 @@ export function StickerCircle({
   slap?: boolean;
 }) {
   const t = useTheme();
-  // Shrink the letters so the longest word always fits on one line inside the circle.
-  const longest = Math.max(...label.split(/\s+/).map((w) => w.length));
-  const size = Math.min(11, 50 / (longest * 0.6));
+  const { text, size, lines } = fitSticker(label, STICKER_SIZE);
   const tilt = ((label.split('').reduce((n, c) => n + c.charCodeAt(0), 0) % 13) - 6) * 1.2;
   const circle = (
     <View
       style={{
-        width: 66,
-        height: 66,
-        borderRadius: 33,
+        width: STICKER_SIZE,
+        height: STICKER_SIZE,
+        borderRadius: STICKER_SIZE / 2,
         backgroundColor: fill,
         borderWidth: 2.5,
         borderColor: edge ?? (t.mode === 'dark' ? '#F5F5F5' : '#FFFFFF'),
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 4,
-        gap: 1,
+        padding: 2,
+        gap: 0,
         transform: [{ rotate: `${tilt}deg` }],
       }}>
-      {glyph ? <Glyph name={glyph} size={12} color={ink} strokeWidth={2.4} /> : null}
+      {glyph && lines < 3 ? <Glyph name={glyph} size={10} color={ink} strokeWidth={2.4} /> : null}
       <AppText
         align="center"
         numberOfLines={3}
-        style={{ color: ink, ...fontStyle(t.fonts.displayBold), fontSize: size, lineHeight: Math.round(size * 1.15) }}>
-        {label}
+        style={{ color: ink, ...fontStyle(t.fonts.displayBold), fontSize: size, lineHeight: Math.round(size * 1.12) }}>
+        {text}
       </AppText>
     </View>
   );
   // A fixed-size box keeps the layout steady while the sticker animates in.
   return slap ? (
-    <View style={{ width: 66, height: 66 }}>
+    <View style={{ width: STICKER_SIZE, height: STICKER_SIZE }}>
       <Animated.View entering={SLAP}>{circle}</Animated.View>
     </View>
   ) : (
@@ -199,4 +197,41 @@ export function StickerToggle({ label, selected, onPress }: { label: string; sel
       />
     </Pressable>
   );
+}
+
+/** Every sticker badge's size, in points. */
+export const STICKER_SIZE = 46;
+
+// Clean places to break long words so they fit a small sticker without tiny letters.
+const BREAKS: Record<string, string> = {
+  background: 'Back-|ground',
+  photography: 'Photo-|graphy',
+  volunteering: 'Volun-|teering',
+  networking: 'Network-|ing',
+  basketball: 'Basket-|ball',
+  watching: 'Watch-|ing',
+  pickleball: 'Pickle-|ball',
+  festivals: 'Festi-|vals',
+};
+
+/**
+ * Fits a label inside a sticker: long words break in a sensible place, and the
+ * letters shrink only as much as the longest piece needs.
+ */
+export function fitSticker(label: string, diameter: number) {
+  const pieces = label.split(/\s+/).flatMap((w) => {
+    const known = BREAKS[w.toLowerCase()];
+    if (known) {
+      const [a, b] = known.split('|') as [string, string];
+      return [w[0] === w[0]!.toUpperCase() ? a : a.toLowerCase(), b];
+    }
+    if (w.length <= 9) return [w];
+    const cut = Math.ceil(w.length / 2);
+    return [`${w.slice(0, cut)}-`, w.slice(cut)];
+  });
+  const text = pieces.reduce((acc, p) => (acc ? (acc.endsWith('-') ? `${acc}\n${p}` : `${acc} ${p}`) : p), '');
+  const longest = Math.max(...pieces.map((p) => p.length));
+  const lines = text.split(/\n| /).length;
+  const inner = diameter * 0.8;
+  return { text, lines, size: Math.min(diameter * 0.2, inner / (longest * 0.6)) };
 }
